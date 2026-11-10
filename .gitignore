@@ -1,0 +1,26 @@
+# macOS
+.DS_Store
+
+# Xcode: per-user state and build output, which should not be shared
+xcuserdata/
+*.xcuserstate
+DerivedData/
+build/
+*.xcscmblueprint
+*.xccheckout
+
+# Swift Package Manager
+.build/
+.swiftpm/
+
+# Private files that must never be committed
+GoogleService-Info.plist
+client_*.plist
+*.p12
+*.mobileprovision
+
+# Downloaded AI models are large and are fetched on the device instead
+*.aimodel/
+*.aimodelc/
+*.gguf
+*.safetensors

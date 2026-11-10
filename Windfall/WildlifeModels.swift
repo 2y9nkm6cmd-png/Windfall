@@ -193,8 +193,8 @@ final class Survey {
     @Relationship(deleteRule: .cascade, inverse: \SurveyTally.survey)
     var tallies: [SurveyTally]? = []
 
-    @Relationship(deleteRule: .nullify, inverse: \Observation.survey)
-    var observations: [Observation]? = []
+    @Relationship(deleteRule: .nullify, inverse: \WildlifeObservation.survey)
+    var observations: [WildlifeObservation]? = []
 
     init(scheme: RecordingScheme = .casual) {
         self.schemeRaw = scheme.rawValue
@@ -295,12 +295,15 @@ final class SurveyTally {
     }
 }
 
-// MARK: - Observation
+// MARK: - Wildlife observation
 
 /// A single sighting of anything. Stands alone, or hangs off a survey —
 /// PoMS encourages photographing examples of the groups seen during a count.
+///
+/// Named WildlifeObservation rather than Observation because Apple has a
+/// framework called Observation, and sharing the name confuses the compiler.
 @Model
-final class Observation {
+final class WildlifeObservation {
 
     var id: UUID = UUID()
     var createdAt: Date = Date.now
@@ -332,6 +335,10 @@ final class Observation {
 
     // Association
     var associatedPlant: Plant?
+    /// The plant's name kept as plain text as well as the link above, so a
+    /// sighting still reads correctly if the plant later leaves the library.
+    /// Same pattern as Survey's targetPlant and targetPlantName.
+    var associatedPlantName: String?
     var associatedPlanting: Planting?
     /// What it was doing on the plant — visiting flowers, feeding on
     /// foliage, resting. The interaction, not just co-presence.
@@ -348,8 +355,9 @@ final class Observation {
     var gridPrecisionMetres: Int = 100
     var locationName: String?
 
-    // Media
-    var photoIdentifiers: [String] = []
+    // Media. Each Photo points back here through its `observation` link.
+    @Relationship(deleteRule: .cascade, inverse: \Photo.observation)
+    var photos: [Photo]? = []
 
     // Admin
     var recorderName: String?

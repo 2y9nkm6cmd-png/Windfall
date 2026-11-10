@@ -274,6 +274,9 @@ final class Harvest {
     var quality: String?
     var notes: String?
 
+    @Relationship(deleteRule: .cascade, inverse: \Photo.harvest)
+    var photos: [Photo]? = []
+
     var planting: Planting?
 
     init() {}
@@ -331,7 +334,9 @@ final class PhenologyEvent {
     var date: Date = Date.now
     var stageRaw: String = PhenologyStage.firstFlower.rawValue
     var notes: String?
-    var photoIdentifiers: [String] = []
+
+    @Relationship(deleteRule: .cascade, inverse: \Photo.phenologyEvent)
+    var photos: [Photo]? = []
 
     var planting: Planting?
 
@@ -372,7 +377,9 @@ final class PestDiseaseEvent {
     var outcome: String?
     var resolvedDate: Date?
     var notes: String?
-    var photoIdentifiers: [String] = []
+
+    @Relationship(deleteRule: .cascade, inverse: \Photo.pestDiseaseEvent)
+    var photos: [Photo]? = []
 
     var planting: Planting?
 

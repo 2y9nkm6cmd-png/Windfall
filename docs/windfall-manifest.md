@@ -1,6 +1,6 @@
 # Windfall — file manifest
 
-*33 Swift files. Add every one to the Windfall target.*
+*39 Swift files. Add every one to the Windfall target.*
 
 ## Order to add them
 

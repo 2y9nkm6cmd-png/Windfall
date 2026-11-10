@@ -1,0 +1,11 @@
+BedSection.insert:
+BedSection.remove:
+EiraPrompt.sound:
+EiraPrompt.title:
+Fauna.range:
+Plant.lowercased:
+SheetRow.months:
+SheetRow.plant:
+TimelineItem.itemIdentifier:
+TimelineItem.loadTransferable:
+TimelineItem.problems:

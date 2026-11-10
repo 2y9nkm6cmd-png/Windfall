@@ -2,7 +2,7 @@ import SwiftUI
 
 struct RootView: View {
 
-    @EnvironmentObject var authManager: AuthenticationManager
+    @Environment(AuthenticationManager.self) private var authManager
 
     var body: some View {
         if authManager.isSignedIn {
@@ -15,5 +15,5 @@ struct RootView: View {
 
 #Preview {
     RootView()
-        .environmentObject(AuthenticationManager())
+        .environment(AuthenticationManager())
 }

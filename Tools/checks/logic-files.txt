@@ -1,0 +1,17 @@
+Parsing.swift
+OSGridReference.swift
+GardenStructure.swift
+PlantModels.swift
+WildlifeModels.swift
+FaunaModels.swift
+Journal.swift
+SheetsService.swift
+EiraBackend.swift
+EiraTools.swift
+CompanionPlanting.swift
+KnowledgeBase.swift
+ExportService.swift
+BackupService.swift
+SheetsWriteBack.swift
+WeatherService.swift
+EiraChatView.swift

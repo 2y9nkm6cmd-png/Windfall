@@ -1,4 +1,5 @@
 import Foundation
+import Observation
 import GoogleSignIn
 
 #if os(iOS)
@@ -7,12 +8,19 @@ import UIKit
 import AppKit
 #endif
 
+/// Holds the sign-in state for the whole app.
+///
+/// `@Observable` is what lets a screen redraw itself when one of these
+/// values changes. It replaces the older `ObservableObject` / `@Published`
+/// pair, and must match how the screens ask for it:
+/// `@Environment(AuthenticationManager.self)`.
 @MainActor
-class AuthenticationManager: ObservableObject {
+@Observable
+final class AuthenticationManager {
 
-    @Published var isSignedIn: Bool = false
-    @Published var userEmail: String = ""
-    @Published var errorMessage: String? = nil
+    var isSignedIn: Bool = false
+    var userEmail: String = ""
+    var errorMessage: String? = nil
 
     // The OAuth scopes we need — Sheets for data, Drive for file metadata
     private let requiredScopes = [

@@ -3,7 +3,7 @@ import GoogleSignInSwift
 
 struct SignInView: View {
 
-    @EnvironmentObject var authManager: AuthenticationManager
+    @Environment(AuthenticationManager.self) private var authManager
 
     var body: some View {
         VStack(spacing: 32) {
@@ -56,5 +56,5 @@ struct SignInView: View {
 
 #Preview {
     SignInView()
-        .environmentObject(AuthenticationManager())
+        .environment(AuthenticationManager())
 }

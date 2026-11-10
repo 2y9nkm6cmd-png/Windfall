@@ -46,7 +46,7 @@ final class EiraConversation {
     }
 
     func send(_ text: String, forcedTool: ToolDefinition? = nil) async {
-        guard let backend, !text.isEmpty else { return }
+        guard backend != nil, !text.isEmpty else { return }
 
         messages.append(ChatMessage(role: .user, content: text))
         isGenerating = true
@@ -57,8 +57,13 @@ final class EiraConversation {
         // A forced tool call runs before the model gets a turn, so a
         // lookup happens whether or not the model thought to ask for one.
         if let forcedTool, let runner {
-            let result = await runner.run(name: forcedTool.name,
-                                          arguments: "{\"name\":\"\(text)\",\"query\":\"\(text)\",\"plant\":\"\(text)\"}")
+            // Built as a dictionary and converted to JSON by the system, so
+            // a quote mark or line break in what was typed cannot break it.
+            // The same text is offered under each name a tool might expect.
+            let arguments = ["name": text, "query": text, "plant": text]
+            let json = (try? JSONSerialization.data(withJSONObject: arguments))
+                .flatMap { String(data: $0, encoding: .utf8) } ?? "{}"
+            let result = await runner.run(name: forcedTool.name, arguments: json)
             messages.append(ChatMessage(role: .tool,
                                         content: result.formatted,
                                         toolName: forcedTool.name))
