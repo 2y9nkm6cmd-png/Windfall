@@ -6,7 +6,10 @@ WildlifeModels.swift
 FaunaModels.swift
 Journal.swift
 SheetsService.swift
-EiraBackend.swift
+EiraEngine.swift
+EiraChatStore.swift
+EiraWebLookup.swift
+EiraConversation.swift
 EiraTools.swift
 CompanionPlanting.swift
 KnowledgeBase.swift
@@ -14,4 +17,4 @@ ExportService.swift
 BackupService.swift
 SheetsWriteBack.swift
 WeatherService.swift
-EiraChatView.swift
+EiraOnDeviceEngine.swift

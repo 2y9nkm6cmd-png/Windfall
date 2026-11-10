@@ -108,8 +108,11 @@ enum EiraTools {
         ]
     )
 
+    /// Every tool Eira may use. Kept short on purpose: a small model
+    /// chooses more reliably from a few clearly different tools.
     static let all: [ToolDefinition] = [
-        lookupSpecies, searchGarden, whatsInBed, plantVisitors, recentRecords, searchNotes
+        lookupSpecies, searchGarden, whatsInBed, plantVisitors, recentRecords, searchNotes,
+        searchWikipedia, readWebPage
     ]
 }
 
@@ -153,6 +156,10 @@ struct ToolRunner {
         case "recent_records":
             return recentRecords(kind: json["kind"] as? String ?? "harvests",
                                  days: json["days"] as? Int ?? 30)
+        case "search_wikipedia":
+            return await searchWikipedia(json["query"] as? String ?? "")
+        case "read_web_page":
+            return await readWebPage(json["url"] as? String ?? "")
         default:
             return ToolResult(text: "No such tool: \(name)", source: "app")
         }
@@ -350,40 +357,160 @@ struct ToolRunner {
     }
 }
 
-// MARK: - System prompt
+// MARK: - The hub that runs tools for the engine
 
+/// Sits between the model and the tools.
+///
+/// The on-device engine runs tools itself, in the middle of a reply. It
+/// asks this hub, and the hub does three things: runs the tool against
+/// your data, trims the result so it cannot crowd out the conversation,
+/// and tells the chat screen, so every lookup is visible to you.
+@MainActor
+final class EiraToolHub {
+
+    private let runner: ToolRunner
+    /// Longest result handed back to the model, in characters.
+    var resultLimit = 1500
+    /// Called each time a tool has run, so the chat can show it.
+    var onToolUse: ((_ name: String, _ result: String) -> Void)?
+
+    init(context: ModelContext) {
+        self.runner = ToolRunner(context: context)
+    }
+
+    /// Runs one tool. `argumentsJSON` is the tool's inputs written as JSON.
+    func run(name: String, argumentsJSON: String) async -> String {
+        let result = await runner.run(name: name, arguments: argumentsJSON)
+        let text = EiraToolHub.trimmed(result, limit: resultLimit)
+        onToolUse?(name, text)
+        return text
+    }
+
+    /// Cuts the body of a long result but always keeps the source line,
+    /// because an answer without its source is not allowed.
+    static func trimmed(_ result: ToolResult, limit: Int) -> String {
+        guard result.text.count > limit else { return result.formatted }
+        let cut = String(result.text.prefix(limit))
+        let body = cut.lastIndex(of: "\n").map { String(cut[..<$0]) } ?? cut
+        return "\(body)\n(shortened)\n\n[source: \(result.source)]"
+    }
+
+    /// Writes simple text inputs as JSON, safely.
+    nonisolated static func json(_ values: [String: String]) -> String {
+        (try? JSONSerialization.data(withJSONObject: values, options: [.sortedKeys]))
+            .flatMap { String(data: $0, encoding: .utf8) } ?? "{}"
+    }
+}
+
+// MARK: - What Eira knows about the garden
+
+/// Standing facts Eira is given at the start of every conversation.
+///
+/// This is the cheapest way to make her answers fit this garden: she is
+/// simply told, every time, what would otherwise have to be repeated.
+/// It is plain text, edited in Eira's settings.
+enum EiraGardenNotes {
+
+    private static let key = "eiraGardenNotes"
+
+    /// Used until the notes are edited. Check these are right.
+    static let starter = """
+    Two sites in Gloucestershire, UK: a permaculture forest garden and an allotment.
+    The garden is on a clay slope, improved over time with organic matter.
+    Methods are organic and permaculture-led. No synthetic pesticides.
+    Wildlife recording matters: pollinators, earthworms and what visits which plant.
+    """
+
+    static func load(from defaults: UserDefaults = .standard) -> String {
+        let saved = defaults.string(forKey: key)?
+            .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        return saved.isEmpty ? starter : saved
+    }
+
+    static func save(_ text: String, to defaults: UserDefaults = .standard) {
+        defaults.set(text, forKey: key)
+    }
+}
+
+// MARK: - Standing instructions
+
+/// Builds the instructions Eira is given before every conversation.
+///
+/// Written for a small model, which follows short, plainly ordered rules
+/// far better than long prose. Three things are filled in fresh each time
+/// so she never has to guess them: today's date, the season and the
+/// garden notes.
 enum EiraPrompt {
 
-    static func build(location: String = "Gloucestershire, UK") -> String {
-        """
-        You are Eira, a horticulture and natural-history assistant for a \
-        permaculture garden and allotment in \(location).
+    static func build(
+        date: Date = .now,
+        gardenNotes: String = EiraGardenNotes.load(),
+        corrections: [String] = [],
+        calendar: Calendar = .current
+    ) -> String {
+        let formatter = DateFormatter()
+        formatter.calendar = calendar
+        formatter.locale = Locale(identifier: "en_GB")
+        formatter.dateFormat = "EEEE d MMMM yyyy"
+        let today = formatter.string(from: date)
+        let season = season(for: date, calendar: calendar)
+
+        // Things the gardener has put right before. Listed last in the
+        // garden section so they are fresh in the model's mind, and
+        // described as overriding everything else.
+        let correctionLines = corrections.isEmpty ? "" : "\n\nCorrections the gardener has given you. "
+            + "These are right even if you believe otherwise:\n"
+            + corrections.map { "- \($0)" }.joined(separator: "\n")
+
+        return """
+        You are Eira, a gardening and natural history assistant for one \
+        gardener in the UK. You work inside their garden app, Windfall.
+
+        Today is \(today). The season is \(season).
+
+        About this garden:
+        \(gardenNotes)\(correctionLines)
 
         How to answer:
-        - Be brief and practical. Two or three sentences unless asked for more.
-        - Advice must suit the UK climate, organic and permaculture methods.
-        - Use British spelling.
+        1. Be brief and practical. Two or three sentences unless asked for more.
+        2. Use British spelling and UK growing conditions.
+        3. If the question is unclear, ask one short question before answering.
 
         Using tools:
-        - When any species is mentioned, call lookup_species FIRST to get the \
-        accepted name. Do not describe a species before resolving its name.
-        - For anything about this specific garden — what is growing, what was \
-        harvested, what visits a plant — use the garden tools rather than \
-        general knowledge. The user's own records are authoritative.
-        - Always say where an answer came from. If you are drawing on general \
-        knowledge rather than a tool, say so plainly.
+        4. For anything about this garden, such as what is growing, what was \
+        harvested or what visits a plant, use a garden tool first. The \
+        gardener's own records are the authority.
+        5. When a species is named, call lookup_species first to get its \
+        accepted name.
+        6. Use search_notes before general knowledge. Use search_wikipedia \
+        only when the records and notes have nothing.
+        7. Say where each fact came from. If it is your own general \
+        knowledge and not from a tool, say "from general knowledge, not checked".
 
         Identification:
-        - Give the scientific name, the diagnostic features you are using, \
-        your confidence, and the species it could be confused with.
-        - Say plainly when a photograph cannot settle an identification. Many \
-        UK invertebrates cannot be identified to species from an image by \
-        anyone.
-        - Never identify fungi. Refuse and explain that misidentification can \
-        be fatal and that a local expert or foray group should be consulted.
+        8. Give the scientific name, the features you used, your confidence \
+        and what it could be confused with.
+        9. Say plainly when something cannot be identified with certainty.
 
-        Be honest about uncertainty. A hedged correct answer is more useful \
-        than a confident wrong one.
+        Never:
+        10. Never identify fungi or say anything is safe to eat. Explain that \
+        a mistake can be fatal and suggest a local expert or foray group.
+        11. Never give preserving, canning or blanching times, medicinal doses \
+        or pesticide rates.
+        12. Never say something has been saved or changed. You can look \
+        things up but cannot yet change records.
+
+        A hedged correct answer is better than a confident wrong one.
         """
+    }
+
+    /// The season by the meteorological calendar used in the UK.
+    static func season(for date: Date, calendar: Calendar = .current) -> String {
+        switch calendar.component(.month, from: date) {
+        case 3...5:  return "spring"
+        case 6...8:  return "summer"
+        case 9...11: return "autumn"
+        default:     return "winter"
+        }
     }
 }

@@ -2,14 +2,17 @@
 //  EiraVision.swift
 //  Windfall
 //
-//  Sending a photograph to Eira for identification.
+//  Identifying a plant or animal from a photograph.
 //
-//  This is the middle tier of the three we agreed: the Mac's larger
-//  vision model, reached over Tailscale. The phone's on-device model
-//  handles coarse grouping; iNaturalist's classifier handles species.
+//  STATUS: the screen is here, the identification is not yet. The first
+//  version sent the photo to a model server on the Mac. That has been
+//  removed, because Eira now runs only on the device in your hand. The
+//  replacement is a small vision model run by Core AI, which is the next
+//  piece of work after the chat. Until then this screen can still attach
+//  a photo to a new sighting for you to identify yourself.
 //
 //  The prompt is written to make the model behave like a careful
-//  naturalist rather than a confident one — give the features it is
+//  naturalist rather than a confident one: give the features it is
 //  actually using, name the confusion species, and say plainly when a
 //  photograph cannot settle the question. Many UK invertebrates cannot
 //  be identified to species from an image by anyone.
@@ -26,60 +29,7 @@ import UIKit
 import AppKit
 #endif
 
-// MARK: - Vision request
-
-extension RemoteBackend {
-
-    /// Sends an image with a question. Uses the OpenAI vision message
-    /// shape, which Ollama accepts for multimodal models.
-    func identify(imageData: Data, question: String, model visionModel: String)
-        async throws -> String {
-
-        let base64 = imageData.base64EncodedString()
-
-        var request = URLRequest(url: visionEndpoint)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.timeoutInterval = 180
-
-        let body: [String: Any] = [
-            "model": visionModel,
-            "stream": false,
-            "messages": [
-                ["role": "system", "content": EiraVisionPrompt.system],
-                ["role": "user", "content": [
-                    ["type": "text", "text": question],
-                    ["type": "image_url",
-                     "image_url": ["url": "data:image/jpeg;base64,\(base64)"]]
-                ]]
-            ]
-        ]
-
-        request.httpBody = try JSONSerialization.data(withJSONObject: body)
-
-        let (data, response) = try await URLSession.shared.data(for: request)
-        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
-            throw BackendError.badResponse((response as? HTTPURLResponse)?.statusCode ?? 0)
-        }
-
-        guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
-              let choices = json["choices"] as? [[String: Any]],
-              let message = choices.first?["message"] as? [String: Any],
-              let content = message["content"] as? String else {
-            throw BackendError.decoding("unexpected response shape")
-        }
-
-        return content
-    }
-
-    private var visionEndpoint: URL {
-        // Same base as chat; the property is private on the class, so
-        // rebuild from the stored name is not possible — instead this
-        // relies on the caller having configured a working backend.
-        URL(string: UserDefaults.standard.string(forKey: "eiraHost") ?? "http://localhost:11434")!
-            .appendingPathComponent("v1/chat/completions")
-    }
-}
+// MARK: - Instructions for the vision model
 
 enum EiraVisionPrompt {
     static let system = """
@@ -113,9 +63,6 @@ struct IdentifyView: View {
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
 
-    @AppStorage("eiraHost") private var host = ""
-    @AppStorage("eiraVisionModel") private var visionModel = "qwen2.5vl:7b"
-
     @State private var pickerItem: PhotosPickerItem?
     @State private var imageData: Data?
     @State private var answer: String?
@@ -142,7 +89,7 @@ struct IdentifyView: View {
                 } header: {
                     Text("Photo")
                 } footer: {
-                    Text("Sent to your Mac over Tailscale. Nothing leaves your own network.")
+                    Text("The photo stays on this device.")
                 }
 
                 if imageData != nil {
@@ -158,7 +105,7 @@ struct IdentifyView: View {
                                 Label("Ask Eira", systemImage: "sparkles")
                             }
                         }
-                        .disabled(isWorking || host.isEmpty)
+                        .disabled(isWorking)
                     }
                 }
 
@@ -188,12 +135,13 @@ struct IdentifyView: View {
                     }
                 }
 
-                if host.isEmpty {
+                if imageData != nil, answer == nil {
                     Section {
-                        Label("Set the model server address in the Eira tab first.",
-                              systemImage: "info.circle")
-                            .font(.callout)
-                            .foregroundStyle(.secondary)
+                        Button {
+                            createObservation()
+                        } label: {
+                            Label("Save as a sighting to identify later", systemImage: "plus.circle")
+                        }
                     }
                 }
             }
@@ -220,31 +168,27 @@ struct IdentifyView: View {
         }
     }
 
+    /// On-device photo identification is not built yet, so this explains
+    /// that and leaves the photo ready to save as a sighting.
     private func identify() async {
-        guard let imageData, let url = URL(string: host) else { return }
-        isWorking = true
-        error = nil
-        defer { isWorking = false }
-
-        let backend = RemoteBackend(baseURL: url, model: visionModel)
-        do {
-            answer = try await backend.identify(imageData: imageData,
-                                                question: question,
-                                                model: visionModel)
-        } catch {
-            self.error = error.localizedDescription
-        }
+        guard imageData != nil else { return }
+        answer = nil
+        error = "Photo identification on this device is not built yet. You can still save the photo as a sighting and identify it yourself."
     }
 
     /// Creates an unconfirmed sighting with the photo attached. The
     /// suggestion goes into provisionalID, never confirmedID.
     private func createObservation() {
         let observation = WildlifeObservation()
-        observation.provisionalID = answer
-        observation.provisionalSource = .desktopModel
-        observation.provisionalConfidence = .possible
         observation.recorderName = UserDefaults.standard.string(forKey: "recorderName")
-        observation.notes = "Suggested by Eira from a photograph. Needs confirming."
+        if let answer {
+            observation.provisionalID = answer
+            observation.provisionalSource = .onDeviceModel
+            observation.provisionalConfidence = .possible
+            observation.notes = "Suggested by Eira from a photograph. Needs confirming."
+        } else {
+            observation.notes = "Photo saved without an identification."
+        }
 
         if let imageData {
             let photo = Photo()

@@ -9,6 +9,114 @@ so GitHub and Xcode can show you each one line by line.
 
 ---
 
+## Eira on the device (10 November 2026, branch `eira-on-device`)
+
+**The aim:** Eira runs entirely on the device in your hand. No server,
+no Ollama, no Tailscale. This is new work, kept on its own branch so it
+cannot disturb the first build of `main`.
+
+**Needs:** Xcode 27 and iOS 27, iPadOS 27 or macOS 27 for Eira herself.
+Built with Xcode 26, the app still builds and Eira explains what she
+needs. A device needs at least 12GB of memory to run her.
+
+### Removed
+
+- `EiraBackend.swift`, which held the code that talked to a model server.
+- The server address setting, and every mention of Tailscale and Ollama.
+- Sending photos to a server for identification (see "Not done" below).
+
+### New files
+
+| File | What it holds | Checked how |
+|---|---|---|
+| `EiraEngine.swift` | Message shapes, the `EiraEngine` interface, the 12GB rule, the model choice, where models are kept | Type-checked and tested |
+| `EiraConversation.swift` | Runs one conversation: sending, streaming, stop, saving, memory management, corrections | Type-checked and tested |
+| `EiraChatStore.swift` | Saved conversations and corrections (three new record types) | Type-checked and tested |
+| `EiraWebLookup.swift` | Wikipedia lookup and reading a web page, straight from the device | Type-checked and tested |
+| `EiraOnDeviceEngine.swift` | Runs a model through Apple's Foundation Models framework, with Core AI underneath | Checked against a stand-in only |
+| `EiraMLXLoader.swift` | Optional: loads a model by name with MLX | Syntax only |
+
+### Changed files
+
+- `EiraTools.swift`: two new tools, the tool hub, the garden notes and
+  rewritten standing instructions.
+- `EiraChatView.swift`: rebuilt around the new engine. Adds a stop
+  button, past conversations, "Correct this" and model settings.
+- `EiraVision.swift`: server code removed. The screen can still save a
+  photo as a sighting.
+- `WindfallApp.swift`: three new record types in the schema, now 25.
+
+### How Eira now works
+
+1. **One interface.** The chat screen only talks to `EiraEngine`. Which
+   model sits behind it is a setting: Apple's built-in model, a Core AI
+   model or an MLX model. An "online service" entry exists as an empty
+   slot and does nothing yet.
+2. **Apple's framework runs the tools.** Each lookup is described to the
+   framework, which lets the model call it and passes the answer back.
+   This replaces the hand-written loop that had the multi-step bug.
+3. **The 12GB rule.** Checked before any model is loaded. Below it, the
+   chat says so and the rest of the app carries on.
+4. **Standing instructions built fresh each time**, with today's date,
+   the season, your garden notes and your recent corrections filled in.
+5. **Memory management.** When a conversation outgrows what a small
+   model can hold, older turns are shortened, old lookups are dropped
+   and the model is restarted with that summary.
+6. **Stop really stops.** The send button becomes a stop button while
+   she replies, and what has arrived is kept.
+7. **Conversations are saved**, which Handoff and iCloud sync will need.
+8. **Corrections are kept.** Press and hold a reply, choose "Correct
+   this", and she is told that fact at the start of every conversation
+   from then on.
+9. **Online lookup from the device.** Wikipedia and reading a single web
+   page, both labelled as unverified. Species names still go to GBIF.
+
+### Two faults the checks caught in my own new code
+
+Worth recording, because it shows what the checks are for.
+
+- The page-reading code used a pattern the system would have rejected,
+  so every page came back empty. A test caught it.
+- A helper was fenced to the main thread but used from a record type
+  that is not. The compiler caught it.
+
+### Not done on this branch
+
+- **Photo identification.** Needs a vision model run by Core AI. The
+  package has one (`CoreAIVisionLanguageModel`). It is the next piece.
+- **Handoff to the Mac.**
+- **Tools that add or change records.** Eira can only look things up.
+  Her instructions tell her never to claim she has saved anything.
+- **General web search.** Needs a search service. The socket for one
+  (`WebSearchProvider`) is in `EiraWebLookup.swift`.
+- **Saved chats in the backup file.**
+
+### What to expect on the first build
+
+`EiraOnDeviceEngine.swift` and the screens have never been through
+Xcode. The framework calls were written from Apple's own published
+source and tests, read on 10 November 2026, and then checked against a
+small imitation of that framework. That proves the code is consistent
+with what was read. It does not prove Apple's real framework matches.
+Expect a handful of small corrections, most likely in that one file.
+
+### Setting up in Xcode (after `main` builds)
+
+1. Add the package `https://github.com/apple/coreai-models` and choose
+   the product **CoreAILM**. This is what runs Core AI models.
+2. Optional: add `https://github.com/ml-explore/mlx-swift-lm` for MLX
+   models. Not needed to begin.
+3. In Signing & Capabilities add **Increased Memory Limit** (needs the
+   Apple Developer Programme) and, on the Mac, **Outgoing Connections
+   (Client)** so lookups can reach GBIF and Wikipedia.
+4. In Info, add `UIFileSharingEnabled` and
+   `LSSupportsOpeningDocumentsInPlace`, both set to YES. These make
+   Windfall's Models folder appear in the Files app on iPad.
+5. Start with **Apple built-in** in Eira's settings. It needs no
+   download and no package, so it is the quickest way to see her work.
+
+---
+
 ## Corrected set (10 November 2026)
 
 **The aim:** make the 39 files agree with each other so the project can

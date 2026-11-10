@@ -41,7 +41,11 @@ struct WindfallApp: App {
             Photo.self,
             // Knowledge base
             KnowledgeDocument.self,
-            KnowledgeChunk.self
+            KnowledgeChunk.self,
+            // Eira: saved conversations and corrections
+            EiraChat.self,
+            EiraChatMessage.self,
+            EiraCorrection.self
         ])
 
         // CloudKit stays off until the Developer Programme membership is active.

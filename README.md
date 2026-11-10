@@ -11,13 +11,14 @@ Mac, with an on-device assistant called Eira.
 | Know what each file is for and the order to add them | `docs/windfall-manifest.md` |
 | Read the original specification | `docs/windfall-spec.md` |
 | Check the code without a Mac | `Tools/checks/run-checks.sh` |
+| Judge whether a model is good enough for Eira | `docs/eira-test-questions.md` |
 
 The plans, decisions and research live in the Windfall project's
 knowledge base on Claude, not here. This repository is for code.
 
 ## What is in this repository
 
-- `Windfall/` holds the 39 Swift source files. This is the folder Xcode
+- `Windfall/` holds the Swift source files. This is the folder Xcode
   builds.
 - `docs/` holds the file map and the original specification.
 - `Tools/checks/` holds the checking scripts. Nothing in `Tools/` is
@@ -34,7 +35,9 @@ repository the first time it is connected to the Mac.
 - `main` is the corrected set: the existing code made consistent, ready
   for its first build.
 - `eira-on-device` is new work on running Eira locally. It is kept
-  separate so it cannot get in the way of that first build.
+  separate so it cannot get in the way of that first build. Build `main`
+  first. `CHANGES.md` on that branch lists what it adds and how to set
+  it up in Xcode.
 
 ## Joining this to the Xcode project on the Mac
 

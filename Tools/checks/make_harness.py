@@ -26,9 +26,17 @@ for n in names:
     s = re.sub(r'@Attribute\((?:[^()]|\([^()]*\))*\)\s*', '', s)
     s = strip_blocks(s, r'^(?:private |fileprivate )?struct \w+\s*:\s*View\b[^{\n]*\{')
     s = strip_blocks(s, r'^#Preview\b[^{\n]*\{')
+    if 'canImport(FoundationModels)' in s:
+        # Let the Apple-only engine be checked against FoundationModelsStandIn.swift.
+        s = s.replace('#if canImport(FoundationModels) && canImport(CoreAI)', '#if true')
+        s = re.sub(r'^import FoundationModels[ \t]*$', '', s, flags=re.M)
+        s = re.sub(r'^[ \t]*@Generable[ \t]*$', '', s, flags=re.M)
+        s = re.sub(r'^[ \t]*@Guide\((?:[^()]|\([^()]*\))*\)[ \t]*$', '', s, flags=re.M)
     s = "#if canImport(FoundationNetworking)\nimport FoundationNetworking\n#endif\n" + s if 'URLSession' in s else s
     s = s.replace('try await URLSession.shared.bytes(for: request)', 'try await __bytes(request)')
     if not __import__('re').search(r'^import Foundation', s, flags=__import__('re').M): s = 'import Foundation\n' + s
     if '@Observable' in s and 'import Observation' not in s: s = 'import Observation\n' + s
     open(os.path.join(outdir, n), 'w', encoding='utf-8').write(s)
+here = os.path.dirname(os.path.abspath(sys.argv[0]))
+open(os.path.join(outdir, '_FoundationModelsStandIn.swift'), 'w').write(open(os.path.join(here, 'FoundationModelsStandIn.swift')).read())
 open(os.path.join(outdir, '_Stubs.swift'), 'w').write(open(os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), 'LinuxStubs.swift')).read())

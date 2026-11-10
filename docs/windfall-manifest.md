@@ -1,6 +1,6 @@
 # Windfall — file manifest
 
-*39 Swift files. Add every one to the Windfall target.*
+*44 Swift files on the `eira-on-device` branch (39 on `main`). Add every one to the Windfall target.*
 
 ## Order to add them
 
@@ -46,10 +46,15 @@ lot of errors that resolve themselves once the last file is in.
 
 | File | What it holds |
 |---|---|
-| `EiraBackend.swift` | `EiraBackend` protocol, `RemoteBackend`, reasoning parser, metrics |
-| `EiraTools.swift` | Tool definitions, `ToolRunner`, system prompt |
-| `EiraChatView.swift` | Chat, reasoning box, model settings |
-| `EiraVision.swift` | Photo identification, `IdentifyView` |
+| `EiraEngine.swift` | Message shapes, `EiraEngine` interface, the 12GB rule, model choice, models folder |
+| `EiraTools.swift` | Tool definitions, `ToolRunner`, `EiraToolHub`, garden notes, standing instructions |
+| `EiraWebLookup.swift` | Wikipedia lookup, web page reader, search provider socket |
+| `EiraChatStore.swift` | `EiraChat`, `EiraChatMessage`, `EiraCorrection`, the store |
+| `EiraConversation.swift` | One conversation: sending, streaming, stop, saving, memory management |
+| `EiraOnDeviceEngine.swift` | The engine on Apple's Foundation Models framework, and Eira's tools in its form |
+| `EiraMLXLoader.swift` | Optional MLX model loader |
+| `EiraChatView.swift` | Chat, reasoning box, settings, past conversations, corrections |
+| `EiraVision.swift` | Photo screen. Identification not yet built |
 
 ### 5 — Screens
 
@@ -81,7 +86,7 @@ lot of errors that resolve themselves once the last file is in.
 
 ## The schema
 
-`WindfallApp.swift` must list all 22 model types. Missing one means it
+`WindfallApp.swift` must list all 25 model types. Missing one means it
 silently isn't saved.
 
 ```swift
@@ -99,7 +104,9 @@ let schema = Schema([
     // Journal
     DiaryEntry.self, Photo.self,
     // Knowledge base
-    KnowledgeDocument.self, KnowledgeChunk.self
+    KnowledgeDocument.self, KnowledgeChunk.self,
+    // Eira: saved conversations and corrections
+    EiraChat.self, EiraChatMessage.self, EiraCorrection.self
 ])
 ```
 
@@ -127,7 +134,7 @@ let schema = Schema([
 5. Garden → Beds → Set up the allotment
 6. More → Reminders → turn on
 7. More → Voice → allow microphone
-8. Eira → Model settings → Mac's Tailscale address
+8. Eira → Model and garden notes → choose a model and check the garden notes
 9. More → Knowledge base → add your book and notes
 10. More → Backup → create one before anything else
 
@@ -135,11 +142,9 @@ let schema = Schema([
 
 ## Still to build
 
-**Local MLX inference.** The `EiraBackend` protocol has two intended
-implementations; only `RemoteBackend` exists. Local needs the Apple
-Developer Programme for the increased-memory entitlement, and the MLX
-Swift package added through SPM. Nothing above the protocol changes when
-it lands.
+**Photo identification on the device.** Needs a vision model run by
+Core AI. **Handoff to the Mac**, and **tools that add or change records**,
+also remain.
 
 **iNaturalist classifier.** The third vision tier. Their computer-vision
 API is not openly published, so this needs investigating rather than

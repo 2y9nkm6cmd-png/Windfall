@@ -4,180 +4,57 @@
 //
 //  Talking to Eira.
 //
-//  The reasoning box is the PocketPal-style collapsible panel: the stream
-//  is split into two buffers and shown separately, collapsed by default
-//  because on a small model the thinking is often longer than the answer.
-//  Metrics sit underneath, because tokens/sec is the number that decides
-//  which models earn their space.
+//  This file is only what you see. The thinking happens elsewhere:
+//    EiraConversation.swift     runs one conversation
+//    EiraOnDeviceEngine.swift   runs the model
+//    EiraTools.swift            the lookups and Eira's standing instructions
 //
-//  Tool calls are shown explicitly. When Eira looks something up you can
-//  see what it asked and what came back — and there is a manual override,
-//  because small models are unreliable about deciding when to use a tool.
+//  Three things are always visible, on purpose:
+//    - her reasoning, in a box that opens when tapped
+//    - every lookup she makes, with what came back and from where
+//    - which model answered and how fast
+//
+//  The buttons above the text box force a lookup, because small models
+//  are unreliable at deciding when to look something up. Pressing and
+//  holding one of her replies lets you correct it, and she keeps that.
 //
 
 import SwiftUI
 import SwiftData
 
-// MARK: - Conversation
-
-@Observable
-@MainActor
-final class EiraConversation {
-
-    var messages: [ChatMessage] = []
-    var isGenerating = false
-    var lastMetrics: GenerationMetrics?
-    var lastError: String?
-
-    /// Live buffers while a reply is streaming.
-    var streamingContent = ""
-    var streamingReasoning = ""
-
-    private var backend: EiraBackend?
-    private var runner: ToolRunner?
-
-    func configure(backend: EiraBackend, context: ModelContext) {
-        self.backend = backend
-        self.runner = ToolRunner(context: context)
-
-        if messages.isEmpty {
-            messages.append(ChatMessage(role: .system, content: EiraPrompt.build()))
-        }
-    }
-
-    func send(_ text: String, forcedTool: ToolDefinition? = nil) async {
-        guard backend != nil, !text.isEmpty else { return }
-
-        messages.append(ChatMessage(role: .user, content: text))
-        isGenerating = true
-        streamingContent = ""
-        streamingReasoning = ""
-        lastError = nil
-
-        // A forced tool call runs before the model gets a turn, so a
-        // lookup happens whether or not the model thought to ask for one.
-        if let forcedTool, let runner {
-            // Built as a dictionary and converted to JSON by the system, so
-            // a quote mark or line break in what was typed cannot break it.
-            // The same text is offered under each name a tool might expect.
-            let arguments = ["name": text, "query": text, "plant": text]
-            let json = (try? JSONSerialization.data(withJSONObject: arguments))
-                .flatMap { String(data: $0, encoding: .utf8) } ?? "{}"
-            let result = await runner.run(name: forcedTool.name, arguments: json)
-            messages.append(ChatMessage(role: .tool,
-                                        content: result.formatted,
-                                        toolName: forcedTool.name))
-        }
-
-        await generate()
-    }
-
-    private func generate(depth: Int = 0) async {
-        guard let backend, depth < 4 else {
-            isGenerating = false
-            return
-        }
-
-        var pendingToolCalls: [(name: String, arguments: String, id: String)] = []
-
-        do {
-            let metrics = try await backend.send(
-                messages: messages,
-                tools: EiraTools.all
-            ) { [weak self] event in
-                guard let self else { return }
-                switch event {
-                case .reasoning(let text):
-                    self.streamingReasoning += text
-                case .content(let text):
-                    self.streamingContent += text
-                case .toolCall(let name, let arguments, let id):
-                    pendingToolCalls.append((name, arguments, id))
-                case .finished:
-                    break
-                }
-            }
-
-            lastMetrics = metrics
-
-            // Commit whatever was produced.
-            if !streamingContent.isEmpty || !streamingReasoning.isEmpty {
-                messages.append(ChatMessage(
-                    role: .assistant,
-                    content: streamingContent,
-                    reasoning: streamingReasoning.isEmpty ? nil : streamingReasoning
-                ))
-            }
-            streamingContent = ""
-            streamingReasoning = ""
-
-            // Run any tools, then let the model see the results.
-            if !pendingToolCalls.isEmpty, let runner {
-                for call in pendingToolCalls {
-                    let result = await runner.run(name: call.name, arguments: call.arguments)
-                    messages.append(ChatMessage(
-                        role: .tool,
-                        content: result.formatted,
-                        toolName: call.name,
-                        toolCallID: call.id
-                    ))
-                }
-                await generate(depth: depth + 1)
-                return
-            }
-
-        } catch {
-            lastError = error.localizedDescription
-        }
-
-        isGenerating = false
-    }
-
-    func clear() {
-        messages = [ChatMessage(role: .system, content: EiraPrompt.build())]
-        streamingContent = ""
-        streamingReasoning = ""
-        lastMetrics = nil
-        lastError = nil
-    }
-}
-
-// MARK: - View
+// MARK: - Chat screen
 
 struct EiraChatView: View {
 
     @Environment(\.modelContext) private var context
 
-    @AppStorage("eiraHost") private var host = ""
-    @AppStorage("eiraModel") private var model = "gpt-oss:20b"
-
     @State private var conversation = EiraConversation()
     @State private var input = ""
-    @State private var backendReachable: Bool?
+    @State private var isLoadingModel = false
     @State private var showingSettings = false
+    @State private var showingHistory = false
+    @State private var messageToCorrect: ChatMessage?
     @State private var voice = VoiceInput()
     @AppStorage("eiraSpeaksReplies") private var speaksReplies = false
 
-    private var visibleMessages: [ChatMessage] {
-        conversation.messages.filter { $0.role != .system }
-    }
-
     var body: some View {
         VStack(spacing: 0) {
-            if backendReachable == false {
-                unreachableBanner
+            if let problem = conversation.setupProblem {
+                unavailableBanner(problem)
             }
 
             ScrollViewReader { proxy in
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 12) {
-                        if visibleMessages.isEmpty {
+                        if conversation.messages.isEmpty {
                             welcome
                         }
 
-                        ForEach(visibleMessages) { message in
-                            MessageView(message: message)
-                                .id(message.id)
+                        ForEach(conversation.messages) { message in
+                            MessageView(message: message) {
+                                messageToCorrect = message
+                            }
+                            .id(message.id)
                         }
 
                         if conversation.isGenerating {
@@ -188,7 +65,8 @@ struct EiraChatView: View {
                         if let metrics = conversation.lastMetrics,
                            !conversation.isGenerating,
                            !metrics.summary.isEmpty {
-                            Text(metrics.summary)
+                            Text([conversation.modelName, metrics.summary]
+                                .compactMap { $0 }.joined(separator: " · "))
                                 .font(.caption2.monospacedDigit())
                                 .foregroundStyle(.tertiary)
                         }
@@ -204,8 +82,8 @@ struct EiraChatView: View {
                 .onChange(of: conversation.streamingContent) { _, _ in
                     withAnimation { proxy.scrollTo("streaming", anchor: .bottom) }
                 }
-                .onChange(of: visibleMessages.count) { _, _ in
-                    if let last = visibleMessages.last {
+                .onChange(of: conversation.messages.count) { _, _ in
+                    if let last = conversation.messages.last {
                         withAnimation { proxy.scrollTo(last.id, anchor: .bottom) }
                     }
                 }
@@ -227,20 +105,39 @@ struct EiraChatView: View {
                         Label("New conversation", systemImage: "square.and.pencil")
                     }
                     Button {
+                        showingHistory = true
+                    } label: {
+                        Label("Past conversations", systemImage: "clock.arrow.circlepath")
+                    }
+                    Button {
                         showingSettings = true
                     } label: {
-                        Label("Model settings", systemImage: "gear")
+                        Label("Model and garden notes", systemImage: "gear")
                     }
                 } label: {
                     Label("Options", systemImage: "ellipsis.circle")
                 }
             }
         }
-        .sheet(isPresented: $showingSettings) {
-            EiraSettingsView(host: $host, model: $model)
+        // When the settings close, load whichever model is now chosen.
+        .sheet(isPresented: $showingSettings, onDismiss: {
+            Task { await loadEngine() }
+        }) {
+            EiraSettingsView()
+        }
+        .sheet(isPresented: $showingHistory) {
+            EiraHistoryView { chat in
+                conversation.open(chat)
+                showingHistory = false
+            }
+        }
+        .sheet(item: $messageToCorrect) { message in
+            EiraCorrectionView(message: message) { correction in
+                conversation.correct(message, with: correction)
+            }
         }
         .task {
-            await configure()
+            await loadEngine()
             await voice.requestPermission()
         }
         .onChange(of: conversation.isGenerating) { wasGenerating, isGenerating in
@@ -252,6 +149,24 @@ struct EiraChatView: View {
         }
     }
 
+    // MARK: Loading the model
+
+    /// Asks for an engine for the chosen model. If one cannot be made,
+    /// the reason is shown in plain words at the top of the chat.
+    private func loadEngine() async {
+        isLoadingModel = true
+        defer { isLoadingModel = false }
+
+        let hub = EiraToolHub(context: context)
+        do {
+            let engine = try await EiraEngineFactory.make(choice: EiraModelChoice.load(), hub: hub)
+            conversation.configure(engine: engine, hub: hub,
+                                   store: EiraChatStore(context: context))
+        } catch {
+            conversation.setUnavailable(error.localizedDescription)
+        }
+    }
+
     // MARK: Pieces
 
     private var welcome: some View {
@@ -259,11 +174,18 @@ struct EiraChatView: View {
             Text("Ask about your garden")
                 .font(.headline)
 
+            if isLoadingModel {
+                HStack(spacing: 6) {
+                    ProgressView().controlSize(.small)
+                    Text("Getting Eira ready…").font(.caption).foregroundStyle(.secondary)
+                }
+            }
+
             ForEach([
                 "What's growing in Bed 3?",
                 "What visits marjoram?",
                 "What did I harvest this month?",
-                "Is it warm enough for a FIT count?"
+                "What should I sow this month?"
             ], id: \.self) { suggestion in
                 Button {
                     input = suggestion
@@ -280,10 +202,10 @@ struct EiraChatView: View {
         .padding(.vertical)
     }
 
-    private var unreachableBanner: some View {
-        HStack {
-            Image(systemName: "wifi.exclamationmark")
-            Text("Can't reach the model server")
+    private func unavailableBanner(_ problem: String) -> some View {
+        HStack(alignment: .top) {
+            Image(systemName: "exclamationmark.circle")
+            Text(problem)
                 .font(.caption)
             Spacer()
             Button("Settings") { showingSettings = true }
@@ -295,14 +217,16 @@ struct EiraChatView: View {
 
     private var inputBar: some View {
         VStack(spacing: 6) {
-            // Manual override — forces a lookup regardless of whether the
-            // model decided to call one. Small models are unreliable here.
+            // Manual override. Forces a lookup whether or not the model
+            // would have decided to make one.
             if !input.isEmpty {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 6) {
                         forceButton("Look up species", tool: EiraTools.lookupSpecies)
                         forceButton("Search my plants", tool: EiraTools.searchGarden)
                         forceButton("What visits it", tool: EiraTools.plantVisitors)
+                        forceButton("Search my notes", tool: EiraTools.searchNotes)
+                        forceButton("Wikipedia", tool: EiraTools.searchWikipedia)
                     }
                 }
             }
@@ -314,21 +238,31 @@ struct EiraChatView: View {
 
                 if voice.isAuthorised {
                     PushToTalkButton(voice: voice) { spoken in
-                        Task { await conversation.send(spoken) }
+                        conversation.send(spoken)
                     }
                     .scaleEffect(0.62)
                     .frame(width: 44, height: 44)
                 }
 
-                Button {
-                    let text = input
-                    input = ""
-                    Task { await conversation.send(text) }
-                } label: {
-                    Image(systemName: "arrow.up.circle.fill")
-                        .font(.title2)
+                if conversation.isGenerating {
+                    // While she is replying, the send button becomes stop.
+                    Button {
+                        conversation.stop()
+                    } label: {
+                        Image(systemName: "stop.circle.fill")
+                            .font(.title2)
+                    }
+                } else {
+                    Button {
+                        let text = input
+                        input = ""
+                        conversation.send(text)
+                    } label: {
+                        Image(systemName: "arrow.up.circle.fill")
+                            .font(.title2)
+                    }
+                    .disabled(input.isEmpty || conversation.modelName == nil)
                 }
-                .disabled(input.isEmpty || conversation.isGenerating)
             }
         }
         .padding(8)
@@ -338,7 +272,7 @@ struct EiraChatView: View {
         Button {
             let text = input
             input = ""
-            Task { await conversation.send(text, forcedTool: tool) }
+            conversation.send(text, forcedTool: tool)
         } label: {
             Text(title)
                 .font(.caption)
@@ -347,16 +281,7 @@ struct EiraChatView: View {
                 .background(.thinMaterial, in: Capsule())
         }
         .buttonStyle(.plain)
-    }
-
-    private func configure() async {
-        guard !host.isEmpty, let url = URL(string: host) else {
-            backendReachable = false
-            return
-        }
-        let backend = RemoteBackend(baseURL: url, model: model)
-        conversation.configure(backend: backend, context: context)
-        backendReachable = await backend.isAvailable
+        .disabled(conversation.isGenerating || conversation.modelName == nil)
     }
 }
 
@@ -365,6 +290,8 @@ struct EiraChatView: View {
 private struct MessageView: View {
 
     let message: ChatMessage
+    /// Called when "Correct this" is chosen on one of Eira's replies.
+    let onCorrect: () -> Void
     @State private var reasoningExpanded = false
 
     var body: some View {
@@ -400,6 +327,13 @@ private struct MessageView: View {
                 Text(message.content)
                     .textSelection(.enabled)
             }
+            .contextMenu {
+                Button {
+                    onCorrect()
+                } label: {
+                    Label("Correct this", systemImage: "pencil.and.outline")
+                }
+            }
 
         case .system:
             EmptyView()
@@ -409,7 +343,7 @@ private struct MessageView: View {
 
 // MARK: - Reasoning box
 
-/// Collapsed by default. On a 4B model the thinking is routinely longer
+/// Collapsed by default. On a small model the thinking is routinely longer
 /// than the answer, and you'd be scrolling past a wall of it every turn.
 struct ReasoningBox: View {
 
@@ -478,54 +412,87 @@ private struct StreamingView: View {
 
 // MARK: - Settings
 
+/// Which model Eira uses, and what she is told about the garden.
 struct EiraSettingsView: View {
 
-    @Binding var host: String
-    @Binding var model: String
-
     @Environment(\.dismiss) private var dismiss
-    @State private var testResult: String?
-    @State private var isTesting = false
+
+    @State private var kind: EiraModelChoice.Kind = .appleBuiltIn
+    @State private var coreAIName = ""
+    @State private var mlxName = ""
+    @State private var gardenNotes = ""
+    @State private var coreAIModels: [String] = []
 
     var body: some View {
         NavigationStack {
             Form {
                 Section {
-                    TextField("http://100.x.y.z:11434", text: $host)
-                        #if os(iOS)
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
-                        .keyboardType(.URL)
-                        #endif
-
-                    TextField("Model", text: $model)
-                        #if os(iOS)
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
-                        #endif
+                    LabeledContent("This device", value: DeviceCapability.memoryDescription())
+                    if !DeviceCapability.canRunEira() {
+                        Label("Eira needs at least \(DeviceCapability.minimumMemoryGB)GB. The rest of Windfall works as normal.",
+                              systemImage: "exclamationmark.circle")
+                            .font(.callout)
+                            .foregroundStyle(.orange)
+                    }
                 } header: {
-                    Text("Model server")
-                } footer: {
-                    Text("Your Mac's Tailscale address with port 11434. Ollama must be running, and started with OLLAMA_HOST=0.0.0.0 so it accepts connections from other machines.")
+                    Text("Memory")
                 }
 
                 Section {
-                    Button {
-                        Task { await test() }
-                    } label: {
-                        if isTesting {
-                            HStack { ProgressView(); Text("Testing…") }
-                        } else {
-                            Label("Test connection", systemImage: "network")
+                    Picker("Kind", selection: $kind) {
+                        ForEach(EiraModelChoice.Kind.allCases) { option in
+                            Text(option.displayName).tag(option)
                         }
                     }
-                    .disabled(host.isEmpty || isTesting)
 
-                    if let testResult {
-                        Text(testResult)
-                            .font(.callout)
-                            .foregroundStyle(testResult.hasPrefix("Connected") ? .green : .orange)
+                    switch kind {
+                    case .appleBuiltIn:
+                        Text("The model Apple includes with the system. Nothing to download.")
+                            .font(.callout).foregroundStyle(.secondary)
+
+                    case .coreAI:
+                        if coreAIModels.isEmpty {
+                            Text("No Core AI models found yet.")
+                                .font(.callout).foregroundStyle(.secondary)
+                        } else {
+                            Picker("Model", selection: $coreAIName) {
+                                ForEach(coreAIModels, id: \.self) { name in
+                                    Text(name).tag(name)
+                                }
+                            }
+                        }
+
+                    case .mlx:
+                        TextField("mlx-community/…", text: $mlxName)
+                            .autocorrectionDisabled()
+                            #if os(iOS)
+                            .textInputAutocapitalization(.never)
+                            #endif
+
+                    case .online:
+                        Text("Not set up yet. Everything Eira does stays on this device.")
+                            .font(.callout).foregroundStyle(.secondary)
                     }
+                } header: {
+                    Text("Model")
+                } footer: {
+                    switch kind {
+                    case .coreAI:
+                        Text("Copy a converted model's folder into Windfall's Models folder using the Files app, then come back here.")
+                    case .mlx:
+                        Text("The model's name on Hugging Face. It is downloaded the first time it is used, so that first reply needs a connection.")
+                    case .appleBuiltIn, .online:
+                        EmptyView()
+                    }
+                }
+
+                Section {
+                    TextEditor(text: $gardenNotes)
+                        .frame(minHeight: 140)
+                } header: {
+                    Text("What Eira knows about your garden")
+                } footer: {
+                    Text("Eira reads this before every conversation. Keep it short and factual: your sites, soil, methods and anything she should always bear in mind. Check the starting text is right.")
                 }
             }
             .navigationTitle("Eira")
@@ -534,23 +501,135 @@ struct EiraSettingsView: View {
             #endif
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") { dismiss() }
+                    Button("Done") {
+                        save()
+                        dismiss()
+                    }
+                }
+            }
+            .onAppear(perform: load)
+        }
+    }
+
+    private func load() {
+        let choice = EiraModelChoice.load()
+        kind = choice.kind
+        coreAIModels = EiraModelLibrary.coreAIModelNames()
+        coreAIName = choice.kind == .coreAI ? choice.value : (coreAIModels.first ?? "")
+        mlxName = choice.kind == .mlx ? choice.value : ""
+        gardenNotes = EiraGardenNotes.load()
+    }
+
+    private func save() {
+        let value: String
+        switch kind {
+        case .coreAI: value = coreAIName
+        case .mlx:    value = mlxName.trimmingCharacters(in: .whitespaces)
+        case .appleBuiltIn, .online: value = ""
+        }
+        EiraModelChoice(kind: kind, value: value).save()
+        EiraGardenNotes.save(gardenNotes)
+    }
+}
+
+// MARK: - Past conversations
+
+struct EiraHistoryView: View {
+
+    /// Called with the conversation that was tapped.
+    let onOpen: (EiraChat) -> Void
+
+    @Query(sort: [SortDescriptor(\EiraChat.updatedAt, order: .reverse)])
+    private var chats: [EiraChat]
+
+    @Environment(\.modelContext) private var context
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            List {
+                if chats.isEmpty {
+                    ContentUnavailableView("No saved conversations",
+                                           systemImage: "bubble.left.and.bubble.right")
+                }
+                ForEach(chats) { chat in
+                    Button {
+                        onOpen(chat)
+                    } label: {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(chat.title.isEmpty ? "Conversation" : chat.title)
+                                .font(.subheadline)
+                                .foregroundStyle(.primary)
+                            Text(chat.updatedAt.formatted(date: .abbreviated, time: .shortened))
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    .buttonStyle(.plain)
+                }
+                .onDelete { offsets in
+                    for index in offsets { context.delete(chats[index]) }
+                }
+            }
+            .navigationTitle("Past conversations")
+            #if os(iOS)
+            .navigationBarTitleDisplayMode(.inline)
+            #endif
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Close") { dismiss() }
                 }
             }
         }
     }
+}
 
-    private func test() async {
-        isTesting = true
-        defer { isTesting = false }
+// MARK: - Putting Eira right
 
-        guard let url = URL(string: host) else {
-            testResult = "That doesn't look like a valid address."
-            return
+/// Records what was wrong with a reply. Eira reads her recent corrections
+/// before every conversation, so the same mistake is not made twice.
+struct EiraCorrectionView: View {
+
+    let message: ChatMessage
+    let onSave: (String) -> Void
+
+    @Environment(\.dismiss) private var dismiss
+    @State private var correction = ""
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section("Eira said") {
+                    Text(message.content)
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(8)
+                }
+                Section {
+                    TextEditor(text: $correction)
+                        .frame(minHeight: 100)
+                } header: {
+                    Text("What is right")
+                } footer: {
+                    Text("Write it as a plain fact, such as \"My lavender is English lavender, not Dutch.\" Eira will be told this from now on.")
+                }
+            }
+            .navigationTitle("Correct this")
+            #if os(iOS)
+            .navigationBarTitleDisplayMode(.inline)
+            #endif
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { dismiss() }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Save") {
+                        onSave(correction)
+                        dismiss()
+                    }
+                    .disabled(correction.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                }
+            }
         }
-        let backend = RemoteBackend(baseURL: url, model: model)
-        testResult = await backend.isAvailable
-            ? "Connected. \(model) should be available."
-            : "No response. Check Ollama is running and Tailscale is connected."
     }
 }
