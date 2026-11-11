@@ -124,17 +124,20 @@ struct EiraChatView: View {
             Task { await loadEngine() }
         }) {
             EiraSettingsView()
+                .macSheetSize(width: 520, height: 600)
         }
         .sheet(isPresented: $showingHistory) {
             EiraHistoryView { chat in
                 conversation.open(chat)
                 showingHistory = false
             }
+            .macSheetSize()
         }
         .sheet(item: $messageToCorrect) { message in
             EiraCorrectionView(message: message) { correction in
                 conversation.correct(message, with: correction)
             }
+            .macSheetSize(width: 480, height: 420)
         }
         .task {
             await loadEngine()
@@ -237,6 +240,17 @@ struct EiraChatView: View {
                 TextField("Ask Eira…", text: $input, axis: .vertical)
                     .lineLimit(1...4)
                     .textFieldStyle(.roundedBorder)
+                    // Return sends. Shift-Return or Option-Return starts a new
+                    // line. `.ignored` hands the key back to the text box.
+                    .onKeyPress(.return, phases: .down) { press in
+                        if press.modifiers.contains(.shift) || press.modifiers.contains(.option) {
+                            return .ignored
+                        }
+                        sendTypedMessage()
+                        return .handled
+                    }
+                    // The same for keyboards that report "submit" instead.
+                    .onSubmit { sendTypedMessage() }
 
                 if voice.isAuthorised {
                     PushToTalkButton(voice: voice) { spoken in
@@ -268,9 +282,7 @@ struct EiraChatView: View {
                     }
                 } else {
                     Button {
-                        let text = input
-                        input = ""
-                        conversation.send(text)
+                        sendTypedMessage()
                     } label: {
                         Image(systemName: "arrow.up.circle.fill")
                             .font(.title2)
@@ -280,6 +292,15 @@ struct EiraChatView: View {
             }
         }
         .padding(8)
+    }
+
+    /// Sends whatever is in the text box. Shared by the send button and
+    /// the Return key, so both always behave the same way.
+    private func sendTypedMessage() {
+        let text = input.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !text.isEmpty, conversation.modelName != nil, !conversation.isGenerating else { return }
+        input = ""
+        conversation.send(text)
     }
 
     private func forceButton(_ title: String, tool: ToolDefinition) -> some View {
@@ -421,6 +442,24 @@ private struct StreamingView: View {
                 Text(conversation.streamingContent)
             }
         }
+    }
+}
+
+// MARK: - Sheet size on the Mac
+
+extension View {
+    /// Gives a pop-up sheet a sensible size on the Mac.
+    ///
+    /// On iPhone and iPad a sheet fills the space it is given. On the Mac
+    /// it shrinks to fit its contents, and a list has no natural size, so
+    /// without this a sheet holding a list opens as a sliver.
+    @ViewBuilder
+    func macSheetSize(width: CGFloat = 480, height: CGFloat = 520) -> some View {
+        #if os(macOS)
+        self.frame(minWidth: width, minHeight: height)
+        #else
+        self
+        #endif
     }
 }
 

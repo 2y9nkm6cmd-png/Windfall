@@ -142,6 +142,18 @@ final class EiraConversation {
         guard engine != nil, !trimmed.isEmpty, !isGenerating else { return }
 
         record(ChatMessage(role: .user, content: trimmed))
+
+        // Some questions are answered by fixed wording and never reach the
+        // model. See EiraSafety for why.
+        if let fixed = EiraSafety.fixedReply(to: trimmed) {
+            record(ChatMessage(role: .assistant, content: fixed))
+            lastMetrics = nil
+            // The model did not see this exchange, so it is handed the
+            // conversation afresh before its next reply.
+            needsRestart = true
+            return
+        }
+
         isGenerating = true
         streamingContent = ""
         streamingReasoning = ""
@@ -241,7 +253,12 @@ final class EiraConversation {
     /// Adds a message to the screen and saves it.
     private func record(_ message: ChatMessage) {
         messages.append(message)
-        if let store, let chat { store.append(message, to: chat) }
+        guard let store, let chat else { return }
+        // If saving fails, say so on screen. A conversation that quietly
+        // is not being kept is worse than an error message.
+        if let problem = store.append(message, to: chat) {
+            lastError = "This conversation could not be saved: \(problem)"
+        }
     }
 
     // MARK: Starting over and going back

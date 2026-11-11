@@ -7,6 +7,7 @@ FaunaModels.swift
 Journal.swift
 SheetsService.swift
 EiraEngine.swift
+EiraSafety.swift
 EiraChatStore.swift
 EiraWebLookup.swift
 EiraConversation.swift

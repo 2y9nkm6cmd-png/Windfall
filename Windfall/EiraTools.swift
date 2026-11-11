@@ -168,47 +168,156 @@ struct ToolRunner {
     // MARK: GBIF
 
     /// Taxonomy first — resolve the name before saying anything about it.
+    /// Finds the accepted scientific name for a plant or animal.
+    ///
+    /// Three places are tried, in order of trust:
+    ///
+    ///   1. Your own records. If you have the species in your plant or
+    ///      wildlife lists, that is the name you use.
+    ///   2. GBIF, the international register of species names. It matches
+    ///      scientific names well and everyday names badly.
+    ///   3. Wikipedia, to turn an everyday name such as "red mason bee"
+    ///      into a scientific one, which is then checked against GBIF.
+    ///
+    /// Step 3 was added on 11 November 2026. Before it, an everyday name
+    /// came back as "no match" and the model guessed.
     private func lookupSpecies(_ name: String) async -> ToolResult {
+        let name = name.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !name.isEmpty else {
             return ToolResult(text: "No name given.", source: "app")
         }
 
+        var lines: [String] = []
+        var sources: [String] = []
+
+        // 1. The gardener's own records.
+        let own = ownRecord(named: name)
+        if let own {
+            lines.append("In the gardener's own records: \(own.description)")
+            sources.append("user's records")
+        }
+
+        // 2. GBIF, using the scientific name from the records if there is one.
+        if let match = await gbifMatch(own?.scientificName ?? name) {
+            lines.append(contentsOf: match)
+            sources.append("GBIF species match API")
+            return ToolResult(text: lines.joined(separator: "\n"),
+                              source: sources.joined(separator: " and "))
+        }
+
+        // 3. Wikipedia, for an everyday name.
+        if let article = try? await WikipediaLookup().lookUp(name) {
+            let summary = String(article.extract.prefix(400))
+            lines.append("Wikipedia article \"\(article.title)\": \(summary)")
+            sources.append("Wikipedia, unverified general reference")
+
+            // Check each likely scientific name against GBIF, stopping at
+            // the first that GBIF recognises.
+            for candidate in Self.scientificNameCandidates(title: article.title,
+                                                           extract: article.extract) {
+                if let match = await gbifMatch(candidate) {
+                    lines.append(contentsOf: match)
+                    sources.append("GBIF species match API")
+                    break
+                }
+            }
+        }
+
+        guard !lines.isEmpty else {
+            return ToolResult(
+                text: "No match for \"\(name)\" in the gardener's records, GBIF or Wikipedia. "
+                    + "Say that it could not be found. Do not guess.",
+                source: "GBIF and Wikipedia")
+        }
+        return ToolResult(text: lines.joined(separator: "\n"),
+                          source: sources.joined(separator: " and "))
+    }
+
+    /// A species found in the gardener's own lists.
+    private struct OwnRecord {
+        let description: String
+        let scientificName: String?
+    }
+
+    private func ownRecord(named name: String) -> OwnRecord? {
+        let needle = name.lowercased()
+
+        let fauna = (try? context.fetch(FetchDescriptor<Fauna>())) ?? []
+        if let found = fauna.first(where: {
+            $0.commonName.lowercased() == needle || $0.scientificName?.lowercased() == needle
+        }) {
+            let latin = found.scientificName.map { " (\($0))" } ?? ""
+            return OwnRecord(description: "\(found.commonName)\(latin), in the wildlife list",
+                             scientificName: found.scientificName)
+        }
+
+        let plants = (try? context.fetch(FetchDescriptor<Plant>())) ?? []
+        if let found = plants.first(where: {
+            $0.commonName.lowercased() == needle || $0.latinName?.lowercased() == needle
+        }) {
+            let latin = found.latinName.map { " (\($0))" } ?? ""
+            return OwnRecord(description: "\(found.displayName)\(latin), in the plant library",
+                             scientificName: found.latinName)
+        }
+        return nil
+    }
+
+    /// Asks GBIF for a name. Returns lines describing the match, or nil
+    /// when there is none or GBIF cannot be reached.
+    private func gbifMatch(_ name: String) async -> [String]? {
         var components = URLComponents(string: "https://api.gbif.org/v1/species/match")!
         components.queryItems = [URLQueryItem(name: "name", value: name)]
+        guard let url = components.url,
+              let (data, _) = try? await URLSession.shared.data(from: url),
+              let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
+        else { return nil }
+        return Self.describeGBIFMatch(json)
+    }
 
-        guard let url = components.url else {
-            return ToolResult(text: "Couldn't build the lookup.", source: "app")
+    /// Turns GBIF's reply into readable lines. Kept separate from the
+    /// network call so it can be tested without the internet.
+    static func describeGBIFMatch(_ json: [String: Any]) -> [String]? {
+        guard let matchType = json["matchType"] as? String, matchType != "NONE" else { return nil }
+
+        var lines: [String] = []
+        if let scientific = json["scientificName"] as? String {
+            lines.append("Accepted name: \(scientific)")
         }
-
-        do {
-            let (data, _) = try await URLSession.shared.data(from: url)
-            guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
-                  let matchType = json["matchType"] as? String, matchType != "NONE" else {
-                return ToolResult(text: "GBIF has no match for \"\(name)\".",
-                                  source: "GBIF species match API")
-            }
-
-            var lines: [String] = []
-            if let scientific = json["scientificName"] as? String {
-                lines.append("Accepted name: \(scientific)")
-            }
-            if let rank = json["rank"] as? String { lines.append("Rank: \(rank)") }
-            if let family = json["family"] as? String { lines.append("Family: \(family)") }
-            if let order = json["order"] as? String { lines.append("Order: \(order)") }
-            if let confidence = json["confidence"] as? Int {
-                lines.append("Match confidence: \(confidence)%")
-            }
-            if matchType != "EXACT" {
-                lines.append("Note: this was a \(matchType.lowercased()) match, not exact.")
-            }
-
-            return ToolResult(text: lines.joined(separator: "\n"),
-                              source: "GBIF species match API")
-
-        } catch {
-            return ToolResult(text: "Couldn't reach GBIF: \(error.localizedDescription)",
-                              source: "app")
+        if let rank = json["rank"] as? String { lines.append("Rank: \(rank.lowercased())") }
+        if let family = json["family"] as? String { lines.append("Family: \(family)") }
+        if let order = json["order"] as? String { lines.append("Order: \(order)") }
+        if let confidence = json["confidence"] as? Int {
+            lines.append("Match confidence: \(confidence)%")
         }
+        if matchType != "EXACT" {
+            lines.append("Note: this was a \(matchType.lowercased()) match, not exact.")
+        }
+        return lines.isEmpty ? nil : lines
+    }
+
+    /// Picks likely two-word scientific names out of a Wikipedia article,
+    /// best guess first.
+    ///
+    /// The article for a species usually gives the scientific name in
+    /// brackets early on ("The European robin (Erithacus rubecula) is...")
+    /// or is titled with it ("Osmia bicornis"). A scientific name is a
+    /// capitalised word followed by a lower-case word. Ordinary English
+    /// can have that shape too ("European robin"), which is why these are
+    /// only candidates: each is checked against GBIF before it is believed.
+    static func scientificNameCandidates(title: String, extract: String) -> [String] {
+        let binomial = "[A-Z][a-z]+ [a-z][a-z-]+"
+        var candidates: [String] = []
+
+        // The first pair of brackets holding a name of that shape.
+        let opening = String(extract.prefix(600))
+        if let range = opening.range(of: "\\(\(binomial)[),;]", options: .regularExpression) {
+            candidates.append(String(opening[range].dropFirst().dropLast()))
+        }
+        if title.range(of: "^\(binomial)$", options: .regularExpression) != nil,
+           !candidates.contains(title) {
+            candidates.append(title)
+        }
+        return candidates
     }
 
     // MARK: Local queries
@@ -481,23 +590,28 @@ enum EiraPrompt {
         harvested or what visits a plant, use a garden tool first. The \
         gardener's own records are the authority.
         5. When a species is named, call lookup_species first to get its \
-        accepted name.
+        accepted name. If it finds nothing, call search_wikipedia. Never \
+        guess what a species is.
         6. Use search_notes before general knowledge. Use search_wikipedia \
         only when the records and notes have nothing.
         7. Say where each fact came from. If it is your own general \
         knowledge and not from a tool, say "from general knowledge, not checked".
+        8. When a tool finds no records, say that nothing is recorded. Do \
+        not say that it did not happen. "I have no sowings recorded for \
+        last week" is right. "You did not sow anything" is wrong.
 
         Identification:
-        8. Give the scientific name, the features you used, your confidence \
+        9. Give the scientific name, the features you used, your confidence \
         and what it could be confused with.
-        9. Say plainly when something cannot be identified with certainty.
+        10. Say plainly when something cannot be identified with certainty.
 
         Never:
-        10. Never identify fungi or say anything is safe to eat. Explain that \
-        a mistake can be fatal and suggest a local expert or foray group.
-        11. Never give preserving, canning or blanching times, medicinal doses \
+        11. Never identify fungi or say anything is safe to eat. Never ask \
+        for a description of a fungus, and never offer to check one. Explain \
+        that a mistake can be fatal and suggest a local fungus group.
+        12. Never give preserving, canning or blanching times, medicinal doses \
         or pesticide rates.
-        12. Never say something has been saved or changed. You can look \
+        13. Never say something has been saved or changed. You can look \
         things up but cannot yet change records.
 
         A hedged correct answer is better than a confident wrong one.

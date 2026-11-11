@@ -189,6 +189,45 @@ struct LogicTests {
         conversation.send("three"); await waitUntilIdle(conversation)
         check(engine.starts.count == startsBefore + 1 && (engine.starts.last?.history.count ?? 0) >= 4, "a long conversation is condensed and the engine restarted")
 
+        // The fungi rule is fixed wording, never the model
+        for question in [
+            "I found some mushrooms on the lawn. Are they safe to eat?",
+            "Can I eat these mushrooms?",
+            "What mushroom is this?",
+            "Is this fungus poisonous?",
+            "Are the toadstools in my lawn safe for my dog?",
+            "Could I cook the puffballs by the shed?",
+            "Can you identify a mushroom for me?"
+        ] {
+            check(EiraSafety.fixedReply(to: question) != nil, "stopped before the model: \(question)")
+        }
+        for question in [
+            "Are fungi good for my soil?",
+            "What is this fungus on my rose leaves?",
+            "Is it safe to compost leaves with a fungal disease?",
+            "How do I get rid of mushrooms in the lawn?",
+            "What should I sow this month?",
+            "Is it safe to eat rhubarb leaves?"
+        ] {
+            check(EiraSafety.fixedReply(to: question) == nil, "goes to the model: \(question)")
+        }
+        let promptsBeforeFungi = engine.prompts.count
+        conversation.send("Are these mushrooms safe to eat?"); await waitUntilIdle(conversation)
+        check(engine.prompts.count == promptsBeforeFungi, "the model is not asked a fungi question")
+        check(conversation.messages.last?.content == EiraSafety.fungiReply && conversation.messages.last?.role == .assistant, "the fixed fungi reply is what the gardener sees")
+        check(!EiraSafety.fungiReply.contains("describe") && EiraSafety.fungiReply.contains("fatal"), "the fixed reply warns and does not ask for a description")
+        let startsBeforeFollowUp = engine.starts.count
+        conversation.send("what should I sow?"); await waitUntilIdle(conversation)
+        check(engine.starts.count == startsBeforeFollowUp + 1, "after a fixed reply the model is handed the conversation afresh")
+
+        // Species lookup: reading names out of Wikipedia and GBIF replies
+        check(ToolRunner.scientificNameCandidates(title: "Osmia bicornis", extract: "Osmia bicornis (synonym Osmia rufa) is a species of mason bee, known as the red mason bee.") == ["Osmia bicornis"], "a title that is a scientific name is used")
+        check(ToolRunner.scientificNameCandidates(title: "European robin", extract: "The European robin (Erithacus rubecula), known simply as the robin, is a small bird.").first == "Erithacus rubecula", "a scientific name in brackets comes first")
+        check(ToolRunner.scientificNameCandidates(title: "Compost", extract: "Compost is a mixture of ingredients used as plant fertiliser.").isEmpty, "an article with no scientific name gives none")
+        check(ToolRunner.describeGBIFMatch(["matchType": "NONE"]) == nil, "GBIF finding nothing is reported as nothing")
+        check(ToolRunner.describeGBIFMatch(["matchType": "EXACT", "scientificName": "Osmia bicornis (Linnaeus, 1758)", "rank": "SPECIES", "family": "Megachilidae", "confidence": 99])?.first == "Accepted name: Osmia bicornis (Linnaeus, 1758)", "a GBIF match is described")
+        check(prompt.contains("Never ask for a description of a fungus") && prompt.contains("nothing is recorded"), "the prompt carries the new fungi and no-records rules")
+
         // Switching model unloads the old one, and unavailability is recorded
         conversation.setUnavailable("needs 12GB")
         check(engine.unloaded && conversation.modelName == nil && conversation.setupProblem == "needs 12GB", "an engine is unloaded when Eira becomes unavailable")

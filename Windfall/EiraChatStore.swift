@@ -112,7 +112,11 @@ struct EiraChatStore {
     }
 
     /// Adds a message to a conversation and saves it.
-    func append(_ message: ChatMessage, to chat: EiraChat) {
+    ///
+    /// Returns nil when the save worked, or a description of what went
+    /// wrong. `@discardableResult` lets a caller ignore the answer.
+    @discardableResult
+    func append(_ message: ChatMessage, to chat: EiraChat) -> String? {
         // The first message is what puts a conversation into the store.
         if (chat.messages ?? []).isEmpty { context.insert(chat) }
 
@@ -130,7 +134,12 @@ struct EiraChatStore {
             chat.title = Self.title(from: message.content)
         }
         chat.updatedAt = .now
-        try? context.save()
+        do {
+            try context.save()
+            return nil
+        } catch {
+            return error.localizedDescription
+        }
     }
 
     /// Saved conversations, most recent first.
