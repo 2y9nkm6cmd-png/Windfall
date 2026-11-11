@@ -45,6 +45,22 @@ final class VoiceInput: NSObject {
 
     // MARK: Permission
 
+    /// Looks at what has already been allowed, without asking for anything.
+    /// Safe to call whenever a screen opens, because it never puts a
+    /// permission box in front of you.
+    func checkExistingPermission() {
+        let speech = SFSpeechRecognizer.authorizationStatus() == .authorized
+        #if os(iOS)
+        let mic = AVAudioApplication.shared.recordPermission == .granted
+        #else
+        let mic = true
+        #endif
+        isAuthorised = speech && mic
+    }
+
+    /// Asks for permission. This is the call that shows Apple's permission
+    /// boxes, so it should only run when you have tapped something to say
+    /// you want voice input.
     func requestPermission() async {
         let speech = await withCheckedContinuation { continuation in
             SFSpeechRecognizer.requestAuthorization { status in
