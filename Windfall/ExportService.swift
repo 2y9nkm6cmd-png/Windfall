@@ -32,11 +32,11 @@ enum CSV {
     }
 
     static func row(_ fields: [String?]) -> String {
-        fields.map(escape).joined(separator: ",")
+        fields.map { escape($0) }.joined(separator: ",")
     }
 
     static func document(headers: [String], rows: [[String?]]) -> String {
-        ([headers.joined(separator: ",")] + rows.map(row)).joined(separator: "\r\n")
+        ([headers.joined(separator: ",")] + rows.map { row($0) }).joined(separator: "\r\n")
     }
 }
 
