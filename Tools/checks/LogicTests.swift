@@ -230,6 +230,80 @@ struct LogicTests {
         check(ToolRunner.describeGBIFMatch(["matchType": "EXACT", "scientificName": "Osmia bicornis (Linnaeus, 1758)", "rank": "SPECIES", "family": "Megachilidae", "confidence": 99])?.first == "Accepted name: Osmia bicornis (Linnaeus, 1758)", "a GBIF match is described")
         check(prompt.contains("Never ask for a description of a fungus") && prompt.contains("nothing is recorded"), "the prompt carries the new fungi and no-records rules")
 
+        // Garden data: looking up a column by its heading
+        let row = DataRow(["Sowing temperature [C]": "18", "Propagator?": "yes", "Max Height (m)": "1.5",
+                           "Notes": "  ", "Soil pH": "#N/A", "Germination (days)": "7-14 days", "Germination days": "7"])
+        check(row["Sowing temperature"] == "18", "a heading is found without its units")
+        check(row.bool("Propagator"), "a heading is found without its question mark")
+        check(row["max height (m)"] == "1.5", "capitals in a heading do not matter")
+        check(row["Notes"] == nil && row["Soil pH"] == nil, "blanks and spreadsheet errors are treated as nothing")
+        check(row["Germination (days)"] == "7-14 days" && row["Germination days"] == "7", "two similar headings are kept apart")
+        check(row["Hardiness"] == nil, "a heading that is not there gives nothing")
+
+        // Garden data: reading CSV
+        let csv = "Name,Notes,Category\r\nGarlic,\"Plant in autumn, harvest in July\",Alliums\nLeek,\"Variety \"\"Musselburgh\"\"\",Alliums\n"
+        let csvRows = CSVReader.rows(from: csv)
+        check(csvRows.count == 3 && csvRows[1] == ["Garlic", "Plant in autumn, harvest in July", "Alliums"], "a comma inside quotes stays in its cell")
+        check(csvRows[2][1] == "Variety \"Musselburgh\"", "a doubled quote is read as one quote")
+        let csvTable = CSVReader.table(from: "found,,\nGrowth Patterns,,\nType,Common Name,Latin Name\nPlant,Apple,Malus domestica\n,,\n")
+        check(csvTable?.headers == ["Type", "Common Name", "Latin Name"] && csvTable?.rows.count == 1 && csvTable?.rows.first?["Common Name"] == "Apple", "the heading row is found even when it is not the first row")
+        check(GardenTableKind.guess(fromHeaders: ["Plant 1", "Plant 2", "+/-"]) == .companions
+              && GardenTableKind.guess(fromHeaders: ["Plant", "Fauna", "Relationship"]) == .links
+              && GardenTableKind.guess(fromHeaders: ["Fauna ID", "Common Name", "Taxon Group"]) == .fauna
+              && GardenTableKind.guess(fromHeaders: ["Type", "Common Name"]) == .permaculture
+              && GardenTableKind.guess(fromHeaders: ["Types", "Category", "Name"]) == .allotment
+              && GardenTableKind.guess(fromHeaders: ["Date", "Amount"]) == nil, "a table is recognised from its headings")
+
+        // Garden data: files
+        check((try? GardenDataFile.decode(Data("not json".utf8))) == nil, "a file that is not garden data is refused")
+        check((try? GardenDataFile.decode(Data(#"{"formatVersion":99,"source":"x","generated":"x","tables":[]}"#.utf8))) == nil, "a file from a newer version of the app is refused")
+
+        // Garden data: importing the real starter file
+        if let path = ProcessInfo.processInfo.environment["WINDFALL_STARTER"],
+           let data = FileManager.default.contents(atPath: path),
+           let starter = try? GardenDataFile.decode(data) {
+            let store = ModelContext()
+            let importer = GardenDataImporter()
+            let first = importer.importAll(starter, into: store)
+            check(importer.lastError == nil, "the starter data imports without an error (\(importer.lastError ?? ""))")
+            let rowsInFile = GardenTableKind.plantKinds.compactMap { starter.table(named: $0.tableName)?.rows.count }.reduce(0, +)
+            let plants = (try? store.fetch(FetchDescriptor<Plant>())) ?? []
+            check(first.plantsAdded == plants.count && plants.count > 300 && plants.count <= rowsInFile, "plants arrive, and a plant on two sheets becomes one record (\(plants.count) plants from \(rowsInFile) rows)")
+            check(first.fauna == 21 && first.links == 58 && first.flowerShapes == 20 && first.cascades == 7 && first.companionPairs == 410, "the reference tables arrive in full (\(first.description))")
+            let garlic = plants.filter { $0.commonName.lowercased() == "garlic" }
+            check(!garlic.isEmpty, "garlic is in the library")
+            check(plants.contains { $0.sourceSites.count == 2 }, "a plant grown in both gardens lists both")
+            check(plants.contains { $0.status == .wanted } && plants.contains { $0.status == .previouslyOwned }, "plants to buy and previously owned plants keep their status")
+            check(plants.contains { $0.sowingTemperatureC != nil } && plants.contains { $0.needsPropagator }, "columns with units or a question mark in the heading are read")
+            let pairs = (try? store.fetch(FetchDescriptor<CompanionPair>())) ?? []
+            check(pairs.contains { ($0.mechanism ?? "").isEmpty == false }, "companion pairs carry their reason")
+            let links = (try? store.fetch(FetchDescriptor<PlantFaunaLink>())) ?? []
+            check(links.contains { $0.fauna != nil }, "links are joined to the wildlife list")
+
+            // Importing twice must not duplicate anything.
+            let second = importer.importAll(starter, into: store)
+            let plantsAfter = (try? store.fetch(FetchDescriptor<Plant>()))?.count ?? 0
+            let pairsAfter = (try? store.fetch(FetchDescriptor<CompanionPair>()))?.count ?? 0
+            check(second.plantsAdded == 0 && second.plantsUpdated == plants.count && plantsAfter == plants.count && pairsAfter == 410, "importing the same file again adds nothing (\(second.description))")
+
+            // A single table leaves the others alone.
+            let onlyFauna = GardenDataFile(source: "test", tables: [GardenTable(name: "Fauna", rows: [["Common Name": "Red mason bee", "Scientific Name": "Osmia bicornis"]])])
+            let third = importer.importAll(onlyFauna, into: store)
+            let faunaAfter = (try? store.fetch(FetchDescriptor<Fauna>()))?.count ?? 0
+            check(third.fauna == 1 && faunaAfter == 1 && ((try? store.fetch(FetchDescriptor<Plant>()))?.count ?? 0) == plants.count, "importing one table replaces that table and leaves the rest")
+
+            let empty = importer.importAll(GardenDataFile(source: "test", tables: [GardenTable(name: "Shopping", rows: [["Item": "Twine"]])]), into: store)
+            check(empty.tablesRead == 0 && importer.lastError != nil, "a file with no known tables is reported, not silently accepted")
+
+            // First launch
+            let fresh = ModelContext()
+            let suite = UserDefaults(suiteName: "windfall-tests-\(UUID().uuidString)")!
+            check(GardenDataImporter().loadStarterDataIfNeeded(into: store, defaults: suite) == nil && suite.bool(forKey: GardenDataImporter.starterLoadedKey), "starter data is not loaded over an existing library")
+            _ = fresh
+        } else {
+            check(false, "the starter data file could be read for testing")
+        }
+
         // Switching model unloads the old one, and unavailability is recorded
         conversation.setUnavailable("needs 12GB")
         check(engine.unloaded && conversation.modelName == nil && conversation.setupProblem == "needs 12GB", "an engine is unloaded when Eira becomes unavailable")

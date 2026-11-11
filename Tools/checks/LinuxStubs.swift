@@ -8,10 +8,15 @@ import FoundationNetworking
 public struct CLLocationCoordinate2D { public var latitude: Double; public var longitude: Double
     public init(latitude: Double, longitude: Double) { self.latitude = latitude; self.longitude = longitude } }
 public struct FetchDescriptor<T> { public init() {} ; public init(sortBy: [Any]) {} }
+// A small working stand-in: it remembers what is inserted, so tests can
+// run an import and count what arrived.
 public final class ModelContext {
-    public func fetch<T>(_ d: FetchDescriptor<T>) throws -> [T] { [] }
-    public func insert<T>(_ m: T) {}
-    public func delete<T>(_ m: T) {}
+    public init() {}
+    private var objects: [AnyObject] = []
+    public func fetch<T>(_ d: FetchDescriptor<T>) throws -> [T] { objects.compactMap { $0 as? T } }
+    public func fetchCount<T>(_ d: FetchDescriptor<T>) throws -> Int { try fetch(d).count }
+    public func insert<T>(_ m: T) { let o = m as AnyObject; if !objects.contains(where: { $0 === o }) { objects.append(o) } }
+    public func delete<T>(_ m: T) { let o = m as AnyObject; objects.removeAll { $0 === o } }
     public func save() throws {}
 }
 struct __Lines: AsyncSequence { typealias Element = String
@@ -28,6 +33,4 @@ public enum NLTokenUnit { case sentence, word }
 public final class NLTokenizer { public init(unit: NLTokenUnit) {} ; public var string: String? = nil
     public func enumerateTokens(in r: Range<String.Index>, using block: (Range<String.Index>, Int) -> Bool) {} }
 extension URL { func startAccessingSecurityScopedResource() -> Bool { true } ; func stopAccessingSecurityScopedResource() {} }
-@MainActor final class AuthenticationManager { var isSignedIn = false; var userEmail = ""; var errorMessage: String? = nil
-    func validAccessToken() async throws -> String { "" } ; func signOut() {} ; func signIn() {} }
 #endif

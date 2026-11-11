@@ -51,7 +51,7 @@ echo "4. Logic tests"
 cp "$HERE/LogicTests.swift" "$WORK/harness/"
 ( cd "$WORK/harness" && "$SWIFT_BIN/swiftc" -swift-version 5 -parse-as-library *.swift -o logictests ) > "$WORK/build.txt" 2>&1
 if [ -x "$WORK/harness/logictests" ]; then
-  LD_LIBRARY_PATH="$SWIFT_BIN/../lib/swift/linux:${LD_LIBRARY_PATH:-}" "$WORK/harness/logictests" || status=1
+  WINDFALL_STARTER="$SRC/StarterData.json" LD_LIBRARY_PATH="$SWIFT_BIN/../lib/swift/linux:${LD_LIBRARY_PATH:-}" "$WORK/harness/logictests" || status=1
 else
   echo "   the tests did not build:"; grep -E "error:" "$WORK/build.txt" | grep -v "^ " | head -10; status=1
 fi

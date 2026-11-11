@@ -5,7 +5,7 @@ PlantModels.swift
 WildlifeModels.swift
 FaunaModels.swift
 Journal.swift
-SheetsService.swift
+GardenData.swift
 EiraEngine.swift
 EiraSafety.swift
 EiraChatStore.swift
@@ -16,6 +16,5 @@ CompanionPlanting.swift
 KnowledgeBase.swift
 ExportService.swift
 BackupService.swift
-SheetsWriteBack.swift
 WeatherService.swift
 EiraOnDeviceEngine.swift

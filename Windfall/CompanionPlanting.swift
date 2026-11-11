@@ -92,52 +92,6 @@ final class CompanionPair {
     }
 }
 
-// MARK: - Import
-
-extension SheetsService {
-
-    func importCompanions(into context: ModelContext) async {
-        isImporting = true
-        lastError = nil
-        defer { isImporting = false }
-
-        do {
-            progressMessage = "Reading companion planting…"
-
-            for existing in try context.fetch(FetchDescriptor<CompanionPair>()) {
-                context.delete(existing)
-            }
-
-            var count = 0
-            for row in try await referenceRows(sheet: "Companion planting") {
-                guard let one = row["Plant 1"] ?? row["Plant One"],
-                      let two = row["Plant 2"] ?? row["Plant Two"] else { continue }
-
-                let pair = CompanionPair()
-                pair.plantOneName = one
-                pair.plantTwoName = two
-                pair.effect = CompanionEffect.parse(row["+/-"] ?? row["Effect"])
-                pair.mechanism = row["How it impacts"] ?? row["Mechanism"]
-                pair.notes = row["Notes"]
-                pair.lastSyncedAt = .now
-
-                // Neutral pairs are the vast majority and carry no
-                // information — skipping them keeps the store small.
-                guard pair.effect != .neutral else { continue }
-
-                context.insert(pair)
-                count += 1
-            }
-
-            progressMessage = "\(count) companion relationships imported"
-            lastImportDate = .now
-
-        } catch {
-            lastError = error.localizedDescription
-        }
-    }
-}
-
 // MARK: - Checking a bed
 
 enum CompanionChecker {

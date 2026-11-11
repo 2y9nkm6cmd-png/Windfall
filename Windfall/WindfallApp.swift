@@ -1,13 +1,11 @@
 import SwiftUI
 import SwiftData
-import GoogleSignIn
 
 @main
 struct WindfallApp: App {
 
-    // @State makes the app the owner of these two shared objects, so they
-    // are created once and live for as long as the app runs.
-    @State private var authManager = AuthenticationManager()
+    // @State makes the app the owner of this shared object, so it is
+    // created once and lives for as long as the app runs.
     @State private var locationManager = LocationManager()
 
     /// Everything SwiftData needs to know about. Add new @Model types here
@@ -48,9 +46,11 @@ struct WindfallApp: App {
             EiraCorrection.self
         ])
 
-        // CloudKit stays off until the Developer Programme membership is active.
-        // Switching it on later is a change to this one line plus the capability
-        // in Signing & Capabilities — the models are already written to suit it.
+        // Everything is stored on this device only. `cloudKitDatabase: .none`
+        // is what keeps it local: nothing is sent to iCloud or anywhere else.
+        // Switching iCloud sync on later is a change to this one line plus the
+        // capability in Signing & Capabilities. It needs Apple Developer
+        // Programme membership. The models are already written to suit it.
         let configuration = ModelConfiguration(
             schema: schema,
             isStoredInMemoryOnly: false,
@@ -66,14 +66,12 @@ struct WindfallApp: App {
 
     var body: some Scene {
         WindowGroup {
-            RootView()
-                // .environment hands each object down to every screen.
-                // A screen picks one up with @Environment, naming the type it wants.
-                .environment(authManager)
+            // The app opens straight into the garden. There is no sign-in:
+            // your records live on the device.
+            MainTabView()
+                // .environment hands the object down to every screen.
+                // A screen picks it up with @Environment, naming the type it wants.
                 .environment(locationManager)
-                .onOpenURL { url in
-                    GIDSignIn.sharedInstance.handle(url)
-                }
         }
         .modelContainer(sharedModelContainer)
         #if os(macOS)

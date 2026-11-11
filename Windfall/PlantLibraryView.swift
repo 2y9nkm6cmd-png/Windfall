@@ -17,13 +17,11 @@ struct PlantLibraryView: View {
     private var plants: [Plant]
 
     @Environment(\.modelContext) private var context
-    @Environment(AuthenticationManager.self) private var auth
 
     @State private var search = ""
     @State private var statusFilter: PlantStatus? = .growing
     @State private var showPollinatorsOnly = false
     @State private var sowableNow = false
-    @State private var sheets: SheetsService?
     @State private var showingImport = false
 
     private var filtered: [Plant] {
@@ -54,9 +52,9 @@ struct PlantLibraryView: View {
                 ContentUnavailableView {
                     Label("No plants yet", systemImage: "leaf")
                 } description: {
-                    Text("Import your Garden Planning spreadsheet to fill the library.")
+                    Text("Load the starter data, or import a file of your own.")
                 } actions: {
-                    Button("Import from Google Sheets") { showingImport = true }
+                    Button("Add garden data") { showingImport = true }
                         .buttonStyle(.borderedProminent)
                 }
             }
@@ -90,7 +88,7 @@ struct PlantLibraryView: View {
                     Button {
                         showingImport = true
                     } label: {
-                        Label("Import from Sheets", systemImage: "arrow.down.doc")
+                        Label("Garden data", systemImage: "tray.and.arrow.down")
                     }
                 } label: {
                     Label("Options", systemImage: "line.3.horizontal.decrease.circle")
@@ -98,7 +96,15 @@ struct PlantLibraryView: View {
             }
         }
         .sheet(isPresented: $showingImport) {
-            ImportView(service: sheetsService)
+            NavigationStack {
+                GardenDataView()
+                    .toolbar {
+                        ToolbarItem(placement: .confirmationAction) {
+                            Button("Done") { showingImport = false }
+                        }
+                    }
+            }
+            .macSheetSize(width: 520, height: 560)
         }
         .overlay(alignment: .bottom) {
             if !filtered.isEmpty {
@@ -112,12 +118,6 @@ struct PlantLibraryView: View {
         }
     }
 
-    private var sheetsService: SheetsService {
-        if let sheets { return sheets }
-        let service = SheetsService(auth: auth)
-        DispatchQueue.main.async { self.sheets = service }
-        return service
-    }
 }
 
 // MARK: - Row
@@ -316,78 +316,6 @@ struct PlantDetailView: View {
     private func rangeRow(_ label: String, _ text: String?, unit: String) -> some View {
         if let range = RangeParser.range(in: text) {
             LabeledContent(label, value: "\(range.description) \(unit)")
-        }
-    }
-}
-
-// MARK: - Import sheet
-
-struct ImportView: View {
-
-    let service: SheetsService
-
-    @Environment(\.dismiss) private var dismiss
-    @Environment(\.modelContext) private var context
-
-    @State private var idField = ""
-
-    var body: some View {
-        NavigationStack {
-            Form {
-                Section {
-                    TextField("Spreadsheet ID", text: $idField)
-                        #if os(iOS)
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
-                        #endif
-                } header: {
-                    Text("Google Sheet")
-                } footer: {
-                    Text("From the sheet's web address: docs.google.com/spreadsheets/d/**THIS PART**/edit")
-                }
-
-                Section {
-                    Button {
-                        service.spreadsheetID = idField
-                        Task { await service.importPlants(into: context) }
-                    } label: {
-                        if service.isImporting {
-                            HStack {
-                                ProgressView()
-                                Text(service.progressMessage)
-                            }
-                        } else {
-                            Label("Import plants", systemImage: "arrow.down.doc")
-                        }
-                    }
-                    .disabled(idField.isEmpty || service.isImporting)
-                }
-
-                if let error = service.lastError {
-                    Section {
-                        Label(error, systemImage: "exclamationmark.triangle")
-                            .foregroundStyle(.orange)
-                    }
-                }
-
-                if service.lastImportDate != nil && !service.isImporting {
-                    Section {
-                        Label(service.progressMessage, systemImage: "checkmark.circle")
-                            .foregroundStyle(.green)
-                        Button("Done") { dismiss() }
-                    }
-                }
-            }
-            .navigationTitle("Import")
-            #if os(iOS)
-            .navigationBarTitleDisplayMode(.inline)
-            #endif
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
-                }
-            }
-            .onAppear { idField = service.spreadsheetID }
         }
     }
 }

@@ -3,7 +3,18 @@ import SwiftData
 
 struct MainTabView: View {
 
+    @Environment(\.modelContext) private var context
+
     var body: some View {
+        tabs
+            // The first time the app runs, fill the plant library from the
+            // starter data that ships inside it. After that this does nothing.
+            .task {
+                GardenDataImporter().loadStarterDataIfNeeded(into: context)
+            }
+    }
+
+    private var tabs: some View {
         TabView {
             // Each tab gets its own NavigationStack. One stack wrapped around
             // the whole TabView means pushing a view in one tab disturbs the
@@ -114,9 +125,6 @@ struct MoreTab: View {
             NavigationLink { ChartsView() } label: {
                 Label("Charts", systemImage: "chart.xyaxis.line")
             }
-            NavigationLink { SyncView() } label: {
-                Label("Sync with Sheets", systemImage: "arrow.triangle.2.circlepath")
-            }
             NavigationLink { ExportView() } label: {
                 Label("Export records", systemImage: "square.and.arrow.up")
             }
@@ -141,13 +149,8 @@ struct MoreTab: View {
 
 struct SettingsView: View {
 
-    @Environment(AuthenticationManager.self) private var authManager
-    @Environment(\.modelContext) private var context
-
     @AppStorage("recorderName") private var recorderName = ""
     @AppStorage("gridPrecision") private var gridPrecision = 100
-
-    @State private var sheets: SheetsService?
 
     var body: some View {
         Form {
@@ -165,47 +168,18 @@ struct SettingsView: View {
                 Text("iRecord needs a recorder name on every record. Coarser grid precision publishes a garden record without pinpointing the house.")
             }
 
-            Section("Data") {
-                if let service = sheets {
-                    NavigationLink {
-                        ImportView(service: service)
-                    } label: {
-                        Label("Import plants from Sheets", systemImage: "arrow.down.doc")
-                    }
-
-                    Button {
-                        Task { await service.importCompanions(into: context) }
-                    } label: {
-                        Label("Import companion planting", systemImage: "square.on.square")
-                    }
-
-                    Button {
-                        Task { await service.importReferenceData(into: context) }
-                    } label: {
-                        if service.isImporting {
-                            HStack { ProgressView(); Text(service.progressMessage) }
-                        } else {
-                            Label("Import reference data", systemImage: "books.vertical")
-                        }
-                    }
+            Section {
+                NavigationLink {
+                    GardenDataView()
+                } label: {
+                    Label("Garden data", systemImage: "tray.and.arrow.down")
                 }
-            }
-
-            Section("Account") {
-                if !authManager.userEmail.isEmpty {
-                    LabeledContent("Signed in as", value: authManager.userEmail)
-                }
-                // The wording follows the situation: there is nothing to
-                // sign out of when Google was never connected.
-                Button(authManager.isSignedIn ? "Sign out" : "Back to the welcome screen",
-                       role: .destructive) {
-                    authManager.signOut()
-                }
+            } header: {
+                Text("Data")
+            } footer: {
+                Text("Everything is stored on this device. Nothing is sent anywhere.")
             }
         }
         .navigationTitle("Settings")
-        .task {
-            if sheets == nil { sheets = SheetsService(auth: authManager) }
-        }
     }
 }
