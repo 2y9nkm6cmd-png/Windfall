@@ -22,8 +22,9 @@ enum EiraSafety {
 
     /// The reply given to any question about eating fungi or naming a mushroom.
     ///
-    /// ⚠️ CHECK: the pointer to the British Mycological Society's local
-    /// groups was written by Claude from general knowledge.
+    /// Checked 11 November 2026: the British Mycological Society's website
+    /// has a "Find a Fungus Group near you" page and pages for affiliated
+    /// local groups (britmycolsoc.org.uk, Recording Network).
     static let fungiReply = """
     I can't identify mushrooms or other fungi, and I can't say whether any \
     are safe to eat. Mistakes with fungi can be fatal, and they cannot be \
@@ -37,16 +38,23 @@ enum EiraSafety {
     /// The reply given to any question asking for canning, bottling,
     /// pickling or kitchen blanching times, temperatures or safety.
     ///
-    /// ⚠️ CHECK: the named sources were chosen by Claude from general
-    /// knowledge on 11 November 2026.
+    /// Checked 11 November 2026 against the Food Standards Agency's
+    /// "Consumer advice for food preservation at home" on GOV.UK. It says
+    /// botulism "can cause paralysis or death", that canning and bottling
+    /// are "difficult to carry out safely" at home, and to "always follow
+    /// instructions supplied with your equipment or from a recognised
+    /// source". It gives no times itself. The US National Center for Home
+    /// Food Preservation is named because it publishes tested times.
     static let preservingReply = """
     I don't give times, temperatures or methods for canning, bottling, \
     pickling or blanching. Small mistakes can make preserved food unsafe, \
-    and botulism from home-canned vegetables can be fatal.
+    and botulism from home-preserved food can cause paralysis or death. \
+    You cannot tell by look, smell or taste.
 
-    Please follow a tested, published recipe exactly, such as the guidance \
-    from the US National Center for Home Food Preservation or the \
-    instructions from your jar maker.
+    Please follow a tested, published recipe exactly, along with the \
+    instructions that came with your equipment. The Food Standards Agency \
+    has UK advice on preserving food at home, and the US National Center \
+    for Home Food Preservation publishes tested times.
 
     I'm happy to help with when to harvest, how to store fresh crops and \
     planning what to grow for preserving.
@@ -55,16 +63,22 @@ enum EiraSafety {
     /// The reply given to any question asking how much pesticide, slug
     /// pellet, weedkiller or homemade spray to use.
     ///
-    /// ⚠️ CHECK: the point about UK labels being legally binding was
-    /// written by Claude from general knowledge on 11 November 2026.
+    /// Checked 11 November 2026. The RHS ("Chemical labels explained")
+    /// says "Gardeners are legally required to follow the instructions on
+    /// pesticide labels". The Health and Safety Executive's home and
+    /// garden page says "Always use PPPs as instructed on the label" and
+    /// warns against assuming that household chemicals used as a pesticide
+    /// are without risk or always legal.
     static let pesticideReply = """
     I don't give amounts, rates or dilutions for pesticides, slug pellets, \
     weedkillers or homemade sprays. Too much can harm wildlife, pets and \
-    the soil, and in the UK the product label is the legal guide to how \
-    much to use.
+    the soil, and in the UK you are legally required to follow the \
+    instructions on the product label.
 
-    Please follow the label exactly. If you'd like, I can suggest ways to \
-    deal with the problem without chemicals.
+    Please follow the label exactly. Homemade sprays made from household \
+    products have no tested rate, and the Health and Safety Executive \
+    warns they are not always safe or legal. If you'd like, I can suggest \
+    ways to deal with the problem without chemicals.
     """
 
     /// The reply given to any question asking for medical advice, doses
