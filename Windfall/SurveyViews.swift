@@ -181,7 +181,7 @@ struct RunSurveyView: View {
     private var setupView: some View {
         Form {
             if survey.scheme == .fitCount {
-                Section("Target flower") {
+                Section {
                     TextField("Plant name", text: Binding(
                         get: { survey.targetPlantName ?? "" },
                         set: { survey.targetPlantName = $0.isEmpty ? nil : $0 }
@@ -197,13 +197,15 @@ struct RunSurveyView: View {
                     )
 
                     Toggle("On the PoMS target list", isOn: $survey.isSchemeTargetFlower)
+                } header: {
+                    Text("Target flower")
                 } footer: {
                     Text("Count the floral units in a 50 × 50 cm patch before starting the timer.")
                 }
             }
 
             if survey.scheme == .earthwormCount {
-                Section("Pit") {
+                Section {
                     Stepper(
                         "Pit number: \(survey.pitNumber ?? 1)",
                         value: Binding(
@@ -212,6 +214,8 @@ struct RunSurveyView: View {
                         ),
                         in: 1...20
                     )
+                } header: {
+                    Text("Pit")
                 } footer: {
                     Text("A 20 × 20 × 20 cm pit. Hand-sort the soil for five minutes.")
                 }
