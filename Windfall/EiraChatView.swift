@@ -138,7 +138,9 @@ struct EiraChatView: View {
         }
         .task {
             await loadEngine()
-            await voice.requestPermission()
+            // Only look at what is already allowed. Opening Eira should
+            // never put a permission box in front of you.
+            voice.checkExistingPermission()
         }
         .onChange(of: conversation.isGenerating) { wasGenerating, isGenerating in
             // Read the reply aloud once it has finished, if asked to.
@@ -242,6 +244,18 @@ struct EiraChatView: View {
                     }
                     .scaleEffect(0.62)
                     .frame(width: 44, height: 44)
+                } else {
+                    // Voice stays off until you ask for it. Tapping this is
+                    // what shows Apple's microphone and speech permission boxes.
+                    Button {
+                        Task { await voice.requestPermission() }
+                    } label: {
+                        Image(systemName: "mic.slash")
+                            .frame(width: 44, height: 44)
+                    }
+                    .buttonStyle(.borderless)
+                    .help("Turn on voice input")
+                    .accessibilityLabel("Turn on voice input")
                 }
 
                 if conversation.isGenerating {
