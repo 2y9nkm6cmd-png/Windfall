@@ -35,6 +35,18 @@ struct SignInView: View {
                 .frame(height: 50)
                 .frame(maxWidth: 320)
 
+                // The way in that needs no account. Google is only used for
+                // the spreadsheet link, which can be connected later.
+                Button("Continue without signing in") {
+                    authManager.continueWithoutGoogle()
+                }
+
+                Text("Google is only needed for the Sheets link. Everything else stays on this device.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: 320)
+
                 if let error = authManager.errorMessage {
                     Text(error)
                         .font(.caption)

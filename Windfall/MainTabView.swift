@@ -195,7 +195,10 @@ struct SettingsView: View {
                 if !authManager.userEmail.isEmpty {
                     LabeledContent("Signed in as", value: authManager.userEmail)
                 }
-                Button("Sign out", role: .destructive) {
+                // The wording follows the situation: there is nothing to
+                // sign out of when Google was never connected.
+                Button(authManager.isSignedIn ? "Sign out" : "Back to the welcome screen",
+                       role: .destructive) {
                     authManager.signOut()
                 }
             }
