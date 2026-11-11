@@ -113,7 +113,13 @@ struct WikipediaLookup {
     var session: URLSession = .shared
 
     /// Finds the best-matching article and returns its opening summary.
+    ///
+    /// The query is first tried as a page title. Wikipedia redirects
+    /// everyday names to the right article, so "red mason bee" arrives at
+    /// "Osmia bicornis". Searching is the fallback, because a search for
+    /// the same words returns the broader "Mason bee" article first.
     func lookUp(_ query: String) async throws -> Article? {
+        if let exact = try? await summary(title: query) { return exact }
         guard let title = try await bestTitle(for: query) else { return nil }
         return try await summary(title: title)
     }
@@ -166,6 +172,9 @@ struct WikipediaLookup {
         guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
               let title = json["title"] as? String,
               let extract = json["extract"] as? String, !extract.isEmpty else { return nil }
+        // A disambiguation page is a list of possible meanings ("Robin
+        // may refer to..."), not an article, so it is not an answer.
+        if json["type"] as? String == "disambiguation" { return nil }
         let urls = json["content_urls"] as? [String: Any]
         let desktop = urls?["desktop"] as? [String: Any]
         return Article(title: title, extract: extract, url: desktop?["page"] as? String)

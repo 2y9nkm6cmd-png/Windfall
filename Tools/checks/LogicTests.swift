@@ -224,6 +224,8 @@ struct LogicTests {
         check(ToolRunner.scientificNameCandidates(title: "Osmia bicornis", extract: "Osmia bicornis (synonym Osmia rufa) is a species of mason bee, known as the red mason bee.") == ["Osmia bicornis"], "a title that is a scientific name is used")
         check(ToolRunner.scientificNameCandidates(title: "European robin", extract: "The European robin (Erithacus rubecula), known simply as the robin, is a small bird.").first == "Erithacus rubecula", "a scientific name in brackets comes first")
         check(ToolRunner.scientificNameCandidates(title: "Compost", extract: "Compost is a mixture of ingredients used as plant fertiliser.").isEmpty, "an article with no scientific name gives none")
+        check(WikipediaLookup.parseSummary(Data(#"{"type":"disambiguation","title":"Robin","extract":"Robin most commonly refers to several species of birds."}"#.utf8)) == nil, "a Wikipedia list of meanings is not treated as an article")
+        check(WikipediaLookup.parseSummary(Data(#"{"type":"standard","title":"Osmia bicornis","extract":"Osmia bicornis is a species of mason bee."}"#.utf8))?.title == "Osmia bicornis", "a normal Wikipedia summary is read")
         check(ToolRunner.describeGBIFMatch(["matchType": "NONE"]) == nil, "GBIF finding nothing is reported as nothing")
         check(ToolRunner.describeGBIFMatch(["matchType": "EXACT", "scientificName": "Osmia bicornis (Linnaeus, 1758)", "rank": "SPECIES", "family": "Megachilidae", "confidence": 99])?.first == "Accepted name: Osmia bicornis (Linnaeus, 1758)", "a GBIF match is described")
         check(prompt.contains("Never ask for a description of a fungus") && prompt.contains("nothing is recorded"), "the prompt carries the new fungi and no-records rules")
