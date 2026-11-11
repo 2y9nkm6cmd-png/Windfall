@@ -222,7 +222,7 @@ enum GardenTableKind: String, CaseIterable, Identifiable {
     /// Works out which table a set of column headings belongs to. Used
     /// for CSV files, which carry no table name of their own.
     static func guess(fromHeaders headers: [String]) -> GardenTableKind? {
-        let have = Set(headers.map(DataRow.normalise))
+        let have = Set(headers.map { DataRow.normalise($0) })
         func has(_ names: String...) -> Bool { names.allSatisfy { have.contains($0) } }
 
         if has("plant 1", "plant 2") { return .companions }

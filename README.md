@@ -3,61 +3,56 @@
 A garden planning, recording and natural history app for iPhone, iPad and
 Mac, with an on-device assistant called Eira.
 
+Everything is stored on the device. There is no sign-in and no server.
+
 ## Start here
 
 | If you want to | Read |
 |---|---|
 | See what changed and why | `CHANGES.md` |
-| Know what each file is for and the order to add them | `docs/windfall-manifest.md` |
-| Read the original specification | `docs/windfall-spec.md` |
-| Check the code without a Mac | `Tools/checks/run-checks.sh` |
+| Know what the starter data holds and leaves out | `docs/starter-data-report.md` |
 | Judge whether a model is good enough for Eira | `docs/eira-test-questions.md` |
+| Check the code without a Mac | `Tools/checks/run-checks.sh` |
+| Read the original specification | `docs/windfall-spec.md` |
+
+`docs/windfall-manifest.md` and `docs/windfall-spec.md` describe the app
+as first designed, with Google Sheets. They are kept for reference and
+are out of date on that point.
 
 The plans, decisions and research live in the Windfall project's
 knowledge base on Claude, not here. This repository is for code.
 
 ## What is in this repository
 
-- `Windfall/` holds the Swift source files. This is the folder Xcode
-  builds.
-- `docs/` holds the file map and the original specification.
-- `Tools/checks/` holds the checking scripts. Nothing in `Tools/` is
-  part of the app.
+- `Windfall.xcodeproj` is the Xcode project. Open this.
+- `Windfall/` holds the Swift source files and `StarterData.json`. Xcode
+  builds every file in this folder, so adding a file here adds it to the
+  app.
+- `docs/` holds the reports and the original design papers.
+- `Tools/checks/` holds the checking scripts and logic tests.
+- `Tools/data/` holds the script that makes `StarterData.json` from the
+  Garden Planning workbook.
 
-## What is not here yet
-
-The Xcode project file (`Windfall.xcodeproj`), the app's settings file
-and the Google sign-in details are on William's Mac. They join this
-repository the first time it is connected to the Mac.
+Nothing in `Tools/` or `docs/` is part of the app.
 
 ## Branches
 
-- `main` is the corrected set: the existing code made consistent, ready
-  for its first build.
-- `eira-on-device` is new work on running Eira locally. It is kept
-  separate so it cannot get in the way of that first build. Build `main`
-  first. `CHANGES.md` on that branch lists what it adds and how to set
-  it up in Xcode.
+| Branch | What it is |
+|---|---|
+| `eira-on-device` | The current version: Eira running on the device, native garden data, no Google. Builds and runs in Xcode 27 |
+| `main` | The earlier corrected set, with Google sign-in. Builds, but is behind |
+| `google-sheets-version` | A marker for the last version that used Google Sheets, in case it is ever wanted |
 
-## Joining this to the Xcode project on the Mac
+## Never commit
 
-The easiest way is to let Claude do it:
+Passwords, keys and sign-in files. `.gitignore` already blocks the usual
+ones.
 
-1. On the Mac, open the Claude desktop app and open a chat in the
-   Windfall project.
-2. Connect the folder that contains `Windfall.xcodeproj`.
-3. Ask Claude to "join my Xcode project to the Windfall repository".
+## Rebuilding the starter data
 
-Claude will then compare the Mac's files with these, keep any fixes made
-on the Mac, add the project file to the repository and explain each
-step.
+```
+python3 Tools/data/build_starter_data.py Garden_Planning.xlsx \
+    Windfall/StarterData.json docs/starter-data-report.md
+```
 
-To look at the code in Xcode without changing anything, use Xcode's
-Clone command from the Integrate menu and paste this repository's
-address.
-
-## Rules for this code
-
-- Every change is explained in `CHANGES.md` in plain English.
-- Nothing counts as done until it has built on the Mac.
-- Passwords, keys and sign-in files are never committed.
+The workbook itself is not kept in this repository.

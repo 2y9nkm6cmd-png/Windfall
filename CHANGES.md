@@ -1,3 +1,47 @@
+# Changes on 11 November 2026
+
+These came out of the first evening of building and running the app on
+the Mac. The older notes follow below and describe how things stood on
+10 November.
+
+## The app builds and runs
+
+- The Xcode project from the Mac is now in the repository.
+- Three fixes were needed for the first build: a `Section` form SwiftUI
+  does not offer (`SurveyViews`), a missing `import SwiftData`
+  (`MainTabView`) and two main-actor warnings (`ExportService`).
+- Opening Eira crashed because `Info.plist` gave no reason for using
+  speech recognition. Reasons for speech, the microphone and location
+  were added, and the matching Mac sandbox permissions switched on.
+
+## Google is gone
+
+- No sign-in, no welcome screen, no Sheets reader or write-back and no
+  GoogleSignIn package. The app opens straight into the garden.
+- Reference data now comes from `Windfall/StarterData.json`, loaded on
+  first launch, or from a JSON or CSV file chosen in
+  Settings > Garden data.
+- The app's own database is the master copy and stays on the device.
+
+## Eira
+
+- Questions about eating fungi or naming a mushroom get fixed wording
+  from `EiraSafety.swift` and never reach the model.
+- `lookup_species` tries your own records, then GBIF, then Wikipedia to
+  turn an everyday name into a scientific one.
+- Return sends a message. Shift-Return starts a new line.
+- Pop-up sheets have a size on the Mac. Past conversations had opened as
+  an empty sliver.
+- Voice permission is asked for when the microphone button is tapped,
+  not when Eira opens.
+- A failed save is shown on screen.
+
+## Checks
+
+107 logic tests, including an import of the real starter data.
+
+---
+
 # What changed, and why
 
 This file lists every change made to the Windfall source since the files
