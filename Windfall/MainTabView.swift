@@ -11,6 +11,9 @@ struct MainTabView: View {
             // starter data that ships inside it. After that this does nothing.
             .task {
                 GardenDataImporter().loadStarterDataIfNeeded(into: context)
+                // Make sure the allotment and the permaculture garden exist
+                // as records. It only adds what is missing.
+                GardenPlan.ensureStartingGardens(in: context)
             }
     }
 

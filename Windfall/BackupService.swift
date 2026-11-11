@@ -25,8 +25,12 @@ import UniformTypeIdentifiers
 /// stays stable even when the SwiftData schema changes. Restoring an old
 /// backup into a newer app should still work.
 private struct Backup: Codable {
-    var version = 1
+    /// 2 added gardens, features and the measurements of each bed. The new
+    /// parts are optional, so a version 1 file still restores.
+    var version = 2
     var created = Date.now
+    var gardens: [GardenDTO]?
+    var features: [FeatureDTO]?
     var beds: [BedDTO] = []
     var plants: [PlantDTO] = []
     var plantings: [PlantingDTO] = []
@@ -42,8 +46,27 @@ private struct BedDTO: Codable {
     var raised: Bool, hugel: Bool
     var sections: [SectionDTO]
     var retiredAt: Date?
+    // Where the bed is on the plan and how big it is. Missing from files
+    // made before version 2.
+    var x: Double?, y: Double?, length: Double?, width: Double?
+    var rotation: Double?, height: Double?
 }
-private struct SectionDTO: Codable { var id: UUID, label: String, order: Int }
+private struct SectionDTO: Codable { var id: UUID, label: String, order: Int, length: Double? }
+
+private struct GardenDTO: Codable {
+    var id: UUID, key: String, name: String, order: Int
+    var width: Double?, depth: Double?, topFaces: Double
+    var slopeDown: Double?, steepness: String?, soil: String?
+    var latitude: Double?, longitude: Double?
+    var notes: String?, retiredAt: Date?
+}
+
+private struct FeatureDTO: Codable {
+    var id: UUID, name: String, kind: String, site: String
+    var x: Double, y: Double, length: Double, width: Double
+    var rotation: Double, height: Double, blocksLight: Bool
+    var notes: String?, removedAt: Date?
+}
 
 private struct PlantDTO: Codable {
     var id: UUID, commonName: String
@@ -112,9 +135,34 @@ final class BackupService {
                    order: bed.displayOrder, raised: bed.isRaised,
                    hugel: bed.hasHugelkultur,
                    sections: bed.orderedSections.map {
-                       SectionDTO(id: $0.id, label: $0.label, order: $0.displayOrder)
+                       SectionDTO(id: $0.id, label: $0.label, order: $0.displayOrder,
+                                  length: $0.lengthMetres)
                    },
-                   retiredAt: bed.retiredAt)
+                   retiredAt: bed.retiredAt,
+                   x: bed.originX, y: bed.originY,
+                   length: bed.lengthMetres, width: bed.widthMetres,
+                   rotation: bed.rotationDegrees, height: bed.heightMetres)
+        }
+
+        backup.gardens = (try context.fetch(FetchDescriptor<Garden>())).map { garden in
+            GardenDTO(id: garden.id, key: garden.siteKey, name: garden.name,
+                      order: garden.displayOrder,
+                      width: garden.widthMetres, depth: garden.depthMetres,
+                      topFaces: garden.topFacesDegrees,
+                      slopeDown: garden.slopeDownDegrees,
+                      steepness: garden.slopeSteepnessRaw, soil: garden.soilRaw,
+                      latitude: garden.latitude, longitude: garden.longitude,
+                      notes: garden.notes, retiredAt: garden.retiredAt)
+        }
+
+        backup.features = (try context.fetch(FetchDescriptor<GardenFeature>())).map { feature in
+            FeatureDTO(id: feature.id, name: feature.name, kind: feature.kindRaw,
+                       site: feature.siteRaw,
+                       x: feature.originX, y: feature.originY,
+                       length: feature.lengthMetres, width: feature.widthMetres,
+                       rotation: feature.rotationDegrees, height: feature.heightMetres,
+                       blocksLight: feature.blocksLight,
+                       notes: feature.notes, removedAt: feature.removedAt)
         }
 
         backup.plants = (try context.fetch(FetchDescriptor<Plant>())).map { plant in
@@ -248,6 +296,61 @@ final class BackupService {
             restored += 1
         }
 
+        // Gardens. A garden is matched by its key, not its id, because a
+        // fresh copy of the app makes its own two starting gardens. If the
+        // one already here has never been filled in, the backup's details
+        // are copied onto it. If it has, it is left alone.
+        var gardensByKey: [String: Garden] = [:]
+        for garden in try context.fetch(FetchDescriptor<Garden>()) { gardensByKey[garden.siteKey] = garden }
+
+        for dto in backup.gardens ?? [] {
+            let garden: Garden
+            if let existing = gardensByKey[dto.key] {
+                let untouched = existing.widthMetres == nil && existing.depthMetres == nil
+                    && existing.latitude == nil && existing.soilRaw == nil
+                    && existing.slopeDownDegrees == nil && existing.topFacesDegrees == 0
+                guard untouched else { continue }
+                garden = existing
+            } else {
+                garden = Garden(name: dto.name, siteKey: dto.key)
+                garden.id = dto.id
+                context.insert(garden)
+                gardensByKey[dto.key] = garden
+            }
+            garden.name = dto.name
+            garden.displayOrder = dto.order
+            garden.widthMetres = dto.width
+            garden.depthMetres = dto.depth
+            garden.topFacesDegrees = dto.topFaces
+            garden.slopeDownDegrees = dto.slopeDown
+            garden.slopeSteepnessRaw = dto.steepness
+            garden.soilRaw = dto.soil
+            garden.latitude = dto.latitude
+            garden.longitude = dto.longitude
+            garden.notes = dto.notes
+            garden.retiredAt = dto.retiredAt
+            restored += 1
+        }
+
+        // Sheds, paths, trees and the rest
+        let existingFeatures = Set((try context.fetch(FetchDescriptor<GardenFeature>())).map(\.id))
+        for dto in backup.features ?? [] where !existingFeatures.contains(dto.id) {
+            let feature = GardenFeature(name: dto.name, siteKey: dto.site)
+            feature.id = dto.id
+            feature.kindRaw = dto.kind
+            feature.originX = dto.x
+            feature.originY = dto.y
+            feature.lengthMetres = dto.length
+            feature.widthMetres = dto.width
+            feature.rotationDegrees = dto.rotation
+            feature.heightMetres = dto.height
+            feature.blocksLight = dto.blocksLight
+            feature.notes = dto.notes
+            feature.removedAt = dto.removedAt
+            context.insert(feature)
+            restored += 1
+        }
+
         // Beds and sections
         let existingBeds = Set((try context.fetch(FetchDescriptor<Bed>())).map(\.id))
         var sectionsByID: [UUID: BedSection] = [:]
@@ -263,6 +366,12 @@ final class BackupService {
             bed.isRaised = dto.raised
             bed.hasHugelkultur = dto.hugel
             bed.retiredAt = dto.retiredAt
+            bed.originX = dto.x ?? 0
+            bed.originY = dto.y ?? 0
+            bed.lengthMetres = dto.length
+            bed.widthMetres = dto.width
+            bed.rotationDegrees = dto.rotation ?? 0
+            bed.heightMetres = dto.height
             context.insert(bed)
 
             for sectionDTO in dto.sections {
@@ -270,6 +379,7 @@ final class BackupService {
                 section.id = sectionDTO.id
                 section.label = sectionDTO.label
                 section.displayOrder = sectionDTO.order
+                if let length = sectionDTO.length { section.lengthMetres = length }
                 section.bed = bed
                 bed.sections?.append(section)
                 sectionsByID[sectionDTO.id] = section

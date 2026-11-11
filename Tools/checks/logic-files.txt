@@ -1,6 +1,8 @@
 Parsing.swift
 OSGridReference.swift
 GardenStructure.swift
+SunAndShade.swift
+GardenLayout.swift
 PlantModels.swift
 WildlifeModels.swift
 FaunaModels.swift

@@ -360,6 +360,154 @@ struct LogicTests {
         let reference = OSGridReference.eastingNorthing(from: CLLocationCoordinate2D(latitude: 52.657978, longitude: 1.716053))
         check(reference.map { abs($0.easting - 651409.9) < 6 && abs($0.northing - 313177.3) < 6 } ?? false, "the grid reference conversion is within 6 metres of the Ordnance Survey example (got \(String(describing: reference)))")
 
+        // MARK: Sun and shade
+        func near(_ a: Double, _ b: Double, _ tolerance: Double) -> Bool { abs(a - b) <= tolerance }
+        let bristol = 51.8
+
+        check(near(Sun.declination(dayOfYear: 81), 0, 0.5), "the sun is over the equator at the March equinox")
+        check(near(Sun.declination(dayOfYear: 172), 23.45, 0.1) && near(Sun.declination(dayOfYear: 355), -23.45, 0.1), "the sun's tilt is about 23.4 degrees at the solstices")
+        check(near(Sun.noonAltitude(latitude: bristol, dayOfYear: 81), 38.2, 0.5), "midday sun at the equinox is 90 minus the latitude")
+        check(near(Sun.noonAltitude(latitude: bristol, dayOfYear: 172), 61.6, 0.5), "midday sun at midsummer is about 62 degrees")
+        check(near(Sun.noonAltitude(latitude: bristol, dayOfYear: 355), 14.8, 0.5), "midday sun at midwinter is about 15 degrees")
+        check(near(Sun.position(latitude: bristol, dayOfYear: 172, solarHour: 12).azimuth, 180, 0.01), "the midday sun is due south")
+        check(Sun.position(latitude: bristol, dayOfYear: 172, solarHour: 9).azimuth < 180 && Sun.position(latitude: bristol, dayOfYear: 172, solarHour: 15).azimuth > 180, "the sun is in the east in the morning and the west in the afternoon")
+        check(near(Sun.dayLength(latitude: bristol, dayOfYear: 81), 12, 0.1), "day and night are equal at the equinox")
+        check(near(Sun.dayLength(latitude: bristol, dayOfYear: 172), 16.5, 0.2) && near(Sun.dayLength(latitude: bristol, dayOfYear: 355), 7.5, 0.2), "midsummer days are about sixteen and a half hours, midwinter about seven and a half")
+        let midsummer = Sun.sunriseAndSunset(latitude: bristol, dayOfYear: 172)
+        let sunrise = Sun.position(latitude: bristol, dayOfYear: 172, solarHour: midsummer.sunrise)
+        check(near(sunrise.altitude, 0, 0.5) && near(sunrise.azimuth, 50, 1.5), "the midsummer sun rises in the north-east")
+        check(near(Sun.position(latitude: bristol, dayOfYear: 81, solarHour: 6).azimuth, 90, 1), "the equinox sun rises due east")
+        check(Sun.dayLength(latitude: 80, dayOfYear: 355) == 0 && Sun.dayLength(latitude: 80, dayOfYear: 172) == 24, "polar night and the midnight sun are handled")
+        check(near(Sun.position(latitude: -34, dayOfYear: 355, solarHour: 12).azimuth, 0, 0.01) || near(Sun.position(latitude: -34, dayOfYear: 355, solarHour: 12).azimuth, 360, 0.01), "south of the equator the midday sun is in the north")
+        check(near(Sun.equationOfTimeMinutes(dayOfYear: 307), 16.4, 1) && near(Sun.equationOfTimeMinutes(dayOfYear: 42), -14.2, 1), "a sundial runs about 16 minutes fast in early November and 14 slow in February")
+        check(near(Sun.solarHour(utcHour: 12, longitude: -2.6, dayOfYear: 307), 12.10, 0.02), "clock time becomes time by the sun")
+        var utc = Calendar(identifier: .gregorian); utc.timeZone = TimeZone(secondsFromGMT: 0)!
+        let juneNoon = utc.date(from: DateComponents(year: 2027, month: 6, day: 21, hour: 12, minute: 10))!
+        check(near(Sun.position(latitude: bristol, longitude: -2.6, at: juneNoon).altitude, 61.6, 0.6), "the sun's position can be worked out from a date")
+
+        check(Compass.name(forBearing: 0) == "north" && Compass.name(forBearing: 220) == "south-west" && Compass.name(forBearing: 200) == "south" && Compass.name(forBearing: 350) == "north" && Compass.name(forBearing: -90) == "west", "bearings are named to the nearest of eight points")
+        check(Compass.difference(350, 10) == 20 && Compass.normalised(-90) == 270, "bearings wrap round at north")
+
+        // Shapes on the plan
+        let north = PlanGeometry.step(towardsBearing: 0, topFaces: 0)
+        check(near(north.x, 0, 1e-9) && near(north.y, -1, 1e-9), "with north at the top, north is up the plan")
+        let northWhenTopIsEast = PlanGeometry.step(towardsBearing: 0, topFaces: 90)
+        check(near(northWhenTopIsEast.x, -1, 1e-9) && near(northWhenTopIsEast.y, 0, 1e-9), "with east at the top, north is to the left")
+        let square = PlanGeometry.rectangle(x: 2, y: 3, length: 4, width: 1)
+        check(square == [PlanPoint(x: 2, y: 3), PlanPoint(x: 6, y: 3), PlanPoint(x: 6, y: 4), PlanPoint(x: 2, y: 4)], "a rectangle's corners are measured from its first corner")
+        let quarterTurn = PlanGeometry.rectangle(x: 2, y: 3, length: 4, width: 1, rotation: 90)
+        check(near(quarterTurn[0].x, 2, 1e-9) && near(quarterTurn[0].y, 3, 1e-9) && near(quarterTurn[1].x, 2, 1e-9) && near(quarterTurn[1].y, 7, 1e-9), "turning a bed keeps its first corner where it was measured")
+        check(PlanGeometry.contains(PlanPoint(x: 3, y: 3.5), in: square) && !PlanGeometry.contains(PlanPoint(x: 7, y: 3.5), in: square), "a point is found inside or outside an outline")
+        check(PlanGeometry.overlap(square, PlanGeometry.rectangle(x: 5, y: 3.5, length: 4, width: 1)), "two beds on top of each other are noticed")
+        check(!PlanGeometry.overlap(square, PlanGeometry.rectangle(x: 2, y: 4, length: 4, width: 1)) && !PlanGeometry.overlap(square, PlanGeometry.rectangle(x: 2, y: 4.6, length: 4, width: 1)), "beds side by side or with a path between do not count as overlapping")
+        check(PlanGeometry.overlap(square, PlanGeometry.rectangle(x: 3, y: 2, length: 3, width: 1.2, rotation: 45)), "a turned bed crossing another is noticed")
+        let tree = PlanGeometry.ellipse(x: 0, y: 0, length: 4, width: 4)
+        check(tree.count == 16 && PlanGeometry.contains(PlanPoint(x: 2, y: 2), in: tree) && !PlanGeometry.contains(PlanPoint(x: 0.2, y: 0.2), in: tree), "a tree is round, so the corner of its box is outside it")
+        let stacked = PlanGeometry.stackedPositions(sizes: [(length: 4, width: 1.2), (length: 4, width: 1.2), (length: 3, width: 2)])
+        check(stacked.count == 3 && near(stacked[1].y - stacked[0].y, 1.8, 1e-9) && near(stacked[2].y - stacked[1].y, 1.8, 1e-9), "unplaced beds are stacked with a path between")
+
+        // Shadows
+        let equinoxNoon = Sun.position(latitude: bristol, dayOfYear: 81, solarHour: 12)
+        let wall = PlanShape(corners: PlanGeometry.rectangle(x: 0, y: 10, length: 10, width: 0.2), height: 2)
+        let noonShadow = PlanGeometry.shadow(of: wall, sun: equinoxNoon, topFaces: 0) ?? []
+        let reach = 10 - (noonShadow.map(\.y).min() ?? 10)
+        check(near(reach, 2 / tan(Sun.radians(equinoxNoon.altitude)), 0.01) && near(reach, 2.54, 0.05), "a two metre wall casts about two and a half metres of shade at midday in March")
+        check(near(noonShadow.map(\.y).max() ?? 0, 10.2, 1e-6), "the shadow falls north of the wall, not south")
+        check(PlanGeometry.shadow(of: wall, sun: SunPosition(altitude: -3, azimuth: 0), topFaces: 0) == nil, "there is no shadow at night")
+        check(PlanGeometry.shadow(of: PlanShape(corners: wall.corners, height: 0), sun: equinoxNoon, topFaces: 0) == nil, "something with no height casts no shadow")
+        let turnedShadow = PlanGeometry.shadow(of: wall, sun: equinoxNoon, topFaces: 180) ?? []
+        check(near((turnedShadow.map(\.y).max() ?? 0) - 10.2, 2.54, 0.05), "turn the plan round and the shadow falls the other way")
+        let lateShadow = PlanGeometry.shadow(of: wall, sun: Sun.position(latitude: bristol, dayOfYear: 81, solarHour: 16), topFaces: 0) ?? []
+        check((lateShadow.map(\.x).max() ?? 0) > 12, "afternoon shadows stretch to the east")
+
+        // Hours of sun
+        let openBed = PlanGeometry.samplePoints(x: 0, y: 0, length: 4, width: 1.2)
+        let open = Shade.sunHours(on: openBed, obstacles: [], topFaces: 0, latitude: bristol, dayOfYear: 172)
+        check(open.direct == open.possible && open.possible > 14 && open.possible < 16.5 && open.label == "full sun", "a bed in the open gets sun all day (\(open.direct) hours at midsummer)")
+        let bedNorthOfWall = PlanGeometry.samplePoints(x: 3, y: 8.3, length: 4, width: 1.2)
+        let bedSouthOfWall = PlanGeometry.samplePoints(x: 3, y: 10.7, length: 4, width: 1.2)
+        let shadedWinter = Shade.sunHours(on: bedNorthOfWall, obstacles: [wall], topFaces: 0, latitude: bristol, dayOfYear: 355)
+        let shadedSummer = Shade.sunHours(on: bedNorthOfWall, obstacles: [wall], topFaces: 0, latitude: bristol, dayOfYear: 172)
+        let sunnyWinter = Shade.sunHours(on: bedSouthOfWall, obstacles: [wall], topFaces: 0, latitude: bristol, dayOfYear: 355)
+        check(shadedWinter.direct < 0.5 && shadedWinter.label == "shade", "a bed just north of a wall gets almost no winter sun (\(shadedWinter.direct) hours)")
+        check(shadedSummer.direct > 8, "the same bed gets plenty in summer, when the sun is high (\(shadedSummer.direct) hours)")
+        check(sunnyWinter.direct == sunnyWinter.possible && sunnyWinter.possible > 3, "a bed south of the wall is not shaded by it (\(sunnyWinter.direct) hours)")
+        let byMonth = Shade.monthlySunHours(on: bedNorthOfWall, obstacles: [wall], topFaces: 0, latitude: bristol)
+        check(byMonth.count == 12 && byMonth[5].direct > byMonth[2].direct && byMonth[2].direct > byMonth[11].direct, "sun on a shaded bed rises from winter to summer")
+
+        // Gardens, features and beds as records
+        let plot = ModelContext()
+        check(GardenPlan.ensureStartingGardens(in: plot) == 2 && GardenPlan.ensureStartingGardens(in: plot) == 0, "the two starting gardens are made once and not again")
+        let gardens = (try? plot.fetch(FetchDescriptor<Garden>())) ?? []
+        check(Set(gardens.map(\.siteKey)) == ["allotment", "permaculture"] && gardens.contains { $0.name == "Permaculture garden" }, "their keys match what existing beds already store")
+        let allotment = gardens.first { $0.siteKey == "allotment" }!
+        allotment.widthMetres = 25; allotment.depthMetres = 10; allotment.latitude = bristol
+        allotment.slopeDownDegrees = 180; allotment.slopeSteepness = .gentle; allotment.soil = .clay
+        check(allotment.slopeDescription == "Slopes gently down to the south" && allotment.facingDescription == "Top of the plan faces north" && Garden(name: "New").slopeDescription == "Flat", "a garden describes its slope and which way it faces")
+        check(Garden(name: "A").siteKey != Garden(name: "B").siteKey, "each new garden gets its own key")
+
+        let bedOne = Bed(name: "Bed 1"), bedTwo = Bed(name: "Bed 2"), bedThree = Bed(name: "Bed 3", site: .permaculture)
+        bedOne.displayOrder = 1; bedTwo.displayOrder = 2
+        for bed in [bedOne, bedTwo, bedThree] { bed.lengthMetres = 4; bed.widthMetres = 1.2; plot.insert(bed) }
+        check(GardenPlan.overlappingBeds([bedOne, bedTwo, bedThree], siteKey: "allotment").count == 1, "new beds all start in the corner, on top of each other")
+        check(GardenPlan.placeUnpositionedBeds([bedOne, bedTwo, bedThree], siteKey: "allotment") == 2 && GardenPlan.overlappingBeds([bedOne, bedTwo, bedThree], siteKey: "allotment").isEmpty, "unplaced beds are spread out so none overlap")
+        check(bedThree.originX == 0 && bedThree.originY == 0, "beds in another garden are left alone")
+        bedOne.originX = 3; bedOne.originY = 8.3
+        check(GardenPlan.placeUnpositionedBeds([bedOne, bedTwo, bedThree], siteKey: "allotment") == 0 && bedOne.originY == 8.3, "beds that have been placed are never moved")
+        check(Compass.name(forBearing: bedOne.longSideFaces(in: allotment)) == "south", "a bed running east to west has a long side facing south")
+        bedTwo.rotationDegrees = 90
+        check(["east", "west"].contains(Compass.name(forBearing: bedTwo.longSideFaces(in: allotment))), "a bed running north to south faces east and west")
+        bedTwo.rotationDegrees = 0
+
+        let hedge = GardenFeature(name: "Hedge", kind: .hedge, siteKey: "allotment")
+        hedge.originX = 0; hedge.originY = 10; hedge.lengthMetres = 10; hedge.widthMetres = 0.2; hedge.heightMetres = 2
+        let ash = GardenFeature(name: "Neighbour's ash", kind: .tree, siteKey: "allotment")
+        ash.originX = 21; ash.originY = 11; ash.lengthMetres = 4; ash.widthMetres = 4
+        let cage = GardenFeature(name: "Fruit cage", kind: .other, siteKey: "allotment")
+        cage.heightMetres = 2; cage.blocksLight = false
+        let pond = GardenFeature(name: "Pond", kind: .water, siteKey: "allotment")
+        for feature in [hedge, ash, cage, pond] { plot.insert(feature) }
+        check(ash.heightMetres == 4 && pond.heightMetres == 0 && hedge.kind.displayName == "Hedge", "a new feature starts with a typical height for its kind")
+        check(ash.isOutside(allotment) && !hedge.isOutside(allotment) && ash.outline.count == 16, "a neighbour's tree beyond the boundary is outside the plot, and round")
+        check(cage.shadeShape == nil && pond.shadeShape == nil && hedge.shadeShape != nil, "see-through and flat things cast no shade")
+        let shapes = GardenPlan.shadeShapes(beds: [bedOne, bedTwo, bedThree], features: [hedge, ash, cage, pond], siteKey: "allotment", excluding: bedOne)
+        check(shapes.count == 2, "only the hedge and the tree shade this garden")
+        bedTwo.heightMetres = 0.4
+        check(GardenPlan.shadeShapes(beds: [bedOne, bedTwo, bedThree], features: [], siteKey: "allotment", excluding: bedTwo).isEmpty && GardenPlan.shadeShapes(beds: [bedOne, bedTwo, bedThree], features: [], siteKey: "allotment", excluding: bedOne).count == 1, "a raised bed casts shade on others, never on itself")
+        hedge.removedAt = .now
+        check(hedge.shadeShape == nil, "a hedge that has been taken out no longer shades anything")
+        hedge.removedAt = nil
+        let bedSun = GardenPlan.monthlySunHours(for: bedOne, in: allotment, beds: [bedOne, bedTwo, bedThree], features: [hedge, ash, cage, pond])
+        check(bedSun?.count == 12 && (bedSun?[11].direct ?? 9) < 1 && (bedSun?[5].direct ?? 0) > 8, "a bed behind the hedge gets little sun in December and plenty in June")
+        check(GardenPlan.monthlySunHours(for: bedOne, in: Garden(name: "Unknown"), beds: [], features: []) == nil, "sun hours are not guessed for a garden with no location")
+
+        // The backup file carries the layout
+        let backupService = BackupService()
+        if let file = try? backupService.export(from: plot) {
+            let fresh = ModelContext()
+            GardenPlan.ensureStartingGardens(in: fresh)
+            try? backupService.restore(from: file, into: fresh)
+            let restoredGardens = (try? fresh.fetch(FetchDescriptor<Garden>())) ?? []
+            let restoredAllotment = restoredGardens.first { $0.siteKey == "allotment" }
+            check(restoredGardens.count == 2 && restoredAllotment?.widthMetres == 25 && restoredAllotment?.soil == .clay && restoredAllotment?.latitude == bristol, "a restore fills in the starting gardens and does not double them")
+            let restoredBeds = (try? fresh.fetch(FetchDescriptor<Bed>())) ?? []
+            let restoredOne = restoredBeds.first { $0.name == "Bed 1" }
+            check(restoredBeds.count == 3 && restoredOne?.originX == 3 && restoredOne?.originY == 8.3 && restoredOne?.lengthMetres == 4 && restoredBeds.first { $0.name == "Bed 2" }?.heightMetres == 0.4, "beds come back where they were measured")
+            let restoredFeatures = (try? fresh.fetch(FetchDescriptor<GardenFeature>())) ?? []
+            check(restoredFeatures.count == 4 && restoredFeatures.first { $0.name == "Fruit cage" }?.blocksLight == false && restoredFeatures.first { $0.name == "Neighbour's ash" }?.kind == .tree, "sheds, trees and the rest come back too")
+            restoredAllotment?.widthMetres = 30
+            try? backupService.restore(from: file, into: fresh)
+            check(restoredAllotment?.widthMetres == 30 && ((try? fresh.fetch(FetchDescriptor<GardenFeature>())) ?? []).count == 4, "a second restore changes nothing that is already there")
+            let oldFile = FileManager.default.temporaryDirectory.appendingPathComponent("windfall-v1-backup.json")
+            try? Data(#"{"version":1,"created":"2026-11-01T10:00:00Z","beds":[{"id":"6F9619FF-8B86-D011-B42D-00C04FC964FF","name":"Old bed","site":"allotment","order":1,"raised":true,"hugel":false,"sections":[{"id":"7F9619FF-8B86-D011-B42D-00C04FC964FF","label":"A","order":0}]}],"plants":[],"plantings":[],"harvests":[],"surveys":[],"observations":[],"diary":[],"frosts":[]}"#.utf8).write(to: oldFile)
+            let older = ModelContext()
+            try? backupService.restore(from: oldFile, into: older)
+            let oldBeds = (try? older.fetch(FetchDescriptor<Bed>())) ?? []
+            check(oldBeds.count == 1 && oldBeds.first?.orderedSections.first?.lengthMetres == 1.2 && oldBeds.first?.lengthMetres == nil, "a backup made before gardens existed still restores")
+        } else {
+            check(false, "the backup file can be written")
+        }
+
         print("   logic tests: \(passes) passed, \(failures) failed")
         exit(failures == 0 ? 0 : 1)
     }

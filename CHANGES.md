@@ -1,3 +1,63 @@
+# Overnight, 11 to 12 November 2026: the workings behind the garden editor
+
+**This is the `garden-editor` branch.** It is kept apart from
+`eira-on-device` so the version being tested is not disturbed. Checked
+here (200 logic tests pass) but **not yet built in Xcode**. No screen has
+changed, so the app looks the same.
+
+## Why
+
+William wants to draw each garden from measurements, set which way it
+faces, add things inside and outside it, and see where shade falls. The
+app had two gardens written into the code and a map that drew every new
+bed in the same corner.
+
+## What is new
+
+- **`GardenLayout.swift`: gardens and features as records.**
+  - A `Garden` holds its name, size, which way the top of the plan faces,
+    slope, soil and location. The allotment and the permaculture garden
+    are made as records the first time the app opens. More can be added.
+  - A `GardenFeature` is anything on the plan that is not a bed: path,
+    shed, greenhouse, compost, water, tree, hedge, fence, building. It
+    has a position, size, rotation and height. A negative position puts
+    it outside the plot, such as a neighbour's tree.
+  - A feature can be marked as see-through (a fruit cage) so it is drawn
+    but casts no shade.
+- **Beds have a height**, so a tall raised bed or bean frame can shade
+  its neighbours.
+- **`SunAndShade.swift`: where the sun is and where shadows fall.**
+  Plain arithmetic with no database or screens in it.
+  - The sun's height and compass direction for any latitude, day and time.
+  - The outline of the shadow each object casts.
+  - Hours of direct sun on a bed, for a day or for each month.
+- **Help for the editor:** a check for beds that overlap, and a way to
+  spread out beds that have never been placed.
+- **Backups carry the layout.** The backup file now holds gardens,
+  features and each bed's position, size, rotation and height. Before
+  this, a restored backup lost where every bed was. Older backup files
+  still restore.
+- **Eira's fixed safety replies were fact-checked** and now name UK
+  sources. See the comments in `EiraSafety.swift`.
+
+## How beds find their garden
+
+Every bed already stores a short piece of text saying which garden it is
+in: "allotment" or "permaculture". Each `Garden` record has a `siteKey`
+holding the same text. So no existing record had to change.
+
+## Not done yet
+
+- The screens still use the old fixed list of two gardens. The editor
+  screen and a map that draws to scale come next, and need Xcode.
+- The existing map turns a bed about its middle. The new sums turn it
+  about its first corner, the one you measure. The map must follow.
+- Shade ignores the slope and treats a bare tree like one in leaf.
+- Found on the way: frost records are written to the backup file but
+  never restored from it. Not fixed here.
+
+---
+
 # Later on 11 November 2026: three more safety rules in code
 
 Written away from the Mac. Checked here (138 logic tests pass) but

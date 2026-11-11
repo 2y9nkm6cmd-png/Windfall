@@ -17,6 +17,8 @@ struct WindfallApp: App {
             BedSection.self,
             FrostRecord.self,
             WeatherSnapshot.self,
+            Garden.self,
+            GardenFeature.self,
             // Plants and growing
             Plant.self,
             Planting.self,

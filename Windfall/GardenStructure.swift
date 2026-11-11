@@ -46,6 +46,10 @@ final class Bed {
     /// Rotation in degrees. Turning the beds the other way is a value change,
     /// not a data migration.
     var rotationDegrees: Double = 0
+    /// How far the bed stands above the ground, in metres, including any
+    /// tall frame or crop support you want counted as casting shade.
+    /// Empty means ground level.
+    var heightMetres: Double?
 
     // Construction
     var isRaised: Bool = false
