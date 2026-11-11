@@ -43,8 +43,12 @@ final class AuthenticationManager {
                 return
             }
             if let user {
-                self.isSignedIn = true
-                self.userEmail = user.profile?.email ?? ""
+                // Google may call back on a background thread. Screens must
+                // only be changed from the main thread, so hop there first.
+                Task { @MainActor in
+                    self.isSignedIn = true
+                    self.userEmail = user.profile?.email ?? ""
+                }
             }
         }
     }
@@ -78,7 +82,11 @@ final class AuthenticationManager {
             hint: nil,
             additionalScopes: requiredScopes
         ) { [weak self] result, error in
-            self?.handleSignInResult(result, error)
+            guard let self else { return }
+            // Same hop to the main thread as in restorePreviousSignIn.
+            Task { @MainActor in
+                self.handleSignInResult(result, error)
+            }
         }
     }
     #elseif os(macOS)
@@ -88,7 +96,11 @@ final class AuthenticationManager {
             hint: nil,
             additionalScopes: requiredScopes
         ) { [weak self] result, error in
-            self?.handleSignInResult(result, error)
+            guard let self else { return }
+            // Same hop to the main thread as in restorePreviousSignIn.
+            Task { @MainActor in
+                self.handleSignInResult(result, error)
+            }
         }
     }
     #endif
