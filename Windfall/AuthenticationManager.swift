@@ -22,6 +22,13 @@ final class AuthenticationManager {
     var userEmail: String = ""
     var errorMessage: String? = nil
 
+    /// True once you have chosen to use Windfall without a Google account.
+    /// Only the Google Sheets link needs Google. The garden records, the
+    /// journal and Eira all live on the device and work without it.
+    /// The choice is remembered in UserDefaults, a small settings store,
+    /// so the app does not ask again each time it opens.
+    var isUsingWithoutGoogle: Bool = UserDefaults.standard.bool(forKey: "windfallWithoutGoogle")
+
     // The OAuth scopes we need — Sheets for data, Drive for file metadata
     private let requiredScopes = [
         "https://www.googleapis.com/auth/spreadsheets",
@@ -119,12 +126,22 @@ final class AuthenticationManager {
         errorMessage = nil
     }
 
+    // MARK: - Using the app without Google
+
+    func continueWithoutGoogle() {
+        isUsingWithoutGoogle = true
+        UserDefaults.standard.set(true, forKey: "windfallWithoutGoogle")
+    }
+
     // MARK: - Sign out
 
+    /// Signs out of Google and returns to the welcome screen.
     func signOut() {
         GIDSignIn.sharedInstance.signOut()
         isSignedIn = false
         userEmail = ""
+        isUsingWithoutGoogle = false
+        UserDefaults.standard.set(false, forKey: "windfallWithoutGoogle")
     }
 
     // MARK: - Access token for API calls
