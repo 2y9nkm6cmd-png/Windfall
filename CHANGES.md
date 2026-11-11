@@ -1,3 +1,38 @@
+# Later on 11 November 2026: three more safety rules in code
+
+Written away from the Mac. Checked here (138 logic tests pass) but
+**not yet built in Xcode**.
+
+**Why:** the mushroom question showed the model follows its "never"
+rules most of the time, not every time. Three more rules are serious
+enough to take away from the model completely:
+
+- **Preserving.** Questions asking for canning, bottling, pickling or
+  kitchen blanching times, temperatures or safety get fixed wording that
+  points to a tested, published recipe. Garden blanching (keeping light
+  off celery, endive or leeks) still goes to the model.
+- **Pesticide amounts.** Questions asking how much slug pellet,
+  weedkiller, pesticide or homemade spray to use get fixed wording that
+  points to the label and offers chemical-free ideas.
+- **Medicine.** Questions asking for doses, remedies or medicinal uses
+  get fixed wording that points to a GP, pharmacist or qualified
+  medical herbalist.
+
+**How it works:** `EiraSafety.swift` tidies each question (lower case,
+punctuation turned into spaces) and looks for two halves together, such
+as a preserving word and a time word. Needing both halves keeps ordinary
+gardening questions reaching the model. The model's own rule 12 is still
+there as a second line of defence for anything the word lists miss.
+
+**Known gap:** "How long do I can tomatoes?" is not caught, because
+"can" on its own appears in too many ordinary questions. Rule 12 covers it.
+
+⚠️ CHECK: the sources named in the preserving reply and the point that
+UK pesticide labels are legally binding were written by Claude from
+general knowledge.
+
+---
+
 # Changes on 11 November 2026
 
 These came out of the first evening of building and running the app on

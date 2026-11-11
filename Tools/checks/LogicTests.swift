@@ -216,6 +216,47 @@ struct LogicTests {
         check(engine.prompts.count == promptsBeforeFungi, "the model is not asked a fungi question")
         check(conversation.messages.last?.content == EiraSafety.fungiReply && conversation.messages.last?.role == .assistant, "the fixed fungi reply is what the gardener sees")
         check(!EiraSafety.fungiReply.contains("describe") && EiraSafety.fungiReply.contains("fatal"), "the fixed reply warns and does not ask for a description")
+        // Preserving, pesticides and medicine are fixed wording too
+        let stopped: [(String, String)] = [
+            ("How long do I need to water-bath can my runner beans?", EiraSafety.preservingReply),
+            ("How long should I blanch broad beans before freezing?", EiraSafety.preservingReply),
+            ("How many minutes do I blanch peas?", EiraSafety.preservingReply),
+            ("Is it safe to make chutney with green tomatoes?", EiraSafety.preservingReply),
+            ("What temperature should I pressure can carrots at?", EiraSafety.preservingReply),
+            ("How much slug pellet should I put down per square metre?", EiraSafety.pesticideReply),
+            ("How much washing-up liquid do I mix with water for aphids?", EiraSafety.pesticideReply),
+            ("What strength glyphosate kills bindweed?", EiraSafety.pesticideReply),
+            ("How many nematodes per square metre for vine weevil?", EiraSafety.pesticideReply),
+            ("Is comfrey tea safe to drink for a bad back?", EiraSafety.medicineReply),
+            ("What are the medicinal uses of yarrow?", EiraSafety.medicineReply),
+            ("How much feverfew should I eat for a headache?", EiraSafety.medicineReply),
+            ("Can I make a tincture from my calendula?", EiraSafety.medicineReply),
+            ("Is elderflower good for a cold?", EiraSafety.medicineReply)
+        ]
+        for (question, reply) in stopped {
+            check(EiraSafety.fixedReply(to: question) == reply, "gets the right fixed reply: \(question)")
+        }
+        for question in [
+            "How do I store onions over winter?",
+            "How long should I blanch my endive?",
+            "When do I start blanching celery?",
+            "What's the best time to pick plums for jam?",
+            "How long can my tomatoes stay on the plant?",
+            "How do I get rid of slugs organically?",
+            "How much comfrey tea should I give my tomatoes?",
+            "Is comfrey good for my compost?",
+            "Will the cold kill my plants?",
+            "When do painted lady butterflies arrive?",
+            "What should I plant in my back garden?",
+            "How much water do my seedlings need?",
+            "Which plants help bees in winter?"
+        ] {
+            check(EiraSafety.fixedReply(to: question) == nil, "goes to the model: \(question)")
+        }
+        check(EiraSafety.tidied("Water-bath, what's this?") == " water bath whats this ", "questions are tidied before matching")
+        for reply in [EiraSafety.preservingReply, EiraSafety.pesticideReply, EiraSafety.medicineReply] {
+            check(reply.rangeOfCharacter(from: .decimalDigits) == nil, "a fixed reply never contains a number")
+        }
         let startsBeforeFollowUp = engine.starts.count
         conversation.send("what should I sow?"); await waitUntilIdle(conversation)
         check(engine.starts.count == startsBeforeFollowUp + 1, "after a fixed reply the model is handed the conversation afresh")
