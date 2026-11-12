@@ -29,6 +29,9 @@ struct EiraFloatingBar: View {
     @AppStorage("eiraBarStaysOpen") private var staysOpen = false
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    // Which screen is on top, if the screens have said. The question mark
+    // means "if there is one": without it the bar still works.
+    @Environment(EiraScreen.self) private var screen: EiraScreen?
 
     @State private var isOpen = false
     @State private var question = ""
@@ -54,6 +57,15 @@ struct EiraFloatingBar: View {
 
     private var expanded: Bool { isOpen || staysOpen }
 
+    /// The grey words in the empty text box. When a plant, a bed or
+    /// another single thing is open, they name it.
+    private var hint: String {
+        if let short = screen?.current?.short {
+            return "Ask Eira about \(short)"
+        }
+        return "Ask Eira, search or open anything"
+    }
+
     var body: some View {
         // GeometryReader reports how much room there is, so the bar can be
         // as wide as the screen allows, up to a sensible limit.
@@ -66,7 +78,7 @@ struct EiraFloatingBar: View {
                 symbolButton(travel: barWidth - closedSize)
 
                 if expanded {
-                    TextField("Ask Eira, search or open anything", text: $question)
+                    TextField(hint, text: $question)
                         .textFieldStyle(.plain)
                         .foregroundStyle(Theme.ink)
                         .focused($fieldHasFocus)
@@ -94,7 +106,8 @@ struct EiraFloatingBar: View {
         .frame(height: closedSize)
         .sheet(item: $eiraRequest) { request in
             NavigationStack {
-                EiraChatView(openingQuestion: request.text.isEmpty ? nil : request.text)
+                EiraChatView(openingQuestion: request.text.isEmpty ? nil : request.text,
+                             lookingAt: request.lookingAt)
                     .toolbar {
                         ToolbarItem(placement: .cancellationAction) {
                             Button("Done") { eiraRequest = nil }
@@ -132,6 +145,9 @@ struct EiraFloatingBar: View {
             }
         }
         .buttonStyle(.plain)
+        // Command and K opens the bar from the keyboard, on a Mac or an
+        // iPad with a keyboard attached.
+        .keyboardShortcut("k", modifiers: .command)
         .accessibilityLabel(expanded ? "Close Eira's bar" : "Ask Eira")
         .contextMenu {
             Toggle("Keep the bar open", isOn: $staysOpen)
@@ -169,9 +185,14 @@ struct EiraFloatingBar: View {
 
     private func open(travel: CGFloat) {
         move(opening: true, travel: travel)
-        // Give the bar time to arrive and settle before the keyboard appears.
+        // Hand the keyboard to the text box straight away, so typing can
+        // begin while the snowdrop is still on its way across. Nobody has
+        // to wait for the animation, and nobody has to miss it.
+        //
+        // The text box only exists once the bar has begun to open, which
+        // is why this waits a twenty-fifth of a second before asking.
         Task {
-            try? await Task.sleep(for: .seconds(travelTime(for: travel) + 0.35))
+            try? await Task.sleep(for: .milliseconds(40))
             if isOpen { fieldHasFocus = true }
         }
     }
@@ -260,7 +281,8 @@ struct EiraFloatingBar: View {
     }
 
     private func openEira(with text: String?) {
-        eiraRequest = BarRequest(text: text ?? "")
+        // Note what is on screen at this moment, to pass on with the words.
+        eiraRequest = BarRequest(text: text ?? "", lookingAt: screen?.current?.full)
         question = ""
     }
 
@@ -275,4 +297,44 @@ struct EiraFloatingBar: View {
 struct BarRequest: Identifiable {
     let id = UUID()
     let text: String
+    /// What was open on screen when the words were sent. Only Eira's chat
+    /// uses it. See EiraScreen.
+    var lookingAt: String? = nil
+}
+
+// MARK: - Telling Eira what is on screen
+
+extension View {
+
+    /// Says what this screen is showing, for Eira.
+    ///
+    /// `full` is the phrase she is given: "the plant Apple, Spartan".
+    /// `short`, when there is one, also goes in the hint in her bar:
+    /// "Ask Eira about Apple, Spartan".
+    func eiraLooksAt(_ full: String, short: String? = nil) -> some View {
+        modifier(EiraLooksAt(sight: EiraSight(short: short, full: full)))
+    }
+}
+
+/// Registers a screen with the tracker when it appears and removes it
+/// when it goes. See EiraScreen.
+private struct EiraLooksAt: ViewModifier {
+
+    let sight: EiraSight
+
+    // "If there is one": a preview, or a sheet shown without the tracker,
+    // simply does nothing.
+    @Environment(EiraScreen.self) private var screen: EiraScreen?
+    // A label belonging to this one screen. @State keeps it the same for
+    // as long as the screen lives.
+    @State private var id = UUID()
+
+    func body(content: Content) -> some View {
+        content
+            .onAppear { screen?.show(sight, id: id) }
+            .onDisappear { screen?.hide(id: id) }
+            // The same screen can change what it shows, for example when
+            // a plant is renamed.
+            .onChange(of: sight) { _, changed in screen?.show(changed, id: id) }
+    }
 }

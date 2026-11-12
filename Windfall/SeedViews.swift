@@ -301,6 +301,9 @@ struct SeedDetailView: View {
         }
         .navigationTitle(packet.plant?.commonName ?? "Seed")
         .paperScreen()
+        // Tells Eira which seed packet is open. See EiraScreen.
+        .eiraLooksAt("a seed packet of \(packet.plant?.commonName ?? "an unnamed plant")",
+                     short: packet.plant.map { "this packet of \($0.commonName)" })
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif

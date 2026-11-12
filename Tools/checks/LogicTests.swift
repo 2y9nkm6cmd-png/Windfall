@@ -216,6 +216,32 @@ struct LogicTests {
         check(engine.prompts.count == promptsBeforeFungi, "the model is not asked a fungi question")
         check(conversation.messages.last?.content == EiraSafety.fungiReply && conversation.messages.last?.role == .assistant, "the fixed fungi reply is what the gardener sees")
         check(!EiraSafety.fungiReply.contains("describe") && EiraSafety.fungiReply.contains("fatal"), "the fixed reply warns and does not ask for a description")
+        // What is on screen is passed to the model, and only to the model
+        conversation.screenNote = "the plant Apple, Spartan"
+        conversation.send("What grows well beside this?"); await waitUntilIdle(conversation)
+        check(engine.prompts.last?.contains("the plant Apple, Spartan") == true && engine.prompts.last?.hasSuffix("What grows well beside this?") == true, "the model is told what is on screen, ahead of the question")
+        check(conversation.messages.last(where: { $0.role == .user })?.content == "What grows well beside this?", "the question on screen stays as it was typed")
+        let promptsBeforeNote = engine.prompts.count
+        conversation.send("Are these mushrooms safe to eat?"); await waitUntilIdle(conversation)
+        check(engine.prompts.count == promptsBeforeNote, "a fixed safety reply still wins when something is on screen")
+        conversation.screenNote = nil
+        conversation.send("And now?"); await waitUntilIdle(conversation)
+        check(engine.prompts.last == "And now?", "with nothing on screen the question goes as typed")
+        // The tracker of which screen is on top
+        let tracker = EiraScreen()
+        let rootID = UUID(), detailID = UUID()
+        tracker.show(EiraSight(short: nil, full: "the plant library"), id: rootID)
+        tracker.show(EiraSight(short: "Apple, Spartan", full: "the plant Apple, Spartan"), id: detailID)
+        check(tracker.current?.short == "Apple, Spartan", "the newest screen is the one being looked at")
+        tracker.hide(id: detailID)
+        check(tracker.current?.full == "the plant library", "closing a screen goes back to the one beneath")
+        tracker.show(EiraSight(short: "Apple, Spartan", full: "the plant Apple, Spartan"), id: detailID)
+        tracker.hide(id: rootID)
+        tracker.show(EiraSight(short: nil, full: "the plant library"), id: rootID)
+        check(tracker.current?.full == "the plant library", "a screen that comes back goes on top")
+        tracker.hide(id: rootID); tracker.hide(id: detailID)
+        check(tracker.current == nil, "with every screen gone there is nothing to tell")
+        check(EiraSight.name("Apple", variety: "Spartan") == "Apple, Spartan" && EiraSight.name("Chervil", variety: " ") == "Chervil" && EiraSight.name("Chervil", variety: nil) == "Chervil", "a name carries its variety only when it has one")
         // Preserving, pesticides and medicine are fixed wording too
         let stopped: [(String, String)] = [
             ("How long do I need to water-bath can my runner beans?", EiraSafety.preservingReply),

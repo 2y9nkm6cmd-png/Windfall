@@ -98,6 +98,11 @@ final class EiraConversation {
     /// Why Eira cannot run, in plain words, when she cannot.
     private(set) var setupProblem: String?
 
+    /// What the gardener had open when they asked, such as "the plant
+    /// Apple, Spartan". Nil when the chat was not opened from a screen
+    /// that describes itself, and then nothing changes. See EiraScreen.
+    var screenNote: String?
+
     private var engine: EiraEngine?
     private var hub: EiraToolHub?
     private var store: EiraChatStore?
@@ -188,6 +193,13 @@ final class EiraConversation {
 
             Using that, answer: \(text)
             """
+        }
+
+        // Tell the model what is open on screen, if anything. Only the
+        // model sees this line. The conversation on screen, and what is
+        // saved, keep the question exactly as it was typed.
+        if let screenNote, !screenNote.isEmpty {
+            prompt = EiraScreen.line(for: screenNote) + "\n\n" + prompt
         }
 
         do {

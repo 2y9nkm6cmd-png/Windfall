@@ -12,6 +12,7 @@ EiraEngine.swift
 EiraSafety.swift
 EiraChatStore.swift
 EiraWebLookup.swift
+EiraScreen.swift
 EiraConversation.swift
 EiraTools.swift
 CompanionPlanting.swift

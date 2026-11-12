@@ -162,6 +162,8 @@ struct FaunaDetailView: View {
         }
         .navigationTitle(fauna.commonName)
         .paperScreen()
+        // Tells Eira which species is open. See EiraScreen.
+        .eiraLooksAt("the species \(fauna.commonName)", short: fauna.commonName)
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif

@@ -1,3 +1,66 @@
+# 12 November 2026, late evening: Eira knows the screen, and a lens for the sidebar
+
+**Still the `visual-design` branch.** Builds on the Mac for macOS and the
+iOS Simulator. 209 logic tests pass. Looked at in the iPad Pro simulator.
+**Not run with William's real records, and Eira's use of the new screen
+hint has not been tried with a real model.**
+
+## What is new
+
+- **Typing straight away** (`EiraFloatingBar.swift`). Pressing the
+  snowdrop gives the text box the keyboard at once, so typing can start
+  while the bar is still opening. Before, the keyboard waited for the
+  animation to finish. Command-K opens the bar from the keyboard.
+- **Eira is told what is on screen** (`EiraScreen.swift`). A screen says
+  what it shows with one line, `.eiraLooksAt("the plant Apple, Spartan",
+  short: "Apple, Spartan")`. The bar's hint then reads "Ask Eira about
+  Apple, Spartan", and the phrase is put in front of the question for the
+  model only. The chat shows what she was told, with a "Don't use this"
+  button. Screens that do this so far: each sidebar place, a plant, a bed,
+  a sowing, a species, a garden plan and a seed packet.
+  - She does not see the screen. She gets one phrase the screen wrote.
+  - A fixed safety reply still wins over anything on screen (tested).
+  - With no phrase, nothing about her prompt changes (tested).
+- **The sidebar's highlight is a lens** (`MainTabView.swift`). At rest it
+  is Apple's glass, tinted lime, lying over the rows. It can be carried
+  by pressing and sliding, and settles on the nearest row.
+- **Files William sent this evening** are in `Design/Reference`: four
+  screenshots and his recording of the bottom bar in Apple's Music app.
+
+## Waiting on one thing
+
+William wants the highlight to magnify and bend what is under it as it
+moves, like the lens on the tab bar in Apple's Music app.
+
+- Apple does not offer that lens as a separate piece. The public glass
+  (`glassEffect`, `Glass.regular`, `.clear`, `.tint`, `.interactive`,
+  `GlassEffectContainer`, `glassEffectID`, `glassEffectUnion`) was
+  checked in the SDK on William's Mac (Xcode 27.2). In the simulator,
+  clear glass frosts what is behind it. It does not magnify it.
+- On iPhone the app uses Apple's own tab bar, which has the real lens.
+- For the sidebar the bending is written as a small program for the
+  graphics chip, `Design/Shaders/Lens.metal`, called by `LensRefraction`
+  in `MainTabView.swift`.
+- **It is switched off.** Xcode cannot build a `.metal` file without the
+  "Metal Toolchain", a separate download, which is not installed on
+  William's Mac. With the file inside the app, nothing builds at all. So
+  the file waits outside the app and `LensRefraction.isBuilt` is false.
+- To switch it on: install the toolchain
+  (`xcodebuild -downloadComponent MetalToolchain`), move `Lens.metal`
+  into the `Windfall` folder, set `isBuilt` to true, build.
+- ⚠️ The program has never been built or seen running. Expect to tune it.
+
+## A checking aid
+
+Starting the app with `-sidebarLensHeld YES` leaves the lens lifted and
+between two rows, so a still picture can show the bending.
+
+## Design work, not code
+
+Four options for the Year page are on the design canvas ("Windfall
+redesign"): dots, ribbons, every job on one line, and this month first.
+William has not chosen yet. The Year screen in the app is unchanged.
+
 # 12 November 2026, evening: the visual design
 
 **This is the `visual-design` branch.** It sits on top of `garden-editor`.

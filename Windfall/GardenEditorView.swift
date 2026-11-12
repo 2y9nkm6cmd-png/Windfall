@@ -90,6 +90,9 @@ struct GardenEditorView: View {
         }
         .navigationTitle(garden.name.isEmpty ? "Garden" : garden.name)
         .paperScreen()
+        // Tells Eira which garden's plan is open. See EiraScreen.
+        .eiraLooksAt("the plan of \(garden.name.isEmpty ? "a garden" : "the garden called " + garden.name)",
+                     short: garden.name.isEmpty ? nil : "the plan of \(garden.name)")
         .onDisappear { compass.stop() }
     }
 

@@ -8,6 +8,7 @@ Everything about how Windfall looks is kept here.
 | `Icons/` | One small SVG drawing for each icon in the app. These are the masters: edit one and the app follows |
 | `colours.json` | Every named colour, each with a light-mode and a dark-mode value |
 | `Archive/` | Anything that has been replaced or set aside, kept in case it is wanted again |
+| `Shaders/` | Small programs for the graphics chip that are written but not yet part of the app. See the note at the top of each |
 
 ## The rules
 
@@ -45,6 +46,12 @@ Icons are drawn on a 24 by 24 grid with a line 1.6 wide and rounded ends.
 | `2026-11-12 icon-sheet-first-draft.svg` | The first SVG icon sheet. William was "not 100% happy with all icons" |
 | `2026-11-12 note-partly-cloudy-and-sun.png` | William's note on the Partly cloudy icon in the first draft |
 | `2026-11-12 note-windfall-branch.png` | William's note on the branch icon: "This is weird" |
+| `2026-11-12 screenshot-sidebar-highlight.png` | The sidebar as first built, sent with "more of that liquid glass animation as it moves between sections" |
+| `2026-11-12 screenshot-eira-bar-short-of-sidebar.png` | Eira's bar stopping short of the sidebar, sent with "roll right across to the sidebar" and "a little bounce" |
+| `2026-11-12 screenshot-plants-with-eira-bar.png` | The plant library on the Mac with Eira's bar open, sent with the request to type straight away |
+| `2026-11-12 screenshot-year-page-before.png` | The Year page as a grid of solid blocks, before any redesign. Sent with "Dots in each month might be good" |
+| `2026-11-12 music-tab-bar-lens.mp4` | William's screen recording of the bottom bar in Apple's Music app: the moving lens he wants for the sidebar. Made smaller to keep the repository light. He has the original |
+| `2026-11-12 music-tab-bar-lens-frames.jpg` | Still frames from that recording, three a second, for looking at without playing it |
 
 ## What is in Archive
 

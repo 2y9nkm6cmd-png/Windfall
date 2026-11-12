@@ -49,6 +49,20 @@ enum AppSection: String, CaseIterable, Identifiable {
     /// An iPhone has room for five tabs. Year and Plants are reached from
     /// Gardens there.
     static let phoneTabs: [AppSection] = [.today, .gardens, .wildlife, .journal, .more]
+
+    /// What Eira is told when this place is open and nothing more
+    /// particular, such as one plant, is on top of it. See EiraScreen.
+    var eiraPhrase: String {
+        switch self {
+        case .today: return "the Today screen, with the weather, today's jobs and recent records"
+        case .gardens: return "the Gardens screen, with the beds, sowings and garden plans"
+        case .year: return "the Year screen, a calendar of when each plant is sown, planted out and harvested"
+        case .plants: return "the plant library"
+        case .wildlife: return "the Wildlife screen, with sightings and surveys"
+        case .journal: return "the journal"
+        case .more: return "the settings and tools"
+        }
+    }
 }
 
 struct MainTabView: View {
@@ -64,6 +78,10 @@ struct MainTabView: View {
     @State private var selection: AppSection =
         UserDefaults.standard.string(forKey: "startSection").flatMap(AppSection.init(rawValue:)) ?? .today
 
+    /// Keeps track of which screen is on top, so Eira can be told what
+    /// is being looked at. See EiraScreen.
+    @State private var eiraScreen = EiraScreen()
+
     var body: some View {
         Group {
             if sizeClass == .compact {
@@ -75,6 +93,8 @@ struct MainTabView: View {
         .background { PaperBackground() }
         // Apple's own controls, such as switches, use this colour.
         .tint(Theme.leaf)
+        // Hands the screen tracker to every screen inside, and to Eira's bar.
+        .environment(eiraScreen)
         // The first time the app runs, fill the plant library from the
         // starter data that ships inside it. After that this does nothing.
         .task {
@@ -101,6 +121,7 @@ struct MainTabView: View {
             // a screen push another on top and offer a way back.
             NavigationStack {
                 screen(for: selection)
+                    .eiraLooksAt(selection.eiraPhrase)
             }
             // A new identity for each place gives it a fresh stack, so
             // the "back" trail from one never leaks into another.
@@ -136,6 +157,7 @@ struct MainTabView: View {
                 Tab(section.title, image: "Icons/\(section.icon.rawValue)", value: section) {
                     NavigationStack {
                         screen(for: section)
+                            .eiraLooksAt(section.eiraPhrase)
                     }
                     .safeAreaInset(edge: .bottom, spacing: 0) {
                         EiraFloatingBar()
@@ -182,18 +204,35 @@ struct SidebarView: View {
     @Binding var selection: AppSection
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    // Some people ask their device for less see-through. For them the
+    // lens stays flat and solid.
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
 
     private let rowHeight: CGFloat = 44
     private let rowGap: CGFloat = 4
+    private let panelWidth: CGFloat = 212
+    private let panelPadding: CGFloat = 12
 
-    // The highlight is one shape that slides between rows. Its top and
-    // bottom edges are kept separately, measured down from the first row,
-    // so one edge can race ahead and the other catch up. That stretch and
-    // snap is what makes it move like a drop of liquid.
-    @State private var highlightTop: CGFloat = 0
-    @State private var highlightBottom: CGFloat = 44
+    // The lens is the piece of glass that marks the chosen row. Its top
+    // and bottom edges are kept separately, measured down from the first
+    // row, so that one edge can race ahead and the other catch up. That
+    // stretch and snap is what makes it move like a drop of liquid.
+    @State private var lensTop: CGFloat = 0
+    @State private var lensBottom: CGFloat = 44
+    /// True while the lens is on the move. It lifts off the surface: a
+    /// little larger and quite clear, so the rows beneath show through
+    /// it, magnified and bent.
+    @State private var isLifted = false
     /// Counts the moves, so an older move never finishes on top of a newer one.
     @State private var moveNumber = 0
+
+    /// How far down the last row starts. The lens never goes below it.
+    private var lastRowTop: CGFloat {
+        CGFloat(AppSection.allCases.count - 1) * (rowHeight + rowGap)
+    }
+
+    /// True when the lens is lifted and allowed to be see-through.
+    private var bends: Bool { LensRefraction.isBuilt && isLifted && !reduceTransparency }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -207,92 +246,286 @@ struct SidebarView: View {
             .padding(.top, 10)
             .padding(.bottom, 20)
 
-            VStack(spacing: rowGap) {
-                ForEach(AppSection.allCases) { section in
-                    let isChosen = section == selection
-                    Button {
-                        withAnimation(.smooth(duration: 0.3)) { selection = section }
-                    } label: {
-                        HStack(spacing: 12) {
-                            WIconView(section.icon, size: 22)
-                            Text(section.title)
-                            Spacer(minLength: 0)
-                        }
-                        .padding(.horizontal, 12)
-                        .frame(height: rowHeight)
-                        .foregroundStyle(isChosen ? Theme.sidebarSelectedInk : Theme.sidebarInk)
-                        // Makes the whole row tappable, not only its words.
-                        .contentShape(.rect)
+            // Three layers, drawn in this order, each on top of the last.
+            ZStack(alignment: .top) {
+                // 1. The rows, in the sidebar's cream ink. These are the
+                //    real buttons. While the lens is lifted, the part of
+                //    them under it is magnified and bent (LensRefraction).
+                rows
+                    .modifier(LensRefraction(top: lensTop, bottom: lensBottom,
+                                             strength: bends ? 1 : 0,
+                                             width: panelWidth - panelPadding * 2))
+
+                // 2. The lens itself.
+                lens
+
+                // 3. The words again in dark ink, cut to the shape of the
+                //    lens, so the chosen row reads sharply on it. They
+                //    fade out while the lens is lifted and clear.
+                rowLabels
+                    .foregroundStyle(Theme.sidebarSelectedInk)
+                    .mask(alignment: .top) {
+                        RoundedRectangle(cornerRadius: 14)
+                            .frame(height: max(lensBottom - lensTop, 8))
+                            .offset(y: lensTop)
                     }
-                    .buttonStyle(.plain)
-                    .accessibilityAddTraits(isChosen ? .isSelected : [])
-                }
+                    .opacity(bends ? 0 : 1)
+                    .allowsHitTesting(false)
+                    .accessibilityHidden(true)
             }
-            // The highlight sits behind the rows, so the words stay on top.
-            .background(alignment: .top) {
-                RoundedRectangle(cornerRadius: 13)
-                    .fill(Theme.sidebarSelected)
-                    // A soft line of light along the top edge, like the
-                    // rim of a drop of water.
-                    .overlay {
-                        RoundedRectangle(cornerRadius: 13)
-                            .strokeBorder(
-                                LinearGradient(colors: [.white.opacity(0.55), .white.opacity(0.05)],
-                                               startPoint: .top, endPoint: .bottom),
-                                lineWidth: 1)
-                    }
-                    .shadow(color: .black.opacity(0.18), radius: 5, y: 2)
-                    .frame(height: max(highlightBottom - highlightTop, 8))
-                    .offset(y: highlightTop)
-            }
+            // Press and slide anywhere on the rows to carry the lens along,
+            // as on the tab bar in Apple's own apps. "Simultaneous" means
+            // the buttons underneath still get their taps.
+            .simultaneousGesture(
+                DragGesture(minimumDistance: 6)
+                    .onChanged { value in carryLens(to: value.location.y) }
+                    .onEnded { value in dropLens(at: value.location.y) }
+            )
 
             Spacer(minLength: 0)
         }
-        .padding(12)
-        .frame(width: 212)
+        .padding(panelPadding)
+        .frame(width: panelWidth)
         .frame(maxHeight: .infinity)
         // Glass tinted dark green. The tint is nearly solid so the cream
         // words stay easy to read over whatever is behind.
         .glassEffect(.regular.tint(Theme.sidebar.opacity(0.9)), in: .rect(cornerRadius: 26))
         .padding(.leading, 12)
         .padding(.vertical, 12)
-        .onAppear { moveHighlight(to: selection, animated: false) }
+        .onAppear {
+            moveLens(to: selection, animated: false)
+            // A checking aid. Starting the app with `-sidebarLensHeld YES`
+            // leaves the lens lifted and part-way between two rows, so a
+            // still picture can show how it bends what is under it.
+            if UserDefaults.standard.bool(forKey: "sidebarLensHeld") {
+                let nudge = (rowHeight + rowGap) * 0.55
+                isLifted = true
+                lensTop += nudge
+                lensBottom += nudge
+            }
+        }
         .onChange(of: selection) { _, section in
-            moveHighlight(to: section, animated: true)
+            moveLens(to: section, animated: true)
         }
     }
 
-    /// Slides the highlight to a row.
+    // MARK: The pieces
+
+    private var rows: some View {
+        VStack(spacing: rowGap) {
+            ForEach(AppSection.allCases) { section in
+                Button {
+                    withAnimation(.smooth(duration: 0.3)) { selection = section }
+                } label: {
+                    rowLabel(section)
+                        .foregroundStyle(Theme.sidebarInk)
+                        // Makes the whole row tappable, not only its words.
+                        .contentShape(.rect)
+                }
+                .buttonStyle(.plain)
+                .accessibilityAddTraits(section == selection ? .isSelected : [])
+            }
+        }
+    }
+
+    /// The same words and icons as the rows, with nothing to press.
+    private var rowLabels: some View {
+        VStack(spacing: rowGap) {
+            ForEach(AppSection.allCases) { section in
+                rowLabel(section)
+            }
+        }
+    }
+
+    private func rowLabel(_ section: AppSection) -> some View {
+        HStack(spacing: 12) {
+            WIconView(section.icon, size: 22)
+            Text(section.title)
+            Spacer(minLength: 0)
+        }
+        .padding(.horizontal, 12)
+        .frame(height: rowHeight)
+    }
+
+    /// The lens has two looks and fades between them.
     ///
-    /// The edge nearer the new row sets off first and quickly. A moment
-    /// later the other edge follows on a bouncier spring. In between, the
-    /// highlight is stretched across both rows, then it gathers itself.
-    private func moveHighlight(to section: AppSection, animated: Bool) {
+    /// At rest it is Apple's own glass, tinted with the sidebar's lime
+    /// and nearly solid. Lifted, it is a clear lens: a breath of tint, a
+    /// bright rim and a soft shadow, with the bending done underneath by
+    /// LensRefraction.
+    ///
+    /// Why not Apple's glass for both: Apple's glass frosts whatever is
+    /// behind it, which would hide the very thing the lens should show.
+    /// The clear, magnifying lens on Apple's tab bar is not something
+    /// Apple lets other apps use, so this one is drawn here.
+    private var lens: some View {
+        ZStack {
+            Color.clear
+                // `.identity` means "no glass", and is how glass is
+                // switched off without the view being rebuilt.
+                .glassEffect(bends ? .identity : .regular.tint(Theme.sidebarSelected.opacity(0.92)),
+                             in: .rect(cornerRadius: 14))
+
+            ZStack {
+                // A soft dark edge underneath, standing in for a shadow.
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(.black.opacity(0.35), lineWidth: 4)
+                    .blur(radius: 6)
+                    .offset(y: 3)
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Theme.sidebarSelected.opacity(0.14))
+                // The rim: bright where the light catches it at the top
+                // left, fading round to a fainter glint at the bottom right.
+                RoundedRectangle(cornerRadius: 16)
+                    .strokeBorder(
+                        LinearGradient(colors: [.white.opacity(0.75), .white.opacity(0.10), .white.opacity(0.40)],
+                                       startPoint: .topLeading, endPoint: .bottomTrailing),
+                        lineWidth: 1.3)
+            }
+            .opacity(bends ? 1 : 0)
+        }
+        .frame(maxWidth: .infinity)
+        .frame(height: max(lensBottom - lensTop, 8))
+        .scaleEffect(bends ? LensRefraction.lift : 1)
+        .offset(y: lensTop)
+        // Touches pass through to the rows underneath.
+        .allowsHitTesting(false)
+    }
+
+    // MARK: Moving the lens
+
+    /// Slides the lens to a row.
+    ///
+    /// It lifts off, and the edge nearer the new row sets off first and
+    /// quickly. A moment later the other edge follows on a bouncier
+    /// spring, so in between the lens is stretched across both rows.
+    /// Then it sets itself back down.
+    private func moveLens(to section: AppSection, animated: Bool) {
         let index = CGFloat(AppSection.allCases.firstIndex(of: section) ?? 0)
         let top = index * (rowHeight + rowGap)
         let bottom = top + rowHeight
 
         guard animated, !reduceMotion else {
-            highlightTop = top
-            highlightBottom = bottom
+            lensTop = top
+            lensBottom = bottom
+            isLifted = false
             return
         }
 
         moveNumber += 1
         let thisMove = moveNumber
-        let goingDown = top > highlightTop
+        let goingDown = top > lensTop
 
         withAnimation(.spring(duration: 0.28, bounce: 0.15)) {
-            if goingDown { highlightBottom = bottom } else { highlightTop = top }
+            isLifted = true
+            if goingDown { lensBottom = bottom } else { lensTop = top }
         }
         Task {
-            try? await Task.sleep(for: .milliseconds(90))
+            try? await Task.sleep(for: .milliseconds(100))
             // If another row was chosen in the meantime, leave it to that move.
             guard thisMove == moveNumber else { return }
             withAnimation(.spring(duration: 0.55, bounce: 0.42)) {
-                highlightTop = top
-                highlightBottom = bottom
+                lensTop = top
+                lensBottom = bottom
             }
+            // Once it has arrived, set it back down.
+            try? await Task.sleep(for: .milliseconds(300))
+            guard thisMove == moveNumber else { return }
+            withAnimation(.smooth(duration: 0.35)) { isLifted = false }
+        }
+    }
+
+    /// The lens is being carried under a finger or the pointer.
+    private func carryLens(to y: CGFloat) {
+        guard !reduceMotion else { return }
+        // Cancels a slide that is still finishing.
+        moveNumber += 1
+        // Keep the middle of the lens under the finger, within the rows.
+        let top = min(max(y - rowHeight / 2, 0), lastRowTop)
+        withAnimation(.interactiveSpring(response: 0.2, dampingFraction: 0.75)) {
+            isLifted = true
+            lensTop = top
+            lensBottom = top + rowHeight
+        }
+    }
+
+    /// The lens has been let go. It settles on the nearest row.
+    private func dropLens(at y: CGFloat) {
+        guard !reduceMotion else { return }
+        let step = rowHeight + rowGap
+        let nearest = Int(((y - rowHeight / 2) / step).rounded())
+        let index = min(max(nearest, 0), AppSection.allCases.count - 1)
+        let section = AppSection.allCases[index]
+        if section == selection {
+            // The same place as before: just set the lens back down on it.
+            moveLens(to: section, animated: true)
+        } else {
+            // Choosing the place moves the lens too (see onChange above).
+            withAnimation(.smooth(duration: 0.3)) { selection = section }
+        }
+    }
+}
+
+/// Magnifies and bends whatever lies under the sidebar's lens.
+///
+/// The bending is done by a small program for the graphics chip, in
+/// Lens.metal. This passes it where the lens is and how strong to be.
+///
+/// `Animatable` matters here. SwiftUI can glide a colour or a position
+/// from one value to another by itself, but it knows nothing about the
+/// numbers handed to a graphics program. `animatableData` names the
+/// numbers to glide, and SwiftUI then calls `body` afresh for every
+/// frame with the in-between values, so the bend keeps exact step with
+/// the lens drawn on top of it.
+struct LensRefraction: ViewModifier, Animatable {
+
+    /// Whether the graphics program is part of the app yet.
+    ///
+    /// It is not, for now. Building it needs an extra piece of Xcode
+    /// called the Metal Toolchain, which is a separate download. Until
+    /// that is installed, Lens.metal waits in Design/Shaders and the lens
+    /// keeps its solid lime look while it moves. To switch it on: install
+    /// the toolchain, move Lens.metal into the Windfall folder and change
+    /// this to true.
+    static let isBuilt = false
+
+    /// How much larger the lens is while lifted. The lens drawn on top
+    /// uses the same figure, so the two always match.
+    static let lift: CGFloat = 1.06
+
+    /// The lens's top and bottom edges, measured down from the first row.
+    var top: CGFloat
+    var bottom: CGFloat
+    /// 0 for no bending, 1 for the full effect.
+    var strength: CGFloat
+    /// The width of the rows.
+    var width: CGFloat
+
+    var animatableData: AnimatablePair<AnimatablePair<CGFloat, CGFloat>, CGFloat> {
+        get { AnimatablePair(AnimatablePair(top, bottom), strength) }
+        set {
+            top = newValue.first.first
+            bottom = newValue.first.second
+            strength = newValue.second
+        }
+    }
+
+    func body(content: Content) -> some View {
+        if Self.isBuilt {
+            let height = max(bottom - top, 8)
+            // The lens grows as it lifts.
+            let grown = 1 + (Self.lift - 1) * strength
+            content.layerEffect(
+                ShaderLibrary.lensRefraction(
+                    .float2(width / 2, top + height / 2),
+                    .float2(width / 2 * grown, height / 2 * grown),
+                    .float(16),
+                    .float(strength)),
+                // The furthest the program may reach for a dot's colour.
+                maxSampleOffset: CGSize(width: 32, height: 32),
+                isEnabled: strength > 0.001)
+        } else {
+            content
         }
     }
 }

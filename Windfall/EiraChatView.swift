@@ -31,6 +31,12 @@ struct EiraChatView: View {
     var openingQuestion: String? = nil
     @State private var hasSentOpeningQuestion = false
 
+    /// What was on screen when the chat was opened from Eira's bar, such
+    /// as "the plant Apple, Spartan". Eira is told this with each
+    /// question. Nil when there is nothing to tell her.
+    var lookingAt: String? = nil
+    @State private var hasPassedOnScreen = false
+
     @Environment(\.modelContext) private var context
 
     @State private var conversation = EiraConversation()
@@ -95,6 +101,26 @@ struct EiraChatView: View {
             }
 
             Divider()
+
+            // Say plainly what Eira has been told about the screen, and
+            // offer a way to take it back.
+            if let note = conversation.screenNote {
+                HStack(spacing: 8) {
+                    Text("Eira knows you were looking at \(note).")
+                        .font(.caption)
+                        .foregroundStyle(Theme.inkSoft)
+                    Spacer(minLength: 0)
+                    Button("Don't use this") {
+                        conversation.screenNote = nil
+                    }
+                    .font(.caption)
+                    .buttonStyle(.plain)
+                    .foregroundStyle(Theme.leaf)
+                }
+                .padding(.horizontal, 12)
+                .padding(.top, 8)
+            }
+
             inputBar
         }
         .navigationTitle("Eira")
@@ -146,6 +172,12 @@ struct EiraChatView: View {
             .macSheetSize(width: 480, height: 420)
         }
         .task {
+            // Before anything is sent, pass on what was open on screen.
+            // Once only, so "Don't use this" is never quietly undone.
+            if !hasPassedOnScreen {
+                hasPassedOnScreen = true
+                conversation.screenNote = lookingAt
+            }
             await loadEngine()
             // Only look at what is already allowed. Opening Eira should
             // never put a permission box in front of you.

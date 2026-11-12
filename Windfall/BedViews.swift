@@ -292,6 +292,8 @@ struct BedDetailView: View {
         }
         .navigationTitle(bed.name)
         .paperScreen()
+        // Tells Eira which bed is open. See EiraScreen.
+        .eiraLooksAt("the bed called \(bed.name)", short: bed.name)
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
