@@ -8,7 +8,6 @@ Everything about how Windfall looks is kept here.
 | `Icons/` | One small SVG drawing for each icon in the app. These are the masters: edit one and the app follows |
 | `colours.json` | Every named colour, each with a light-mode and a dark-mode value |
 | `Archive/` | Anything that has been replaced or set aside, kept in case it is wanted again |
-| `Shaders/` | Small programs for the graphics chip that are written but not yet part of the app. See the note at the top of each |
 
 ## The rules
 
