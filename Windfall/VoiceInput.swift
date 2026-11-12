@@ -271,10 +271,15 @@ struct PushToTalkButton: View {
 private struct WaveformView: View {
 
     let level: Float
-    @State private var phase = 0.0
 
     var body: some View {
-        TimelineView(.animation) { _ in
+        // TimelineView redraws many times a second and says what time it
+        // is. The time moves the wave along. (Until 13 November 2026 the
+        // wave was meant to be moved by an animated number, which a
+        // Canvas cannot follow, so the bars stood still.)
+        TimelineView(.animation) { timeline in
+            // One full ripple a second.
+            let phase = timeline.date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 1) * .pi * 2
             Canvas { context, size in
                 let bars = 24
                 let width = size.width / CGFloat(bars * 2)
@@ -293,11 +298,6 @@ private struct WaveformView: View {
                     context.fill(Path(roundedRect: rect, cornerRadius: width / 2),
                                  with: .color(.accentColor))
                 }
-            }
-        }
-        .onAppear {
-            withAnimation(.linear(duration: 1).repeatForever(autoreverses: false)) {
-                phase = .pi * 2
             }
         }
     }

@@ -2,7 +2,10 @@
 //  WeatherService.swift
 //  Windfall
 //
-//  Current conditions and frost detection.
+//  Current conditions, and the list of frosts.
+//
+//  The day-by-day record, and the frosts found in it, are in
+//  WeatherDiary.swift.
 //
 //  Uses Open-Meteo rather than Apple's WeatherKit or a commercial API,
 //  for one decisive reason: it needs no API key, no account and no
@@ -13,8 +16,6 @@
 //  What it's used for:
 //  - Auto-filling FIT Count conditions, so the protocol thresholds are
 //    checked against real numbers rather than a guess.
-//  - Detecting frosts, which are what turn "the beans were poor" into
-//    "the beans were poor because of the frost on the 12th".
 //
 
 import Foundation
@@ -34,14 +35,7 @@ private struct OpenMeteoResponse: Decodable {
         let wind_speed_10m: Double?
         let weather_code: Int?
     }
-    struct Daily: Decodable {
-        let time: [String]?
-        let temperature_2m_min: [Double?]?
-        let temperature_2m_max: [Double?]?
-        let precipitation_sum: [Double?]?
-    }
     let current: Current?
-    let daily: Daily?
 }
 
 // MARK: - Conditions
@@ -91,6 +85,10 @@ struct CurrentConditions {
 @Observable
 @MainActor
 final class WeatherService {
+
+    /// One for the whole app, so the last answer is kept while moving
+    /// between screens.
+    static let shared = WeatherService()
 
     private(set) var current: CurrentConditions?
     private(set) var isLoading = false
@@ -148,76 +146,6 @@ final class WeatherService {
             return nil
         }
     }
-
-    // MARK: Frost detection
-
-    /// Looks back over recent days and records any night below zero.
-    ///
-    /// Called on launch rather than continuously — a frost three days ago
-    /// is just as useful to know about as one this morning, and this way
-    /// the app doesn't need to be open at dawn.
-    func detectFrosts(at coordinate: CLLocationCoordinate2D,
-                      into context: ModelContext,
-                      daysBack: Int = 10) async {
-
-        var components = URLComponents(string: "https://api.open-meteo.com/v1/forecast")!
-        components.queryItems = [
-            URLQueryItem(name: "latitude", value: String(coordinate.latitude)),
-            URLQueryItem(name: "longitude", value: String(coordinate.longitude)),
-            URLQueryItem(name: "daily", value: "temperature_2m_min,temperature_2m_max,precipitation_sum"),
-            URLQueryItem(name: "past_days", value: String(daysBack)),
-            URLQueryItem(name: "forecast_days", value: "3"),
-            URLQueryItem(name: "timezone", value: "Europe/London")
-        ]
-
-        guard let url = components.url else { return }
-
-        do {
-            let (data, _) = try await URLSession.shared.data(from: url)
-            let decoded = try JSONDecoder().decode(OpenMeteoResponse.self, from: data)
-
-            guard let daily = decoded.daily,
-                  let dates = daily.time,
-                  let minima = daily.temperature_2m_min else { return }
-
-            let existing = try context.fetch(FetchDescriptor<FrostRecord>())
-            let known = Set(existing.map { Calendar.current.startOfDay(for: $0.date) })
-
-            let formatter = DateFormatter()
-            formatter.dateFormat = "yyyy-MM-dd"
-            formatter.timeZone = TimeZone(identifier: "Europe/London")
-
-            for (index, dateString) in dates.enumerated() {
-                guard index < minima.count,
-                      let minimum = minima[index], minimum <= 0,
-                      let date = formatter.date(from: dateString) else { continue }
-
-                let day = Calendar.current.startOfDay(for: date)
-                guard !known.contains(day) else { continue }
-
-                let record = FrostRecord()
-                record.date = day
-                record.minimumTemperatureC = minimum
-                record.kind = Self.classifyFrost(on: day)
-                context.insert(record)
-            }
-
-        } catch {
-            lastError = error.localizedDescription
-        }
-    }
-
-    /// Spring frosts before the end of May are candidates for "last spring
-    /// frost"; autumn ones from September onwards for "first autumn frost".
-    /// Deep winter frosts are just frosts.
-    private static func classifyFrost(on date: Date) -> FrostKind {
-        let month = Calendar.current.component(.month, from: date)
-        switch month {
-        case 3...5:  return .lastSpringFrost
-        case 9...11: return .firstAutumnFrost
-        default:     return .other
-        }
-    }
 }
 
 // MARK: - Frost view
@@ -230,9 +158,8 @@ struct FrostRecordsView: View {
     private var frosts: [FrostRecord]
 
     @Environment(\.modelContext) private var context
-    @Environment(LocationManager.self) private var location
 
-    @State private var weather = WeatherService()
+    @State private var diary = WeatherDiaryService()
 
     /// The two dates that actually shape the growing year.
     private var lastSpringFrost: FrostRecord? {
@@ -306,11 +233,11 @@ struct FrostRecordsView: View {
                 }
             }
         }
-        .task { await refresh() }
     }
 
+    /// Frosts are found in the weather diary, so bringing that up to date
+    /// brings these up to date.
     private func refresh() async {
-        guard let fix = await location.currentLocation() else { return }
-        await weather.detectFrosts(at: fix.coordinate, into: context)
+        await diary.bringUpToDate(in: context, force: true)
     }
 }

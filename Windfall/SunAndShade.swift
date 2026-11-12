@@ -364,26 +364,71 @@ enum Shade {
     static func sunHours(on points: [PlanPoint], obstacles: [PlanShape], topFaces: Double,
                          latitude: Double, dayOfYear: Int,
                          stepMinutes: Double = 10, minimumAltitude: Double = 5) -> SunHours {
-        guard !points.isEmpty, stepMinutes > 0 else { return SunHours(possible: 0, direct: 0) }
+        guard !points.isEmpty else { return SunHours(possible: 0, direct: 0) }
+        // One piece of ground is the many-pieces sum with a list of one.
+        return sunHours(onEach: [points], obstacles: obstacles,
+                        owners: Array(repeating: nil, count: obstacles.count),
+                        topFaces: topFaces, latitude: latitude, dayOfYear: dayOfYear,
+                        stepMinutes: stepMinutes, minimumAltitude: minimumAltitude)[0]
+    }
+
+    /// The same sum for several pieces of ground at once, such as every
+    /// bed in a garden.
+    ///
+    /// Doing them together matters for speed. The slow part is working
+    /// out where each obstacle's shadow falls at each moment of the day.
+    /// One bed at a time, that was done afresh for every bed. Here it is
+    /// done once and every bed is tested against the same shadows.
+    ///
+    /// - Parameters:
+    ///   - grounds: the sample points of each piece of ground.
+    ///   - obstacles: everything tall enough to cast shade, the pieces of
+    ///     ground themselves included if they are raised.
+    ///   - owners: for each obstacle, which piece of ground it is (its
+    ///     place in `grounds`), or nil if it is none of them. Ground is
+    ///     never counted as shading itself.
+    static func sunHours(onEach grounds: [[PlanPoint]], obstacles: [PlanShape], owners: [Int?],
+                         topFaces: Double, latitude: Double, dayOfYear: Int,
+                         stepMinutes: Double = 10, minimumAltitude: Double = 5) -> [SunHours] {
+        var totals = Array(repeating: SunHours(possible: 0, direct: 0), count: grounds.count)
+        guard stepMinutes > 0, !grounds.isEmpty else { return totals }
         let (sunrise, sunset) = Sun.sunriseAndSunset(latitude: latitude, dayOfYear: dayOfYear)
         let step = stepMinutes / 60
-        var possible = 0.0, direct = 0.0
 
         // Each step is judged at its middle moment.
         var hour = sunrise + step / 2
         while hour < sunset {
             let sun = Sun.position(latitude: latitude, dayOfYear: dayOfYear, solarHour: hour)
             if sun.altitude >= minimumAltitude {
-                let shadows = obstacles.compactMap { PlanGeometry.shadow(of: $0, sun: sun, topFaces: topFaces) }
-                let lit = points.filter { spot in
-                    !shadows.contains { PlanGeometry.contains(spot, in: $0) }
-                }.count
-                possible += step
-                direct += step * Double(lit) / Double(points.count)
+                // Every shadow at this moment, each with its owner and the
+                // smallest upright box that holds it.
+                var shadows: [(owner: Int?, outline: [PlanPoint], minX: Double, maxX: Double, minY: Double, maxY: Double)] = []
+                for (index, obstacle) in obstacles.enumerated() {
+                    if let shadow = PlanGeometry.shadow(of: obstacle, sun: sun, topFaces: topFaces), !shadow.isEmpty {
+                        let xs = shadow.map(\.x), ys = shadow.map(\.y)
+                        shadows.append((owners.indices.contains(index) ? owners[index] : nil, shadow,
+                                        xs.min() ?? 0, xs.max() ?? 0, ys.min() ?? 0, ys.max() ?? 0))
+                    }
+                }
+                for (ground, points) in grounds.enumerated() where !points.isEmpty {
+                    let lit = points.filter { spot in
+                        !shadows.contains { shadow in
+                            shadow.owner != ground
+                                // A spot outside the box cannot be in the
+                                // shadow, which saves the slower exact test
+                                // for most spots.
+                                && spot.x >= shadow.minX && spot.x <= shadow.maxX
+                                && spot.y >= shadow.minY && spot.y <= shadow.maxY
+                                && PlanGeometry.contains(spot, in: shadow.outline)
+                        }
+                    }.count
+                    totals[ground].possible += step
+                    totals[ground].direct += step * Double(lit) / Double(points.count)
+                }
             }
             hour += step
         }
-        return SunHours(possible: possible, direct: direct)
+        return totals
     }
 
     /// One figure for each month, January first, taken at mid-month.

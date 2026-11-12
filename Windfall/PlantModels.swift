@@ -36,7 +36,7 @@ final class Plant {
     var classification: String?     // Annual / Perennial / Biennial
     var typeLabel: String?          // "Plant" / "Seeds"
     var statusRaw: String = PlantStatus.growing.rawValue
-    /// Which sheet(s) this came from, so writes go back to the right place.
+    /// Which garden's list or lists this came from.
     var sourceSites: [String] = []
 
     // Growth patterns — stored as raw sheet text, parsed into months on read
@@ -115,7 +115,8 @@ final class Plant {
     var history: String?
     var notes: String?
 
-    // Sheet round-tripping
+    // Where the record came from in the imported data file. Nothing is
+    // written back to a spreadsheet any more.
     var sourceSheet: String?
     var sourceRow: Int?
     var lastSyncedAt: Date?

@@ -235,6 +235,95 @@ struct LogicTests {
         let yearPlant = Plant(commonName: "Wild garlic")
         yearPlant.sowOutdoorsMonthsText = "Oct-Feb"; yearPlant.harvestMonthsText = "apr may jun"
         check(YearActivity.sowOutdoors.months(for: yearPlant).sorted() == [1, 2, 10, 11, 12] && YearActivity.harvest.months(for: yearPlant) == [4, 5, 6] && YearActivity.plantOut.months(for: yearPlant).isEmpty, "each job reads its own months from the plant")
+        let yearTree = Plant(commonName: "Pear"); yearTree.fruitingMonthsText = "sep oct"
+        check(YearActivity.harvest.months(for: yearTree) == [9, 10], "a fruit tree's fruiting months show as its harvest on the Year page")
+        yearTree.harvestMonthsText = "oct nov"
+        check(YearActivity.harvest.months(for: yearTree) == [9, 10, 11], "harvest and fruiting months together are each counted once")
+
+        // The weather diary
+        var london = Calendar(identifier: .gregorian); london.timeZone = TimeZone(identifier: "Europe/London")!
+        let diaryNow = london.date(from: DateComponents(year: 2026, month: 11, day: 12, hour: 22))!
+        check(WeatherDiary.dayKey(for: diaryNow, calendar: london) == "2026-11-12" && WeatherDiary.date(forKey: "2026-11-12", calendar: london).map { london.component(.hour, from: $0) } == 12 && WeatherDiary.date(forKey: "nonsense") == nil, "a day is kept as text and turned back into midday on that day")
+        check(WeatherDiary.days(from: "2026-10-31", to: "2026-11-12", calendar: london) == 12, "days are counted across a month end and a clock change")
+        check(WeatherDiary.request(complete: [], today: "2026-11-12", calendar: london) == .recent(pastDays: 92), "with nothing held, the full three months are asked for")
+        var heldDays = Set((1...92).map { WeatherDiary.dayKey(for: london.date(byAdding: .day, value: -$0, to: diaryNow)!, calendar: london) })
+        check(WeatherDiary.request(complete: heldDays, today: "2026-11-12", calendar: london) == .recent(pastDays: 1), "with everything held, only yesterday and today are asked for")
+        heldDays.remove("2026-10-29"); heldDays.remove("2026-11-05")
+        check(WeatherDiary.request(complete: heldDays, today: "2026-11-12", calendar: london) == .recent(pastDays: 14), "a gap is filled from its earliest missing day")
+        check(WeatherDiary.gapRequest(complete: heldDays, today: "2026-11-12", calendar: london) == .archive(start: "2026-10-29", end: "2026-11-05") && WeatherDiary.gapRequest(complete: heldDays.union(["2026-10-29", "2026-11-05"]), today: "2026-11-12", calendar: london) == nil, "older days still missing are asked of the long-term record, and nothing is asked when none are")
+        check(WeatherDiary.gapRequest(complete: heldDays.union(["2026-10-29", "2026-11-05"]).subtracting(["2026-11-09"]), today: "2026-11-12", calendar: london) == nil, "a day too new for the long-term record is not asked of it")
+        check(WeatherDiary.earlierRequest(earliest: "2026-08-12", calendar: london) == .archive(start: "2025-08-12", end: "2026-08-11") && WeatherDiary.earlierRequest(earliest: nil) == nil, "earlier weather is the year before the first day held")
+        let recentURL = WeatherDiary.url(for: .recent(pastDays: 500), latitude: 51.50017, longitude: -2.5577, timeZone: london.timeZone)?.absoluteString ?? ""
+        check(recentURL.hasPrefix("https://api.open-meteo.com/v1/forecast?") && recentURL.contains("past_days=92") && recentURL.contains("latitude=51.500") && !recentURL.contains("51.50017") && recentURL.contains("soil_temperature_6cm") && (recentURL.contains("Europe/London") || recentURL.contains("Europe%2FLondon")), "the ordinary address is asked for at most 92 days, with the place rounded")
+        let archiveURL = WeatherDiary.url(for: .archive(start: "2025-08-12", end: "2026-08-11"), latitude: 51.5, longitude: -2.55, timeZone: london.timeZone)?.absoluteString ?? ""
+        check(archiveURL.hasPrefix("https://archive-api.open-meteo.com/v1/archive?") && archiveURL.contains("start_date=2025-08-12") && archiveURL.contains("soil_temperature_0_to_7cm"), "older days are asked of the long-term record, which names its soil layer differently")
+
+        // A reply shaped like the real one: two finished days, today and tomorrow.
+        func weatherReply(soilName: String = "soil_temperature_6cm") -> Data {
+            let dayKeys = ["2026-11-10", "2026-11-11", "2026-11-12", "2026-11-13"]
+            let times = dayKeys.flatMap { day in (0..<24).map { "\"\(day)T\(String(format: "%02d", $0)):00\"" } }.joined(separator: ",")
+            func hourly(_ make: (Int, Int) -> String) -> String { (0..<4).flatMap { d in (0..<24).map { make(d, $0) } }.joined(separator: ",") }
+            let text = """
+            {"latitude":51.5,"daily":{"time":["2026-11-10","2026-11-11","2026-11-12","2026-11-13"],"temperature_2m_min":[5.9,-1.2,1.8,3.0],"temperature_2m_max":[7.2,10.0,7.2,8.0],"precipitation_sum":[6.8,1.5,0.0,0.2],"wind_speed_10m_max":[17.3,14.4,20.2,9.0],"sunshine_duration":[0.0,0.0,23647.65,100],"et0_fao_evapotranspiration":[0.33,0.43,0.85,0.5],"weather_code":[61,51,3,0]},
+            "hourly":{"time":[\(times)],"temperature_2m":[\(hourly { d, h in "\(Double(d) + Double(h) / 10)" })],"precipitation":[\(hourly { d, h in d == 0 && h == 9 ? "2.5" : "0.0" })],"cloud_cover":[\(hourly { _, h in h < 12 ? "100" : "0" })],"wind_speed_10m":[\(hourly { _, _ in "10.0" })],"\(soilName)":[\(hourly { d, h in d == 1 && h == 0 ? "null" : "6.0" })]}}
+            """
+            return Data(text.utf8)
+        }
+        let weatherReadings = (try? WeatherDiary.readings(from: weatherReply())) ?? []
+        check(weatherReadings.count == 4 && weatherReadings[0].dayKey == "2026-11-10" && weatherReadings[0].minTemperatureC == 5.9 && weatherReadings[0].rainfallMM == 6.8 && weatherReadings[0].weatherCode == 61, "a reply becomes one reading a day")
+        check(abs((weatherReadings[2].sunshineHours ?? 0) - 6.57) < 0.01 && weatherReadings[1].hourly.soilC[0] == nil, "sunshine is turned from seconds into hours, and a missing figure stays missing")
+        check(weatherReadings[0].hourly.temperatureC.count == 24 && weatherReadings[1].hourly.temperatureC.first == 1.0 && weatherReadings[0].hourly.rainMM[9] == 2.5 && weatherReadings[1].hourly.soilC[0] == nil && weatherReadings[1].soilTemperatureC == 6.0, "each day gets its own 24 hours, and soil temperature is the average of the hours that have one")
+        check(((try? WeatherDiary.readings(from: weatherReply(soilName: "soil_temperature_0_to_7cm"))) ?? []).first?.soilTemperatureC == 6.0, "the long-term record's soil layer is read too")
+        let morning = weatherReadings[0].hourly.conditions(atHour: 9), evening = weatherReadings[0].hourly.conditions(atHour: 21)
+        check(morning?.temperatureC == 0.9 && morning?.precipitationMM == 2.5 && morning?.skyCondition != .sunny && evening?.skyCondition == .sunny && weatherReadings[0].hourly.conditions(atHour: 24) == nil, "the conditions at any hour of a day can be looked up")
+        check((try? WeatherDiary.readings(from: Data(#"{"error":true,"reason":"Too many requests"}"#.utf8))) == nil, "a refusal from the service is an error, not an empty day")
+
+        let weatherStore = ModelContext()
+        check(WeatherDiary.store(weatherReadings, site: "allotment", source: "recent", today: "2026-11-12", into: weatherStore, calendar: london) == 3, "today and the days before are stored, and tomorrow is not")
+        var storedDays = ((try? weatherStore.fetch(FetchDescriptor<WeatherDay>())) ?? []).sorted { $0.dayKey < $1.dayKey }
+        check(storedDays.map(\.isComplete) == [true, true, false] && storedDays[1].hadFrost && !storedDays[0].hadFrost && WeatherDiary.hours(of: storedDays[0])?.rainMM[9] == 2.5, "finished days are complete, today is not, and the hours come back out")
+        storedDays[0].rainfallMM = 99
+        check(WeatherDiary.store(weatherReadings, site: "allotment", source: "recent", today: "2026-11-13", into: weatherStore, calendar: london) == 2 && storedDays[0].rainfallMM == 99 && storedDays[2].isComplete && ((try? weatherStore.fetch(FetchDescriptor<WeatherDay>())) ?? []).count == 4, "a second fetch finishes today, adds the new day and leaves complete days alone")
+        check(WeatherDiary.store(weatherReadings, site: "garden", source: "recent", today: "2026-11-12", into: weatherStore, calendar: london) == 3, "another garden keeps its own days")
+        var blankDay = weatherReadings[0]; blankDay.dayKey = "2026-09-01"; blankDay.minTemperatureC = nil
+        var holedDay = weatherReadings[0]; holedDay.dayKey = "2026-09-02"; holedDay.rainfallMM = nil
+        check(WeatherDiary.store([blankDay, holedDay], site: "garden", source: "recent", today: "2026-11-12", into: weatherStore, calendar: london) == 0, "a day the service left blank, or a finished day with no rain figure, is not stored")
+        storedDays = (try? weatherStore.fetch(FetchDescriptor<WeatherDay>())) ?? []
+        check(WeatherDiary.recordFrosts(from: storedDays, into: weatherStore, calendar: london) == 1 && WeatherDiary.recordFrosts(from: storedDays, into: weatherStore, calendar: london) == 0, "a frosty day is recorded as a frost once, even when two gardens had it")
+        let foundFrost = ((try? weatherStore.fetch(FetchDescriptor<FrostRecord>())) ?? []).first
+        check(foundFrost?.minimumTemperatureC == -1.2 && foundFrost?.kind == .firstAutumnFrost && WeatherDiary.frostKind(month: 4) == .lastSpringFrost && WeatherDiary.frostKind(month: 1) == .other, "the frost keeps its temperature and its season")
+
+        let home = Garden(name: "Home", siteKey: "home"); home.latitude = 51.5; home.longitude = -2.55; home.displayOrder = 0
+        let nextDoor = Garden(name: "Next door", siteKey: "next"); nextDoor.latitude = 51.505; nextDoor.longitude = -2.55
+        let farAway = Garden(name: "Orchard", siteKey: "orchard"); farAway.latitude = 51.7; farAway.longitude = -2.4
+        let noPlace = Garden(name: "Unmeasured", siteKey: "none")
+        check(WeatherDiary.places(for: [home, nextDoor, farAway, noPlace]).map(\.site) == ["home", "orchard"], "gardens within a mile share one diary, and a garden with no location has none")
+        check(WeatherDiary.words(forCode: 61) == "Light rain" && WeatherDiary.words(forCode: 0) == "Clear" && WeatherDiary.words(forCode: nil) == nil && WeatherDiary.degrees(-0.3) == "0°" && WeatherDiary.degrees(-1.6) == "-2°", "weather codes and temperatures are put into words")
+        check(WeatherDiary.summary(of: storedDays.first { $0.dayKey == "2026-11-12" }!) == "Low 2°, high 7°. Dry. 6.6 hours of sun.", "a day reads as a sentence")
+
+        // The whole run, with a stand-in for the network
+        let diaryStore = ModelContext(); diaryStore.insert(home)
+        let diaryDefaults = UserDefaults(suiteName: "windfall-weather-\(UUID().uuidString)")!
+        var asked: [String] = []
+        let diaryService = WeatherDiaryService(defaults: diaryDefaults, fetch: { url in asked.append(url.absoluteString); return weatherReply() })
+        await diaryService.bringUpToDate(in: diaryStore, now: diaryNow, calendar: london)
+        check(asked.count == 2 && asked[0].contains("past_days=92") && asked[1].contains("archive-api") && asked[1].contains("end_date=2026-11-06") && ((try? diaryStore.fetch(FetchDescriptor<WeatherDay>())) ?? []).count == 3 && ((try? diaryStore.fetch(FetchDescriptor<FrostRecord>())) ?? []).count == 1 && diaryService.lastError == nil, "opening the app fills the diary and finds the frost")
+        await diaryService.bringUpToDate(in: diaryStore, now: diaryNow.addingTimeInterval(600), calendar: london)
+        check(asked.count == 2, "the service is not asked again within the hour")
+        await diaryService.bringUpToDate(in: diaryStore, now: diaryNow.addingTimeInterval(600), force: true, calendar: london)
+        check(asked.count == 4 && ((try? diaryStore.fetch(FetchDescriptor<WeatherDay>())) ?? []).count == 3, "asking by hand fetches again and doubles nothing")
+        let emptied = ModelContext(); emptied.insert(home)
+        await diaryService.bringUpToDate(in: emptied, now: diaryNow.addingTimeInterval(900), calendar: london)
+        check(asked.count == 6 && ((try? emptied.fetch(FetchDescriptor<WeatherDay>())) ?? []).count == 3, "an empty diary is filled at once, even if the service was asked a moment ago")
+        let failing = WeatherDiaryService(defaults: diaryDefaults, fetch: { _ in throw WeatherDiary.ReplyError(message: "offline") })
+        await failing.bringUpToDate(in: diaryStore, now: diaryNow, force: true, calendar: london)
+        check(failing.lastError == "offline" && ((try? diaryStore.fetch(FetchDescriptor<WeatherDay>())) ?? []).count == 3, "with no connection the diary keeps what it has and says why")
+        let emptyService = WeatherDiaryService(defaults: diaryDefaults, fetch: { _ in asked.append("x"); return weatherReply() })
+        await emptyService.bringUpToDate(in: ModelContext(), now: diaryNow, calendar: london)
+        check(asked.count == 6 && emptyService.lastMessage == "No garden has a location yet.", "with no garden location nothing is fetched")
+
+        // Month text is read once and remembered
+        check(MonthParser.months(in: "Sept, Oct") == [9, 10] && MonthParser.months(in: "Sept, Oct") == [9, 10] && MonthParser.months(in: "september") == [9] && MonthParser.months(in: "Oct-Feb") == [10, 11, 12, 1, 2] && MonthParser.months(in: nil).isEmpty && MonthParser.months(in: "").isEmpty, "reading the same month text twice gives the same answer, and long and short names agree")
 
         // The Plants screen's filters
         check(PlantKind.of(group: "Fruit") == .fruit && PlantKind.of(group: "Brassicas") == .vegetables && PlantKind.of(group: "Root veg") == .vegetables && PlantKind.of(group: "Allium") == .vegetables && PlantKind.of(group: "Leaves") == .vegetables, "fruit and vegetable groups are recognised, in either spelling")
@@ -588,8 +677,19 @@ struct LogicTests {
         let bedSun = GardenPlan.monthlySunHours(for: bedOne, in: allotment, beds: [bedOne, bedTwo, bedThree], features: [hedge, ash, cage, pond])
         check(bedSun?.count == 12 && (bedSun?[11].direct ?? 9) < 1 && (bedSun?[5].direct ?? 0) > 8, "a bed behind the hedge gets little sun in December and plenty in June")
         check(GardenPlan.monthlySunHours(for: bedOne, in: Garden(name: "Unknown"), beds: [], features: []) == nil, "sun hours are not guessed for a garden with no location")
+        let allBeds = [bedOne, bedTwo, bedThree], allFeatures = [hedge, ash, cage, pond]
+        for dayOfYear in [Sun.midMonthDays[0], Sun.midMonthDays[5], Sun.midMonthDays[10]] {
+            let together = GardenPlan.sunHours(forBedsIn: allotment, beds: allBeds, features: allFeatures, dayOfYear: dayOfYear) ?? [:]
+            let oneByOne = allBeds.map { bed in
+                Shade.sunHours(on: bed.samplePoints, obstacles: GardenPlan.shadeShapes(beds: allBeds, features: allFeatures, siteKey: "allotment", excluding: bed), topFaces: allotment.topFacesDegrees, latitude: bristol, dayOfYear: dayOfYear, stepMinutes: 15)
+            }
+            check(together.count == 2 && together[bedOne.id] == oneByOne[0] && together[bedTwo.id] == oneByOne[1] && together[bedThree.id] == nil, "sun hours for every bed in a garden at once match the sums done bed by bed, and leave out the other garden's beds (day \(dayOfYear))")
+        }
+        check(GardenPlan.sunHours(forBedsIn: Garden(name: "Unknown"), beds: allBeds, features: [], dayOfYear: 172) == nil, "sun hours for every bed are not guessed for a garden with no location")
 
         // The backup file carries the layout
+        let lateFrost = FrostRecord(); lateFrost.kind = .lastSpringFrost; lateFrost.minimumTemperatureC = -1.5; lateFrost.siteRaw = "allotment"; lateFrost.damageNotes = "Potato tops blackened"
+        plot.insert(lateFrost)
         let backupService = BackupService()
         if let file = try? backupService.export(from: plot) {
             let fresh = ModelContext()
@@ -603,8 +703,11 @@ struct LogicTests {
             check(restoredBeds.count == 3 && restoredOne?.originX == 3 && restoredOne?.originY == 8.3 && restoredOne?.lengthMetres == 4 && restoredBeds.first { $0.name == "Bed 2" }?.heightMetres == 0.4, "beds come back where they were measured")
             let restoredFeatures = (try? fresh.fetch(FetchDescriptor<GardenFeature>())) ?? []
             check(restoredFeatures.count == 4 && restoredFeatures.first { $0.name == "Fruit cage" }?.blocksLight == false && restoredFeatures.first { $0.name == "Neighbour's ash" }?.kind == .tree, "sheds, trees and the rest come back too")
+            let restoredFrosts = (try? fresh.fetch(FetchDescriptor<FrostRecord>())) ?? []
+            check(restoredFrosts.count == 1 && restoredFrosts.first?.minimumTemperatureC == -1.5 && restoredFrosts.first?.siteRaw == "allotment" && restoredFrosts.first?.damageNotes == "Potato tops blackened", "frosts come back from a backup, with their garden and damage notes")
             restoredAllotment?.widthMetres = 30
             try? backupService.restore(from: file, into: fresh)
+            check(((try? fresh.fetch(FetchDescriptor<FrostRecord>())) ?? []).count == 1, "a second restore does not double the frosts")
             check(restoredAllotment?.widthMetres == 30 && ((try? fresh.fetch(FetchDescriptor<GardenFeature>())) ?? []).count == 4, "a second restore changes nothing that is already there")
             let oldFile = FileManager.default.temporaryDirectory.appendingPathComponent("windfall-v1-backup.json")
             try? Data(#"{"version":1,"created":"2026-11-01T10:00:00Z","beds":[{"id":"6F9619FF-8B86-D011-B42D-00C04FC964FF","name":"Old bed","site":"allotment","order":1,"raised":true,"hugel":false,"sections":[{"id":"7F9619FF-8B86-D011-B42D-00C04FC964FF","label":"A","order":0}]}],"plants":[],"plantings":[],"harvests":[],"surveys":[],"observations":[],"diary":[],"frosts":[]}"#.utf8).write(to: oldFile)

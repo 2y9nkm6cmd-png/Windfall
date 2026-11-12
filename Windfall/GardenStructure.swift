@@ -156,21 +156,3 @@ final class FrostRecord {
         set { siteRaw = newValue?.rawValue }
     }
 }
-
-/// Conditions at a moment. Populated automatically for surveys, and
-/// optionally logged daily.
-@Model
-final class WeatherSnapshot {
-
-    var id: UUID = UUID()
-    var recordedAt: Date = Date.now
-    var temperatureC: Double?
-    var minTemperatureC: Double?
-    var maxTemperatureC: Double?
-    var rainfallMM: Double?
-    var windSpeedMPH: Double?
-    var conditionsSummary: String?
-    var siteRaw: String?
-
-    init() {}
-}

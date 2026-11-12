@@ -33,7 +33,12 @@ enum YearActivity: String, CaseIterable, Identifiable {
         case .sowIndoors:  return MonthParser.months(in: plant.sowIndoorsMonthsText)
         case .sowOutdoors: return MonthParser.months(in: plant.sowOutdoorsMonthsText)
         case .plantOut:    return MonthParser.months(in: plant.plantOutMonthsText)
-        case .harvest:     return MonthParser.months(in: plant.harvestMonthsText)
+        case .harvest:
+            // The allotment sheet's "Harvest" and the permaculture sheet's
+            // "Fruiting/Harvest" arrive in two fields. Both count, so fruit
+            // trees show here too.
+            return Array(Set(MonthParser.months(in: plant.harvestMonthsText))
+                .union(MonthParser.months(in: plant.fruitingMonthsText))).sorted()
         case .flowering:   return MonthParser.months(in: plant.floweringMonthsText)
         }
     }

@@ -148,6 +148,18 @@ private enum PageWidth {
     var trailing: CGFloat { self == .narrow ? 16 : 24 }
 }
 
+/// A ready-made question for the database: the newest finished day of
+/// weather, and only that one. It lives outside GardenTab because a
+/// `@Query` cannot refer to the screen it sits in.
+private enum WeatherFetch {
+    static var newestFinishedDay: FetchDescriptor<WeatherDay> {
+        var newest = FetchDescriptor<WeatherDay>(predicate: #Predicate { $0.isComplete },
+                                                 sortBy: [SortDescriptor(\.dayKey, order: .reverse)])
+        newest.fetchLimit = 1
+        return newest
+    }
+}
+
 // MARK: - Gardens
 
 /// The Gardens page: the garden plans first, then tiles for everything to
@@ -165,6 +177,9 @@ struct GardenTab: View {
     @Query private var plants: [Plant]
     @Query private var plantings: [Planting]
     @Query private var seedPackets: [SeedPacket]
+    // Only the newest finished day is wanted, for one line on a tile, so
+    // only that one record is fetched.
+    @Query(WeatherFetch.newestFinishedDay) private var latestWeather: [WeatherDay]
 
     /// Which garden's plan is shown on an iPhone, where there is room for
     /// one at a time. The same choice as on Today.
@@ -303,9 +318,8 @@ struct GardenTab: View {
                 }
                 .hubTileGlass()
 
-                NavigationLink { FrostRecordsView() } label: {
-                    HubTile(icon: .drawn(.temperature), title: "Frost and weather",
-                            detail: "Frost dates and records")
+                NavigationLink { WeatherDiaryView() } label: {
+                    HubTile(icon: .drawn(.temperature), title: "Weather", detail: weatherLine)
                 }
                 .hubTileGlass()
             }
@@ -325,6 +339,16 @@ struct GardenTab: View {
             plant.status == .growing && PlantSeason.sowing.months(for: plant).contains(month)
         }.count
         return sowable == 0 ? "Nothing to sow this month" : "\(sowable) to sow this month"
+    }
+
+    /// "Yesterday 2° to 7°, dry", from the weather diary.
+    private var weatherLine: String {
+        guard let day = latestWeather.first, let low = day.minTemperatureC, let high = day.maxTemperatureC else {
+            return "Each day's weather and frosts"
+        }
+        let when = Calendar.current.isDateInYesterday(day.date) ? "Yesterday" : day.date.formatted(.dateTime.day().month(.abbreviated))
+        let rain = (day.rainfallMM ?? 0) < 0.1 ? "dry" : "\((day.rainfallMM ?? 0).formatted(.number.precision(.fractionLength(1)))) mm rain"
+        return "\(when) \(WeatherDiary.degrees(low)) to \(WeatherDiary.degrees(high)), \(rain)"
     }
 
     /// "8 packets · 2 past their date".

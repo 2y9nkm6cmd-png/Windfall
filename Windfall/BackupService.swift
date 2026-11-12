@@ -4,11 +4,13 @@
 //
 //  A complete copy of everything, as one JSON file.
 //
-//  Why this exists even with CloudKit and a spreadsheet behind it: sync
-//  propagates mistakes as faithfully as it propagates data. Delete a
-//  year of plantings by accident and CloudKit will helpfully remove them
-//  from all three devices. A dated file you keep somewhere else is the
-//  only thing that protects against that.
+//  Why this exists, and will still be needed once iCloud sync is on: sync
+//  passes on mistakes as faithfully as it passes on data. Delete a year
+//  of plantings by accident and iCloud would remove them from every
+//  device. A dated file kept somewhere else is the only thing that
+//  protects against that.
+//
+//  The weather diary is left out. It can be fetched again at any time.
 //
 //  Photos are excluded by choice — they would make the file enormous and
 //  they are already in iCloud Photos. This is the records.
@@ -110,6 +112,8 @@ private struct DiaryDTO: Codable {
 
 private struct FrostDTO: Codable {
     var id: UUID, date: Date, kind: String, minimum: Double?
+    // Missing from files made before 13 November 2026.
+    var site: String?, damage: String?, notes: String?
 }
 
 // MARK: - Service
@@ -226,7 +230,8 @@ final class BackupService {
 
         backup.frosts = (try context.fetch(FetchDescriptor<FrostRecord>())).map {
             FrostDTO(id: $0.id, date: $0.date, kind: $0.kindRaw,
-                     minimum: $0.minimumTemperatureC)
+                     minimum: $0.minimumTemperatureC,
+                     site: $0.siteRaw, damage: $0.damageNotes, notes: $0.notes)
         }
 
         let encoder = JSONEncoder()
@@ -489,6 +494,22 @@ final class BackupService {
             entry.temperatureC = dto.temperature
             entry.tags = dto.tags
             context.insert(entry)
+            restored += 1
+        }
+
+        // Frosts. Written to the file from the start, but until 13 November
+        // 2026 never read back from it.
+        let existingFrosts = Set((try context.fetch(FetchDescriptor<FrostRecord>())).map(\.id))
+        for dto in backup.frosts where !existingFrosts.contains(dto.id) {
+            let frost = FrostRecord()
+            frost.id = dto.id
+            frost.date = dto.date
+            frost.kindRaw = dto.kind
+            frost.minimumTemperatureC = dto.minimum
+            frost.siteRaw = dto.site
+            frost.damageNotes = dto.damage
+            frost.notes = dto.notes
+            context.insert(frost)
             restored += 1
         }
 

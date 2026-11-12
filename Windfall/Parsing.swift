@@ -41,8 +41,27 @@ enum MonthParser {
     /// Handles lists ("mar apr may", "July, August"), ranges written with
     /// a dash ("Mar-May"), and wrapped years ("oct nov dec feb mar").
     /// Returns them in calendar order, deduplicated.
+    ///
+    /// The answer for each piece of text is remembered. The Year page
+    /// alone asks about 1,700 times each time it redraws, nearly always
+    /// about text it has asked about before, and reading the text afresh
+    /// each time took about a tenth of a second in all (measured on 12
+    /// November 2026). Looking up a remembered answer takes almost none.
     static func months(in text: String?) -> [Int] {
         guard let text, !text.isEmpty else { return [] }
+        if let known = remembered[text] { return known }
+        let answer = read(text)
+        remembered[text] = answer
+        return answer
+    }
+
+    /// Answers already worked out, by the text they were worked out from.
+    /// The library holds a few hundred different pieces of month text, so
+    /// this stays small.
+    private static var remembered: [String: [Int]] = [:]
+
+    /// Does the reading. Only called for text not seen before.
+    private static func read(_ text: String) -> [Int] {
         let lower = text.lowercased()
 
         // A dash between two month names means everything in between.
@@ -50,12 +69,11 @@ enum MonthParser {
             return range
         }
 
+        // Every name is tried. A short name inside a long one ("sep" in
+        // "september") finds the same month, so the order does not matter.
         var found = Set<Int>()
-        // Longest names first, so "september" isn't eaten by "sep".
-        for (name, number) in names.sorted(by: { $0.0.count > $1.0.count }) {
-            if lower.contains(name) {
-                found.insert(number)
-            }
+        for (name, number) in names where lower.contains(name) {
+            found.insert(number)
         }
         return found.sorted()
     }
@@ -93,10 +111,13 @@ enum MonthParser {
     /// "March, April and May" — for showing back to the user.
     static func describe(_ months: [Int]) -> String {
         guard !months.isEmpty else { return "—" }
-        let formatter = DateFormatter()
+        // The calendar already knows the months' names. (A DateFormatter
+        // was made here on every call just to ask for them, and those are
+        // slow to make.)
+        let symbols = Calendar.current.monthSymbols
         let names = months.compactMap { month -> String? in
             guard month >= 1, month <= 12 else { return nil }
-            return formatter.monthSymbols[month - 1]
+            return symbols[month - 1]
         }
         guard names.count > 1 else { return names.first ?? "—" }
         return names.dropLast().joined(separator: ", ") + " and " + names[names.count - 1]
@@ -134,15 +155,18 @@ enum RangeParser {
     /// "around 12"  → 12...12
     /// "1.5m+"      → 1.5...1.5
     /// "" or "n/a"  → nil
+    /// Finds every number in a string, decimals included. Built once and
+    /// kept, because building a pattern is slow and this is asked for
+    /// every sowing on Today.
+    private static let numberPattern = try? NSRegularExpression(pattern: #"\d+(?:\.\d+)?"#)
+
     static func range(in text: String?) -> NumericRange? {
         guard let text, !text.isEmpty else { return nil }
 
         let lower = text.lowercased()
         if lower.contains("n/a") || lower.contains("unknown") { return nil }
 
-        // Every number in the string, decimals included.
-        let pattern = #"\d+(?:\.\d+)?"#
-        guard let regex = try? NSRegularExpression(pattern: pattern) else { return nil }
+        guard let regex = numberPattern else { return nil }
 
         let range = NSRange(lower.startIndex..., in: lower)
         let matches = regex.matches(in: lower, range: range)

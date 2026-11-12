@@ -197,20 +197,18 @@ struct GardenEditorView: View {
     /// from the heights and positions above.
     @ViewBuilder
     private var sunSection: some View {
-        if let latitude = garden.latitude, !beds.isEmpty {
+        if garden.latitude != nil, !beds.isEmpty {
             let month = Calendar.current.component(.month, from: .now)
+            // Every bed's sun worked out in one go, which is several
+            // times quicker than one bed at a time. See GardenPlan.
+            let sunByBed = GardenPlan.sunHours(forBedsIn: garden, beds: beds, features: features,
+                                               dayOfYear: Sun.midMonthDays[month - 1]) ?? [:]
             Section {
                 ForEach(beds) { bed in
-                    let hours = Shade.sunHours(
-                        on: bed.samplePoints,
-                        obstacles: GardenPlan.shadeShapes(beds: beds, features: features,
-                                                          siteKey: garden.siteKey, excluding: bed),
-                        topFaces: garden.topFacesDegrees,
-                        latitude: latitude,
-                        dayOfYear: Sun.midMonthDays[month - 1],
-                        stepMinutes: 15)
-                    LabeledContent(bed.name) {
-                        Text("\(hours.direct.formatted(.number.precision(.fractionLength(1)))) of \(hours.possible.formatted(.number.precision(.fractionLength(1)))) hours · \(hours.label)")
+                    if let sunshine = sunByBed[bed.id] {
+                        LabeledContent(bed.name) {
+                            Text("\(sunshine.direct.formatted(.number.precision(.fractionLength(1)))) of \(sunshine.possible.formatted(.number.precision(.fractionLength(1)))) hours · \(sunshine.label)")
+                        }
                     }
                 }
             } header: {

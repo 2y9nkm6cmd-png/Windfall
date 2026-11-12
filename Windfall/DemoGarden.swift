@@ -43,6 +43,18 @@ enum DemoGarden {
         isRequested && ProcessInfo.processInfo.arguments.contains("-demoYear")
     }
 
+    /// True when the app was also started with `-demoWeather`, which opens
+    /// the Weather page in place of the Gardens page, for checking it.
+    static var opensWeather: Bool {
+        isRequested && ProcessInfo.processInfo.arguments.contains("-demoWeather")
+    }
+
+    /// True when the app was also started with `-demoWeatherDay`, which
+    /// opens one day of weather in place of the Gardens page.
+    static var opensWeatherDay: Bool {
+        isRequested && ProcessInfo.processInfo.arguments.contains("-demoWeatherDay")
+    }
+
     /// Fills the empty in-memory store with an example garden. Does
     /// nothing if it has already been filled.
     static func fill(_ context: ModelContext) {

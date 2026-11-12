@@ -1,3 +1,119 @@
+# 12 to 13 November 2026, overnight: the weather diary, fixes and a sweep of the code
+
+**The `weather-diary` branch**, on top of `plant-filters`. Builds on the
+Mac for macOS, iOS and the iOS Simulator with no new warnings. 292 logic
+tests pass. Looked at in the iPad Pro, iPad mini and iPhone simulators.
+A database made by the `plant-filters` version opens in this one
+(tried in the iPad mini simulator). **Not run with William's real
+records.**
+
+## The weather diary (`WeatherDiary.swift`, `WeatherDiaryView.swift`)
+
+William asked for "a record of the weather for the day(s) and longer
+term". The app now keeps one record a day for each garden that has a
+location: coldest, warmest, rain, strongest wind, sunshine, water lost
+to the air, soil temperature at seed depth, the kind of day, and the
+temperature, rain, cloud, wind and soil for each hour.
+
+- **It fills itself in.** When the app opens, and each time it comes
+  back to the front, it works out which days are missing and fetches
+  them. Nothing needs to be pushed to the app and no day is lost by not
+  opening it. It asks the service at most once an hour for each garden.
+- **Two sources, both Open-Meteo.** The ordinary address for the newest
+  days, and the long-term record for older ones. Found by trying it:
+  asked for 92 days, the ordinary address sent figures for only the
+  newest 64, so days older than that come from the long-term record,
+  which runs about five days behind. Each day records which it came
+  from.
+- **Today's record is part forecast** and is marked unfinished. It is
+  fetched once more after the day ends and then left alone.
+- **Frosts come from the diary.** A finished day that went to freezing
+  or below becomes a frost record, once. This replaces the separate
+  frost check, which asked the service a second time for the same
+  figures and needed the device's location.
+- **Gardens within about a mile share one diary.**
+- **The Weather page**, from the Gardens page's Weather tile: four
+  figures (the latest finished day, the week's rain against water lost,
+  soil temperature, the last frost), the last 30 days as two charts,
+  the days one by one, and this year's frosts. Each day opens to its own
+  page with the temperature and rain hour by hour. "Fetch a year of
+  earlier weather" goes further back.
+- **The hour-by-hour figures are what the journal's time check needs**:
+  `WeatherHours.conditions(atHour:)` gives the conditions at any hour of
+  any day held.
+- **These are not readings from the garden.** They are worked out for
+  its place on the map from weather models. The page says so.
+- **Credit.** Open-Meteo's licence asks for one wherever its figures are
+  shown. It is on the Weather page, each day's page and in Settings.
+- The Settings line "Nothing is sent anywhere" was not quite true and
+  now says what is sent: each garden's location, rounded to about a
+  hundred metres, to the weather service.
+- The diary is not in the backup file. It can be fetched again.
+
+Not built: fetching in the background while the app is closed, the
+Shortcuts actions and the HomeKit sensors. See the project notes.
+
+Checking aids: `-demoWeather` opens the Weather page and
+`-demoWeatherDay` opens the newest finished day, both with `-demoGarden`.
+
+## Three small fixes
+
+- **Fruit trees now show on the Year page's Harvest.** Their months are
+  in the Fruiting/Harvest column, which arrives in a different field.
+  Harvest now reads both.
+- **Frost records come back from a backup.** They were written to the
+  file and never read from it. Their garden and notes are now in the
+  file too.
+- **The voice wave moves.** Its bars were meant to ripple and stood
+  still, because the ripple was driven by a kind of animation a Canvas
+  cannot follow. It now follows the clock.
+
+## A sweep of the code for waste
+
+William asked for "a high quality sweep of the code to check for
+anything extraneous or anything that would add inefficiencies". Timings
+are from the test harness, built unoptimised, as Xcode builds when
+running from it.
+
+| What | Before | Now |
+|---|---|---|
+| Reading month text ("mar apr may") | Read afresh on every call, 54 millionths of a second each. The Year page asked about 1,700 times a redraw, so about 90 thousandths of a second each time a button was pressed or a letter typed. Today's jobs and the Plants filters did the same | Each piece of text is read once and remembered (`MonthParser`). A needless sort on every call is gone |
+| Sun hours in the garden editor | Worked out bed by bed, each time working out every shadow again: 62 thousandths of a second a redraw for ten beds in June | Every bed in one pass over the same shadows: 17. The answers are identical, which a test checks (`Shade.sunHours(onEach:)`, `GardenPlan.sunHours(forBedsIn:)`) |
+| Today's jobs and recent records | Each worked out up to four times a redraw | Once |
+| Today's weather | Fetched again every time Today was returned to, with the card going blank meanwhile | One weather service for the app, which keeps its answer |
+| Month names and the number pattern | A date formatter or a pattern built on every call | Built once, or asked of the calendar |
+| The frost check | A second request for figures the diary now has | Gone |
+
+Removed as no longer used: the `WeatherSnapshot` record, which nothing
+ever wrote or read. The weather diary does its job.
+
+Notes in the code that still spoke of writing back to a spreadsheet are
+corrected.
+
+**Two speed checks in Settings**, for William to try, because their
+effect could not be measured without watching the app move:
+
+- **Plain background** leaves out the two large, heavily blurred washes
+  of colour behind every screen.
+- **Plain fade between places** swaps the melt for a simple fade.
+
+Found and left alone, for William to decide:
+
+- Unused but looks planned: `EiraChatStore.recentChats`,
+  `EiraVisionPrompt`, `WebSearchProvider`, `TaxonMapper`,
+  `NotificationService.scheduleFrostWarning`, `RangeParser.upperBound`.
+  `GardenPlan.overlappingBeds`, `Bed.longSideFaces` and
+  `Sun.noonAltitude` are used only by the tests.
+- Two icons are drawn and never shown: `saved` and `north`.
+- `Plant.sourceRow`, `sourceSheet` and `lastSyncedAt` are filled on
+  import and never read.
+- Every change of place in the sidebar builds the new screen from
+  nothing and runs all its database questions again. That is how each
+  place gets a fresh "back" trail. Keeping the screens alive would be
+  quicker and is a bigger change.
+- The garden editor still works out the sun again on every redraw,
+  including ones that change nothing about the layout.
+
 # 12 November 2026, late night: filters on the Plants screen, and Gardens and Wildlife redrawn
 
 **The `plant-filters` branch**, on top of `visual-design`. Builds on the

@@ -164,7 +164,7 @@ struct PlantFilter: Equatable {
         var filter = PlantFilter()
         if let kind = defaults.string(forKey: "plantsKind") { filter.kind = PlantKind(rawValue: kind) }
         filter.layer = defaults.string(forKey: "plantsLayer")
-        filter.family = defaults.string(forKey: "plantsFamily").map(YearCalendar.familyKey)
+        filter.family = defaults.string(forKey: "plantsFamily").map { YearCalendar.familyKey($0) }
         if let season = defaults.string(forKey: "plantsSeason") { filter.season = PlantSeason(rawValue: season) }
         let month = defaults.integer(forKey: "plantsMonth")
         if (1...12).contains(month) { filter.seasonMonth = month }

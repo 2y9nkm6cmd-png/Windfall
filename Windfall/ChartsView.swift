@@ -279,7 +279,6 @@ struct ChartsView: View {
     }
 
     private func shortMonth(_ month: Int) -> String {
-        let formatter = DateFormatter()
-        return formatter.shortMonthSymbols[max(0, min(11, month - 1))]
+        Calendar.current.shortMonthSymbols[max(0, min(11, month - 1))]
     }
 }

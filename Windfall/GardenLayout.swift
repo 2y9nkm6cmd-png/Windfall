@@ -335,6 +335,38 @@ enum GardenPlan {
             latitude: latitude)
     }
 
+    /// Hours of direct sun on every bed in a garden on one day of the
+    /// year, worked out together. Nil when the garden has no latitude.
+    ///
+    /// The answers are the same as asking bed by bed, and arrive several
+    /// times sooner, because each shadow is worked out once and not once
+    /// for every bed. The garden editor uses this each time it redraws.
+    static func sunHours(forBedsIn garden: Garden, beds: [Bed], features: [GardenFeature],
+                         dayOfYear: Int, stepMinutes: Double = 15) -> [UUID: SunHours]? {
+        guard let latitude = garden.latitude else { return nil }
+        let sited = beds.filter { $0.siteRaw == garden.siteKey }
+        var obstacles: [PlanShape] = []
+        var owners: [Int?] = []
+        for (index, bed) in sited.enumerated() {
+            if let shape = bed.shadeShape {
+                obstacles.append(shape)
+                owners.append(index)
+            }
+        }
+        for feature in features where feature.siteRaw == garden.siteKey {
+            if let shape = feature.shadeShape {
+                obstacles.append(shape)
+                owners.append(nil)
+            }
+        }
+        let hours = Shade.sunHours(onEach: sited.map(\.samplePoints), obstacles: obstacles, owners: owners,
+                                   topFaces: garden.topFacesDegrees, latitude: latitude,
+                                   dayOfYear: dayOfYear, stepMinutes: stepMinutes)
+        var byBed: [UUID: SunHours] = [:]
+        for (index, bed) in sited.enumerated() { byBed[bed.id] = hours[index] }
+        return byBed
+    }
+
     /// Pairs of beds in one garden that sit on top of each other. The
     /// editor can warn about these.
     static func overlappingBeds(_ beds: [Bed], siteKey: String) -> [(Bed, Bed)] {

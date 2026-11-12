@@ -22,4 +22,5 @@ KnowledgeBase.swift
 ExportService.swift
 BackupService.swift
 WeatherService.swift
+WeatherDiary.swift
 EiraOnDeviceEngine.swift

@@ -42,7 +42,10 @@ struct TodayView: View {
     @Query(sort: [SortDescriptor(\Garden.displayOrder)]) private var gardens: [Garden]
     @Query private var features: [GardenFeature]
 
-    @State private var weather = WeatherService()
+    /// The one weather service the whole app shares. Today is rebuilt
+    /// each time it is returned to, and with a service of its own it lost
+    /// the weather and fetched it again every time.
+    private var weather: WeatherService { .shared }
     /// Where the weather was last asked about, used to tell day from night.
     @State private var weatherPlace: CLLocationCoordinate2D?
     @State private var sheet: CaptureSheet?
@@ -424,7 +427,10 @@ struct TodayView: View {
     }
 
     private var jobsCard: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        // Worked out once here. Written as plain `jobs` below, each
+        // mention would go through the whole plant library again.
+        let jobs = self.jobs
+        return VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Text("This month")
                     .font(.headline)
@@ -528,7 +534,9 @@ struct TodayView: View {
     }
 
     private var recentCard: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        // Worked out once, for the same reason as the jobs above.
+        let recent = self.recent
+        return VStack(alignment: .leading, spacing: 12) {
             Text("Recent records")
                 .font(.headline)
                 .foregroundStyle(Theme.ink)

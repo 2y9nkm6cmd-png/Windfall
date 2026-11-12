@@ -142,8 +142,21 @@ extension View {
 struct PaperBackground: View {
 
     @Environment(\.colorScheme) private var colorScheme
+    /// A speed check, switched in Settings. With it on, the two washes of
+    /// colour are left out. They are large and heavily blurred, which is
+    /// work for the graphics chip, so this shows whether they are what
+    /// makes the app feel slow.
+    @AppStorage("plainBackground") private var isPlain = false
 
     var body: some View {
+        if isPlain {
+            Theme.paper.ignoresSafeArea()
+        } else {
+            washes
+        }
+    }
+
+    private var washes: some View {
         GeometryReader { geometry in
             let width = geometry.size.width
             ZStack {

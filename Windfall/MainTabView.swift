@@ -82,6 +82,13 @@ struct MainTabView: View {
     /// is being looked at. See EiraScreen.
     @State private var eiraScreen = EiraScreen()
 
+    /// Keeps the weather diary up to date. See WeatherDiary.swift.
+    @State private var weatherDiary = WeatherDiaryService()
+    /// A speed check, switched in Settings.
+    @AppStorage("plainTransitions") private var plainTransitions = false
+    // Says whether the app is on screen, in the background or closed.
+    @Environment(\.scenePhase) private var scenePhase
+
     var body: some View {
         Group {
             if sizeClass == .compact {
@@ -108,6 +115,18 @@ struct MainTabView: View {
                 // exist as records. It only adds what is missing.
                 GardenPlan.ensureStartingGardens(in: context)
             }
+            // Fill in any days of weather missed since the app was last
+            // open. Done after the gardens exist, because it needs to
+            // know where they are.
+            await weatherDiary.bringUpToDate(in: context)
+        }
+        // And again each time the app comes back to the front, which on
+        // an iPhone is far more often than it is opened afresh. The
+        // service is asked at most once an hour, so this is cheap.
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .active {
+                Task { await weatherDiary.bringUpToDate(in: context) }
+            }
         }
     }
 
@@ -128,7 +147,9 @@ struct MainTabView: View {
             .id(selection)
             // When the place changes, the old screen melts away and the
             // new one comes into focus, in step with the sidebar.
-            .transition(.blurReplace)
+            // (Settings has a speed check that swaps the melt for a plain
+            // fade, to see whether the melt is what feels slow.)
+            .transition(plainTransitions ? AnyTransition.opacity : AnyTransition(.blurReplace))
             // A little air between the sidebar and a screen's title.
             .padding(.leading, 10)
             // safeAreaInset places Eira's button along the bottom and tells
@@ -187,6 +208,10 @@ struct MainTabView: View {
         case .gardens:
             if DemoGarden.opensEditor {
                 DemoGardenEditor()
+            } else if DemoGarden.opensWeatherDay {
+                DemoWeatherDay()
+            } else if DemoGarden.opensWeather {
+                WeatherDiaryView()
             } else if DemoGarden.opensYear {
                 YearView()
             } else {
@@ -578,6 +603,8 @@ struct SettingsView: View {
     @AppStorage("recorderName") private var recorderName = ""
     @AppStorage("gridPrecision") private var gridPrecision = 100
     @AppStorage("eiraBarStaysOpen") private var eiraBarStaysOpen = false
+    @AppStorage("plainBackground") private var plainBackground = false
+    @AppStorage("plainTransitions") private var plainTransitions = false
 
     var body: some View {
         Form {
@@ -612,7 +639,20 @@ struct SettingsView: View {
             } header: {
                 Text("Data")
             } footer: {
-                Text("Everything is stored on this device. Nothing is sent anywhere.")
+                Text("Your records are stored on this device and are not sent anywhere. To fetch the weather, the app sends the weather service each garden's location, rounded to about a hundred metres, and nothing else.")
+            }
+
+            Section {
+                Toggle("Plain background", isOn: $plainBackground)
+                Toggle("Plain fade between places", isOn: $plainTransitions)
+            } header: {
+                Text("Speed checks")
+            } footer: {
+                Text("If the app feels slow, try these one at a time. The first leaves out the soft washes of colour behind every screen. The second swaps the melt between places for a simple fade. If one of them makes the difference, that is what to change for good.")
+            }
+
+            Section("Credits") {
+                WeatherCredit()
             }
         }
         .navigationTitle("Settings")

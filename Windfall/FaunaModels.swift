@@ -41,7 +41,7 @@ final class Fauna {
     var conservationStatus: String?
     var notes: String?
 
-    /// Source row, for round-tripping back to the sheet.
+    /// The table in the imported data file this came from.
     var sourceSheet: String?
     var lastSyncedAt: Date?
 
