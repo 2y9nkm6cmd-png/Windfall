@@ -114,6 +114,7 @@ struct GardenDataView: View {
             }
         }
         .navigationTitle("Garden data")
+        .paperScreen()
         // .json and .commaSeparatedText are Apple's names for the two
         // kinds of file this screen can read.
         .fileImporter(isPresented: $showingFilePicker,

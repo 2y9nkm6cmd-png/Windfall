@@ -64,6 +64,7 @@ struct SeedListView: View {
         }
         .searchable(text: $search, prompt: "Search seed")
         .navigationTitle("Seed")
+        .paperScreen()
         .navigationDestination(for: SeedPacket.self) { SeedDetailView(packet: $0) }
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
@@ -190,6 +191,7 @@ struct NewSeedPacketView: View {
                 }
             }
             .navigationTitle("New packet")
+            .paperScreen()
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
             #endif
@@ -298,6 +300,7 @@ struct SeedDetailView: View {
             }
         }
         .navigationTitle(packet.plant?.commonName ?? "Seed")
+        .paperScreen()
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
@@ -343,6 +346,7 @@ struct GerminationTestView: View {
                 }
             }
             .navigationTitle("Germination test")
+            .paperScreen()
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
             #endif

@@ -46,6 +46,7 @@ struct ChartsView: View {
             topCrops
         }
         .navigationTitle("Charts")
+        .paperScreen()
     }
 
     // MARK: Harvest by month

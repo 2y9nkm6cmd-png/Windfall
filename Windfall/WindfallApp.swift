@@ -55,7 +55,9 @@ struct WindfallApp: App {
         // Programme membership. The models are already written to suit it.
         let configuration = ModelConfiguration(
             schema: schema,
-            isStoredInMemoryOnly: false,
+            // The example garden lives in memory only, so it can never
+            // mix with your real records. See DemoGarden.
+            isStoredInMemoryOnly: DemoGarden.isRequested,
             cloudKitDatabase: .none
         )
 
@@ -77,7 +79,7 @@ struct WindfallApp: App {
         }
         .modelContainer(sharedModelContainer)
         #if os(macOS)
-        .defaultSize(width: 1100, height: 750)
+        .defaultSize(width: 1220, height: 820)
         #endif
     }
 }

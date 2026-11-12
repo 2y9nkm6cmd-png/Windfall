@@ -1,0 +1,24 @@
+{
+  "_about": "Windfall's named colours. Each has a light-mode and a dark-mode value. After changing this file, run Tools/design/build_design_assets.py to rebuild the asset catalogue.",
+  "colours": [
+    {"name": "Paper",              "light": "#F8F1E5", "dark": "#0C1C14", "use": "Screen background"},
+    {"name": "Card",               "light": "#FFFCF6", "dark": "#142414", "use": "Cards, buttons and beds on a plan"},
+    {"name": "Hairline",           "light": "#E0D9CB", "dark": "#2B3B2E", "use": "Fine borders and dividers"},
+    {"name": "Ink",                "light": "#15271D", "dark": "#F1EADB", "use": "Main text"},
+    {"name": "InkSoft",            "light": "#3A5549", "dark": "#A7B5A5", "use": "Dates, measurements and other secondary text"},
+    {"name": "Leaf",               "light": "#06472A", "dark": "#BCEC8C", "use": "The one green: main button, icons and links"},
+    {"name": "OnLeaf",             "light": "#FFFFFF", "dark": "#0C1C14", "use": "Text on the main button"},
+    {"name": "LeafFill",           "light": "#C4DC84", "dark": "#35522A", "use": "Planted sections and the Confirmed tag"},
+    {"name": "Amber",              "light": "#FCE4B4", "dark": "#5A4520", "use": "The Provisional tag"},
+    {"name": "Sun",                "light": "#F2B632", "dark": "#F2B632", "use": "The sun in weather icons"},
+    {"name": "JournalCard",        "light": "#E4ECC4", "dark": "#1E3320", "use": "The journal offer card"},
+    {"name": "Water",              "light": "#BFD9EA", "dark": "#2F5068", "use": "Ponds on a plan"},
+    {"name": "Petal",              "light": "#F4C3CC", "dark": "#B98592", "use": "The flower in the corner drawing"},
+    {"name": "Sidebar",            "light": "#0C2C14", "dark": "#07130C", "use": "Sidebar on Mac and iPad"},
+    {"name": "SidebarInk",         "light": "#F8F1E5", "dark": "#E9E2D2", "use": "Text and icons on the sidebar"},
+    {"name": "SidebarSelected",    "light": "#C4DC7C", "dark": "#C4DC7C", "use": "The chosen sidebar item"},
+    {"name": "SidebarSelectedInk", "light": "#0C2C14", "dark": "#0C2C14", "use": "Text on the chosen sidebar item"},
+    {"name": "EiraDisc",           "light": "#06472A", "dark": "#F8F1E5", "use": "Eira's circle. Flips in dark mode"},
+    {"name": "EiraFlower",         "light": "#FDFBF5", "dark": "#06472A", "use": "Eira's snowdrop. Flips in dark mode"}
+  ]
+}

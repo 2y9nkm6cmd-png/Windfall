@@ -372,6 +372,7 @@ struct KnowledgeBaseView: View {
             }
         }
         .navigationTitle("Knowledge")
+        .paperScreen()
         .fileImporter(isPresented: $showingImporter,
                       allowedContentTypes: [.plainText, .text]) { result in
             switch result {

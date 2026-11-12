@@ -349,6 +349,7 @@ struct ExportView: View {
             }
         }
         .navigationTitle("Export")
+        .paperScreen()
     }
 
     @ViewBuilder

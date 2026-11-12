@@ -67,6 +67,7 @@ struct PlantLibraryView: View {
         }
         .searchable(text: $search, prompt: "Search plants")
         .navigationTitle("Library")
+        .paperScreen()
         .navigationDestination(for: Plant.self) { PlantDetailView(plant: $0) }
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
@@ -276,6 +277,7 @@ struct PlantDetailView: View {
             }
         }
         .navigationTitle(plant.commonName)
+        .paperScreen()
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif

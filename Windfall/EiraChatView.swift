@@ -26,6 +26,11 @@ import SwiftData
 
 struct EiraChatView: View {
 
+    /// A question to send as soon as Eira is ready. Used when the chat is
+    /// opened from her bar with something already typed.
+    var openingQuestion: String? = nil
+    @State private var hasSentOpeningQuestion = false
+
     @Environment(\.modelContext) private var context
 
     @State private var conversation = EiraConversation()
@@ -93,6 +98,7 @@ struct EiraChatView: View {
             inputBar
         }
         .navigationTitle("Eira")
+        .paperScreen()
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
@@ -144,6 +150,16 @@ struct EiraChatView: View {
             // Only look at what is already allowed. Opening Eira should
             // never put a permission box in front of you.
             voice.checkExistingPermission()
+            // Send the question typed into Eira's bar, once. If she is not
+            // available it is left in the text box so it is not lost.
+            if let openingQuestion, !hasSentOpeningQuestion {
+                hasSentOpeningQuestion = true
+                if conversation.modelName != nil {
+                    conversation.send(openingQuestion)
+                } else {
+                    input = openingQuestion
+                }
+            }
         }
         .onChange(of: conversation.isGenerating) { wasGenerating, isGenerating in
             // Read the reply aloud once it has finished, if asked to.
@@ -549,6 +565,7 @@ struct EiraSettingsView: View {
                 }
             }
             .navigationTitle("Eira")
+            .paperScreen()
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
             #endif
@@ -625,6 +642,7 @@ struct EiraHistoryView: View {
                 }
             }
             .navigationTitle("Past conversations")
+            .paperScreen()
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
             #endif
@@ -668,6 +686,7 @@ struct EiraCorrectionView: View {
                 }
             }
             .navigationTitle("Correct this")
+            .paperScreen()
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
             #endif

@@ -86,6 +86,7 @@ struct JournalTimelineView: View {
             }
         }
         .navigationTitle("Journal")
+        .paperScreen()
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button {
@@ -335,6 +336,7 @@ struct DiaryEntryEditor: View {
                 }
             }
             .navigationTitle("Diary entry")
+            .paperScreen()
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
             #endif

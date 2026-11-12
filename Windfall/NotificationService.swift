@@ -235,6 +235,7 @@ struct NotificationSettingsView: View {
             .font(.callout)
         }
         .navigationTitle("Reminders")
+        .paperScreen()
         .task { await service.refreshStatus() }
     }
 }

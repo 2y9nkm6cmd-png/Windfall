@@ -372,6 +372,7 @@ struct SeedPacketScanView: View {
                 }
             }
             .navigationTitle("Scan a packet")
+            .paperScreen()
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
             #endif

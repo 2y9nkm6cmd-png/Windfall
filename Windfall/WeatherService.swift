@@ -296,6 +296,7 @@ struct FrostRecordsView: View {
             }
         }
         .navigationTitle("Frost")
+        .paperScreen()
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button {

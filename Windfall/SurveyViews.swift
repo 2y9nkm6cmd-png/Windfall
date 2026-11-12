@@ -53,6 +53,7 @@ struct SurveyListView: View {
             }
         }
         .navigationTitle("Surveys")
+        .paperScreen()
         .navigationDestination(for: Survey.self) { survey in
             SurveyDetailView(survey: survey)
         }
@@ -159,6 +160,7 @@ struct RunSurveyView: View {
                 }
             }
             .navigationTitle(survey.scheme.displayName)
+            .paperScreen()
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
             #endif
@@ -529,6 +531,7 @@ struct SurveyDetailView: View {
             }
         }
         .navigationTitle("Survey")
+        .paperScreen()
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif

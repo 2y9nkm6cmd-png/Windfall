@@ -72,6 +72,7 @@ struct GardenMapView: View {
             }
         }
         .navigationTitle("Garden map")
+        .paperScreen()
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button {
@@ -269,6 +270,7 @@ struct LayoutEditorView: View {
                 }
             }
             .navigationTitle("Arrange beds")
+            .paperScreen()
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
             #endif

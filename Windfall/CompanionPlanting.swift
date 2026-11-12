@@ -178,6 +178,7 @@ struct CompanionView: View {
             }
         }
         .navigationTitle("Companions")
+        .paperScreen()
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
@@ -244,6 +245,7 @@ struct BedCompanionCheckView: View {
             }
         }
         .navigationTitle("\(bed.name) companions")
+        .paperScreen()
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif

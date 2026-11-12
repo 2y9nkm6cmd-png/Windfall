@@ -341,5 +341,6 @@ struct VoiceSettingsView: View {
             }
         }
         .navigationTitle("Voice")
+        .paperScreen()
     }
 }

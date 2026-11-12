@@ -61,6 +61,7 @@ struct ObservationListView: View {
         }
         .searchable(text: $search, prompt: "Search sightings")
         .navigationTitle("Sightings")
+        .paperScreen()
         .navigationDestination(for: WildlifeObservation.self) {
             ObservationEditor(observation: $0)
         }
@@ -378,6 +379,7 @@ struct ObservationEditor: View {
             }
         }
         .navigationTitle(isNew ? "New sighting" : "Sighting")
+        .paperScreen()
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif

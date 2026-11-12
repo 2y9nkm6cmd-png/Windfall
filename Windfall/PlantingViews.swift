@@ -53,6 +53,7 @@ struct PlantingListView: View {
             }
         }
         .navigationTitle("Sowings")
+        .paperScreen()
         .navigationDestination(for: Planting.self) { PlantingDetailView(planting: $0) }
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
@@ -280,6 +281,7 @@ struct NewPlantingView: View {
                 }
             }
             .navigationTitle("New sowing")
+            .paperScreen()
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
             #endif
@@ -520,6 +522,7 @@ struct PlantingDetailView: View {
             }
         }
         .navigationTitle(planting.plant?.commonName ?? "Sowing")
+        .paperScreen()
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
@@ -578,6 +581,7 @@ struct HarvestEditor: View {
                 }
             }
             .navigationTitle("Harvest")
+            .paperScreen()
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
             #endif
@@ -646,6 +650,7 @@ struct PhenologyEditor: View {
                 }
             }
             .navigationTitle("Stage")
+            .paperScreen()
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
             #endif
@@ -729,6 +734,7 @@ struct ProblemEditor: View {
                 }
             }
             .navigationTitle("Problem")
+            .paperScreen()
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
             #endif

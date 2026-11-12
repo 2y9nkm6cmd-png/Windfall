@@ -1,3 +1,83 @@
+# 12 November 2026, evening: the visual design
+
+**This is the `visual-design` branch.** It sits on top of `garden-editor`.
+It builds on the Mac for macOS, iOS and the iOS Simulator, and has been
+looked at on the Mac and in the iPhone, iPad Pro and iPad mini simulators.
+William has tried it in the example garden. **It has not been run with
+his real records.**
+
+## Why
+
+William has concept art for how Windfall should look (doc 15 in the
+knowledge base, and `Design/Reference`) and asked for it to be built with
+Apple's liquid glass, with Eira as a floating button.
+
+## What is new
+
+- **A theme** (`Theme.swift`). Every colour has a name, a light value and
+  a dark value. Screens ask for `Theme.paper` or `Theme.leaf` and never
+  write a colour of their own. Titles use a serif face at medium weight
+  and body text is regular weight, after William found the concept art
+  "too bold".
+- **Icons** (`Design/Icons`). 35 icons redrawn as SVG files to match
+  William's reference picture. Each is its own file, so one can be
+  replaced without touching code.
+- **Colours and icons are built by a script**,
+  `Tools/design/build_design_assets.py`, from the `Design` folder.
+- **The frame** (`MainTabView.swift`). A dark green glass sidebar on Mac
+  and iPad, tabs on iPhone. One list of places drives both. The sidebar's
+  highlight stretches and snaps between rows like a drop of liquid.
+- **A new Today screen** (`TodayView.swift`) replacing `DashboardView`:
+  the date, a conditions card, six capture buttons, this month's jobs
+  with tick boxes, garden plans, recent records with Confirmed and
+  Provisional tags, and an offer to write a journal entry from what was
+  logged that day.
+- **Garden plans drawn to scale** (`GardenPlanView.swift`) from the
+  measurements on each record: beds, planted sections, sheds, ponds,
+  trees, things outside the boundary, dimension lines and a compass.
+- **A first garden editor** (`GardenEditorView.swift`): a form for the
+  plot, each bed and each feature, with the plan redrawing above it and
+  hours of direct sun for each bed this month.
+- **A compass** (`CompassRose.swift`). On iPhone and iPad it can follow
+  the device, turning the plan to match the ground, and can set which way
+  a plan faces. ⚠️ Not tested: neither the Mac nor the simulator has a
+  compass.
+- **Eira's floating button** (`EiraFloatingBar.swift`, `Snowdrop.swift`).
+  Her snowdrop sits bottom right. Tapped, it is blown across to the
+  sidebar, bumps against it and settles, drawing out a bar to ask, search
+  or open anything. The snowdrop is William's own drawing, kept as shapes
+  so the stem can lean and the flower head can swing.
+- **Paper behind every screen.** Each titled screen gained one line,
+  `.paperScreen()`.
+- **An example garden** (`DemoGarden.swift`), shown only when the app is
+  started with `-demoGarden`. It lives in memory and never touches real
+  records.
+
+## Decided along the way
+
+- Eira opens blown by the wind. The rolling version is in
+  `Design/Archive` with its code.
+- The bar runs the full width, across to the sidebar.
+- "Plans" was left out of the sidebar, because it looked like the same
+  place as "Gardens".
+- The Eira tab is gone. She is reached from her button on every screen.
+
+## Not done yet
+
+- Icons still to draw: bird, newt, blossom, leaf, seeds, fruit,
+  vegetable, snow.
+- Jobs in "This month" are worked out from records. You cannot yet add
+  your own.
+- The Photo button opens "Identify from a photo", which cannot identify
+  anything yet.
+- The older screens have the paper background and green tint but are
+  otherwise unchanged.
+- The garden editor is a plain form. Gardens cannot be added and beds are
+  still added in Gardens, then Beds.
+- No app icon.
+
+---
+
 # Overnight, 11 to 12 November 2026: the workings behind the garden editor
 
 **This is the `garden-editor` branch.** It is kept apart from

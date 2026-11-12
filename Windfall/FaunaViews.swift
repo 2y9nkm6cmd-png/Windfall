@@ -81,6 +81,7 @@ struct FaunaListView: View {
         }
         .searchable(text: $search, prompt: "Search species")
         .navigationTitle("Species")
+        .paperScreen()
         .navigationDestination(for: Fauna.self) { FaunaDetailView(fauna: $0) }
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
@@ -160,6 +161,7 @@ struct FaunaDetailView: View {
             }
         }
         .navigationTitle(fauna.commonName)
+        .paperScreen()
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
@@ -214,6 +216,7 @@ struct FlowerShapeCoverageView: View {
             }
         }
         .navigationTitle("Flower shapes")
+        .paperScreen()
     }
 
     @ViewBuilder
@@ -277,6 +280,7 @@ struct CascadeListView: View {
             }
         }
         .navigationTitle("Cascades")
+        .paperScreen()
     }
 
     @ViewBuilder

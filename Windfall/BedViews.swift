@@ -47,6 +47,7 @@ struct BedListView: View {
             }
         }
         .navigationTitle("Beds")
+        .paperScreen()
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button {
@@ -127,6 +128,7 @@ struct BedListView: View {
                 }
             }
             .navigationTitle("New bed")
+            .paperScreen()
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
             #endif
@@ -289,6 +291,7 @@ struct BedDetailView: View {
             }
         }
         .navigationTitle(bed.name)
+        .paperScreen()
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif

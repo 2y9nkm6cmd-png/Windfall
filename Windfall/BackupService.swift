@@ -565,6 +565,7 @@ struct BackupView: View {
             }
         }
         .navigationTitle("Backup")
+        .paperScreen()
         .fileImporter(isPresented: $showingImporter,
                       allowedContentTypes: [.json]) { result in
             switch result {

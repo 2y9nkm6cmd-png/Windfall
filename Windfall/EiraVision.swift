@@ -146,6 +146,7 @@ struct IdentifyView: View {
                 }
             }
             .navigationTitle("Identify")
+            .paperScreen()
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
             #endif

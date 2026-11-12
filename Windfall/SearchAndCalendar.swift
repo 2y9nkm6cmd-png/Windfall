@@ -21,7 +21,14 @@ struct UniversalSearchView: View {
     @Query private var fauna: [Fauna]
     @Query private var harvests: [Harvest]
 
-    @State private var query = ""
+    @State private var query: String
+
+    /// `initialQuery` lets Eira's bar open the search with words already in it.
+    init(initialQuery: String = "") {
+        // The underscore reaches the storage behind @State, which is how a
+        // starting value is handed in from outside.
+        _query = State(initialValue: initialQuery)
+    }
 
     private var results: [SearchResult] {
         guard query.count >= 2 else { return [] }
@@ -108,6 +115,7 @@ struct UniversalSearchView: View {
         }
         .searchable(text: $query, prompt: "Search everything")
         .navigationTitle("Search")
+        .paperScreen()
         .navigationDestination(for: Plant.self) { PlantDetailView(plant: $0) }
         .navigationDestination(for: Planting.self) { PlantingDetailView(planting: $0) }
         .navigationDestination(for: Fauna.self) { FaunaDetailView(fauna: $0) }
@@ -287,6 +295,7 @@ struct SowingCalendarView: View {
         }
         .searchable(text: $search, prompt: "Filter plants")
         .navigationTitle("Sowing calendar")
+        .paperScreen()
     }
 
     private func shortMonth(_ month: Int) -> String {
