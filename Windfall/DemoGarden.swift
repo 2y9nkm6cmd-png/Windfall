@@ -36,6 +36,13 @@ enum DemoGarden {
         isRequested && ProcessInfo.processInfo.arguments.contains("-demoEditor")
     }
 
+    /// True when the app was also started with `-demoYear`, which opens
+    /// the Year page in place of the Gardens list. On an iPhone the Year
+    /// page has no tab of its own, so this is how it is checked there.
+    static var opensYear: Bool {
+        isRequested && ProcessInfo.processInfo.arguments.contains("-demoYear")
+    }
+
     /// Fills the empty in-memory store with an example garden. Does
     /// nothing if it has already been filled.
     static func fill(_ context: ModelContext) {

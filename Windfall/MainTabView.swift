@@ -185,8 +185,14 @@ struct MainTabView: View {
         switch section {
         case .today: TodayView()
         case .gardens:
-            if DemoGarden.opensEditor { DemoGardenEditor() } else { GardenTab() }
-        case .year: SowingCalendarView()
+            if DemoGarden.opensEditor {
+                DemoGardenEditor()
+            } else if DemoGarden.opensYear {
+                YearView()
+            } else {
+                GardenTab()
+            }
+        case .year: YearView()
         case .plants: PlantLibraryView()
         case .wildlife: WildlifeTab()
         case .journal: JournalTimelineView()
@@ -294,11 +300,12 @@ struct SidebarView: View {
         .padding(.vertical, 12)
         .onAppear {
             moveLens(to: selection, animated: false)
-            // A checking aid. Starting the app with `-sidebarLensHeld YES`
-            // leaves the lens lifted and part-way between two rows, so a
-            // still picture can show how it bends what is under it.
-            if UserDefaults.standard.bool(forKey: "sidebarLensHeld") {
-                let nudge = (rowHeight + rowGap) * 0.55
+            // A checking aid. Starting the app with `-sidebarLensHeld 0.5`
+            // leaves the lens lifted, moved down by that many rows, so a
+            // still picture can show how it bends what is under it. Use 0
+            // to hold it over the chosen row.
+            if UserDefaults.standard.object(forKey: "sidebarLensHeld") != nil {
+                let nudge = (rowHeight + rowGap) * UserDefaults.standard.double(forKey: "sidebarLensHeld")
                 isLifted = true
                 lensTop += nudge
                 lensBottom += nudge
@@ -479,15 +486,12 @@ struct SidebarView: View {
 /// the lens drawn on top of it.
 struct LensRefraction: ViewModifier, Animatable {
 
-    /// Whether the graphics program is part of the app yet.
+    /// Whether the graphics program (Lens.metal) is part of the app.
     ///
-    /// It is not, for now. Building it needs an extra piece of Xcode
-    /// called the Metal Toolchain, which is a separate download. Until
-    /// that is installed, Lens.metal waits in Design/Shaders and the lens
-    /// keeps its solid lime look while it moves. To switch it on: install
-    /// the toolchain, move Lens.metal into the Windfall folder and change
-    /// this to true.
-    static let isBuilt = false
+    /// Set this to false to switch the bending off in one place. The
+    /// lens then keeps its solid lime look while it moves. Handy if the
+    /// effect ever misbehaves on some device.
+    static let isBuilt = true
 
     /// How much larger the lens is while lifted. The lens drawn on top
     /// uses the same figure, so the two always match.
@@ -559,8 +563,8 @@ struct GardenTab: View {
             NavigationLink { GardenMapView() } label: {
                 Label("Garden map", systemImage: "map")
             }
-            NavigationLink { SowingCalendarView() } label: {
-                Label("Sowing calendar", systemImage: "calendar")
+            NavigationLink { YearView() } label: {
+                Label("Year", systemImage: "calendar")
             }
             NavigationLink { SeedListView() } label: {
                 Label("Seed", systemImage: "bag")

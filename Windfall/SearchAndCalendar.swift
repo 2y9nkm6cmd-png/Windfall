@@ -2,7 +2,10 @@
 //  SearchAndCalendar.swift
 //  Windfall
 //
-//  Two views that read across everything: one searching, one planning.
+//  The search that reads across every kind of record.
+//
+//  The calendar that used to share this file is now the Year page, in
+//  YearView.swift.
 //
 
 import SwiftUI
@@ -172,134 +175,5 @@ private struct SearchRow: View {
                 }
             }
         }
-    }
-}
-
-// MARK: - Sowing calendar
-
-/// The whole year on one screen, built from the spreadsheet's month text.
-///
-/// This is the view the spreadsheet can't give you: it reads "mar apr may"
-/// and "Oct-Mar" out of 265 rows and lays them all against the same twelve
-/// columns, so the gaps in the year become visible.
-struct SowingCalendarView: View {
-
-    @Query(sort: [SortDescriptor(\Plant.commonName)]) private var plants: [Plant]
-
-    @State private var filter: CalendarFilter = .sowOutdoors
-    @State private var search = ""
-
-    enum CalendarFilter: String, CaseIterable, Identifiable {
-        case sowIndoors = "Sow indoors"
-        case sowOutdoors = "Sow outdoors"
-        case plantOut = "Plant out"
-        case harvest = "Harvest"
-        case flowering = "Flowering"
-
-        var id: String { rawValue }
-
-        func months(for plant: Plant) -> [Int] {
-            switch self {
-            case .sowIndoors:  return MonthParser.months(in: plant.sowIndoorsMonthsText)
-            case .sowOutdoors: return MonthParser.months(in: plant.sowOutdoorsMonthsText)
-            case .plantOut:    return MonthParser.months(in: plant.plantOutMonthsText)
-            case .harvest:     return MonthParser.months(in: plant.harvestMonthsText)
-            case .flowering:   return MonthParser.months(in: plant.floweringMonthsText)
-            }
-        }
-
-        var colour: Color {
-            switch self {
-            case .sowIndoors:  return .blue
-            case .sowOutdoors: return .green
-            case .plantOut:    return .teal
-            case .harvest:     return .orange
-            case .flowering:   return .pink
-            }
-        }
-    }
-
-    private var rows: [(plant: Plant, months: [Int])] {
-        plants
-            .filter { $0.status == .growing }
-            .filter { search.isEmpty || $0.commonName.lowercased().contains(search.lowercased()) }
-            .map { (plant: $0, months: filter.months(for: $0)) }
-            .filter { !$0.months.isEmpty }
-            .sorted { ($0.months.first ?? 13) < ($1.months.first ?? 13) }
-    }
-
-    private var thisMonth: Int { Calendar.current.component(.month, from: .now) }
-
-    var body: some View {
-        VStack(spacing: 0) {
-            Picker("Show", selection: $filter) {
-                ForEach(CalendarFilter.allCases) { option in
-                    Text(option.rawValue).tag(option)
-                }
-            }
-            .pickerStyle(.menu)
-            .padding(.horizontal)
-
-            // Month header
-            HStack(spacing: 1) {
-                Text("").frame(width: 110, alignment: .leading)
-                ForEach(1...12, id: \.self) { month in
-                    Text(shortMonth(month).prefix(1))
-                        .font(.caption2)
-                        .frame(maxWidth: .infinity)
-                        .foregroundStyle(month == thisMonth ? .primary : .secondary)
-                        .fontWeight(month == thisMonth ? .bold : .regular)
-                }
-            }
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
-
-            Divider()
-
-            ScrollView {
-                LazyVStack(spacing: 2) {
-                    ForEach(rows, id: \.plant.id) { row in
-                        HStack(spacing: 1) {
-                            Text(row.plant.commonName)
-                                .font(.caption)
-                                .lineLimit(1)
-                                .frame(width: 110, alignment: .leading)
-
-                            ForEach(1...12, id: \.self) { month in
-                                Rectangle()
-                                    .fill(row.months.contains(month)
-                                          ? filter.colour.opacity(0.75)
-                                          : Color.secondary.opacity(0.08))
-                                    .frame(height: 18)
-                                    .overlay {
-                                        if month == thisMonth {
-                                            Rectangle()
-                                                .strokeBorder(.primary.opacity(0.4), lineWidth: 1)
-                                        }
-                                    }
-                            }
-                        }
-                        .padding(.horizontal, 8)
-                    }
-                }
-                .padding(.vertical, 4)
-            }
-
-            if rows.isEmpty {
-                ContentUnavailableView {
-                    Label("Nothing to show", systemImage: "calendar")
-                } description: {
-                    Text("No plants have \(filter.rawValue.lowercased()) months recorded.")
-                }
-            }
-        }
-        .searchable(text: $search, prompt: "Filter plants")
-        .navigationTitle("Sowing calendar")
-        .paperScreen()
-    }
-
-    private func shortMonth(_ month: Int) -> String {
-        let formatter = DateFormatter()
-        return formatter.shortMonthSymbols[month - 1]
     }
 }

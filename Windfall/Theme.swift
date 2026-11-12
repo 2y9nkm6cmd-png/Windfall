@@ -48,6 +48,14 @@ enum Theme {
     static let sidebarSelected = Color("Colours/SidebarSelected")
     static let sidebarSelectedInk = Color("Colours/SidebarSelectedInk")
 
+    /// The five jobs on the Year page. Chosen as a set that people who
+    /// are colour-blind can tell apart, so change them together.
+    static let sowIndoors = Color("Colours/SowIndoors")
+    static let sowOutdoors = Color("Colours/SowOutdoors")
+    static let plantOut = Color("Colours/PlantOut")
+    static let harvest = Color("Colours/Harvest")
+    static let flowering = Color("Colours/Flowering")
+
     /// Eira's circle and her snowdrop. They swap over in dark mode.
     static let eiraDisc = Color("Colours/EiraDisc")
     static let eiraFlower = Color("Colours/EiraFlower")

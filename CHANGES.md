@@ -1,3 +1,67 @@
+# 12 November 2026, night: the Year page, and the sidebar lens switched on
+
+**Still the `visual-design` branch.** Builds on the Mac for macOS and the
+iOS Simulator. 223 logic tests pass. Looked at in the iPad Pro and iPhone
+simulators, light and dark. **Not run with William's real records.**
+
+## The Year page (`YearView.swift`, `YearCalendar.swift`)
+
+William chose from four options on the design canvas: "the small dots
+that are in option A", "the bars with the curved ends in option B, so
+that if the months you can sow or plant etc are consecutive, it's a bar,
+but you still have the dots otherwise", and option C "as a toggle on and
+off".
+
+- A small faint dot for a month with nothing to do. A filled dot for a
+  job that fits one month. A bar with round ends for months in a row.
+- A ring inside a mark where it crosses this month, and a soft band down
+  this month's column.
+- A window that crosses the new year (October to February) is drawn with
+  square ends at the edges of the year.
+- **"Every job"** shows all five jobs on each plant as thin lines. Each
+  job keeps its own height in the row. Sowing indoors is an outline and
+  flowering is a row of dots, so the lines differ by shape as well as
+  colour. The job buttons then switch single lines on and off.
+- Plants are grouped by family (`Plant.group`), with the variety beside
+  the name. A menu offers "By when it starts" and "A to Z".
+- Tapping a plant opens its page.
+- The marks are one drawing per row (`Canvas`), with the same thing said
+  in words for VoiceOver.
+- Five named colours were added for the jobs (`Design/colours.json`).
+  The first four pass a colour-blindness check as a set. Violet for
+  flowering does not pass against the blue, which is why those two
+  differ by shape. **The colours are Claude's proposal.**
+- The old `SowingCalendarView` is gone. `SearchAndCalendar.swift` now
+  holds only the search.
+
+Found in the data: one plant's family is spelt "Allium" where the others
+say "Alliums". The page treats them as one family. The record is not
+changed. "Leek" and "Leeks" also both appear as plant names.
+
+## The sidebar lens is on
+
+William agreed to the Metal Toolchain (838.9 MB, from Apple through
+Xcode). It is installed, `Lens.metal` is back inside the app and
+`LensRefraction.isBuilt` is true.
+
+- Lifted, the lens is clear with a bright rim. What is under it is
+  magnified a little, the rows just outside are squeezed in at the rim
+  and there is a faint colour fringe.
+- At rest it is Apple's glass tinted lime, as before.
+- The amounts in `Lens.metal` were tuned once from still pictures:
+  rim 11 wide, reach 11, fringe 2, magnification 10 per cent.
+  **William has not yet judged it moving.**
+- The toolchain does not make anything faster. William reported the app
+  feeling slow and glitchy. The cause is not yet known.
+
+## Checking aids
+
+- `-sidebarLensHeld 0.5` holds the lens lifted, moved down by that many
+  rows. `0` holds it over the chosen row.
+- `-demoYear` opens the Year page in place of the Gardens list, which is
+  how it is checked on an iPhone.
+- `-yearShowsEveryJob YES` starts with every job showing.
+
 # 12 November 2026, late evening: Eira knows the screen, and a lens for the sidebar
 
 **Still the `visual-design` branch.** Builds on the Mac for macOS and the
@@ -41,10 +105,9 @@ moves, like the lens on the tab bar in Apple's Music app.
 - For the sidebar the bending is written as a small program for the
   graphics chip, `Design/Shaders/Lens.metal`, called by `LensRefraction`
   in `MainTabView.swift`.
-- **It is switched off.** Xcode cannot build a `.metal` file without the
-  "Metal Toolchain", a separate download, which is not installed on
-  William's Mac. With the file inside the app, nothing builds at all. So
-  the file waits outside the app and `LensRefraction.isBuilt` is false.
+- **It was switched off at this point**, because Xcode cannot build a
+  `.metal` file without the "Metal Toolchain". That was installed later
+  the same night and the lens is now on. See the section above.
 - To switch it on: install the toolchain
   (`xcodebuild -downloadComponent MetalToolchain`), move `Lens.metal`
   into the `Windfall` folder, set `isBuilt` to true, build.

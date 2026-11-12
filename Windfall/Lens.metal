@@ -19,10 +19,10 @@
 //
 //  SwiftUI calls it from LensRefraction in MainTabView.swift.
 //
-//  WAITING: this file is kept in Design/Shaders, outside the app, until
-//  Xcode's "Metal Toolchain" is installed. Xcode cannot build a .metal
-//  file without it, and would refuse to build the whole app. To switch
-//  the effect on, see `isBuilt` in LensRefraction.
+//  Building this file needs an extra piece of Xcode called the Metal
+//  Toolchain. It was installed on William's Mac on 12 November 2026. On
+//  a Mac without it the whole app fails to build, with a message naming
+//  the cure: xcodebuild -downloadComponent MetalToolchain
 //
 
 #include <SwiftUI/SwiftUI_Metal.h>
@@ -63,17 +63,17 @@ static float roundedBoxDistance(float2 point, float2 halfSize, float radius) {
     outward = size > 0.0001 ? outward / size : float2(0.0, 0.0);
 
     // 1 at the rim of the lens, fading to 0 a little way in.
-    float rimWidth = 14.0;
+    float rimWidth = 11.0;
     float rim = 1.0 - clamp(-distance / rimWidth, 0.0, 1.0);
     rim = rim * rim * rim;
 
     // The middle magnifies a little: look slightly nearer the centre.
-    float2 source = position - fromCentre * (0.07 * strength);
+    float2 source = position - fromCentre * (0.10 * strength);
     // The rim is steep glass: look outwards, past the lens's own edge.
-    source += outward * rim * 16.0 * strength;
+    source += outward * rim * 11.0 * strength;
 
     // Fetch the three colours from slightly different places at the rim.
-    float2 fringe = outward * rim * 3.0 * strength;
+    float2 fringe = outward * rim * 2.0 * strength;
     half4 red = layer.sample(source + fringe);
     half4 green = layer.sample(source);
     half4 blue = layer.sample(source - fringe);

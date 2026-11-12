@@ -216,6 +216,25 @@ struct LogicTests {
         check(engine.prompts.count == promptsBeforeFungi, "the model is not asked a fungi question")
         check(conversation.messages.last?.content == EiraSafety.fungiReply && conversation.messages.last?.role == .assistant, "the fixed fungi reply is what the gardener sees")
         check(!EiraSafety.fungiReply.contains("describe") && EiraSafety.fungiReply.contains("fatal"), "the fixed reply warns and does not ask for a description")
+        // The Year page: months joined into runs
+        check(YearCalendar.runs(in: [2, 3, 4, 9]) == [MonthRun(first: 2, last: 4), MonthRun(first: 9, last: 9)], "months in a row join into one run and a lone month stays alone")
+        check(YearCalendar.runs(in: [4, 2, 3, 3, 0, 13]) == [MonthRun(first: 2, last: 4)], "months are put in order, and repeats and non-months are dropped")
+        let wrapped = YearCalendar.runs(in: [10, 11, 12, 1, 2])
+        check(wrapped.count == 2 && wrapped[0] == MonthRun(first: 1, last: 2, continuesBefore: true) && wrapped[1] == MonthRun(first: 10, last: 12, continuesAfter: true), "a window over the new year is two runs that know they are joined")
+        let allYear = YearCalendar.runs(in: Array(1...12))
+        check(allYear == [MonthRun(first: 1, last: 12)], "all twelve months is one run with no loose ends")
+        check(YearCalendar.runs(in: [1, 12]).allSatisfy { $0.length == 1 } && YearCalendar.runs(in: [1, 12])[0].continuesBefore, "December and January alone still wrap")
+        check(YearCalendar.runs(in: []).isEmpty, "no months, no runs")
+        check(YearCalendar.opens([10, 11, 12, 1, 2]) == 10 && YearCalendar.opens([3, 4, 5]) == 3 && YearCalendar.opens(Array(1...12)) == 1 && YearCalendar.opens([]) == 13, "a window opens in the first month that follows a gap")
+        check(YearCalendar.words(for: YearCalendar.runs(in: [2, 3, 4, 9])) == "February to April and September", "runs are read out in words")
+        check(YearCalendar.words(for: wrapped) == "October to February", "a window over the new year is read as one stretch")
+        check(YearCalendar.words(for: allYear) == "all year" && YearCalendar.words(for: []) == "no months", "all year and no months have their own words")
+        check(YearCalendar.words(for: YearCalendar.runs(in: [1, 3, 5])) == "January, March and May", "three runs are listed with a comma and an and")
+        check(YearCalendar.familyKey("Alliums") == YearCalendar.familyKey(" allium ") && YearCalendar.familyKey("Beans") != YearCalendar.familyKey("Brassicas") && YearCalendar.familyKey("Gas") == "gas", "a family spelt with and without a final s is one family")
+        check(YearCalendar.familyTitle(from: ["Allium", "Alliums", "Alliums"]) == "Alliums" && YearCalendar.familyTitle(from: ["Allium", "Alliums"]) == "Alliums" && YearCalendar.familyTitle(from: []) == "", "a family is shown under its commonest spelling")
+        let yearPlant = Plant(commonName: "Wild garlic")
+        yearPlant.sowOutdoorsMonthsText = "Oct-Feb"; yearPlant.harvestMonthsText = "apr may jun"
+        check(YearActivity.sowOutdoors.months(for: yearPlant).sorted() == [1, 2, 10, 11, 12] && YearActivity.harvest.months(for: yearPlant) == [4, 5, 6] && YearActivity.plantOut.months(for: yearPlant).isEmpty, "each job reads its own months from the plant")
         // What is on screen is passed to the model, and only to the model
         conversation.screenNote = "the plant Apple, Spartan"
         conversation.send("What grows well beside this?"); await waitUntilIdle(conversation)
