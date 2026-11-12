@@ -235,6 +235,59 @@ struct LogicTests {
         let yearPlant = Plant(commonName: "Wild garlic")
         yearPlant.sowOutdoorsMonthsText = "Oct-Feb"; yearPlant.harvestMonthsText = "apr may jun"
         check(YearActivity.sowOutdoors.months(for: yearPlant).sorted() == [1, 2, 10, 11, 12] && YearActivity.harvest.months(for: yearPlant) == [4, 5, 6] && YearActivity.plantOut.months(for: yearPlant).isEmpty, "each job reads its own months from the plant")
+
+        // The Plants screen's filters
+        check(PlantKind.of(group: "Fruit") == .fruit && PlantKind.of(group: "Brassicas") == .vegetables && PlantKind.of(group: "Root veg") == .vegetables && PlantKind.of(group: "Allium") == .vegetables && PlantKind.of(group: "Leaves") == .vegetables, "fruit and vegetable groups are recognised, in either spelling")
+        check(PlantKind.of(group: "Herbs") == .herbs && PlantKind.of(group: "Wildflower") == .flowers && PlantKind.of(group: "Green manure") == .greenManure && PlantKind.of(group: "Shrub") == .flowers, "herbs, flowers and green manure are recognised")
+        check(PlantKind.of(group: nil) == .unsorted && PlantKind.of(group: "  ") == .unsorted && PlantKind.of(group: "Something new") == .unsorted, "a missing or unknown group is not sorted, not guessed")
+        check(PlantFilter.layerKey(" Herbaceous ") == "herbaceous" && PlantFilter.layerKey("") == nil && PlantFilter.layerRank("trees") < PlantFilter.layerRank("shrubs") && PlantFilter.layerRank("shrubs") < PlantFilter.layerRank("herbaceous") && PlantFilter.layerRank("herbaceous") < PlantFilter.layerRank("ground cover") && PlantFilter.layerRank("ground cover") < PlantFilter.layerRank("vines") && PlantFilter.layerRank("something") > PlantFilter.layerRank("vines"), "layers keep their spelling and go from the canopy down")
+        let apple = Plant(commonName: "Apple"); apple.variety = "Spartan"; apple.group = "Fruit"; apple.layer = "Trees"; apple.isPollinator = true
+        apple.floweringMonthsText = "apr may"; apple.fruitingMonthsText = "sep oct"
+        let kale = Plant(commonName: "Kale"); kale.group = "Brassicas"; kale.sowIndoorsMonthsText = "mar"; kale.sowOutdoorsMonthsText = "apr may"; kale.harvestMonthsText = "oct nov dec"
+        let leek = Plant(commonName: "Leek"); leek.group = "Allium"; leek.layer = "Herbaceous"; leek.sowIndoorsMonthsText = "feb mar"
+        let onion = Plant(commonName: "Onion"); onion.group = "Alliums"; onion.status = .wanted
+        let clover = Plant(commonName: "Clover"); clover.group = "Green manure"; clover.layer = "Ground Cover"; clover.isNitrogenFixer = true; clover.isPollinator = true; clover.floweringMonthsText = "may jun jul"
+        let mystery = Plant(commonName: "Aster")
+        let shelf = [apple, kale, leek, onion, clover, mystery]
+        var plantFilter = PlantFilter()
+        check(plantFilter.filter(shelf, today: 11).map(\.commonName) == ["Apple", "Kale", "Leek", "Clover", "Aster"] && !plantFilter.isNarrowed, "at first only growing plants show, and nothing counts as chosen")
+        plantFilter.kind = .vegetables
+        check(plantFilter.filter(shelf, today: 11).map(\.commonName) == ["Kale", "Leek"] && plantFilter.isNarrowed, "vegetables are kale and leek, and the filter now counts as chosen")
+        check(plantFilter.familyChoices(shelf, today: 11).map(\.title) == ["Allium", "Brassicas"], "with vegetables chosen only vegetable families are offered")
+        plantFilter.status = nil
+        let families = plantFilter.familyChoices(shelf, today: 11)
+        check(families.map(\.title) == ["Alliums", "Brassicas"] && families.first?.count == 2 && families.first?.key == "allium", "two spellings of one family are offered once, under the commoner spelling, with both plants counted")
+        plantFilter.family = "allium"
+        check(plantFilter.filter(shelf, today: 11).map(\.commonName) == ["Leek", "Onion"], "choosing a family shows every plant in it")
+        plantFilter = PlantFilter(); plantFilter.kind = .unsorted
+        check(plantFilter.filter(shelf, today: 11).map(\.commonName) == ["Aster"], "plants with no group can be found")
+        plantFilter = PlantFilter(); plantFilter.layer = "herbaceous"
+        check(plantFilter.filter(shelf, today: 11).map(\.commonName) == ["Leek"], "a layer matches whatever its capitals")
+        check(PlantFilter().layerChoices(shelf, today: 11).map(\.title) == ["Trees", "Herbaceous", "Ground Cover"], "layers are offered from the canopy down, only where plants have them")
+        plantFilter = PlantFilter(); plantFilter.season = .cropping
+        check(plantFilter.filter(shelf, today: 11).map(\.commonName) == ["Kale"] && plantFilter.filter(shelf, today: 10).map(\.commonName) == ["Apple", "Kale"], "fruiting or harvest reads both the harvest and the fruiting months, in this month")
+        plantFilter.seasonMonth = 9
+        check(plantFilter.filter(shelf, today: 11).map(\.commonName) == ["Apple"], "a chosen month is used in place of this month")
+        plantFilter = PlantFilter(); plantFilter.season = .sowing
+        check(plantFilter.filter(shelf, today: 3).map(\.commonName) == ["Kale", "Leek"] && plantFilter.filter(shelf, today: 5).map(\.commonName) == ["Kale"], "sowing means indoors or outdoors")
+        plantFilter.season = .sowOutdoors
+        check(plantFilter.filter(shelf, today: 3).isEmpty, "sowing outdoors does not count sowing indoors")
+        let seasons = PlantFilter().seasonChoices(shelf, today: 5)
+        check(seasons.first { $0.key == PlantSeason.flowering.rawValue }?.count == 2 && seasons.first { $0.key == PlantSeason.sowing.rawValue }?.count == 1, "each season says how many plants it has this month")
+        plantFilter = PlantFilter(); plantFilter.roles = [.pollinator]
+        check(plantFilter.filter(shelf, today: 11).map(\.commonName) == ["Apple", "Clover"], "a role shows only plants that have it")
+        plantFilter.roles.insert(.nitrogenFixer)
+        check(plantFilter.filter(shelf, today: 11).map(\.commonName) == ["Clover"], "two roles mean both")
+        check(PlantFilter().roleChoices(shelf, today: 11).first { $0.key == PlantRole.pollinator.rawValue }?.count == 2, "a role says how many plants it would show")
+        plantFilter = PlantFilter(); plantFilter.search = "  spart "
+        check(plantFilter.filter(shelf, today: 11).map(\.commonName) == ["Apple"] && !plantFilter.isNarrowed, "search looks in the variety, and typing alone does not count as a filter")
+        plantFilter = PlantFilter(); plantFilter.kind = .fruit; plantFilter.status = nil
+        let checkingDefaults = UserDefaults(suiteName: "windfall-filter-\(UUID().uuidString)")!
+        check(PlantFilter.fromLaunchArguments(checkingDefaults) == .standard, "with no checking aid the filter starts as standard")
+        checkingDefaults.set("Vegetables", forKey: "plantsKind"); checkingDefaults.set("Brassicas", forKey: "plantsFamily"); checkingDefaults.set("Sowing", forKey: "plantsSeason"); checkingDefaults.set(4, forKey: "plantsMonth"); checkingDefaults.set("Pollinator", forKey: "plantsRole")
+        let fromArguments = PlantFilter.fromLaunchArguments(checkingDefaults)
+        check(fromArguments.kind == .vegetables && fromArguments.family == "brassica" && fromArguments.season == .sowing && fromArguments.seasonMonth == 4 && fromArguments.roles == [.pollinator], "the checking aid sets each filter from launch arguments")
+        check(plantFilter.kindChoices(shelf, today: 11).map(\.count) == [1, 3, 1, 1] && plantFilter.kindChoices(shelf, today: 11).map(\.key) == ["Fruit", "Vegetables", "Green manure", "Not sorted"], "kind counts ignore the kind already chosen, so each says what it would show")
         // What is on screen is passed to the model, and only to the model
         conversation.screenNote = "the plant Apple, Spartan"
         conversation.send("What grows well beside this?"); await waitUntilIdle(conversation)
@@ -361,6 +414,16 @@ struct LogicTests {
             check(plants.contains { $0.sourceSites.count == 2 }, "a plant grown in both gardens lists both")
             check(plants.contains { $0.status == .wanted } && plants.contains { $0.status == .previouslyOwned }, "plants to buy and previously owned plants keep their status")
             check(plants.contains { $0.sowingTemperatureC != nil } && plants.contains { $0.needsPropagator }, "columns with units or a question mark in the heading are read")
+            // The Plants screen's filters against the real library
+            let everyStatus = { () -> PlantFilter in var f = PlantFilter(); f.status = nil; return f }()
+            let kindCounts = Dictionary(uniqueKeysWithValues: everyStatus.kindChoices(plants, today: 11).map { ($0.key, $0.count) })
+            check((kindCounts["Fruit"] ?? 0) > 50 && (kindCounts["Vegetables"] ?? 0) > 50 && (kindCounts["Herbs"] ?? 0) > 20 && (kindCounts["Flowers"] ?? 0) > 50, "the real library has fruit, vegetables, herbs and flowers (\(kindCounts))")
+            check(kindCounts.values.reduce(0, +) == plants.count, "every plant in the library is in exactly one kind")
+            check(everyStatus.layerChoices(plants, today: 11).map(\.title) == ["Trees", "Shrubs", "Herbaceous", "Ground Cover", "Vines"], "the real layers are offered from the canopy down (\(everyStatus.layerChoices(plants, today: 11).map(\.title)))")
+            var brassicaFilter = everyStatus; brassicaFilter.family = "brassica"
+            check(brassicaFilter.filter(plants, today: 11).count >= 10 && brassicaFilter.filter(plants, today: 11).allSatisfy { PlantKind.of(group: $0.group) == .vegetables }, "the brassicas can be picked out, and all are vegetables")
+            print("   (plant filters on the real library: \(kindCounts.sorted { $0.key < $1.key }.map { "\($0.key) \($0.value)" }.joined(separator: ", ")); families: \(everyStatus.familyChoices(plants, today: 11).map { "\($0.title) \($0.count)" }.joined(separator: ", ")))")
+
             let pairs = (try? store.fetch(FetchDescriptor<CompanionPair>())) ?? []
             check(pairs.contains { ($0.mechanism ?? "").isEmpty == false }, "companion pairs carry their reason")
             let links = (try? store.fetch(FetchDescriptor<PlantFaunaLink>())) ?? []

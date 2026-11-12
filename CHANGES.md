@@ -1,3 +1,88 @@
+# 12 November 2026, late night: filters on the Plants screen, and Gardens and Wildlife redrawn
+
+**The `plant-filters` branch**, on top of `visual-design`. Builds on the
+Mac for macOS, iOS and the iOS Simulator. 251 logic tests pass. Looked at
+in the iPad Pro and iPhone simulators, light and dark. **Not run with
+William's real records. The menus have not been seen open: William
+should try them on the Mac.**
+
+## Filters on the Plants screen (`PlantFilter.swift`, `PlantLibraryView.swift`)
+
+William asked to filter by "permaculture layer, Fruit, Vegetables,
+Season of (sowing, fruiting, flowering, etc), Plant family (brassica,
+etc)". A row of glass buttons sits above the list, in the style of the
+Year page's buttons. Each opens a menu, and each choice shows how many
+plants it would leave, with the other buttons still applied.
+
+| Button | Choices | Read from |
+|---|---|---|
+| Growing | Growing, To buy, Previously owned, All plants | The plant's status |
+| Fruit, veg… | Fruit, Vegetables, Herbs, Flowers, Green manure, Not sorted | The plant's group (see below) |
+| Layer | Trees, Shrubs, Herbaceous, Ground Cover, Vines, from the canopy down | The Layer column |
+| Family | Alliums, Beans, Brassicas, Gourd, Root veg and the rest | The group, two spellings counted as one |
+| Season | Sowing, Sowing indoors, Sowing outdoors, Planting out, Flowering, Fruiting or harvest, in this month or any month | The month columns |
+| Role | Pollinator, Nitrogen fixer, Dynamic accumulator, Ground cover, Pest repeller, Umbellifer. More than one means all of them | The tick columns |
+
+- A chosen button turns pale green and says what is chosen, such as
+  "Vegetables" or "Sowing in March". "Clear" appears when anything is
+  chosen and puts everything back, leaving the search as typed.
+- The old menu's "Pollinator plants only" and "Sowable this month" are
+  now Role and Season. "Garden data" is a button of its own.
+- The screen is titled "Plants", as in the sidebar, not "Library".
+- "Fruiting or harvest" reads both the allotment's Harvest column and the
+  permaculture sheet's Fruiting/Harvest column, which arrive in two
+  different fields. **The Year page's Harvest reads only the first**, so
+  fruit trees do not show there. Worth fixing.
+
+**How fruit and vegetables are told apart.** The records have no fruit
+or vegetable column. The group decides: Fruit is fruit. Root veg, Leaves,
+Brassicas, Gourd, Alliums, Beans, Nightshades and Microgreens are
+vegetables. Herbs are herbs. Wildflower, Flower, Pollinators, Ornamental
+and Shrub (the roses, hydrangea and spiraea) are flowers. **Claude chose
+this sorting.** In the real library: 71 fruit, 108 vegetables, 37 herbs,
+121 flowers, 4 green manure and 35 not sorted, which are the plants with
+no group, such as Asparagus, Purple Orach and several wildflowers.
+"Not sorted" is a choice in the menu so they can be found and given one.
+
+**Family is the group, not the botanical family.** The records' groups
+are what the menu offers. Rosaceae, Brassicaceae and so on are not in the
+records. They could be added from the Latin names, as researched data for
+William to check.
+
+Checking aid: `-plantsKind Vegetables`, `-plantsLayer Shrubs`,
+`-plantsFamily brassica`, `-plantsSeason Sowing`, `-plantsMonth 3` and
+`-plantsRole Pollinator` start the screen with those chosen.
+
+## Gardens and Wildlife look like Today (`HubScreens.swift`)
+
+William: "Can these look more like the today page?" Both were plain lists
+of links. They are now built like Today: a line of facts above a large
+serif title, then glass cards and tiles. Both moved out of
+`MainTabView.swift` into a new file.
+
+- **Gardens**: "2 gardens · 10 beds · 1 sowing on the go", the garden
+  plans drawn to scale (side by side on a wide screen), then eight tiles
+  with a line of facts each: Plants (335 growing · 40 to buy), Year
+  (17 to sow this month), Sowings, Beds, Garden map, Seed, Scan a seed
+  packet, Frost and weather. On an iPhone the tiles come first, because
+  this page is the only way to Plants and Year there, and the plans show
+  one at a time with a switch, as on Today.
+- **Wildlife**: "2 sightings and 0 surveys this year · 1 to confirm",
+  four tiles (Sightings, Surveys, Species, Identify from a photo), then
+  cards for the latest sightings, tagged Confirmed or Provisional, and
+  the latest surveys.
+- Shared pieces any page can use: `ScreenHeader`, `HubTile`,
+  `HubSectionTitle`, `ViewAllLink`.
+- Three tiles use Apple's symbols until there are drawings for them:
+  Beds, Seed and Scan a seed packet. Plants and Sowings share the same
+  sprout drawing. Both for the next round of icons.
+
+## Filed
+
+William's four screenshots from this evening are in `Design/Reference`:
+the plant library, Gardens and Wildlife before, and the journal's entry
+form, which he wants redesigned as a conversation with Eira.
+
 # 12 November 2026, night: the Year page, and the sidebar lens switched on
 
 **Still the `visual-design` branch.** Builds on the Mac for macOS and the

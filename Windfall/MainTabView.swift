@@ -534,75 +534,7 @@ struct LensRefraction: ViewModifier, Animatable {
     }
 }
 
-// MARK: - Garden
-
-/// Grouped rather than given a tab each — seven tabs is too many on a
-/// phone, and iOS collapses the overflow into an unhelpful "More" list.
-struct GardenTab: View {
-
-    @Query(sort: [SortDescriptor(\Garden.displayOrder)]) private var gardens: [Garden]
-
-    var body: some View {
-        List {
-            Section("Draw and measure") {
-                ForEach(gardens.filter(\.isActive)) { garden in
-                    NavigationLink { GardenEditorView(garden: garden) } label: {
-                        Label { Text(garden.name) } icon: { WIconView(.gardens, size: 22) }
-                    }
-                }
-            }
-            NavigationLink { PlantLibraryView() } label: {
-                Label("Plant library", systemImage: "leaf")
-            }
-            NavigationLink { PlantingListView() } label: {
-                Label("Sowings", systemImage: "leaf.arrow.circlepath")
-            }
-            NavigationLink { BedListView() } label: {
-                Label("Beds", systemImage: "square.grid.3x3")
-            }
-            NavigationLink { GardenMapView() } label: {
-                Label("Garden map", systemImage: "map")
-            }
-            NavigationLink { YearView() } label: {
-                Label("Year", systemImage: "calendar")
-            }
-            NavigationLink { SeedListView() } label: {
-                Label("Seed", systemImage: "bag")
-            }
-            NavigationLink { SeedPacketScanView() } label: {
-                Label("Scan a seed packet", systemImage: "text.viewfinder")
-            }
-            NavigationLink { FrostRecordsView() } label: {
-                Label("Frost & weather", systemImage: "snowflake")
-            }
-        }
-        .navigationTitle("Gardens")
-        .paperScreen()
-    }
-}
-
-// MARK: - Wildlife
-
-struct WildlifeTab: View {
-    var body: some View {
-        List {
-            NavigationLink { SurveyListView() } label: {
-                Label("Surveys", systemImage: "list.clipboard")
-            }
-            NavigationLink { ObservationListView() } label: {
-                Label("Sightings", systemImage: "ant")
-            }
-            NavigationLink { FaunaListView() } label: {
-                Label("Species reference", systemImage: "books.vertical")
-            }
-            NavigationLink { IdentifyView() } label: {
-                Label("Identify from a photo", systemImage: "viewfinder")
-            }
-        }
-        .navigationTitle("Wildlife")
-        .paperScreen()
-    }
-}
+// The Gardens and Wildlife pages are in HubScreens.swift.
 
 // MARK: - More
 
