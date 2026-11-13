@@ -559,6 +559,24 @@ struct PlantDetailView: View {
     }
 }
 
+/// A checking aid. Starting the app with `-demoGarden -demoPlant Garlic`
+/// opens that plant's page in place of the Gardens page, so a still
+/// picture can be taken of it.
+struct DemoPlantPage: View {
+
+    let name: String
+
+    @Query(sort: [SortDescriptor(\Plant.commonName)]) private var plants: [Plant]
+
+    var body: some View {
+        if let plant = plants.first(where: { $0.commonName.lowercased() == name.lowercased() }) {
+            PlantDetailView(plant: plant)
+        } else {
+            Text("No plant called \(name).")
+        }
+    }
+}
+
 // MARK: - One card of a plant's page
 
 /// A glass card for one group of facts: rows of months first, then

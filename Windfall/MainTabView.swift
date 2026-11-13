@@ -220,6 +220,12 @@ struct MainTabView: View {
                 WeatherDiaryView()
             } else if DemoGarden.opensYear {
                 YearView()
+            } else if let name = DemoGarden.opensPlant {
+                DemoPlantPage(name: name)
+            } else if let name = DemoGarden.opensCompanions {
+                CompanionView(plantName: name)
+            } else if DemoGarden.opensPests {
+                PestHelpersView()
             } else {
                 GardenTab()
             }

@@ -127,9 +127,13 @@ struct TodayView: View {
                 dropTarget = nil
                 return false
             }
-            .overlay(alignment: .top) {
+            // The bar takes room of its own at the top while rearranging,
+            // so it sits above the page's heading and not over it.
+            .safeAreaInset(edge: .top, spacing: 0) {
                 if isArranging {
                     arrangingBar(columns: canvas.columns)
+                        .frame(maxWidth: .infinity)
+                        .padding(.bottom, 6)
                 }
             }
         }
@@ -145,7 +149,21 @@ struct TodayView: View {
             captureForm(for: sheet)
         }
         .task {
+            openForChecking()
             await refreshWeather(mayAskForLocation: false)
+        }
+    }
+
+    /// A checking aid: opens one sheet as soon as Today appears. See
+    /// `DemoGarden.opens`.
+    private func openForChecking() {
+        switch DemoGarden.opens {
+        case "sowing": sheet = .sowing
+        case "harvest": sheet = .harvest
+        case "worms": startSurvey(.earthwormCount)
+        case "fit": startSurvey(.fitCount)
+        case "journal": startNote(draft: UserDefaults.standard.string(forKey: "demoDraft") ?? "")
+        default: break
         }
     }
 
@@ -1367,10 +1385,14 @@ struct JobRow: View {
                 .font(.subheadline)
                 .strikethrough(isTicked)
                 .foregroundStyle(isTicked ? Theme.inkSoft : Theme.ink)
+                // Lets a long line run on to the next. In a narrow
+                // column it was being cut short with three dots.
+                .fixedSize(horizontal: false, vertical: true)
             if let detail = job.detail {
                 Text(detail)
                     .font(.caption)
                     .foregroundStyle(Theme.inkSoft)
+                    .fixedSize(horizontal: false, vertical: true)
             }
         }
         .padding(.top, 5)

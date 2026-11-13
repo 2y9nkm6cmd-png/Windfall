@@ -219,7 +219,7 @@ struct PhotoThumbnail: View {
     /// Prefers the thumbnail. Decoding full-size images in a scrolling
     /// list is the classic cause of stutter.
     private var loadedImage: Image? {
-        (photo.thumbnailData ?? photo.imageData).flatMap(Self.image(from:))
+        (photo.thumbnailData ?? photo.imageData).flatMap { Self.image(from: $0) }
     }
 
     /// Turns stored picture data into something SwiftUI can draw. An

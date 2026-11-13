@@ -55,6 +55,27 @@ enum DemoGarden {
         isRequested && ProcessInfo.processInfo.arguments.contains("-demoWeatherDay")
     }
 
+    /// A checking aid: `-demoOpen sowing` opens the sowing form as soon
+    /// as Today appears, so a still picture can be taken of it. Also
+    /// `harvest`, `worms`, `fit` and `journal`. With `journal`,
+    /// `-demoDraft "some words"` starts the box off with those words.
+    static var opens: String? {
+        isRequested ? UserDefaults.standard.string(forKey: "demoOpen") : nil
+    }
+
+    /// Checking aids that open one page in place of the Gardens page:
+    /// `-demoPlant Garlic` a plant's page, `-demoCompanions Garlic` its
+    /// companions and `-demoPests YES` the pest helpers.
+    static var opensPlant: String? {
+        isRequested ? UserDefaults.standard.string(forKey: "demoPlant") : nil
+    }
+    static var opensCompanions: String? {
+        isRequested ? UserDefaults.standard.string(forKey: "demoCompanions") : nil
+    }
+    static var opensPests: Bool {
+        isRequested && UserDefaults.standard.bool(forKey: "demoPests")
+    }
+
     /// Fills the empty in-memory store with an example garden. Does
     /// nothing if it has already been filled.
     static func fill(_ context: ModelContext) {
