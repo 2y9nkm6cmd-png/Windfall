@@ -30,3 +30,4 @@ JournalChat.swift
 JournalOffers.swift
 EiraOnDeviceEngine.swift
 TextSize.swift
+JournalPage.swift

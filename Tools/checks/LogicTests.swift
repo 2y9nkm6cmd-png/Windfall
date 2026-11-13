@@ -379,6 +379,15 @@ struct LogicTests {
         // Text size on a Mac.
         check(TextSize.stepped(from: 1, by: 1) == 1.15 && TextSize.stepped(from: 1, by: -1) == 0.85 && TextSize.stepped(from: 1.75, by: 1) == 1.75 && TextSize.stepped(from: 0.85, by: -1) == 0.85 && TextSize.stepped(from: 1.2, by: 1) == 1.3 && TextSize.stepped(from: 1.2, by: -1) == 1.15 && TextSize.percent(1.15) == "115%", "Command plus and minus step through the sizes and stop at each end")
 
+        // The Journal page.
+        var pageCalendar = Calendar(identifier: .gregorian)
+        pageCalendar.timeZone = TimeZone(identifier: "UTC")!
+        let pageMidnight = pageCalendar.date(from: DateComponents(year: 2026, month: 11, day: 13))!
+        let pageMorning = pageCalendar.date(from: DateComponents(year: 2026, month: 11, day: 13, hour: 9, minute: 14))!
+        check(JournalPage.caption(kind: "Sowing", at: pageMidnight, calendar: pageCalendar) == "Sowing" && JournalPage.caption(kind: "Sighting", at: pageMorning, calendar: pageCalendar).hasPrefix("Sighting · ") && JournalPage.dayKey(for: pageMorning, calendar: pageCalendar) == "2026-11-13", "a record with no time of day shows only what it is, and a day is filed as the weather diary files it")
+        check(JournalPage.weatherWords(low: 2.6, high: 9.2, rainMM: 2.44) == "3 to 9°C · 2.4 mm of rain" && JournalPage.weatherWords(low: nil, high: 9.2, rainMM: 0) == "9°C · dry" && JournalPage.weatherWords(low: nil, high: nil, rainMM: nil) == nil, "a day's line of weather gives the range and the rain, or nothing")
+        check(JournalPage.title(for: pageMidnight, today: pageMorning, calendar: pageCalendar).hasPrefix("Today · ") && JournalPage.title(for: pageCalendar.date(byAdding: .day, value: -1, to: pageMidnight)!, today: pageMorning, calendar: pageCalendar).hasPrefix("Yesterday · ") && !JournalPage.title(for: pageCalendar.date(byAdding: .day, value: -5, to: pageMidnight)!, today: pageMorning, calendar: pageCalendar).contains("·"), "today and yesterday are named as such on the Journal page")
+
         // This week: the urgent jobs
         var british = Calendar(identifier: .gregorian)
         british.timeZone = TimeZone(identifier: "Europe/London")!

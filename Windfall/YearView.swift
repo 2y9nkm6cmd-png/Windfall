@@ -59,6 +59,9 @@ struct YearView: View {
     @State private var hiddenJobs: Set<YearActivity> = []
     @AppStorage("yearArrangement") private var arrangementRaw = Arrangement.family.rawValue
     @State private var search = ""
+    /// Fruit, vegetables, herbs and so on. Nil shows every kind. The
+    /// same sorting as the Plants page uses (PlantFilter.swift).
+    @State private var plantKind: PlantKind?
 
     /// The ways the plants can be put in order.
     enum Arrangement: String, CaseIterable, Identifiable {
@@ -101,6 +104,7 @@ struct YearView: View {
         let wanted = search.trimmingCharacters(in: .whitespaces).lowercased()
         return plants.compactMap { plant -> YearRow? in
             guard plant.status == .growing else { return nil }
+            if let plantKind, PlantKind.of(group: plant.group) != plantKind { return nil }
             if !wanted.isEmpty,
                !plant.commonName.lowercased().contains(wanted),
                !(plant.variety ?? "").lowercased().contains(wanted) {
@@ -188,9 +192,11 @@ struct YearView: View {
                     ContentUnavailableView {
                         Label("Nothing to show", systemImage: "calendar")
                     } description: {
-                        Text(showsEveryJob
-                             ? "No plants have months recorded for the jobs switched on."
-                             : "No plants have \(activity.rawValue.lowercased()) months recorded.")
+                        Text(plantKind != nil
+                             ? "Nothing of that kind has months recorded for these jobs. Choose \"Every kind\" to see the rest."
+                             : (showsEveryJob
+                                ? "No plants have months recorded for the jobs switched on."
+                                : "No plants have \(activity.rawValue.lowercased()) months recorded."))
                     }
                 }
             }
@@ -225,11 +231,49 @@ struct YearView: View {
                     ForEach(YearActivity.allCases) { job in
                         jobButton(job)
                     }
+                    // A little apart, because it chooses plants and the
+                    // rest choose jobs.
+                    kindButton
+                        .padding(.leading, 10)
                 }
                 .padding(.horizontal, sidePadding)
                 .padding(.vertical, 8)
             }
         }
+    }
+
+    /// Chooses which kind of plant is listed: fruit, vegetables, herbs,
+    /// flowers or green manure. A menu, like the filters on the Plants
+    /// page. (Asked for by William on 13 November 2026.)
+    private var kindButton: some View {
+        Menu {
+            // A Picker inside a Menu gives a list with a tick beside
+            // the chosen one. `tag` says which value each line stands for.
+            Picker("Kind of plant", selection: $plantKind) {
+                Text("Every kind").tag(PlantKind?.none)
+                ForEach(PlantKind.allCases) { kind in
+                    Text(kind.rawValue).tag(PlantKind?.some(kind))
+                }
+            }
+            .pickerStyle(.inline)
+        } label: {
+            HStack(spacing: 6) {
+                Text(plantKind?.rawValue ?? "Fruit, veg\u{2026}")
+                    .font(.subheadline)
+                    .fontWeight(plantKind == nil ? .regular : .semibold)
+                Image(systemName: "chevron.down")
+                    .font(.caption2.weight(.semibold))
+            }
+            .foregroundStyle(Theme.ink)
+            .padding(.horizontal, 14)
+            .frame(height: 44)
+            .contentShape(.capsule)
+        }
+        .menuStyle(.button)
+        .buttonStyle(.plain)
+        .glassEffect(.regular.tint((plantKind == nil ? Theme.card : Theme.leafFill).opacity(plantKind == nil ? 0.4 : 0.8)).interactive(),
+                     in: .capsule)
+        .accessibilityLabel("Kind of plant")
     }
 
     /// The switch between one job at a time and every job on one line.
