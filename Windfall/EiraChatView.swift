@@ -20,6 +20,7 @@
 //
 
 import SwiftUI
+import UniformTypeIdentifiers
 import SwiftData
 
 // MARK: - Chat screen
@@ -530,6 +531,10 @@ struct EiraSettingsView: View {
     @State private var mlxName = ""
     @State private var gardenNotes = ""
     @State private var coreAIModels: [String] = []
+    // Bringing a model in from a folder.
+    @State private var isChoosingFolder = false
+    @State private var isCopying = false
+    @State private var importProblem: String?
 
     var body: some View {
         NavigationStack {
@@ -569,6 +574,22 @@ struct EiraSettingsView: View {
                                 }
                             }
                         }
+                        // Opens a file window to choose a converted
+                        // model's folder. Windfall then copies it in.
+                        Button {
+                            isChoosingFolder = true
+                        } label: {
+                            HStack(spacing: 8) {
+                                Text("Add a model from a folder…")
+                                if isCopying { ProgressView().controlSize(.small) }
+                            }
+                        }
+                        .disabled(isCopying)
+                        if let importProblem {
+                            Label(importProblem, systemImage: "exclamationmark.triangle")
+                                .font(.callout)
+                                .foregroundStyle(.orange)
+                        }
 
                     case .mlx:
                         TextField("mlx-community/…", text: $mlxName)
@@ -586,7 +607,7 @@ struct EiraSettingsView: View {
                 } footer: {
                     switch kind {
                     case .coreAI:
-                        Text("Copy a converted model's folder into Windfall's Models folder using the Files app, then come back here.")
+                        Text("Choose the folder a model was converted into: the one holding metadata.json. Windfall keeps its own copy, which on the same disk takes no extra room.")
                     case .mlx:
                         Text("The model's name on Hugging Face. It is downloaded the first time it is used, so that first reply needs a connection.")
                     case .appleBuiltIn, .online:
@@ -617,6 +638,32 @@ struct EiraSettingsView: View {
                 }
             }
             .onAppear(perform: load)
+            // `.folder` limits the file window to folders.
+            .fileImporter(isPresented: $isChoosingFolder, allowedContentTypes: [.folder]) { result in
+                switch result {
+                case .success(let folder): bringIn(folder)
+                case .failure(let error): importProblem = error.localizedDescription
+                }
+            }
+        }
+    }
+
+    /// Copies the chosen folder in, away from the main thread, then
+    /// chooses the new model.
+    private func bringIn(_ folder: URL) {
+        isCopying = true
+        importProblem = nil
+        Task {
+            do {
+                let name = try await Task.detached(priority: .userInitiated) {
+                    try EiraModelLibrary.importModel(from: folder)
+                }.value
+                coreAIModels = EiraModelLibrary.coreAIModelNames()
+                coreAIName = name
+            } catch {
+                importProblem = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
+            }
+            isCopying = false
         }
     }
 

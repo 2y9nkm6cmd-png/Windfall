@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		C0A1AA002F9F000100EAB897 /* CoreAILM in Frameworks */ = {isa = PBXBuildFile; platformFilter = macos; productRef = C0A1AA012F9F000100EAB897 /* CoreAILM */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		F4C49A652F72972C00EAB897 /* Windfall.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Windfall.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -36,6 +40,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C0A1AA002F9F000100EAB897 /* CoreAILM in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,6 +83,7 @@
 			);
 			name = Windfall;
 			packageProductDependencies = (
+				C0A1AA012F9F000100EAB897 /* CoreAILM */,
 			);
 			productName = Windfall;
 			productReference = F4C49A652F72972C00EAB897 /* Windfall.app */;
@@ -107,6 +113,9 @@
 			);
 			mainGroup = F4C49A5C2F72972C00EAB897;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				C0A1AA022F9F000100EAB897 /* XCRemoteSwiftPackageReference "coreai-models" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = F4C49A662F72972C00EAB897 /* Products */;
 			projectDirPath = "";
@@ -284,7 +293,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				MACOSX_DEPLOYMENT_TARGET = 27.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.54brookroad.Windfall;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -328,7 +337,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				MACOSX_DEPLOYMENT_TARGET = 27.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.54brookroad.Windfall;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -367,6 +376,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		C0A1AA022F9F000100EAB897 /* XCRemoteSwiftPackageReference "coreai-models" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/coreai-models";
+			requirement = {
+				kind = revision;
+				revision = 60e8605b9c09f39767234ea31cee2da7d0a11029;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		C0A1AA012F9F000100EAB897 /* CoreAILM */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C0A1AA022F9F000100EAB897 /* XCRemoteSwiftPackageReference "coreai-models" */;
+			productName = CoreAILM;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = F4C49A5D2F72972C00EAB897 /* Project object */;
 }

@@ -255,6 +255,47 @@ enum EiraModelLibrary {
             .sorted()
     }
 
+    /// Copies a converted model's folder into Windfall's Models folder
+    /// and returns the name it was given.
+    ///
+    /// Why a copy: on a Mac, Windfall runs in a "sandbox", a fenced-off
+    /// part of the disk that only it may use. It cannot read a model
+    /// lying elsewhere, and nothing else may put one inside. So the
+    /// model is chosen in a file window, which gives Windfall leave to
+    /// read that one folder, and Windfall copies it in itself.
+    ///
+    /// On the same disk the copy is a "clone": it appears at once and
+    /// takes no more room until one of the two is changed.
+    ///
+    /// `nonisolated` lets this run away from the main thread, so the
+    /// screen does not freeze while a large copy is made.
+    nonisolated static func importModel(from source: URL) throws -> String {
+        let fileManager = FileManager.default
+        // Leave to read a folder chosen in a file window lasts only
+        // between these two calls.
+        let hasLeave = source.startAccessingSecurityScopedResource()
+        defer { if hasLeave { source.stopAccessingSecurityScopedResource() } }
+
+        guard fileManager.fileExists(atPath: source.appendingPathComponent("metadata.json").path) else {
+            throw EiraEngineError.modelNotFound("\(source.lastPathComponent) (it has no metadata.json, so it is not a converted model's folder)")
+        }
+
+        let base = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first
+            ?? fileManager.temporaryDirectory
+        let models = base.appendingPathComponent("Models", isDirectory: true)
+        try fileManager.createDirectory(at: models, withIntermediateDirectories: true)
+
+        let name = source.lastPathComponent
+        let target = models.appendingPathComponent(name, isDirectory: true)
+        // A model of the same name is replaced, so the same folder can
+        // be brought in again after it has been converted afresh.
+        if fileManager.fileExists(atPath: target.path) {
+            try fileManager.removeItem(at: target)
+        }
+        try fileManager.copyItem(at: source, to: target)
+        return name
+    }
+
     private static func containsModel(_ folder: URL, depth: Int, fileManager: FileManager) -> Bool {
         guard depth > 0 else { return false }
         let items = (try? fileManager.contentsOfDirectory(
