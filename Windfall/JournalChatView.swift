@@ -82,6 +82,8 @@ struct JournalChatView: View {
     @State private var checkWasSkipped = false
     /// The weather at each time the check can offer, looked up once.
     @State private var weatherAtMoment: [JournalChat.Moment: CurrentConditions] = [:]
+    /// True while the weather service is being asked about the stamp's time.
+    @State private var isAskingWeather = false
 
     // Eira's offers to put what was just written on record.
     @State private var offers: [RecordOffer] = []
@@ -224,9 +226,11 @@ struct JournalChatView: View {
         .task {
             voice.checkExistingPermission()
             lookUpWeather()
+            await askServiceIfMissing()
         }
         .onChange(of: chosenWhen) { _, _ in
             suggested = conditions(at: stampDate)
+            Task { await askServiceIfMissing() }
         }
         .onChange(of: pickerItems) { _, items in
             guard !items.isEmpty else { return }
@@ -709,6 +713,7 @@ struct JournalChatView: View {
     /// Says where the conditions on the chip came from.
     private var conditionsSource: String {
         if hasOwnConditions { return "Your own figures." }
+        if suggested == nil, isAskingWeather { return "Asking the weather service about this time…" }
         if suggested == nil { return "The weather service has no figures for this time. Add your own." }
         return "From the weather service, for your garden at this time. Change anything that was different."
     }
@@ -856,6 +861,27 @@ struct JournalChatView: View {
             weatherAtMoment[moment] = conditions(at: JournalChat.date(for: moment, now: .now))
         }
         weatherAtMoment[.now] = conditions(at: .now)
+    }
+
+    /// When no garden has a location there is no weather diary to look in,
+    /// so the stamp's hour, and the hours the time check offers, are asked
+    /// of the weather service at the place the Today screen used: usually
+    /// the device's own location. Before 13 November 2026 this step was
+    /// missing, and any time but the last half hour came up blank.
+    private func askServiceIfMissing() async {
+        guard place == nil, let near = WeatherService.shared.lastPlace else { return }
+        let service = WeatherService.shared
+        if suggested == nil {
+            isAskingWeather = true
+            let askedWhen = chosenWhen
+            let found = await service.conditions(at: stampDate, near: near)
+            isAskingWeather = false
+            // Only use it if the time has not been changed again meanwhile.
+            if askedWhen == chosenWhen, suggested == nil { suggested = found }
+        }
+        for moment in JournalChat.Moment.allCases where moment != .now && weatherAtMoment[moment] == nil {
+            weatherAtMoment[moment] = await service.conditions(at: JournalChat.date(for: moment, now: .now), near: near)
+        }
     }
 
     /// The weather at a time. For the last half hour it is the figures
