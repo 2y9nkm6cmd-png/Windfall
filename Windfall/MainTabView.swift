@@ -126,6 +126,8 @@ struct MainTabView: View {
                 // started as its own Task so the weather below is not
                 // kept waiting. See EiraTestRun.
                 Task { await EiraTestRun.runIfAsked(context: context) }
+                // Its twin for photos: see SpeciesTestRun.
+                Task { await SpeciesTestRun.runIfAsked() }
             } else {
                 GardenDataImporter().loadStarterDataIfNeeded(into: context)
                 // Make sure the allotment and the permaculture garden

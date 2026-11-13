@@ -921,6 +921,40 @@ struct LogicTests {
             check(false, "the backup file can be written")
         }
 
+        // Naming a photo: the half-size numbers, the table and the "not sure" rule.
+        check(SpeciesTable.float(fromHalf: 0x3C00) == 1 && SpeciesTable.float(fromHalf: 0xC000) == -2 && SpeciesTable.float(fromHalf: 0x0000) == 0 && SpeciesTable.float(fromHalf: 0x3800) == 0.5 && abs(SpeciesTable.float(fromHalf: 0x3555) - 0.33325195) < 0.000001, "half-size numbers read as 1, -2, 0, a half and a third")
+        check(SpeciesTable.float(fromHalf: 0x0001) > 0 && SpeciesTable.float(fromHalf: 0x0001) < 0.0000001 && SpeciesTable.float(fromHalf: 0x7C00) == Float.infinity && SpeciesTable.float(fromHalf: 0x7E00).isNaN, "the smallest half-size number, infinity and not-a-number are read")
+        let eyeListing = Data(#"{"rows":3,"width":4,"scale":100,"not_sure_floor":0.6,"made":"2026-11-13","species":[{"scientific":"Bombus terrestris","common":"Buff-tailed Bumblebee","group":"Insecta","taught":true},{"scientific":"Galanthus nivalis","common":null,"group":"Plantae","taught":false},{"scientific":"Amanita phalloides","common":"Death Cap","group":"Fungi","taught":true}]}"#.utf8)
+        // 1 is 0x3C00 and 0 is 0x0000, low byte first: three rows pointing along three different axes.
+        var eyeRows = Data()
+        for row in 0..<3 { for column in 0..<4 { eyeRows.append(contentsOf: column == row ? [0x00, 0x3C] : [0x00, 0x00]) } }
+        if let eyeTable = try? SpeciesTable(listing: eyeListing, rowBytes: eyeRows) {
+            check(eyeTable.species.count == 2 && eyeTable.width == 4 && eyeTable.scale == 100 && eyeTable.notSureFloor == 0.6 && eyeTable.made == "2026-11-13" && !eyeTable.species.contains { $0.isFungus }, "the table reads its two files and leaves the fungus out")
+            let clear = eyeTable.guess(for: [5, 0, 0, 0])
+            check(clear.isSure && clear.likeliest?.entry.scientific == "Bombus terrestris" && clear.likeliest?.percent == "over 99%" && clear.candidates.count == 2 && clear.summary.hasPrefix("This looks like Buff-tailed Bumblebee (Bombus terrestris)"), "a photo pointing straight at one row is named, whatever its length")
+            let torn = eyeTable.guess(for: [1, 1, 0, 0])
+            check(!torn.isSure && abs((torn.likeliest?.share ?? 0) - 0.5) < 0.0001 && torn.summary.hasPrefix("Not sure.") && torn.candidates.map(\.percent) == ["50%", "50%"], "a photo halfway between two rows is not named")
+            check(eyeTable.guess(for: [0, 0, 1, 0]).candidates.allSatisfy { !$0.entry.isFungus } && eyeTable.guess(for: [1, 0]).candidates.isEmpty && !eyeTable.guess(for: [1, 0]).isSure, "a photo of the left-out fungus cannot be named as it, and the wrong count of numbers gives nothing")
+            check(eyeTable.guess(for: [0, 1, 0, 0]).likeliest?.entry.title == "Galanthus nivalis" && eyeTable.caveat.contains("2 UK species"), "a species with no English name is shown by its scientific one")
+            let never = SpeciesTable(species: eyeTable.species, width: 4, scale: 100, notSureFloor: nil, numbers: [1, 0, 0, 0, 0, 1, 0, 0])
+            check(!never.guess(for: [1, 0, 0, 0]).isSure && never.guess(for: [1, 0, 0, 0]).likeliest?.entry.scientific == "Bombus terrestris", "with no not-sure level nothing is named outright")
+        } else {
+            check(false, "the species table can be read")
+        }
+        check((try? SpeciesTable(listing: eyeListing, rowBytes: eyeRows.dropLast(2))) == nil && (try? SpeciesTable(listing: Data("{}".utf8), rowBytes: eyeRows)) == nil, "rows that do not match the list, or a list that is not one, are refused")
+        check(SpeciesCandidate(entry: SpeciesEntry(scientific: "A b", common: "", group: "Aves", taught: true), share: 0.004).percent == "under 1%" && SpeciesCandidate(entry: SpeciesEntry(scientific: "A b", common: nil, group: "Aves", taught: true), share: 0.966).percent == "97%", "shares are worded as whole percentages")
+        let wide = PhotoArithmetic.middleSquare(width: 400, height: 300), tall = PhotoArithmetic.middleSquare(width: 300, height: 401), none = PhotoArithmetic.middleSquare(width: 0, height: 10)
+        check(wide.x == 50 && wide.y == 0 && wide.side == 300 && tall.x == 0 && tall.y == 50 && tall.side == 300 && none.side == 0, "the middle square of a wide photo, a tall one and an empty one")
+        // Two by two pixels: red, green, blue, then mid grey. Four bytes each, the last a spare.
+        let fourPixels: [UInt8] = [255, 0, 0, 255,  0, 255, 0, 255,  0, 0, 255, 255,  128, 128, 128, 255]
+        if let laidOut = PhotoArithmetic.planar(fromRGBA: fourPixels, side: 2) {
+            let redOn = (1 - PhotoArithmetic.averages[0]) / PhotoArithmetic.spreads[0], redOff = (0 - PhotoArithmetic.averages[0]) / PhotoArithmetic.spreads[0]
+            check(laidOut.count == 12 && abs(laidOut[0] - redOn) < 0.0001 && abs(laidOut[1] - redOff) < 0.0001 && abs(laidOut[5] - (1 - PhotoArithmetic.averages[1]) / PhotoArithmetic.spreads[1]) < 0.0001 && abs(laidOut[10] - (1 - PhotoArithmetic.averages[2]) / PhotoArithmetic.spreads[2]) < 0.0001 && abs(laidOut[3] - PhotoArithmetic.adjusted(128, colour: 0)) < 0.0001 && abs(redOn - 1.9303) < 0.001, "pixels are laid out as all the reds, then greens, then blues, each adjusted")
+        } else {
+            check(false, "four pixels can be laid out")
+        }
+        check(PhotoArithmetic.planar(fromRGBA: [1, 2, 3], side: 2) == nil && PhotoArithmetic.side == 224, "bytes that are not a whole square are refused")
+
         print("   logic tests: \(passes) passed, \(failures) failed")
         exit(failures == 0 ? 0 : 1)
     }

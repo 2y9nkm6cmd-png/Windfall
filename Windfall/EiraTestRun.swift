@@ -111,7 +111,8 @@ enum EiraTestRun {
     static let patience: TimeInterval = 240
 
     /// The word that follows `flag` on the command line, if there is one.
-    private static func word(after flag: String) -> String? {
+    /// SpeciesTestRun uses it too.
+    static func word(after flag: String) -> String? {
         let all = ProcessInfo.processInfo.arguments
         guard let index = all.firstIndex(of: flag), index + 1 < all.count else { return nil }
         return all[index + 1]
