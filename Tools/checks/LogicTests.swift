@@ -322,6 +322,42 @@ struct LogicTests {
         await emptyService.bringUpToDate(in: ModelContext(), now: diaryNow, calendar: london)
         check(asked.count == 6 && emptyService.lastMessage == "No garden has a location yet.", "with no garden location nothing is fetched")
 
+        // Rearranging the Today screen
+        check(TodayArrangement.columns(forWidth: 1200) == 3 && TodayArrangement.columns(forWidth: 840) == 3 && TodayArrangement.columns(forWidth: 700) == 2 && TodayArrangement.columns(forWidth: 390) == 1, "the number of columns follows the width, at the widths Today always changed at")
+        let wideToday = TodayArrangement.standard(columns: 3), middleToday = TodayArrangement.standard(columns: 2), narrowToday = TodayArrangement.standard(columns: 1)
+        check(wideToday.stored == "conditions,capture|jobs|plans|recent,journal|" && middleToday.stored == "conditions,capture|jobs,recent|plans,journal|" && narrowToday.stored == "conditions,capture,jobs,plans,recent,journal", "the standard arrangements are Today's old layouts")
+        check([wideToday, middleToday, narrowToday].allSatisfy { Set($0.readingOrder) == Set(TodayPanel.allCases) && $0.readingOrder.count == TodayPanel.allCases.count && $0.isStandard }, "every standard arrangement holds each block once")
+        check(wideToday.columnZones == 1..<4 && wideToday.bottomZone == 4 && middleToday.columnZones == 1..<3 && narrowToday.columnZones.isEmpty && narrowToday.bottomZone == nil, "a wide page has a top stack, three columns and a bottom stack, and an iPhone has one list")
+        check(TodayArrangement(columns: 3, stored: "") == wideToday && TodayArrangement(columns: 3, stored: "jobs|plans") == wideToday && TodayArrangement(columns: 2, stored: wideToday.stored) == middleToday, "nothing saved, or text for a different number of columns, gives the standard arrangement")
+        var movedToday = wideToday
+        movedToday.move(.recent, onto: .jobs)
+        check(movedToday.stored == "conditions,capture|recent,jobs|plans|journal|" && !movedToday.isStandard, "a card dropped on another takes its place and the other moves down")
+        check(TodayArrangement(columns: 3, stored: movedToday.stored) == movedToday, "an arrangement comes back from its saved text unchanged")
+        movedToday.move(.recent, onto: .jobs)
+        check(movedToday.stored == "conditions,capture|jobs,recent|plans|journal|", "moving a card down within a column lands it in the other's old place")
+        movedToday.move(.jobs, onto: .jobs)
+        check(movedToday.stored == "conditions,capture|jobs,recent|plans|journal|", "a card dropped on itself stays put")
+        movedToday.move(.capture, toEndOf: 4); movedToday.move(.journal, toEndOf: 1)
+        check(movedToday.stored == "conditions|jobs,recent,journal|plans||capture" && movedToday.shownColumns(includingEmpty: false) { _ in true } == [1, 2] && movedToday.shownColumns(includingEmpty: true) { _ in true } == [1, 2, 3], "a card can go to the foot of any zone, and an emptied column is only drawn while rearranging")
+        check(movedToday.shownColumns(includingEmpty: false) { $0 != .plans } == [1] && movedToday.roomiestColumn { _ in true } == 2 && movedToday.roomiestColumn { $0 != .plans } == nil, "a column whose only card is hidden is left out, and the garden plans' column gets the most room")
+        movedToday.move(.jobs, toEndOf: 9)
+        check(movedToday.stored == "conditions|jobs,recent,journal|plans||capture", "a zone that does not exist changes nothing")
+        var nudgedToday = wideToday
+        check(!nudgedToday.canNudge(.conditions, by: -1) && nudgedToday.canNudge(.conditions, by: 1) && nudgedToday.canNudge(.journal, by: 1), "the first card cannot go earlier, and the last card of the last column can still step into the bottom stack")
+        nudgedToday.nudge(.conditions, by: -1)
+        check(nudgedToday == wideToday, "nudging the first card earlier changes nothing")
+        nudgedToday.nudge(.capture, by: -1)
+        check(nudgedToday.stored == "capture,conditions|jobs|plans|recent,journal|", "an arrow swaps a card with its neighbour")
+        nudgedToday.nudge(.jobs, by: -1); nudgedToday.nudge(.recent, by: -1)
+        check(nudgedToday.stored == "capture,conditions,jobs||plans,recent|journal|", "at the top of a zone, earlier steps to the foot of the zone before")
+        nudgedToday.nudge(.jobs, by: 1); nudgedToday.nudge(.journal, by: 1)
+        check(nudgedToday.stored == "capture,conditions|jobs|plans,recent||journal" && !nudgedToday.canNudge(.journal, by: 1), "at the foot of a zone, later steps to the top of the zone after, and the last place of all is the end")
+        var onePhone = narrowToday
+        onePhone.nudge(.plans, by: -1); onePhone.move(.journal, onto: .conditions)
+        check(onePhone.stored == "journal,conditions,capture,plans,jobs,recent", "an iPhone's single list is rearranged the same way")
+        let patched = TodayArrangement(columns: 3, stored: "capture,capture,weather|plans,jobs||recent|")
+        check(patched.stored == "capture,conditions|plans,jobs||recent,journal|" && Set(patched.readingOrder) == Set(TodayPanel.allCases), "saved text with an unknown name, a repeat or a missing card is mended, and nothing is lost")
+
         // Month text is read once and remembered
         check(MonthParser.months(in: "Sept, Oct") == [9, 10] && MonthParser.months(in: "Sept, Oct") == [9, 10] && MonthParser.months(in: "september") == [9] && MonthParser.months(in: "Oct-Feb") == [10, 11, 12, 1, 2] && MonthParser.months(in: nil).isEmpty && MonthParser.months(in: "").isEmpty, "reading the same month text twice gives the same answer, and long and short names agree")
 

@@ -55,6 +55,7 @@ Icons are drawn on a 24 by 24 grid with a line 1.6 wide and rounded ends.
 | `2026-11-12 screenshot-gardens-list-before.png` | The Gardens page as a plain list of links, sent with "Can these look more like the today page?" |
 | `2026-11-12 screenshot-wildlife-list-before.png` | The Wildlife page as a plain list of links, sent with the Gardens one |
 | `2026-11-12 screenshot-journal-entry-form.png` | The journal's diary entry form, sent with "This doesn't look too nice right now". William's idea: a journal that works like a conversation with Eira |
+| `2026-11-13 screenshot-today-mac-before-rearranging.png` | Today on the Mac with the cards in fixed places, sent with "rearrange the home view by tapping and holding the object (like the This month box), and it wiggling to rearrange" |
 
 ## What is in Archive
 
