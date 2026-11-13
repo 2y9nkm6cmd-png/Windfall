@@ -342,3 +342,69 @@ enum JournalChat {
         return nil
     }
 }
+
+// MARK: - Telling or asking
+
+extension JournalChat {
+
+    /// Words that begin a question or a request to Eira.
+    private static let askingStarts: Set<String> = [
+        "what", "what's", "whats", "when", "when's", "where", "where's", "which", "who", "who's",
+        "whose", "why", "how", "how's", "is", "are", "am", "was", "were", "do", "does", "did",
+        "can", "could", "should", "would", "will", "shall", "may", "might", "have", "has",
+        "show", "open", "find", "search", "list", "tell", "give", "add", "record", "log", "make",
+        "create", "set", "remind", "help", "explain", "describe", "compare", "identify", "please",
+        "eira", "hey", "hi", "hello"]
+
+    /// Words that turn a sentence into a question or a wish wherever
+    /// they stand: "I wonder how deep to plant garlic".
+    private static let askingWords: Set<String> = [
+        "how", "what", "why", "whether", "should", "need", "want", "wonder", "can", "could", "please"]
+
+    /// "I", "we" and the like: someone giving an account of themselves.
+    private static let ownWords: Set<String> = [
+        "i", "i've", "i'd", "we", "we've", "we'd", "my", "our"]
+
+    /// Words that place it in a day.
+    private static let dayWords: Set<String> = [
+        "today", "yesterday", "tonight", "morning", "afternoon", "evening", "earlier", "lunchtime"]
+
+    /// Things done in a garden, said as done. Any one of these is enough
+    /// by itself: "Planted the garlic in bed 2".
+    private static let gardenDone: Set<String> = [
+        "sowed", "sown", "planted", "harvested", "picked", "pruned", "watered", "weeded", "mulched",
+        "dug", "saw", "spotted", "noticed", "transplanted", "potted", "thinned", "netted", "staked",
+        "mowed", "mown", "composted", "hoed", "raked", "deadheaded", "chitted", "lifted"]
+
+    /// Other ways of saying something was done. These count only beside
+    /// "I", "we" or a day, because they are common in questions too.
+    private static let plainDone: Set<String> = [
+        "found", "pulled", "cut", "fed", "tied", "went", "did", "made", "put", "took", "got",
+        "built", "bought", "heard", "spent", "left", "gave", "brought", "kept", "ate", "began"]
+
+    /// True if what was typed into Eira's bar reads as something for the
+    /// journal ("Today I planted beans") and not as a question or a
+    /// request ("when do I plant beans").
+    ///
+    /// It is cautious on purpose. When in doubt it says no, and the words
+    /// go to Eira as they always did.
+    ///
+    /// The rule: no question mark, no asking word, at least three words,
+    /// and either a garden job said as done, or "I", "we" or a day
+    /// together with something done (a word from the lists, or one
+    /// ending in "ed").
+    static func readsAsTelling(_ text: String) -> Bool {
+        guard !text.contains("?") else { return false }
+        let said = text.lowercased()
+            .replacingOccurrences(of: "\u{2019}", with: "'")
+            .split(whereSeparator: { !($0.isLetter || $0 == "'") })
+            .map(String.init)
+        guard said.count >= 3, let opening = said.first, !askingStarts.contains(opening) else { return false }
+        guard !said.contains(where: askingWords.contains) else { return false }
+
+        if said.contains(where: gardenDone.contains) { return true }
+        let isOwn = said.contains { ownWords.contains($0) || dayWords.contains($0) }
+        let isDone = said.contains { plainDone.contains($0) || ($0.count >= 5 && $0.hasSuffix("ed")) }
+        return isOwn && isDone
+    }
+}

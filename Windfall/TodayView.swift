@@ -187,14 +187,14 @@ struct TodayView: View {
     @ViewBuilder
     private func columnsRow(on canvas: TodayCanvas) -> some View {
         let shown = canvas.arrangement.shownColumns(includingEmpty: isArranging, isShowing: canvas.isShowing)
-        let roomiest = canvas.arrangement.roomiestColumn(isShowing: canvas.isShowing)
+        let roomy = canvas.arrangement.roomyColumns(isShowing: canvas.isShowing)
         if !shown.isEmpty {
             HStack(alignment: .top, spacing: 14) {
                 ForEach(shown, id: \.self) { zone in
-                    // With three columns, the one holding the garden
-                    // plans takes whatever is left and the others get a
-                    // set share. Otherwise the columns share equally.
-                    let isBesidePlans = canvas.columns == 3 && shown.count > 1 && roomiest != nil && roomiest != zone
+                    // With three columns, any that hold a garden plan
+                    // share whatever is left and the others get a set
+                    // share. Otherwise the columns share equally.
+                    let isBesidePlans = canvas.columns == 3 && shown.count > 1 && !roomy.isEmpty && !roomy.contains(zone)
                     let setWidth: CGFloat? = isBesidePlans ? canvas.width * (shown.count == 3 ? 0.265 : 0.32) : nil
                     VStack(spacing: 14) {
                         ForEach(canvas.arrangement.zones[zone].filter(canvas.isShowing)) { panel in
@@ -231,9 +231,8 @@ struct TodayView: View {
                 }
             }
             .modifier(Wiggle(isOn: isArranging,
-                             isLarge: room == .page || panel == .plans,
                              leansLeft: canvas.arrangement.readingOrder.firstIndex(of: panel).map { $0 % 2 == 0 } ?? false))
-            .modifier(LiftToArrange(panel: panel, isArranging: isArranging) { isLifted in
+            .modifier(LiftToArrange(panel: panel, title: title(of: panel), isArranging: isArranging) { isLifted in
                 beginArranging(lifting: isLifted ? panel : nil)
             })
             .onDrop(of: [.text], isTargeted: isTargeted(.panel(panel))) { _ in
@@ -268,7 +267,22 @@ struct TodayView: View {
             } else {
                 journalPlaceholder
             }
+        default:
+            // One garden's plan, as a card of its own. Each can be moved
+            // separately (William, 13 November 2026).
+            if let key = panel.gardenKey, let garden = activeGardens.first(where: { $0.siteKey == key }) {
+                planCard(for: garden)
+            }
         }
+    }
+
+    /// A card's name, for the label that follows a drag and for
+    /// VoiceOver. A garden's plan is called by the garden's name.
+    private func title(of panel: TodayPanel) -> String {
+        if let key = panel.gardenKey, let garden = activeGardens.first(where: { $0.siteKey == key }) {
+            return garden.name.isEmpty ? panel.title : "\(garden.name) plan"
+        }
+        return panel.title
     }
 
     // MARK: Rearranging
@@ -277,17 +291,21 @@ struct TodayView: View {
     /// saved text.
     private func savedArrangement(columns: Int) -> TodayArrangement {
         switch columns {
-        case 3: return TodayArrangement(columns: 3, stored: wideStore)
-        case 2: return TodayArrangement(columns: 2, stored: middleStore)
-        default: return TodayArrangement(columns: 1, stored: narrowStore)
+        case 3: return TodayArrangement(columns: 3, stored: wideStore, gardens: gardenKeys)
+        case 2: return TodayArrangement(columns: 2, stored: middleStore, gardens: gardenKeys)
+        default: return TodayArrangement(columns: 1, stored: narrowStore, gardens: gardenKeys)
         }
     }
+
+    /// The gardens' keys, in order. On a wide screen each garden's plan
+    /// is a card of its own, so the arrangement has to know them.
+    private var gardenKeys: [String] { activeGardens.map(\.siteKey) }
 
     private func save(_ arrangement: TodayArrangement) {
         // The standard arrangement is saved as nothing at all. If a later
         // version of the app changes its standard, anyone who never moved
         // a card gets the new one.
-        let text = arrangement.isStandard ? "" : arrangement.stored
+        let text = arrangement.isStandard(gardens: gardenKeys) ? "" : arrangement.stored
         switch arrangement.columns {
         case 3: wideStore = text
         case 2: middleStore = text
@@ -348,12 +366,17 @@ struct TodayView: View {
     /// by, and two arrows for moving it without dragging.
     private func arrangeControls(for panel: TodayPanel, on canvas: TodayCanvas) -> some View {
         ZStack(alignment: .topTrailing) {
-            DragSurface(panel: panel) { dragging = panel }
+            DragSurface(panel: panel, title: title(of: panel)) { dragging = panel }
+            // The arrows sit astride the card's top edge, half on and
+            // half off, like the badge on a jiggling Home Screen icon.
+            // Inside the corner they covered the compass on a garden's
+            // plan (William's picture, 13 November 2026).
             HStack(spacing: 6) {
                 moveButton(panel, by: -1, on: canvas)
                 moveButton(panel, by: 1, on: canvas)
             }
-            .padding(8)
+            .padding(.trailing, 12)
+            .offset(y: -18)
         }
     }
 
@@ -368,14 +391,14 @@ struct TodayView: View {
             Image(systemName: step < 0 ? "arrow.up" : "arrow.down")
                 .font(.system(size: 14, weight: .semibold))
                 .foregroundStyle(Theme.ink)
-                .frame(width: 38, height: 38)
+                .frame(width: 32, height: 32)
                 .contentShape(.circle)
         }
         .buttonStyle(.plain)
         .glassEffect(.regular.tint(Theme.card.opacity(0.6)).interactive(), in: .circle)
         .disabled(!canMove)
         .opacity(canMove ? 1 : 0.35)
-        .accessibilityLabel("Move \(panel.title) \(step < 0 ? "earlier" : "later")")
+        .accessibilityLabel("Move \(title(of: panel)) \(step < 0 ? "earlier" : "later")")
     }
 
     /// A space at the foot of a zone that a card can be dropped into. It
@@ -412,7 +435,7 @@ struct TodayView: View {
             .foregroundStyle(Theme.ink)
             Spacer(minLength: 8)
             Button("Reset") {
-                withAnimation(.snappy(duration: 0.3)) { save(.standard(columns: columns)) }
+                withAnimation(.snappy(duration: 0.3)) { save(.standard(columns: columns, gardens: gardenKeys)) }
             }
             .buttonStyle(.glass)
             Button("Done") { finishArranging() }
@@ -1172,44 +1195,81 @@ private enum PanelRoom {
     case page, wideColumn, sideColumn
 }
 
-/// The wiggle. A card rocks a little, over and over, while `isOn` is true.
+/// The jiggle. A card rocks and bobs a little, over and over, while
+/// `isOn` is true.
+///
+/// Apple publishes no figures for the jiggle of the icons on the Home
+/// Screen, so this copies what can be seen there:
+///
+///   - each thing turns a degree or so about its middle, quickly;
+///   - it also bobs up and down by about a point, at a pace of its own;
+///   - no two things keep the same time, so they drift in and out of
+///     step and never move as one.
+///
+/// The first version here rocked every card through the same angle at
+/// the same pace, which read as a machine and not as a jiggle (William,
+/// 13 November 2026).
 ///
 /// A ViewModifier is a reusable change that can be applied to any view,
 /// here with `.modifier(Wiggle(...))`.
 private struct Wiggle: ViewModifier {
     let isOn: Bool
-    /// Big cards rock through a smaller angle. The same angle would move
-    /// the corners of a wide card a long way.
-    let isLarge: Bool
-    /// Neighbouring cards lean opposite ways, so they do not move as one.
+    /// Neighbouring cards start off leaning opposite ways.
     let leansLeft: Bool
 
     // Set in the system's Accessibility settings by people for whom
     // movement on screen is unpleasant.
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var tilt = 0.0
+    @State private var bob = 0.0
+    /// How wide the card is, which sets how far it may turn.
+    @State private var cardWidth: CGFloat = 320
+    // Each card's own pace, chosen once when it is made. `@State` keeps
+    // the two numbers for as long as the card lives.
+    @State private var tiltPace = Double.random(in: 0.115...0.165)
+    @State private var bobPace = Double.random(in: 0.17...0.25)
+
+    /// The angle that moves the card's corners about a point and three
+    /// quarters. A small card turns further than a wide one, as an icon
+    /// turns further than a widget.
+    private var angle: Double {
+        let radians = 1.75 / max(Double(cardWidth) / 2, 40)
+        return min(1.8, max(0.22, radians * 180 / .pi))
+    }
 
     func body(content: Content) -> some View {
         content
             .rotationEffect(.degrees(tilt))
+            .offset(y: bob)
+            .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { cardWidth = $0 }
             .overlay {
                 // With Reduce Motion on, a dashed outline says "this can
-                // be moved" in place of the wiggle.
+                // be moved" in place of the jiggle.
                 if isOn && reduceMotion {
                     RoundedRectangle(cornerRadius: Theme.cardRadius)
                         .strokeBorder(Theme.inkSoft, style: StrokeStyle(lineWidth: 1.5, dash: [6, 5]))
                 }
             }
             // `initial: true` runs this when the card first appears too,
-            // so a card that has just been moved carries on wiggling.
+            // so a card that has just been moved carries on jiggling.
             .onChange(of: isOn, initial: true) { _, isNowOn in
                 if isNowOn && !reduceMotion {
-                    let angle = (isLarge ? 0.35 : 0.9) * (leansLeft ? -1 : 1)
-                    withAnimation(.easeInOut(duration: isLarge ? 0.17 : 0.13).repeatForever(autoreverses: true)) {
-                        tilt = angle
+                    // Start at one end of the swing, then rock to the
+                    // other and back for ever.
+                    let lean = leansLeft ? -1.0 : 1.0
+                    tilt = -angle * lean
+                    bob = -0.7
+                    withAnimation(.easeInOut(duration: tiltPace).repeatForever(autoreverses: true)) {
+                        tilt = angle * lean
+                    }
+                    withAnimation(.easeInOut(duration: bobPace).repeatForever(autoreverses: true)) {
+                        bob = 0.7
                     }
                 } else {
-                    withAnimation(.easeOut(duration: 0.15)) { tilt = 0 }
+                    withAnimation(.easeOut(duration: 0.15)) {
+                        tilt = 0
+                        bob = 0
+                    }
                 }
             }
     }
@@ -1225,6 +1285,7 @@ private struct Wiggle: ViewModifier {
 ///   wiggling. The card is then dragged by the surface laid over it.
 private struct LiftToArrange: ViewModifier {
     let panel: TodayPanel
+    let title: String
     let isArranging: Bool
     /// Called to begin. True when the card has been lifted for dragging.
     let begin: (Bool) -> Void
@@ -1243,7 +1304,7 @@ private struct LiftToArrange: ViewModifier {
             // the screen itself remembers which card is moving.
             return NSItemProvider(object: panel.rawValue as NSString)
         } preview: {
-            DragLabel(title: panel.title)
+            DragLabel(title: title)
         }
         #endif
     }
@@ -1254,6 +1315,8 @@ private struct LiftToArrange: ViewModifier {
 /// also what the card is dragged by.
 private struct DragSurface: View {
     let panel: TodayPanel
+    /// What the card is called, for the label that follows the pointer.
+    let title: String
     let began: () -> Void
 
     var body: some View {
@@ -1264,7 +1327,7 @@ private struct DragSurface: View {
                 began()
                 return NSItemProvider(object: panel.rawValue as NSString)
             } preview: {
-                DragLabel(title: panel.title)
+                DragLabel(title: title)
             }
         #else
         Color.clear

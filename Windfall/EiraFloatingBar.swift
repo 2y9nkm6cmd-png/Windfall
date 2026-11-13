@@ -47,6 +47,8 @@ struct EiraFloatingBar: View {
     /// words that were typed, so the sheet always gets the latest ones.
     @State private var eiraRequest: BarRequest?
     @State private var searchRequest: BarRequest?
+    /// Set when what was typed reads as something for the journal.
+    @State private var journalRequest: BarRequest?
 
     // @FocusState says whether the text box has the keyboard.
     @FocusState private var fieldHasFocus: Bool
@@ -115,6 +117,21 @@ struct EiraFloatingBar: View {
                     }
             }
             .macSheetSize(width: 580, height: 660)
+        }
+        // Something told to Eira, and not asked of her, goes to the
+        // journal's conversation with the words ready to send.
+        .sheet(item: $journalRequest) { request in
+            JournalChatView(draft: request.text, cameFromEirasBar: true) { asked in
+                // "Ask Eira instead": hand the same words to her chat.
+                // One sheet has to be gone before the next can open, so
+                // her chat follows a moment after the journal closes.
+                journalRequest = nil
+                let looking = request.lookingAt
+                Task {
+                    try? await Task.sleep(for: .milliseconds(450))
+                    eiraRequest = BarRequest(text: asked, lookingAt: looking)
+                }
+            }
         }
         .sheet(item: $searchRequest) { request in
             NavigationStack {
@@ -273,6 +290,16 @@ struct EiraFloatingBar: View {
     private func ask() {
         let text = question.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty else { return }
+        // "Today I planted beans" is not a question. It belongs in the
+        // journal, where Eira notes the time and weather and offers to
+        // put the sowing on record. The rule is in JournalChat.swift.
+        // (Until 13 November 2026 it went to her ordinary chat, which
+        // looked for a record of it and found none.)
+        if JournalChat.readsAsTelling(text) {
+            journalRequest = BarRequest(text: text, lookingAt: screen?.current?.full)
+            question = ""
+            return
+        }
         if DeviceCapability.canRunEira() {
             openEira(with: text)
         } else {

@@ -100,12 +100,21 @@ struct JournalChatView: View {
     @State private var editing: DiaryEntry?
     @State private var voice = VoiceInput()
 
+    /// True when the words came from Eira's bar, so she says why the
+    /// journal has opened.
+    private let cameFromEirasBar: Bool
+    /// Hands the words back to Eira's ordinary chat, if they were a
+    /// question after all. Nil where there is no bar to go back to.
+    private let askEiraInstead: ((String) -> Void)?
+
     /// - `draft`: words to start with, such as Today's list of what has
     ///   been logged.
-    init(draft: String = "") {
+    init(draft: String = "", cameFromEirasBar: Bool = false, askEiraInstead: ((String) -> Void)? = nil) {
         // `_words` is the storage behind `@State var words`. This is how
         // a starting value is handed to it from outside.
         _words = State(initialValue: draft)
+        self.cameFromEirasBar = cameFromEirasBar
+        self.askEiraInstead = askEiraInstead
     }
 
     // MARK: Worked out from the above
@@ -251,6 +260,19 @@ struct JournalChatView: View {
                     switch line {
                     case .entry(let entry): bubble(entry)
                     case .record(let item): recordLine(item)
+                    }
+                }
+
+                // Words that came from Eira's bar are waiting in the box
+                // below. She says why, and offers the way back.
+                if cameFromEirasBar && lastSent == nil {
+                    eiraSays("That reads like one for the journal, so it is waiting in the box below. Check the time and the weather under it, then send.")
+                    if let askEiraInstead, !words.isEmpty {
+                        Button("It was a question. Ask Eira instead") { askEiraInstead(words) }
+                            .font(.caption.weight(.semibold))
+                            .buttonStyle(.glass)
+                            .tint(Theme.leaf)
+                            .padding(.leading, 36)
                     }
                 }
 

@@ -153,6 +153,9 @@ struct MainTabView: View {
             // (Settings has a speed check that swaps the melt for a plain
             // fade, to see whether the melt is what feels slow.)
             .transition(plainTransitions ? AnyTransition.opacity : AnyTransition(.blurReplace))
+            // On a Mac, Command and plus or minus make the page larger
+            // or smaller. See PageZoom.swift.
+            .pageZoomWhereOffered()
             // A little air between the sidebar and a screen's title.
             .padding(.leading, 10)
             // safeAreaInset places Eira's button along the bottom and tells
@@ -173,6 +176,8 @@ struct MainTabView: View {
         #if os(macOS)
         // Lets the paper show through the strip at the top of the window.
         .toolbarBackgroundVisibility(.hidden, for: .windowToolbar)
+        // Two fingers swiped right on the trackpad go back a page.
+        .onAppear { BackSwipe.shared.watchTrackpad() }
         #endif
     }
 

@@ -33,10 +33,9 @@ struct ChartsView: View {
     var body: some View {
         List {
             Section {
-                Picker("Year", selection: $year) {
-                    ForEach(availableYears, id: \.self) { Text(String($0)).tag($0) }
-                }
-                .pickerStyle(.segmented)
+                // The app's own sliding switch, as everywhere else.
+                GlassSwitch(choices: availableYears, selection: $year) { String($0) }
+                    .accessibilityLabel("Year")
             }
 
             harvestByMonth

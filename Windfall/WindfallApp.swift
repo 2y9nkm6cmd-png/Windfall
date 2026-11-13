@@ -80,6 +80,8 @@ struct WindfallApp: App {
         .modelContainer(sharedModelContainer)
         #if os(macOS)
         .defaultSize(width: 1220, height: 820)
+        // Bigger, Smaller and Actual Size in the View menu.
+        .commands { TextSizeCommands() }
         #endif
     }
 }

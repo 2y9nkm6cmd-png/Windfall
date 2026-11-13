@@ -6,8 +6,8 @@
 //  them about.
 //
 //  The screen is made of "panels": the conditions card, the six capture
-//  buttons, this week's urgent jobs, this month's jobs, the garden plans,
-//  the recent records and the journal offer. Pressing and holding one
+//  buttons, this week's urgent jobs, this month's jobs, each garden's
+//  plan, the recent records and the journal offer. Pressing and holding one
 //  lets them be rearranged.
 //
 //  The page has "zones" that panels sit in. On a wide screen there are
@@ -28,13 +28,62 @@ import Foundation
 // MARK: - The panels
 
 /// One movable panel of the Today screen.
-enum TodayPanel: String, CaseIterable, Identifiable {
-    case conditions, capture, week, jobs, plans, recent, journal
+///
+/// Most are fixed: there is one conditions card, one list of jobs. The
+/// garden plans are not. On a screen with columns each garden's plan is
+/// a panel of its own, so they can be moved separately (William, 13
+/// November 2026), and there are as many as there are gardens. That is
+/// why this is a struct holding a name, and not a fixed list of cases.
+struct TodayPanel: Hashable, Identifiable {
+
+    /// The name it is saved under: "week", or "plan:allotment".
+    let rawValue: String
 
     var id: String { rawValue }
 
+    static let conditions = Self(rawValue: "conditions")
+    static let capture = Self(rawValue: "capture")
+    static let week = Self(rawValue: "week")
+    static let jobs = Self(rawValue: "jobs")
+    /// Every garden's plan in one panel. Used where there is one garden,
+    /// and on an iPhone, which shows one plan at a time with a switch.
+    static let plans = Self(rawValue: "plans")
+    static let recent = Self(rawValue: "recent")
+    static let journal = Self(rawValue: "journal")
+
+    /// The panel for one garden's plan. `gardenKey` is the garden's
+    /// `siteKey`, the name its beds are stored under.
+    static func plan(_ gardenKey: String) -> TodayPanel {
+        Self(rawValue: planPrefix + gardenKey)
+    }
+
+    private static let planPrefix = "plan:"
+
+    /// The panels that are always there, in their standard order.
+    static let allCases: [TodayPanel] = [.conditions, .capture, .week, .jobs, .plans, .recent, .journal]
+
+    /// Which garden this panel shows, if it is one garden's plan.
+    var gardenKey: String? {
+        rawValue.hasPrefix(Self.planPrefix) ? String(rawValue.dropFirst(Self.planPrefix.count)) : nil
+    }
+
+    /// True for any panel that holds a garden plan.
+    var holdsPlan: Bool { self == .plans || gardenKey != nil }
+
+    /// Reads a saved name back. Nil for a name that is not a panel.
+    init?(saved name: String) {
+        let known = Self(rawValue: name)
+        guard Self.allCases.contains(known) || known.gardenKey?.isEmpty == false else { return nil }
+        self = known
+    }
+
+    private init(rawValue: String) {
+        self.rawValue = rawValue
+    }
+
     /// The panel's name, for the label that follows the finger while it
-    /// is dragged and for VoiceOver.
+    /// is dragged and for VoiceOver. One garden's plan is named by the
+    /// screen, which knows what the garden is called.
     var title: String {
         switch self {
         case .conditions: return "Conditions"
@@ -44,6 +93,7 @@ enum TodayPanel: String, CaseIterable, Identifiable {
         case .plans: return "Garden plans"
         case .recent: return "Recent records"
         case .journal: return "Journal offer"
+        default: return "Garden plan"
         }
     }
 }
@@ -78,19 +128,32 @@ struct TodayArrangement: Equatable {
     /// The arrangement the app starts with. Each is how Today was laid
     /// out before it could be rearranged, with "This week" added above
     /// "This month".
-    static func standard(columns: Int) -> TodayArrangement {
+    ///
+    /// `gardens` is the gardens' keys, in order. With two or more, on a
+    /// screen wide enough for three columns, each gets a panel of its
+    /// own where the one "plans" panel would be. A narrower screen shows
+    /// one plan at a time with a switch between them, so there the
+    /// single panel stays, as it does when there is only one garden.
+    static func standard(columns: Int, gardens: [String] = []) -> TodayArrangement {
+        let plans = planPanels(columns: columns, gardens: gardens)
         switch columns {
         case 3:
             return TodayArrangement(columns: 3, zones: [[.conditions, .capture],
-                                                        [.week, .jobs], [.plans], [.recent, .journal],
+                                                        [.week, .jobs], plans, [.recent, .journal],
                                                         []])
         case 2:
             return TodayArrangement(columns: 2, zones: [[.conditions, .capture],
-                                                        [.week, .jobs, .recent], [.plans, .journal],
+                                                        [.week, .jobs, .recent], plans + [.journal],
                                                         []])
         default:
-            return TodayArrangement(columns: 1, zones: [[.conditions, .capture, .week, .jobs, .plans, .recent, .journal]])
+            return TodayArrangement(columns: 1, zones: [[.conditions, .capture, .week, .jobs] + plans + [.recent, .journal]])
         }
+    }
+
+    /// The panels that hold garden plans, for this many columns and
+    /// these gardens.
+    static func planPanels(columns: Int, gardens: [String]) -> [TodayPanel] {
+        columns >= 3 && gardens.count >= 2 ? gardens.map { TodayPanel.plan($0) } : [.plans]
     }
 
     private init(columns: Int, zones: [[TodayPanel]]) {
@@ -118,20 +181,29 @@ struct TodayArrangement: Equatable {
     ///   near its standard place as that zone allows. So a panel added in
     ///   a later version appears where it was meant to, and nothing can
     ///   be lost.
-    init(columns: Int, stored text: String) {
-        let fallback = TodayArrangement.standard(columns: columns)
+    /// - "plans" saved before each garden had a panel of its own is
+    ///   swapped, where it stands, for one panel per garden
+    /// - the plan of a garden that no longer exists is dropped
+    init(columns: Int, stored text: String, gardens: [String] = []) {
+        let fallback = TodayArrangement.standard(columns: columns, gardens: gardens)
         let parts = text.split(separator: "|", omittingEmptySubsequences: false)
         guard !text.isEmpty, parts.count == TodayArrangement.zoneCount(columns: fallback.columns) else {
             self = fallback
             return
         }
 
+        // The panels this page has at the moment.
+        let wanted = Set(fallback.zones.flatMap { $0 })
+        let plansNow = TodayArrangement.planPanels(columns: fallback.columns, gardens: gardens)
+
         var seen = Set<TodayPanel>()
         var read: [[TodayPanel]] = parts.map { part in
-            part.split(separator: ",").compactMap { name -> TodayPanel? in
-                guard let panel = TodayPanel(rawValue: String(name)), !seen.contains(panel) else { return nil }
-                seen.insert(panel)
-                return panel
+            part.split(separator: ",").flatMap { name -> [TodayPanel] in
+                guard let panel = TodayPanel(saved: String(name)) else { return [] }
+                // A plans panel of the other kind stands for all the
+                // plan panels this page now has.
+                let stands = panel.holdsPlan && !wanted.contains(panel) ? plansNow : [panel]
+                return stands.filter { wanted.contains($0) && seen.insert($0).inserted }
             }
         }
         for (index, zone) in fallback.zones.enumerated() {
@@ -143,7 +215,12 @@ struct TodayArrangement: Equatable {
         self.zones = read
     }
 
-    var isStandard: Bool { self == TodayArrangement.standard(columns: columns) }
+    /// True if nothing has been moved from the standard arrangement for
+    /// these gardens. The gardens have to be given, in their own order:
+    /// two gardens' plans swapped over is a change like any other.
+    func isStandard(gardens: [String] = []) -> Bool {
+        self == TodayArrangement.standard(columns: columns, gardens: gardens)
+    }
 
     // MARK: Looking things up
 
@@ -176,10 +253,18 @@ struct TodayArrangement: Equatable {
         columnZones.filter { includingEmpty || zones[$0].contains(where: isShowing) }
     }
 
+    /// Every column that holds a garden plan on show. Plans are drawn to
+    /// scale and want the room, so these columns share what the others
+    /// leave. With each garden's plan able to sit in a column of its own,
+    /// there can be more than one.
+    func roomyColumns(isShowing: (TodayPanel) -> Bool) -> Set<Int> {
+        Set(columnZones.filter { zones[$0].contains { $0.holdsPlan && isShowing($0) } })
+    }
+
     /// The column that should be given the most room: the one holding the
     /// garden plans, which are drawn to scale and need the width.
     func roomiestColumn(isShowing: (TodayPanel) -> Bool) -> Int? {
-        columnZones.first { zones[$0].contains(.plans) && isShowing(.plans) }
+        columnZones.first { zones[$0].contains { $0.holdsPlan && isShowing($0) } }
     }
 
     // MARK: Moving panels

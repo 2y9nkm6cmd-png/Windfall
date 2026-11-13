@@ -140,6 +140,9 @@ extension View {
         self
             #if os(macOS)
             .formStyle(.grouped)
+            // On a Mac, lets a two-finger swipe go back from this page
+            // if it was opened on top of another. See PageZoom.swift.
+            .background { BackSwipeMarker() }
             #endif
             .scrollContentBackground(.hidden)
             .background { PaperBackground() }

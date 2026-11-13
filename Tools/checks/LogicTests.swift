@@ -326,12 +326,12 @@ struct LogicTests {
         check(TodayArrangement.columns(forWidth: 1200) == 3 && TodayArrangement.columns(forWidth: 840) == 3 && TodayArrangement.columns(forWidth: 700) == 2 && TodayArrangement.columns(forWidth: 390) == 1, "the number of columns follows the width, at the widths Today always changed at")
         let wideToday = TodayArrangement.standard(columns: 3), middleToday = TodayArrangement.standard(columns: 2), narrowToday = TodayArrangement.standard(columns: 1)
         check(wideToday.stored == "conditions,capture|week,jobs|plans|recent,journal|" && middleToday.stored == "conditions,capture|week,jobs,recent|plans,journal|" && narrowToday.stored == "conditions,capture,week,jobs,plans,recent,journal", "the standard arrangements are Today's old layouts with This week above This month")
-        check([wideToday, middleToday, narrowToday].allSatisfy { Set($0.readingOrder) == Set(TodayPanel.allCases) && $0.readingOrder.count == TodayPanel.allCases.count && $0.isStandard }, "every standard arrangement holds each block once")
+        check([wideToday, middleToday, narrowToday].allSatisfy { Set($0.readingOrder) == Set(TodayPanel.allCases) && $0.readingOrder.count == TodayPanel.allCases.count && $0.isStandard() }, "every standard arrangement holds each block once")
         check(wideToday.columnZones == 1..<4 && wideToday.bottomZone == 4 && middleToday.columnZones == 1..<3 && narrowToday.columnZones.isEmpty && narrowToday.bottomZone == nil, "a wide page has a top stack, three columns and a bottom stack, and an iPhone has one list")
         check(TodayArrangement(columns: 3, stored: "") == wideToday && TodayArrangement(columns: 3, stored: "jobs|plans") == wideToday && TodayArrangement(columns: 2, stored: wideToday.stored) == middleToday, "nothing saved, or text for a different number of columns, gives the standard arrangement")
         var movedToday = wideToday
         movedToday.move(.recent, onto: .jobs)
-        check(movedToday.stored == "conditions,capture|week,recent,jobs|plans|journal|" && !movedToday.isStandard, "a card dropped on another takes its place and the other moves down")
+        check(movedToday.stored == "conditions,capture|week,recent,jobs|plans|journal|" && !movedToday.isStandard(), "a card dropped on another takes its place and the other moves down")
         check(TodayArrangement(columns: 3, stored: movedToday.stored) == movedToday, "an arrangement comes back from its saved text unchanged")
         movedToday.move(.recent, onto: .jobs)
         check(movedToday.stored == "conditions,capture|week,jobs,recent|plans|journal|", "moving a card down within a column lands it in the other's old place")
@@ -358,6 +358,26 @@ struct LogicTests {
         let patched = TodayArrangement(columns: 3, stored: "capture,capture,weather|plans,jobs||recent|")
         check(patched.stored == "conditions,capture|week,plans,jobs||recent,journal|" && Set(patched.readingOrder) == Set(TodayPanel.allCases), "saved text with an unknown name, a repeat or a missing card is mended, and nothing is lost")
         check(TodayArrangement(columns: 3, stored: "conditions,capture|recent,jobs|plans|journal|").stored == "conditions,capture|week,recent,jobs|plans|journal|" && TodayArrangement(columns: 1, stored: "plans,jobs,conditions,capture,recent,journal").stored == "plans,jobs,week,conditions,capture,recent,journal", "an arrangement saved before This week existed gains it, as near its standard place as it can go")
+
+        // Each garden's plan as a card of its own.
+        let twoGardens = ["allotment", "permaculture"]
+        let gardensToday = TodayArrangement.standard(columns: 3, gardens: twoGardens)
+        check(gardensToday.stored == "conditions,capture|week,jobs|plan:allotment,plan:permaculture|recent,journal|" && TodayArrangement.standard(columns: 2, gardens: twoGardens) == middleToday && TodayArrangement.standard(columns: 3, gardens: ["allotment"]) == wideToday, "on a wide screen with two gardens each plan is its own card, and nowhere else")
+        var swappedGardens = gardensToday
+        swappedGardens.nudge(.plan("permaculture"), by: -1)
+        check(swappedGardens.stored == "conditions,capture|week,jobs|plan:permaculture,plan:allotment|recent,journal|" && !swappedGardens.isStandard(gardens: twoGardens) && TodayArrangement(columns: 3, stored: swappedGardens.stored, gardens: twoGardens) == swappedGardens, "two gardens' plans swapped over is a change that is kept")
+        check(TodayArrangement(columns: 3, stored: "conditions,capture|week,recent,jobs|journal|plans|", gardens: twoGardens).stored == "conditions,capture|week,recent,jobs|journal|plan:allotment,plan:permaculture|", "an arrangement saved when the plans were one card gets a card per garden where that card stood")
+        check(TodayArrangement(columns: 3, stored: swappedGardens.stored, gardens: ["allotment", "front"]).stored == "conditions,capture|week,jobs|plan:allotment,plan:front|recent,journal|" && TodayArrangement(columns: 3, stored: swappedGardens.stored).stored == wideToday.stored, "a garden that has gone loses its card, a new one gains a card, and with one garden the single card returns")
+        var plansApart = gardensToday
+        plansApart.move(.plan("permaculture"), toEndOf: 3)
+        check(plansApart.roomyColumns { _ in true } == [2, 3] && gardensToday.roomyColumns { _ in true } == [2] && TodayPanel.plan("front").gardenKey == "front" && TodayPanel.plans.gardenKey == nil && TodayPanel(saved: "plan:") == nil && TodayPanel(saved: "weather") == nil, "every column holding a garden's plan takes the room")
+
+        // Telling Eira something, as against asking her.
+        check(["Today, I planted some potatoes.", "Today I planted beans.", "We harvested 50 kg of Jonagolds", "Planted the garlic in bed 2", "Saw a tree bumblebee on the marjoram this morning", "I checked the bees this afternoon"].allSatisfy(JournalChat.readsAsTelling), "an account of what was done or seen reads as one for the journal")
+        check(!["When do I plant beans?", "when do I plant beans", "what did I sow last week", "I wonder how deep garlic is planted", "I need to know if the beans were watered", "show me bed 3", "garlic", "broad beans", "Recommended spacing for leeks", "the beans are up", "Should the planted garlic be covered"].contains(where: JournalChat.readsAsTelling), "a question, a request, a search or a bare remark is left for Eira")
+
+        // Text size on a Mac.
+        check(TextSize.stepped(from: 1, by: 1) == 1.15 && TextSize.stepped(from: 1, by: -1) == 0.85 && TextSize.stepped(from: 1.75, by: 1) == 1.75 && TextSize.stepped(from: 0.85, by: -1) == 0.85 && TextSize.stepped(from: 1.2, by: 1) == 1.3 && TextSize.stepped(from: 1.2, by: -1) == 1.15 && TextSize.percent(1.15) == "115%", "Command plus and minus step through the sizes and stop at each end")
 
         // This week: the urgent jobs
         var british = Calendar(identifier: .gregorian)
