@@ -7,9 +7,20 @@ run without the Mac (every file reads as valid Swift, 323 logic tests
 pass). Those do not build the screens. Expect things to put right when
 it is first built, and treat how everything here looks as untried.
 
+## 13 November 2026, night: Eira's bed lookup
+
+**What was wrong.** Asked "What's growing in Bed 3?", Qwen3 8B looked up the bed as "3". The lookup only knew a bed by its exact name, so it answered "Nothing growing in 3 at the moment", and Qwen told William the bed was empty. French beans were in it. Apple's model happened to send "Bed 3" and got it right.
+
+**What changed** (`EiraTools.swift`).
+
+- `ToolRunner.bedMatches(asked:name:)` decides whether what a model wrote means a given bed. Both names are put in lower case, punctuation is dropped, a leading "bed" is taken off and number words become digits. So "3", "bed 3", "bed three" and "Bed 3." all find Bed 3, and none finds Bed 30.
+- If the name matches no bed at all, the lookup now says so and lists the beds there are. "No such bed" and "an empty bed" are different facts, and the model was being given the second when the first was true.
+
+**Why fix the lookup and not blame the model.** Any small model will phrase things loosely. A lookup that forgives that helps every model, including Apple's.
+
 ## 13 November 2026, night: naming what is in a photo
 
-**Not yet built on the Mac.** Written at 22:29 to 22:35 and pushed as `c887c9e`. The matching passes its 13 new logic tests (387 in all). The parts that use Apple's frameworks have only been checked as valid Swift, and the Claude app on the Mac restarted before they could be built. Expect small corrections.
+**Built on the Mac at the first attempt (22:43, Mac and simulator) and tried there.** The five test photos of doc 18 were run through the app itself with `SpeciesTestRun`, against a test list of 20 species: 5 of 5 named to species, each at over 99%, 5.4 seconds for the first photo (which loads the model) and 0.3 seconds for each after. That matches the Python test of 12 November, so the app's way of preparing a photo is sound. The matching has 13 logic tests (388 in all). **Not yet tried: the Identify screen by hand, the real UK list, William's own photos, an iPad.**
 
 **What it does.** The Identify screen had a button that only said identification was not built. It now matches the photo against a list of UK species with BioCLIP 2, on the device, and names a species only when the match is strong.
 
