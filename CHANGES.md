@@ -9,7 +9,7 @@ it is first built, and treat how everything here looks as untried.
 
 ## 13 November 2026, night: naming what is in a photo
 
-**Not yet built on the Mac.** Written at 22:30 to 23:00 and pushed as `c887c9e`. The matching passes its 13 new logic tests (387 in all). The parts that use Apple's frameworks have only been checked as valid Swift, and the Mac dropped off the connection before they could be built. Expect small corrections.
+**Not yet built on the Mac.** Written at 22:29 to 22:35 and pushed as `c887c9e`. The matching passes its 13 new logic tests (387 in all). The parts that use Apple's frameworks have only been checked as valid Swift, and the Claude app on the Mac restarted before they could be built. Expect small corrections.
 
 **What it does.** The Identify screen had a button that only said identification was not built. It now matches the photo against a list of UK species with BioCLIP 2, on the device, and names a species only when the match is strong.
 
