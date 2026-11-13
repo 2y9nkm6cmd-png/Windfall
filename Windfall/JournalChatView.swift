@@ -1,0 +1,853 @@
+//
+//  JournalChatView.swift
+//  Windfall
+//
+//  Writing in the journal as a conversation with Eira.
+//
+//  It replaces the diary form for new entries. The form had a box for
+//  each thing: date, title, entry, scope, conditions, temperature,
+//  photos. Here there is one box to write in and a send button, as in a
+//  chat, and everything else is worked out or sits in a small chip
+//  above the box:
+//
+//  - When        "Now", unless changed.
+//  - Conditions  filled in from the weather service for that time.
+//  - About       the garden, or one bed.
+//  - Photos      chosen with the button, or dragged on to the sheet.
+//  - Title       written from the entry's own first words.
+//
+//  Above the box is the day so far: what has been written, each with
+//  its stamp of time and weather, and that day's sowings, harvests,
+//  counts and sightings in between.
+//
+//  If an entry is written after dark, or says "this morning", a card
+//  asks when it was about before it can be sent, so that it is stamped
+//  with the right weather.
+//
+//  Each thing sent is saved as an ordinary diary entry. Nothing about
+//  how entries are stored has changed.
+//
+//  The rules for the stamp, the title and the time check are in
+//  JournalChat.swift. Eira's lines here are fixed wording, not written
+//  by the AI model.
+//
+//  Not built yet: Eira offering to add a harvest or a sowing from what
+//  is written, and names becoming links.
+//
+
+import SwiftUI
+import SwiftData
+import PhotosUI
+import UniformTypeIdentifiers
+
+struct JournalChatView: View {
+
+    @Environment(\.modelContext) private var context
+
+    @Query(sort: [SortDescriptor(\DiaryEntry.date)]) private var diary: [DiaryEntry]
+    @Query(filter: #Predicate<Bed> { $0.retiredAt == nil },
+           sort: [SortDescriptor(\Bed.displayOrder)]) private var beds: [Bed]
+    @Query(sort: [SortDescriptor(\Garden.displayOrder)]) private var gardens: [Garden]
+    // The day's other records, shown between the entries.
+    @Query private var plantings: [Planting]
+    @Query private var harvests: [Harvest]
+    @Query private var surveys: [Survey]
+    @Query private var sightings: [WildlifeObservation]
+
+    // What is being written.
+    @State private var words: String
+    @State private var waitingPhotos: [WaitingPhoto] = []
+    @State private var pickerItems: [PhotosPickerItem] = []
+
+    // The stamp. Nil for `chosenWhen` means "now".
+    @State private var chosenWhen: Date?
+    @State private var aboutBed: Bed?
+    /// The weather service's figures for the stamp's time, if it has any.
+    @State private var suggested: CurrentConditions?
+    /// True once the conditions have been changed by hand. The two
+    /// values after it are then used in place of `suggested`.
+    @State private var hasOwnConditions = false
+    @State private var ownWeather: Weather?
+    @State private var ownTemperature: Double?
+
+    // The time check.
+    @State private var checkIsAnswered = false
+    /// True if Send was pressed while the check was waiting.
+    @State private var checkWasSkipped = false
+    /// The weather at each time the check can offer, looked up once.
+    @State private var weatherAtMoment: [JournalChat.Moment: CurrentConditions] = [:]
+
+    // Small things that come and go.
+    @State private var showsWhen = false
+    @State private var showsConditions = false
+    @State private var isDropTarget = false
+    @State private var lastSent: UUID?
+    @State private var renaming: DiaryEntry?
+    @State private var newTitle = ""
+    @State private var editing: DiaryEntry?
+    @State private var voice = VoiceInput()
+
+    /// - `draft`: words to start with, such as Today's list of what has
+    ///   been logged.
+    init(draft: String = "") {
+        // `_words` is the storage behind `@State var words`. This is how
+        // a starting value is handed to it from outside.
+        _words = State(initialValue: draft)
+    }
+
+    // MARK: Worked out from the above
+
+    /// The time the next entry will be stamped with.
+    private var stampDate: Date { chosenWhen ?? .now }
+
+    /// The garden the weather is for: the first with a location.
+    private var place: WeatherDiary.Place? { WeatherDiary.places(for: gardens).first }
+
+    /// Whether the sun is down at the garden. Nil if its place is unknown.
+    private var isDark: Bool? {
+        place.map { Sun.position(latitude: $0.latitude, longitude: $0.longitude, at: .now).altitude < 0 }
+    }
+
+    /// The question to ask before sending, if there is one.
+    private var timeCheck: JournalChat.TimeCheck? {
+        checkIsAnswered ? nil : JournalChat.timeCheck(for: words, at: .now, isDark: isDark)
+    }
+
+    private var stampWeather: Weather? {
+        hasOwnConditions ? ownWeather : suggested.map { JournalChat.weatherWord(for: $0) }
+    }
+
+    private var stampTemperature: Double? {
+        // One decimal place is as exact as the figure is.
+        hasOwnConditions ? ownTemperature : suggested.map { ($0.temperatureC * 10).rounded() / 10 }
+    }
+
+    private var canSend: Bool {
+        !words.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || !waitingPhotos.isEmpty
+    }
+
+    /// One line of the day: something written, or another record.
+    private enum DayLine: Identifiable {
+        case entry(DiaryEntry)
+        case record(TimelineItem)
+
+        var id: UUID {
+            switch self {
+            case .entry(let entry): return entry.id
+            case .record(let item): return item.id
+            }
+        }
+
+        var date: Date {
+            switch self {
+            case .entry(let entry): return entry.date
+            case .record(let item): return item.date
+            }
+        }
+    }
+
+    /// Everything from the stamp's day, oldest first.
+    private var dayLines: [DayLine] {
+        let calendar = Calendar.current
+        let day = stampDate
+        func isThatDay(_ date: Date) -> Bool { calendar.isDate(date, inSameDayAs: day) }
+
+        let written = diary.filter { isThatDay($0.date) }.map { DayLine.entry($0) }
+        // Only that day's records are handed to the timeline builder, so
+        // it is not asked to go through every record ever made.
+        let records = TimelineBuilder.build(
+            plantings: plantings.filter { isThatDay($0.timelineDate) },
+            harvests: harvests.filter { isThatDay($0.timelineDate) },
+            surveys: surveys.filter { isThatDay($0.timelineDate) },
+            sightings: sightings.filter { isThatDay($0.timelineDate) }
+        ).map { DayLine.record($0) }
+        return (written + records).sorted { $0.date < $1.date }
+    }
+
+    /// "Friday 13 November", for the line under the title.
+    private var dayWords: String {
+        let day = stampDate.formatted(.dateTime.weekday(.wide).day().month(.wide))
+        if Calendar.current.isDateInToday(stampDate) { return "Today, \(day)" }
+        if Calendar.current.isDateInYesterday(stampDate) { return "Yesterday, \(day)" }
+        return day
+    }
+
+    // MARK: Body
+
+    var body: some View {
+        // Worked out once for this redraw.
+        let lines = dayLines
+
+        SheetPage("Journal", detail: dayWords, dismissTitle: "Done") {
+            VStack(spacing: 0) {
+                thread(lines)
+                if let timeCheck {
+                    checkCard(timeCheck)
+                }
+                composer
+            }
+        }
+        // Photos can be dragged on to any part of the sheet.
+        .onDrop(of: [.image], isTargeted: $isDropTarget) { providers in
+            takeDropped(providers)
+        }
+        .overlay {
+            if isDropTarget {
+                RoundedRectangle(cornerRadius: 22)
+                    .strokeBorder(Theme.leaf, style: StrokeStyle(lineWidth: 2.5, dash: [8, 6]))
+                    .padding(8)
+                    .allowsHitTesting(false)
+            }
+        }
+        .task {
+            voice.checkExistingPermission()
+            lookUpWeather()
+        }
+        .onChange(of: chosenWhen) { _, _ in
+            suggested = conditions(at: stampDate)
+        }
+        .onChange(of: pickerItems) { _, items in
+            guard !items.isEmpty else { return }
+            Task { await loadPicked(items) }
+        }
+        .alert("Rename", isPresented: Binding(get: { renaming != nil }, set: { if !$0 { renaming = nil } })) {
+            TextField("Title", text: $newTitle)
+            Button("Save") {
+                renaming?.title = newTitle.isEmpty ? nil : newTitle
+                renaming = nil
+            }
+            Button("Cancel", role: .cancel) { renaming = nil }
+        }
+        // The old form, for changing every detail of something already
+        // written.
+        .sheet(item: $editing) { entry in
+            DiaryEntryEditor(entry: entry).macSheetSize(width: 520, height: 640)
+        }
+    }
+
+    // MARK: The day so far
+
+    private func thread(_ lines: [DayLine]) -> some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 12) {
+                eiraSays(lines.isEmpty
+                         ? "Tell me what happened in the garden. I will note the time and the weather with it."
+                         : "Here is the day so far. Anything to add?")
+
+                ForEach(lines) { line in
+                    switch line {
+                    case .entry(let entry): bubble(entry)
+                    case .record(let item): recordLine(item)
+                    }
+                }
+
+                if let sent = diary.first(where: { $0.id == lastSent }) {
+                    eiraSays(acknowledgement(of: sent))
+                }
+            }
+            .padding(.horizontal, 20)
+            .padding(.bottom, 12)
+        }
+        // Opens at the newest line and stays there as lines are added,
+        // as a chat does.
+        .defaultScrollAnchor(.bottom)
+        .frame(minHeight: 200)
+    }
+
+    /// Something Eira says: her snowdrop and a pale bubble, on the left.
+    private func eiraSays(_ text: String) -> some View {
+        HStack(alignment: .top, spacing: 8) {
+            EiraSymbol(size: 28)
+            Text(text)
+                .font(.subheadline)
+                .foregroundStyle(Theme.ink)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 9)
+                .background(Theme.card.opacity(0.85), in: .rect(cornerRadius: 16))
+                .overlay {
+                    RoundedRectangle(cornerRadius: 16)
+                        .strokeBorder(Theme.hairline)
+                }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.trailing, 36)
+    }
+
+    /// Something written: a green bubble on the right with its stamp
+    /// underneath.
+    private func bubble(_ entry: DiaryEntry) -> some View {
+        // The title is shown only where there is one and it says
+        // something the words underneath do not.
+        let heading = (entry.title?.isEmpty == false ? entry.title : entry.generatedSummary) ?? ""
+        let showsHeading = !heading.isEmpty && heading != entry.body
+
+        return VStack(alignment: .trailing, spacing: 4) {
+            VStack(alignment: .leading, spacing: 6) {
+                if showsHeading {
+                    Text(heading)
+                        .font(.subheadline.weight(.semibold))
+                }
+                if !entry.body.isEmpty {
+                    Text(entry.body)
+                        .font(.subheadline)
+                }
+                if let photos = entry.photos, !photos.isEmpty {
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 6) {
+                            ForEach(photos) { PhotoThumbnail(photo: $0, size: 84) }
+                        }
+                    }
+                }
+            }
+            .foregroundStyle(Theme.ink)
+            .padding(12)
+            .background(Theme.leafFill, in: .rect(cornerRadius: 18))
+            // Press and hold, or right-click on a Mac.
+            .contextMenu {
+                Button("Rename") {
+                    newTitle = heading
+                    renaming = entry
+                }
+                Button("Change the details") { editing = entry }
+                Button("Delete", role: .destructive) { context.delete(entry) }
+            }
+
+            Text(stampLine(of: entry))
+                .font(.caption2)
+                .foregroundStyle(Theme.inkSoft)
+        }
+        .frame(maxWidth: .infinity, alignment: .trailing)
+        .padding(.leading, 44)
+    }
+
+    /// "15:36 · 9°C, overcast · Bed 3"
+    private func stampLine(of entry: DiaryEntry) -> String {
+        var parts = [entry.date.formatted(date: .omitted, time: .shortened)]
+        if let weather = JournalChat.stampWords(weather: entry.weather, temperatureC: entry.temperatureC) {
+            parts.append(weather)
+        }
+        if let bed = entry.bed { parts.append(bed.name) }
+        return parts.joined(separator: " · ")
+    }
+
+    /// A sowing, harvest, count or sighting from the same day: a quiet
+    /// line in the middle.
+    private func recordLine(_ item: TimelineItem) -> some View {
+        Text("\(item.title) · \(item.date.formatted(date: .omitted, time: .shortened))")
+            .font(.caption)
+            .foregroundStyle(Theme.inkSoft)
+            .multilineTextAlignment(.center)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 5)
+            .background(Theme.card.opacity(0.6), in: .capsule)
+            .frame(maxWidth: .infinity)
+    }
+
+    /// What Eira says about the entry just sent.
+    private func acknowledgement(of entry: DiaryEntry) -> String {
+        let time = entry.date.formatted(date: .omitted, time: .shortened)
+        var when = "at \(time)"
+        if !Calendar.current.isDateInToday(entry.date) {
+            when = "for \(entry.date.formatted(.dateTime.weekday(.wide))) at \(time)"
+        }
+        var text = "Noted \(when)"
+        if let weather = JournalChat.stampWords(weather: entry.weather, temperatureC: entry.temperatureC) {
+            text += ", \(weather.lowercased())"
+        }
+        text += "."
+        if let heading = entry.generatedSummary, !heading.isEmpty {
+            text += " I have called it “\(heading)”."
+        }
+        return text + " Press and hold it to rename or change it."
+    }
+
+    // MARK: The time check
+
+    private func checkCard(_ check: JournalChat.TimeCheck) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(check.question)
+                .font(.subheadline.weight(.medium))
+                .foregroundStyle(Theme.ink)
+            if checkWasSkipped {
+                Text("Choose one, then send.")
+                    .font(.caption)
+                    .foregroundStyle(Theme.amber)
+            }
+            ForEach(check.moments) { moment in
+                Button {
+                    answer(moment)
+                } label: {
+                    HStack {
+                        Text(JournalChat.name(of: moment))
+                            .fontWeight(.medium)
+                        Spacer(minLength: 8)
+                        if let weather = weatherAtMoment[moment] {
+                            Text(JournalChat.stampWords(weather: JournalChat.weatherWord(for: weather),
+                                                        temperatureC: weather.temperatureC) ?? "")
+                                .foregroundStyle(Theme.inkSoft)
+                        }
+                    }
+                    .font(.subheadline)
+                    .foregroundStyle(Theme.ink)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 9)
+                    .background(Theme.card.opacity(0.85), in: .rect(cornerRadius: 12))
+                    .contentShape(.rect)
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(12)
+        .glassEffect(.regular.tint(Theme.card.opacity(0.55)), in: .rect(cornerRadius: 18))
+        .overlay {
+            if checkWasSkipped {
+                RoundedRectangle(cornerRadius: 18)
+                    .strokeBorder(Theme.amber, lineWidth: 1.5)
+            }
+        }
+        .padding(.horizontal, 14)
+        .padding(.bottom, 8)
+    }
+
+    /// One of the check's buttons was pressed. The stamp is set to that
+    /// time and its weather. Nothing is sent yet.
+    private func answer(_ moment: JournalChat.Moment) {
+        chosenWhen = moment == .now ? nil : JournalChat.date(for: moment, now: .now)
+        hasOwnConditions = false
+        suggested = conditions(at: stampDate)
+        checkIsAnswered = true
+        checkWasSkipped = false
+    }
+
+    // MARK: The box to write in
+
+    private var composer: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            // The stamp, as three chips. They scroll sideways if the
+            // sheet is too narrow to show all three.
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    whenChip
+                    conditionsChip
+                    aboutChip
+                }
+            }
+
+            if !waitingPhotos.isEmpty {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        ForEach(waitingPhotos) { photo in
+                            waitingThumbnail(photo)
+                        }
+                    }
+                }
+            }
+
+            if voice.isListening {
+                Text(voice.transcript.isEmpty ? "Listening…" : voice.transcript)
+                    .font(.subheadline)
+                    .foregroundStyle(Theme.inkSoft)
+            }
+
+            HStack(alignment: .bottom, spacing: 8) {
+                PhotosPicker(selection: $pickerItems, maxSelectionCount: 10, matching: .images) {
+                    roundSymbol("photo.badge.plus")
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Add photos")
+
+                microphone
+
+                TextField("Tell Eira about the garden", text: $words, axis: .vertical)
+                    // Grows from one line to six, then scrolls.
+                    .lineLimit(1...6)
+                    .textFieldStyle(.plain)
+                    .foregroundStyle(Theme.ink)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 10)
+                    .background(Theme.card.opacity(0.85), in: .rect(cornerRadius: 20))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 20)
+                            .strokeBorder(Theme.hairline)
+                    }
+                    // Return sends. Shift-Return or Option-Return starts a
+                    // new line. `.ignored` hands the key back to the box.
+                    .onKeyPress(.return, phases: .down) { press in
+                        if press.modifiers.contains(.shift) || press.modifiers.contains(.option) {
+                            return .ignored
+                        }
+                        send()
+                        return .handled
+                    }
+
+                Button {
+                    send()
+                } label: {
+                    Image(systemName: "arrow.up")
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundStyle(Theme.onLeaf)
+                        .frame(width: 40, height: 40)
+                        .background(Theme.leaf, in: .circle)
+                        .contentShape(.circle)
+                }
+                .buttonStyle(.plain)
+                .disabled(!canSend)
+                .opacity(canSend ? 1 : 0.4)
+                .accessibilityLabel("Send")
+            }
+        }
+        .padding(12)
+        .glassEffect(.regular.tint(Theme.card.opacity(0.55)), in: .rect(cornerRadius: 24))
+        .padding(.horizontal, 14)
+        .padding(.bottom, 14)
+    }
+
+    /// The look of a chip: a small symbol and a few words in a capsule.
+    private func chip(_ text: String, symbol: String) -> some View {
+        HStack(spacing: 5) {
+            Image(systemName: symbol)
+                .font(.caption)
+            Text(text)
+                .font(.caption.weight(.medium))
+                .lineLimit(1)
+        }
+        .foregroundStyle(Theme.ink)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 7)
+        .background(Theme.card.opacity(0.85), in: .capsule)
+        .overlay {
+            Capsule().strokeBorder(Theme.hairline)
+        }
+        .contentShape(.capsule)
+    }
+
+    /// A round button face for the photo and microphone buttons.
+    private func roundSymbol(_ symbol: String, isOn: Bool = false) -> some View {
+        Image(systemName: symbol)
+            .font(.system(size: 16))
+            .foregroundStyle(isOn ? Theme.onLeaf : Theme.ink)
+            .frame(width: 40, height: 40)
+            .background(isOn ? Theme.leaf : Theme.card.opacity(0.85), in: .circle)
+            .overlay {
+                Circle().strokeBorder(Theme.hairline)
+            }
+            .contentShape(.circle)
+    }
+
+    // MARK: The chips
+
+    private var whenWords: String {
+        guard let chosenWhen else { return "Now" }
+        let time = chosenWhen.formatted(date: .omitted, time: .shortened)
+        if Calendar.current.isDateInToday(chosenWhen) { return "Today, \(time)" }
+        if Calendar.current.isDateInYesterday(chosenWhen) { return "Yesterday, \(time)" }
+        return chosenWhen.formatted(.dateTime.day().month(.abbreviated).hour().minute())
+    }
+
+    private var whenChip: some View {
+        Button {
+            showsWhen = true
+        } label: {
+            chip(whenWords, symbol: "clock")
+        }
+        .buttonStyle(.plain)
+        // A popover is a small panel that points at what opened it.
+        .popover(isPresented: $showsWhen) {
+            VStack(alignment: .leading, spacing: 12) {
+                DatePicker("When", selection: Binding(
+                    get: { chosenWhen ?? .now },
+                    set: {
+                        chosenWhen = $0
+                        // Choosing a time by hand answers the time check.
+                        checkIsAnswered = true
+                        checkWasSkipped = false
+                    }
+                ), in: ...Date.now)
+                Button("Back to now") {
+                    chosenWhen = nil
+                    showsWhen = false
+                }
+                .buttonStyle(.glass)
+            }
+            .padding(16)
+            .frame(minWidth: 260)
+            // Keeps it a small panel on an iPhone, where it would
+            // otherwise take over the screen.
+            .presentationCompactAdaptation(.popover)
+        }
+    }
+
+    private var conditionsChip: some View {
+        Button {
+            showsConditions = true
+        } label: {
+            chip(JournalChat.stampWords(weather: stampWeather, temperatureC: stampTemperature) ?? "Add the weather",
+                 symbol: (stampWeather ?? .mild).symbolName)
+        }
+        .buttonStyle(.plain)
+        .popover(isPresented: $showsConditions) {
+            VStack(alignment: .leading, spacing: 12) {
+                Picker("Conditions", selection: Binding(
+                    get: { stampWeather ?? .mild },
+                    set: {
+                        keepConditionsAsOwn()
+                        ownWeather = $0
+                    }
+                )) {
+                    ForEach(Weather.allCases) { weather in
+                        Text(weather.displayName).tag(weather)
+                    }
+                }
+
+                HStack(spacing: 6) {
+                    Text("Temperature")
+                    Spacer(minLength: 8)
+                    TextField("", value: Binding(
+                        get: { stampTemperature },
+                        set: {
+                            keepConditionsAsOwn()
+                            ownTemperature = $0
+                        }
+                    ), format: .number)
+                    .multilineTextAlignment(.trailing)
+                    .frame(width: 60)
+                    #if os(iOS)
+                    .keyboardType(.decimalPad)
+                    #endif
+                    Text("°C")
+                }
+
+                Text(conditionsSource)
+                    .font(.caption)
+                    .foregroundStyle(Theme.inkSoft)
+
+                if hasOwnConditions {
+                    Button("Use the weather service's figures") { hasOwnConditions = false }
+                        .buttonStyle(.glass)
+                }
+            }
+            .padding(16)
+            .frame(minWidth: 280)
+            .presentationCompactAdaptation(.popover)
+        }
+    }
+
+    /// Says where the conditions on the chip came from.
+    private var conditionsSource: String {
+        if hasOwnConditions { return "Your own figures." }
+        if suggested == nil { return "The weather service has no figures for this time. Add your own." }
+        return "From the weather service, for your garden at this time. Change anything that was different."
+    }
+
+    /// Called just before a condition is changed by hand. The first
+    /// time, it copies the weather service's figures across, so that
+    /// changing one of them does not blank the other.
+    private func keepConditionsAsOwn() {
+        guard !hasOwnConditions else { return }
+        ownWeather = stampWeather
+        ownTemperature = stampTemperature
+        hasOwnConditions = true
+    }
+
+    private var aboutChip: some View {
+        Menu {
+            Button("The garden") { aboutBed = nil }
+            if !beds.isEmpty {
+                Section("One bed") {
+                    ForEach(beds) { bed in
+                        Button(bed.name) { aboutBed = bed }
+                    }
+                }
+            }
+        } label: {
+            chip(aboutBed?.name ?? "The garden", symbol: "square.grid.2x2")
+        }
+        // Show the chip as it is, without the frame Apple draws round a
+        // menu's button.
+        .menuStyle(.button)
+        .buttonStyle(.plain)
+        .menuIndicator(.hidden)
+        .fixedSize()
+    }
+
+    // MARK: Voice
+
+    /// Hold to speak. What is heard is added to the box when let go, to
+    /// be read over before it is sent.
+    @ViewBuilder
+    private var microphone: some View {
+        if voice.isAuthorised {
+            roundSymbol(voice.isListening ? "mic.fill" : "mic", isOn: voice.isListening)
+                .gesture(
+                    DragGesture(minimumDistance: 0)
+                        .onChanged { _ in
+                            if !voice.isListening { voice.startListening() }
+                        }
+                        .onEnded { _ in
+                            let heard = voice.transcript
+                            voice.stopListening()
+                            guard !heard.isEmpty else { return }
+                            words = words.isEmpty ? heard : "\(words) \(heard)"
+                        }
+                )
+                .accessibilityLabel("Hold to speak")
+        } else {
+            // Voice stays off until asked for. Pressing this is what
+            // brings up Apple's microphone and speech permission boxes.
+            Button {
+                Task { await voice.requestPermission() }
+            } label: {
+                roundSymbol("mic.slash")
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Turn on voice input")
+        }
+    }
+
+    // MARK: Photos
+
+    /// A photo chosen or dropped, not yet sent.
+    private struct WaitingPhoto: Identifiable {
+        let id = UUID()
+        let data: Data
+        let thumbnail: Data?
+    }
+
+    private func waitingThumbnail(_ photo: WaitingPhoto) -> some View {
+        ZStack {
+            if let picture = PhotoThumbnail.image(from: photo.thumbnail ?? photo.data) {
+                picture
+                    .resizable()
+                    .scaledToFill()
+            } else {
+                Theme.card
+            }
+        }
+        .frame(width: 64, height: 64)
+        .clipShape(.rect(cornerRadius: 10))
+        .overlay(alignment: .topTrailing) {
+            Button {
+                waitingPhotos.removeAll { $0.id == photo.id }
+            } label: {
+                Image(systemName: "xmark")
+                    .font(.system(size: 9, weight: .bold))
+                    .foregroundStyle(Theme.ink)
+                    .frame(width: 20, height: 20)
+                    .background(Theme.card, in: .circle)
+            }
+            .buttonStyle(.plain)
+            .padding(3)
+            .accessibilityLabel("Remove photo")
+        }
+    }
+
+    private func addPhoto(_ data: Data) {
+        waitingPhotos.append(WaitingPhoto(data: data, thumbnail: DiaryEntryEditor.thumbnail(from: data)))
+    }
+
+    /// Photos chosen with the button. They arrive one at a time, a
+    /// moment after being chosen.
+    private func loadPicked(_ items: [PhotosPickerItem]) async {
+        for item in items {
+            if let data = try? await item.loadTransferable(type: Data.self) {
+                addPhoto(data)
+            }
+        }
+        pickerItems = []
+    }
+
+    /// Photos dragged on to the sheet. Returns true if any were pictures.
+    private func takeDropped(_ providers: [NSItemProvider]) -> Bool {
+        let pictures = providers.filter { $0.hasItemConformingToTypeIdentifier(UTType.image.identifier) }
+        guard !pictures.isEmpty else { return false }
+        for provider in pictures {
+            // The picture is handed over a moment later, away from the
+            // screen's own thread, so it is passed back to it to be added.
+            _ = provider.loadDataRepresentation(forTypeIdentifier: UTType.image.identifier) { data, _ in
+                guard let data else { return }
+                Task { @MainActor in addPhoto(data) }
+            }
+        }
+        return true
+    }
+
+    // MARK: Weather for the stamp
+
+    /// Looks up the weather for now and for each time the check can
+    /// offer. Done once, when the sheet opens, and not on every key
+    /// press.
+    private func lookUpWeather() {
+        suggested = conditions(at: stampDate)
+        for moment in JournalChat.Moment.allCases where moment != .now {
+            weatherAtMoment[moment] = conditions(at: JournalChat.date(for: moment, now: .now))
+        }
+        weatherAtMoment[.now] = conditions(at: .now)
+    }
+
+    /// The weather at a time. For the last half hour it is the figures
+    /// the Today screen fetched, if they are under an hour old. For any
+    /// other time it is that hour from the weather diary.
+    private func conditions(at date: Date) -> CurrentConditions? {
+        let service = WeatherService.shared
+        if abs(date.timeIntervalSinceNow) < 1800,
+           let live = service.current,
+           let fetched = service.lastFetched, Date.now.timeIntervalSince(fetched) < 3600 {
+            return live
+        }
+        guard let place else { return nil }
+        let key = WeatherDiary.dayKey(for: date)
+        let site = place.site
+        var find = FetchDescriptor<WeatherDay>(predicate: #Predicate { $0.dayKey == key && $0.siteRaw == site })
+        find.fetchLimit = 1
+        guard let day = try? context.fetch(find).first,
+              let hours = WeatherDiary.hours(of: day) else { return nil }
+        return hours.conditions(atHour: Calendar.current.component(.hour, from: date))
+    }
+
+    // MARK: Sending
+
+    private func send() {
+        let text = words.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !text.isEmpty || !waitingPhotos.isEmpty else { return }
+
+        // The time check has to be answered first. Its card turns amber.
+        if timeCheck != nil {
+            checkWasSkipped = true
+            return
+        }
+
+        let entry = DiaryEntry(body: text)
+        entry.date = stampDate
+        entry.weather = stampWeather
+        entry.temperatureC = stampTemperature
+        if let aboutBed {
+            entry.scope = .bed
+            entry.bed = aboutBed
+        }
+        // A title from the entry's own words, marked as written for
+        // you. It is left off where it would only repeat the entry.
+        if let heading = JournalChat.title(for: text), heading != text {
+            entry.generatedSummary = heading
+            entry.summaryGeneratedAt = .now
+        }
+        context.insert(entry)
+
+        for waiting in waitingPhotos {
+            let photo = Photo()
+            photo.imageData = waiting.data
+            photo.thumbnailData = waiting.thumbnail
+            photo.diaryEntry = entry
+            entry.photos?.append(photo)
+        }
+
+        // Ready for the next thing to be said.
+        lastSent = entry.id
+        words = ""
+        waitingPhotos = []
+        chosenWhen = nil
+        hasOwnConditions = false
+        checkIsAnswered = false
+        checkWasSkipped = false
+        suggested = conditions(at: .now)
+    }
+}

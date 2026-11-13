@@ -2,7 +2,11 @@
 //  JournalViews.swift
 //  Windfall
 //
-//  The diary editor and the unified timeline.
+//  The unified timeline, and the diary form.
+//
+//  New entries are written in JournalChatView.swift, as a conversation.
+//  The form here (DiaryEntryEditor) is kept for changing every detail
+//  of an entry already written, and is reached from there.
 //
 //  New things here:
 //
@@ -43,10 +47,9 @@ struct JournalTimelineView: View {
     @Query private var surveys: [Survey]
     @Query private var sightings: [WildlifeObservation]
 
-    @Environment(\.modelContext) private var context
-
     @State private var kinds: Set<TimelineKind> = Set(TimelineKind.allCases)
-    @State private var newEntry: DiaryEntry?
+    /// True while the conversation for writing in the journal is open.
+    @State private var isWriting = false
 
     private var items: [TimelineItem] {
         TimelineBuilder.build(
@@ -115,16 +118,15 @@ struct JournalTimelineView: View {
 
             ToolbarItem(placement: .primaryAction) {
                 Button {
-                    let entry = DiaryEntry()
-                    context.insert(entry)
-                    newEntry = entry
+                    isWriting = true
                 } label: {
                     Label("New entry", systemImage: "square.and.pencil")
                 }
             }
         }
-        .sheet(item: $newEntry) { entry in
-            DiaryEntryEditor(entry: entry)
+        // Writing is a conversation with Eira (JournalChatView.swift).
+        .sheet(isPresented: $isWriting) {
+            JournalChatView()
         }
     }
 }
@@ -217,9 +219,14 @@ struct PhotoThumbnail: View {
     /// Prefers the thumbnail. Decoding full-size images in a scrolling
     /// list is the classic cause of stutter.
     private var loadedImage: Image? {
-        let data = photo.thumbnailData ?? photo.imageData
-        guard let data else { return nil }
+        (photo.thumbnailData ?? photo.imageData).flatMap(Self.image(from:))
+    }
 
+    /// Turns stored picture data into something SwiftUI can draw. An
+    /// iPhone and a Mac each have their own kind of picture, which is
+    /// why there are two ways round. Also used for photos waiting to be
+    /// sent in the journal's conversation.
+    static func image(from data: Data) -> Image? {
         #if os(iOS)
         guard let ui = UIImage(data: data) else { return nil }
         return Image(uiImage: ui)
@@ -294,7 +301,7 @@ struct DiaryEntryEditor: View {
                         set: { entry.weather = $0 }
                     )) {
                         ForEach(Weather.allCases) { w in
-                            Label(w.rawValue.capitalized, systemImage: w.symbolName).tag(w)
+                            Label(w.displayName, systemImage: w.symbolName).tag(w)
                         }
                     }
 

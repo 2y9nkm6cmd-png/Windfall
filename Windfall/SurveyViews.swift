@@ -375,9 +375,9 @@ struct RunSurveyView: View {
         .accessibilityElement(children: .combine)
     }
 
-    private func remaining(at moment: Date) -> TimeInterval {
+    private func remaining(at date: Date) -> TimeInterval {
         guard let startTime else { return duration }
-        return max(0, duration - moment.timeIntervalSince(startTime))
+        return max(0, duration - date.timeIntervalSince(startTime))
     }
 
     // MARK: Finished

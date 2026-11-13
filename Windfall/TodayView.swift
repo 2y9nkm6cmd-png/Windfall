@@ -647,10 +647,10 @@ struct TodayView: View {
         sheet = .newSighting(observation)
     }
 
+    /// Opens the journal's conversation, with some words to start from
+    /// if there are any. Nothing is saved until something is sent.
     private func startNote(draft: String) {
-        let entry = DiaryEntry(body: draft)
-        context.insert(entry)
-        sheet = .note(entry)
+        sheet = .journal(draft)
     }
 
     @ViewBuilder
@@ -679,8 +679,8 @@ struct TodayView: View {
             .macSheetSize(width: 520, height: 680)
         case .survey(let survey):
             RunSurveyView(survey: survey)
-        case .note(let entry):
-            DiaryEntryEditor(entry: entry).macSheetSize(width: 520, height: 640)
+        case .journal(let draft):
+            JournalChatView(draft: draft)
         }
     }
 
@@ -1280,7 +1280,8 @@ enum CaptureSheet: Identifiable {
     case newSighting(WildlifeObservation)
     case sighting(WildlifeObservation)
     case survey(Survey)
-    case note(DiaryEntry)
+    /// The journal's conversation, with words to start from.
+    case journal(String)
 
     var id: String {
         switch self {
@@ -1290,7 +1291,7 @@ enum CaptureSheet: Identifiable {
         case .newSighting(let observation): return "new-sighting-\(observation.id)"
         case .sighting(let observation): return "sighting-\(observation.id)"
         case .survey(let survey): return "survey-\(survey.id)"
-        case .note(let entry): return "note-\(entry.id)"
+        case .journal: return "journal"
         }
     }
 }

@@ -66,6 +66,7 @@ Icons are drawn on a 24 by 24 grid with a line 1.6 wide and rounded ends.
 | `2026-11-13 screenshot-garden-switch-half-width-mac.png` | The Allotment and Permaculture garden switch at half the Mac window's width: squarer corners than the cards, wider than them, and no sliding glass |
 | `2026-11-13 screenshot-eira-bar-over-card-edge-mac.png` | Eira's bar running out past the edge of the card above it, sent with "it should sit slightly within it" |
 | `2026-11-13 screenshot-journal-filter-menu-centre-mac.png` | The Journal on the Mac with its filter menu in the middle of the bar at the top, sent with "Is there a reason that this menu is in the middle of the top bar?" |
+| `2026-11-13 screenshot-diary-entry-form-mac.png` | The diary entry form on the Mac, sent with "the journal entry isn't very chat interface like. Is there a way that we can add all these options into a sleeker chat like interface?" |
 
 ## What is in Archive
 

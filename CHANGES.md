@@ -138,6 +138,56 @@ are handed straight back untouched.
 It ran out past the cards to the sidebar. It now stops 20 points in
 from the left and 28 from the right, a little inside the cards' edges.
 
+## The journal as a conversation (`JournalChatView.swift`, `JournalChat.swift`, new)
+
+William, of the diary form: "the journal entry isn't very chat interface
+like. Is there a way that we can add all these options into a sleeker
+chat like interface?" This is the first slice of the design agreed on
+12 November and drawn on the canvas as artboards A and B.
+
+- **One box to write in and a send button.** Return sends. Shift and
+  Return starts a new line.
+- **The form's options are three chips above the box**: when ("Now"
+  unless changed), the conditions and what it is about (the garden or
+  one bed).
+- **The conditions fill themselves in**: from the figures Today fetched
+  if they are under an hour old, otherwise from that hour of the weather
+  diary. Tap the chip to change them, and it says where they came from.
+- **The title is written from the entry's own first words.** "This
+  morning I mulched the raspberries with leaf mould and saw a wren"
+  becomes "Mulched the raspberries with leaf mould". It is stored where
+  Eira's headings go, so it is marked as written for you, and can be
+  renamed.
+- **Photos**: a button, or dragged on to the sheet on a Mac or iPad.
+- **Hold the microphone to speak.** What is heard goes into the box to
+  be read over, and is not sent by itself.
+- **The day so far is above the box**: what has been written, as green
+  bubbles with a stamp of time and weather, and that day's sowings,
+  harvests, counts and sightings in between.
+- **The time check.** Written after dark, or with "this morning",
+  "this afternoon", "yesterday" or "earlier" in it, a card asks when it
+  was about and offers each time with its weather. Send waits until one
+  is chosen. "Dark" is worked out from the sun at the garden.
+- **Press and hold a bubble** (right-click on a Mac) to rename it,
+  change its details in the old form, or delete it.
+- Each thing sent is an ordinary diary entry. **Nothing about how
+  entries are stored has changed**, so no database check is needed.
+- Opened from Today's Note button, Today's journal offer and the
+  Journal's New entry button. Nothing is saved until something is sent,
+  where the form made an empty entry as soon as it opened.
+
+**Fixed rules, not the AI model**, write the title, choose the weather
+word and decide when to ask about the time. Eira's lines are fixed
+wording. 10 new tests.
+
+⚠️ CHECK: rain of 4 mm an hour or more is called "heavy rain". Claude's
+figure.
+
+Not built: Eira offering to add a harvest or a sowing from what is
+written, names becoming links, a day read back as a page, the wide
+layout with days down the left, "this week in other years" and the
+evening summary. The Journal page itself is still a plain list.
+
 ## A filter in the middle of the bar
 
 William, of the Journal's filter menu on the Mac: "Is there a reason
@@ -162,6 +212,10 @@ finished".
   the page beside it?
 - "This week" with a real forecast.
 - Does Return in a notes box press Save when it should make a new line?
+- The journal's conversation: does the box stay above the keyboard on
+  an iPhone? Do the two small panels (when, conditions) open as panels
+  and not full screens? Does a photo dragged from Finder or Photos land?
+  Does holding the microphone work beside the text box?
 
 # 13 November 2026, morning: rearranging the Today screen
 

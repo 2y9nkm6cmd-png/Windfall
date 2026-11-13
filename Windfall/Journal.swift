@@ -73,6 +73,21 @@ enum Weather: String, Codable, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
+    /// The word as it is shown: "Heavy rain", not "Heavyrain".
+    var displayName: String {
+        switch self {
+        case .sunny:     return "Sunny"
+        case .cloudy:    return "Cloudy"
+        case .overcast:  return "Overcast"
+        case .rain:      return "Rain"
+        case .heavyRain: return "Heavy rain"
+        case .frost:     return "Frost"
+        case .snow:      return "Snow"
+        case .windy:     return "Windy"
+        case .mild:      return "Mild"
+        }
+    }
+
     var symbolName: String {
         switch self {
         case .sunny:     return "sun.max"
