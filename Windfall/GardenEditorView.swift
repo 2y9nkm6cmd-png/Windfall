@@ -104,15 +104,7 @@ struct GardenEditorView: View {
             NumberRow("Width, left to right (m)", value: $garden.widthMetres)
             NumberRow("Depth, top to bottom (m)", value: $garden.depthMetres)
 
-            LabeledContent("Top of the plan faces") {
-                HStack(spacing: 6) {
-                    TextField("0", value: $garden.topFacesDegrees, format: .number.precision(.fractionLength(0)))
-                        .multilineTextAlignment(.trailing)
-                        .frame(maxWidth: 70)
-                    Text("° · \(Compass.name(forBearing: garden.topFacesDegrees))")
-                        .foregroundStyle(.secondary)
-                }
-            }
+            FacingSetter(garden: garden, beds: beds, features: features)
             if compass.isAvailable {
                 compassSetter
             }
@@ -230,6 +222,112 @@ struct GardenEditorView: View {
     }
 }
 
+// MARK: - Which way the plan faces
+
+/// Sets which way the top of the plan faces, with the plan turning as
+/// the number changes.
+///
+/// The little plan here is drawn "north up", the way a map is: north is
+/// always at the top of the ring, and the plan turns inside it. Press
+/// plus or minus until the plan sits the way the garden does on a map.
+/// On a Mac the up and down arrow keys do the same once the control has
+/// been clicked. (William, 13 November 2026.)
+private struct FacingSetter: View {
+
+    @Bindable var garden: Garden
+    let beds: [Bed]
+    let features: [GardenFeature]
+
+    // Whether this control has the keyboard, for the arrow keys.
+    @FocusState private var hasKeyboard: Bool
+
+    private let ringSize: CGFloat = 230
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 10) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Top of the plan faces")
+                    Text("\(Int(garden.topFacesDegrees.rounded()))° · \(Compass.name(forBearing: garden.topFacesDegrees))")
+                        .font(.callout.weight(.semibold))
+                        .monospacedDigit()
+                        .foregroundStyle(Theme.leaf)
+                }
+                Spacer(minLength: 8)
+                turnButton("minus", by: -5, says: "Turn 5 degrees anticlockwise")
+                turnButton("plus", by: 5, says: "Turn 5 degrees clockwise")
+            }
+
+            // North up: the ring stays put and the plan turns inside it.
+            ZStack {
+                Circle()
+                    .strokeBorder(Theme.hairline, lineWidth: 1.2)
+                ForEach(0..<8, id: \.self) { point in
+                    Capsule()
+                        .fill(point == 0 ? Theme.leaf : Theme.inkSoft.opacity(0.6))
+                        .frame(width: 2, height: point % 2 == 0 ? 9 : 5)
+                        .offset(y: -ringSize / 2 + 8)
+                        .rotationEffect(.degrees(Double(point) * 45))
+                }
+                Text("N")
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(Theme.leaf)
+                    .offset(y: -ringSize / 2 + 24)
+
+                // The plan, small enough that its corners stay inside
+                // the ring whichever way it is turned. `turn` is the
+                // plan's own setting for this: it turns with a spring.
+                GardenPlanView(garden: garden, beds: beds, features: features,
+                               turn: garden.topFacesDegrees)
+                    .frame(width: ringSize * 0.6, height: ringSize * 0.6)
+            }
+            .frame(width: ringSize, height: ringSize)
+            .frame(maxWidth: .infinity)
+            .accessibilityHidden(true)
+
+            Text("North is at the top of the ring. Press plus or minus until the plan sits the way your garden does on a map.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+        .padding(.vertical, 4)
+        // Makes the control something the keyboard can land on, and
+        // gives it the arrow keys while it has the keyboard.
+        .focusable()
+        .focused($hasKeyboard)
+        .onKeyPress(.upArrow) { turn(by: 5); return .handled }
+        .onKeyPress(.rightArrow) { turn(by: 1); return .handled }
+        .onKeyPress(.downArrow) { turn(by: -5); return .handled }
+        .onKeyPress(.leftArrow) { turn(by: -1); return .handled }
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("Which way the top of the plan faces")
+    }
+
+    private func turnButton(_ symbol: String, by amount: Double, says words: String) -> some View {
+        Button {
+            turn(by: amount)
+            hasKeyboard = true
+        } label: {
+            Image(systemName: symbol)
+                .font(.system(size: 15, weight: .semibold))
+                .foregroundStyle(Theme.ink)
+                .frame(width: 40, height: 40)
+                .background(Theme.card.opacity(0.8), in: .circle)
+                .overlay { Circle().strokeBorder(Theme.hairline) }
+                .contentShape(.circle)
+        }
+        .buttonStyle(.plain)
+        // Held down, it keeps turning.
+        .buttonRepeatBehavior(.enabled)
+        .accessibilityLabel(words)
+    }
+
+    /// Turns the plan, keeping the bearing between 0 and 359 and on a
+    /// whole number of degrees.
+    private func turn(by amount: Double) {
+        garden.topFacesDegrees = Compass.normalised((garden.topFacesDegrees + amount).rounded())
+    }
+}
+
 // MARK: - Rows
 
 /// One line of the form holding a number that may be empty.
@@ -247,7 +345,13 @@ private struct NumberRow: View {
 
     var body: some View {
         LabeledContent(title) {
-            TextField("Not set", value: $value, format: .number.precision(.fractionLength(0...decimals)))
+            // The row's name is the field's title, for VoiceOver, and is
+            // hidden because the row already shows it. "Not set" is the
+            // grey prompt in an empty box. (Written the other way round,
+            // a Mac drew "Not set" as a second label beside the number.)
+            TextField(title, value: $value, format: .number.precision(.fractionLength(0...decimals)),
+                      prompt: Text("Not set"))
+                .labelsHidden()
                 .multilineTextAlignment(.trailing)
                 #if os(iOS)
                 .keyboardType(.numbersAndPunctuation)

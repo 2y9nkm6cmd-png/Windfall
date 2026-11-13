@@ -706,18 +706,10 @@ struct TodayView: View {
         case .identify:
             IdentifyView().macSheetSize(width: 520, height: 640)
         case .newSighting(let observation):
-            NavigationStack { ObservationEditor(observation: observation, isNew: true) }
-                .macSheetSize(width: 520, height: 680)
+            // The form brings its own title and buttons (SheetPage).
+            ObservationEditor(observation: observation, isNew: true)
         case .sighting(let observation):
-            NavigationStack {
-                ObservationEditor(observation: observation)
-                    .toolbar {
-                        ToolbarItem(placement: .confirmationAction) {
-                            Button("Done") { self.sheet = nil }
-                        }
-                    }
-            }
-            .macSheetSize(width: 520, height: 680)
+            ObservationEditor(observation: observation, inSheet: true)
         case .survey(let survey):
             RunSurveyView(survey: survey)
         case .journal(let draft):
