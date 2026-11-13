@@ -30,10 +30,10 @@ enum JournalChat {
     // MARK: - The weather stamp
 
     /// Rain falling this fast is called heavy, in millimetres an hour.
-    /// The Met Office's own line: "Rain that falls at a rate of 4 mm per
-    /// hour or more is termed heavy" (its guide to the rainfall map for
-    /// government users, read 13 November 2026). It draws the line for
-    /// showers higher, which the journal does not try to tell apart.
+    /// This is the Met Office's own line: 4 mm an hour or more is
+    /// "termed heavy" (its guide to the rainfall map for government
+    /// users, read 13 November 2026). The journal does not try to tell
+    /// showers from rain.
     static let heavyRainMM = 4.0
 
     /// The journal's word for some conditions. Rain comes first, then

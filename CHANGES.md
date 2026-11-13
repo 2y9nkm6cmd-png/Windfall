@@ -181,9 +181,8 @@ word and decide when to ask about the time. Eira's lines are fixed
 wording. 10 new tests.
 
 Rain of 4 mm an hour or more is called "heavy rain". That is the Met
-Office's own line: "Rain that falls at a rate of 4 mm per hour or more
-is termed heavy" (its guide to the rainfall map for government users,
-read 13 November 2026).
+Office's own line: 4 mm an hour or more is "termed heavy" (its guide to
+the rainfall map for government users, read 13 November 2026).
 
 Not built: names becoming links, a day read back as a page, the wide
 layout with days down the left, "this week in other years" and the
