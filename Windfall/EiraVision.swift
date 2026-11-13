@@ -86,19 +86,45 @@ struct IdentifyView: View {
     @State private var error: String?
 
     private let heading = "Identify from a photo"
+    /// What the button under an answer says.
+    private var sightingTitle: String {
+        guess?.isSure == true ? "Start a sighting from this" : "Start a sighting to identify later"
+    }
     private let subheading = "Eira compares it with UK plants and animals."
 
     var body: some View {
         Group {
             if inSheet {
                 SheetPage(heading, detail: subheading, dismissTitle: "Close") {
+                    // The cards scroll. The button that acts on the
+                    // answer stays at the foot of the sheet, in view
+                    // however long the cards are.
                     SheetScroll { cards }
+                    if guess != nil {
+                        SheetMainButton(sightingTitle) { createObservation() }
+                    }
                 }
             } else {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 14) {
                         ScreenHeader(title: heading, detail: subheading)
                         cards
+                        // On a page there is no foot to stand on, so
+                        // the button follows the cards.
+                        if guess != nil {
+                            Button {
+                                createObservation()
+                            } label: {
+                                Text(sightingTitle)
+                                    .fontWeight(.semibold)
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 4)
+                            }
+                            .buttonStyle(.glassProminent)
+                            .controlSize(.large)
+                            .tint(Theme.leaf)
+                            .foregroundStyle(Theme.onLeaf)
+                        }
                     }
                     // Reads best in a column, not across a wide window.
                     .frame(maxWidth: 640, alignment: .leading)
@@ -197,10 +223,6 @@ struct IdentifyView: View {
                      + " Nothing is saved until you start a sighting and confirm the name yourself.")
                     .font(.caption)
                     .foregroundStyle(Theme.inkSoft)
-            }
-
-            SheetMainButton(guess.isSure ? "Start a sighting from this" : "Start a sighting to identify later") {
-                createObservation()
             }
         }
 
