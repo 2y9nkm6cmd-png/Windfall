@@ -335,7 +335,7 @@ struct ObservationEditor: View {
                     }
                     .font(.subheadline.weight(.medium))
                 }
-                .buttonStyle(.glass)
+                .buttonStyle(QuietGlassButton())
                 .tint(Theme.leaf)
                 if isLoadingPhotos {
                     ProgressView().controlSize(.small)

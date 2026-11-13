@@ -81,6 +81,9 @@ private struct PlantingDTO: Codable {
     var id: UUID, plantID: UUID?, sectionIDs: [UUID]
     var round: Int?, sown: Date?, germinated: Date?, plantedOut: Date?
     var quantitySown: Int?, quantitySurvived: Int?, status: String, notes: String?
+    // How it was started and its parents (SeedTruth.swift). They may be
+    // missing, so a backup made before these existed still reads.
+    var startedFrom: String?, seedParent: String?, pollenParent: String?, handCrossed: Bool?
 }
 
 private struct HarvestDTO: Codable {
@@ -187,7 +190,9 @@ final class BackupService {
                         plantedOut: planting.datePlantedOut,
                         quantitySown: planting.quantitySown,
                         quantitySurvived: planting.quantitySurvived,
-                        status: planting.statusRaw, notes: planting.notes)
+                        status: planting.statusRaw, notes: planting.notes,
+                        startedFrom: planting.startedFromRaw, seedParent: planting.seedParentName,
+                        pollenParent: planting.pollenParentName, handCrossed: planting.wasHandCrossed)
         }
 
         backup.harvests = (try context.fetch(FetchDescriptor<Harvest>())).map { harvest in
@@ -412,6 +417,10 @@ final class BackupService {
             planting.quantitySurvived = dto.quantitySurvived
             planting.statusRaw = dto.status
             planting.notes = dto.notes
+            planting.startedFromRaw = dto.startedFrom
+            planting.seedParentName = dto.seedParent
+            planting.pollenParentName = dto.pollenParent
+            planting.wasHandCrossed = dto.handCrossed
             context.insert(planting)
             plantingsByID[dto.id] = planting
             restored += 1

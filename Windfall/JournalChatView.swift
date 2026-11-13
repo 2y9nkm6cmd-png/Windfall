@@ -270,7 +270,7 @@ struct JournalChatView: View {
                     if let askEiraInstead, !words.isEmpty {
                         Button("It was a question. Ask Eira instead") { askEiraInstead(words) }
                             .font(.caption.weight(.semibold))
-                            .buttonStyle(.glass)
+                            .buttonStyle(QuietGlassButton())
                             .tint(Theme.leaf)
                             .padding(.leading, 36)
                     }
@@ -641,7 +641,7 @@ struct JournalChatView: View {
                     chosenWhen = nil
                     showsWhen = false
                 }
-                .buttonStyle(.glass)
+                .buttonStyle(QuietGlassButton())
             }
             .padding(16)
             .frame(minWidth: 260)
@@ -697,7 +697,7 @@ struct JournalChatView: View {
 
                 if hasOwnConditions {
                     Button("Use the weather service's figures") { hasOwnConditions = false }
-                        .buttonStyle(.glass)
+                        .buttonStyle(QuietGlassButton())
                 }
             }
             .padding(16)

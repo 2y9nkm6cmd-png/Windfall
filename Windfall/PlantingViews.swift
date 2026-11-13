@@ -177,6 +177,42 @@ struct NewPlantingView: View {
     @State private var quantitySown = ""
     @State private var notes = ""
     @State private var plantSearch = ""
+    /// The plant that was chosen before "Choose another" was pressed,
+    /// so there is a way back to it.
+    @State private var previousPlant: Plant?
+
+    // How it was started, and its parents if it is saved or crossed
+    // seed. Only asked for plants where the answer matters: see
+    // SeedTruth.swift.
+    @State private var begun: PlantingStart = .packetSeed
+    @State private var pollenParent = ""
+    @State private var crossedByHand = false
+
+    /// How the chosen plant behaves from seed.
+    private var habit: SeedHabit {
+        selectedPlant.map { SeedTruth.habit(commonName: $0.commonName) } ?? .notKnown
+    }
+
+    private var isF1: Bool { SeedTruth.isF1(variety: selectedPlant?.variety) }
+
+    /// The ways of starting on offer for this plant. Empty means the
+    /// form does not ask.
+    private var starts: [PlantingStart] { SeedTruth.starts(for: habit, isF1: isF1) }
+
+    /// True when a tree, a plant or a tuber is going in, not seed.
+    private var isPlanting: Bool { !starts.isEmpty && begun == .plant }
+
+    /// Other varieties of the same plant, to offer as the pollen parent.
+    /// "Apple (Cider)" and "Apple" count as the same plant.
+    private var relatives: [Plant] {
+        guard let selectedPlant else { return [] }
+        func base(_ name: String) -> String {
+            (name.split(separator: "(").first.map(String.init) ?? name)
+                .trimmingCharacters(in: .whitespaces).lowercased()
+        }
+        let wanted = base(selectedPlant.commonName)
+        return plants.filter { $0.id != selectedPlant.id && base($0.commonName) == wanted }
+    }
 
     private var matchingPlants: [Plant] {
         guard !plantSearch.isEmpty else { return plants }
@@ -212,8 +248,11 @@ struct NewPlantingView: View {
                         HStack {
                             plantWords(selectedPlant)
                             Spacer()
-                            Button("Change") { self.selectedPlant = nil }
-                                .buttonStyle(.glass)
+                            Button("Choose another") {
+                                previousPlant = selectedPlant
+                                self.selectedPlant = nil
+                            }
+                            .buttonStyle(QuietGlassButton())
                         }
                         if let round = suggestedRound {
                             Text("Succession round \(round)")
@@ -221,6 +260,21 @@ struct NewPlantingView: View {
                                 .foregroundStyle(Theme.inkSoft)
                         }
                     } else {
+                        // The way back, if a plant had been chosen
+                        // before the list was opened again.
+                        if let previousPlant {
+                            Button {
+                                selectedPlant = previousPlant
+                                plantSearch = ""
+                            } label: {
+                                HStack(spacing: 6) {
+                                    Image(systemName: "chevron.left")
+                                        .font(.caption.weight(.semibold))
+                                    Text("Back to \(previousPlant.displayName)")
+                                }
+                            }
+                            .buttonStyle(QuietGlassButton())
+                        }
                         FieldBox {
                             TextField("Search plants", text: $plantSearch)
                         }
@@ -249,6 +303,10 @@ struct NewPlantingView: View {
                     }
                 }
 
+                if selectedPlant != nil, !starts.isEmpty {
+                    startedCard
+                }
+
                 SheetCard("Where") {
                     SettingRow("Bed") {
                         Picker("Bed", selection: $selectedBed) {
@@ -266,17 +324,21 @@ struct NewPlantingView: View {
                     }
                 }
 
-                SheetCard("Sowing") {
-                    SettingRow("Date sown") {
-                        DatePicker("Date sown", selection: $dateSown, displayedComponents: .date)
+                SheetCard(isPlanting ? "Planting" : "Sowing") {
+                    SettingRow(isPlanting ? "Date planted" : "Date sown") {
+                        DatePicker("Date", selection: $dateSown, displayedComponents: .date)
                             .labelsHidden()
                     }
 
-                    GlassSwitch(choices: SowingLocation.allCases, selection: $sowingLocation) { $0.words }
+                    // Indoors, outdoors and so on are about seed. A tree
+                    // going into the ground is not asked.
+                    if !isPlanting {
+                        GlassSwitch(choices: SowingLocation.allCases, selection: $sowingLocation) { $0.words }
+                    }
 
-                    SettingRow("Quantity sown") {
+                    SettingRow(isPlanting ? "How many" : "Quantity sown") {
                         FieldBox {
-                            TextField("seeds", text: $quantitySown)
+                            TextField(isPlanting ? "plants" : "seeds", text: $quantitySown)
                                 .multilineTextAlignment(.trailing)
                                 .frame(width: 90)
                                 #if os(iOS)
@@ -297,6 +359,70 @@ struct NewPlantingView: View {
     }
 
     /// A plant's name with its Latin name underneath.
+    /// Asks how it was started, for a plant where that matters, and for
+    /// seed that was saved or crossed, what its parents were.
+    private var startedCard: some View {
+        SheetCard("How it was started") {
+            GlassSwitch(choices: starts, selection: $begun) { SeedTruth.title(of: $0, habit: habit) }
+
+            if let advice = SeedTruth.advice(habit: habit, isF1: isF1, begun: begun,
+                                             name: selectedPlant?.commonName ?? "") {
+                Text(advice)
+                    .font(.caption)
+                    .foregroundStyle(Theme.inkSoft)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            if begun == .savedSeed {
+                SettingRow("Seed parent") {
+                    Text(selectedPlant?.displayName ?? "")
+                        .font(.subheadline)
+                        .foregroundStyle(Theme.ink)
+                        .multilineTextAlignment(.trailing)
+                }
+
+                VStack(alignment: .leading, spacing: 5) {
+                    Text("Pollen parent, if you know it")
+                        .font(.caption)
+                        .foregroundStyle(Theme.inkSoft)
+                    FieldBox {
+                        TextField("Not known (open pollinated)", text: $pollenParent)
+                    }
+                    if !relatives.isEmpty {
+                        // A menu of the other varieties in the library.
+                        // Choosing one writes its name in the box above.
+                        ChoiceMenu(shown: "Choose from your plants") {
+                            ForEach(relatives) { relative in
+                                Button(relative.displayName) { pollenParent = relative.displayName }
+                            }
+                        }
+                    }
+                }
+
+                Button {
+                    crossedByHand.toggle()
+                } label: {
+                    HStack(spacing: 10) {
+                        TickBox(isOn: crossedByHand)
+                        Text("I crossed them by hand")
+                            .font(.subheadline)
+                            .foregroundStyle(Theme.ink)
+                        Spacer(minLength: 0)
+                    }
+                    .contentShape(.rect)
+                }
+                .buttonStyle(.plain)
+                .accessibilityAddTraits(crossedByHand ? .isSelected : [])
+            }
+        }
+        // A different plant has different choices. Start from its usual one.
+        .onChange(of: selectedPlant?.id, initial: true) { _, _ in
+            begun = starts.first ?? .packetSeed
+            pollenParent = ""
+            crossedByHand = false
+        }
+    }
+
     private func plantWords(_ plant: Plant) -> some View {
         VStack(alignment: .leading, spacing: 1) {
             Text(plant.displayName)
@@ -316,8 +442,26 @@ struct NewPlantingView: View {
         let planting = Planting()
         planting.plant = selectedPlant
         planting.dateSown = dateSown
-        planting.sowingLocation = sowingLocation
-        planting.status = .sown
+        if starts.isEmpty {
+            // Nothing was asked, so nothing is claimed.
+            planting.sowingLocation = sowingLocation
+            planting.status = .sown
+        } else {
+            planting.startedFrom = begun
+            if begun == .plant {
+                // A tree or a tuber in the ground is growing, not sown.
+                planting.status = .growing
+            } else {
+                planting.sowingLocation = sowingLocation
+                planting.status = .sown
+            }
+            if begun == .savedSeed {
+                let pollen = pollenParent.trimmingCharacters(in: .whitespaces)
+                planting.seedParentName = selectedPlant.displayName
+                planting.pollenParentName = pollen.isEmpty ? nil : pollen
+                planting.wasHandCrossed = crossedByHand
+            }
+        }
         planting.successionRound = suggestedRound
         planting.quantitySown = Int(quantitySown)
         planting.notes = notes.isEmpty ? nil : notes

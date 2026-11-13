@@ -62,7 +62,7 @@ private struct OfferFrame<Content: View>: View {
                         .foregroundStyle(Theme.onLeaf)
                         .disabled(!canAdd)
                     Button(refuseTitle) { onRefuse() }
-                        .buttonStyle(.glass)
+                        .buttonStyle(QuietGlassButton())
                 }
             }
             .padding(12)

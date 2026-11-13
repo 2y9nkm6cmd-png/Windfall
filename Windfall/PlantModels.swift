@@ -189,6 +189,21 @@ final class Planting {
     var statusRaw: String = PlantingStatus.planned.rawValue
     var notes: String?
 
+    // How it was started and, for seed that was saved or crossed, its
+    // parents. See SeedTruth.swift. All four may be empty: records made
+    // before 13 November 2026 have none of them, and a database made
+    // then still opens, because adding a property that may be empty
+    // needs no conversion.
+    /// "packetSeed", "savedSeed" or "plant".
+    var startedFromRaw: String?
+    /// The plant the seed came from, in words.
+    var seedParentName: String?
+    /// The plant whose pollen fertilised the flower, in words. Empty if
+    /// it is not known.
+    var pollenParentName: String?
+    /// True if the cross was made by hand.
+    var wasHandCrossed: Bool?
+
     /// Which seed packet this came from, so germination rates can be
     /// fed back into viability.
     var seedPacket: SeedPacket?
@@ -212,6 +227,20 @@ final class Planting {
     var sowingLocation: SowingLocation? {
         get { sowingLocationRaw.flatMap(SowingLocation.init(rawValue:)) }
         set { sowingLocationRaw = newValue?.rawValue }
+    }
+
+    /// How it was started, if that was recorded.
+    var startedFrom: PlantingStart? {
+        get { startedFromRaw.flatMap(PlantingStart.init(rawValue:)) }
+        set { startedFromRaw = newValue?.rawValue }
+    }
+
+    /// "Apple, Pendragon × Egremont Russet (hand cross)", for a sowing
+    /// of saved or crossed seed. Nil for anything else.
+    var parentage: String? {
+        guard startedFrom == .savedSeed else { return nil }
+        return SeedTruth.parentage(seedParent: seedParentName, pollenParent: pollenParentName,
+                                   byHand: wasHandCrossed ?? false)
     }
 
     var totalHarvestGrams: Double {

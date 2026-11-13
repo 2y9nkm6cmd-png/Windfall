@@ -31,3 +31,4 @@ JournalOffers.swift
 EiraOnDeviceEngine.swift
 TextSize.swift
 JournalPage.swift
+SeedTruth.swift

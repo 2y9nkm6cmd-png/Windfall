@@ -151,7 +151,7 @@ struct SheetPage<Content: View>: View {
                 Image(systemName: isExpanded ? "arrow.down.right.and.arrow.up.left"
                                              : "arrow.up.left.and.arrow.down.right")
             }
-            .buttonStyle(.glass)
+            .buttonStyle(QuietGlassButton())
             .help(isExpanded ? "Back to the usual size" : "Make this larger")
             .accessibilityLabel(isExpanded ? "Back to the usual size" : "Make this larger")
             #endif
@@ -160,7 +160,7 @@ struct SheetPage<Content: View>: View {
                 Button(dismissTitle) {
                     if let onDismiss { onDismiss() } else { dismiss() }
                 }
-                .buttonStyle(.glass)
+                .buttonStyle(QuietGlassButton())
                 // The Esc key on a Mac presses this.
                 .keyboardShortcut(.cancelAction)
             }
@@ -180,6 +180,30 @@ struct SheetPage<Content: View>: View {
         #if os(macOS)
         .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { headerHeight = $0 }
         #endif
+    }
+}
+
+/// A quiet glass button: dark glass and plain words, for Cancel, Change
+/// and anything else that is not the main thing to press.
+///
+/// Apple's own `.glass` style did this on an iPad. On a Mac it filled
+/// the button with the app's green, so Cancel, Save and the resize
+/// button were three identical green buttons and nothing said which
+/// was the way out (William's picture, 13 November 2026). The one
+/// filled green button on a sheet is now the main one.
+///
+/// A ButtonStyle is given the button's label and whether it is being
+/// pressed, and hands back what to draw.
+struct QuietGlassButton: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.subheadline.weight(.medium))
+            .foregroundStyle(Theme.ink)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 7)
+            .contentShape(.capsule)
+            .glassEffect(.regular.tint(Theme.card.opacity(0.5)).interactive(), in: .capsule)
+            .opacity(configuration.isPressed ? 0.7 : 1)
     }
 }
 

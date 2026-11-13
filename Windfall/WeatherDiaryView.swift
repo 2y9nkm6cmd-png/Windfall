@@ -291,7 +291,7 @@ struct WeatherDiaryView: View {
                     }
                     if service.isWorking { ProgressView().controlSize(.small) }
                 }
-                .buttonStyle(.glass)
+                .buttonStyle(QuietGlassButton())
                 .disabled(service.isWorking)
             }
 

@@ -438,7 +438,7 @@ struct TodayView: View {
             Button("Reset") {
                 withAnimation(.snappy(duration: 0.3)) { save(.standard(columns: columns, gardens: gardenKeys)) }
             }
-            .buttonStyle(.glass)
+            .buttonStyle(QuietGlassButton())
             Button("Done") { finishArranging() }
                 .buttonStyle(.glassProminent)
                 .tint(Theme.leaf)
@@ -597,7 +597,7 @@ struct TodayView: View {
             Button("Check now") {
                 Task { await refreshWeather(mayAskForLocation: true) }
             }
-            .buttonStyle(.glass)
+            .buttonStyle(QuietGlassButton())
             .disabled(weather.isLoading)
         } else if isFITSeason || isWormSeason {
             Button {
@@ -1047,7 +1047,7 @@ struct TodayView: View {
                                     StatusTag(text: "Provisional", fill: Theme.amber)
                                     Button("Confirm") { sheet = .sighting(sighting) }
                                         .font(.caption.weight(.semibold))
-                                        .buttonStyle(.glass)
+                                        .buttonStyle(QuietGlassButton())
                                         .tint(Theme.leaf)
                                 }
                             }

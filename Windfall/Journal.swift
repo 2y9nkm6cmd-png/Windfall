@@ -234,13 +234,18 @@ extension Planting: TimelineEntry {
         // record, as happens when a harvest is added for a tree that was
         // here before the app.
         if dateSown == nil { return "\(name) put on record" }
+        // A tree, a tuber or a clove is planted, not sown. And seed that
+        // will not come true is seed *of* its parent, not the parent.
+        if startedFrom == .plant { return "Planted \(name)" }
+        if startedFrom == .savedSeed { return "Sowed seed of \(name)" }
         if let round = successionRound { return "Sowed \(name) — round \(round)" }
         return "Sowed \(name)"
     }
     var timelineDetail: String? {
         var bits: [String] = []
         if !bedNames.isEmpty { bits.append(bedNames) }
-        if let n = quantitySown { bits.append("\(n) sown") }
+        if let n = quantitySown { bits.append(startedFrom == .plant ? "\(n) planted" : "\(n) sown") }
+        if let parentage { bits.append(parentage) }
         return bits.isEmpty ? nil : bits.joined(separator: " · ")
     }
     var timelinePhotos: [Photo] { [] }

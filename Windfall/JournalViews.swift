@@ -196,7 +196,7 @@ struct JournalTimelineView: View {
             if kinds.count < TimelineKind.allCases.count {
                 Button("Show everything") { kinds = Set(TimelineKind.allCases) }
                     .font(.caption.weight(.semibold))
-                    .buttonStyle(.glass)
+                    .buttonStyle(QuietGlassButton())
                     .tint(Theme.leaf)
                     .padding(.top, 2)
             }

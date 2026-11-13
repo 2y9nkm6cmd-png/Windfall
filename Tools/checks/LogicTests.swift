@@ -388,6 +388,14 @@ struct LogicTests {
         check(JournalPage.weatherWords(low: 2.6, high: 9.2, rainMM: 2.44) == "3 to 9°C · 2.4 mm of rain" && JournalPage.weatherWords(low: nil, high: 9.2, rainMM: 0) == "9°C · dry" && JournalPage.weatherWords(low: nil, high: nil, rainMM: nil) == nil, "a day's line of weather gives the range and the rain, or nothing")
         check(JournalPage.title(for: pageMidnight, today: pageMorning, calendar: pageCalendar).hasPrefix("Today · ") && JournalPage.title(for: pageCalendar.date(byAdding: .day, value: -1, to: pageMidnight)!, today: pageMorning, calendar: pageCalendar).hasPrefix("Yesterday · ") && !JournalPage.title(for: pageCalendar.date(byAdding: .day, value: -5, to: pageMidnight)!, today: pageMorning, calendar: pageCalendar).contains("·"), "today and yesterday are named as such on the Journal page")
 
+        // Which plants come true from seed.
+        check(["Apple", "Crab apple", "Pear", "Potatoes", "Garlic", "Strawberry", "Raspberries", "Rhubarb", "Jerusalem artichoke", "Globe artichoke"].allSatisfy { SeedTruth.habit(commonName: $0) == .keptByCloning }, "fruit trees, soft fruit, potatoes and garlic are kept by cloning, not seed")
+        check(["Squash", "Courgette", "Cabbage", "Brussels sprouts", "Sweetcorn", "Beetroot", "Leeks", "Radishes", "Runner bean", "Broad bean", "Spring onion"].allSatisfy { SeedTruth.habit(commonName: $0) == .crossesReadily }, "squash, brassicas, sweetcorn, beet and the outbreeding beans cross readily")
+        check(["Tomato", "Tomatoes", "Pea", "Peas", "French beans", "Dwarf/french bean", "Lettuce", "Chilli", "Alpine strawberry", "Sweet pea", "Sweet pepper"].allSatisfy { SeedTruth.habit(commonName: $0) == .mostlyTrue } && ["Wild garlic", "Bluebell", "Common rock-rose", "Grape Hyacinth", "Rock Sea Lavender", "Digitalis Dalmatian Peach", "Corn chamomile", "Bristol Onion", "Pepper-saxifrage", ""].allSatisfy { SeedTruth.habit(commonName: $0) == .notKnown }, "self-pollinators come true, and names that only look alike are not caught")
+        check(SeedTruth.habit(commonName: "Wild garlic") == .notKnown && SeedTruth.habit(commonName: "Pear") == .keptByCloning && SeedTruth.habit(commonName: "Pea") == .mostlyTrue && SeedTruth.isF1(variety: "Sungold F1") && !SeedTruth.isF1(variety: "Musselburgh") && !SeedTruth.isF1(variety: nil), "a pea is not a pear, wild garlic is not garlic, and F1 is read from the variety")
+        check(SeedTruth.starts(for: .keptByCloning, isF1: false) == [.plant, .savedSeed] && SeedTruth.starts(for: .crossesReadily, isF1: false) == [.packetSeed, .savedSeed] && SeedTruth.starts(for: .mostlyTrue, isF1: false).isEmpty && SeedTruth.starts(for: .mostlyTrue, isF1: true) == [.packetSeed, .savedSeed], "the form asks how it was started only where the answer matters")
+        check(SeedTruth.parentage(seedParent: "Apple, Pendragon", pollenParent: "Egremont Russet", byHand: true) == "Apple, Pendragon × Egremont Russet (hand cross)" && SeedTruth.parentage(seedParent: "Apple, Pendragon", pollenParent: " ", byHand: false) == "Seed of Apple, Pendragon, pollen parent not known" && SeedTruth.parentage(seedParent: nil, pollenParent: "x", byHand: false) == nil && SeedTruth.advice(habit: .keptByCloning, isF1: false, begun: .savedSeed, name: "Apple") != nil && SeedTruth.advice(habit: .mostlyTrue, isF1: false, begun: .packetSeed, name: "Pea") == nil, "a cross is written as seed parent × pollen parent")
+
         // This week: the urgent jobs
         var british = Calendar(identifier: .gregorian)
         british.timeZone = TimeZone(identifier: "Europe/London")!
@@ -689,6 +697,11 @@ struct LogicTests {
             check(everyStatus.layerChoices(plants, today: 11).map(\.title) == ["Trees", "Shrubs", "Herbaceous", "Ground Cover", "Vines"], "the real layers are offered from the canopy down (\(everyStatus.layerChoices(plants, today: 11).map(\.title)))")
             var brassicaFilter = everyStatus; brassicaFilter.family = "brassica"
             check(brassicaFilter.filter(plants, today: 11).count >= 10 && brassicaFilter.filter(plants, today: 11).allSatisfy { PlantKind.of(group: $0.group) == .vegetables }, "the brassicas can be picked out, and all are vegetables")
+            let habits = Dictionary(grouping: plants) { SeedTruth.habit(commonName: $0.commonName) }
+            for kind in [SeedHabit.keptByCloning, .crossesReadily, .mostlyTrue, .notKnown] {
+                let names = Set((habits[kind] ?? []).map(\.commonName)).sorted()
+                print("   (seed habit \(kind.rawValue): \((habits[kind] ?? []).count) plants, \(names.count) names\(kind == .notKnown ? "" : ": " + names.joined(separator: ", ")))")
+            }
             print("   (plant filters on the real library: \(kindCounts.sorted { $0.key < $1.key }.map { "\($0.key) \($0.value)" }.joined(separator: ", ")); families: \(everyStatus.familyChoices(plants, today: 11).map { "\($0.title) \($0.count)" }.joined(separator: ", ")))")
 
             let pairs = (try? store.fetch(FetchDescriptor<CompanionPair>())) ?? []

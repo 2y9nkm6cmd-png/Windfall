@@ -57,6 +57,20 @@ William tried the first build on the Mac and sent seventeen pictures. Each chang
 - A sheet's frame is now given as smallest, usual and largest. It opens at the usual size and its edges can be dragged. A button beside the title jumps to a larger size and back.
 - `SheetScroll` measures its cards and passes the height up (a SwiftUI "preference"), so a sheet still opens exactly as tall as what is in it.
 
+### Plants that do not come true from seed (`SeedTruth.swift`, new file)
+
+- **Why**: William tried to record a sowing of the apple 'Pendragon'. A pip from a Pendragon grows a new seedling, not a Pendragon.
+- `SeedTruth` sorts plants by name into three habits: kept by cloning (apples, potatoes, garlic, soft fruit), crosses readily (squash, brassicas, sweetcorn, beet) and mostly true (tomatoes, peas, French beans, lettuce). **The lists are Claude's, not looked up, and need William's check.** Run over the real library they gave 88 plants kept by cloning, 73 that cross and 26 mostly true. 189 are not on any list.
+- For a plant on the first two lists, or an F1 variety, the sowing form now asks how it was started. A plant, tree or tuber is recorded as planted. Saved or crossed seed records its seed parent, its pollen parent if known, and whether the cross was made by hand.
+- Four new fields on a sowing hold that. All may be empty, so a database from before still opens. Backups carry them.
+- The journal reads "Planted Apple" or "Sowed seed of Apple", with the cross written as seed parent × pollen parent.
+
+### The sowing form's buttons (`SheetParts.swift`, `PlantingViews.swift`)
+
+- **Why**: on a Mac, Apple's glass button style filled with green, so Cancel, Save and the resize button all looked like the main button.
+- `QuietGlassButton` is dark glass with plain words. Every button that is not the main one now uses it.
+- "Change" is now "Choose another", and the list it opens has a "Back to" button for the plant you had.
+
 ### Not seen or tried
 
 Everything here was built on the Mac without errors. The lens moving, the jiggle, the swipes, Command and plus, and hiding the sidebar can only be judged by hand.
