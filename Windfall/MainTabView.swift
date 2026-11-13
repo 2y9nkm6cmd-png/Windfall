@@ -358,22 +358,29 @@ struct SidebarView: View {
                 WIconView(.sprig, size: 28)
                 Text("Windfall")
                     .font(.wordmark)
-                #if !os(macOS)
-                // On an iPad the button to put the sidebar away lives
-                // here. A Mac has it in the bar at the top of the window.
+                    // Never broken over two lines.
+                    .lineLimit(1)
+                    .fixedSize()
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            #if !os(macOS)
+            // On an iPad the button to put the sidebar away lives here,
+            // laid over the right-hand end of the heading so that it
+            // takes no room from the name. A Mac has the button in the
+            // bar at the top of the window.
+            .overlay(alignment: .trailing) {
                 if let onHide {
-                    Spacer(minLength: 4)
                     Button(action: onHide) {
                         Image(systemName: "sidebar.left")
-                            .font(.system(size: 16, weight: .medium))
-                            .frame(width: 34, height: 34)
+                            .font(.system(size: 15, weight: .medium))
+                            .frame(width: 30, height: 34)
                             .contentShape(.rect)
                     }
                     .buttonStyle(.plain)
                     .accessibilityLabel("Hide the sidebar")
                 }
-                #endif
             }
+            #endif
             .foregroundStyle(Theme.sidebarInk)
             .padding(.horizontal, 10)
             .padding(.top, 10)
