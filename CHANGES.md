@@ -48,7 +48,7 @@ William tried the first build on the Mac and sent seventeen pictures. Each chang
 
 - **Journal** (`JournalViews.swift`, `JournalPage.swift`): a card for each day, with the day's weather, what was written and what was recorded. A bar at the top opens the conversation. Ticks choose which kinds show.
 - **Sightings** and **the sighting form** (`ObservationViews.swift`): cards, the app's icons and tags. The form is built from `SheetParts`.
-- **Year** (`YearView.swift`): a "Fruit, veg…" button filters by kind of plant, using the Plants page's sorting.
+- **Year** (`YearView.swift`): a "Fruit, veg…" button filters by kind of plant, using the Plants page's sorting. Every job button whose lines are showing is now lit green. Before, with "Every job" on, all five looked switched off.
 - **The garden's plot** (`GardenEditorView.swift`): plus and minus turn the plan five degrees at a time, held down they keep turning, and the plan turns inside a compass ring with north at the top. The stray "Not set" beside each number is fixed.
 
 ### Not seen or tried

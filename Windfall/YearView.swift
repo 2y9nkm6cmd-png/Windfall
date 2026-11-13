@@ -307,8 +307,14 @@ struct YearView: View {
     /// One job's button. With one job at a time it chooses that job. With
     /// every job showing it switches that job's line on and off.
     private func jobButton(_ job: YearActivity) -> some View {
+        // "On" means this job's lines are being drawn: the one chosen
+        // job, or, with every job showing, each job not switched off.
+        // A button that is on is lit green with bolder words, in both
+        // cases. (Until 13 November 2026 only the single chosen job was
+        // lit. With "Every job" on, all five looked switched off while
+        // their lines were showing, and William could not tell what was
+        // active.)
         let isOn = showsEveryJob ? !hiddenJobs.contains(job) : job == activity
-        let isChosen = isOn && !showsEveryJob
         return Button {
             withAnimation(.smooth(duration: 0.25)) {
                 if showsEveryJob {
@@ -322,7 +328,7 @@ struct YearView: View {
                 YearKey(activity: job, asLine: showsEveryJob)
                 Text(job.rawValue)
                     .font(.subheadline)
-                    .fontWeight(isChosen ? .semibold : .regular)
+                    .fontWeight(isOn ? .semibold : .regular)
             }
             .foregroundStyle(Theme.ink)
             .padding(.horizontal, 14)
@@ -330,10 +336,11 @@ struct YearView: View {
             .contentShape(.capsule)
         }
         .buttonStyle(.plain)
-        .glassEffect(.regular.tint((isChosen ? Theme.leafFill : Theme.card).opacity(isChosen ? 0.8 : 0.4)).interactive(),
+        .glassEffect(.regular.tint((isOn ? Theme.leafFill : Theme.card).opacity(isOn ? 0.8 : 0.4)).interactive(),
                      in: .capsule)
-        // A job that is switched off is shown faded.
-        .opacity(isOn ? 1 : 0.5)
+        // A job that is switched off is also faded, so the difference
+        // does not rest on colour alone.
+        .opacity(isOn ? 1 : 0.55)
         .accessibilityAddTraits(isOn ? .isSelected : [])
     }
 
