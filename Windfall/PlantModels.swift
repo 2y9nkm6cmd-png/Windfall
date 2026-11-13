@@ -203,6 +203,9 @@ final class Planting {
     var pollenParentName: String?
     /// True if the cross was made by hand.
     var wasHandCrossed: Bool?
+    /// The recorded cross this seed came from, if it was picked from
+    /// the list: that cross's identifier, as text. See Crosses.swift.
+    var crossKey: String?
 
     /// Which seed packet this came from, so germination rates can be
     /// fed back into viability.

@@ -32,3 +32,4 @@ EiraOnDeviceEngine.swift
 TextSize.swift
 JournalPage.swift
 SeedTruth.swift
+Crosses.swift

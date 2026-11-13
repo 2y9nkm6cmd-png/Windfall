@@ -26,6 +26,7 @@ struct WindfallApp: App {
             PhenologyEvent.self,
             PestDiseaseEvent.self,
             SeedPacket.self,
+            PlantCross.self,
             // Wildlife
             Survey.self,
             SurveyTally.self,

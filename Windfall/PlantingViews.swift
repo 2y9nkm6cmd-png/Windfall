@@ -187,6 +187,23 @@ struct NewPlantingView: View {
     @State private var begun: PlantingStart = .packetSeed
     @State private var pollenParent = ""
     @State private var crossedByHand = false
+    /// The recorded cross this seed came from, if one was picked.
+    @State private var chosenCross: PlantCross?
+
+    /// Every cross on record. See Crosses.swift.
+    @Query(sort: [SortDescriptor(\PlantCross.date, order: .reverse)]) private var crosses: [PlantCross]
+
+    /// The crosses whose seed this could be: made on this plant first,
+    /// then on others of its kind.
+    private var offeredCrosses: [PlantCross] {
+        guard let selectedPlant else { return [] }
+        let lines = crosses.map {
+            CrossBook.Line(id: $0.id, seedParentKey: $0.seedParentKey, seedParentName: $0.seedParentName, date: $0.date)
+        }
+        let order = CrossBook.offered(forPlantKey: selectedPlant.id.uuidString,
+                                      named: selectedPlant.commonName, from: lines)
+        return order.compactMap { wanted in crosses.first { $0.id == wanted } }
+    }
 
     /// How the chosen plant behaves from seed.
     private var habit: SeedHabit {
@@ -374,8 +391,25 @@ struct NewPlantingView: View {
             }
 
             if begun == .savedSeed {
+                // Crosses written down when they were made. Picking one
+                // fills in the parents below from it.
+                if !offeredCrosses.isEmpty {
+                    SettingRow("From a cross you recorded") {
+                        ChoiceMenu(shown: chosenCross?.title ?? "Choose") {
+                            ForEach(offeredCrosses) { crossing in
+                                Button("\(crossing.title), \(crossing.date.formatted(.dateTime.year()))") {
+                                    chosenCross = crossing
+                                    pollenParent = crossing.pollenParentName ?? ""
+                                    crossedByHand = crossing.wasByHand
+                                }
+                            }
+                            Button("None of these") { chosenCross = nil }
+                        }
+                    }
+                }
+
                 SettingRow("Seed parent") {
-                    Text(selectedPlant?.displayName ?? "")
+                    Text(chosenCross?.seedParentName ?? selectedPlant?.displayName ?? "")
                         .font(.subheadline)
                         .foregroundStyle(Theme.ink)
                         .multilineTextAlignment(.trailing)
@@ -420,6 +454,7 @@ struct NewPlantingView: View {
             begun = starts.first ?? .packetSeed
             pollenParent = ""
             crossedByHand = false
+            chosenCross = nil
         }
     }
 
@@ -457,9 +492,12 @@ struct NewPlantingView: View {
             }
             if begun == .savedSeed {
                 let pollen = pollenParent.trimmingCharacters(in: .whitespaces)
-                planting.seedParentName = selectedPlant.displayName
+                // A recorded cross gives its own seed parent, which may
+                // be another variety of the same kind of plant.
+                planting.seedParentName = chosenCross?.seedParentName ?? selectedPlant.displayName
                 planting.pollenParentName = pollen.isEmpty ? nil : pollen
                 planting.wasHandCrossed = crossedByHand
+                planting.crossKey = chosenCross?.id.uuidString
             }
         }
         planting.successionRound = suggestedRound

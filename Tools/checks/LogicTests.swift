@@ -396,6 +396,17 @@ struct LogicTests {
         check(SeedTruth.starts(for: .keptByCloning, isF1: false) == [.plant, .savedSeed] && SeedTruth.starts(for: .crossesReadily, isF1: false) == [.packetSeed, .savedSeed] && SeedTruth.starts(for: .mostlyTrue, isF1: false).isEmpty && SeedTruth.starts(for: .mostlyTrue, isF1: true) == [.packetSeed, .savedSeed], "the form asks how it was started only where the answer matters")
         check(SeedTruth.parentage(seedParent: "Apple, Pendragon", pollenParent: "Egremont Russet", byHand: true) == "Apple, Pendragon × Egremont Russet (hand cross)" && SeedTruth.parentage(seedParent: "Apple, Pendragon", pollenParent: " ", byHand: false) == "Seed of Apple, Pendragon, pollen parent not known" && SeedTruth.parentage(seedParent: nil, pollenParent: "x", byHand: false) == nil && SeedTruth.advice(habit: .keptByCloning, isF1: false, begun: .savedSeed, name: "Apple") != nil && SeedTruth.advice(habit: .mostlyTrue, isF1: false, begun: .packetSeed, name: "Pea") == nil, "a cross is written as seed parent × pollen parent")
 
+        // Recorded crosses.
+        let pendragonKey = "plant-pendragon"
+        let crossLines = [
+            CrossBook.Line(id: UUID(), seedParentKey: "plant-katy", seedParentName: "Apple — Katy", date: Date(timeIntervalSince1970: 300)),
+            CrossBook.Line(id: UUID(), seedParentKey: pendragonKey, seedParentName: "Apple — Pendragon", date: Date(timeIntervalSince1970: 100)),
+            CrossBook.Line(id: UUID(), seedParentKey: "plant-squash", seedParentName: "Squash — Crown Prince", date: Date(timeIntervalSince1970: 400)),
+            CrossBook.Line(id: UUID(), seedParentKey: pendragonKey, seedParentName: "Apple — Pendragon", date: Date(timeIntervalSince1970: 200))]
+        check(CrossBook.offered(forPlantKey: pendragonKey, named: "Apple", from: crossLines) == [crossLines[3].id, crossLines[1].id, crossLines[0].id] && CrossBook.offered(forPlantKey: "plant-leek", named: "Leek", from: crossLines).isEmpty, "a sowing is offered crosses made on that plant first, then on its kind, and never another kind's")
+        check(CrossBook.kind(of: "Apple — Pendragon") == "apple" && CrossBook.kind(of: "Apple (Cider)") == "apple" && CrossBook.kind(of: "Apple, Katy") == "apple" && CrossBook.title(seedParent: "Apple — Pendragon", pollenParent: "Egremont Russet") == "Apple — Pendragon × Egremont Russet" && CrossBook.title(seedParent: "Apple — Pendragon", pollenParent: " ") == "Apple — Pendragon × not known" && CrossBook.title(seedParent: "", pollenParent: nil) == "Not yet chosen × not known", "a cross is named by its two parents")
+        check(CrossBook.facts(byHand: true, bagged: true, flowers: 6, seeds: 14) == "By hand · bagged · 6 flowers · 14 seeds" && CrossBook.facts(byHand: false, bagged: false, flowers: 1, seeds: nil) == "Open pollinated · 1 flower", "a cross's line of facts leaves out what is not known")
+
         // This week: the urgent jobs
         var british = Calendar(identifier: .gregorian)
         british.timeZone = TimeZone(identifier: "Europe/London")!

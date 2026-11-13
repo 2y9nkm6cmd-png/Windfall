@@ -36,6 +36,8 @@ private struct Backup: Codable {
     var beds: [BedDTO] = []
     var plants: [PlantDTO] = []
     var plantings: [PlantingDTO] = []
+    /// Crosses, added 13 November 2026. May be missing from older files.
+    var crosses: [CrossDTO]?
     var harvests: [HarvestDTO] = []
     var surveys: [SurveyDTO] = []
     var observations: [ObservationDTO] = []
@@ -84,6 +86,15 @@ private struct PlantingDTO: Codable {
     // How it was started and its parents (SeedTruth.swift). They may be
     // missing, so a backup made before these existed still reads.
     var startedFrom: String?, seedParent: String?, pollenParent: String?, handCrossed: Bool?
+    var crossKey: String?
+}
+
+private struct CrossDTO: Codable {
+    var id: UUID, created: Date, date: Date
+    var seedParentKey: String?, seedParentName: String
+    var pollenParentKey: String?, pollenParentName: String?
+    var byHand: Bool, bagged: Bool, flowers: Int?
+    var seeds: Int?, seedCollectedOn: Date?, notes: String?
 }
 
 private struct HarvestDTO: Codable {
@@ -192,7 +203,16 @@ final class BackupService {
                         quantitySurvived: planting.quantitySurvived,
                         status: planting.statusRaw, notes: planting.notes,
                         startedFrom: planting.startedFromRaw, seedParent: planting.seedParentName,
-                        pollenParent: planting.pollenParentName, handCrossed: planting.wasHandCrossed)
+                        pollenParent: planting.pollenParentName, handCrossed: planting.wasHandCrossed,
+                        crossKey: planting.crossKey)
+        }
+
+        backup.crosses = (try context.fetch(FetchDescriptor<PlantCross>())).map { crossing in
+            CrossDTO(id: crossing.id, created: crossing.createdAt, date: crossing.date,
+                     seedParentKey: crossing.seedParentKey, seedParentName: crossing.seedParentName,
+                     pollenParentKey: crossing.pollenParentKey, pollenParentName: crossing.pollenParentName,
+                     byHand: crossing.wasByHand, bagged: crossing.wasBagged, flowers: crossing.flowersPollinated,
+                     seeds: crossing.seedsCollected, seedCollectedOn: crossing.seedCollectedOn, notes: crossing.notes)
         }
 
         backup.harvests = (try context.fetch(FetchDescriptor<Harvest>())).map { harvest in
@@ -397,6 +417,26 @@ final class BackupService {
             restored += 1
         }
 
+        // Crosses. Any already here are left alone, as with everything else.
+        let existingCrosses = Set((try context.fetch(FetchDescriptor<PlantCross>())).map(\.id))
+        for dto in backup.crosses ?? [] where !existingCrosses.contains(dto.id) {
+            let crossing = PlantCross()
+            crossing.id = dto.id
+            crossing.createdAt = dto.created
+            crossing.date = dto.date
+            crossing.seedParentKey = dto.seedParentKey
+            crossing.seedParentName = dto.seedParentName
+            crossing.pollenParentKey = dto.pollenParentKey
+            crossing.pollenParentName = dto.pollenParentName
+            crossing.wasByHand = dto.byHand
+            crossing.wasBagged = dto.bagged
+            crossing.flowersPollinated = dto.flowers
+            crossing.seedsCollected = dto.seeds
+            crossing.seedCollectedOn = dto.seedCollectedOn
+            crossing.notes = dto.notes
+            context.insert(crossing)
+        }
+
         // Plantings
         let existingPlantings = Set((try context.fetch(FetchDescriptor<Planting>())).map(\.id))
         var plantingsByID: [UUID: Planting] = [:]
@@ -421,6 +461,7 @@ final class BackupService {
             planting.seedParentName = dto.seedParent
             planting.pollenParentName = dto.pollenParent
             planting.wasHandCrossed = dto.handCrossed
+            planting.crossKey = dto.crossKey
             context.insert(planting)
             plantingsByID[dto.id] = planting
             restored += 1

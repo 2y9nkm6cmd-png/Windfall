@@ -65,6 +65,15 @@ William tried the first build on the Mac and sent seventeen pictures. Each chang
 - Four new fields on a sowing hold that. All may be empty, so a database from before still opens. Backups carry them.
 - The journal reads "Planted Apple" or "Sowed seed of Apple", with the cross written as seed parent × pollen parent.
 
+### Recording a cross (`Crosses.swift`, `CrossViews.swift`, new files)
+
+- **Why**: a cross is made in spring and its seed sown the year after. By then nobody remembers whose pollen it was.
+- `PlantCross` is a new kind of record: seed parent, pollen parent, the date, whether it was by hand, whether the flowers were bagged, how many flowers, and later how much seed.
+- Each parent is kept as a name in words and, where it is in the library, as that plant's identifier. So a neighbour's tree can be a parent, and a parent still reads correctly if its plant is later removed.
+- **Gardens has a Crosses tile.** It lists them and has "New cross".
+- **The sowing form offers them.** Sowing saved seed of a plant, it lists crosses made on that plant, then on others of its kind, and fills in the parents from the one picked. A sowing remembers which cross it came from (`crossKey`).
+- Backups carry crosses. A backup made before they existed still reads.
+
 ### The sowing form's buttons (`SheetParts.swift`, `PlantingViews.swift`)
 
 - **Why**: on a Mac, Apple's glass button style filled with green, so Cancel, Save and the resize button all looked like the main button.

@@ -177,6 +177,7 @@ struct GardenTab: View {
     @Query private var plants: [Plant]
     @Query private var plantings: [Planting]
     @Query private var seedPackets: [SeedPacket]
+    @Query private var crosses: [PlantCross]
     // Only the newest finished day is wanted, for one line on a tile, so
     // only that one record is fetched.
     @Query(WeatherFetch.newestFinishedDay) private var latestWeather: [WeatherDay]
@@ -307,6 +308,15 @@ struct GardenTab: View {
 
                 NavigationLink { SeedListView() } label: {
                     HubTile(icon: .symbol("bag"), title: "Seed", detail: seedLine)
+                }
+                .hubTileGlass()
+
+                // Crosses made between plants, written down on the day
+                // so that next year's seedlings have their parents on
+                // record. See Crosses.swift.
+                NavigationLink { CrossListView() } label: {
+                    HubTile(icon: .symbol("arrow.triangle.merge"), title: "Crosses",
+                            detail: crosses.isEmpty ? "None recorded" : (crosses.count == 1 ? "1 cross" : "\(crosses.count) crosses"))
                 }
                 .hubTileGlass()
 
