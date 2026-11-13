@@ -2,8 +2,9 @@
 //  PlantLibraryView.swift
 //  Windfall
 //
-//  The Plants screen: search, a row of filter buttons, and the plant
-//  detail with the eight category groups from the spreadsheet.
+//  The Plants screen: search, a row of filter buttons, the plants as
+//  cards, and the plant detail with the eight category groups from the
+//  spreadsheet. The cards themselves are in PlantLibraryCards.swift.
 //
 //  The sums behind the filters are in PlantFilter.swift.
 //
@@ -15,7 +16,10 @@ import SwiftData
 
 struct PlantLibraryView: View {
 
-    @Query(sort: [SortDescriptor(\Plant.commonName)])
+    // A to Z by name, then by variety, so the apples always come in the
+    // same order. Sorted by name alone, plants that share a name could
+    // swap places each time the page was opened.
+    @Query(sort: [SortDescriptor(\Plant.commonName), SortDescriptor(\Plant.variety)])
     private var plants: [Plant]
 
     @Environment(\.modelContext) private var context
@@ -31,41 +35,42 @@ struct PlantLibraryView: View {
     var body: some View {
         let shown = filter.filter(plants, today: today)
 
-        VStack(spacing: 0) {
-            if !plants.isEmpty {
-                filterButtons
-            }
+        // GeometryReader measures the room there is, so the page can
+        // leave the same space at its edges as Today and Gardens do.
+        GeometryReader { geometry in
+            let narrow = geometry.size.width < 600
 
-            List {
-                if plants.isEmpty {
-                    ContentUnavailableView {
-                        Label("No plants yet", systemImage: "leaf")
-                    } description: {
-                        Text("Load the starter data, or import a file of your own.")
-                    } actions: {
-                        Button("Add garden data") { showingImport = true }
-                            .buttonStyle(.borderedProminent)
-                    }
-                } else if shown.isEmpty {
-                    ContentUnavailableView {
-                        Label("No plants match", systemImage: "line.3.horizontal.decrease.circle")
-                    } description: {
-                        Text("Nothing in the library fits everything chosen above.")
-                    } actions: {
-                        Button("Clear filters") { clearFilters() }
-                            .buttonStyle(.borderedProminent)
+            ScrollView {
+                VStack(alignment: .leading, spacing: 14) {
+                    ScreenHeader(title: "Plants", detail: summary(shown: shown.count))
+
+                    if plants.isEmpty {
+                        emptyLibrary
+                    } else {
+                        filterButtons
+                        if shown.isEmpty {
+                            noMatches
+                        } else {
+                            cards(shown)
+                        }
                     }
                 }
-
-                ForEach(shown) { plant in
-                    NavigationLink(value: plant) {
-                        PlantRow(plant: plant)
-                    }
-                }
+                .padding(.leading, narrow ? 16 : 14)
+                .padding(.trailing, narrow ? 16 : 24)
+                .padding(.top, 12)
+                .padding(.bottom, 20)
             }
         }
         .searchable(text: $filter.search, prompt: "Search plants")
         .navigationTitle("Plants")
+        #if os(iOS)
+        // The big "Plants" on the page is the title. The bar stays, small,
+        // because on an iPhone it holds the way back and the search.
+        .navigationBarTitleDisplayMode(.inline)
+        // Leaves the bar's own small "Plants" out, so the name is not
+        // written twice.
+        .toolbar(removing: .title)
+        #endif
         .paperScreen()
         .navigationDestination(for: Plant.self) { PlantDetailView(plant: $0) }
         .toolbar {
@@ -88,16 +93,74 @@ struct PlantLibraryView: View {
             }
             .macSheetSize(width: 520, height: 560)
         }
-        .overlay(alignment: .bottom) {
-            if !shown.isEmpty {
-                Text("^[\(shown.count) plant](inflect: true)")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .padding(6)
-                    .background(.thinMaterial, in: Capsule())
-                    .padding(.bottom, 8)
+    }
+
+    // MARK: The line above the title
+
+    /// "335 plants", or "48 of 335 plants" when the list is narrowed.
+    /// It used to float over the foot of the list, where it sat under
+    /// Eira's button.
+    private func summary(shown: Int) -> String {
+        let all = plants.count
+        if all == 0 { return "Nothing in the library yet" }
+        let word = all == 1 ? "plant" : "plants"
+        return shown == all ? "\(all) \(word)" : "\(shown) of \(all) \(word)"
+    }
+
+    // MARK: The cards
+
+    /// The plants as cards, a group for each letter. "Lazy" means a card
+    /// is only built when it is about to scroll into view, which keeps a
+    /// library of several hundred plants quick.
+    private func cards(_ shown: [Plant]) -> some View {
+        LazyVStack(alignment: .leading, spacing: 18) {
+            ForEach(PlantCards.byLetter(shown)) { group in
+                VStack(alignment: .leading, spacing: 10) {
+                    Text(group.letter)
+                        .font(.system(.title3, design: .serif, weight: .medium))
+                        .foregroundStyle(Theme.inkSoft)
+                        .padding(.leading, 4)
+                        .accessibilityAddTraits(.isHeader)
+
+                    // As many columns as fit, each at least 250 points wide.
+                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 250, maximum: 440), spacing: 12, alignment: .top)],
+                              alignment: .leading, spacing: 12) {
+                        ForEach(group.plants) { plant in
+                            NavigationLink(value: plant) {
+                                PlantCardView(plant: plant, month: today)
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                }
             }
         }
+    }
+
+    private var emptyLibrary: some View {
+        ContentUnavailableView {
+            Label("No plants yet", systemImage: "leaf")
+        } description: {
+            Text("Load the starter data, or import a file of your own.")
+        } actions: {
+            Button("Add garden data") { showingImport = true }
+                .buttonStyle(.borderedProminent)
+        }
+        .frame(maxWidth: .infinity)
+        .glassCard(padding: 24)
+    }
+
+    private var noMatches: some View {
+        ContentUnavailableView {
+            Label("No plants match", systemImage: "line.3.horizontal.decrease.circle")
+        } description: {
+            Text("Nothing in the library fits everything chosen above.")
+        } actions: {
+            Button("Clear filters") { clearFilters() }
+                .buttonStyle(.borderedProminent)
+        }
+        .frame(maxWidth: .infinity)
+        .glassCard(padding: 24)
     }
 
     // MARK: The buttons along the top
@@ -121,10 +184,13 @@ struct PlantLibraryView: View {
                         clearButton
                     }
                 }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
+                .padding(.horizontal, 2)
+                .padding(.vertical, 4)
             }
         }
+        // Lets the glass draw past the scrolling strip's edge, so the
+        // buttons' soft shadows are not cut off.
+        .scrollClipDisabled()
     }
 
     private var statusButton: some View {
@@ -334,51 +400,6 @@ private extension PlantFilter.Choice {
     var menuText: String { "\(title) (\(count))" }
 }
 
-// MARK: - Row
-
-private struct PlantRow: View {
-
-    let plant: Plant
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 3) {
-            Text(plant.displayName)
-                .font(.headline)
-
-            if let latin = plant.latinName {
-                Text(latin)
-                    .font(.caption)
-                    .italic()
-                    .foregroundStyle(.secondary)
-            }
-
-            HStack(spacing: 4) {
-                if plant.isPollinator      { Tag("Pollinator", .orange) }
-                if plant.isNitrogenFixer   { Tag("N-fixer", .green) }
-                if plant.isDynamicAccumulator { Tag("Accumulator", .brown) }
-                if plant.isGroundCover     { Tag("Ground cover", .teal) }
-                if plant.status == .wanted { Tag("To buy", .blue) }
-            }
-        }
-        .padding(.vertical, 2)
-    }
-}
-
-private struct Tag: View {
-    let text: String
-    let colour: Color
-    init(_ text: String, _ colour: Color) { self.text = text; self.colour = colour }
-
-    var body: some View {
-        Text(text)
-            .font(.caption2)
-            .padding(.horizontal, 6)
-            .padding(.vertical, 2)
-            .background(colour.opacity(0.18), in: Capsule())
-            .foregroundStyle(colour)
-    }
-}
-
 // MARK: - Detail
 
 /// One plant's page, as cards.
@@ -435,6 +456,9 @@ struct PlantDetailView: View {
                      short: EiraSight.name(plant.commonName, variety: plant.variety))
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
+        // Leaves the bar's own small "Plants" out, so the name is not
+        // written twice.
+        .toolbar(removing: .title)
         #endif
         // The large name below is the title. The bar keeps the name for
         // the back button and VoiceOver, but shows no words of its own.
