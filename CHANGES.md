@@ -180,13 +180,71 @@ chat like interface?" This is the first slice of the design agreed on
 word and decide when to ask about the time. Eira's lines are fixed
 wording. 10 new tests.
 
-⚠️ CHECK: rain of 4 mm an hour or more is called "heavy rain". Claude's
-figure.
+Rain of 4 mm an hour or more is called "heavy rain". That is the Met
+Office's own line: "Rain that falls at a rate of 4 mm per hour or more
+is termed heavy" (its guide to the rainfall map for government users,
+read 13 November 2026).
 
-Not built: Eira offering to add a harvest or a sowing from what is
-written, names becoming links, a day read back as a page, the wide
+Not built: names becoming links, a day read back as a page, the wide
 layout with days down the left, "this week in other years" and the
 evening summary. The Journal page itself is still a plain list.
+
+### The title reads the whole entry
+
+William: "The title of the journal entry should more heavily analyse the
+message as I might have a first sentence that's not necessarily what the
+majority of the entry is about."
+
+The first version used the first sentence. Now every word that says
+something is counted across the whole entry, and each sentence is scored
+by the words in it that the entry uses more than once. The title is made
+from the highest-scoring sentence. A sentence that names one of the
+garden's plants or beds counts double. "Cold start today. Spent the
+morning mulching the raspberries with leaf mould, then pruned the autumn
+raspberries and tied in the new canes. The raspberries look healthy." is
+titled "Mulching the raspberries with leaf mould".
+
+Still fixed rules. **Not done: asking Eira's model to write the title**,
+which would read better still. It needs trying on the Mac, and would
+only run where a model is available, with these rules as the fallback.
+
+### Eira offers a harvest or a sowing (`JournalOffers.swift`, `JournalOfferCards.swift`, new)
+
+The design agreed on 12 November: "We harvested 50 kg of Jonagolds"
+brings up a card to add a harvest, and nothing is saved until Add is
+pressed.
+
+- When an entry is sent, its words are read for something harvested
+  ("picked", "dug", "harvested"...) or sown ("sowed", "planted"...),
+  followed by the name of a plant in the library.
+- Each find is a card from Eira with what was understood filled in:
+  the plant, the amount and its measure, where the crop went, the bed,
+  where it was sown. Anything can be changed. **Add** saves it and Eira
+  says so. The other button takes the card away.
+- **Amounts**: "50kg", "2.5 kg", "a kilo of", "half a dozen", "12
+  apples", or after the plant, "about 2.5 kg". Pounds and ounces are
+  turned into kilograms and grams. No amount written means none guessed.
+- **A name shared by several plants** ("apples") offers all of them to
+  choose from. A variety ("Jonagold's") picks out the one.
+- **Where a crop went** is picked up from words such as "froze",
+  "stored", "for cider" (which counts as preserved), "gave".
+- **A harvest for a plant with nothing on record as sown or planted**,
+  such as a tree that was here before the app: the card says so, and
+  adding the harvest also puts the plant on record as growing, with a
+  note. The journal lists it as "put on record", not as sown that day.
+- **A sowing in a named bed** is offered as the whole bed, since the
+  words do not say which part.
+- **Not offered**: plans ("need to sow"), things not done ("didn't
+  pick"), "planted out" (that moves an existing sowing on, which is not
+  built), and plants that are not in the library.
+- Offers last until the next entry is sent or the sheet is closed.
+
+Fixed rules, with 8 tests, William's own example among them. Rules will
+miss some ways of putting things. A miss costs nothing: the entry is
+saved all the same.
+
+Along the way: "Under cover" and the other sowing places have their
+wording in one spot (`SowingLocation.words`).
 
 ## A filter in the middle of the bar
 
@@ -212,6 +270,8 @@ finished".
   the page beside it?
 - "This week" with a real forecast.
 - Does Return in a notes box press Save when it should make a new line?
+- The offer cards: do the small menus on them (plant, measure, where it
+  went) look right on a card? Try "We harvested 50kg of Jonagold's".
 - The journal's conversation: does the box stay above the keyboard on
   an iPhone? Do the two small panels (when, conditions) open as panels
   and not full screens? Does a photo dragged from Finder or Photos land?

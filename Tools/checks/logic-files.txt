@@ -26,4 +26,5 @@ WeatherService.swift
 WeatherDiary.swift
 WeekJobs.swift
 JournalChat.swift
+JournalOffers.swift
 EiraOnDeviceEngine.swift

@@ -230,6 +230,10 @@ extension Planting: TimelineEntry {
     var timelineKind: TimelineKind { .planting }
     var timelineTitle: String {
         let name = plant?.displayName ?? "Unknown plant"
+        // With no sowing date it was not sown that day. It was put on
+        // record, as happens when a harvest is added for a tree that was
+        // here before the app.
+        if dateSown == nil { return "\(name) put on record" }
         if let round = successionRound { return "Sowed \(name) — round \(round)" }
         return "Sowed \(name)"
     }

@@ -272,15 +272,7 @@ struct NewPlantingView: View {
                             .labelsHidden()
                     }
 
-                    GlassSwitch(choices: [SowingLocation.indoors, .outdoors, .undercover, .directSown],
-                                selection: $sowingLocation) { place in
-                        switch place {
-                        case .indoors: return "Indoors"
-                        case .outdoors: return "Outdoors"
-                        case .undercover: return "Under cover"
-                        case .directSown: return "Direct sown"
-                        }
-                    }
+                    GlassSwitch(choices: SowingLocation.allCases, selection: $sowingLocation) { $0.words }
 
                     SettingRow("Quantity sown") {
                         FieldBox {
@@ -559,7 +551,19 @@ struct PlantingDetailView: View {
 
 // MARK: - Harvest editor
 
-private extension HarvestDestination {
+extension SowingLocation {
+    /// Where a sowing was made, in plain words.
+    var words: String {
+        switch self {
+        case .indoors: return "Indoors"
+        case .outdoors: return "Outdoors"
+        case .undercover: return "Under cover"
+        case .directSown: return "Direct sown"
+        }
+    }
+}
+
+extension HarvestDestination {
     /// The destination in plain words: "Given away", not "Givenaway".
     var words: String {
         switch self {

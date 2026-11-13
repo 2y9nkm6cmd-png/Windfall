@@ -11,7 +11,9 @@
 //    with the conditions at the time. This turns the weather service's
 //    figures into the journal's own short word for the weather.
 //
-//  - The title. A short heading made from the entry's own first words.
+//  - The title. A short heading made from the entry's own words. It
+//    reads the whole entry to find the sentence that says most about
+//    what the entry keeps coming back to, and is not just its opening.
 //
 //  - The time check. Written late, or with "this morning" in it, an
 //    entry is probably about earlier in the day. This decides when to
@@ -28,7 +30,10 @@ enum JournalChat {
     // MARK: - The weather stamp
 
     /// Rain falling this fast is called heavy, in millimetres an hour.
-    /// ⚠️ CHECK: Claude's figure, chosen on 13 November 2026.
+    /// The Met Office's own line: "Rain that falls at a rate of 4 mm per
+    /// hour or more is termed heavy" (its guide to the rainfall map for
+    /// government users, read 13 November 2026). It draws the line for
+    /// showers higher, which the journal does not try to tell apart.
     static let heavyRainMM = 4.0
 
     /// The journal's word for some conditions. Rain comes first, then
@@ -59,11 +64,81 @@ enum JournalChat {
         }
     }
 
+    // MARK: - Reading words
+
+    /// The sentences in a piece of writing. One ends at a new line, or
+    /// at a full stop, question mark or exclamation mark that is followed
+    /// by a space or the end. A full stop inside a number, as in
+    /// "2.5 kg", does not end one.
+    static func sentences(in text: String) -> [String] {
+        var split: [String] = []
+        for line in text.split(whereSeparator: \.isNewline) {
+            var current = ""
+            var index = line.startIndex
+            while index < line.endIndex {
+                let letter = line[index]
+                let next = line.index(after: index)
+                if ".!?".contains(letter), next == line.endIndex || line[next] == " " {
+                    split.append(current)
+                    current = ""
+                } else {
+                    current.append(letter)
+                }
+                index = next
+            }
+            split.append(current)
+        }
+        return split.map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
+    }
+
+    /// A word cut down so that "Raspberries", "raspberry" and
+    /// "raspberry's" all read the same: lower case, nothing but letters
+    /// and figures at its ends, no "'s" and no plural ending.
+    ///
+    /// It is rough. "Leaves" becomes "leave", not "leaf". That does not
+    /// matter, because both sides of every comparison are cut the same way.
+    static func root(of word: String) -> String {
+        var cut = word.lowercased().trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
+        for ending in ["'s", "’s"] where cut.hasSuffix(ending) {
+            cut.removeLast(2)
+        }
+        if cut.count > 4, cut.hasSuffix("ies") {
+            cut.removeLast(3)
+            cut += "y"                                    // raspberries, raspberry
+        } else if cut.count > 4, ["oes", "shes", "ches", "xes", "sses"].contains(where: { cut.hasSuffix($0) }) {
+            cut.removeLast(2)                             // tomatoes, radishes, peaches
+        } else if cut.count > 3, cut.hasSuffix("s"), !cut.hasSuffix("ss") {
+            cut.removeLast()                              // carrots, peas
+        }
+        return cut
+    }
+
+    /// The roots of every word in some text, in order.
+    static func roots(in text: String) -> [String] {
+        text.split(whereSeparator: { $0 == " " || $0 == "-" || $0 == "—" || $0.isNewline })
+            .map { root(of: String($0)) }
+            .filter { !$0.isEmpty }
+    }
+
+    /// Words too common to say what an entry is about.
+    private static let commonWords: Set<String> = [
+        "the", "a", "an", "and", "or", "but", "of", "to", "in", "on", "at", "by", "for", "with", "from", "into",
+        "over", "under", "up", "down", "out", "off", "i", "we", "it", "they", "them", "you", "my", "our", "your",
+        "their", "its", "this", "that", "these", "those", "is", "are", "was", "were", "be", "been", "am", "have",
+        "has", "had", "do", "did", "done", "got", "get", "went", "go", "then", "so", "also", "just", "very",
+        "quite", "really", "some", "all", "any", "more", "most", "much", "many", "few", "lot", "bit", "as",
+        "than", "too", "not", "no", "there", "here", "when", "while", "after", "before", "today", "yesterday",
+        "morning", "afternoon", "evening", "night", "day", "week", "time", "now", "still", "again", "back",
+        "new", "old", "first", "last", "one", "two", "three", "look", "looking", "garden"
+    ]
+
     // MARK: - The title
 
     /// Words that open a sentence without saying what it is about. They
     /// are dropped from the front of a title.
     private static let openers: [[String]] = [
+        ["spent", "the", "morning"], ["spent", "the", "afternoon"], ["spent", "the", "evening"],
+        ["spent", "the", "day"], ["spent", "all", "day"], ["managed", "to"],
         ["this", "morning"], ["this", "afternoon"], ["this", "evening"], ["last", "night"],
         ["first", "thing"], ["earlier", "today"], ["today"], ["yesterday"], ["earlier"], ["tonight"],
         ["i", "have"], ["we", "have"], ["i've"], ["we've"], ["i"], ["we"],
@@ -76,36 +151,67 @@ enum JournalChat {
     /// The most words a title may have.
     static let titleLength = 7
 
-    /// A short heading made from an entry's own words.
+    /// A short heading for an entry, made from its own words.
     ///
-    /// It takes the first sentence, drops openers such as "This morning
-    /// I", stops at a comma if enough has been said by then, keeps at
-    /// most seven words and does not end on a joining word.
-    /// "This morning I mulched the raspberries with leaf mould and saw a
-    /// wren." becomes "Mulched the raspberries with leaf mould".
+    /// The whole entry is read first. Every word that says something
+    /// (not "the", "today" and the like) is counted, and each sentence
+    /// is scored by the words in it that the entry uses more than once.
+    /// The sentence with the highest score is the one the entry keeps
+    /// coming back to, so the title is made from that one. An entry that
+    /// opens "Cold start today" and then spends three sentences on the
+    /// raspberries is titled for the raspberries.
     ///
-    /// Nil when there are no words to make one from.
-    static func title(for text: String) -> String? {
-        // The first line that has anything on it.
-        let firstLine = text.split(whereSeparator: \.isNewline)
-            .map { $0.trimmingCharacters(in: .whitespaces) }
-            .first { !$0.isEmpty }
-        guard let firstLine else { return nil }
+    /// - `known`: the roots of names from the garden, such as its plants
+    ///   and beds. A sentence that uses one scores higher, since those
+    ///   are what the journal is about.
+    ///
+    /// If nothing is repeated and no known name appears, there is
+    /// nothing to choose between the sentences and the first is used.
+    ///
+    /// Nil when there are no words to make a title from.
+    static func title(for text: String, known: Set<String> = []) -> String? {
+        let all = sentences(in: text)
+        guard let first = all.first else { return nil }
 
-        // Its first sentence: up to a full stop, question mark or
-        // exclamation mark that is followed by a space or the end. A
-        // full stop inside a number, as in "2.5 kg", does not count.
-        var sentence = firstLine
-        var index = firstLine.startIndex
-        while index < firstLine.endIndex {
-            let next = firstLine.index(after: index)
-            if ".!?".contains(firstLine[index]), next == firstLine.endIndex || firstLine[next] == " " {
-                sentence = String(firstLine[..<index])
-                break
-            }
-            index = next
+        // How often each telling word is used across the whole entry.
+        let telling = all.map { sentence in
+            Set(roots(in: sentence).filter { $0.count > 2 && !commonWords.contains($0) })
+        }
+        var uses: [String: Int] = [:]
+        for group in telling {
+            for word in group { uses[word, default: 0] += 1 }
         }
 
+        // A sentence scores the number of sentences each of its repeated
+        // words appears in, with a known name counting double and
+        // counting even if it is used only once.
+        var best = first
+        var bestScore = 0
+        for (sentence, group) in zip(all, telling) {
+            var score = 0
+            for word in group {
+                let count = uses[word] ?? 0
+                if known.contains(word) {
+                    score += count * 2
+                } else if count > 1 {
+                    score += count
+                }
+            }
+            // "Greater than", so that of two equal sentences the earlier wins.
+            if score > bestScore {
+                best = sentence
+                bestScore = score
+            }
+        }
+        return heading(from: best)
+    }
+
+    /// Cuts one sentence down to a heading: drops openers such as "This
+    /// morning I", stops at a comma if enough has been said by then,
+    /// keeps at most seven words and does not end on a joining word.
+    /// "This morning I mulched the raspberries with leaf mould and saw a
+    /// wren" becomes "Mulched the raspberries with leaf mould".
+    static func heading(from sentence: String) -> String? {
         var pieces = sentence.split(separator: " ").map(String.init)
         guard !pieces.isEmpty else { return nil }
         let whole = pieces

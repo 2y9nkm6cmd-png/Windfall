@@ -31,8 +31,12 @@
 //  JournalChat.swift. Eira's lines here are fixed wording, not written
 //  by the AI model.
 //
-//  Not built yet: Eira offering to add a harvest or a sowing from what
-//  is written, and names becoming links.
+//  When something is sent, Eira also looks for a harvest or a sowing in
+//  the words and offers to put it on record, as a card to accept or
+//  turn down (JournalOffers.swift reads the words, JournalOfferCards.swift
+//  draws the cards).
+//
+//  Not built yet: names becoming links.
 //
 
 import SwiftUI
@@ -48,6 +52,8 @@ struct JournalChatView: View {
     @Query(filter: #Predicate<Bed> { $0.retiredAt == nil },
            sort: [SortDescriptor(\Bed.displayOrder)]) private var beds: [Bed]
     @Query(sort: [SortDescriptor(\Garden.displayOrder)]) private var gardens: [Garden]
+    /// The plant library, for spotting a harvest or sowing in the words.
+    @Query(sort: [SortDescriptor(\Plant.commonName)]) private var plants: [Plant]
     // The day's other records, shown between the entries.
     @Query private var plantings: [Planting]
     @Query private var harvests: [Harvest]
@@ -76,6 +82,13 @@ struct JournalChatView: View {
     @State private var checkWasSkipped = false
     /// The weather at each time the check can offer, looked up once.
     @State private var weatherAtMoment: [JournalChat.Moment: CurrentConditions] = [:]
+
+    // Eira's offers to put what was just written on record.
+    @State private var offers: [RecordOffer] = []
+    /// When the entry the offers came from was stamped.
+    @State private var offerDate = Date.now
+    /// What Eira says once an offer has been taken up.
+    @State private var addedNotes: [String] = []
 
     // Small things that come and go.
     @State private var showsWhen = false
@@ -244,6 +257,15 @@ struct JournalChatView: View {
                 if let sent = diary.first(where: { $0.id == lastSent }) {
                     eiraSays(acknowledgement(of: sent))
                 }
+
+                // What Eira thinks could go on record from it, each as a
+                // card to accept or turn down.
+                ForEach(offers) { offer in
+                    offerCard(offer)
+                }
+                ForEach(addedNotes, id: \.self) { note in
+                    eiraSays(note)
+                }
             }
             .padding(.horizontal, 20)
             .padding(.bottom, 12)
@@ -358,7 +380,37 @@ struct JournalChatView: View {
         if let heading = entry.generatedSummary, !heading.isEmpty {
             text += " I have called it “\(heading)”."
         }
-        return text + " Press and hold it to rename or change it."
+        text += " Press and hold it to rename or change it."
+        if !offers.isEmpty {
+            text += offers.count == 1 ? " There may be a record in it to add:" : " There may be records in it to add:"
+        }
+        return text
+    }
+
+    /// One offer as its card. The card is left out if its plant has
+    /// gone from the library in the meantime.
+    @ViewBuilder
+    private func offerCard(_ offer: RecordOffer) -> some View {
+        let candidates = offer.plantKeys.compactMap { key in plants.first { $0.id.uuidString == key } }
+        if !candidates.isEmpty {
+            switch offer.kind {
+            case .harvest:
+                HarvestOfferCard(offer: offer, candidates: candidates, date: offerDate,
+                                 onAdd: { note in settle(offer, saying: note) },
+                                 onDismiss: { settle(offer, saying: nil) })
+            case .sowing:
+                SowingOfferCard(offer: offer, candidates: candidates, beds: beds, date: offerDate,
+                                onAdd: { note in settle(offer, saying: note) },
+                                onDismiss: { settle(offer, saying: nil) })
+            }
+        }
+    }
+
+    /// An offer has been taken up or turned down. Its card goes, and if
+    /// something was added Eira says so.
+    private func settle(_ offer: RecordOffer, saying note: String?) {
+        offers.removeAll { $0.id == offer.id }
+        if let note { addedNotes.append(note) }
     }
 
     // MARK: The time check
@@ -825,8 +877,12 @@ struct JournalChatView: View {
             entry.bed = aboutBed
         }
         // A title from the entry's own words, marked as written for
-        // you. It is left off where it would only repeat the entry.
-        if let heading = JournalChat.title(for: text), heading != text {
+        // you. The whole entry is read, and sentences that name a plant
+        // or bed from the garden count for more. It is left off where
+        // it would only repeat the entry.
+        let gardenNames = Set(plants.flatMap { JournalChat.roots(in: $0.commonName) + JournalChat.roots(in: $0.variety ?? "") }
+                              + beds.flatMap { JournalChat.roots(in: $0.name) })
+        if let heading = JournalChat.title(for: text, known: gardenNames), heading != text {
             entry.generatedSummary = heading
             entry.summaryGeneratedAt = .now
         }
@@ -839,6 +895,17 @@ struct JournalChatView: View {
             photo.diaryEntry = entry
             entry.photos?.append(photo)
         }
+
+        // See whether the words describe a harvest or a sowing. Plants
+        // being grown are listed first, so that where several share a
+        // name the likeliest is offered first.
+        let growing = plants.filter { $0.status == .growing } + plants.filter { $0.status != .growing }
+        offers = JournalOffers.offers(
+            in: text,
+            plants: growing.map { OfferPlant(key: $0.id.uuidString, commonName: $0.commonName, variety: $0.variety) },
+            beds: beds.map { OfferBed(key: $0.id.uuidString, name: $0.name) })
+        offerDate = entry.date
+        addedNotes = []
 
         // Ready for the next thing to be said.
         lastSent = entry.id
