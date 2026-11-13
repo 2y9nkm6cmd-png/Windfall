@@ -13,10 +13,16 @@
 //
 //  It only runs when the app is started from Terminal with all three of:
 //
-//    -demoGarden            the example garden, held in memory, so your
+//    -demoGarden YES        the example garden, held in memory, so your
 //                           real records are never read or changed
 //    -eiraTest <file>       the questions, one to a line
 //    -eiraTestOut <file>    where to write the answers
+//
+//  Write "-demoGarden YES", not "-demoGarden" alone. On a Mac every
+//  dashed word here must be followed by a value. Otherwise the file path
+//  after it is left unpaired, the Mac takes it for a document to open,
+//  and the app starts without its window, so nothing runs. (Found the
+//  hard way on 13 November 2026.)
 //
 //  The model is whichever one Eira is set to use. To try another without
 //  changing that setting, add for example:

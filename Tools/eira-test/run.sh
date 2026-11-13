@@ -15,6 +15,10 @@ OUT="/Users/Home/Developer/windfall-build-logs"
 SHEET="${4:-$HERE/test-sheet.txt}"
 MODEL=()
 [ "$2" != "-" ] && MODEL=(-eiraModelValue "$2")
-"$APP" -demoGarden -eiraTest "$SHEET" -eiraTestOut "$OUT/eira-$3.md" \
+# Every word after a dash is followed by a value, "-demoGarden YES"
+# included. A Mac reads a file path that is not paired with a dashed
+# word as a document to open, and then never opens the app's window,
+# so the run would never start.
+"$APP" -demoGarden YES -eiraTest "$SHEET" -eiraTestOut "$OUT/eira-$3.md" \
   -eiraModelKind "$1" $MODEL > "$OUT/eira-$3.log" 2>&1
 echo "EXIT $?" >> "$OUT/eira-$3.log"
