@@ -921,6 +921,7 @@ struct LogicTests {
             check(false, "the backup file can be written")
         }
 
+        check(["Bed 3", "bed 3", "3", "bed three", "Bed 3.", " BED  3 "].allSatisfy { ToolRunner.bedMatches(asked: $0, name: "Bed 3") } && !ToolRunner.bedMatches(asked: "3", name: "Bed 30") && !ToolRunner.bedMatches(asked: "Bed 2", name: "Bed 3") && !ToolRunner.bedMatches(asked: "", name: "Bed 3") && ToolRunner.bedMatches(asked: "fruit cage", name: "Fruit Cage") && !ToolRunner.bedMatches(asked: "bed", name: "Bed 3") && ToolRunner.bedMatches(asked: "Bed", name: "Bed"), "a bed is found by its number, its name in any case or a number word, and Bed 3 is not Bed 30")
         // Naming a photo: the half-size numbers, the table and the "not sure" rule.
         check(SpeciesTable.float(fromHalf: 0x3C00) == 1 && SpeciesTable.float(fromHalf: 0xC000) == -2 && SpeciesTable.float(fromHalf: 0x0000) == 0 && SpeciesTable.float(fromHalf: 0x3800) == 0.5 && abs(SpeciesTable.float(fromHalf: 0x3555) - 0.33325195) < 0.000001, "half-size numbers read as 1, -2, 0, a half and a third")
         check(SpeciesTable.float(fromHalf: 0x0001) > 0 && SpeciesTable.float(fromHalf: 0x0001) < 0.0000001 && SpeciesTable.float(fromHalf: 0x7C00) == Float.infinity && SpeciesTable.float(fromHalf: 0x7E00).isNaN, "the smallest half-size number, infinity and not-a-number are read")

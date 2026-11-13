@@ -351,14 +351,52 @@ struct ToolRunner {
                           source: "user's plant database")
     }
 
+    /// Whether what a model wrote for a bed means this bed.
+    ///
+    /// A model asked about "Bed 3" may hand over "Bed 3", "bed 3", "3"
+    /// or "bed three". All four should find the bed called "Bed 3", and
+    /// none should find "Bed 30". Before 13 November 2026 only the first
+    /// two did: Qwen3 8B sent "3", was told nothing was growing there
+    /// and passed that on, when French beans were.
+    ///
+    /// Both names are put in lower case, punctuation is dropped, a
+    /// leading "bed" is taken off and number words up to twelve become
+    /// digits. Then they must be the same.
+    nonisolated static func bedMatches(asked: String, name: String) -> Bool {
+        let numberWords = ["one": "1", "two": "2", "three": "3", "four": "4", "five": "5", "six": "6",
+                           "seven": "7", "eight": "8", "nine": "9", "ten": "10", "eleven": "11", "twelve": "12"]
+        func plain(_ text: String) -> String {
+            var words = text.lowercased()
+                .components(separatedBy: CharacterSet.alphanumerics.inverted)
+                .filter { !$0.isEmpty }
+                .map { numberWords[$0] ?? $0 }
+            if words.count > 1, words.first == "bed" { words.removeFirst() }
+            return words.joined(separator: " ")
+        }
+        let wanted = plain(asked)
+        return !wanted.isEmpty && wanted == plain(name)
+    }
+
     private func whatsGrowing(bed name: String?) -> ToolResult {
         let plantings = (try? context.fetch(FetchDescriptor<Planting>())) ?? []
         let active = plantings.filter { $0.status != .finished && $0.status != .failed }
 
+        // A bed that does not exist is not the same as an empty bed. If
+        // the name matches nothing, say so and list the beds there are,
+        // so the model can try again and not report an empty bed.
+        if let name {
+            let bedNames = ((try? context.fetch(FetchDescriptor<Bed>())) ?? []).map(\.name)
+            if !bedNames.isEmpty, !bedNames.contains(where: { ToolRunner.bedMatches(asked: name, name: $0) }) {
+                return ToolResult(
+                    text: "There is no bed called \"\(name)\". The beds are: \(bedNames.sorted().joined(separator: ", ")).",
+                    source: "user's garden records")
+            }
+        }
+
         let filtered = name.map { bedName in
             active.filter {
                 ($0.sections ?? []).contains {
-                    $0.bed?.name.lowercased() == bedName.lowercased()
+                    ToolRunner.bedMatches(asked: bedName, name: $0.bed?.name ?? "")
                 }
             }
         } ?? active
