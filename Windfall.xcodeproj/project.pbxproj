@@ -77,6 +77,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				C0A1AA032F9F000100EAB897 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				F4C49A672F72972C00EAB897 /* Windfall */,
@@ -145,6 +146,14 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		C0A1AA032F9F000100EAB897 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			platformFilter = macos;
+			productRef = C0A1AA012F9F000100EAB897 /* CoreAILM */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		F4C49A6E2F72972D00EAB897 /* Debug */ = {

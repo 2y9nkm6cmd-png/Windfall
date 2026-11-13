@@ -230,11 +230,32 @@ enum EiraModelLibrary {
 
     /// The app's "Models" folder, created on first use.
     static func modelsFolder(fileManager: FileManager = .default) -> URL {
-        let base = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first
-            ?? fileManager.temporaryDirectory
-        let folder = base.appendingPathComponent("Models", isDirectory: true)
+        let folder = modelsFolderPath(fileManager: fileManager)
         try? fileManager.createDirectory(at: folder, withIntermediateDirectories: true)
         return folder
+    }
+
+    /// Where the Models folder is, without making it.
+    ///
+    /// On an iPhone or iPad it is in the app's Documents, which the
+    /// Files app can see, so a model can be copied in by hand.
+    ///
+    /// On a Mac it is in Application Support, the place for an app's own
+    /// working files: "Windfall", then "Models". Documents would be the
+    /// wrong place there. A Mac's Documents folder is often kept in
+    /// iCloud, and a model of several gigabytes would start uploading.
+    /// (Changed on 13 November 2026, before any model had been put in.)
+    nonisolated static func modelsFolderPath(fileManager: FileManager = .default) -> URL {
+        #if os(macOS)
+        let base = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
+            ?? fileManager.temporaryDirectory
+        return base.appendingPathComponent("Windfall", isDirectory: true)
+            .appendingPathComponent("Models", isDirectory: true)
+        #else
+        let base = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first
+            ?? fileManager.temporaryDirectory
+        return base.appendingPathComponent("Models", isDirectory: true)
+        #endif
     }
 
     static func folderURL(named name: String, fileManager: FileManager = .default) -> URL {
@@ -280,9 +301,7 @@ enum EiraModelLibrary {
             throw EiraEngineError.modelNotFound("\(source.lastPathComponent) (it has no metadata.json, so it is not a converted model's folder)")
         }
 
-        let base = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first
-            ?? fileManager.temporaryDirectory
-        let models = base.appendingPathComponent("Models", isDirectory: true)
+        let models = modelsFolderPath(fileManager: fileManager)
         try fileManager.createDirectory(at: models, withIntermediateDirectories: true)
 
         let name = source.lastPathComponent

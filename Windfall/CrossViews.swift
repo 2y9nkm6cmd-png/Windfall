@@ -278,7 +278,7 @@ struct ParentPicker: View {
     /// or, with nothing typed, those of the same kind as the other parent.
     private var matches: [Plant] {
         let typed = search.trimmingCharacters(in: .whitespaces).lowercased()
-        let wanted = alikeTo.map(CrossBook.kind(of:)) ?? ""
+        let wanted = alikeTo.map { CrossBook.kind(of: $0) } ?? ""
         let pool: [Plant]
         if typed.isEmpty {
             pool = wanted.isEmpty ? [] : plants.filter { CrossBook.kind(of: $0.commonName) == wanted }
