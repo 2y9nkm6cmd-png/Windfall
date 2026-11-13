@@ -87,6 +87,9 @@ Icons are drawn on a 24 by 24 grid with a line 1.6 wide and rounded ends.
 | `2026-11-13 evening screenshot-eira-options-menu.png` | Eira's Options menu, the only way to past conversations |
 | `2026-11-13 evening screenshot-eira-past-conversations.png` | The list of past conversations |
 | `2026-11-13 evening screenshot-garden-map-mac.png` | The Garden map: "I'm not sure what this page is offering right now" |
+| `2026-11-13 evening screenshot-year-top-bar-unclear.png` | The Year page's bar of jobs: "It's not clear on this top bar what is active" |
+| `2026-11-13 evening screenshot-fit-count-sheet-mac.png` | The count's sheet on the Mac, where William asked for windows that can be made bigger |
+| `2026-11-13 evening screenshot-sowing-form-apple.png` | The sowing form with an apple chosen: no way back, and an apple does not come true from seed |
 
 ## What is in Archive
 

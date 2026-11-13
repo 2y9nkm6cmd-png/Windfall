@@ -7,6 +7,29 @@ run without the Mac (every file reads as valid Swift, 323 logic tests
 pass). Those do not build the screens. Expect things to put right when
 it is first built, and treat how everything here looks as untried.
 
+## 13 November 2026, late evening: Apple's model package, and a test Eira can sit on her own
+
+William asked for the converted models to be put into Windfall. Doc 27 in the knowledge base has the whole account. What changed in the code:
+
+**Apple's `coreai-models` package is in the project, for the Mac only.**
+
+- *What it is.* The Swift code that runs a converted language model (a folder ending `.aimodel`) and hands it to Apple's `LanguageModelSession`, which is what Eira's chat already talks to. Windfall's engine had the lines to use it since 11 November, fenced with `#if canImport(CoreAILanguageModels)`, which means "only build this if that code is present". Until tonight it never was.
+- *Why through a go-between.* The iOS Simulator has no Core AI, so the package cannot be compiled there. Xcode builds a package the app depends on directly for every platform, whatever filter is set. A package can leave out one of its *own* dependencies by platform though. So `Packages/WindfallCoreAI` is a tiny package that depends on Apple's only on macOS (`condition: .when(platforms: [.macOS])`), and Windfall depends on that. Its one Swift file passes Apple's code straight on.
+- *What it brings with it.* Nine other packages that Apple's depends on (for reading tokenisers and chat templates, among other things). `Package.resolved` now records the exact version of each, so every build uses the same ones.
+- **The Mac app now needs macOS 27.0**, up from 26.0, because Apple's package does. The iPhone and iPad minimum is unchanged.
+
+**Where models live on a Mac** (`EiraEngine.swift`). `Application Support/Windfall/Models`, not Documents. A Mac's Documents folder is often kept in iCloud, and a 4GB model would start uploading. Nothing had been put in the old place.
+
+**"Add a model from a folder…"** in Eira's settings (`EiraChatView.swift`, `EiraModelLibrary.importModel`). A signed copy of Windfall runs in a "sandbox", a fenced-off part of the disk, and cannot read a model lying elsewhere. Choosing the folder in a file window gives Windfall leave to read it, and it copies the folder in. On the same disk the copy is a "clone": instant, and it takes no extra room.
+
+**A test Eira can sit on her own** (`EiraTestRun.swift`, new, and `Tools/eira-test`).
+
+- *Why.* The test sheet (`docs/eira-test-questions.md`) was 22 questions to type by hand for every model. Nobody was going to do that five times.
+- *What it does.* Started from Terminal, the Mac app asks each question through the same code as the chat screen (`EiraConversation`), so the fixed safety replies, the lookups and the corrections all take part. It writes each answer, each lookup and the time taken to a file, then closes.
+- *How.* `Tools/eira-test/run.sh coreAI qwen3_8b_4bit_dynamic qwen-1` on the Mac. It always uses the example garden, held in memory, so real records are never read or changed.
+- *A trap worth knowing.* Every launch argument must be a pair: `-demoGarden YES`, not `-demoGarden`. A Mac treats a file path that is not paired with a dashed word as a document to open, and then never opens the app's window. The first two tries sat there doing nothing for that reason.
+- *What it does not do.* Mark the answers. A person reads them against the sheet.
+
 ## 13 November 2026, evening: what William found in the first build
 
 William tried the first build on the Mac and sent seventeen pictures. Each change below says why it was made. The pictures are in `Design/Reference`, named "2026-11-13 evening".
