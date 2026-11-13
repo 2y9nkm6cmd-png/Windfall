@@ -66,17 +66,17 @@ struct ObservationListView: View {
             ObservationEditor(observation: $0)
         }
         .toolbar {
-            ToolbarItem(placement: .primaryAction) {
-                Button { create() } label: {
-                    Label("New sighting", systemImage: "plus")
-                }
-            }
-            ToolbarItem(placement: .secondaryAction) {
+            ToolbarItem(placement: .besideMain) {
                 Picker("Group", selection: $groupFilter) {
                     Text("All groups").tag(TaxonGroup?.none)
                     ForEach(TaxonGroup.allCases) { group in
                         Text(group.displayName).tag(TaxonGroup?.some(group))
                     }
+                }
+            }
+            ToolbarItem(placement: .primaryAction) {
+                Button { create() } label: {
+                    Label("New sighting", systemImage: "plus")
                 }
             }
         }

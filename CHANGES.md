@@ -138,6 +138,18 @@ are handed straight back untouched.
 It ran out past the cards to the sidebar. It now stops 20 points in
 from the left and 28 from the right, a little inside the cards' edges.
 
+## A filter in the middle of the bar
+
+William, of the Journal's filter menu on the Mac: "Is there a reason
+that this menu is in the middle of the top bar?" No good one. It was
+placed as a `.secondaryAction`, which an iPhone tucks into its "more"
+menu and a Mac puts in the middle of the window's bar, on its own.
+`ToolbarItemPlacement.besideMain` (in `Theme.swift`) now puts such a
+button at the right-hand end on a Mac, beside the main button, and
+leaves an iPhone and iPad as they were. Used for the Journal's filter,
+the sightings list's group filter and the sowings list's "Show
+finished".
+
 ## To check when it is built
 
 - Each rebuilt sheet on the Mac, iPad and iPhone, light and dark. Does a

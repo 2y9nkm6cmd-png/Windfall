@@ -56,15 +56,15 @@ struct PlantingListView: View {
         .paperScreen()
         .navigationDestination(for: Planting.self) { PlantingDetailView(planting: $0) }
         .toolbar {
+            ToolbarItem(placement: .besideMain) {
+                Toggle("Show finished", isOn: $showFinished)
+            }
             ToolbarItem(placement: .primaryAction) {
                 Button {
                     showingNew = true
                 } label: {
                     Label("New sowing", systemImage: "plus")
                 }
-            }
-            ToolbarItem(placement: .secondaryAction) {
-                Toggle("Show finished", isOn: $showFinished)
             }
         }
         .sheet(isPresented: $showingNew) {

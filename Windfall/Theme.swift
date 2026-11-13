@@ -188,6 +188,26 @@ struct PaperBackground: View {
 
 // MARK: - Small parts used on several screens
 
+extension ToolbarItemPlacement {
+
+    /// Where a screen's second button goes, such as a filter beside
+    /// "New entry".
+    ///
+    /// SwiftUI's own name for this is `.secondaryAction`. On an iPhone or
+    /// iPad that tucks the button into the "more" menu, which is right.
+    /// On a Mac it puts the button in the middle of the bar at the top
+    /// of the window, on its own, a long way from the button it belongs
+    /// with. So on a Mac this asks for `.primaryAction`, which is the
+    /// right-hand end, beside the main button.
+    static var besideMain: ToolbarItemPlacement {
+        #if os(macOS)
+        return .primaryAction
+        #else
+        return .secondaryAction
+        #endif
+    }
+}
+
 /// A small coloured label, such as "Confirmed" or "Provisional".
 struct StatusTag: View {
     let text: String

@@ -88,17 +88,9 @@ struct JournalTimelineView: View {
         .navigationTitle("Journal")
         .paperScreen()
         .toolbar {
-            ToolbarItem(placement: .primaryAction) {
-                Button {
-                    let entry = DiaryEntry()
-                    context.insert(entry)
-                    newEntry = entry
-                } label: {
-                    Label("New entry", systemImage: "square.and.pencil")
-                }
-            }
-
-            ToolbarItem(placement: .secondaryAction) {
+            // The filter is listed first so that, on a Mac, it sits to the
+            // left of "New entry" at the right-hand end of the bar.
+            ToolbarItem(placement: .besideMain) {
                 Menu {
                     ForEach(TimelineKind.allCases) { kind in
                         Toggle(isOn: Binding(
@@ -118,6 +110,16 @@ struct JournalTimelineView: View {
                     }
                 } label: {
                     Label("Filter", systemImage: "line.3.horizontal.decrease.circle")
+                }
+            }
+
+            ToolbarItem(placement: .primaryAction) {
+                Button {
+                    let entry = DiaryEntry()
+                    context.insert(entry)
+                    newEntry = entry
+                } label: {
+                    Label("New entry", systemImage: "square.and.pencil")
                 }
             }
         }
