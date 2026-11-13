@@ -57,7 +57,7 @@ enum DemoGarden {
 
     /// A checking aid: `-demoOpen sowing` opens the sowing form as soon
     /// as Today appears, so a still picture can be taken of it. Also
-    /// `harvest`, `worms`, `fit` and `journal`. With `journal`,
+    /// `harvest`, `worms`, `fit`, `sighting` and `journal`. With `journal`,
     /// `-demoDraft "some words"` starts the box off with those words.
     static var opens: String? {
         isRequested ? UserDefaults.standard.string(forKey: "demoOpen") : nil

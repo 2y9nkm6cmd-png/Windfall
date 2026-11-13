@@ -162,6 +162,7 @@ struct TodayView: View {
         case "harvest": sheet = .harvest
         case "worms": startSurvey(.earthwormCount)
         case "fit": startSurvey(.fitCount)
+        case "sighting": startSighting()
         case "journal": startNote(draft: UserDefaults.standard.string(forKey: "demoDraft") ?? "")
         default: break
         }

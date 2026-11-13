@@ -80,14 +80,23 @@ private struct PageZoom: ViewModifier {
     }
 }
 
-/// The three lines in the Mac's View menu.
+/// Windfall's lines in the Mac's View menu: the sidebar and the three
+/// text sizes.
 struct TextSizeCommands: Commands {
 
     @AppStorage("pageZoom") private var zoom = TextSize.normal
+    /// The same stored switch the window's sidebar button changes.
+    @AppStorage("sidebarIsHidden") private var sidebarIsHidden = false
 
     var body: some Commands {
         // `after: .toolbar` puts them in the View menu.
         CommandGroup(after: .toolbar) {
+            // Control, Command and S is the Mac's usual shortcut for this.
+            Button(sidebarIsHidden ? "Show Sidebar" : "Hide Sidebar") {
+                withAnimation(.smooth(duration: 0.3)) { sidebarIsHidden.toggle() }
+            }
+            .keyboardShortcut("s", modifiers: [.control, .command])
+            Divider()
             Button("Bigger") { zoom = TextSize.stepped(from: zoom, by: 1) }
                 .keyboardShortcut("+", modifiers: .command)
                 .disabled(zoom >= TextSize.steps[TextSize.steps.count - 1])

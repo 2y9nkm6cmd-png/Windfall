@@ -89,6 +89,9 @@ struct MainTabView: View {
     @State private var weatherDiary = WeatherDiaryService()
     /// A speed check, switched in Settings.
     @AppStorage("plainTransitions") private var plainTransitions = false
+    /// True when the sidebar has been put away to give the page the
+    /// whole window. Remembered between visits.
+    @AppStorage("sidebarIsHidden") private var sidebarIsHidden = false
     // Says whether the app is on screen, in the background or closed.
     @Environment(\.scenePhase) private var scenePhase
 
@@ -100,7 +103,12 @@ struct MainTabView: View {
                 sidebarLayout
             }
         }
-        .background { PaperBackground() }
+        .background {
+            PaperBackground()
+                // Tells every page where the window's background is, so
+                // their washes of colour match it. See PaperBackground.
+                .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { PaperCanvas.shared.frame = $0 }
+        }
         // Apple's own controls, such as switches, use this colour.
         .tint(Theme.leaf)
         // Hands the screen tracker to every screen inside, and to Eira's bar.
@@ -137,7 +145,32 @@ struct MainTabView: View {
 
     private var sidebarLayout: some View {
         HStack(spacing: 0) {
-            SidebarView(selection: $selection)
+            // The sidebar can be put away, as in Apple's own apps. On a
+            // Mac the button is in the bar at the top of the window, and
+            // "Hide Sidebar" is in the View menu (Control, Command and
+            // S). On an iPad the button is in the sidebar's own heading,
+            // and a slim strip with one button brings it back.
+            if !sidebarIsHidden {
+                SidebarView(selection: $selection, onHide: toggleSidebar)
+                    .transition(.move(edge: .leading).combined(with: .opacity))
+            } else {
+                #if !os(macOS)
+                Button(action: toggleSidebar) {
+                    Image(systemName: "sidebar.left")
+                        .font(.system(size: 17, weight: .medium))
+                        .foregroundStyle(Theme.ink)
+                        .frame(width: 40, height: 40)
+                        .contentShape(.circle)
+                }
+                .buttonStyle(.plain)
+                .glassEffect(.regular.interactive(), in: .circle)
+                .accessibilityLabel("Show the sidebar")
+                .padding(.leading, 10)
+                .padding(.top, 12)
+                .frame(maxHeight: .infinity, alignment: .top)
+                .transition(.opacity)
+                #endif
+            }
 
             // Each place gets its own NavigationStack, which is what lets
             // a screen push another on top and offer a way back.
@@ -178,7 +211,21 @@ struct MainTabView: View {
         .toolbarBackgroundVisibility(.hidden, for: .windowToolbar)
         // Two fingers swiped right on the trackpad go back a page.
         .onAppear { BackSwipe.shared.watchTrackpad() }
+        .toolbar {
+            // `.navigation` is the left-hand end of the window's bar,
+            // where Apple's apps keep this button.
+            ToolbarItem(placement: .navigation) {
+                Button(action: toggleSidebar) {
+                    Label(sidebarIsHidden ? "Show Sidebar" : "Hide Sidebar", systemImage: "sidebar.left")
+                }
+                .help(sidebarIsHidden ? "Show the sidebar" : "Hide the sidebar")
+            }
+        }
         #endif
+    }
+
+    private func toggleSidebar() {
+        withAnimation(.smooth(duration: 0.3)) { sidebarIsHidden.toggle() }
     }
 
     // MARK: iPhone
@@ -250,6 +297,8 @@ struct MainTabView: View {
 struct SidebarView: View {
 
     @Binding var selection: AppSection
+    /// Puts the sidebar away. Nil where there is no way to bring it back.
+    var onHide: (() -> Void)? = nil
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     // Some people ask their device for less see-through. For them the
@@ -309,6 +358,21 @@ struct SidebarView: View {
                 WIconView(.sprig, size: 28)
                 Text("Windfall")
                     .font(.wordmark)
+                #if !os(macOS)
+                // On an iPad the button to put the sidebar away lives
+                // here. A Mac has it in the bar at the top of the window.
+                if let onHide {
+                    Spacer(minLength: 4)
+                    Button(action: onHide) {
+                        Image(systemName: "sidebar.left")
+                            .font(.system(size: 16, weight: .medium))
+                            .frame(width: 34, height: 34)
+                            .contentShape(.rect)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Hide the sidebar")
+                }
+                #endif
             }
             .foregroundStyle(Theme.sidebarInk)
             .padding(.horizontal, 10)
@@ -735,6 +799,9 @@ struct SettingsView: View {
     @AppStorage("eiraBarStaysOpen") private var eiraBarStaysOpen = false
     @AppStorage("plainBackground") private var plainBackground = false
     @AppStorage("plainTransitions") private var plainTransitions = false
+    /// True when the sidebar has been put away to give the page the
+    /// whole window. Remembered between visits.
+    @AppStorage("sidebarIsHidden") private var sidebarIsHidden = false
 
     var body: some View {
         Form {
