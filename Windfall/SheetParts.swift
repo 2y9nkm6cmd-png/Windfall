@@ -54,6 +54,17 @@ struct SheetPage<Content: View>: View {
     /// How to close the sheet this sits in, handed down by SwiftUI.
     @Environment(\.dismiss) private var dismiss
 
+    #if os(macOS)
+    // A Mac's sheet can be made larger: with the button beside its
+    // title, or by dragging its edge.
+    /// True once the button has been pressed for the larger size.
+    @State private var isExpanded = false
+    /// How tall the sheet's cards and its heading are, measured, so the
+    /// sheet can open exactly as tall as what is in it.
+    @State private var contentHeight: CGFloat = 0
+    @State private var headerHeight: CGFloat = 86
+    #endif
+
     /// - `detail`: a quieter line under the title.
     /// - `dismissTitle`: the plain button, "Cancel" unless told
     ///   otherwise. Nil leaves it out.
@@ -88,12 +99,33 @@ struct SheetPage<Content: View>: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background { PaperBackground() }
         #if os(macOS)
-        // On a Mac a sheet takes the size of what is in it. A set width,
-        // and a height that follows the content up to a limit.
-        .frame(width: 520)
-        .frame(minHeight: 200, maxHeight: 720)
+        // On a Mac a sheet takes the size of what is in it. A frame
+        // given as smallest, usual and largest lets it be any size
+        // between. "Usual" (ideal) is what it opens at: 520 points wide
+        // and as tall as what is in it, up to 720. The button in the
+        // heading raises the smallest size, which makes the sheet grow
+        // at once. (William, 13 November 2026: "Can you make windows on
+        // a mac expandable?" Until then the size was fixed.)
+        .frame(minWidth: isExpanded ? 800 : 460, idealWidth: isExpanded ? 800 : 520, maxWidth: 1200)
+        .frame(minHeight: isExpanded ? 820 : 240, idealHeight: openingHeight, maxHeight: 1400)
+        // "Fitted" asks the Mac to size the sheet from that frame, and
+        // to let its edges be dragged within the smallest and largest.
+        .presentationSizing(.fitted)
+        .onPreferenceChange(SheetContentHeight.self) { contentHeight = $0 }
+        .animation(.smooth(duration: 0.25), value: isExpanded)
         #endif
     }
+
+    #if os(macOS)
+    /// The height the sheet opens at.
+    private var openingHeight: CGFloat {
+        if isExpanded { return 860 }
+        // A sheet whose cards have been measured is as tall as they are.
+        // One that has not (the journal's conversation lays itself out)
+        // gets a middling height.
+        return contentHeight > 0 ? min(contentHeight + headerHeight, 720) : 640
+    }
+    #endif
 
     private var header: some View {
         HStack(alignment: .top, spacing: 10) {
@@ -111,6 +143,18 @@ struct SheetPage<Content: View>: View {
             .fixedSize(horizontal: false, vertical: true)
 
             Spacer(minLength: 8)
+
+            #if os(macOS)
+            Button {
+                isExpanded.toggle()
+            } label: {
+                Image(systemName: isExpanded ? "arrow.down.right.and.arrow.up.left"
+                                             : "arrow.up.left.and.arrow.down.right")
+            }
+            .buttonStyle(.glass)
+            .help(isExpanded ? "Back to the usual size" : "Make this larger")
+            .accessibilityLabel(isExpanded ? "Back to the usual size" : "Make this larger")
+            #endif
 
             if let dismissTitle {
                 Button(dismissTitle) {
@@ -133,6 +177,19 @@ struct SheetPage<Content: View>: View {
         .padding(.horizontal, 20)
         .padding(.top, 20)
         .padding(.bottom, 14)
+        #if os(macOS)
+        .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { headerHeight = $0 }
+        #endif
+    }
+}
+
+/// How tall a sheet's cards are, passed up from `SheetScroll` to the
+/// `SheetPage` around it. A "preference" is SwiftUI's way for a view
+/// deep inside to tell the views that contain it something.
+struct SheetContentHeight: PreferenceKey {
+    static let defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = max(value, nextValue())
     }
 }
 
@@ -152,6 +209,12 @@ struct SheetScroll<Content: View>: View {
             }
             .padding(.horizontal, 20)
             .padding(.bottom, 18)
+            // Measures the cards and reports their height upwards.
+            .background {
+                GeometryReader { geometry in
+                    Color.clear.preference(key: SheetContentHeight.self, value: geometry.size.height)
+                }
+            }
         }
     }
 }

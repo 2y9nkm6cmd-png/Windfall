@@ -51,6 +51,12 @@ William tried the first build on the Mac and sent seventeen pictures. Each chang
 - **Year** (`YearView.swift`): a "Fruit, veg…" button filters by kind of plant, using the Plants page's sorting. Every job button whose lines are showing is now lit green. Before, with "Every job" on, all five looked switched off.
 - **The garden's plot** (`GardenEditorView.swift`): plus and minus turn the plan five degrees at a time, held down they keep turning, and the plan turns inside a compass ring with north at the top. The stray "Not set" beside each number is fixed.
 
+### Sheets on a Mac can be made larger (`SheetParts.swift`)
+
+- **Why**: a sheet such as the FIT Count had one fixed size.
+- A sheet's frame is now given as smallest, usual and largest. It opens at the usual size and its edges can be dragged. A button beside the title jumps to a larger size and back.
+- `SheetScroll` measures its cards and passes the height up (a SwiftUI "preference"), so a sheet still opens exactly as tall as what is in it.
+
 ### Not seen or tried
 
 Everything here was built on the Mac without errors. The lens moving, the jiggle, the swipes, Command and plus, and hiding the sidebar can only be judged by hand.

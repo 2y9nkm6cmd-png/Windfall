@@ -506,7 +506,11 @@ extension View {
         #if os(macOS)
         // The paper goes behind the whole sheet, so that any strip the
         // sheet's own content does not reach is paper too, not grey.
-        self.frame(minWidth: width, minHeight: height)
+        // Smallest, usual and largest sizes: it opens at the size given
+        // and its edges can be dragged out to twice that.
+        self.frame(minWidth: width, idealWidth: width, maxWidth: width * 2,
+                   minHeight: height, idealHeight: height, maxHeight: height * 2)
+            .presentationSizing(.fitted)
             .presentationBackground { PaperBackground() }
         #else
         self
