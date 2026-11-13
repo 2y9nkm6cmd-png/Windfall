@@ -24,9 +24,6 @@
 //
 
 import Foundation
-#if os(macOS)
-import AppKit
-#endif
 
 @MainActor
 enum SpeciesTestRun {
@@ -117,10 +114,7 @@ enum SpeciesTestRun {
             note("- Named outright: \(named)")
         }
         note("\nDONE")
-
-        #if os(macOS)
-        NSApplication.shared.terminate(nil)
-        #endif
+        EiraTestRun.close()
     }
 
     private static func percent(_ part: Int, of whole: Int) -> String {

@@ -222,9 +222,17 @@ enum EiraTestRun {
     }
 
     /// Closes the app, so whatever started the run knows it is over.
-    private static func close() {
+    ///
+    /// Asking politely is not always enough. On 13 November 2026 the app
+    /// stayed open for twenty minutes after Qwen's run, holding 4.7GB
+    /// and the graphics chip, because a loaded model kept it from
+    /// quitting. So three seconds after asking, the run ends the app
+    /// outright with `exit(0)`. Everything has been written by then.
+    /// SpeciesTestRun uses this too.
+    static func close() {
         #if os(macOS)
         NSApplication.shared.terminate(nil)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) { exit(0) }
         #endif
     }
 }
