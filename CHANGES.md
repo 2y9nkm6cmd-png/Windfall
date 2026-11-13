@@ -7,6 +7,30 @@ run without the Mac (every file reads as valid Swift, 323 logic tests
 pass). Those do not build the screens. Expect things to put right when
 it is first built, and treat how everything here looks as untried.
 
+## 13 November 2026, night: naming what is in a photo
+
+**Not yet built on the Mac.** Written at 22:30 to 23:00 and pushed as `c887c9e`. The matching passes its 13 new logic tests (387 in all). The parts that use Apple's frameworks have only been checked as valid Swift, and the Mac dropped off the connection before they could be built. Expect small corrections.
+
+**What it does.** The Identify screen had a button that only said identification was not built. It now matches the photo against a list of UK species with BioCLIP 2, on the device, and names a species only when the match is strong.
+
+**How, in three steps, and which file does each:**
+
+1. *Prepare the photo* (`SpeciesEye.swift`, with the sums in `PhotoArithmetic` in `SpeciesTable.swift`). The photo is opened the right way up, its middle square is cut out and drawn at 224 by 224 pixels, and each colour value is adjusted the way BioCLIP 2 was trained to expect: take off an average, divide by a spread. The pixels are then rearranged from "red, green, blue, red, green, blue…" to "all the reds, all the greens, all the blues", which is the order the model wants.
+2. *Run the model* (`SpeciesEye.swift`). Core AI loads `bioclip2_image_f16.aimodel` and runs its one function, `main`. In goes an `NDArray`, Core AI's block of numbers with a shape (1 photo, 3 colours, 224, 224). Out come 768 numbers that describe what the photo looks like. This is the only step that needs Core AI, so it is fenced with `#if canImport(CoreAI) && arch(arm64)`: "only build this where Core AI exists and the chip is one of Apple's own".
+3. *Match* (`SpeciesTable.swift`). The table has one row of 768 numbers for each species. For each row, the photo's numbers and the row's are multiplied pair by pair and added up. The bigger the sum, the closer the match. The sums are turned into shares that add up to 1. If the top share reaches the "not sure" level that came with the table, the species is named. If not, the screen says "Not sure" and shows the closest three.
+
+**Why a "not sure" level.** The model always picks something. The level was set on the Mac so that a named answer was right 19 times in 20 on photos it had not seen. Below it, a wrong name is too likely to show as if it were an answer.
+
+**Fungi.** The table is made without fungi. The code also drops any row whose group is fungi when the table is read, so a later table that included them still could not name one.
+
+**What a sighting started from the screen now holds** (`EiraVision.swift`, `createObservation`). A strong match goes in as the provisional name, marked "probable" and "on-device model". A weak one is not written in as a name at all: the closest three go in the notes. Before, the whole sentence of the answer was stored as the name.
+
+**`SpeciesTestRun.swift`**, new: the photo twin of `EiraTestRun`. From Terminal it runs a folder of photos through the same code as the screen and writes what came back, with marks if it is given the right answers. It is how the app's own accuracy gets compared with the figures measured in Python on the Mac.
+
+**Three files have to be in the Models folder**, in a folder called `bioclip2`: the model (there since 22:25), `uk_species.json` and `uk_species_rows_f16.bin` (being made by the fine-tuning chat). Until all three are there the screen says which are missing.
+
+**The Identify screen is still a standard form.** It is on the list of screens to redraw in the app's look (doc 25).
+
 ## 13 November 2026, late evening: Apple's model package, and a test Eira can sit on her own
 
 William asked for the converted models to be put into Windfall. Doc 27 in the knowledge base has the whole account. What changed in the code:
