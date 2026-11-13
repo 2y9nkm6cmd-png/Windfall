@@ -108,6 +108,19 @@ enum EiraTools {
         ]
     )
 
+    /// What can be sown this month, from the plant library.
+    ///
+    /// This one is not offered to the model. The app runs it itself,
+    /// before the model answers, for any question about what to sow now
+    /// (see EiraChecks.lookupFirst). That keeps the model's own list of
+    /// tools short, and means the fact arrives whether or not the model
+    /// would have thought to ask.
+    static let sowingNow = ToolDefinition(
+        name: "sowing_now",
+        description: "List the plants in the gardener's plant library that can be sown this month, indoors and outdoors.",
+        parameters: ["type": "object", "properties": [:]]
+    )
+
     /// Every tool Eira may use. Kept short on purpose: a small model
     /// chooses more reliably from a few clearly different tools.
     static let all: [ToolDefinition] = [
@@ -156,6 +169,8 @@ struct ToolRunner {
         case "recent_records":
             return recentRecords(kind: json["kind"] as? String ?? "harvests",
                                  days: json["days"] as? Int ?? 30)
+        case "sowing_now":
+            return sowingNow()
         case "search_wikipedia":
             return await searchWikipedia(json["query"] as? String ?? "")
         case "read_web_page":
@@ -439,6 +454,44 @@ struct ToolRunner {
 
         return ToolResult(text: described.joined(separator: "\n"),
                           source: "user's Plant-Fauna Links sheet")
+    }
+
+    /// What the plant library says can be sown this month.
+    private func sowingNow(today: Date = .now, calendar: Calendar = .current) -> ToolResult {
+        let month = calendar.component(.month, from: today)
+        let plants = (try? context.fetch(FetchDescriptor<Plant>())) ?? []
+        let rows = plants.map {
+            (name: $0.displayName,
+             indoors: MonthParser.months(in: $0.sowIndoorsMonthsText),
+             outdoors: MonthParser.months(in: $0.sowOutdoorsMonthsText))
+        }
+        let words = ToolRunner.sowingText(for: rows, month: month, monthName: calendar.monthSymbols[month - 1])
+        return ToolResult(text: words, source: "user's plant database")
+    }
+
+    /// The words handed to the model: who can be sown this month, and where.
+    ///
+    /// Kept apart from the fetching above so it can be tested without a
+    /// database. At most `limit` names are given for each place, with a
+    /// count of the rest, so a long list cannot crowd out the question.
+    nonisolated static func sowingText(for plants: [(name: String, indoors: [Int], outdoors: [Int])],
+                                       month: Int, monthName: String, limit: Int = 30) -> String {
+        func listed(_ names: [String]) -> String {
+            let unique = Array(Set(names)).sorted()
+            let shown = unique.prefix(limit).joined(separator: ", ")
+            return unique.count > limit ? "\(shown) and \(unique.count - limit) more" : shown
+        }
+        let indoors = plants.filter { $0.indoors.contains(month) }.map(\.name)
+        let outdoors = plants.filter { $0.outdoors.contains(month) }.map(\.name)
+
+        guard !indoors.isEmpty || !outdoors.isEmpty else {
+            return "Nothing in the plant library has \(monthName) among its sowing months."
+        }
+        var lines = ["Plants in the plant library whose sowing months include \(monthName):"]
+        if !indoors.isEmpty { lines.append("Sow indoors (\(Set(indoors).count)): \(listed(indoors))") }
+        if !outdoors.isEmpty { lines.append("Sow outdoors (\(Set(outdoors).count)): \(listed(outdoors))") }
+        lines.append("Anything not listed is not marked for sowing in \(monthName).")
+        return lines.joined(separator: "\n")
     }
 
     private func recentRecords(kind: String, days: Int) -> ToolResult {

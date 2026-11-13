@@ -105,7 +105,60 @@ enum EiraSafety {
         if asksForPreservingDetails(question) { return preservingReply }
         if asksForPesticideAmounts(question) { return pesticideReply }
         if asksForMedicalAdvice(question) { return medicineReply }
+        // Last, so that a safety reply always wins over this one.
+        if asksToSaveARecord(question) { return savingReply }
         return nil
+    }
+
+    /// The reply given when the chat is asked to save, record or log
+    /// something. Not a safety matter in the way the four above are, but
+    /// the same remedy: Eira cannot change records from the chat, and a
+    /// model asked to will sometimes say it has. On 13 November 2026
+    /// Qwen3 8B answered "your sowing is now recorded in the system".
+    static let savingReply = """
+    I haven't saved anything, and I can't change your records from this \
+    chat.
+
+    To record it, tell the journal: write what you sowed, planted or \
+    picked as a plain statement, without a question mark. I'll offer a \
+    card with the details, and it is saved only when you press Add.
+    """
+
+    /// True when a message asks for something to be saved or recorded.
+    ///
+    /// It needs a request and an act together, or an act and a place:
+    ///
+    ///   "I've sown carrots in bed 2, can you save that?"   stopped here
+    ///   "Please record that I picked 2kg of apples"        stopped here
+    ///   "Add it to my journal"                             stopped here
+    ///   "How do I save seed from peas?"                    goes to the model
+    ///   "Can you put that another way?"                    goes to the model
+    ///   "Please note that I garden on clay"                goes to the model
+    static func asksToSaveARecord(_ question: String) -> Bool {
+        let text = tidied(question)
+
+        // Saving seed is gardening, not record keeping.
+        let seedSaving = [" save seed", " saving seed", " seed saving", " save the seed", " save my own seed",
+                          " save some seed", " for next year "]
+        if containsAny(of: seedSaving, in: text) { return false }
+
+        let requests = [" can you ", " could you ", " will you ", " would you ", " please ", " pls "]
+        let acts = [" save that ", " save this ", " save it ", " save them ",
+                    " record that ", " record this ", " record it ", " record them ",
+                    " log that ", " log this ", " log it ", " log them ",
+                    " add that ", " add this ", " add it ", " add them ",
+                    " store that ", " store this ", " store it ",
+                    " note that down ", " note this down ", " note it down ",
+                    " write that down ", " write this down ", " write it down ",
+                    " make a note ", " make a record ", " update my records ", " update the records "]
+        let places = [" to my records ", " in my records ", " to my journal ", " in my journal ",
+                      " to my diary ", " in my diary ", " to the journal ", " in the journal ",
+                      " to the records ", " to my log ", " in my log "]
+        let actWords = [" save ", " record ", " log ", " add ", " store ", " put ", " enter ", " note "]
+
+        if containsAny(of: requests, in: text) && containsAny(of: acts, in: text) { return true }
+        if containsAny(of: actWords, in: text) && containsAny(of: places, in: text) { return true }
+        return false
     }
 
     /// True when a message asks about eating fungi, or asks for a mushroom

@@ -164,8 +164,12 @@ final class EiraConversation {
         streamingReasoning = ""
         lastError = nil
 
+        // A lookup chosen by hand comes first. Otherwise a fixed rule
+        // may choose one: see EiraChecks.lookupFirst.
+        let lookup = forcedTool ?? EiraChecks.lookupFirst(for: trimmed)
+
         replyTask = Task { [weak self] in
-            await self?.generate(for: trimmed, forcedTool: forcedTool)
+            await self?.generate(for: trimmed, forcedTool: lookup)
         }
     }
 
@@ -250,11 +254,24 @@ final class EiraConversation {
 
     /// Turns the streamed pieces into a finished message.
     private func commitReply(stopped: Bool) {
-        let content = streamingContent.trimmingCharacters(in: .whitespacesAndNewlines)
+        var content = streamingContent.trimmingCharacters(in: .whitespacesAndNewlines)
         let reasoning = streamingReasoning.trimmingCharacters(in: .whitespacesAndNewlines)
         streamingContent = ""
         streamingReasoning = ""
         guard !content.isEmpty || !reasoning.isEmpty else { return }
+
+        // Read the finished reply by rule before it is shown or saved.
+        // A reply you stopped yourself is left exactly as it was.
+        // See EiraChecks.
+        if !stopped {
+            let asked = messages.lastIndex { $0.role == .user }
+            let question = asked.map { messages[$0].content } ?? ""
+            let lookups = asked.map { index in
+                messages[(index + 1)...].filter { $0.role == .tool }.map(\.content)
+            } ?? []
+            let known = [EiraGardenNotes.load(), screenNote ?? ""] + (store?.recentCorrectionLines() ?? [])
+            content = EiraChecks.checked(reply: content, question: question, lookups: lookups, known: known)
+        }
 
         record(ChatMessage(
             role: .assistant,

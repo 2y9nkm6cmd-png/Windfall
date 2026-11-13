@@ -34,3 +34,4 @@ JournalPage.swift
 SeedTruth.swift
 Crosses.swift
 SpeciesTable.swift
+EiraChecks.swift
