@@ -40,7 +40,13 @@ it is first built, and treat how everything here looks as untried.
 
 **Three files have to be in the Models folder**, in a folder called `bioclip2`: the model (there since 22:25), `uk_species.json` and `uk_species_rows_f16.bin` (being made by the fine-tuning chat). Until all three are there the screen says which are missing.
 
-**The Identify screen is still a standard form.** It is on the list of screens to redraw in the app's look (doc 25).
+**The Identify screen is redrawn** (`EiraVision.swift`, commit `b4de32a`, not yet built or looked at). It was a standard form. It is now made of the same cards as the other sheets:
+
+- It opens as a sheet from Today (`IdentifyView(inSheet: true)`, inside a `SheetPage`) and as a page from Wildlife (a `ScreenHeader` and the same cards). One set of cards, two frames, the way the sighting form does it.
+- A photo can come **from Photos or from a file**. `.fileImporter` opens the Mac's or the iPad's file window. A file chosen there may only be read between `startAccessingSecurityScopedResource` and its matching stop call, which is the system's way of giving an app leave to read one file it does not own.
+- Each possible species is a `CandidateRow`: its English name, its scientific name in italics, its share as a figure and as a bar. The bar is two capsules, a full-width track and a filled part on top. `GeometryReader` tells the row how wide its space is, and the filled part is that width times the share.
+- The one that is named outright is larger and green. When nothing is named the card is headed "Eira is not sure" and says why.
+- `-demoOpen identify -demoMatch YES` opens it with a made-up answer, so the cards can be looked at in the simulator, where the model cannot run.
 
 ## 13 November 2026, late evening: Apple's model package, and a test Eira can sit on her own
 
