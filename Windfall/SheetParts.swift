@@ -212,7 +212,10 @@ struct SheetScroll<Content: View>: View {
             // Measures the cards and reports their height upwards.
             .background {
                 GeometryReader { geometry in
-                    Color.clear.preference(key: SheetContentHeight.self, value: geometry.size.height)
+                    // `.self` after a type's name means the type itself,
+                    // which is how a preference is named.
+                    let named = SheetContentHeight.self
+                    Color.clear.preference(key: named, value: geometry.size.height)
                 }
             }
         }
