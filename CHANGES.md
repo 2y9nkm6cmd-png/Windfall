@@ -1,3 +1,84 @@
+# 13 November 2026, morning: rearranging the Today screen
+
+**The `today-rearrange` branch**, on top of `weather-diary`. **Not yet
+built on the Mac and not seen running**: the link to the Mac was down
+while this was written. It passes the checks that can be run without the
+Mac (every file reads as valid Swift, 311 logic tests pass), but those
+do not build the screens. Treat everything about how it looks and feels
+as untried until it has been built and used.
+
+William asked: "Can we make it so that you can rearrange the home view by
+tapping and holding the object (like the This month box), and it wiggling
+to rearrange".
+
+## What it does
+
+- **Press and hold a card** on Today and all the cards start to wiggle.
+  On an iPhone or iPad the card lifts under the finger, ready to drag.
+  On a Mac, click and hold for half a second, then drag.
+- **Drag a card onto another** and it takes that card's place. The other
+  cards move along.
+- **A dashed "Drop here" space** sits at the foot of each column while
+  rearranging, and one at the top and bottom for full width. This is how
+  a card reaches an empty column, or is made to span the page.
+- **Two arrows on each card** move it one place earlier or later without
+  dragging. They are there for anyone who finds dragging awkward and for
+  VoiceOver.
+- **A bar at the top** says what is going on, with Reset (the standard
+  arrangement) and Done. A "Rearrange this page" button at the foot of
+  the page starts it too, so it can be found without knowing about
+  press and hold.
+- **Each width keeps its own arrangement**: three columns (Mac, wide
+  iPad), two (narrower iPad) and one (iPhone). Moving cards on the Mac
+  does not disturb the iPhone's order.
+- **Cards fit the room they are given.** The capture buttons are a row of
+  six at full width, three across in a wide column and two in a narrow
+  one. The conditions card stacks when it is put in a column. With three
+  columns, the one holding the garden plans gets the most room.
+- **The journal offer** only appears on days when there is something to
+  offer. While rearranging it shows as a placeholder so it can still be
+  given a place.
+- **Reduce Motion** (an Accessibility setting) swaps the wiggle for a
+  dashed outline.
+
+## How it is built
+
+- **`TodayLayout.swift`** (new) holds the arrangement and its rules, with
+  no screen code in it, so it can be tested without the Mac. A
+  `TodayPanel` is one movable card. A `TodayArrangement` is the list of
+  cards in each zone (a full-width stack at the top, each column, a
+  full-width stack at the bottom). It can move a card onto another, move
+  one to the end of a zone, nudge one a step, and turn itself into a line
+  of text to be saved and back again. Reading saved text is forgiving: a
+  card it does not know is skipped and a card that is missing is put
+  back in its standard place, so adding a card in a later version cannot
+  lose anyone's arrangement.
+- **`TodayView.swift`** now draws the page from the arrangement where it
+  used to have the three layouts written out by hand. The cards
+  themselves are unchanged. The pieces that do the wiggling and dragging
+  (`Wiggle`, `LiftToArrange`, `DragSurface`, `DragLabel`) are at the foot
+  of the file.
+- The arrangement is saved as text under three settings names:
+  `todayArrangementWide`, `todayArrangementMiddle`,
+  `todayArrangementNarrow`. The standard arrangement is saved as nothing
+  at all.
+- 19 new logic tests cover the arrangement.
+
+Checking aid: `-todayArranging YES` opens Today already wiggling. An
+arrangement can be tried without dragging by passing its saved text, for
+example `-todayArrangementWide "conditions|jobs,capture|plans|recent,journal|"`.
+
+## To check when it is built
+
+- Does a press and hold on an iPhone or iPad lift the card and carry on
+  into a drag in one movement, with scrolling still working?
+- Does the Mac's click and hold start the wiggling without pressing the
+  button under the pointer?
+- If a card is let go outside the window, does it stay dimmed? (It may.
+  Done clears it.)
+- Is the wiggle the right size on the wide cards?
+- Does the bar at the top cover the page heading?
+
 # 12 to 13 November 2026, overnight: the weather diary, fixes and a sweep of the code
 
 **The `weather-diary` branch**, on top of `plant-filters`. Builds on the
