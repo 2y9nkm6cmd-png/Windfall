@@ -245,6 +245,82 @@ saved all the same.
 Along the way: "Under cover" and the other sowing places have their
 wording in one spot (`SowingLocation.words`).
 
+## A plant's page as cards (`PlantPage.swift`, new, and `PlantLibraryView.swift`)
+
+William, of a plant's page: "Can you make these more card like as well.
+You could use the overall sections that I used in my spreadsheet to
+create sections."
+
+- One glass card for each group of columns in the spreadsheet: Growth
+  Patterns, Growth Habits, Permaculture Category, Sowing from Seed,
+  Growth Constraints, Human Management, Ecological Interactions and
+  Description. **A card with nothing in it is left out**, which the old
+  page meant to do and did not.
+- Two columns of cards where the page is 720 points wide or more, one
+  where it is not. The cards are shared out so the columns come out
+  about level.
+- **Months are drawn as a strip of twelve blocks**, in the Year page's
+  colours, with a ring on this month. They were written out in words.
+- Short facts sit side by side with the name above the value. Long ones
+  take the full width.
+- Measurements have their units: "0.15 m", "25-50 mm".
+- The permaculture roles are chips.
+- The top of the page is the plant's name in the serif, its Latin name
+  under it and "softneck · Alliums · Perennial" above.
+
+`PlantPage.swift` decides what goes on each card and has no screen code,
+so it is tested (4 tests).
+
+## Companions: two columns, sides, symbols and pests (`CompanionPlanting.swift`)
+
+William: "Could you make the companion planting two columns and then if
+the window is narrow it has a top bar that has the friends and enemies",
+and then: "I wonder if we could also have icons in with them... Maybe
+there's a way that if you've identified a pest you can select plants
+that deter them."
+
+- **Two columns** from 640 points wide: "Grows well with" on the left
+  and "Keep apart from" on the right, each a glass card. Narrower, a
+  sliding switch at the top chooses Friends or Enemies.
+- **Each plant is listed once.** The matrix can hold the same two plants
+  more than once, and the old page listed them as many times.
+- **The reasons now say whom they are for.** Each row of the matrix says
+  what its second plant does for its first (its heading is "How plant2
+  impacts plant1"). The old page ignored that, so on garlic's page
+  "Carrots: deters carrot fly" read as something carrots do. It now
+  reads "Garlic helps it: Deters carrot fly, root maggots", beside
+  "Helps Garlic: Repel onion fly and leek moth".
+- **A symbol for the kind of reason**, with the kind in words under the
+  name: keeps pests off, draws pests away, brings helpful insects, feeds
+  or opens the soil, shares the space, gives shade or cover, better crop
+  or flavour, likes the same conditions. For enemies: shares pests,
+  competes, stunts growth, toxic, wants different conditions. The kinds
+  are worked out from the words of each reason. Tried on every reason
+  in the shipped matrix, four of about 145 fit no kind and show a plain
+  tick or cross. The symbols are Apple's, standing in until Windfall
+  has drawings of its own.
+- **Pests.** Where a plant's friends help it against pests the matrix
+  names, those pests are chips above the lists. Picking one leaves only
+  the friends that help against it.
+- **"Pest helpers"** (new page): start from the pest. Every plant the
+  matrix records as helping against it, with the crops it is recorded
+  with. Reached from the foot of any Companions page, and from a new
+  card on a plant's page that lists those of its known pests the matrix
+  has an answer for.
+
+⚠️ CHECK: the pests are found from a list of names and the ways the
+matrix writes them, made by Claude. Greenfly and blackfly are counted as
+aphids. Cabbage worms, cabbage moths and cabbage whites are counted as
+caterpillars. Carrot root fly and carrot rust fly are counted as carrot
+fly. Blight is in the list though it is a disease. A pest that is not
+in the list is not found.
+
+6 tests, using rows from the matrix as shipped.
+
+Not done: icons drawn in Windfall's own style, a picture of each plant,
+a link from a recorded pest or disease to its helpers, and Eira being
+able to answer "what deters carrot fly?" from the same list.
+
 ## A filter in the middle of the bar
 
 William, of the Journal's filter menu on the Mac: "Is there a reason
@@ -269,6 +345,10 @@ finished".
   the page beside it?
 - "This week" with a real forecast.
 - Does Return in a notes box press Save when it should make a new line?
+- A plant's page: are the month strips clear, and are the two columns
+  about level? Try a plant with little filled in.
+- Companions: two columns when wide, the switch when narrow. Do the
+  symbols exist and read well? (One wrong symbol name shows as a blank.)
 - The offer cards: do the small menus on them (plant, measure, where it
   went) look right on a card? Try "We harvested 50kg of Jonagold's".
 - The journal's conversation: does the box stay above the keyboard on

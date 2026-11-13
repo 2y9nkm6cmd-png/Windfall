@@ -381,112 +381,51 @@ private struct Tag: View {
 
 // MARK: - Detail
 
+/// One plant's page, as cards.
+///
+/// What goes on each card is decided in PlantPage.swift, which follows
+/// the groups of columns in the spreadsheet the library came from. This
+/// draws them: in two columns where there is room, in one where there
+/// is not.
 struct PlantDetailView: View {
 
     @Bindable var plant: Plant
 
     var body: some View {
-        Form {
-            Section {
-                if let latin = plant.latinName {
-                    LabeledContent("Latin name") { Text(latin).italic() }
-                }
-                if let variety = plant.variety   { LabeledContent("Variety", value: variety) }
-                if let group = plant.group       { LabeledContent("Group", value: group) }
-                if let c = plant.classification  { LabeledContent("Classification", value: c) }
-            }
+        // Worked out once for this redraw.
+        let cards = PlantPage.cards(for: plant)
 
-            // The eight category groups from the spreadsheet, as sections.
-            group("Growth Patterns") {
-                monthRow("Flowering", plant.floweringMonthsText)
-                monthRow("Stem growth", plant.stemGrowthMonthsText)
-                monthRow("Foliage", plant.foliageMonthsText)
-                monthRow("Fruiting", plant.fruitingMonthsText)
-                row("Plant type", plant.plantType)
-                row("Habits", plant.habits)
-            }
+        // GeometryReader says how wide the page is.
+        GeometryReader { geometry in
+            let isWide = geometry.size.width >= 720
 
-            group("Growth Habits") {
-                row("Max height", plant.maxHeightM)
-                row("Spread", plant.spreadM)
-                row("Root depth", plant.rootDepthM)
-                row("Spacing", plant.spacingM)
-                row("Flower form", plant.flowerForm)
-                row("Layer", plant.layer)
-            }
+            ScrollView {
+                VStack(alignment: .leading, spacing: 16) {
+                    header
 
-            Section("Permaculture Category") {
-                if plant.isPollinator         { Label("Pollinator plant", systemImage: "ant") }
-                if plant.isRepeller           { Label("Pest repeller", systemImage: "shield") }
-                if plant.isUmbelliferous      { Label("Umbelliferous", systemImage: "circle.grid.cross") }
-                if plant.isNitrogenFixer      { Label("Nitrogen fixer", systemImage: "leaf.circle") }
-                if plant.isDynamicAccumulator { Label("Dynamic accumulator", systemImage: "arrow.up.circle") }
-                if plant.isGroundCover        { Label("Ground cover", systemImage: "square.grid.3x3.fill") }
-            }
-
-            group("Sowing from Seed") {
-                monthRow("Sow indoors", plant.sowIndoorsMonthsText)
-                monthRow("Sow outdoors", plant.sowOutdoorsMonthsText)
-                monthRow("Plant out", plant.plantOutMonthsText)
-                monthRow("Harvest", plant.harvestMonthsText)
-                rangeRow("Germination", plant.germinationDaysText, unit: "days")
-                rangeRow("Sow to crop", plant.sowToCropText, unit: "days")
-                row("Sowing depth", plant.sowingDepthMM)
-                row("Propagation", plant.propagation)
-            }
-
-            group("Growth Constraints") {
-                row("Sun / shade", plant.sunShade)
-                row("Position", plant.position)
-                row("Hardiness", plant.hardiness)
-                row("Soil pH", plant.soilPH)
-                row("Soil conditions", plant.preferredSoilConditions)
-                row("Pests", plant.knownPests)
-                row("Diseases", plant.knownDiseases)
-            }
-
-            group("Human Management") {
-                row("Pruning", plant.pruning)
-                row("Pruning group", plant.pruningGroup)
-                row("Culinary uses", plant.culinaryUses)
-                row("Medicinal uses", plant.medicinalUses)
-                row("Toxicity", plant.toxicityCautions)
-            }
-
-            Section {
-                NavigationLink {
-                    CompanionView(plantName: plant.commonName)
-                } label: {
-                    Label("Companion planting", systemImage: "square.on.square")
-                }
-            }
-
-            group("Ecological Interactions") {
-                row("Partner plants", plant.partnerPlants)
-                row("Antagonistic plants", plant.antagonisticPlants)
-                row("Pollinators", plant.pollinators)
-            }
-
-            group("Description") {
-                row("Appearance", plant.appearance)
-                row("History", plant.history)
-                row("Notes", plant.notes)
-            }
-
-            if let plantings = plant.plantings, !plantings.isEmpty {
-                Section("Sowings") {
-                    ForEach(plantings.sorted { ($0.dateSown ?? .distantPast) > ($1.dateSown ?? .distantPast) }) { planting in
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(planting.bedNames.isEmpty ? "Unplaced" : planting.bedNames)
-                                .font(.subheadline)
-                            if let sown = planting.dateSown {
-                                Text(sown, format: .dateTime.day().month().year())
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
+                    if isWide {
+                        let sides = PlantPage.twoColumns(cards)
+                        HStack(alignment: .top, spacing: 14) {
+                            VStack(spacing: 14) {
+                                ForEach(sides.left) { PlantFactCardView(factCard: $0) }
+                                companionsLink
+                                pestsCard
+                            }
+                            VStack(spacing: 14) {
+                                ForEach(sides.right) { PlantFactCardView(factCard: $0) }
+                                sowingsCard
                             }
                         }
+                    } else {
+                        ForEach(cards) { PlantFactCardView(factCard: $0) }
+                        companionsLink
+                        pestsCard
+                        sowingsCard
                     }
                 }
+                .padding(.horizontal, 16)
+                .padding(.top, 12)
+                .padding(.bottom, 20)
             }
         }
         .navigationTitle(plant.commonName)
@@ -497,43 +436,272 @@ struct PlantDetailView: View {
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
+        // The large name below is the title. The bar keeps the name for
+        // the back button and VoiceOver, but shows no words of its own.
+        .toolbar { ToolbarItem(placement: .principal) { Text("") } }
     }
 
-    // MARK: Row builders
+    // MARK: The top of the page
 
-    /// Hides a whole section when every field in it is empty — most plants
-    /// don't have all 69 columns filled, and empty headings are noise.
-    @ViewBuilder
-    private func group<Content: View>(_ title: String,
-                                      @ViewBuilder content: () -> Content) -> some View {
-        Section(title) { content() }
+    private var header: some View {
+        let summary = PlantPage.summary(for: plant)
+        return VStack(alignment: .leading, spacing: 4) {
+            if !summary.isEmpty {
+                // "softneck · Alliums · Perennial"
+                Text(summary.map(\.value).joined(separator: " · "))
+                    .font(.subheadline)
+                    .foregroundStyle(Theme.inkSoft)
+            }
+            Text(plant.commonName)
+                .font(.screenTitle)
+                .foregroundStyle(Theme.ink)
+                .accessibilityAddTraits(.isHeader)
+            if let latin = plant.latinName, !latin.isEmpty {
+                Text(latin)
+                    .font(.title3)
+                    .italic()
+                    .foregroundStyle(Theme.inkSoft)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
+    // MARK: The two cards that are not from the spreadsheet
+
+    /// Opens the plant's friends and enemies.
+    private var companionsLink: some View {
+        NavigationLink {
+            CompanionView(plantName: plant.commonName)
+        } label: {
+            HStack(spacing: 10) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Companion planting")
+                        .font(.headline)
+                        .foregroundStyle(Theme.ink)
+                    Text("What it grows well with, and what to keep apart from it.")
+                        .font(.subheadline)
+                        .foregroundStyle(Theme.inkSoft)
+                        .multilineTextAlignment(.leading)
+                }
+                Spacer(minLength: 8)
+                WIconView(.arrowRight, size: 16)
+                    .foregroundStyle(Theme.leaf)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .contentShape(.rect)
+        }
+        .buttonStyle(.plain)
+        .glassCard()
+    }
+
+    /// The plant's known pests that the companion matrix has an answer
+    /// for, each a chip that opens the plants recorded as helping
+    /// against it. Left out if there are none.
     @ViewBuilder
-    private func row(_ label: String, _ value: String?) -> some View {
-        if let value, !value.isEmpty {
-            LabeledContent(label) {
-                Text(value)
-                    .multilineTextAlignment(.trailing)
+    private var pestsCard: some View {
+        let pests = CompanionPests.named(in: plant.knownPests ?? "")
+        if !pests.isEmpty {
+            VStack(alignment: .leading, spacing: 10) {
+                Text("Plants that help with its pests")
+                    .font(.headline)
+                    .foregroundStyle(Theme.ink)
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 140), spacing: 8, alignment: .leading)],
+                          alignment: .leading, spacing: 8) {
+                    ForEach(pests, id: \.self) { pest in
+                        NavigationLink {
+                            PestHelpersView(startingWith: pest)
+                        } label: {
+                            HStack(spacing: 6) {
+                                Text(pest)
+                                WIconView(.arrowRight, size: 12)
+                            }
+                            .font(.subheadline)
+                            .foregroundStyle(Theme.ink)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 7)
+                            .background(Theme.leafFill, in: .capsule)
+                            .contentShape(.capsule)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .glassCard()
+        }
+    }
+
+    /// Each time this plant has been sown, newest first. Left out if it
+    /// never has been.
+    @ViewBuilder
+    private var sowingsCard: some View {
+        if let plantings = plant.plantings, !plantings.isEmpty {
+            VStack(alignment: .leading, spacing: 10) {
+                Text("Sowings")
+                    .font(.headline)
+                    .foregroundStyle(Theme.ink)
+                ForEach(plantings.sorted { ($0.dateSown ?? .distantPast) > ($1.dateSown ?? .distantPast) }) { planting in
+                    HStack {
+                        Text(planting.bedNames.isEmpty ? "Not placed" : planting.bedNames)
+                            .foregroundStyle(Theme.ink)
+                        Spacer(minLength: 8)
+                        if let sown = planting.dateSown {
+                            Text(sown, format: .dateTime.day().month().year())
+                                .foregroundStyle(Theme.inkSoft)
+                        }
+                    }
+                    .font(.subheadline)
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .glassCard()
+        }
+    }
+}
+
+// MARK: - One card of a plant's page
+
+/// A glass card for one group of facts: rows of months first, then
+/// short facts side by side, then long ones full width, then chips.
+private struct PlantFactCardView: View {
+
+    let factCard: PlantPage.FactCard
+
+    /// How wide the names beside the rows of months are.
+    private let nameWidth: CGFloat = 92
+
+    var body: some View {
+        let shortFacts = factCard.facts.filter { !$0.isLong }
+        let longFacts = factCard.facts.filter(\.isLong)
+
+        VStack(alignment: .leading, spacing: 12) {
+            Text(factCard.title)
+                .font(.headline)
+                .foregroundStyle(Theme.ink)
+
+            if !factCard.monthRows.isEmpty {
+                monthTable
+            }
+
+            if !shortFacts.isEmpty {
+                // As many across as will fit, each at least 120 points
+                // wide. A card in a narrow column gets two across and a
+                // wide one three or four.
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 120), spacing: 12, alignment: .topLeading)],
+                          alignment: .leading, spacing: 10) {
+                    ForEach(shortFacts) { fact in
+                        factView(fact)
+                    }
+                }
+            }
+
+            ForEach(longFacts) { fact in
+                factView(fact)
+            }
+
+            if !factCard.tags.isEmpty {
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 150), spacing: 8, alignment: .leading)],
+                          alignment: .leading, spacing: 8) {
+                    ForEach(factCard.tags, id: \.self) { tag in
+                        Text(tag)
+                            .font(.subheadline)
+                            .foregroundStyle(Theme.ink)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(Theme.leafFill, in: .capsule)
+                    }
+                }
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .glassCard()
+    }
+
+    /// A name in small soft letters with its value underneath.
+    private func factView(_ fact: PlantPage.Fact) -> some View {
+        VStack(alignment: .leading, spacing: 1) {
+            Text(fact.label)
+                .font(.caption)
+                .foregroundStyle(Theme.inkSoft)
+            Text(fact.value)
+                .font(.subheadline)
+                .foregroundStyle(Theme.ink)
+                // Lets a long value run on to more lines.
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        // VoiceOver reads the two as one: "Spacing, 0.15 m".
+        .accessibilityElement(children: .combine)
+    }
+
+    /// The rows of months: the months' first letters across the top,
+    /// then a strip for each row with its months filled in.
+    private var monthTable: some View {
+        VStack(spacing: 5) {
+            HStack(spacing: 8) {
+                Color.clear
+                    .frame(width: nameWidth, height: 1)
+                HStack(spacing: 3) {
+                    ForEach(Array("JFMAMJJASOND".enumerated()), id: \.offset) { _, letter in
+                        Text(String(letter))
+                            .font(.caption2)
+                            .foregroundStyle(Theme.inkSoft)
+                            .frame(maxWidth: .infinity)
+                    }
+                }
+            }
+            .accessibilityHidden(true)
+
+            ForEach(factCard.monthRows) { monthRow in
+                HStack(spacing: 8) {
+                    Text(monthRow.label)
+                        .font(.caption)
+                        .foregroundStyle(Theme.inkSoft)
+                        .frame(width: nameWidth, alignment: .leading)
+                    MonthStrip(months: monthRow.months, fill: tint(for: monthRow.kind))
+                }
+                // VoiceOver reads the months out by name.
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel("\(monthRow.label): \(MonthParser.describe(monthRow.months))")
             }
         }
     }
 
-    @ViewBuilder
-    private func monthRow(_ label: String, _ text: String?) -> some View {
-        let months = MonthParser.months(in: text)
-        if !months.isEmpty {
-            LabeledContent(label) {
-                Text(MonthParser.describe(months))
-                    .multilineTextAlignment(.trailing)
-            }
+    /// The same colours as the Year page uses for the same things.
+    private func tint(for kind: PlantPage.MonthKind) -> Color {
+        switch kind {
+        case .flowering: return Theme.flowering
+        case .growth: return Theme.leaf
+        case .fruiting, .harvest: return Theme.harvest
+        case .sowIndoors: return Theme.sowIndoors
+        case .sowOutdoors: return Theme.sowOutdoors
+        case .plantOut: return Theme.plantOut
         }
     }
+}
 
-    @ViewBuilder
-    private func rangeRow(_ label: String, _ text: String?, unit: String) -> some View {
-        if let range = RangeParser.range(in: text) {
-            LabeledContent(label, value: "\(range.description) \(unit)")
+/// Twelve small blocks, January to December, coloured for the months
+/// that apply. This month has a ring round it.
+private struct MonthStrip: View {
+
+    let months: [Int]
+    let fill: Color
+
+    var body: some View {
+        let thisMonth = Calendar.current.component(.month, from: .now)
+        HStack(spacing: 3) {
+            ForEach(1...12, id: \.self) { month in
+                RoundedRectangle(cornerRadius: 4)
+                    .fill(months.contains(month) ? fill : Theme.hairline.opacity(0.7))
+                    .frame(height: 14)
+                    .frame(maxWidth: .infinity)
+                    .overlay {
+                        if month == thisMonth {
+                            RoundedRectangle(cornerRadius: 4)
+                                .strokeBorder(Theme.ink.opacity(0.75), lineWidth: 1.2)
+                        }
+                    }
+            }
         }
     }
 }

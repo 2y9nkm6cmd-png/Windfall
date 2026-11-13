@@ -1,6 +1,7 @@
 Parsing.swift
 YearCalendar.swift
 PlantFilter.swift
+PlantPage.swift
 TodayLayout.swift
 OSGridReference.swift
 GardenStructure.swift

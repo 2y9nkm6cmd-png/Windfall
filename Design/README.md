@@ -67,6 +67,8 @@ Icons are drawn on a 24 by 24 grid with a line 1.6 wide and rounded ends.
 | `2026-11-13 screenshot-eira-bar-over-card-edge-mac.png` | Eira's bar running out past the edge of the card above it, sent with "it should sit slightly within it" |
 | `2026-11-13 screenshot-journal-filter-menu-centre-mac.png` | The Journal on the Mac with its filter menu in the middle of the bar at the top, sent with "Is there a reason that this menu is in the middle of the top bar?" |
 | `2026-11-13 screenshot-diary-entry-form-mac.png` | The diary entry form on the Mac, sent with "the journal entry isn't very chat interface like. Is there a way that we can add all these options into a sleeker chat like interface?" |
+| `2026-11-13 screenshot-plant-page-garlic-mac.png` | Garlic's page as a standard form on the Mac, sent with "Can you make these more card like as well. You could use the overall sections that I used in my spreadsheet to create sections" |
+| `2026-11-13 screenshot-companions-list-mac.png` | Garlic's companions as one long list, sent with "make the companion planting two columns and then if the window is narrow it has a top bar that has the friends and enemies" |
 
 ## What is in Archive
 
