@@ -69,6 +69,24 @@ Icons are drawn on a 24 by 24 grid with a line 1.6 wide and rounded ends.
 | `2026-11-13 screenshot-diary-entry-form-mac.png` | The diary entry form on the Mac, sent with "the journal entry isn't very chat interface like. Is there a way that we can add all these options into a sleeker chat like interface?" |
 | `2026-11-13 screenshot-plant-page-garlic-mac.png` | Garlic's page as a standard form on the Mac, sent with "Can you make these more card like as well. You could use the overall sections that I used in my spreadsheet to create sections" |
 | `2026-11-13 screenshot-companions-list-mac.png` | Garlic's companions as one long list, sent with "make the companion planting two columns and then if the window is narrow it has a top bar that has the friends and enemies" |
+| `2026-11-13 evening screenshot-today-mac-switch-mid-drag.png` | Today on the Mac with the garden switch caught mid-drag: the lens slid but did not lift or magnify |
+| `2026-11-13 evening screenshot-this-week-frost-job.png` | "This week" with the frost job, which names no plants |
+| `2026-11-13 evening screenshot-count-conditions-switches.png` | The count's three sliding switches before the lens was reworked |
+| `2026-11-13 evening screenshot-garden-editor-the-plot-mac.png` | The garden editor's plot section, with a stray "Not set" and a doubled 0 |
+| `2026-11-13 evening screenshot-journal-page-plain-list-mac.png` | The Journal page as a plain list, before it became a card a day |
+| `2026-11-13 evening screenshot-eira-chat-planted-potatoes.png` | "Today, I planted some potatoes." typed into Eira's bar, answered by her ordinary chat |
+| `2026-11-13 evening screenshot-eira-chat-planted-beans.png` | The same with beans: "Should this not be asking me what kind of beans and where?" |
+| `2026-11-13 evening screenshot-plant-page-apple-mac.png` | An apple's page, where William asked for Command and plus |
+| `2026-11-13 evening screenshot-plant-page-garlic-wide-mac.png` | Garlic's page as cards, where William asked for a two-finger swipe back |
+| `2026-11-13 evening screenshot-today-garden-plans-joined-and-arrows-over-compass.png` | Rearranging Today: the two garden plans moved as one, and the arrows covered the compass |
+| `2026-11-13 evening screenshot-new-sighting-form-mac-2.png` | The sighting form as a standard form: "This still doesn't match the vibe" |
+| `2026-11-13 evening screenshot-sightings-list-and-form-mac.png` | The Sightings list and the form over it |
+| `2026-11-13 evening screenshot-today-corner-drawing.png` | The drawing in Today's corner, which does not yet change with what is growing |
+| `2026-11-13 evening screenshot-year-page-mac.png` | The Year page, where William asked for a filter by kind of plant |
+| `2026-11-13 evening screenshot-sidebar-rectangle-behind.png` | The rectangle that showed behind the sidebar |
+| `2026-11-13 evening screenshot-eira-options-menu.png` | Eira's Options menu, the only way to past conversations |
+| `2026-11-13 evening screenshot-eira-past-conversations.png` | The list of past conversations |
+| `2026-11-13 evening screenshot-garden-map-mac.png` | The Garden map: "I'm not sure what this page is offering right now" |
 
 ## What is in Archive
 

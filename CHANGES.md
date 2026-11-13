@@ -7,6 +7,54 @@ run without the Mac (every file reads as valid Swift, 323 logic tests
 pass). Those do not build the screens. Expect things to put right when
 it is first built, and treat how everything here looks as untried.
 
+## 13 November 2026, evening: what William found in the first build
+
+William tried the first build on the Mac and sent seventeen pictures. Each change below says why it was made. The pictures are in `Design/Reference`, named "2026-11-13 evening".
+
+### The sliding switch (`GlassSwitch.swift`, new file)
+
+- **Why**: dragged, the lens only slid. Apple's own switches lift into clear glass that magnifies. And there was no two-finger swipe.
+- The lens now has two looks. At rest it is green glass. Lifted, it is clear, taller than its track, and the words under it are magnified by the same small graphics program as the sidebar's lens (`LensBend`).
+- Its left and right edges are kept as two numbers. On a tap one edge sets off first, so it stretches across. While carried it stretches with its speed and draws back when the finger stops.
+- On a Mac, a sideways two-finger swipe with the pointer over a switch carries the lens. An up-and-down swipe is left to the page.
+- **The rule**: every bar of choices is a `GlassSwitch`. The last standard one, on Charts, was swapped.
+
+### The jiggle (`TodayView.swift`, `Wiggle`)
+
+- **Why**: every card rocked through the same angle in step, like a machine.
+- Each card now has its own pace, chosen at random once, and bobs up and down a little as well as turning. A small card turns further than a wide one. Apple publishes no figures for its jiggle, so this copies what can be seen.
+
+### A plan card for each garden (`TodayLayout.swift`, `TodayView.swift`)
+
+- **Why**: the two garden plans moved as one card.
+- `TodayPanel` changed from a fixed list of cases to a struct holding a name, so there can be one panel for each garden ("plan:allotment"). On a three-column screen each garden's plan is its own card. Narrower screens keep one card with the switch.
+- An arrangement saved before this still reads: the old "plans" card is swapped for the garden cards where it stood.
+- The arrows now sit astride the card's top edge. Inside the corner they covered the compass.
+
+### Telling Eira something (`JournalChat.swift`, `EiraFloatingBar.swift`, `JournalChatView.swift`)
+
+- **Why**: "Today I planted beans" typed into Eira's bar went to her ordinary chat, which looked for a record and found none.
+- `JournalChat.readsAsTelling` is a fixed rule that tells an account ("I planted", "We harvested") from a question. It is cautious: in doubt, the words go to Eira as before.
+- An account now opens the journal's conversation with the words waiting in the box. Sending it there notes the time and weather and brings up the card that asks which bean and where. A button hands the words back to Eira if it was a question after all.
+
+### On a Mac: text size, going back, the sidebar (`PageZoom.swift`, `TextSize.swift`, new files)
+
+- **Command and plus or minus** make the page larger or smaller, and Command and 0 puts it back. A Mac has no text size setting that apps can follow (tried on William's Mac: asking for larger type changed nothing), so the page is laid out for a smaller window and enlarged, as a web browser does.
+- **Two fingers swiped right** go back a page. Each page that was opened on top of another hands `BackSwipe` its own way of leaving.
+- **The sidebar can be hidden**: a button at the left of the window's bar, and "Hide Sidebar" in the View menu (Control, Command and S). On an iPad the button is in the sidebar's heading.
+- **The rectangle behind the sidebar is gone.** The window and each page drew their own washes of colour, each from its own edges, so they did not meet. Pages now draw the window's (`PaperBackground(followsWindow:)`).
+
+### Pages redrawn in the app's own look
+
+- **Journal** (`JournalViews.swift`, `JournalPage.swift`): a card for each day, with the day's weather, what was written and what was recorded. A bar at the top opens the conversation. Ticks choose which kinds show.
+- **Sightings** and **the sighting form** (`ObservationViews.swift`): cards, the app's icons and tags. The form is built from `SheetParts`.
+- **Year** (`YearView.swift`): a "Fruit, veg…" button filters by kind of plant, using the Plants page's sorting.
+- **The garden's plot** (`GardenEditorView.swift`): plus and minus turn the plan five degrees at a time, held down they keep turning, and the plan turns inside a compass ring with north at the top. The stray "Not set" beside each number is fixed.
+
+### Not seen or tried
+
+Everything here was built on the Mac without errors. The lens moving, the jiggle, the swipes, Command and plus, and hiding the sidebar can only be judged by hand.
+
 ## "This week": the urgent jobs (`WeekJobs.swift`, new)
 
 William: "Eira could organise the this week to make sure it is specific
