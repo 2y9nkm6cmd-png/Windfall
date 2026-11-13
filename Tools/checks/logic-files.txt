@@ -24,4 +24,5 @@ ExportService.swift
 BackupService.swift
 WeatherService.swift
 WeatherDiary.swift
+WeekJobs.swift
 EiraOnDeviceEngine.swift

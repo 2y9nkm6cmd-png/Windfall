@@ -200,99 +200,120 @@ struct NewPlantingView: View {
     }
 
     var body: some View {
-        NavigationStack {
-            Form {
-                Section("Plant") {
+        // Built from the pieces in SheetParts.swift, so that it matches
+        // the screen it is opened from. It was a standard Form.
+        SheetPage("New sowing",
+                  confirmTitle: "Save",
+                  canConfirm: selectedPlant != nil,
+                  onConfirm: save) {
+            SheetScroll {
+                SheetCard("Plant") {
                     if let selectedPlant {
                         HStack {
-                            VStack(alignment: .leading) {
-                                Text(selectedPlant.displayName)
-                                if let latin = selectedPlant.latinName {
-                                    Text(latin).font(.caption).italic()
-                                        .foregroundStyle(.secondary)
-                                }
-                            }
+                            plantWords(selectedPlant)
                             Spacer()
                             Button("Change") { self.selectedPlant = nil }
-                                .font(.caption)
+                                .buttonStyle(.glass)
                         }
-
                         if let round = suggestedRound {
-                            Label("Succession round \(round)", systemImage: "repeat")
+                            Text("Succession round \(round)")
                                 .font(.caption)
-                                .foregroundStyle(.secondary)
+                                .foregroundStyle(Theme.inkSoft)
                         }
                     } else {
-                        TextField("Search plants", text: $plantSearch)
-                        ForEach(matchingPlants.prefix(8)) { plant in
-                            Button {
-                                selectedPlant = plant
-                                plantSearch = ""
-                            } label: {
-                                VStack(alignment: .leading) {
-                                    Text(plant.displayName)
-                                    if let latin = plant.latinName {
-                                        Text(latin).font(.caption).italic()
-                                            .foregroundStyle(.secondary)
-                                    }
+                        FieldBox {
+                            TextField("Search plants", text: $plantSearch)
+                        }
+                        // The first eight matches, each a row to tap.
+                        VStack(alignment: .leading, spacing: 0) {
+                            ForEach(matchingPlants.prefix(8)) { plant in
+                                Button {
+                                    selectedPlant = plant
+                                    plantSearch = ""
+                                } label: {
+                                    plantWords(plant)
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                        .padding(.vertical, 7)
+                                        .contentShape(.rect)
                                 }
+                                .buttonStyle(.plain)
+                                Divider()
+                                    .overlay(Theme.hairline)
                             }
-                            .buttonStyle(.plain)
+                        }
+                        if matchingPlants.isEmpty {
+                            Text("No plant in the library matches that.")
+                                .font(.subheadline)
+                                .foregroundStyle(Theme.inkSoft)
                         }
                     }
                 }
 
-                Section("Where") {
-                    Picker("Bed", selection: $selectedBed) {
-                        Text("Not placed").tag(Bed?.none)
-                        ForEach(beds) { bed in
-                            Text(bed.name).tag(Bed?.some(bed))
+                SheetCard("Where") {
+                    SettingRow("Bed") {
+                        Picker("Bed", selection: $selectedBed) {
+                            Text("Not placed").tag(Bed?.none)
+                            ForEach(beds) { bed in
+                                Text(bed.name).tag(Bed?.some(bed))
+                            }
                         }
+                        .labelsHidden()
+                        .onChange(of: selectedBed) { _, _ in selectedSections = [] }
                     }
-                    .onChange(of: selectedBed) { _, _ in selectedSections = [] }
 
                     if let selectedBed {
                         SectionPicker(bed: selectedBed, selected: $selectedSections)
                     }
                 }
 
-                Section("Sowing") {
-                    DatePicker("Date sown", selection: $dateSown, displayedComponents: .date)
-
-                    Picker("Location", selection: $sowingLocation) {
-                        Text("Indoors").tag(SowingLocation.indoors)
-                        Text("Outdoors").tag(SowingLocation.outdoors)
-                        Text("Under cover").tag(SowingLocation.undercover)
-                        Text("Direct sown").tag(SowingLocation.directSown)
+                SheetCard("Sowing") {
+                    SettingRow("Date sown") {
+                        DatePicker("Date sown", selection: $dateSown, displayedComponents: .date)
+                            .labelsHidden()
                     }
 
-                    LabeledContent("Quantity sown") {
-                        TextField("seeds", text: $quantitySown)
-                            .multilineTextAlignment(.trailing)
-                            #if os(iOS)
-                            .keyboardType(.numberPad)
-                            #endif
+                    GlassSwitch(choices: [SowingLocation.indoors, .outdoors, .undercover, .directSown],
+                                selection: $sowingLocation) { place in
+                        switch place {
+                        case .indoors: return "Indoors"
+                        case .outdoors: return "Outdoors"
+                        case .undercover: return "Under cover"
+                        case .directSown: return "Direct sown"
+                        }
+                    }
+
+                    SettingRow("Quantity sown") {
+                        FieldBox {
+                            TextField("seeds", text: $quantitySown)
+                                .multilineTextAlignment(.trailing)
+                                .frame(width: 90)
+                                #if os(iOS)
+                                .keyboardType(.numberPad)
+                                #endif
+                        }
                     }
                 }
 
-                Section("Notes") {
-                    TextField("Anything worth recording", text: $notes, axis: .vertical)
-                        .lineLimit(2...5)
+                SheetCard("Notes") {
+                    FieldBox {
+                        TextField("Anything worth recording", text: $notes, axis: .vertical)
+                            .lineLimit(2...5)
+                    }
                 }
             }
-            .navigationTitle("New sowing")
-            .paperScreen()
-            #if os(iOS)
-            .navigationBarTitleDisplayMode(.inline)
-            #endif
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") { save() }
-                        .disabled(selectedPlant == nil)
-                }
+        }
+    }
+
+    /// A plant's name with its Latin name underneath.
+    private func plantWords(_ plant: Plant) -> some View {
+        VStack(alignment: .leading, spacing: 1) {
+            Text(plant.displayName)
+                .foregroundStyle(Theme.ink)
+            if let latin = plant.latinName {
+                Text(latin)
+                    .font(.caption)
+                    .italic()
+                    .foregroundStyle(Theme.inkSoft)
             }
         }
     }
@@ -331,7 +352,7 @@ private struct SectionPicker: View {
         VStack(alignment: .leading, spacing: 6) {
             Text("Sections")
                 .font(.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Theme.inkSoft)
 
             LazyVGrid(columns: columns, spacing: 6) {
                 ForEach(bed.orderedSections) { section in
@@ -344,14 +365,15 @@ private struct SectionPicker: View {
                     } label: {
                         Text(section.label)
                             .font(.callout.weight(.medium))
+                            .foregroundStyle(Theme.ink)
                             .frame(maxWidth: .infinity)
                             .frame(height: 40)
-                            .background(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .fill(selected.contains(section.id)
-                                          ? Color.accentColor.opacity(0.25)
-                                          : Color.secondary.opacity(0.10))
-                            )
+                            .background(selected.contains(section.id) ? Theme.leafFill : Theme.card.opacity(0.7),
+                                        in: .rect(cornerRadius: 12))
+                            .overlay {
+                                RoundedRectangle(cornerRadius: 12)
+                                    .strokeBorder(Theme.hairline)
+                            }
                     }
                     .buttonStyle(.plain)
                 }
@@ -537,9 +559,30 @@ struct PlantingDetailView: View {
 
 // MARK: - Harvest editor
 
+private extension HarvestDestination {
+    /// The destination in plain words: "Given away", not "Givenaway".
+    var words: String {
+        switch self {
+        case .eaten: return "Eaten"
+        case .stored: return "Stored"
+        case .frozen: return "Frozen"
+        case .preserved: return "Preserved"
+        case .givenAway: return "Given away"
+        case .sold: return "Sold"
+        case .seedSaved: return "Seed saved"
+        case .composted: return "Composted"
+        case .lost: return "Lost"
+        }
+    }
+}
+
+
 struct HarvestEditor: View {
 
     let planting: Planting
+    /// Set when this form was reached from a list of sowings in the
+    /// same sheet. The plain button then reads "Back" and returns there.
+    var onBack: (() -> Void)? = nil
 
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var context
@@ -550,51 +593,58 @@ struct HarvestEditor: View {
     @State private var destination: HarvestDestination = .eaten
     @State private var notes = ""
 
+    /// What was sown and where, for the line under the title.
+    private var sowingLine: String {
+        let name = planting.plant?.displayName ?? "Unknown plant"
+        return planting.bedNames.isEmpty ? name : "\(name). \(planting.bedNames)"
+    }
+
     var body: some View {
-        NavigationStack {
-            Form {
-                DatePicker("Date", selection: $date, displayedComponents: .date)
-
-                LabeledContent("Quantity") {
-                    TextField("0", text: $quantity)
-                        .multilineTextAlignment(.trailing)
-                        #if os(iOS)
-                        .keyboardType(.decimalPad)
-                        #endif
-                }
-
-                Picker("Unit", selection: $unit) {
-                    ForEach(HarvestUnit.allCases) { u in
-                        Text(u.displayName).tag(u)
+        SheetPage("Harvest",
+                  detail: sowingLine,
+                  dismissTitle: onBack == nil ? "Cancel" : "Back",
+                  onDismiss: onBack,
+                  confirmTitle: "Save",
+                  canConfirm: Double(quantity) != nil,
+                  onConfirm: save) {
+            SheetScroll {
+                SheetCard("How much") {
+                    SettingRow("Date") {
+                        DatePicker("Date", selection: $date, displayedComponents: .date)
+                            .labelsHidden()
                     }
-                }
-
-                Section {
-                    Picker("Destination", selection: $destination) {
-                        ForEach(HarvestDestination.allCases) { d in
-                            Text(d.rawValue.capitalized).tag(d)
+                    SettingRow("Quantity") {
+                        FieldBox {
+                            TextField("0", text: $quantity)
+                                .multilineTextAlignment(.trailing)
+                                .frame(width: 90)
+                                #if os(iOS)
+                                .keyboardType(.decimalPad)
+                                #endif
                         }
                     }
-                } footer: {
-                    Text("Recording where it went is what separates what you grew from what you actually used.")
+                    GlassSwitch(choices: HarvestUnit.allCases, selection: $unit) { $0.displayName }
                 }
 
-                Section("Notes") {
-                    TextField("Optional", text: $notes, axis: .vertical)
+                SheetCard("Where it went") {
+                    SettingRow("Destination") {
+                        Picker("Destination", selection: $destination) {
+                            ForEach(HarvestDestination.allCases) { place in
+                                Text(place.words).tag(place)
+                            }
+                        }
+                        .labelsHidden()
+                    }
+                    Text("Recording where it went is what separates what you grew from what you actually used.")
+                        .font(.caption)
+                        .foregroundStyle(Theme.inkSoft)
                 }
-            }
-            .navigationTitle("Harvest")
-            .paperScreen()
-            #if os(iOS)
-            .navigationBarTitleDisplayMode(.inline)
-            #endif
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") { save() }
-                        .disabled(Double(quantity) == nil)
+
+                SheetCard("Notes") {
+                    FieldBox {
+                        TextField("Optional", text: $notes, axis: .vertical)
+                            .lineLimit(2...5)
+                    }
                 }
             }
         }

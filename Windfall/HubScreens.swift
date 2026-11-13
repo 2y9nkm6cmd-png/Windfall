@@ -253,14 +253,12 @@ struct GardenTab: View {
             // One at a time, with a switch between them, as on Today.
             let shown = activeGardens.first { $0.siteKey == shownGardenKey } ?? activeGardens[0]
             if activeGardens.count > 1 {
-                Picker("Garden", selection: Binding(
+                GlassSwitch(choices: activeGardens.map(\.siteKey), selection: Binding(
                     get: { shown.siteKey },
                     set: { shownGardenKey = $0 }
-                )) {
-                    ForEach(activeGardens) { Text($0.name).tag($0.siteKey) }
+                )) { key in
+                    activeGardens.first { $0.siteKey == key }?.name ?? key
                 }
-                .pickerStyle(.segmented)
-                .labelsHidden()
             }
             planCard(for: shown)
         } else {

@@ -6,8 +6,9 @@
 //  them about.
 //
 //  The screen is made of "panels": the conditions card, the six capture
-//  buttons, this month's jobs, the garden plans, the recent records and
-//  the journal offer. Pressing and holding one lets them be rearranged.
+//  buttons, this week's urgent jobs, this month's jobs, the garden plans,
+//  the recent records and the journal offer. Pressing and holding one
+//  lets them be rearranged.
 //
 //  The page has "zones" that panels sit in. On a wide screen there are
 //  five: a full-width stack at the top, three columns, and a full-width
@@ -28,7 +29,7 @@ import Foundation
 
 /// One movable panel of the Today screen.
 enum TodayPanel: String, CaseIterable, Identifiable {
-    case conditions, capture, jobs, plans, recent, journal
+    case conditions, capture, week, jobs, plans, recent, journal
 
     var id: String { rawValue }
 
@@ -38,6 +39,7 @@ enum TodayPanel: String, CaseIterable, Identifiable {
         switch self {
         case .conditions: return "Conditions"
         case .capture: return "Capture buttons"
+        case .week: return "This week"
         case .jobs: return "This month"
         case .plans: return "Garden plans"
         case .recent: return "Recent records"
@@ -73,20 +75,21 @@ struct TodayArrangement: Equatable {
         columns <= 1 ? 1 : columns + 2
     }
 
-    /// The arrangement the app starts with. Each matches how Today was
-    /// laid out before it could be rearranged.
+    /// The arrangement the app starts with. Each is how Today was laid
+    /// out before it could be rearranged, with "This week" added above
+    /// "This month".
     static func standard(columns: Int) -> TodayArrangement {
         switch columns {
         case 3:
             return TodayArrangement(columns: 3, zones: [[.conditions, .capture],
-                                                        [.jobs], [.plans], [.recent, .journal],
+                                                        [.week, .jobs], [.plans], [.recent, .journal],
                                                         []])
         case 2:
             return TodayArrangement(columns: 2, zones: [[.conditions, .capture],
-                                                        [.jobs, .recent], [.plans, .journal],
+                                                        [.week, .jobs, .recent], [.plans, .journal],
                                                         []])
         default:
-            return TodayArrangement(columns: 1, zones: [[.conditions, .capture, .jobs, .plans, .recent, .journal]])
+            return TodayArrangement(columns: 1, zones: [[.conditions, .capture, .week, .jobs, .plans, .recent, .journal]])
         }
     }
 
@@ -99,7 +102,7 @@ struct TodayArrangement: Equatable {
 
     /// The arrangement as one line of text, for keeping in the app's
     /// settings: zones divided by "|" and panels by ",". The standard
-    /// three-column one reads "conditions,capture|jobs|plans|recent,journal|".
+    /// three-column one reads "conditions,capture|week,jobs|plans|recent,journal|".
     var stored: String {
         zones.map { $0.map(\.rawValue).joined(separator: ",") }.joined(separator: "|")
     }
@@ -111,8 +114,10 @@ struct TodayArrangement: Equatable {
     /// - text with the wrong number of zones gives the standard arrangement
     /// - a name it does not know is skipped
     /// - a panel listed twice is kept once
-    /// - a panel not listed at all is put back in its standard zone, so a
-    ///   panel added in a later version appears and nothing can be lost.
+    /// - a panel not listed at all is put back in its standard zone, as
+    ///   near its standard place as that zone allows. So a panel added in
+    ///   a later version appears where it was meant to, and nothing can
+    ///   be lost.
     init(columns: Int, stored text: String) {
         let fallback = TodayArrangement.standard(columns: columns)
         let parts = text.split(separator: "|", omittingEmptySubsequences: false)
@@ -130,8 +135,8 @@ struct TodayArrangement: Equatable {
             }
         }
         for (index, zone) in fallback.zones.enumerated() {
-            for panel in zone where !seen.contains(panel) {
-                read[index].append(panel)
+            for (place, panel) in zone.enumerated() where !seen.contains(panel) {
+                read[index].insert(panel, at: min(place, read[index].count))
             }
         }
         self.columns = fallback.columns

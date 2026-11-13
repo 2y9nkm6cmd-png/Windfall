@@ -14,6 +14,9 @@
 
 import SwiftUI
 import SwiftData
+#if os(macOS)
+import AppKit
+#endif
 
 /// The places in the app. This one list drives both the sidebar and the
 /// tabs, so they can never disagree.
@@ -156,11 +159,14 @@ struct MainTabView: View {
             // every screen that the strip is taken, so a long list can
             // always be scrolled clear of it.
             .safeAreaInset(edge: .bottom, spacing: 0) {
-                // Only a sliver of room on the left, so that when the bar
-                // opens the snowdrop runs right up to the sidebar.
+                // The bar opens across the page and stops a little inside
+                // the edges of the cards above it. The cards begin 14 to
+                // 16 points in from the left and 16 to 24 from the right.
+                // (It ran on past them to the sidebar until William
+                // asked, on 13 November 2026, for it to sit within.)
                 EiraFloatingBar()
-                    .padding(.leading, 5)
-                    .padding(.trailing, 20)
+                    .padding(.leading, 20)
+                    .padding(.trailing, 28)
                     .padding(.bottom, 14)
             }
         }
@@ -257,6 +263,27 @@ struct SidebarView: View {
     /// Counts the moves, so an older move never finishes on top of a newer one.
     @State private var moveNumber = 0
 
+    #if os(macOS)
+    // For two-finger scrolling on a Mac's trackpad. See "Scrolling the
+    // lens" further down.
+    /// True while the pointer is over the sidebar.
+    @State private var isPointerOver = false
+    /// The Mac's handle on the scroll watcher, kept so it can be removed.
+    @State private var scrollWatcher: Any?
+    /// Where the lens was when the scroll under way began, and how far
+    /// the fingers have carried it since.
+    @State private var scrollStart: CGFloat = 0
+    @State private var scrollTravel: CGFloat = 0
+    /// True from the moment a trackpad scroll begins until it ends.
+    @State private var isScrollingLens = false
+    /// When a mouse wheel last moved the lens, so one spin of a
+    /// free-running wheel does not race through every row.
+    @State private var lastWheelStep = Date.distantPast
+    /// How far the lens moves for each point the fingers scroll. Under 1
+    /// so that a short flick does not cross the whole list.
+    private let scrollGearing: CGFloat = 0.6
+    #endif
+
     /// How far down the last row starts. The lens never goes below it.
     private var lastRowTop: CGFloat {
         CGFloat(AppSection.allCases.count - 1) * (rowHeight + rowGap)
@@ -339,6 +366,11 @@ struct SidebarView: View {
         .onChange(of: selection) { _, section in
             moveLens(to: section, animated: true)
         }
+        #if os(macOS)
+        .onHover { isPointerOver = $0 }
+        .onAppear { watchScrolling() }
+        .onDisappear { stopWatchingScrolling() }
+        #endif
     }
 
     // MARK: The pieces
@@ -496,6 +528,93 @@ struct SidebarView: View {
             withAnimation(.smooth(duration: 0.3)) { selection = section }
         }
     }
+
+    // MARK: Scrolling the lens (Mac)
+
+    #if os(macOS)
+    /// Starts watching for scrolling.
+    ///
+    /// SwiftUI has no "this view was scrolled over" for a view that is
+    /// not a scrolling list. So this asks the Mac itself to pass every
+    /// scroll in the app through here first. A scroll with the pointer
+    /// over the sidebar is used to move the lens and goes no further.
+    /// Any other scroll is handed straight back, untouched, to wherever
+    /// it was going.
+    private func watchScrolling() {
+        guard scrollWatcher == nil else { return }
+        scrollWatcher = NSEvent.addLocalMonitorForEvents(matching: .scrollWheel) { scroll in
+            guard isPointerOver else { return scroll }
+            lensScrolled(by: scroll)
+            return nil
+        }
+    }
+
+    private func stopWatchingScrolling() {
+        if let scrollWatcher { NSEvent.removeMonitor(scrollWatcher) }
+        scrollWatcher = nil
+    }
+
+    /// Moves the lens for one piece of a scroll.
+    private func lensScrolled(by scroll: NSEvent) {
+        // After the fingers lift, a trackpad keeps sending a glide that
+        // dies away. The lens has already settled, so that is ignored.
+        guard scroll.momentumPhase.isEmpty else { return }
+
+        // Which way the fingers went, as points down the screen. With
+        // "natural scrolling" switched off in System Settings the Mac
+        // reports the opposite sign, so it is turned back here. Either
+        // way, fingers moving down carry the lens down.
+        let fingers = scroll.isDirectionInvertedFromDevice ? scroll.scrollingDeltaY : -scroll.scrollingDeltaY
+
+        // A mouse wheel has no beginning or end, only clicks. Each
+        // click moves one row.
+        if scroll.phase.isEmpty {
+            guard fingers != 0, Date.now.timeIntervalSince(lastWheelStep) > 0.15 else { return }
+            lastWheelStep = .now
+            stepSelection(by: fingers > 0 ? 1 : -1)
+            return
+        }
+
+        if scroll.phase.contains(.began) {
+            let index = CGFloat(AppSection.allCases.firstIndex(of: selection) ?? 0)
+            scrollStart = index * (rowHeight + rowGap)
+            scrollTravel = 0
+            isScrollingLens = true
+        }
+        // Two fingers resting on the trackpad, or lifted again without
+        // moving, are reported too. Neither is a scroll.
+        guard isScrollingLens else { return }
+
+        // Add up how far the fingers have gone, never past either end.
+        let wanted = scrollStart + scrollTravel + fingers * scrollGearing
+        scrollTravel = min(max(wanted, 0), lastRowTop) - scrollStart
+        // carryLens and dropLens are given the middle of the lens, as
+        // they are when it is dragged.
+        let middle = scrollStart + scrollTravel + rowHeight / 2
+
+        if scroll.phase.contains(.ended) || scroll.phase.contains(.cancelled) {
+            if reduceMotion {
+                // No sliding lens. A scroll of any size is one step.
+                if abs(scrollTravel) > 12 { stepSelection(by: scrollTravel > 0 ? 1 : -1) }
+            } else {
+                dropLens(at: middle)
+            }
+            scrollTravel = 0
+            isScrollingLens = false
+        } else {
+            carryLens(to: middle)
+        }
+    }
+
+    /// Chooses the row above (-1) or below (+1) the chosen one.
+    private func stepSelection(by amount: Int) {
+        let sections = AppSection.allCases
+        let index = sections.firstIndex(of: selection) ?? 0
+        let next = min(max(index + amount, 0), sections.count - 1)
+        guard next != index else { return }
+        withAnimation(.smooth(duration: 0.3)) { selection = sections[next] }
+    }
+    #endif
 }
 
 /// Magnifies and bends whatever lies under the sidebar's lens.

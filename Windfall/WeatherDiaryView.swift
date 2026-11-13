@@ -43,11 +43,10 @@ struct WeatherDiaryView: View {
                 ScreenHeader(title: "Weather", detail: headline(days))
 
                 if places.count > 1, let site {
-                    Picker("Garden", selection: Binding(get: { site }, set: { shownSite = $0 })) {
-                        ForEach(places, id: \.site) { Text($0.name).tag($0.site) }
+                    GlassSwitch(choices: places.map(\.site),
+                                selection: Binding(get: { site }, set: { shownSite = $0 })) { key in
+                        places.first { $0.site == key }?.name ?? key
                     }
-                    .pickerStyle(.segmented)
-                    .labelsHidden()
                 }
 
                 if places.isEmpty {

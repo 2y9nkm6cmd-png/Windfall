@@ -504,7 +504,10 @@ extension View {
     @ViewBuilder
     func macSheetSize(width: CGFloat = 480, height: CGFloat = 520) -> some View {
         #if os(macOS)
+        // The paper goes behind the whole sheet, so that any strip the
+        // sheet's own content does not reach is paper too, not grey.
         self.frame(minWidth: width, minHeight: height)
+            .presentationBackground { PaperBackground() }
         #else
         self
         #endif

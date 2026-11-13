@@ -56,6 +56,15 @@ Icons are drawn on a 24 by 24 grid with a line 1.6 wide and rounded ends.
 | `2026-11-12 screenshot-wildlife-list-before.png` | The Wildlife page as a plain list of links, sent with the Gardens one |
 | `2026-11-12 screenshot-journal-entry-form.png` | The journal's diary entry form, sent with "This doesn't look too nice right now". William's idea: a journal that works like a conversation with Eira |
 | `2026-11-13 screenshot-today-mac-before-rearranging.png` | Today on the Mac with the cards in fixed places, sent with "rearrange the home view by tapping and holding the object (like the This month box), and it wiggling to rearrange" |
+| `2026-11-13 screenshot-earthworm-count-setup-mac.png` | The earthworm count's setup as a standard form on the Mac, sent with "Can you make the interface a bit nicer for this please" |
+| `2026-11-13 screenshot-earthworm-count-running-mac.png` | The earthworm count while counting, sent with the same request |
+| `2026-11-13 screenshot-sidebar-mac.png` | The sidebar, sent with "two finger scroll on the mac on the side bar please and the glass selector moves" |
+| `2026-11-13 screenshot-new-sighting-form-mac.png` | The new sighting form on the Mac, sent with "A lot of the buried menus are looking quite different to the top level interface" and a note about the bars at the top and bottom of the windows |
+| `2026-11-13 screenshot-new-sowing-form-mac.png` | The new sowing form on the Mac, sent with the same note |
+| `2026-11-13 screenshot-harvest-picker-mac.png` | "What did you harvest?" with one sowing and a tall empty window, sent with the same note |
+| `2026-11-13 screenshot-fit-count-setup-mac.png` | The FIT Count's setup on the Mac, with bare bands above and below the form |
+| `2026-11-13 screenshot-garden-switch-half-width-mac.png` | The Allotment and Permaculture garden switch at half the Mac window's width: squarer corners than the cards, wider than them, and no sliding glass |
+| `2026-11-13 screenshot-eira-bar-over-card-edge-mac.png` | Eira's bar running out past the edge of the card above it, sent with "it should sit slightly within it" |
 
 ## What is in Archive
 

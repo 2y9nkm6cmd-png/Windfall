@@ -34,13 +34,8 @@ struct GardenMapView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Picker("Garden", selection: $site) {
-                ForEach(GardenSite.allCases) { s in
-                    Text(s.displayName).tag(s)
-                }
-            }
-            .pickerStyle(.segmented)
-            .padding()
+            GlassSwitch(choices: Array(GardenSite.allCases), selection: $site) { $0.displayName }
+                .padding()
 
             if sited.isEmpty {
                 ContentUnavailableView {

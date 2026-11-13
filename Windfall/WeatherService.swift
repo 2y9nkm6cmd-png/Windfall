@@ -91,6 +91,10 @@ final class WeatherService {
     static let shared = WeatherService()
 
     private(set) var current: CurrentConditions?
+    /// The week ahead, a day at a time, for "This week" on the Today
+    /// screen. It arrives in the same reply as the current conditions,
+    /// so it costs no extra request. Empty until the first reply.
+    private(set) var outlook: [OutlookDay] = []
     private(set) var isLoading = false
     private(set) var lastError: String?
     private(set) var lastFetched: Date?
@@ -112,10 +116,18 @@ final class WeatherService {
 
         var components = URLComponents(string: "https://api.open-meteo.com/v1/forecast")!
         components.queryItems = [
-            URLQueryItem(name: "latitude", value: String(coordinate.latitude)),
-            URLQueryItem(name: "longitude", value: String(coordinate.longitude)),
+            // Three decimal places is about a hundred metres: plenty for
+            // weather, and no more exact than it needs to be. (Until
+            // 13 November 2026 this sent the location in full, which was
+            // more than Settings says is sent.)
+            URLQueryItem(name: "latitude", value: String(format: "%.3f", coordinate.latitude)),
+            URLQueryItem(name: "longitude", value: String(format: "%.3f", coordinate.longitude)),
             URLQueryItem(name: "current",
                          value: "temperature_2m,relative_humidity_2m,precipitation,cloud_cover,wind_speed_10m,weather_code"),
+            // Today and the seven days after it, for the frost, wind
+            // and dry-spell warnings in "This week".
+            URLQueryItem(name: "daily", value: "temperature_2m_min,precipitation_sum,wind_gusts_10m_max"),
+            URLQueryItem(name: "forecast_days", value: "8"),
             URLQueryItem(name: "timezone", value: "Europe/London")
         ]
 
@@ -138,6 +150,7 @@ final class WeatherService {
             )
 
             current = conditions
+            outlook = WeekJobs.outlook(from: data)
             lastFetched = .now
             return conditions
 

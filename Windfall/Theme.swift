@@ -131,8 +131,17 @@ extension View {
 
     /// Gives a screen the cream paper background. Lists and forms have a
     /// grey background of their own, which is hidden first.
+    ///
+    /// On a Mac it also asks any Form on the screen to use the "grouped"
+    /// look: boxed sections that scroll and fill the window, as on an
+    /// iPhone. Left alone, a Mac lays a Form out in two columns that
+    /// stop where the rows stop, which left bare bands above and below.
     func paperScreen() -> some View {
-        self.scrollContentBackground(.hidden)
+        self
+            #if os(macOS)
+            .formStyle(.grouped)
+            #endif
+            .scrollContentBackground(.hidden)
             .background { PaperBackground() }
     }
 }

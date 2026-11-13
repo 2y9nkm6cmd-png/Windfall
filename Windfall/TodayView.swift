@@ -48,6 +48,8 @@ struct TodayView: View {
            sort: [SortDescriptor(\Bed.displayOrder)]) private var beds: [Bed]
     @Query(sort: [SortDescriptor(\Garden.displayOrder)]) private var gardens: [Garden]
     @Query private var features: [GardenFeature]
+    /// The newest finished days of the weather diary, for "This week".
+    @Query(TodayFetch.latestWeather) private var finishedWeather: [WeatherDay]
 
     /// The one weather service the whole app shares. Today is rebuilt
     /// each time it is returned to, and with a service of its own it lost
@@ -90,7 +92,8 @@ struct TodayView: View {
                 width: geometry.size.width,
                 arrangement: savedArrangement(columns: TodayArrangement.columns(forWidth: geometry.size.width)),
                 journalIsOffered: journalIsOffered,
-                isArranging: isArranging)
+                isArranging: isArranging,
+                week: weekJobs)
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
@@ -230,8 +233,11 @@ struct TodayView: View {
         case .capture:
             captureButtons(columns: room == .page ? (canvas.width >= 700 ? 6 : 3)
                                                   : (room == .wideColumn ? 3 : 2))
+        case .week:
+            weekCard(canvas.week)
         case .jobs:
-            jobsCard
+            // A job already in "This week" is not listed twice.
+            jobsCard(leavingOut: Set(canvas.week.map(\.id)))
         case .plans:
             // A wide screen has room for every garden. Others show one,
             // with a switch between them.
@@ -650,10 +656,12 @@ struct TodayView: View {
     @ViewBuilder
     private func captureForm(for sheet: CaptureSheet) -> some View {
         switch sheet {
+        // Sowing, harvest and the counts are built from SheetPage, which
+        // sets its own size on a Mac.
         case .sowing:
-            NewPlantingView().macSheetSize(width: 520, height: 640)
+            NewPlantingView()
         case .harvest:
-            HarvestPicker().macSheetSize(width: 480, height: 560)
+            HarvestPicker()
         case .identify:
             IdentifyView().macSheetSize(width: 520, height: 640)
         case .newSighting(let observation):
@@ -670,10 +678,134 @@ struct TodayView: View {
             }
             .macSheetSize(width: 520, height: 680)
         case .survey(let survey):
-            RunSurveyView(survey: survey).macSheetSize(width: 520, height: 680)
+            RunSurveyView(survey: survey)
         case .note(let entry):
             DiaryEntryEditor(entry: entry).macSheetSize(width: 520, height: 640)
         }
+    }
+
+    // MARK: This week
+
+    /// The urgent jobs. The rules that pick them are in WeekJobs.swift.
+    /// This gathers the plain facts those rules need from the records.
+    private var weekJobs: [WeekJob] {
+        let calendar = Calendar.current
+        let year = calendar.component(.year, from: .now)
+
+        // Sowing and planting-out months can only be about to end in
+        // the last week of a month. For the rest of the month the plant
+        // library is not gone through at all.
+        let monthIsEnding = WeekJobs.daysLeftInMonth(today: .now) <= WeekJobs.window
+
+        var shelf: [WeekPlant] = []
+        if monthIsEnding {
+            shelf = plants.filter { $0.status == .growing }.map { plant in
+                WeekPlant(key: plant.id.uuidString, name: plant.displayName,
+                          sowIndoors: MonthParser.months(in: plant.sowIndoorsMonthsText),
+                          sowOutdoors: MonthParser.months(in: plant.sowOutdoorsMonthsText),
+                          isSownThisYear: (plant.plantings ?? []).contains { planting in
+                              planting.dateSown.map { calendar.component(.year, from: $0) == year } ?? false
+                          })
+            }
+        }
+
+        // Only sowings that could give a job are passed on: seedlings
+        // waiting to go out, and crops due in the next few days.
+        let soon = Date.now.addingTimeInterval(Double(WeekJobs.window + 1) * 86_400)
+        let growing: [WeekSowing] = plantings.compactMap { planting in
+            let isUnderCover = planting.sowingLocation == .indoors || planting.sowingLocation == .undercover
+            let isWaiting = monthIsEnding && isUnderCover && planting.datePlantedOut == nil
+                && (planting.status == .sown || planting.status == .germinated)
+            var due: Date?
+            if planting.status == .growing || planting.status == .plantedOut,
+               let sown = planting.dateSown,
+               let days = RangeParser.midpoint(in: planting.plant?.sowToCropText) {
+                let ready = sown.addingTimeInterval(days * 86_400)
+                if ready <= soon { due = ready }
+            }
+            guard isWaiting || due != nil else { return nil }
+            return WeekSowing(key: planting.id.uuidString,
+                              name: planting.plant?.displayName ?? "crop",
+                              beds: planting.bedNames,
+                              plantOut: isWaiting ? MonthParser.months(in: planting.plant?.plantOutMonthsText) : [],
+                              isWaitingToGoOut: isWaiting,
+                              cropDue: due)
+        }
+
+        // Last week's rain and water lost, from the weather diary: the
+        // seven newest finished days for one garden. Left out if the
+        // diary has not been brought up to date in the last few days.
+        var rain: Double?
+        var lost: Double?
+        if let newest = finishedWeather.first, newest.date > Date.now.addingTimeInterval(-3 * 86_400) {
+            let lastWeek = finishedWeather.filter { $0.siteRaw == newest.siteRaw }.prefix(7)
+            if lastWeek.count == 7 {
+                rain = lastWeek.reduce(0) { $0 + ($1.rainfallMM ?? 0) }
+                lost = lastWeek.reduce(0) { $0 + ($1.evaporationMM ?? 0) }
+            }
+        }
+
+        return WeekJobs.list(today: .now, plants: shelf, sowings: growing,
+                             outlook: weather.outlook,
+                             pastRainMM: rain, pastEvaporationMM: lost)
+    }
+
+    /// A week job as a line with a tick box, linked to its plant or
+    /// sowing where it has one.
+    private func row(for job: WeekJob) -> TodayJob {
+        var link: TodayJob.Link?
+        if let subject = job.subject {
+            if job.kind == .sow {
+                link = plants.first { $0.id.uuidString == subject }.map { TodayJob.Link.plant($0) }
+            } else {
+                link = plantings.first { $0.id.uuidString == subject }.map { TodayJob.Link.planting($0) }
+            }
+        }
+        return TodayJob(id: job.id, title: job.title, detail: job.detail, link: link)
+    }
+
+    private func weekCard(_ week: [WeekJob]) -> some View {
+        let rows = week.map { row(for: $0) }
+        return VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Text("This week")
+                    .font(.headline)
+                    .foregroundStyle(Theme.ink)
+                Spacer()
+                if rows.count > 6 {
+                    NavigationLink {
+                        AllJobsView(title: "This week", jobs: rows, tickedStore: $tickedStore)
+                    } label: {
+                        HStack(spacing: 3) {
+                            Text("View all")
+                            WIconView(.arrowRight, size: 13)
+                        }
+                        .font(.subheadline)
+                        .foregroundStyle(Theme.leaf)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+
+            if rows.isEmpty {
+                Text("Nothing urgent.")
+                    .font(.subheadline)
+                    .foregroundStyle(Theme.ink)
+            }
+            ForEach(rows.prefix(6)) { job in
+                JobRow(job: job, tickedStore: $tickedStore)
+            }
+
+            // Says where the list comes from, and owns up when part of
+            // it is missing.
+            Text(weather.outlook.isEmpty
+                 ? "The urgent few, from your sowing months and records. No forecast yet, so no weather warnings."
+                 : "The urgent few, from your sowing months, your records and the week's forecast.")
+                .font(.caption)
+                .foregroundStyle(Theme.inkSoft)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .glassCard()
     }
 
     // MARK: Jobs
@@ -730,10 +862,10 @@ struct TodayView: View {
         return list
     }
 
-    private var jobsCard: some View {
+    private func jobsCard(leavingOut urgent: Set<String>) -> some View {
         // Worked out once here. Written as plain `jobs` below, each
         // mention would go through the whole plant library again.
-        let jobs = self.jobs
+        let jobs = self.jobs.filter { !urgent.contains($0.id) }
         return VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Text("This month")
@@ -742,7 +874,7 @@ struct TodayView: View {
                 Spacer()
                 if jobs.count > 5 {
                     NavigationLink {
-                        AllJobsView(jobs: jobs, tickedStore: $tickedStore)
+                        AllJobsView(title: "This month", jobs: jobs, tickedStore: $tickedStore)
                     } label: {
                         HStack(spacing: 3) {
                             Text("View all")
@@ -781,18 +913,22 @@ struct TodayView: View {
         } else if oneAtATime {
             let shown = activeGardens.first { $0.siteKey == shownGardenKey } ?? activeGardens[0]
             if activeGardens.count > 1 {
-                Picker("Garden", selection: Binding(
-                    get: { shown.siteKey },
-                    set: { shownGardenKey = $0 }
-                )) {
-                    ForEach(activeGardens) { Text($0.name).tag($0.siteKey) }
-                }
-                .pickerStyle(.segmented)
-                .labelsHidden()
+                gardenSwitch(showing: shown)
             }
             planCard(for: shown)
         } else {
             ForEach(activeGardens) { planCard(for: $0) }
+        }
+    }
+
+    /// Chooses which garden's plan is shown. A sliding glass switch
+    /// (SheetParts.swift), exactly as wide as the cards under it.
+    private func gardenSwitch(showing shown: Garden) -> some View {
+        GlassSwitch(choices: activeGardens.map(\.siteKey), selection: Binding(
+            get: { shown.siteKey },
+            set: { shownGardenKey = $0 }
+        )) { key in
+            activeGardens.first { $0.siteKey == key }?.name ?? key
         }
     }
 
@@ -976,6 +1112,20 @@ struct TodayView: View {
     }
 }
 
+/// A ready-made question for the database: the newest finished days of
+/// the weather diary. Three weeks' worth is asked for so that, with two
+/// gardens far enough apart to keep separate diaries, one of them still
+/// has its last seven days here. It lives outside TodayView because a
+/// `@Query` cannot refer to the screen it sits in.
+private enum TodayFetch {
+    static var latestWeather: FetchDescriptor<WeatherDay> {
+        var newest = FetchDescriptor<WeatherDay>(predicate: #Predicate { $0.isComplete },
+                                                 sortBy: [SortDescriptor(\.dayKey, order: .reverse)])
+        newest.fetchLimit = 21
+        return newest
+    }
+}
+
 // MARK: - Rearranging: the pieces
 
 /// What the cards need to know about the page they are drawn on.
@@ -984,6 +1134,10 @@ private struct TodayCanvas {
     let arrangement: TodayArrangement
     let journalIsOffered: Bool
     let isArranging: Bool
+    /// This week's urgent jobs, worked out once for the whole redraw.
+    /// Two cards need them: "This week" shows them and "This month"
+    /// leaves them out.
+    let week: [WeekJob]
 
     var columns: Int { arrangement.columns }
 
@@ -1141,7 +1295,7 @@ enum CaptureSheet: Identifiable {
     }
 }
 
-/// One line in "This month".
+/// One line in "This week" or "This month".
 struct TodayJob: Identifiable {
     enum Link {
         case plant(Plant)
@@ -1223,9 +1377,10 @@ struct JobRow: View {
     }
 }
 
-/// Every job for the month, reached from "View all".
+/// Every job in a list, reached from "View all".
 struct AllJobsView: View {
 
+    let title: String
     let jobs: [TodayJob]
     @Binding var tickedStore: String
 
@@ -1238,7 +1393,7 @@ struct AllJobsView: View {
             .glassCard()
             .padding()
         }
-        .navigationTitle("This month")
+        .navigationTitle(title)
         .paperScreen()
     }
 }
@@ -1275,10 +1430,10 @@ struct RecentRecord: Identifiable {
     }
 }
 
-/// Chooses which sowing a harvest belongs to, then opens the harvest form.
+/// Chooses which sowing a harvest belongs to, then shows the harvest
+/// form in the same sheet.
 struct HarvestPicker: View {
 
-    @Environment(\.dismiss) private var dismiss
     @Query private var plantings: [Planting]
     @State private var chosen: Planting?
 
@@ -1290,44 +1445,50 @@ struct HarvestPicker: View {
     }
 
     var body: some View {
-        NavigationStack {
-            List {
-                if growing.isEmpty {
-                    ContentUnavailableView {
-                        Label("Nothing growing yet", systemImage: "basket")
-                    } description: {
-                        Text("A harvest is recorded against a sowing. Record the sowing first.")
-                    }
-                }
-                ForEach(growing) { planting in
-                    Button {
-                        chosen = planting
-                    } label: {
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(planting.plant?.displayName ?? "Unknown plant")
-                            if !planting.bedNames.isEmpty {
-                                Text(planting.bedNames)
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
+        // With only one thing growing there is nothing to choose
+        // between, so the harvest form opens straight away.
+        if let planting = chosen ?? (growing.count == 1 ? growing.first : nil) {
+            HarvestEditor(planting: planting,
+                          onBack: growing.count > 1 ? { chosen = nil } : nil)
+        } else {
+            SheetPage("What did you harvest?") {
+                SheetScroll {
+                    if growing.isEmpty {
+                        SheetCard("Nothing growing yet") {
+                            Text("A harvest is recorded against a sowing. Record the sowing first.")
+                                .font(.subheadline)
+                                .foregroundStyle(Theme.inkSoft)
                         }
                     }
-                    .buttonStyle(.plain)
+                    // Each sowing is a glass button. Choosing one swaps
+                    // this list for the harvest form, in the same sheet.
+                    ForEach(growing) { planting in
+                        Button {
+                            chosen = planting
+                        } label: {
+                            HStack(spacing: 10) {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(planting.plant?.displayName ?? "Unknown plant")
+                                        .foregroundStyle(Theme.ink)
+                                    if !planting.bedNames.isEmpty {
+                                        Text(planting.bedNames)
+                                            .font(.caption)
+                                            .foregroundStyle(Theme.inkSoft)
+                                    }
+                                }
+                                Spacer(minLength: 8)
+                                WIconView(.arrowRight, size: 15)
+                                    .foregroundStyle(Theme.leaf)
+                            }
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 12)
+                            .contentShape(.rect)
+                        }
+                        .buttonStyle(.plain)
+                        .glassEffect(.regular.tint(Theme.card.opacity(0.5)).interactive(),
+                                     in: .rect(cornerRadius: 18))
+                    }
                 }
-            }
-            .navigationTitle("What did you harvest?")
-            #if os(iOS)
-            .navigationBarTitleDisplayMode(.inline)
-            #endif
-            .paperScreen()
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
-                }
-            }
-            // When the harvest form closes, this picker closes too.
-            .sheet(item: $chosen, onDismiss: { dismiss() }) { planting in
-                HarvestEditor(planting: planting)
             }
         }
     }

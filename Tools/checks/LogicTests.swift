@@ -325,38 +325,81 @@ struct LogicTests {
         // Rearranging the Today screen
         check(TodayArrangement.columns(forWidth: 1200) == 3 && TodayArrangement.columns(forWidth: 840) == 3 && TodayArrangement.columns(forWidth: 700) == 2 && TodayArrangement.columns(forWidth: 390) == 1, "the number of columns follows the width, at the widths Today always changed at")
         let wideToday = TodayArrangement.standard(columns: 3), middleToday = TodayArrangement.standard(columns: 2), narrowToday = TodayArrangement.standard(columns: 1)
-        check(wideToday.stored == "conditions,capture|jobs|plans|recent,journal|" && middleToday.stored == "conditions,capture|jobs,recent|plans,journal|" && narrowToday.stored == "conditions,capture,jobs,plans,recent,journal", "the standard arrangements are Today's old layouts")
+        check(wideToday.stored == "conditions,capture|week,jobs|plans|recent,journal|" && middleToday.stored == "conditions,capture|week,jobs,recent|plans,journal|" && narrowToday.stored == "conditions,capture,week,jobs,plans,recent,journal", "the standard arrangements are Today's old layouts with This week above This month")
         check([wideToday, middleToday, narrowToday].allSatisfy { Set($0.readingOrder) == Set(TodayPanel.allCases) && $0.readingOrder.count == TodayPanel.allCases.count && $0.isStandard }, "every standard arrangement holds each block once")
         check(wideToday.columnZones == 1..<4 && wideToday.bottomZone == 4 && middleToday.columnZones == 1..<3 && narrowToday.columnZones.isEmpty && narrowToday.bottomZone == nil, "a wide page has a top stack, three columns and a bottom stack, and an iPhone has one list")
         check(TodayArrangement(columns: 3, stored: "") == wideToday && TodayArrangement(columns: 3, stored: "jobs|plans") == wideToday && TodayArrangement(columns: 2, stored: wideToday.stored) == middleToday, "nothing saved, or text for a different number of columns, gives the standard arrangement")
         var movedToday = wideToday
         movedToday.move(.recent, onto: .jobs)
-        check(movedToday.stored == "conditions,capture|recent,jobs|plans|journal|" && !movedToday.isStandard, "a card dropped on another takes its place and the other moves down")
+        check(movedToday.stored == "conditions,capture|week,recent,jobs|plans|journal|" && !movedToday.isStandard, "a card dropped on another takes its place and the other moves down")
         check(TodayArrangement(columns: 3, stored: movedToday.stored) == movedToday, "an arrangement comes back from its saved text unchanged")
         movedToday.move(.recent, onto: .jobs)
-        check(movedToday.stored == "conditions,capture|jobs,recent|plans|journal|", "moving a card down within a column lands it in the other's old place")
+        check(movedToday.stored == "conditions,capture|week,jobs,recent|plans|journal|", "moving a card down within a column lands it in the other's old place")
         movedToday.move(.jobs, onto: .jobs)
-        check(movedToday.stored == "conditions,capture|jobs,recent|plans|journal|", "a card dropped on itself stays put")
+        check(movedToday.stored == "conditions,capture|week,jobs,recent|plans|journal|", "a card dropped on itself stays put")
         movedToday.move(.capture, toEndOf: 4); movedToday.move(.journal, toEndOf: 1)
-        check(movedToday.stored == "conditions|jobs,recent,journal|plans||capture" && movedToday.shownColumns(includingEmpty: false) { _ in true } == [1, 2] && movedToday.shownColumns(includingEmpty: true) { _ in true } == [1, 2, 3], "a card can go to the foot of any zone, and an emptied column is only drawn while rearranging")
+        check(movedToday.stored == "conditions|week,jobs,recent,journal|plans||capture" && movedToday.shownColumns(includingEmpty: false) { _ in true } == [1, 2] && movedToday.shownColumns(includingEmpty: true) { _ in true } == [1, 2, 3], "a card can go to the foot of any zone, and an emptied column is only drawn while rearranging")
         check(movedToday.shownColumns(includingEmpty: false) { $0 != .plans } == [1] && movedToday.roomiestColumn { _ in true } == 2 && movedToday.roomiestColumn { $0 != .plans } == nil, "a column whose only card is hidden is left out, and the garden plans' column gets the most room")
         movedToday.move(.jobs, toEndOf: 9)
-        check(movedToday.stored == "conditions|jobs,recent,journal|plans||capture", "a zone that does not exist changes nothing")
+        check(movedToday.stored == "conditions|week,jobs,recent,journal|plans||capture", "a zone that does not exist changes nothing")
         var nudgedToday = wideToday
         check(!nudgedToday.canNudge(.conditions, by: -1) && nudgedToday.canNudge(.conditions, by: 1) && nudgedToday.canNudge(.journal, by: 1), "the first card cannot go earlier, and the last card of the last column can still step into the bottom stack")
         nudgedToday.nudge(.conditions, by: -1)
         check(nudgedToday == wideToday, "nudging the first card earlier changes nothing")
         nudgedToday.nudge(.capture, by: -1)
-        check(nudgedToday.stored == "capture,conditions|jobs|plans|recent,journal|", "an arrow swaps a card with its neighbour")
-        nudgedToday.nudge(.jobs, by: -1); nudgedToday.nudge(.recent, by: -1)
-        check(nudgedToday.stored == "capture,conditions,jobs||plans,recent|journal|", "at the top of a zone, earlier steps to the foot of the zone before")
-        nudgedToday.nudge(.jobs, by: 1); nudgedToday.nudge(.journal, by: 1)
-        check(nudgedToday.stored == "capture,conditions|jobs|plans,recent||journal" && !nudgedToday.canNudge(.journal, by: 1), "at the foot of a zone, later steps to the top of the zone after, and the last place of all is the end")
+        check(nudgedToday.stored == "capture,conditions|week,jobs|plans|recent,journal|", "an arrow swaps a card with its neighbour")
+        nudgedToday.nudge(.week, by: -1); nudgedToday.nudge(.recent, by: -1)
+        check(nudgedToday.stored == "capture,conditions,week|jobs|plans,recent|journal|", "at the top of a zone, earlier steps to the foot of the zone before")
+        nudgedToday.nudge(.week, by: 1); nudgedToday.nudge(.journal, by: 1)
+        check(nudgedToday.stored == "capture,conditions|week,jobs|plans,recent||journal" && !nudgedToday.canNudge(.journal, by: 1), "at the foot of a zone, later steps to the top of the zone after, and the last place of all is the end")
         var onePhone = narrowToday
         onePhone.nudge(.plans, by: -1); onePhone.move(.journal, onto: .conditions)
-        check(onePhone.stored == "journal,conditions,capture,plans,jobs,recent", "an iPhone's single list is rearranged the same way")
+        check(onePhone.stored == "journal,conditions,capture,week,plans,jobs,recent", "an iPhone's single list is rearranged the same way")
         let patched = TodayArrangement(columns: 3, stored: "capture,capture,weather|plans,jobs||recent|")
-        check(patched.stored == "capture,conditions|plans,jobs||recent,journal|" && Set(patched.readingOrder) == Set(TodayPanel.allCases), "saved text with an unknown name, a repeat or a missing card is mended, and nothing is lost")
+        check(patched.stored == "conditions,capture|week,plans,jobs||recent,journal|" && Set(patched.readingOrder) == Set(TodayPanel.allCases), "saved text with an unknown name, a repeat or a missing card is mended, and nothing is lost")
+        check(TodayArrangement(columns: 3, stored: "conditions,capture|recent,jobs|plans|journal|").stored == "conditions,capture|week,recent,jobs|plans|journal|" && TodayArrangement(columns: 1, stored: "plans,jobs,conditions,capture,recent,journal").stored == "plans,jobs,week,conditions,capture,recent,journal", "an arrangement saved before This week existed gains it, as near its standard place as it can go")
+
+        // This week: the urgent jobs
+        var british = Calendar(identifier: .gregorian)
+        british.timeZone = TimeZone(identifier: "Europe/London")!
+        british.locale = Locale(identifier: "en_GB")
+        func weekDate(_ year: Int, _ month: Int, _ day: Int) -> Date { british.date(from: DateComponents(year: year, month: month, day: day, hour: 15))! }
+        check(WeekJobs.daysLeft(in: [3, 4, 5], today: weekDate(2026, 5, 28), calendar: british) == 4 && WeekJobs.daysLeft(in: [3, 4, 5], today: weekDate(2026, 4, 28), calendar: british) == 34 && WeekJobs.daysLeft(in: [3, 4, 5], today: weekDate(2026, 5, 31), calendar: british) == 1, "days left in a run of months count today and run to the end of the last month")
+        check(WeekJobs.daysLeft(in: [3, 4, 5], today: weekDate(2026, 6, 1), calendar: british) == nil && WeekJobs.daysLeft(in: Array(1...12), today: weekDate(2026, 6, 1), calendar: british) == nil && WeekJobs.daysLeft(in: [], today: weekDate(2026, 6, 1), calendar: british) == nil, "no days left when this month is not listed, and none to count when every month is")
+        check(WeekJobs.daysLeft(in: [11, 12, 1, 2], today: weekDate(2026, 12, 30), calendar: british) == 61 && WeekJobs.daysLeft(in: [2, 3, 5], today: weekDate(2028, 2, 25), calendar: british) == 36 && WeekJobs.daysLeftInMonth(today: weekDate(2028, 2, 25), calendar: british) == 5, "a run carries on round the end of the year, stops at a gap, and knows a leap year")
+        let lateMay = weekDate(2026, 5, 27)
+        let weekShelf = [WeekPlant(key: "bean", name: "French bean", sowIndoors: [4, 5], sowOutdoors: [5], isSownThisYear: false),
+                         WeekPlant(key: "kale", name: "Kale", sowIndoors: [4, 5], sowOutdoors: [6, 7], isSownThisYear: false),
+                         WeekPlant(key: "leek", name: "Leek", sowIndoors: [3, 4, 5], sowOutdoors: [], isSownThisYear: true),
+                         WeekPlant(key: "chard", name: "Chard", sowIndoors: [], sowOutdoors: [4, 5], isSownThisYear: false)]
+        let sowJobs = WeekJobs.list(today: lateMay, plants: weekShelf, sowings: [], outlook: [], pastRainMM: nil, pastEvaporationMM: nil, calendar: british)
+        check(sowJobs.map(\.id) == ["sow-chard", "sow-bean"] && sowJobs.first?.title == "Last week to sow Chard" && sowJobs.first?.detail == "Outdoors. Its sowing months end with May." && sowJobs.last?.detail == "Indoors or outdoors. Its sowing months end with May.", "the last week to sow lists what is unsown and closing, and leaves out what can still be sown outdoors next month")
+        check(WeekJobs.list(today: weekDate(2026, 5, 20), plants: weekShelf, sowings: [], outlook: [], pastRainMM: nil, pastEvaporationMM: nil, calendar: british).isEmpty && WeekJobs.list(today: weekDate(2026, 5, 31), plants: weekShelf, sowings: [], outlook: [], pastRainMM: nil, pastEvaporationMM: nil, calendar: british).first?.title == "Last day to sow Chard", "nothing is urgent with more than a week to go, and the last day says so")
+        let weekSowings = [WeekSowing(key: "t1", name: "Tomato", beds: "2A", plantOut: [5], isWaitingToGoOut: true, cropDue: nil),
+                           WeekSowing(key: "t2", name: "Squash", beds: "", plantOut: [5, 6], isWaitingToGoOut: true, cropDue: nil),
+                           WeekSowing(key: "t3", name: "Lettuce", beds: "1C", plantOut: [5], isWaitingToGoOut: false, cropDue: weekDate(2026, 5, 30)),
+                           WeekSowing(key: "t4", name: "Radish", beds: "", plantOut: [], isWaitingToGoOut: false, cropDue: weekDate(2026, 5, 24)),
+                           WeekSowing(key: "t5", name: "Carrot", beds: "", plantOut: [], isWaitingToGoOut: false, cropDue: weekDate(2026, 6, 20)),
+                           WeekSowing(key: "t6", name: "Garlic", beds: "", plantOut: [], isWaitingToGoOut: false, cropDue: weekDate(2026, 4, 1))]
+        let growJobs = WeekJobs.list(today: lateMay, plants: [], sowings: weekSowings, outlook: [], pastRainMM: nil, pastEvaporationMM: nil, calendar: british)
+        check(growJobs.map(\.id) == ["harvest-t4", "harvest-t3", "plantout-t1"] && growJobs[0].detail == "Should have been ready 3 days ago." && growJobs[1].detail == "Should be ready on Saturday. 1C." && growJobs[2].title == "Last week to plant out Tomato" && growJobs[2].detail == "For 2A. Its planting-out months end with May.", "crops due within the week and seedlings whose planting-out months are ending are listed, soonest first")
+        let coldWeek = [OutlookDay(dayKey: "2026-11-13", minTemperatureC: -3, rainMM: 0, gustKMH: 20),
+                        OutlookDay(dayKey: "2026-11-14", minTemperatureC: 4, rainMM: 0, gustKMH: 30),
+                        OutlookDay(dayKey: "2026-11-15", minTemperatureC: 1.4, rainMM: 2, gustKMH: 72),
+                        OutlookDay(dayKey: "2026-11-16", minTemperatureC: -2.4, rainMM: 0, gustKMH: 40),
+                        OutlookDay(dayKey: "2026-11-17", minTemperatureC: -0.2, rainMM: 0, gustKMH: nil)]
+        let coldJobs = WeekJobs.list(today: weekDate(2026, 11, 13), plants: [], sowings: [], outlook: coldWeek, pastRainMM: 1, pastEvaporationMM: 4, calendar: british)
+        check(coldJobs.map(\.id) == ["wind-2026-11-15", "frost-2026-11-16"] && coldJobs[1].title == "Frost on Sunday night" && coldJobs[1].detail == "Down to about -2°C. Cover or bring in anything tender before dark. 1 more frosty night this week." && coldJobs[0].title == "Strong wind on Sunday" && coldJobs[0].detail == "Gusts to about 45 mph. Check stakes, ties, netting and covers.", "a frost is named for the night before, today's own low is not warned of, and the windiest day is named")
+        let mildWeek = [OutlookDay(dayKey: "2026-11-13", minTemperatureC: 5, rainMM: 0, gustKMH: 10), OutlookDay(dayKey: "2026-11-14", minTemperatureC: 1.6, rainMM: 0, gustKMH: 63)]
+        let mildJobs = WeekJobs.list(today: weekDate(2026, 11, 13), plants: [], sowings: [], outlook: mildWeek, pastRainMM: nil, pastEvaporationMM: nil, calendar: british)
+        check(mildJobs.map(\.title) == ["Close to freezing tonight"] && WeekJobs.list(today: weekDate(2026, 11, 13), plants: [], sowings: [], outlook: [OutlookDay(dayKey: "2026-11-14", minTemperatureC: 2.1, rainMM: nil, gustKMH: nil)], pastRainMM: nil, pastEvaporationMM: nil, calendar: british).isEmpty, "two degrees or under is close to freezing, tomorrow's low is tonight, and gusts just under the mark are left alone")
+        let dryWeek = [OutlookDay(dayKey: "2026-07-10", minTemperatureC: 14, rainMM: 0, gustKMH: 20), OutlookDay(dayKey: "2026-07-11", minTemperatureC: 15, rainMM: 1.5, gustKMH: 20), OutlookDay(dayKey: "2026-07-12", minTemperatureC: 15, rainMM: 0, gustKMH: 20), OutlookDay(dayKey: "2026-07-13", minTemperatureC: 15, rainMM: 30, gustKMH: 20)]
+        let dryJobs = WeekJobs.list(today: weekDate(2026, 7, 10), plants: [], sowings: [], outlook: dryWeek, pastRainMM: 2.2, pastEvaporationMM: 27.6, calendar: british)
+        check(dryJobs.map(\.kind) == [.dry] && dryJobs.first?.detail == "About 2 mm of rain in the last week against 28 mm lost to the air, and little forecast. Pots and new plantings first." && dryJobs.first?.id == "dry-2026-28", "a dry week with little rain coming asks for watering")
+        check(WeekJobs.list(today: weekDate(2026, 7, 11), plants: [], sowings: [], outlook: dryWeek, pastRainMM: 2.2, pastEvaporationMM: 27.6, calendar: british).isEmpty && WeekJobs.list(today: weekDate(2026, 7, 10), plants: [], sowings: [], outlook: dryWeek, pastRainMM: 14, pastEvaporationMM: 27.6, calendar: british).isEmpty && WeekJobs.list(today: weekDate(2026, 7, 10), plants: [], sowings: [], outlook: [], pastRainMM: 2.2, pastEvaporationMM: 27.6, calendar: british).isEmpty, "rain on the way, a wetter week or no forecast at all means no watering job")
+        let outlookReply = Data(#"{"latitude":51.5,"current":{"temperature_2m":8.1},"daily":{"time":["2026-11-13","2026-11-14","2026-11-15"],"temperature_2m_min":[3.2,null,-1.5],"precipitation_sum":[0.0,4.2,null],"wind_gusts_10m_max":[31.0,55.4]}}"#.utf8)
+        let readOutlook = WeekJobs.outlook(from: outlookReply)
+        check(readOutlook == [OutlookDay(dayKey: "2026-11-13", minTemperatureC: 3.2, rainMM: 0, gustKMH: 31), OutlookDay(dayKey: "2026-11-14", minTemperatureC: nil, rainMM: 4.2, gustKMH: 55.4), OutlookDay(dayKey: "2026-11-15", minTemperatureC: -1.5, rainMM: nil, gustKMH: nil)] && WeekJobs.outlook(from: Data("{}".utf8)).isEmpty && WeekJobs.outlook(from: Data("not json".utf8)).isEmpty, "the forecast is read a day at a time, gaps and short lists become missing figures, and a reply without days gives none")
 
         // Month text is read once and remembered
         check(MonthParser.months(in: "Sept, Oct") == [9, 10] && MonthParser.months(in: "Sept, Oct") == [9, 10] && MonthParser.months(in: "september") == [9] && MonthParser.months(in: "Oct-Feb") == [10, 11, 12, 1, 2] && MonthParser.months(in: nil).isEmpty && MonthParser.months(in: "").isEmpty, "reading the same month text twice gives the same answer, and long and short names agree")

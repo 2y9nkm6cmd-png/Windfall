@@ -1,3 +1,156 @@
+# 13 November 2026, afternoon: This week, the sheets, the sliding switch and the sidebar
+
+**On the `today-rearrange` branch**, after the morning's work below.
+**None of it has been built on the Mac or seen running.** William was
+at school and the Mac could not be reached. It passes the checks that
+run without the Mac (every file reads as valid Swift, 323 logic tests
+pass). Those do not build the screens. Expect things to put right when
+it is first built, and treat how everything here looks as untried.
+
+## "This week": the urgent jobs (`WeekJobs.swift`, new)
+
+William: "Eira could organise the this week to make sure it is specific
+based on the conditions... 'this is the last week to plant this seed or
+plant or plant it out' that kind of thing, basically the urgents."
+
+A seventh card on Today, above "This month". It lists:
+
+- **Frost on the way**, named for the night before ("Frost on Sunday
+  night"), or "Close to freezing" at 2°C or under.
+- **Strong wind**: the windiest day of the week if gusts reach 40 mph.
+- **A dry spell**: last week lost 15 mm more water to the air than fell
+  as rain, and under 5 mm is forecast for the next three days.
+- **The last week to sow** something not yet sown this year, when its
+  sowing months end with this month. Indoor and outdoor months are
+  taken together.
+- **The last week to plant out** a sowing raised indoors or under cover.
+- **A crop due** within seven days, or up to a fortnight overdue.
+
+Weather first, then whatever runs out soonest.
+
+- **Fixed rules pick the list, not the AI model.** A list of what is
+  urgent has to be the same each time and has to be true. Rules can
+  promise that and can be tested (12 new tests).
+- ⚠️ CHECK: the four weather thresholds (0°C, 2°C, 40 mph, 15 mm) are
+  Claude's rules of thumb. They are named at the top of `WeekJobs`.
+- A job in "This week" is left out of "This month". Both use the same
+  ticks.
+- **The forecast** comes in the same reply as the current conditions
+  (`WeatherService`), so there is no extra request. It now asks for
+  today and the seven days after.
+- **Last week's rain and water lost** come from the weather diary.
+- The card says so when there is no forecast yet.
+- Not done: jobs William adds himself, a plant bought as a plant
+  (there is no record of one tree or bush yet), and Eira being able to
+  read the list out.
+
+**Found while doing this:** the weather check on Today sent the
+garden's or device's location in full. Settings says it is rounded to
+about a hundred metres. It is now rounded, as the weather diary's
+already was.
+
+`TodayLayout.swift`: "This week" is a new panel, above "This month" in
+each standard arrangement. An arrangement saved before it existed gains
+it as near its standard place as it can go.
+
+## Sheets that look like the rest of the app (`SheetParts.swift`, new)
+
+William, with pictures of four forms: "A lot of the buried menus are
+looking quite different to the top level interface... There also seems
+to be bars at the top and bottom of the windows".
+
+Why they looked as they did: each was a standard `Form`. On a Mac a
+Form is laid out in two columns, as tall as its rows and no taller,
+inside a sheet that had been given a set height. The grey bands were
+the sheet showing above and below the form. The title and the Cancel
+and Save buttons sat in bars of the sheet's own.
+
+- **`SheetParts.swift`** holds pieces for building a sheet in the app's
+  own look: `SheetPage` (title, Cancel, Save, paper), `SheetScroll`,
+  `SheetCard`, `SettingRow`, `FieldBox`, `NumberStepper`,
+  `ProblemsCard`, `SheetMainButton` and `GlassSwitch`. A sheet built
+  from them has no bars and is as tall as its contents, up to a limit.
+- **Rebuilt from them:** the FIT Count and earthworm count, the new
+  sowing form, "What did you harvest?" and the harvest form.
+- **Every other form**, on a Mac, now uses the "grouped" look (boxed
+  sections that scroll and fill the window), set once in
+  `paperScreen()`. This is a stopgap that removes the two columns and
+  the bare bands. The paper is also put behind the whole of each sheet
+  (`macSheetSize`). **The title and button bars of those sheets may
+  still be there.** They are to be rebuilt one at a time once they can
+  be seen: the sighting form first.
+
+### The counts (`SurveyViews.swift`)
+
+- Setup is two cards. The conditions are three sliding switches and a
+  small box for the temperature.
+- **The conditions fill themselves in** from the weather service if
+  Today checked it within the hour, with a line saying so.
+- Counting has a ring that empties around the time left, larger rows
+  and a hint under each worm group.
+- ⚠️ CHECK: the four worm hints were written by Claude from AHDB's "How
+  to count earthworms".
+- The result shows each group with a bar for its share. All four worm
+  groups are shown, because none found is worth knowing.
+- **Abandon now asks first and throws the count away.** It used to keep
+  it, looking like a finished count. Say if that should be put back.
+- Fixed: the pit number showed 1 but was not recorded unless changed.
+  An abandoned count left an iPhone's screen set never to sleep. The
+  time left is no longer worked out by changing the screen's own state
+  while it was being drawn.
+- An iPhone buzzes when the time is up.
+
+### The harvest forms
+
+- With one thing growing, the harvest form opens straight away.
+- With more, choosing a sowing swaps the list for the form in the same
+  sheet, with a Back button, where it used to open a second sheet.
+- Destinations read "Given away" and "Seed saved", not "Givenaway".
+
+## The sliding switch (`GlassSwitch`, in `SheetParts.swift`)
+
+William, of the Allotment and Permaculture garden switch: "The curves...
+are different to the other boxes, it is also wider than the other boxes
+... you can't drag it across like a slider".
+
+It was the system's joined buttons. On a Mac they will not shrink below
+the width of their words, so in a narrow column they stuck out past the
+cards. `GlassSwitch` replaces them: a glass track the width it is given,
+with a piece of green glass that slides to a tap and lifts and follows
+a press and slide. It is used for the garden switch on Today, Gardens
+and Weather, on the old garden map, and in the count and sowing forms.
+The year switch on the Charts page is still the system's.
+
+## Two-finger scrolling on the sidebar (`MainTabView.swift`, Mac only)
+
+Two fingers on the trackpad, with the pointer over the sidebar, carry
+the lens up and down. It settles on the nearest row when the fingers
+lift. A mouse wheel moves one row a click. With Reduce Motion on, a
+scroll is one step.
+
+SwiftUI has no way to hear a scroll on a view that is not a scrolling
+list, so the Mac is asked to pass every scroll in the app through the
+sidebar first (`NSEvent.addLocalMonitorForEvents`). Scrolls elsewhere
+are handed straight back untouched.
+
+## Eira's bar
+
+It ran out past the cards to the sidebar. It now stops 20 points in
+from the left and 28 from the right, a little inside the cards' edges.
+
+## To check when it is built
+
+- Each rebuilt sheet on the Mac, iPad and iPhone, light and dark. Does a
+  Mac sheet take the height of its contents, and follow when they
+  change (setup, counting, result)?
+- Do the other sheets still have bars at the top and bottom?
+- The sliding switch: does the glass read well on the track? Does a
+  page still scroll when a finger starts on a switch?
+- The sidebar: is 0.6 the right gearing? Does scrolling still work in
+  the page beside it?
+- "This week" with a real forecast.
+- Does Return in a notes box press Save when it should make a new line?
+
 # 13 November 2026, morning: rearranging the Today screen
 
 **The `today-rearrange` branch**, on top of `weather-diary`. **Not yet
