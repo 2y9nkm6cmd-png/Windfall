@@ -120,6 +120,12 @@ struct MainTabView: View {
                 // The example garden: see DemoGarden. It loads the plant
                 // library into memory and adds made-up beds and records.
                 DemoGarden.fill(context)
+                // A checking aid: puts the test sheet to Eira with nobody
+                // at the keyboard. It does nothing unless the app was
+                // started from Terminal with a questions file. It is
+                // started as its own Task so the weather below is not
+                // kept waiting. See EiraTestRun.
+                Task { await EiraTestRun.runIfAsked(context: context) }
             } else {
                 GardenDataImporter().loadStarterDataIfNeeded(into: context)
                 // Make sure the allotment and the permaculture garden
