@@ -26,6 +26,7 @@ import Foundation
 import SwiftUI
 import SwiftData
 import PhotosUI
+import UniformTypeIdentifiers
 
 #if os(iOS)
 import UIKit
@@ -62,120 +63,172 @@ enum EiraVisionPrompt {
 
 // MARK: - Identification screen
 
+/// Choose a photo, ask what it is, and start a sighting from the answer.
+///
+/// Drawn from the same cards as the other sheets (SheetParts.swift), so
+/// it looks like the screen it was opened from. Until 13 November 2026
+/// it was a standard form.
 struct IdentifyView: View {
+
+    /// True when it is shown as a sheet, from Today. False when it is a
+    /// page pushed on from the Wildlife page, which has its own way back.
+    var inSheet = false
 
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
 
     @State private var pickerItem: PhotosPickerItem?
+    @State private var isChoosingFile = false
     @State private var imageData: Data?
-    @State private var answer: String?
-    /// What the model made of the photo, kept so that a sighting can be
-    /// started from the name and not from the whole sentence.
+    /// What the model made of the photo.
     @State private var guess: SpeciesGuess?
     @State private var isWorking = false
     @State private var error: String?
 
+    private let heading = "Identify from a photo"
+    private let subheading = "Eira compares it with UK plants and animals."
+
     var body: some View {
-        NavigationStack {
-            Form {
-                Section {
-                    if let imageData, let image = displayImage(imageData) {
-                        image
-                            .resizable()
-                            .scaledToFit()
-                            .frame(maxHeight: 260)
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
-                    }
-
-                    PhotosPicker(selection: $pickerItem, matching: .images) {
-                        Label(imageData == nil ? "Choose a photo" : "Choose a different photo",
-                              systemImage: "camera")
-                    }
-                } header: {
-                    Text("Photo")
-                } footer: {
-                    Text("The photo stays on this device.")
+        Group {
+            if inSheet {
+                SheetPage(heading, detail: subheading, dismissTitle: "Close") {
+                    SheetScroll { cards }
                 }
-
-                if imageData != nil {
-                    Section {
-                        Button {
-                            Task { await identify() }
-                        } label: {
-                            if isWorking {
-                                HStack { ProgressView(); Text("Looking…") }
-                            } else {
-                                Label("What is this?", systemImage: "sparkles")
-                            }
-                        }
-                        .disabled(isWorking)
-                    } footer: {
-                        Text("Eira compares the photo with a list of UK plants and animals. She never names fungi.")
+            } else {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 14) {
+                        ScreenHeader(title: heading, detail: subheading)
+                        cards
                     }
+                    // Reads best in a column, not across a wide window.
+                    .frame(maxWidth: 640, alignment: .leading)
+                    .padding(.horizontal, 16)
+                    .padding(.top, 12)
+                    .padding(.bottom, 20)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
-
-                if let answer {
-                    Section {
-                        Text(answer)
-                            .textSelection(.enabled)
-                    } header: {
-                        Text("Eira says")
-                    } footer: {
-                        Text((SpeciesEye.shared.table?.caveat ?? "Treat a match as a suggestion to check.")
-                             + " Nothing is saved until you create a sighting and confirm the identification yourself.")
-                    }
-
-                    Section {
-                        Button {
-                            createObservation()
-                        } label: {
-                            Label("Start a sighting from this", systemImage: "plus.circle")
-                        }
-                    }
-                }
-
-                if let error {
-                    Section {
-                        Label(error, systemImage: "exclamationmark.triangle")
-                            .foregroundStyle(.orange)
-                    }
-                }
-
-                if imageData != nil, answer == nil {
-                    Section {
-                        Button {
-                            createObservation()
-                        } label: {
-                            Label("Save as a sighting to identify later", systemImage: "plus.circle")
-                        }
-                    }
-                }
-            }
-            .navigationTitle("Identify")
-            .paperScreen()
-            #if os(iOS)
-            .navigationBarTitleDisplayMode(.inline)
-            #endif
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Close") { dismiss() }
-                }
-            }
-            .onChange(of: pickerItem) { _, item in
-                guard let item else { return }
-                Task {
-                    // Downscale before sending — a 12 MP photo is slow to
-                    // upload and no more identifiable than a 1024 px one.
-                    if let data = try? await item.loadTransferable(type: Data.self) {
-                        imageData = DiaryEntryEditor.thumbnail(from: data, maxDimension: 1024) ?? data
-                        answer = nil
-                        guess = nil
-                        error = nil
-                    }
-                }
+                .navigationTitle("Identify")
+                .paperScreen()
             }
         }
+        // A photo from the Photos library.
+        .onChange(of: pickerItem) { _, item in
+            guard let item else { return }
+            Task {
+                if let data = try? await item.loadTransferable(type: Data.self) { take(data) }
+            }
+        }
+        // A photo that is a file, which on a Mac is often where they are.
+        .fileImporter(isPresented: $isChoosingFile, allowedContentTypes: [.image]) { result in
+            guard case .success(let url) = result else { return }
+            // Leave to read a file chosen in a file window lasts only
+            // between these two calls.
+            let hasLeave = url.startAccessingSecurityScopedResource()
+            defer { if hasLeave { url.stopAccessingSecurityScopedResource() } }
+            if let data = try? Data(contentsOf: url) { take(data) }
+        }
+        .task {
+            // A checking aid: an example answer, so the cards can be
+            // looked at where the model cannot run. See DemoGarden.
+            if DemoGarden.showsExampleMatch { guess = IdentifyView.exampleMatch }
+        }
+    }
+
+    // MARK: The cards
+
+    @ViewBuilder
+    private var cards: some View {
+        SheetCard("Photo") {
+            if let imageData, let image = displayImage(imageData) {
+                image
+                    .resizable()
+                    .scaledToFit()
+                    .frame(maxWidth: .infinity, maxHeight: 280)
+                    .clipShape(RoundedRectangle(cornerRadius: 14))
+            }
+            HStack(spacing: 10) {
+                PhotosPicker(selection: $pickerItem, matching: .images) {
+                    Label(imageData == nil ? "From Photos" : "Another from Photos", systemImage: "photo.on.rectangle")
+                }
+                .buttonStyle(QuietGlassButton())
+
+                Button {
+                    isChoosingFile = true
+                } label: {
+                    Label("From a file", systemImage: "folder")
+                }
+                .buttonStyle(QuietGlassButton())
+            }
+            Text("The photo stays on this device.")
+                .font(.caption)
+                .foregroundStyle(Theme.inkSoft)
+        }
+
+        if imageData != nil {
+            Button {
+                Task { await identify() }
+            } label: {
+                HStack(spacing: 8) {
+                    if isWorking { ProgressView().controlSize(.small) }
+                    Text(isWorking ? "Looking…" : "What is this?")
+                        .fontWeight(.semibold)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 4)
+            }
+            .buttonStyle(.glassProminent)
+            .controlSize(.large)
+            .tint(Theme.leaf)
+            .foregroundStyle(Theme.onLeaf)
+            .disabled(isWorking)
+        }
+
+        if let guess {
+            SheetCard(guess.isSure ? "Eira's match" : "Eira is not sure") {
+                if !guess.isSure {
+                    Text("None of these is strong enough to name. A closer or sharper photo may help. It may also be something she was never shown.")
+                        .font(.callout)
+                        .foregroundStyle(Theme.inkSoft)
+                }
+                ForEach(Array(guess.candidates.enumerated()), id: \.offset) { place, possible in
+                    CandidateRow(possible: possible, isNamed: guess.isSure && place == 0)
+                }
+                Text((SpeciesEye.shared.table?.caveat ?? "Treat a match as a suggestion to check.")
+                     + " Nothing is saved until you start a sighting and confirm the name yourself.")
+                    .font(.caption)
+                    .foregroundStyle(Theme.inkSoft)
+            }
+
+            SheetMainButton(guess.isSure ? "Start a sighting from this" : "Start a sighting to identify later") {
+                createObservation()
+            }
+        }
+
+        if let error {
+            ProblemsCard(problems: [error])
+        }
+
+        if imageData != nil, guess == nil {
+            Button {
+                createObservation()
+            } label: {
+                Label("Save as a sighting to identify later", systemImage: "plus.circle")
+            }
+            .buttonStyle(QuietGlassButton())
+        }
+    }
+
+    // MARK: Doing things
+
+    /// Takes a newly chosen photo and clears the last answer.
+    ///
+    /// The photo is kept at no more than 1024 pixels on its longest
+    /// side. That is plenty to identify from and to keep with a
+    /// sighting, and a fraction of the size of the original.
+    private func take(_ data: Data) {
+        imageData = DiaryEntryEditor.thumbnail(from: data, maxDimension: 1024) ?? data
+        guess = nil
+        error = nil
     }
 
     /// Asks the on-device model what the photo most resembles.
@@ -187,15 +240,12 @@ struct IdentifyView: View {
     private func identify() async {
         guard let imageData else { return }
         isWorking = true
-        answer = nil
         guess = nil
         error = nil
         defer { isWorking = false }
 
         do {
-            let found = try await SpeciesEye.shared.guess(forPhoto: imageData)
-            guess = found
-            answer = found.summary
+            guess = try await SpeciesEye.shared.guess(forPhoto: imageData)
         } catch let problem {
             // The error's own words say what is missing and what can
             // still be done. See SpeciesEyeError.
@@ -247,5 +297,60 @@ struct IdentifyView: View {
         guard let ns = NSImage(data: data) else { return nil }
         return Image(nsImage: ns)
         #endif
+    }
+
+    /// A made-up answer for looking at the cards. Never shown unless
+    /// the app was started with the example garden and asked for it.
+    static let exampleMatch = SpeciesGuess(
+        candidates: [
+            SpeciesCandidate(entry: SpeciesEntry(scientific: "Bombus terrestris", common: "Buff-tailed Bumblebee", group: "Insecta", taught: true), share: 0.93),
+            SpeciesCandidate(entry: SpeciesEntry(scientific: "Bombus lucorum", common: "White-tailed Bumblebee", group: "Insecta", taught: true), share: 0.05),
+            SpeciesCandidate(entry: SpeciesEntry(scientific: "Bombus hortorum", common: "Garden Bumblebee", group: "Insecta", taught: true), share: 0.01)
+        ],
+        isSure: true)
+}
+
+/// One possible species: its names, its share as a bar and as a figure.
+private struct CandidateRow: View {
+
+    let possible: SpeciesCandidate
+    /// True for the one species that is being named outright.
+    let isNamed: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 5) {
+            HStack(alignment: .firstTextBaseline) {
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(possible.entry.common ?? possible.entry.scientific)
+                        .font(isNamed ? .title3.weight(.semibold) : .body)
+                        .foregroundStyle(Theme.ink)
+                    if possible.entry.common != nil {
+                        Text(possible.entry.scientific)
+                            .font(.callout)
+                            .italic()
+                            .foregroundStyle(Theme.inkSoft)
+                    }
+                }
+                Spacer(minLength: 8)
+                Text(possible.percent)
+                    .font(.callout.monospacedDigit())
+                    .foregroundStyle(isNamed ? Theme.leaf : Theme.inkSoft)
+            }
+            // The share as a bar: a full-width track with a filled part.
+            // GeometryReader tells the bar how wide its space is, so the
+            // filled part can be that width times the share.
+            GeometryReader { space in
+                ZStack(alignment: .leading) {
+                    Capsule().fill(Theme.hairline)
+                    Capsule()
+                        .fill(isNamed ? Theme.leaf : Theme.inkSoft.opacity(0.55))
+                        .frame(width: max(3, space.size.width * possible.share))
+                }
+            }
+            .frame(height: 5)
+        }
+        .padding(.vertical, 2)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(possible.entry.title), \(possible.percent)")
     }
 }

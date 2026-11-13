@@ -163,6 +163,7 @@ struct TodayView: View {
         case "worms": startSurvey(.earthwormCount)
         case "fit": startSurvey(.fitCount)
         case "sighting": startSighting()
+        case "identify": sheet = .identify
         case "journal": startNote(draft: UserDefaults.standard.string(forKey: "demoDraft") ?? "")
         default: break
         }
@@ -705,7 +706,8 @@ struct TodayView: View {
         case .harvest:
             HarvestPicker()
         case .identify:
-            IdentifyView().macSheetSize(width: 520, height: 640)
+            // Built from SheetPage, which sets its own size on a Mac.
+            IdentifyView(inSheet: true)
         case .newSighting(let observation):
             // The form brings its own title and buttons (SheetPage).
             ObservationEditor(observation: observation, isNew: true)

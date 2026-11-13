@@ -57,10 +57,18 @@ enum DemoGarden {
 
     /// A checking aid: `-demoOpen sowing` opens the sowing form as soon
     /// as Today appears, so a still picture can be taken of it. Also
-    /// `harvest`, `worms`, `fit`, `sighting` and `journal`. With `journal`,
-    /// `-demoDraft "some words"` starts the box off with those words.
+    /// `harvest`, `worms`, `fit`, `sighting`, `identify` and `journal`.
+    /// With `journal`, `-demoDraft "some words"` starts the box off with
+    /// those words.
     static var opens: String? {
         isRequested ? UserDefaults.standard.string(forKey: "demoOpen") : nil
+    }
+
+    /// A checking aid: `-demoMatch YES` makes the Identify screen show a
+    /// made-up answer, so its cards can be looked at in the simulator,
+    /// where the identification model cannot run.
+    static var showsExampleMatch: Bool {
+        isRequested && UserDefaults.standard.bool(forKey: "demoMatch")
     }
 
     /// Checking aids that open one page in place of the Gardens page:
