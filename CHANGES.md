@@ -7,6 +7,32 @@ run without the Mac (every file reads as valid Swift, 323 logic tests
 pass). Those do not build the screens. Expect things to put right when
 it is first built, and treat how everything here looks as untried.
 
+## 13 November 2026, late night: rules around the model
+
+William asked how the models could be made cleverer, and chose two of the four ways offered: hand the model the facts when it is asked, and check its answer before he sees it. Both are done by fixed rules a person can read, with no model involved, so they help whichever model Eira uses. Each rule answers something a model got wrong on the test sheet that evening. `EiraChecks.swift` is new and holds most of it. 14 new logic tests, 401 in all.
+
+**Before the model answers: a lookup the app runs itself.**
+
+- *The mistake.* "What should I be sowing now?" Apple's model suggested parsnips in November. Qwen thought for four minutes and wrote nothing. Neither looked at the sowing months in the plant library.
+- *The rule* (`EiraChecks.lookupFirst`). If a message is a question, mentions sowing and says "now", "this month", "this week", "today" or names the current month, the app runs a new lookup, `sowing_now`, and hands the result to the model with the question: "The app has already looked this up for you…". The model's job becomes reading a list out.
+- *The lookup* (`ToolRunner.sowingNow` and `sowingText` in `EiraTools.swift`). It goes through the plant library, keeps the plants whose indoor or outdoor sowing months include this month, and writes them as two lists. At most 30 names each, with a count of the rest.
+- *Why the model is not offered this lookup as one of its tools.* It already chooses among eight, and small models choose worse from a longer list. This one is only ever run by the rule.
+- *How it joins the conversation* (`EiraConversation.send`). `forcedTool ?? EiraChecks.lookupFirst(for: trimmed)`. The `??` means "use the left side if there is one, otherwise the right": a lookup William forces by hand still comes first.
+
+**A request to save something gets fixed wording** (`EiraSafety.asksToSaveARecord`, `savingReply`).
+
+- *The mistake.* "I've added three rows of carrots to bed 2, can you save that?" Qwen answered "your sowing… is now recorded in the system". Nothing was.
+- *The rule.* A message with a request ("can you", "please"…) and an act ("save that", "record it", "log this"…), or an act and a place ("add it to my journal"), never reaches the model. Eira says she has saved nothing, cannot from the chat, and how to record it in the journal.
+- *What is let through on purpose.* "How do I save seed from peas?", "Can you put that another way?" and "Please note that I garden on clay" all still go to the model. The tests hold those in place.
+
+**After the model answers: the reply is read by rule** (`EiraChecks.checked`, called from `EiraConversation.commitReply`). A reply William stops himself is left as it was.
+
+1. *A claim to have saved is taken out* (`claimsToHaveSaved`, `withoutSaveClaims`). The reply is split into sentences. Any that says "now recorded", "I've saved", "I'll log", "has been added to your…" and the like is removed, and one plain line is added at the end: nothing has been saved. "You recorded a harvest on 9 November" is about William's own records and is left alone.
+2. *A scientific name that no lookup supplied is flagged* (`uncheckedNames`). Qwen wrote "Marjoram (Origanum majoricum)" from memory, and it is probably the wrong name. The rule finds two-word names in italics or brackets and looks for each in the question, the lookups' results, the garden notes and the corrections. Any found in none gets a line at the end: "Not checked: the name … came from the model's memory, not from a lookup." It is a flag and not a correction: the name may be right.
+3. *An empty reply is said to be empty.* Twice Qwen thought and then wrote nothing, and the chat showed nothing. It now says so and suggests asking again.
+
+**What these do not do.** They do not make a model know more. They stop three kinds of mistake reaching William and put one kind of fact in front of the model. More rules of both kinds can follow the same pattern, each with its tests.
+
 ## 13 November 2026, night: Eira's bed lookup
 
 **What was wrong.** Asked "What's growing in Bed 3?", Qwen3 8B looked up the bed as "3". The lookup only knew a bed by its exact name, so it answered "Nothing growing in 3 at the moment", and Qwen told William the bed was empty. French beans were in it. Apple's model happened to send "Bed 3" and got it right.
