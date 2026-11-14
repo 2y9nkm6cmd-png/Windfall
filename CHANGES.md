@@ -7,7 +7,7 @@ run without the Mac (every file reads as valid Swift, 323 logic tests
 pass). Those do not build the screens. Expect things to put right when
 it is first built, and treat how everything here looks as untried.
 
-## 14 November 2026, 13:05: "Sow to crop" was being read as days
+## 14 November 2026, 12:57: "Sow to crop" was being read as days
 
 **On the branch `sow-to-crop-units`, made from `main` and merged back into it.** 535 logic tests pass.
 
