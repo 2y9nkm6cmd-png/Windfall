@@ -7,7 +7,7 @@ run without the Mac (every file reads as valid Swift, 323 logic tests
 pass). Those do not build the screens. Expect things to put right when
 it is first built, and treat how everything here looks as untried.
 
-## 14 November 2026, 18:25: a new plant is looked up, and a plant's gaps are filled in
+## 14 November 2026, 17:48: a new plant is looked up, and a plant's gaps are filled in
 
 **On the branch `plant-fill-in`, made from `main` at `0c4857f` with `eira-web-finds` joined to it. Written without the Mac, so NOT BUILT.** Every file reads as valid Swift and 664 logic tests pass, 29 of them new. The rules were also run from this branch's own code against the live RHS site for seven plants. **The screens have never been compiled or seen.** Expect things to put right at the first build.
 
