@@ -7,6 +7,12 @@ run without the Mac (every file reads as valid Swift, 323 logic tests
 pass). Those do not build the screens. Expect things to put right when
 it is first built, and treat how everything here looks as untried.
 
+## 14 November 2026, 12:20: the photo model is no longer offered as a model for Eira's chat
+
+**Why.** Eira's settings list every folder in Windfall's Models folder that holds a file ending in `.aimodel`. The photo model's folders (`bioclip2`, and `bioclip2-original` since another chat added it) hold one too, so they were listed beside the two Qwens. Choosing one would only give an error, because a photo model cannot hold a conversation.
+
+**What changed** (`EiraModelLibrary.coreAIModelNames` and `holdsTextModel` in `EiraEngine.swift`). Apple's exporter writes a small file, `metadata.json`, into every model folder it makes, with a line saying what kind of model it is: `"kind": "llm"` for a text model. A folder is now listed only if it has that file and the file does not name another kind. The photo model's folders have no such file, so they drop out. One test builds five pretend folders and checks that the right two are listed.
+
 ## 14 November 2026, midday: three things the trained Qwen's test turned up
 
 **In `main` since 12:00**, by way of the branch `carrot-family-warning`, with the warning below. Built for the Mac and the simulator as r26 (`36b0bcd`), no errors. 474 logic tests pass.
