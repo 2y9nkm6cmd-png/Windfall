@@ -3,16 +3,6 @@
     {
       "idiom": "universal",
       "filename": "shape-rotate-umbellate.svg"
-    },
-    {
-      "idiom": "universal",
-      "filename": "shape-rotate-umbellate-dark.svg",
-      "appearances": [
-        {
-          "appearance": "luminosity",
-          "value": "dark"
-        }
-      ]
     }
   ],
   "info": {

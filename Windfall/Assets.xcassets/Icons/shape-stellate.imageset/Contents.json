@@ -3,16 +3,6 @@
     {
       "idiom": "universal",
       "filename": "shape-stellate.svg"
-    },
-    {
-      "idiom": "universal",
-      "filename": "shape-stellate-dark.svg",
-      "appearances": [
-        {
-          "appearance": "luminosity",
-          "value": "dark"
-        }
-      ]
     }
   ],
   "info": {

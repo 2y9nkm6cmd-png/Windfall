@@ -48,7 +48,7 @@ Twenty of the files in `Icons/` have names that start `shape-`, one for each sha
   python3 Tools/design/build_design_assets.py
   ```
 
-- **They are colour icons**, like the bee and the butterfly: flat petal colours, a darker tone for shade and the dark green outline (`#06472A`), drawn back to front so that one petal can sit over another. The script above makes each a dark-mode copy with a pale outline. They were one-colour outlines for an hour on 14 November 2026, until William asked for them to be more realistic.
+- **They are colour icons**, like the bee and the butterfly: flat petal colours, a darker tone for shade and the dark green outline (`#06472A`), drawn back to front so that one petal can sit over another. **They are the same drawing in light and dark mode.** Other colour icons get a dark-mode copy with a pale outline, but William preferred these left as they are on the dark background, so the script skips any icon whose name starts `shape-` (`SAME_IN_DARK` in `build_design_assets.py`). The cost, which he saw: bare stalks and the spokes of the umbel, drawn only in the outline colour, are faint in dark mode. They were one-colour outlines for an hour on 14 November 2026, until William asked for them to be more realistic.
 - **The shade is its own colour**, `#0A2E1C`, laid thinly over what is beneath. It must not be the outline colour: that one turns pale in dark mode, and the shade would then lighten instead of darken.
 - The botany is Claude's own and has not been checked against a book. Project doc 57 lists what was simplified.
 
@@ -66,6 +66,18 @@ for look in light dark; do
   python3 -c "from PIL import Image; Image.open('/tmp/icon-$look.png').convert('RGB').save('Windfall/Assets.xcassets/AppIcon.appiconset/windfall-app-icon-$look-1024.png')"
 done
 ```
+
+### The Mac's icon
+
+A Mac does not round an icon's corners as an iPhone does, so it needs pictures of its own: the same drawing cut to a rounded square with clear space round it, at seven sizes. They are made from the light picture by a script, and are the files named `windfall-app-icon-mac-...png` in the same folder. After making the light picture again, make the Mac's again too (this needs only Xcode, which the Mac has):
+
+```
+swift Tools/design/make_mac_app_icon.swift \
+  Windfall/Assets.xcassets/AppIcon.appiconset/windfall-app-icon-light-1024.png \
+  Windfall/Assets.xcassets/AppIcon.appiconset
+```
+
+The Mac shows this one cream icon in light and dark mode. `Contents.json` in that folder lists which picture fills which slot: the slots marked `"platform" : "ios"` are the iPhone's and iPad's, and those marked `"idiom" : "mac"` are the Mac's.
 
 ## What is in Reference
 

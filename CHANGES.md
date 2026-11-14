@@ -1,5 +1,7 @@
 # 14 November 2026, 19:20: the to-do cards on Today open out where they are
 
+**Joined to `main` at 21:32 on 14 November 2026** by the night join chat, in its own copy (`~/Developer/windfall-night`, branch `join-14nov-night`). It merged cleanly with the weather work in `TodayView.swift`. Built for the Mac (`nt3-mac.log`) and the simulator (`nt4-sim.log`) together with Eira's more solid bar and the flower shapes: both succeeded. 761 logic tests pass. **It has still not been seen running or tried by hand.**
+
 **By the to-do chat, from William's iPhone. Branch `todo-cards-open`, made from `main` at `71d95d4`. Not in `main`. Written in Claude's cloud workspace: the Mac was not connected, so it has not been built or seen running.**
 
 William, 19:00: "We need to make it so that when you tap to do they expand to give you the whole month". Asked what a tap should do, he chose: the card opens out where it is on Today and lists every job, and a second tap folds it.
@@ -85,6 +87,54 @@ withAnimation(reduceMotion ? nil : .snappy(duration: 0.3)) { isOpen.wrappedValue
 
 - The widgets are unchanged. A widget cannot grow.
 - While the cards are being rearranged (jiggling), a heading does not answer a tap, as with everything else inside a card.
+# 14 November 2026, 21:20: the flower shape drawings keep their dark outline in dark mode
+
+**By the flower shape chat.** William was sent the light-mode drawings unchanged on the dark background, beside the dark-mode copies with a pale outline that the app had been given. He chose the first: "Yeah, that's better. Leave them unchanged."
+
+| File | What and why |
+|---|---|
+| `Tools/design/build_design_assets.py` | New `SAME_IN_DARK`: a colour icon whose name starts `shape-` gets no dark-mode copy, so its one drawing is shown in both modes. Every other colour icon is treated as before |
+| Both asset catalogues | Rebuilt: the twenty `shape-*-dark.svg` copies are gone, and each `Contents.json` lists one picture |
+| `Windfall/FlowerShapeViews.swift`, `Design/README.md` | Comments and notes only |
+
+No Swift code changed. **Not built**: only pictures and their lists changed. The cost William saw and accepted: bare stalks and the umbel's spokes, drawn only in the outline colour, are faint on the dark background.
+
+# 14 November 2026, 20:57: the Mac gets the app icon
+
+**By the "Mac icon" chat, on the branch `mac-app-icon`.** William, 20:52, with a picture of his Dock showing two blank tiles for Windfall: "None of the apps have the icon on the app icon."
+
+**Why the Dock was blank.** The icon went in at 17:36 for iPhone and iPad only. `AppIcon.appiconset/Contents.json` is the list of slots an icon has, and each slot says which kind of device it is for. Every slot in it said `"platform" : "ios"`. A Mac build looked for slots marked `"idiom" : "mac"`, found none, and so made no icon file at all: the built Mac app had no `AppIcon.icns` and no icon named in its `Info.plist`. macOS then draws its blank placeholder. iPhone builds made since 17:36 do carry the icon (`AppIcon60x60@2x.png` is inside them).
+
+**No Swift changed.** Three things were added:
+
+| Where | What |
+|---|---|
+| `Tools/design/make_mac_app_icon.swift` | A short script that makes the Mac's pictures from the iPhone's square one |
+| `AppIcon.appiconset/windfall-app-icon-mac-16.png`, `-32`, `-64`, `-128`, `-256`, `-512`, `-1024` | The Mac's pictures, made by that script from the light icon |
+| `AppIcon.appiconset/Contents.json` | Ten Mac slots added. The three iPhone and iPad slots are as they were |
+
+**Why the Mac needs different pictures.** An iPhone takes a plain square and rounds the corners itself. A Mac shows the picture as given, so it must arrive already cut to a rounded square with clear space round it: 824 dots across on a 1024 dot canvas, 100 dots clear each side, which are Apple's measurements. It also wants ten slots (16, 32, 128, 256 and 512 points, each at 1x and 2x) where an iPhone wants one. Seven pictures fill the ten slots, because 16 at 2x and 32 at 1x are the same 32 dots, and so on.
+
+**What a Mac slot looks like:**
+
+```
+{
+  "filename" : "windfall-app-icon-mac-32.png",
+  "idiom" : "mac",
+  "scale" : "2x",
+  "size" : "16x16"
+}
+```
+
+`idiom` is the kind of device. `size` is in points, the unit screens are measured in. `scale` is how many dots there are to a point: `2x` is a sharp (Retina) screen, so a 16 point icon at 2x is a picture 32 dots across.
+
+**Checked on the Mac (macOS 27.2.1, Xcode 27.2):** Xcode's asset step (`actool`) for the Mac, with no errors or warnings, now makes `AppIcon.icns` and names `AppIcon` as the icon. The same step for iPhone and iPad gives what it gave before. A stand-in app holding only that icon was made in `/tmp`, and macOS was asked how it would draw it: the cream tile, full size, with no grey box round it (macOS puts an icon of the wrong shape in a grey box). Twelve points of the Mac picture match the same points of the square one exactly, so nothing is flipped or shifted.
+
+**Not done:**
+
+- **A dark icon on the Mac.** These slots take one picture, so the Mac shows the cream icon in light and dark mode. A Mac icon that changes needs Apple's newer icon file, made in its Icon Composer app.
+- The tinted slot for iPhone and iPad is still empty.
+
 # 14 November 2026, 20:25: the flower shape drawings redrawn in colour, with shading (branch `flower-shape-drawings`)
 
 **By the flower shape chat.** William, of the one-colour outlines: "Go back through the files and make them more realistic, but still graphicky. they might need shading." Of a sample of four: "They're much better".

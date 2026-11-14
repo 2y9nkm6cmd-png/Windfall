@@ -3,16 +3,6 @@
     {
       "idiom": "universal",
       "filename": "shape-apetalous-amentaceous.svg"
-    },
-    {
-      "idiom": "universal",
-      "filename": "shape-apetalous-amentaceous-dark.svg",
-      "appearances": [
-        {
-          "appearance": "luminosity",
-          "value": "dark"
-        }
-      ]
     }
   ],
   "info": {

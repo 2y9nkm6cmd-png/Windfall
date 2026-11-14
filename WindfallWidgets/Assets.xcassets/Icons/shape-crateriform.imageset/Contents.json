@@ -3,16 +3,6 @@
     {
       "idiom": "universal",
       "filename": "shape-crateriform.svg"
-    },
-    {
-      "idiom": "universal",
-      "filename": "shape-crateriform-dark.svg",
-      "appearances": [
-        {
-          "appearance": "luminosity",
-          "value": "dark"
-        }
-      ]
     }
   ],
   "info": {

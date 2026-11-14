@@ -3,16 +3,6 @@
     {
       "idiom": "universal",
       "filename": "shape-papilionaceous.svg"
-    },
-    {
-      "idiom": "universal",
-      "filename": "shape-papilionaceous-dark.svg",
-      "appearances": [
-        {
-          "appearance": "luminosity",
-          "value": "dark"
-        }
-      ]
     }
   ],
   "info": {

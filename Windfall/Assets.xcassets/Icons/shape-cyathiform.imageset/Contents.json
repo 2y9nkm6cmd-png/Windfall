@@ -3,16 +3,6 @@
     {
       "idiom": "universal",
       "filename": "shape-cyathiform.svg"
-    },
-    {
-      "idiom": "universal",
-      "filename": "shape-cyathiform-dark.svg",
-      "appearances": [
-        {
-          "appearance": "luminosity",
-          "value": "dark"
-        }
-      ]
     }
   ],
   "info": {

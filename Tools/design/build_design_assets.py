@@ -36,6 +36,12 @@ CATALOGUE = os.path.join(ROOT, "Windfall", "Assets.xcassets")
 WIDGET_CATALOGUE = os.path.join(ROOT, "WindfallWidgets", "Assets.xcassets")
 OUTLINE_LIGHT = "#06472A"
 OUTLINE_DARK = "#D9E8C4"
+# Colour icons whose names start with one of these keep their dark green
+# outline in dark mode: they get no second copy, so the one drawing is
+# shown in both. William chose this for the flower shape drawings on
+# 14 November 2026, after seeing them both ways on the dark background:
+# "Yeah, that's better. Leave them unchanged."
+SAME_IN_DARK = ("shape-",)
 INFO = {"author": "xcode", "version": 1}
 
 
@@ -110,6 +116,9 @@ def build_icons(catalogue=CATALOGUE):
         images = [{"idiom": "universal", "filename": filename}]
         if is_outline:
             outline += 1
+        elif name.startswith(SAME_IN_DARK):
+            # One drawing for light and dark. See SAME_IN_DARK above.
+            colour += 1
         else:
             colour += 1
             dark_name = name + "-dark.svg"
