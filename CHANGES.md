@@ -7,6 +7,44 @@ run without the Mac (every file reads as valid Swift, 323 logic tests
 pass). Those do not build the screens. Expect things to put right when
 it is first built, and treat how everything here looks as untried.
 
+## 14 November 2026, late morning: telling Eira she is wrong
+
+**On the branch `eira-corrections`, made from `main`.** Built for the Mac and the simulator as r23, with no errors. 457 logic tests pass. Seen in the simulator in light and dark (`shots/corr-*.png` on the Mac). **Not yet tried by hand with a real model.**
+
+**Why.** William asked: "I assume if it makes mistakes and I tell it that, then it will update the notes it keeps to improve in the future?" It did not. A correction was kept only if he pressed and held a reply and chose "Correct this", which nobody would find. Typing "No, that's wrong" was answered and then forgotten. And there was nowhere to read the corrections already kept, or to take a wrong one back.
+
+**What a correction is.** A note, not training. The model's own numbers never change. The ten newest corrections are written into Eira's instructions at the start of every conversation, under "Corrections the gardener has given you. These are right even if you believe otherwise". All of them are kept, however many there are, so they can become practice turns if the model is trained again.
+
+**What changed.**
+
+1. **A typed correction brings up a card** (`EiraChecks.correctionWords`, `EiraConversation.send`, `CorrectionOfferCard` in `EiraChatView.swift`).
+   - *The rule.* A message is read as a correction if it opens by disagreeing ("No, ...", "That's wrong", "Not quite", "Actually", "Correction:") or by naming the mistake ("That's not a Spartan, it's a Bramley", "You said ... but ..."), and goes on to state a fact of three words or more. It is plain code that looks for words. No model is asked.
+   - *What is kept.* Where the opening is set apart by a comma or a full stop it is taken off: "No, that's wrong. It's a Bramley." offers "It's a Bramley." Where it is not, the whole message is offered, because "That is wrong for clay soil" would otherwise be kept as "for clay soil".
+   - *What it leaves alone on purpose.* A question. "No thanks". "No dig beds are what I use" and "No slugs on the hostas this year", where "no" is the subject. "No, tell me about the other one", a request. Praise ("Actually that's really helpful"). A grumble about the app ("It's not working"). A plain "No" straight after Eira has asked a question, which is an answer to it. Anything over 240 characters, because the line read to the model would be cut off. The tests hold 35 examples in place, both ways.
+   - *When unsure it offers nothing.* The button under every reply (below) is there for whatever the rule misses.
+   - *Nothing is kept unless "Keep it" is pressed.* The words can be changed on the card first. Once kept, the card shrinks to a line with Undo. "No thanks", or simply sending the next message, takes the card away.
+   - *How the code holds the offer.* `EiraConversation` has a new value, `offeredCorrection`, of a small type `OfferedCorrection`: which message of yours it sits under, which reply of hers it puts right, the words and, once kept, the saved record. `send` sets it, the screen draws a card when it is not nil, and the buttons call `keepOfferedCorrection(as:)`, `undoKeptCorrection()` and `dismissOfferedCorrection()`.
+   - *Safety.* A message about eating fungi, preserving times, pesticide amounts or medicine gets its fixed reply as before and **is never offered as a correction**. `EiraSafety.fixedReply` was split so the chat can ask for those four on their own (`safetyReply`).
+   - *The reply cannot pretend.* If the model answers a correction with "I've noted that", the rule that already removes false claims of saving now says where the correction really stands: "I have not kept that yet. Press "Keep it" on the card above", or, once kept, that it is kept and that the records themselves are unchanged (`EiraChecks.CorrectionStanding`).
+
+2. **"Correct this" is a button under every reply** (`MessageView`). It is still in the press-and-hold menu too.
+
+3. **The "Correct this" sheet is drawn like the rest of the app** (`EiraCorrectionView`). It was a standard `Form`. It is now a `SheetPage` with two `SheetCard`s and a `FieldBox`, the same pieces as the sowing form. It warns if what is typed is longer than the 240 characters read to the model.
+
+4. **A new sheet, Corrections, in the chat's Options menu** (`EiraCorrectionsView`). Every correction, newest first, with the question it answered, when it was kept and a Remove button. From the eleventh on, each is marked "not read to her now". `@Query` reads the list from the database and keeps it current, so a removed card goes without the screen being told.
+
+5. **Every line of a correction is read to the model** (`EiraCorrection.promptLine`, `EiraChatStore.oneLine`). Only the first line was, so a correction typed over two lines lost its second.
+
+6. **One frame for every offer Eira makes.** The journal's "Add a harvest?" card frame (`OfferFrame` in `JournalOfferCards.swift`) was private to that file. It is now shared, with the filled button's title as a setting, so the correction card matches it.
+
+7. **The chat keeps its newest thing in view.** The list now scrolls to a marker at its very end when a message, a piece of the reply or an offer card arrives. Before, it scrolled to the last message, which could leave a card below it out of sight.
+
+**Checking aids.** `-demoOpen eira` opens the chat on an example exchange with the card showing. `-demoOpen corrections` also keeps two example corrections and opens the list. Both only work with the example garden, whose records live in memory.
+
+**A second build script on the Mac.** `pull-side.sh` does what `pull.sh` does but builds the Mac app into its own folder (`DerivedData/Windfall-claude-side`). William had Windfall open with his real records when this was built, started from the usual folder, and a build into that folder would have replaced the app underneath him.
+
+**Not done.** The rule only reads English openings it has been given, so it will miss corrections phrased another way. A correction is not yet shown anywhere outside the chat. The rest of the chat screen (the message bubbles, the settings and past conversations sheets) is still in the old look.
+
 ## 14 November 2026, morning: other chats' work brought into the main branch
 
 **What happened.** On the evening of 13 November William asked other chats for four things, and each was committed on the Mac without being sent to GitHub:
