@@ -207,12 +207,26 @@ struct TodayBoardLayout: Layout {
         var grab: UnitPoint
     }
 
+    // SwiftUI calls these two on the main thread, but in a way the
+    // compiler cannot see, and the app's own types (the panels, the
+    // plan) are marked as main-thread only. `MainActor.assumeIsolated`
+    // says "this is the main thread" so they can be used. If it ever
+    // were not, the app would stop here and say so.
+
     func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
-        let width = usable(proposal.width)
-        return CGSize(width: width, height: plan(width: width, subviews: subviews).height)
+        MainActor.assumeIsolated {
+            let width = usable(proposal.width)
+            return CGSize(width: width, height: plan(width: width, subviews: subviews).height)
+        }
     }
 
     func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        MainActor.assumeIsolated {
+            place(subviews, in: bounds)
+        }
+    }
+
+    private func place(_ subviews: Subviews, in bounds: CGRect) {
         let plan = plan(width: bounds.width, subviews: subviews)
         session.plan = plan
 
@@ -257,7 +271,7 @@ struct TodayBoardLayout: Layout {
         var page = page
         page.width = width
         return TodayBoardPlan(page: page) { panel, cardWidth in
-            cards[panel]?.sizeThatFits(ProposedViewSize(width: CGFloat(cardWidth), height: nil)).height ?? 0
+            Double(cards[panel]?.sizeThatFits(ProposedViewSize(width: CGFloat(cardWidth), height: nil)).height ?? 0)
         }
     }
 
