@@ -1,3 +1,22 @@
+# 14 November 2026, 20:10: plant drawings added to the Design folder
+
+**By the plant graphics chat.** William, 18:15: "Could you create graphics for all the plants I'm growing and have seeds for. Create a graphic for each phase of their life that are relevant." At 19:06: "Make them a bit more detailed and do them all". At 20:06: "Connect to my mac to attach changes to the main file".
+
+**No Swift changed and nothing in the app shows them yet.** This adds files only:
+
+| Where | What |
+|---|---|
+| `Design/Plants/light`, `Design/Plants/dark` | 908 drawings in each: 172 kinds of plant at each stage of life that applies |
+| `Design/Plants/plant-drawings.json` | Each kind, its stages and labels, and the library names that use it |
+| `Design/Plants/README.md` | What the files are and how to make them again |
+| `Tools/design/plant_kit.py`, `plants.py`, `plants_all.py` | The code that draws them. Needs only Python |
+
+**Shading**, at William's word of 20:08 ("If the diagrams need shadowing to make them look more realistic and understandable you could add shading"): every rounded shape has a soft crescent of shade on its lower right, stems and trunks a band down one side, leaves a darker half, and each plant a faint shadow on the soil. It is one named colour, `shade`, laid thinly over the others, so it darkens in light and in dark mode.
+
+**They are a first pass and William has not approved them.** Ten kinds are drawn by hand and 162 are built from templates with Claude's own settings for each plant, none yet checked. Project docs 58 and 59.
+
+**Not done:** showing a drawing on a plant's card or page. That is Swift work for a chat that builds.
+
 # 14 November 2026, 18:40: seven branches joined into main
 
 **By the join chat.** William, 16:44: "When all the app builds have finished, I want to combine them and then issue an iphone, ipad and mac build to test further." The Mac went quiet at 18:17. The join was made in a copy of its own, `~/Developer/windfall-join`, on the branch `join-14nov-evening`, and `main` moved only once it built and passed its tests.
