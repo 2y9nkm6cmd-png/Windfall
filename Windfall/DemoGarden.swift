@@ -166,6 +166,16 @@ enum DemoGarden {
         isRequested && UserDefaults.standard.bool(forKey: "demoPests")
     }
 
+    /// A checking aid: `-demoOpen sighting -demoPlantLetter M` opens the
+    /// sighting form, then its list of plants, already jumped to M, so a
+    /// still picture can show the row of letters and where a jump lands.
+    /// Nil when it was not asked for.
+    static var jumpsToPlantLetter: String? {
+        guard isRequested, let letter = UserDefaults.standard.string(forKey: "demoPlantLetter"),
+              !letter.isEmpty else { return nil }
+        return letter.uppercased()
+    }
+
     /// Fills the empty in-memory store with an example garden. Does
     /// nothing if it has already been filled.
     static func fill(_ context: ModelContext) {

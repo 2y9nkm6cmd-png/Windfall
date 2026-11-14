@@ -9,7 +9,7 @@ it is first built, and treat how everything here looks as untried.
 
 ## 14 November 2026, 16:50: a conversation grows out of Eira's bar
 
-**On the branch `eira-bar-expand`, made from `main` (`c89c037`).** Built for the Mac and the iOS Simulator with no errors (`eb3-mac.log`, `eb3-sim.log`, in `DerivedData/Windfall-eirabar`). 592 logic tests pass, 2 of them new. Seen as still pictures with the example garden on an 11-inch iPad Pro: the journal's conversation and Eira's chat each standing in the panel, in light and dark, and the bar at rest on Today and on Journal (`shots/eb2-*` and `eb3-*`). **Not seen: an iPhone, and the Mac's own window.** The Mac was too busy with other chats' builds for a second simulator to start. **Nothing has been pressed by hand, and Claude cannot see the panel move.** William judges the growing and the sinking back.
+**On the branch `eira-bar-expand`, made from `main` (`c89c037`), with `main` (`0ba7173`) merged in.** Built for the Mac and the iOS Simulator with no errors (`eb3-mac.log`, `eb3-sim.log`, in `DerivedData/Windfall-eirabar`). 592 logic tests pass, 2 of them new. Seen as still pictures with the example garden on an 11-inch iPad Pro: the journal's conversation and Eira's chat each standing in the panel, in light and dark, and the bar at rest on Today and on Journal (`shots/eb2-*` and `eb3-*`). **Not seen: an iPhone, and the Mac's own window.** The Mac was too busy with other chats' builds for a second simulator to start. **Nothing has been pressed by hand, and Claude cannot see the panel move.** William judges the growing and the sinking back.
 
 **Why.** William, 15:45, with a picture of the Journal page on the Mac: the journal's conversation open as a sheet in the middle of the window, with its own box to type in, and Eira's bar with a second box idle underneath. "Can we make it so that chat expands from the Eira bar, rather than opening up a new window?" His picture is in `Design/Reference`, `2026-11-14 screenshot-journal-sheet-over-eira-bar-mac.png`.
 
@@ -96,6 +96,99 @@ The Journal page and the bar are separate views, so the page cannot open the bar
 - Today's Note button and the Journal offer on Today still open the journal's conversation as a sheet.
 - Dragging the panel's top edge to resize it.
 - The panel does not shrink to fit a short conversation.
+## 14 November 2026, 16:26: the sidebar's lens follows the fingers again
+
+**On the branch `sidebar-scroll-follows-fingers`, made from `main`.** One line in `MainTabView.swift`, in `lensScrolled(by:)`.
+
+**Why.** William, 16:22, with a picture of the sidebar: "Can you return the scrolling of this bar to the previous way it was, it's not working as is right now." The sidebar's scrolling has been changed once since it was written: at 22:31 on 13 November the lens was made to move as a list scrolls (fingers pushed up went down the list). This puts back the way before that: two fingers moving down carry the lens down, like a drag.
+
+```swift
+let fingers = scroll.isDirectionInvertedFromDevice ? scroll.scrollingDeltaY : -scroll.scrollingDeltaY
+```
+
+- `scroll.scrollingDeltaY` is how far the Mac says this piece of the scroll went, up or down.
+- `isDirectionInvertedFromDevice` is true when "natural scrolling" is on in System Settings. It is on for William's Mac (the setting has never been changed from Apple's default).
+- `a ? b : c` reads "if a, then b, otherwise c". With natural scrolling on the number is used as it is. With it off the Mac reports the opposite sign, so the minus turns it back. Either way fingers down means lens down.
+- A mouse wheel goes through the same line, so its direction is turned too.
+
+Nothing else about the sidebar is changed: the gearing (0.6), settling on the nearest row and one row for each click of a wheel are as they were.
+
+**Not tried by hand.** A script cannot make a two-finger scroll.
+
+## 14 November 2026, 16:25: the sighting form's plant list has a row of letters to jump by
+
+**On the branch `plant-letter-jump`, made from `main`.** Built for the Mac and the iOS Simulator with no errors (`pl1-mac.log`, `pl1-sim.log`, in `DerivedData/Windfall-plantjump`). 596 logic tests pass, 6 of them new. Seen as still pictures with the example garden: the list open and jumped to M on an iPhone 17 (light) and an 11-inch iPad Air, and jumped to S on the iPhone in dark (`shots/pl1-*`). **Not tried by hand: pressing a letter, choosing a plant, and the Mac's own window.** The pictures were made with the checking aid below, which jumps the same way a press on a letter does but without the glide.
+
+**Why.** William, 15:50, with a picture of the sighting form's "Which plant" menu open: "could you make it so that you can select letters of the alphabet for the first letter so that you can jump to those plants first." The menu held every plant in the library, 376 of them, in one list that always opened at the top.
+
+### 1. What you see
+
+"Which plant" on the sighting form is still a box showing the chosen plant. Pressing it now opens a panel in place of the menu:
+
+- **A row of letters**, A to Z. Press one and the list glides to the plants that begin with it. A letter with no plants (Q and X in the library today) is greyed out and cannot be pressed.
+- **The list**, with "None" first and then a small heading for each letter. The chosen plant has a tick and a green band. Press a plant and the panel closes with it chosen.
+- It opens at the letter of the plant already chosen, so the tick is in view.
+- On an iPad or a Mac the panel is a popover pointing at the box. On an iPhone it slides up as a sheet.
+
+**The order has changed a little.** The menu was in the order of the plants' names alone, so varieties of one plant came in no order (Apple: Spartan, Pigs Snout, Pendragon). The list is in order of name and then variety, so they now run Jonagold, Pendragon, Pigs Nose III, Pigs Snout.
+
+### 2. The workings (`PlantFilter.swift`)
+
+A new piece, `PlantLetters`, with nothing in it that draws, so it can be tested without a screen.
+
+```swift
+static func letter(for name: String) -> String {
+    guard let first = name.first(where: { $0.isLetter || $0.isNumber }) else { return other }
+    let plain = key(String(first)).uppercased()
+    return alphabet.contains(plain) ? plain : other
+}
+```
+
+- `name.first(where:)` finds the first character that is a letter or a number, skipping anything in front, such as a quotation mark.
+- `guard ... else { return other }` is the way out when there is none: the name goes under "#".
+- `key(...)` drops an accent and `uppercased()` makes a capital, so "é" becomes "E".
+- The last line asks whether that is one of A to Z. A number is not, so "3 Sisters" goes under "#" too.
+
+`PlantLetters.groups` puts the whole list in order and returns one `LetterGroup` for each letter in use, each holding its plants. It is handed two small functions, one that gives an item's name and one its variety, so the app can give it plants and the tests plain text.
+
+### 3. The panel (`PlantChooser.swift`, new)
+
+Two views. `PlantChooser` is the box on the form. `PlantChooserList` is the panel.
+
+```swift
+ScrollViewReader { scroller in
+    ...
+    Button {
+        withAnimation(.smooth(duration: 0.25)) {
+            scroller.scrollTo(letter, anchor: .top)
+        }
+    } label: { Text(letter) }
+    ...
+    Text(group.letter)
+        .id(group.letter)
+}
+```
+
+- A `ScrollViewReader` wraps a scrolling list and hands over `scroller`, which can move the list to any view inside it that has been named.
+- `.id(group.letter)` is the naming: each letter's heading is named by its letter.
+- `scroller.scrollTo(letter, anchor: .top)` moves the list until that heading is at its top. `withAnimation` makes it glide.
+- The list is an ordinary stack, not a "lazy" one. A lazy stack builds a row only as it comes into view, and has to guess how far down an unbuilt row is, so a jump can land short. With every row built the jump is exact, and a few hundred rows of text cost little.
+- The letters sit in a `LazyVGrid` with "adaptive" columns: as many 30-point letters to a line as fit, the rest on the next line.
+
+### 4. One look for both kinds of box (`ObservationViews.swift`)
+
+The look of the box (the words, the small arrows, the hairline) was written inside `ChoiceMenu`. It is now a view of its own, `ChoiceLabel`, which `ChoiceMenu` and `PlantChooser` both draw, so "Which plant" still matches "Life stage" and "Group" above it and cannot drift from them.
+
+### Checking aid
+
+`-demoOpen sighting -demoPlantLetter M` opens the sighting form, then the list of plants a moment later, already at M (`DemoGarden.jumpsToPlantLetter`). Example garden only.
+
+### Not done, and for William to say
+
+- **The row of letters is not a `GlassSwitch`.** The rule is that every bar of choices is one. Claude's reading: this is a row of buttons to jump by, not a choice that stays made, and 26 pieces would not fit a sliding switch. William to confirm or change.
+- **No search box in the panel.** Not asked for. It would be a small addition.
+- **Choosing "None" does not clear a plant's name that was filled in from "Known from your reference data" without a plant record behind it.** The old menu behaved the same way. Left alone.
+- The sowing form and the other forms that pick a plant were not looked at. Only the sighting form's menu was changed.
 
 ## 14 November 2026, 15:50: swiping between months, a list of months, and a back swipe that follows the fingers
 
