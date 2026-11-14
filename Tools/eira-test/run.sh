@@ -19,8 +19,12 @@
 #                                  comes to the front
 APP="${APP:-/Users/Home/Library/Developer/Xcode/DerivedData/Windfall-claude/Build/Products/Debug/Windfall.app}"
 HOW=(-n)
+AWAKE=()
 # "-g" does not bring the app to the front. "-j" starts it hidden.
-[ -n "$QUIET" ] && HOW=(-n -g -j)
+# A Mac slows a hidden app down to save power ("App Nap"), which would
+# spoil the timings, so the run is also told not to nap. Like the other
+# dashed words here, that holds for this one run and is not saved.
+[ -n "$QUIET" ] && HOW=(-n -g -j) && AWAKE=(-NSAppSleepDisabled YES)
 HERE="$(cd "$(dirname "$0")" && pwd)"
 OUT="/Users/Home/Developer/windfall-build-logs"
 SHEET="${4:-$HERE/test-sheet.txt}"
@@ -42,5 +46,5 @@ rm -f "$OUT/eira-$3.md" "$OUT/eira-$3.log"
 #    along with it.
 open $HOW -a "$APP" --stdout "$OUT/eira-$3.log" --stderr "$OUT/eira-$3.log" --args \
   -demoGarden YES -eiraTest "$SHEET" -eiraTestOut "$OUT/eira-$3.md" \
-  -eiraModelKind "$1" $MODEL
+  -eiraModelKind "$1" $MODEL $AWAKE
 echo "Started. Watch $OUT/eira-$3.md for DONE."
