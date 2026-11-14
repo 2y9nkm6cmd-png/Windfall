@@ -257,7 +257,7 @@ struct TodayBoardLayout: Layout {
         var page = page
         page.width = width
         return TodayBoardPlan(page: page) { panel, cardWidth in
-            cards[panel]?.sizeThatFits(ProposedViewSize(width: cardWidth, height: nil)).height ?? 0
+            cards[panel]?.sizeThatFits(ProposedViewSize(width: CGFloat(cardWidth), height: nil)).height ?? 0
         }
     }
 
