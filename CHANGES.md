@@ -7,6 +7,14 @@ run without the Mac (every file reads as valid Swift, 323 logic tests
 pass). Those do not build the screens. Expect things to put right when
 it is first built, and treat how everything here looks as untried.
 
+## 14 November 2026, morning: a warning under every photo match
+
+**Why.** 300 unseen UK photos were run through the app with its new list of 776 names. It was right first time on 289 and said "not sure" for 10 of the 11 it got wrong. The eleventh was a photo of hemlock water-dropwort, one of the most poisonous plants in Britain, named as yellow iris at 87%. Hemlock itself was read as cow parsley or chervil, which the "not sure" level caught.
+
+**What changed** (`SpeciesTable.swift`, `caveat`). The small print under every answer on the Identify screen now also says: never eat anything, or handle a plant that may be poisonous, on the strength of a match. One sentence, shown every time, whatever the plant.
+
+**Not done.** A warning that appears only for plants with dangerous look-alikes would be better. It needs a checked list of those look-alikes. The fine-tuning chat has drafted one (`lookalikes.json`, doc 28) from memory, and it is not yet checked.
+
 ## 13 November 2026, late night: rules around the model
 
 William asked how the models could be made cleverer, and chose two of the four ways offered: hand the model the facts when it is asked, and check its answer before he sees it. Both are done by fixed rules a person can read, with no model involved, so they help whichever model Eira uses. Each rule answers something a model got wrong on the test sheet that evening. `EiraChecks.swift` is new and holds most of it. 14 new logic tests, 401 in all.

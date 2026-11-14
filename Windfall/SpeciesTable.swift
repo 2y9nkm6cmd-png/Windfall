@@ -270,8 +270,14 @@ struct SpeciesTable {
     }
 
     /// What the model can and cannot do, said once under any answer.
+    ///
+    /// The second sentence was added on 14 November 2026. Of 300 UK
+    /// photos run through the app, one of hemlock water-dropwort, which
+    /// is deadly, was named as yellow iris at 87%, and hemlock itself
+    /// was read as cow parsley or chervil. A match must never be the
+    /// reason to eat a plant.
     var caveat: String {
-        "It can only choose among the \(species.count) UK species it was given, and it never names fungi. Treat a match as a suggestion to check."
+        "It can only choose among the \(species.count) UK species it was given, and it never names fungi. Never eat anything, or handle a plant that may be poisonous, on the strength of a match: it can mistake a deadly plant for a harmless one. Treat a match as a suggestion to check."
     }
 }
 

@@ -957,7 +957,7 @@ struct LogicTests {
             let torn = eyeTable.guess(for: [1, 1, 0, 0])
             check(!torn.isSure && abs((torn.likeliest?.share ?? 0) - 0.5) < 0.0001 && torn.summary.hasPrefix("Not sure.") && torn.candidates.map(\.percent) == ["50%", "50%"], "a photo halfway between two rows is not named")
             check(eyeTable.guess(for: [0, 0, 1, 0]).candidates.allSatisfy { !$0.entry.isFungus } && eyeTable.guess(for: [1, 0]).candidates.isEmpty && !eyeTable.guess(for: [1, 0]).isSure, "a photo of the left-out fungus cannot be named as it, and the wrong count of numbers gives nothing")
-            check(eyeTable.guess(for: [0, 1, 0, 0]).likeliest?.entry.title == "Galanthus nivalis" && eyeTable.caveat.contains("2 UK species"), "a species with no English name is shown by its scientific one")
+            check(eyeTable.guess(for: [0, 1, 0, 0]).likeliest?.entry.title == "Galanthus nivalis" && eyeTable.caveat.contains("2 UK species") && eyeTable.caveat.contains("Never eat anything"), "a species with no English name is shown by its scientific one")
             let never = SpeciesTable(species: eyeTable.species, width: 4, scale: 100, notSureFloor: nil, numbers: [1, 0, 0, 0, 0, 1, 0, 0])
             check(!never.guess(for: [1, 0, 0, 0]).isSure && never.guess(for: [1, 0, 0, 0]).likeliest?.entry.scientific == "Bombus terrestris", "with no not-sure level nothing is named outright")
         } else {

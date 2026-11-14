@@ -219,7 +219,7 @@ struct IdentifyView: View {
                 ForEach(Array(guess.candidates.enumerated()), id: \.offset) { place, possible in
                     CandidateRow(possible: possible, isNamed: guess.isSure && place == 0)
                 }
-                Text((SpeciesEye.shared.table?.caveat ?? "Treat a match as a suggestion to check.")
+                Text((SpeciesEye.shared.table?.caveat ?? "Never eat anything on the strength of a match. Treat it as a suggestion to check.")
                      + " Nothing is saved until you start a sighting and confirm the name yourself.")
                     .font(.caption)
                     .foregroundStyle(Theme.inkSoft)
