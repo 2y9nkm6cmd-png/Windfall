@@ -46,3 +46,9 @@ TodayBoardPlan.title:
 TodayBoardPlan.value:
 TodayBoardPlan.viabilityRate:
 TodayPanel.path:
+FungusKey.lowerBound:
+FungusKey.photos:
+FungusKey.rounded:
+FungusKey.upperBound:
+FungusKey.x:
+FungusKey.y:

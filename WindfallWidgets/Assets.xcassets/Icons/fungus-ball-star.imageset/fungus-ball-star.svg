@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="5 5 90 90">
+<g stroke-linecap="round" stroke-linejoin="round">
+<path d="M14,96.5 Q18,90.5 50,89.5 Q82,90.5 86,96.5 Q50,100 14,96.5 Z" fill="#C4DC84" stroke="#06472A" stroke-width="3.8"/>
+<path d="M45.1,55 Q43.3,46.4 50,39 Q56.7,46.4 54.9,55 Z" fill="#D9A86C" stroke="#06472A" stroke-width="3.8"/>
+<path d="M50,55 L50,45" fill="none" stroke="#3A2A1E" stroke-width="1.2" stroke-opacity="0.3"/>
+<path d="M56.4,55.5 Q68.6,49.7 84.4,48.4 Q77.1,55.7 62.5,59.9 Z" fill="#D9A86C" stroke="#06472A" stroke-width="3.8"/>
+<path d="M59.4,57.7 L76.6,52.2" fill="none" stroke="#3A2A1E" stroke-width="1.2" stroke-opacity="0.3"/>
+<path d="M62.8,60.8 Q80,63 92.9,69.6 Q77,70.4 60.7,66.3 Z" fill="#D9A86C" stroke="#06472A" stroke-width="3.8"/>
+<path d="M61.8,63.5 L83.1,68.2" fill="none" stroke="#3A2A1E" stroke-width="1.2" stroke-opacity="0.3"/>
+<path d="M59.6,67 Q68.8,76.3 69.1,86.5 Q56.6,79.6 50.8,69.5 Z" fill="#D9A86C" stroke="#06472A" stroke-width="3.8"/>
+<path d="M55.2,68.3 L64.8,81.1" fill="none" stroke="#3A2A1E" stroke-width="1.2" stroke-opacity="0.3"/>
+<path d="M49.2,69.5 Q43.4,79.6 30.9,86.5 Q31.2,76.3 40.4,67 Z" fill="#D9A86C" stroke="#06472A" stroke-width="3.8"/>
+<path d="M44.8,68.3 L35.2,81.1" fill="none" stroke="#3A2A1E" stroke-width="1.2" stroke-opacity="0.3"/>
+<path d="M39.3,66.3 Q23,70.4 7.1,69.6 Q20,63 37.2,60.8 Z" fill="#D9A86C" stroke="#06472A" stroke-width="3.8"/>
+<path d="M38.2,63.5 L16.9,68.2" fill="none" stroke="#3A2A1E" stroke-width="1.2" stroke-opacity="0.3"/>
+<path d="M37.5,59.9 Q22.9,55.7 15.6,48.4 Q31.4,49.7 43.6,55.5 Z" fill="#D9A86C" stroke="#06472A" stroke-width="3.8"/>
+<path d="M40.6,57.7 L23.4,52.2" fill="none" stroke="#3A2A1E" stroke-width="1.2" stroke-opacity="0.3"/>
+<path d="M67,62 L66.7,63.6 L66,65.1 L64.7,66.5 L63,67.8 L60.9,68.9 L58.5,69.8 L55.8,70.5 L53,70.9 L50,71 L47,70.9 L44.2,70.5 L41.5,69.8 L39.1,68.9 L37,67.8 L35.3,66.5 L34,65.1 L33.3,63.6 L33,62 L33.3,60.4 L34,58.9 L35.3,57.5 L37,56.2 L39.1,55.1 L41.5,54.2 L44.2,53.5 L47,53.1 L50,53 L53,53.1 L55.8,53.5 L58.5,54.2 L60.9,55.1 L63,56.2 L64.7,57.5 L66,58.9 L66.7,60.4 L67,62 Z" fill="#E6CFA0" stroke="#06472A" stroke-width="3.8"/>
+<path d="M56,30 Q62,32 65,38 Q68,44 66,50 Q64,56 57,58 Q50,60 43,58 Q36,56 34,50 Q32,44 35,38 Q38,32 44,30 Q50,28 56,30 Z" fill="#D9D0BC" stroke="#06472A" stroke-width="3.8"/>
+<path d="M58,30 L66,38 L68,48 L62,57 L52,60 L60,50 L62,40 Z" fill="#ACA28D" stroke="none"/>
+<path d="M45,31 L50,22 L55,31 Z" fill="#D9D0BC" stroke="#06472A" stroke-width="3"/>
+<circle cx="50" cy="23.5" r="1.8" fill="#3B2F2B"/>
+<circle cx="50" cy="16" r="1.8" fill="#A9602C" fill-opacity="0.6"/>
+<circle cx="45" cy="11" r="1.4" fill="#A9602C" fill-opacity="0.5"/>
+<circle cx="55" cy="10" r="1.5" fill="#A9602C" fill-opacity="0.5"/>
+<circle cx="50" cy="6" r="1.2" fill="#A9602C" fill-opacity="0.35"/>
+</g>
+</svg>

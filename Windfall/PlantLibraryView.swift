@@ -523,6 +523,7 @@ struct PlantDetailView: View {
                         let addGoesRight = sides.rightWeight < sides.leftWeight
                         HStack(alignment: .top, spacing: 14) {
                             VStack(spacing: 14) {
+                                stagesCard
                                 ForEach(sides.left) { factCard in
                                     PlantFactCardView(factCard: factCard) { editing = factCard.group }
                                 }
@@ -542,6 +543,7 @@ struct PlantDetailView: View {
                         }
                     } else {
                         plantingsCard
+                        stagesCard
                         ForEach(cards) { factCard in
                             PlantFactCardView(factCard: factCard) { editing = factCard.group }
                         }
@@ -772,6 +774,18 @@ struct PlantDetailView: View {
     /// November 2026 it was left out until the plant had been sown, and
     /// a sowing could only be started from Today or the Sowings list,
     /// by finding the plant again.
+    /// The plant's drawings, one for each stage of its life. Shows
+    /// nothing for a plant with no drawings.
+    ///
+    /// `@ViewBuilder` lets this hold an `if`: it may give back a card or
+    /// nothing at all.
+    @ViewBuilder
+    private var stagesCard: some View {
+        if let kind = PlantDrawings.shared.kind(forPlantNamed: plant.commonName) {
+            PlantStagesCard(kind: kind)
+        }
+    }
+
     private var plantingsCard: some View {
         // What each row says is worked out in PlantPage.swift, where it
         // is tested.

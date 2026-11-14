@@ -1,0 +1,5231 @@
+{
+ "kinds": [
+  {
+   "slug": "african-daisy",
+   "name": "African Daisy",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    }
+   ],
+   "libraryNames": [
+    "African Daisy"
+   ]
+  },
+  {
+   "slug": "alfalfa",
+   "name": "Alfalfa",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    }
+   ],
+   "libraryNames": [
+    "Alfalfa"
+   ]
+  },
+  {
+   "slug": "anise",
+   "name": "Anise",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    }
+   ],
+   "libraryNames": [
+    "Anise"
+   ]
+  },
+  {
+   "slug": "apple",
+   "name": "Apple",
+   "stages": [
+    {
+     "stage": "young",
+     "label": "Young tree"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    },
+    {
+     "stage": "flower",
+     "label": "Blossom"
+    },
+    {
+     "stage": "set",
+     "label": "Fruit set"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to pick"
+    }
+   ],
+   "libraryNames": [
+    "Apple",
+    "Apple (Cider)",
+    "Apple (Culinary)"
+   ]
+  },
+  {
+   "slug": "asparagus",
+   "name": "Asparagus",
+   "stages": [
+    {
+     "stage": "crown",
+     "label": "Crown"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to pick"
+    },
+    {
+     "stage": "growing",
+     "label": "Fern"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Fern and berries"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    }
+   ],
+   "libraryNames": [
+    "Asparagus"
+   ]
+  },
+  {
+   "slug": "aster",
+   "name": "Aster",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    }
+   ],
+   "libraryNames": [
+    "Aster"
+   ]
+  },
+  {
+   "slug": "aubergine",
+   "name": "Aubergine",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "crop",
+     "label": "Fruiting"
+    }
+   ],
+   "libraryNames": [
+    "Aubergine"
+   ]
+  },
+  {
+   "slug": "aubrieta",
+   "name": "Aubrieta",
+   "stages": [
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    }
+   ],
+   "libraryNames": [
+    "Aubrieta"
+   ]
+  },
+  {
+   "slug": "basil",
+   "name": "Basil",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to pick"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    }
+   ],
+   "libraryNames": [
+    "Basil"
+   ]
+  },
+  {
+   "slug": "bay",
+   "name": "Bay",
+   "stages": [
+    {
+     "stage": "young",
+     "label": "Young tree"
+    },
+    {
+     "stage": "growing",
+     "label": "In leaf"
+    },
+    {
+     "stage": "flower",
+     "label": "Blossom"
+    }
+   ],
+   "libraryNames": [
+    "Bay"
+   ]
+  },
+  {
+   "slug": "beetroot",
+   "name": "Beetroot",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to pull"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower (year 2)"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    }
+   ],
+   "libraryNames": [
+    "Beetroot"
+   ]
+  },
+  {
+   "slug": "blackberry",
+   "name": "Blackberry",
+   "stages": [
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "crop",
+     "label": "Fruiting"
+    }
+   ],
+   "libraryNames": [
+    "Blackberry"
+   ]
+  },
+  {
+   "slug": "blackcurrant",
+   "name": "Blackcurrant",
+   "stages": [
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "crop",
+     "label": "Fruiting"
+    }
+   ],
+   "libraryNames": [
+    "Blackcurrant"
+   ]
+  },
+  {
+   "slug": "blue-globe-thistle",
+   "name": "Blue globe thistle",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    }
+   ],
+   "libraryNames": [
+    "Blue globe thistle"
+   ]
+  },
+  {
+   "slug": "bluebell",
+   "name": "Bluebell",
+   "stages": [
+    {
+     "stage": "bulb",
+     "label": "Bulb"
+    },
+    {
+     "stage": "shoots",
+     "label": "Shoots"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    },
+    {
+     "stage": "dormant",
+     "label": "Dormant"
+    }
+   ],
+   "libraryNames": [
+    "Bluebell"
+   ]
+  },
+  {
+   "slug": "blueberry",
+   "name": "Blueberry",
+   "stages": [
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "crop",
+     "label": "Fruiting"
+    }
+   ],
+   "libraryNames": [
+    "Blueberry",
+    "Wild blueberry"
+   ]
+  },
+  {
+   "slug": "borage",
+   "name": "Borage",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    }
+   ],
+   "libraryNames": [
+    "Borage"
+   ]
+  },
+  {
+   "slug": "bristol-onion",
+   "name": "Bristol Onion",
+   "stages": [
+    {
+     "stage": "set",
+     "label": "Set"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    }
+   ],
+   "libraryNames": [
+    "Bristol Onion"
+   ]
+  },
+  {
+   "slug": "bristol-whitebeam",
+   "name": "Bristol Whitebeam",
+   "stages": [
+    {
+     "stage": "young",
+     "label": "Young tree"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    },
+    {
+     "stage": "flower",
+     "label": "Blossom"
+    },
+    {
+     "stage": "set",
+     "label": "Fruit set"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to pick"
+    }
+   ],
+   "libraryNames": [
+    "Bristol Whitebeam"
+   ]
+  },
+  {
+   "slug": "broad-bean",
+   "name": "Broad bean",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "crop",
+     "label": "Pods to pick"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Dry pods for seed"
+    }
+   ],
+   "libraryNames": [
+    "Broad bean"
+   ]
+  },
+  {
+   "slug": "broccoli",
+   "name": "Broccoli",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to cut"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    }
+   ],
+   "libraryNames": [
+    "Broccoli"
+   ]
+  },
+  {
+   "slug": "broccoli-sprouting",
+   "name": "Broccoli (sprouting)",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to cut"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower (year 2)"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    }
+   ],
+   "libraryNames": [
+    "Broccoli (sprouting)"
+   ]
+  },
+  {
+   "slug": "brussels-sprouts",
+   "name": "Brussels sprouts",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to pick"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower (year 2)"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    }
+   ],
+   "libraryNames": [
+    "Brussels sprouts"
+   ]
+  },
+  {
+   "slug": "cabbage",
+   "name": "Cabbage",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to cut"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower (year 2)"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    }
+   ],
+   "libraryNames": [
+    "Cabbage"
+   ]
+  },
+  {
+   "slug": "calendula",
+   "name": "Calendula",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    }
+   ],
+   "libraryNames": [
+    "Calendula"
+   ]
+  },
+  {
+   "slug": "california-poppy",
+   "name": "California Poppy",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    }
+   ],
+   "libraryNames": [
+    "California Poppy"
+   ]
+  },
+  {
+   "slug": "candy-cane-sorrel",
+   "name": "Candy Cane Sorrel",
+   "stages": [
+    {
+     "stage": "set",
+     "label": "Set"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    }
+   ],
+   "libraryNames": [
+    "Candy Cane Sorrel"
+   ]
+  },
+  {
+   "slug": "carrot",
+   "name": "Carrot",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to pull"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower (year 2)"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    }
+   ],
+   "libraryNames": [
+    "Carrot",
+    "Carrots",
+    "Flowering carrot"
+   ]
+  },
+  {
+   "slug": "cat-nip",
+   "name": "Cat nip",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    }
+   ],
+   "libraryNames": [
+    "Cat nip"
+   ]
+  },
+  {
+   "slug": "cauliflower",
+   "name": "Cauliflower",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to cut"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower (year 2)"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    }
+   ],
+   "libraryNames": [
+    "Cauliflower"
+   ]
+  },
+  {
+   "slug": "celeriac",
+   "name": "Celeriac",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to pull"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower (year 2)"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    }
+   ],
+   "libraryNames": [
+    "Celeriac"
+   ]
+  },
+  {
+   "slug": "celery",
+   "name": "Celery",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to cut"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower (year 2)"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    }
+   ],
+   "libraryNames": [
+    "Celery"
+   ]
+  },
+  {
+   "slug": "celtuce",
+   "name": "Celtuce",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to cut"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    }
+   ],
+   "libraryNames": [
+    "Celtuce"
+   ]
+  },
+  {
+   "slug": "chervil",
+   "name": "Chervil",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to pick"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    }
+   ],
+   "libraryNames": [
+    "Chervil"
+   ]
+  },
+  {
+   "slug": "chicory",
+   "name": "Chicory",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to pick"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    }
+   ],
+   "libraryNames": [
+    "Chicory"
+   ]
+  },
+  {
+   "slug": "chilli-pepper",
+   "name": "Chilli pepper",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "crop",
+     "label": "Fruiting"
+    }
+   ],
+   "libraryNames": [
+    "Chilli pepper"
+   ]
+  },
+  {
+   "slug": "chinese-lanterns",
+   "name": "Chinese lanterns",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "crop",
+     "label": "Lanterns"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    }
+   ],
+   "libraryNames": [
+    "Chinese lanterns"
+   ]
+  },
+  {
+   "slug": "chives",
+   "name": "Chives",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to cut"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    }
+   ],
+   "libraryNames": [
+    "Chives"
+   ]
+  },
+  {
+   "slug": "clover",
+   "name": "Clover",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    }
+   ],
+   "libraryNames": [
+    "Clover"
+   ]
+  },
+  {
+   "slug": "common-bird-s-foot-trefoil",
+   "name": "Common bird's-foot-trefoil",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    }
+   ],
+   "libraryNames": [
+    "Common bird's-foot-trefoil"
+   ]
+  },
+  {
+   "slug": "common-evening-primrose",
+   "name": "Common evening-primrose",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower (year 2)"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    }
+   ],
+   "libraryNames": [
+    "Common evening-primrose"
+   ]
+  },
+  {
+   "slug": "common-valerian",
+   "name": "Common Valerian",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    }
+   ],
+   "libraryNames": [
+    "Common Valerian"
+   ]
+  },
+  {
+   "slug": "coriander",
+   "name": "Coriander",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to pick"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    }
+   ],
+   "libraryNames": [
+    "Coriander"
+   ]
+  },
+  {
+   "slug": "corn-chamomile",
+   "name": "Corn chamomile",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    }
+   ],
+   "libraryNames": [
+    "Corn chamomile"
+   ]
+  },
+  {
+   "slug": "cornflower",
+   "name": "Cornflower",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    }
+   ],
+   "libraryNames": [
+    "Cornflower",
+    "Field cornflower"
+   ]
+  },
+  {
+   "slug": "cosmos",
+   "name": "Cosmos",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    }
+   ],
+   "libraryNames": [
+    "Cosmos"
+   ]
+  },
+  {
+   "slug": "courgette",
+   "name": "Courgette",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "crop",
+     "label": "Fruiting"
+    }
+   ],
+   "libraryNames": [
+    "Courgette"
+   ]
+  },
+  {
+   "slug": "cress",
+   "name": "Cress",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to pick"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    }
+   ],
+   "libraryNames": [
+    "Cress"
+   ]
+  },
+  {
+   "slug": "crocus",
+   "name": "Crocus",
+   "stages": [
+    {
+     "stage": "bulb",
+     "label": "Bulb"
+    },
+    {
+     "stage": "shoots",
+     "label": "Shoots"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    },
+    {
+     "stage": "dormant",
+     "label": "Dormant"
+    }
+   ],
+   "libraryNames": [
+    "Crocus"
+   ]
+  },
+  {
+   "slug": "crown-imperial",
+   "name": "Crown imperial",
+   "stages": [
+    {
+     "stage": "bulb",
+     "label": "Bulb"
+    },
+    {
+     "stage": "shoots",
+     "label": "Shoots"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    },
+    {
+     "stage": "dormant",
+     "label": "Dormant"
+    }
+   ],
+   "libraryNames": [
+    "Crown imperial",
+    "Fritillaria, crown imperial 'William Rex'"
+   ]
+  },
+  {
+   "slug": "cucumber",
+   "name": "Cucumber",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "crop",
+     "label": "Fruiting"
+    }
+   ],
+   "libraryNames": [
+    "Cucumber"
+   ]
+  },
+  {
+   "slug": "cyclamen",
+   "name": "Cyclamen",
+   "stages": [
+    {
+     "stage": "bulb",
+     "label": "Tuber"
+    },
+    {
+     "stage": "shoots",
+     "label": "Shoots"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    },
+    {
+     "stage": "dormant",
+     "label": "Dormant"
+    }
+   ],
+   "libraryNames": [
+    "Cyclamen",
+    "Cyclamen hederifolium Pink",
+    "Cyclamen hederifolium White"
+   ]
+  },
+  {
+   "slug": "daffodil",
+   "name": "Daffodil",
+   "stages": [
+    {
+     "stage": "bulb",
+     "label": "Bulb"
+    },
+    {
+     "stage": "shoots",
+     "label": "Shoots"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    },
+    {
+     "stage": "dormant",
+     "label": "Dormant"
+    }
+   ],
+   "libraryNames": [
+    "Daffodil"
+   ]
+  },
+  {
+   "slug": "devil-s-bit-scabious",
+   "name": "Devil's-bit scabious",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    }
+   ],
+   "libraryNames": [
+    "Devil's-bit scabious"
+   ]
+  },
+  {
+   "slug": "dill",
+   "name": "Dill",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to pick"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    }
+   ],
+   "libraryNames": [
+    "Dill"
+   ]
+  },
+  {
+   "slug": "fennel",
+   "name": "Fennel",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to pick"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    }
+   ],
+   "libraryNames": [
+    "Fennel"
+   ]
+  },
+  {
+   "slug": "feverfew",
+   "name": "Feverfew",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    }
+   ],
+   "libraryNames": [
+    "Feverfew"
+   ]
+  },
+  {
+   "slug": "fig",
+   "name": "Fig",
+   "stages": [
+    {
+     "stage": "young",
+     "label": "Young tree"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    },
+    {
+     "stage": "flower",
+     "label": "Blossom"
+    },
+    {
+     "stage": "set",
+     "label": "Fruit set"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to pick"
+    }
+   ],
+   "libraryNames": [
+    "Fig"
+   ]
+  },
+  {
+   "slug": "foxglove",
+   "name": "Foxglove",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower (year 2)"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    }
+   ],
+   "libraryNames": [
+    "Foxglove",
+    "Wild foxglove",
+    "Digitalis Dalmatian Peach"
+   ]
+  },
+  {
+   "slug": "french-bean",
+   "name": "French bean",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "crop",
+     "label": "Pods to pick"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    }
+   ],
+   "libraryNames": [
+    "French bean",
+    "Dwarf/french bean",
+    "French Beans",
+    "French beans"
+   ]
+  },
+  {
+   "slug": "french-marigold",
+   "name": "French Marigold",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    }
+   ],
+   "libraryNames": [
+    "French Marigold"
+   ]
+  },
+  {
+   "slug": "garlic",
+   "name": "Garlic",
+   "stages": [
+    {
+     "stage": "clove",
+     "label": "Clove"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to lift"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower (year 2)"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    }
+   ],
+   "libraryNames": [
+    "Garlic"
+   ]
+  },
+  {
+   "slug": "geum",
+   "name": "Geum",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    }
+   ],
+   "libraryNames": [
+    "Geum"
+   ]
+  },
+  {
+   "slug": "gingko",
+   "name": "Gingko",
+   "stages": [
+    {
+     "stage": "young",
+     "label": "Young tree"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    },
+    {
+     "stage": "growing",
+     "label": "In leaf"
+    },
+    {
+     "stage": "autumn",
+     "label": "Autumn"
+    }
+   ],
+   "libraryNames": [
+    "Gingko"
+   ]
+  },
+  {
+   "slug": "globe-artichoke",
+   "name": "Globe artichoke",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to cut"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    }
+   ],
+   "libraryNames": [
+    "Globe artichoke",
+    "Artichoke"
+   ]
+  },
+  {
+   "slug": "good-king-henry",
+   "name": "Good King Henry",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to pick"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    }
+   ],
+   "libraryNames": [
+    "Good King Henry"
+   ]
+  },
+  {
+   "slug": "gooseberry",
+   "name": "Gooseberry",
+   "stages": [
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "crop",
+     "label": "Fruiting"
+    }
+   ],
+   "libraryNames": [
+    "Gooseberry"
+   ]
+  },
+  {
+   "slug": "grape",
+   "name": "Grape",
+   "stages": [
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "crop",
+     "label": "Fruiting"
+    }
+   ],
+   "libraryNames": [
+    "Grape"
+   ]
+  },
+  {
+   "slug": "grape-hyacinth",
+   "name": "Grape Hyacinth",
+   "stages": [
+    {
+     "stage": "bulb",
+     "label": "Bulb"
+    },
+    {
+     "stage": "shoots",
+     "label": "Shoots"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    },
+    {
+     "stage": "dormant",
+     "label": "Dormant"
+    }
+   ],
+   "libraryNames": [
+    "Grape Hyacinth"
+   ]
+  },
+  {
+   "slug": "helipterum-rosum",
+   "name": "Helipterum Rosum",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    }
+   ],
+   "libraryNames": [
+    "Helipterum Rosum"
+   ]
+  },
+  {
+   "slug": "hogweed",
+   "name": "Hogweed",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    }
+   ],
+   "libraryNames": [
+    "Hogweed",
+    "Heradeum"
+   ]
+  },
+  {
+   "slug": "honeyberry",
+   "name": "Honeyberry",
+   "stages": [
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "crop",
+     "label": "Fruiting"
+    }
+   ],
+   "libraryNames": [
+    "Honeyberry"
+   ]
+  },
+  {
+   "slug": "hydrangea",
+   "name": "Hydrangea",
+   "stages": [
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "growing",
+     "label": "In leaf"
+    }
+   ],
+   "libraryNames": [
+    "Hydrangea"
+   ]
+  },
+  {
+   "slug": "hyssop",
+   "name": "Hyssop",
+   "stages": [
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to pick"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    }
+   ],
+   "libraryNames": [
+    "Hyssop"
+   ]
+  },
+  {
+   "slug": "iris",
+   "name": "Iris",
+   "stages": [
+    {
+     "stage": "bulb",
+     "label": "Bulb"
+    },
+    {
+     "stage": "shoots",
+     "label": "Shoots"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    },
+    {
+     "stage": "dormant",
+     "label": "Dormant"
+    }
+   ],
+   "libraryNames": [
+    "Iris"
+   ]
+  },
+  {
+   "slug": "japanese-spiraea",
+   "name": "Japanese Spiraea",
+   "stages": [
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "growing",
+     "label": "In leaf"
+    }
+   ],
+   "libraryNames": [
+    "Japanese Spiraea"
+   ]
+  },
+  {
+   "slug": "japanese-wineberry",
+   "name": "Japanese Wineberry",
+   "stages": [
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "crop",
+     "label": "Fruiting"
+    }
+   ],
+   "libraryNames": [
+    "Japanese Wineberry"
+   ]
+  },
+  {
+   "slug": "kiwi",
+   "name": "Kiwi",
+   "stages": [
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "crop",
+     "label": "Fruiting"
+    }
+   ],
+   "libraryNames": [
+    "Kiwi"
+   ]
+  },
+  {
+   "slug": "kohlrabi",
+   "name": "Kohlrabi",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to cut"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower (year 2)"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    }
+   ],
+   "libraryNames": [
+    "Kohlrabi"
+   ]
+  },
+  {
+   "slug": "lady-s-bedstraw",
+   "name": "Lady's bedstraw",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    }
+   ],
+   "libraryNames": [
+    "Lady's bedstraw"
+   ]
+  },
+  {
+   "slug": "lambs-lettuce",
+   "name": "Lambs Lettuce",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to pick"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    }
+   ],
+   "libraryNames": [
+    "Lambs Lettuce"
+   ]
+  },
+  {
+   "slug": "lavender",
+   "name": "Lavender",
+   "stages": [
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to pick"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    }
+   ],
+   "libraryNames": [
+    "Lavender",
+    "Lavandula allardii Meerlo"
+   ]
+  },
+  {
+   "slug": "leaf-salad",
+   "name": "Leaf salad",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to pick"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    }
+   ],
+   "libraryNames": [
+    "Leaf salad"
+   ]
+  },
+  {
+   "slug": "leek",
+   "name": "Leek",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to lift"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower (year 2)"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    }
+   ],
+   "libraryNames": [
+    "Leek",
+    "Leeks"
+   ]
+  },
+  {
+   "slug": "lemon-balm",
+   "name": "Lemon Balm",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to pick"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    }
+   ],
+   "libraryNames": [
+    "Lemon Balm"
+   ]
+  },
+  {
+   "slug": "lettuce",
+   "name": "Lettuce",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to cut"
+    },
+    {
+     "stage": "flower",
+     "label": "Bolted, in flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    }
+   ],
+   "libraryNames": [
+    "Lettuce"
+   ]
+  },
+  {
+   "slug": "linum",
+   "name": "Linum",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    }
+   ],
+   "libraryNames": [
+    "Linum"
+   ]
+  },
+  {
+   "slug": "loganberry",
+   "name": "Loganberry",
+   "stages": [
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "crop",
+     "label": "Fruiting"
+    }
+   ],
+   "libraryNames": [
+    "Loganberry",
+    "Tayberry",
+    "Tummelberry"
+   ]
+  },
+  {
+   "slug": "loofah",
+   "name": "Loofah",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "crop",
+     "label": "Fruiting"
+    }
+   ],
+   "libraryNames": [
+    "Loofah"
+   ]
+  },
+  {
+   "slug": "lovage",
+   "name": "Lovage",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to pick"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    }
+   ],
+   "libraryNames": [
+    "Lovage"
+   ]
+  },
+  {
+   "slug": "lungwort",
+   "name": "Lungwort",
+   "stages": [
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    }
+   ],
+   "libraryNames": [
+    "Lungwort"
+   ]
+  },
+  {
+   "slug": "lupin",
+   "name": "Lupin",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    }
+   ],
+   "libraryNames": [
+    "Lupin",
+    "Lupinus 'Gallery Blue'"
+   ]
+  },
+  {
+   "slug": "mangelwurzel",
+   "name": "Mangelwurzel",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to pull"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower (year 2)"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    }
+   ],
+   "libraryNames": [
+    "Mangelwurzel"
+   ]
+  },
+  {
+   "slug": "marshmallow",
+   "name": "Marshmallow",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    }
+   ],
+   "libraryNames": [
+    "Marshmallow"
+   ]
+  },
+  {
+   "slug": "meadow-vetchling",
+   "name": "Meadow vetchling",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    }
+   ],
+   "libraryNames": [
+    "Meadow vetchling"
+   ]
+  },
+  {
+   "slug": "meadowsweet",
+   "name": "Meadowsweet",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    }
+   ],
+   "libraryNames": [
+    "Meadowsweet"
+   ]
+  },
+  {
+   "slug": "melon",
+   "name": "Melon",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "crop",
+     "label": "Fruiting"
+    }
+   ],
+   "libraryNames": [
+    "Melon"
+   ]
+  },
+  {
+   "slug": "mint",
+   "name": "Mint",
+   "stages": [
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to pick"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    }
+   ],
+   "libraryNames": [
+    "Mint",
+    "Applemint"
+   ]
+  },
+  {
+   "slug": "mizuna",
+   "name": "Mizuna",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to pick"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    }
+   ],
+   "libraryNames": [
+    "Mizuna"
+   ]
+  },
+  {
+   "slug": "mustard",
+   "name": "Mustard",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to pick"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    }
+   ],
+   "libraryNames": [
+    "Mustard"
+   ]
+  },
+  {
+   "slug": "nasturtium",
+   "name": "Nasturtium",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    }
+   ],
+   "libraryNames": [
+    "Nasturtium"
+   ]
+  },
+  {
+   "slug": "native-cowslip",
+   "name": "Native Cowslip",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    }
+   ],
+   "libraryNames": [
+    "Native Cowslip",
+    "Cowslip"
+   ]
+  },
+  {
+   "slug": "nectarine",
+   "name": "Nectarine",
+   "stages": [
+    {
+     "stage": "young",
+     "label": "Young tree"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    },
+    {
+     "stage": "flower",
+     "label": "Blossom"
+    },
+    {
+     "stage": "set",
+     "label": "Fruit set"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to pick"
+    }
+   ],
+   "libraryNames": [
+    "Nectarine"
+   ]
+  },
+  {
+   "slug": "olive-tree",
+   "name": "Olive Tree",
+   "stages": [
+    {
+     "stage": "young",
+     "label": "Young tree"
+    },
+    {
+     "stage": "growing",
+     "label": "In leaf"
+    },
+    {
+     "stage": "flower",
+     "label": "Blossom"
+    },
+    {
+     "stage": "set",
+     "label": "Fruit set"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to pick"
+    }
+   ],
+   "libraryNames": [
+    "Olive Tree"
+   ]
+  },
+  {
+   "slug": "onion",
+   "name": "Onion",
+   "stages": [
+    {
+     "stage": "set",
+     "label": "Set"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to lift"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower (year 2)"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    }
+   ],
+   "libraryNames": [
+    "Onion"
+   ]
+  },
+  {
+   "slug": "oregano",
+   "name": "Oregano",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to pick"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    }
+   ],
+   "libraryNames": [
+    "Oregano",
+    "Marjoram",
+    "Wild marjoram"
+   ]
+  },
+  {
+   "slug": "ox-eye-daisy",
+   "name": "Ox-eye Daisy",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    }
+   ],
+   "libraryNames": [
+    "Ox-eye Daisy",
+    "Oxeye Daisy"
+   ]
+  },
+  {
+   "slug": "oxford-rampion",
+   "name": "Oxford rampion",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    }
+   ],
+   "libraryNames": [
+    "Oxford rampion"
+   ]
+  },
+  {
+   "slug": "pak-choi",
+   "name": "Pak Choi",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to pick"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    }
+   ],
+   "libraryNames": [
+    "Pak Choi"
+   ]
+  },
+  {
+   "slug": "parsley",
+   "name": "Parsley",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to pick"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower (year 2)"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    }
+   ],
+   "libraryNames": [
+    "Parsley"
+   ]
+  },
+  {
+   "slug": "parsnip",
+   "name": "Parsnip",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to pull"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower (year 2)"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    }
+   ],
+   "libraryNames": [
+    "Parsnip",
+    "Parsnips"
+   ]
+  },
+  {
+   "slug": "pea",
+   "name": "Pea",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "crop",
+     "label": "Pods to pick"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    }
+   ],
+   "libraryNames": [
+    "Pea",
+    "Mangetout",
+    "Sugarsnap peas"
+   ]
+  },
+  {
+   "slug": "peacock-orchid",
+   "name": "Peacock Orchid",
+   "stages": [
+    {
+     "stage": "bulb",
+     "label": "Bulb"
+    },
+    {
+     "stage": "shoots",
+     "label": "Shoots"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    },
+    {
+     "stage": "dormant",
+     "label": "Dormant"
+    }
+   ],
+   "libraryNames": [
+    "Peacock Orchid"
+   ]
+  },
+  {
+   "slug": "pear",
+   "name": "Pear",
+   "stages": [
+    {
+     "stage": "young",
+     "label": "Young tree"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    },
+    {
+     "stage": "flower",
+     "label": "Blossom"
+    },
+    {
+     "stage": "set",
+     "label": "Fruit set"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to pick"
+    }
+   ],
+   "libraryNames": [
+    "Pear",
+    "Perry Pear"
+   ]
+  },
+  {
+   "slug": "perforate-st-john-s-wort",
+   "name": "Perforate st John's-wort",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    }
+   ],
+   "libraryNames": [
+    "Perforate st John's-wort"
+   ]
+  },
+  {
+   "slug": "plum",
+   "name": "Plum",
+   "stages": [
+    {
+     "stage": "young",
+     "label": "Young tree"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    },
+    {
+     "stage": "flower",
+     "label": "Blossom"
+    },
+    {
+     "stage": "set",
+     "label": "Fruit set"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to pick"
+    }
+   ],
+   "libraryNames": [
+    "Plum"
+   ]
+  },
+  {
+   "slug": "poppy",
+   "name": "Poppy",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    }
+   ],
+   "libraryNames": [
+    "Poppy"
+   ]
+  },
+  {
+   "slug": "potatoes",
+   "name": "Potatoes",
+   "stages": [
+    {
+     "stage": "tuber",
+     "label": "Seed tuber"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to dig"
+    }
+   ],
+   "libraryNames": [
+    "Potatoes",
+    "Potato"
+   ]
+  },
+  {
+   "slug": "purple-orach",
+   "name": "Purple Orach",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to pick"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    }
+   ],
+   "libraryNames": [
+    "Purple Orach"
+   ]
+  },
+  {
+   "slug": "puschkinia",
+   "name": "Puschkinia",
+   "stages": [
+    {
+     "stage": "bulb",
+     "label": "Bulb"
+    },
+    {
+     "stage": "shoots",
+     "label": "Shoots"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    },
+    {
+     "stage": "dormant",
+     "label": "Dormant"
+    }
+   ],
+   "libraryNames": [
+    "Puschkinia"
+   ]
+  },
+  {
+   "slug": "radish",
+   "name": "Radish",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to pull"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    }
+   ],
+   "libraryNames": [
+    "Radish"
+   ]
+  },
+  {
+   "slug": "raspberry",
+   "name": "Raspberry",
+   "stages": [
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "crop",
+     "label": "Fruiting"
+    }
+   ],
+   "libraryNames": [
+    "Raspberry"
+   ]
+  },
+  {
+   "slug": "red-clover",
+   "name": "Red clover",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    }
+   ],
+   "libraryNames": [
+    "Red clover"
+   ]
+  },
+  {
+   "slug": "rhubarb",
+   "name": "Rhubarb",
+   "stages": [
+    {
+     "stage": "crown",
+     "label": "Crown"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to pull"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    }
+   ],
+   "libraryNames": [
+    "Rhubarb"
+   ]
+  },
+  {
+   "slug": "rock-sea-lavender",
+   "name": "Rock Sea Lavender",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    }
+   ],
+   "libraryNames": [
+    "Rock Sea Lavender"
+   ]
+  },
+  {
+   "slug": "rocket-salad",
+   "name": "Rocket salad",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to pick"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    }
+   ],
+   "libraryNames": [
+    "Rocket salad"
+   ]
+  },
+  {
+   "slug": "rose",
+   "name": "Rose",
+   "stages": [
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "crop",
+     "label": "Hips"
+    }
+   ],
+   "libraryNames": [
+    "Rose"
+   ]
+  },
+  {
+   "slug": "rosemary",
+   "name": "Rosemary",
+   "stages": [
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to pick"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    }
+   ],
+   "libraryNames": [
+    "Rosemary"
+   ]
+  },
+  {
+   "slug": "rudbeckia",
+   "name": "Rudbeckia",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    }
+   ],
+   "libraryNames": [
+    "Rudbeckia"
+   ]
+  },
+  {
+   "slug": "russian-comfrey",
+   "name": "Russian comfrey",
+   "stages": [
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to cut"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    }
+   ],
+   "libraryNames": [
+    "Russian comfrey"
+   ]
+  },
+  {
+   "slug": "sage",
+   "name": "Sage",
+   "stages": [
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to pick"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    }
+   ],
+   "libraryNames": [
+    "Sage"
+   ]
+  },
+  {
+   "slug": "salsify",
+   "name": "Salsify",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to pull"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower (year 2)"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    }
+   ],
+   "libraryNames": [
+    "Salsify"
+   ]
+  },
+  {
+   "slug": "salvia",
+   "name": "Salvia",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    }
+   ],
+   "libraryNames": [
+    "Salvia",
+    "Salvia Amisiad"
+   ]
+  },
+  {
+   "slug": "savory",
+   "name": "Savory",
+   "stages": [
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to pick"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    }
+   ],
+   "libraryNames": [
+    "Savory"
+   ]
+  },
+  {
+   "slug": "scabiosa",
+   "name": "Scabiosa",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    }
+   ],
+   "libraryNames": [
+    "Scabiosa"
+   ]
+  },
+  {
+   "slug": "scorzonera",
+   "name": "Scorzonera",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to pull"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower (year 2)"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    }
+   ],
+   "libraryNames": [
+    "Scorzonera"
+   ]
+  },
+  {
+   "slug": "selfheal",
+   "name": "Selfheal",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    }
+   ],
+   "libraryNames": [
+    "Selfheal"
+   ]
+  },
+  {
+   "slug": "senecio-angel-wings",
+   "name": "Senecio 'Angel Wings'",
+   "stages": [
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "crop",
+     "label": "Full size"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    }
+   ],
+   "libraryNames": [
+    "Senecio 'Angel Wings'",
+    "Senecio canc Angel Wings"
+   ]
+  },
+  {
+   "slug": "shallot",
+   "name": "Shallot",
+   "stages": [
+    {
+     "stage": "set",
+     "label": "Set"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to lift"
+    }
+   ],
+   "libraryNames": [
+    "Shallot"
+   ]
+  },
+  {
+   "slug": "snake-s-head-fritillary",
+   "name": "Snake's head fritillary",
+   "stages": [
+    {
+     "stage": "bulb",
+     "label": "Bulb"
+    },
+    {
+     "stage": "shoots",
+     "label": "Shoots"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    },
+    {
+     "stage": "dormant",
+     "label": "Dormant"
+    }
+   ],
+   "libraryNames": [
+    "Snake's head fritillary",
+    "Fritillaria, snake's head fritillary"
+   ]
+  },
+  {
+   "slug": "snowdrop",
+   "name": "Snowdrop",
+   "stages": [
+    {
+     "stage": "bulb",
+     "label": "Bulb"
+    },
+    {
+     "stage": "shoots",
+     "label": "Shoots"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "In seed"
+    },
+    {
+     "stage": "dormant",
+     "label": "Dormant"
+    }
+   ],
+   "libraryNames": [
+    "Snowdrop"
+   ]
+  },
+  {
+   "slug": "sorrel",
+   "name": "Sorrel",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to pick"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    }
+   ],
+   "libraryNames": [
+    "Sorrel"
+   ]
+  },
+  {
+   "slug": "spinach",
+   "name": "Spinach",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to pick"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    }
+   ],
+   "libraryNames": [
+    "Spinach"
+   ]
+  },
+  {
+   "slug": "spinach-beet",
+   "name": "Spinach Beet",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to pick"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower (year 2)"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    }
+   ],
+   "libraryNames": [
+    "Spinach Beet"
+   ]
+  },
+  {
+   "slug": "spring-onion",
+   "name": "Spring onion",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to pull"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower (year 2)"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    }
+   ],
+   "libraryNames": [
+    "Spring onion"
+   ]
+  },
+  {
+   "slug": "squash",
+   "name": "Squash",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "crop",
+     "label": "Fruiting"
+    }
+   ],
+   "libraryNames": [
+    "Squash",
+    "Winter squash"
+   ]
+  },
+  {
+   "slug": "strawberry",
+   "name": "Strawberry",
+   "stages": [
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "crop",
+     "label": "Fruiting"
+    },
+    {
+     "stage": "runner",
+     "label": "Sending runners"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    }
+   ],
+   "libraryNames": [
+    "Strawberry"
+   ]
+  },
+  {
+   "slug": "sunflower",
+   "name": "Sunflower",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    }
+   ],
+   "libraryNames": [
+    "Sunflower"
+   ]
+  },
+  {
+   "slug": "swede",
+   "name": "Swede",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to pull"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower (year 2)"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    }
+   ],
+   "libraryNames": [
+    "Swede"
+   ]
+  },
+  {
+   "slug": "sweet-pea",
+   "name": "Sweet pea",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    }
+   ],
+   "libraryNames": [
+    "Sweet pea"
+   ]
+  },
+  {
+   "slug": "sweet-william",
+   "name": "Sweet William",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower (year 2)"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    }
+   ],
+   "libraryNames": [
+    "Sweet William"
+   ]
+  },
+  {
+   "slug": "sweetcorn",
+   "name": "Sweetcorn",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "crop",
+     "label": "Cobs ready"
+    }
+   ],
+   "libraryNames": [
+    "Sweetcorn"
+   ]
+  },
+  {
+   "slug": "swiss-chard",
+   "name": "Swiss Chard",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to pick"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower (year 2)"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    }
+   ],
+   "libraryNames": [
+    "Swiss Chard"
+   ]
+  },
+  {
+   "slug": "tarragon",
+   "name": "Tarragon",
+   "stages": [
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to pick"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    }
+   ],
+   "libraryNames": [
+    "Tarragon"
+   ]
+  },
+  {
+   "slug": "thyme",
+   "name": "Thyme",
+   "stages": [
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to pick"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    }
+   ],
+   "libraryNames": [
+    "Thyme",
+    "Wild thyme"
+   ]
+  },
+  {
+   "slug": "tomatillo",
+   "name": "Tomatillo",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "crop",
+     "label": "Fruiting"
+    }
+   ],
+   "libraryNames": [
+    "Tomatillo"
+   ]
+  },
+  {
+   "slug": "tomato",
+   "name": "Tomato",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "crop",
+     "label": "Fruiting"
+    }
+   ],
+   "libraryNames": [
+    "Tomato"
+   ]
+  },
+  {
+   "slug": "tufted-vetch",
+   "name": "Tufted vetch",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    }
+   ],
+   "libraryNames": [
+    "Tufted vetch"
+   ]
+  },
+  {
+   "slug": "tulip",
+   "name": "Tulip",
+   "stages": [
+    {
+     "stage": "bulb",
+     "label": "Bulb"
+    },
+    {
+     "stage": "shoots",
+     "label": "Shoots"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    },
+    {
+     "stage": "dormant",
+     "label": "Dormant"
+    }
+   ],
+   "libraryNames": [
+    "Tulip",
+    "Late Tulip"
+   ]
+  },
+  {
+   "slug": "turnip",
+   "name": "Turnip",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to pull"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower (year 2)"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    }
+   ],
+   "libraryNames": [
+    "Turnip"
+   ]
+  },
+  {
+   "slug": "viola",
+   "name": "Viola",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    }
+   ],
+   "libraryNames": [
+    "Viola"
+   ]
+  },
+  {
+   "slug": "wallflower",
+   "name": "Wallflower",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower (year 2)"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    }
+   ],
+   "libraryNames": [
+    "Wallflower"
+   ]
+  },
+  {
+   "slug": "whitecurrant",
+   "name": "Whitecurrant",
+   "stages": [
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "crop",
+     "label": "Fruiting"
+    }
+   ],
+   "libraryNames": [
+    "Whitecurrant"
+   ]
+  },
+  {
+   "slug": "wild-angelica",
+   "name": "Wild angelica",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    }
+   ],
+   "libraryNames": [
+    "Wild angelica"
+   ]
+  },
+  {
+   "slug": "wild-chamomile",
+   "name": "Wild chamomile",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    }
+   ],
+   "libraryNames": [
+    "Wild chamomile"
+   ]
+  },
+  {
+   "slug": "wild-garlic",
+   "name": "Wild garlic",
+   "stages": [
+    {
+     "stage": "set",
+     "label": "Set"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "crop",
+     "label": "Ready to pick"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    }
+   ],
+   "libraryNames": [
+    "Wild garlic"
+   ]
+  },
+  {
+   "slug": "winter-windflower",
+   "name": "Winter windflower",
+   "stages": [
+    {
+     "stage": "bulb",
+     "label": "Bulb"
+    },
+    {
+     "stage": "shoots",
+     "label": "Shoots"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    },
+    {
+     "stage": "dormant",
+     "label": "Dormant"
+    }
+   ],
+   "libraryNames": [
+    "Winter windflower",
+    "winter windflower"
+   ]
+  },
+  {
+   "slug": "wormwood",
+   "name": "Wormwood",
+   "stages": [
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "growing",
+     "label": "In leaf"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    }
+   ],
+   "libraryNames": [
+    "Wormwood"
+   ]
+  },
+  {
+   "slug": "yarrow",
+   "name": "Yarrow",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    },
+    {
+     "stage": "dormant",
+     "label": "Winter"
+    }
+   ],
+   "libraryNames": [
+    "Yarrow",
+    "Achillea"
+   ]
+  },
+  {
+   "slug": "yellow-iris",
+   "name": "Yellow Iris",
+   "stages": [
+    {
+     "stage": "bulb",
+     "label": "Bulb"
+    },
+    {
+     "stage": "shoots",
+     "label": "Shoots"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    },
+    {
+     "stage": "dormant",
+     "label": "Dormant"
+    }
+   ],
+   "libraryNames": [
+    "Yellow Iris"
+   ]
+  },
+  {
+   "slug": "yellow-rattle",
+   "name": "Yellow-rattle",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    }
+   ],
+   "libraryNames": [
+    "Yellow-rattle"
+   ]
+  },
+  {
+   "slug": "zinnia",
+   "name": "Zinnia",
+   "stages": [
+    {
+     "stage": "seed",
+     "label": "Seed"
+    },
+    {
+     "stage": "seedling",
+     "label": "Seedling"
+    },
+    {
+     "stage": "young",
+     "label": "Young plant"
+    },
+    {
+     "stage": "flower",
+     "label": "In flower"
+    },
+    {
+     "stage": "seedhead",
+     "label": "Gone to seed"
+    }
+   ],
+   "libraryNames": [
+    "Zinnia"
+   ]
+  }
+ ],
+ "notDrawn": [
+  "Herb mix",
+  "Overwinter mix",
+  "Overwinter Mix",
+  "Wildflower1",
+  "Wildflower2",
+  "Unknown Eden"
+ ]
+}

@@ -127,6 +127,207 @@ private func putBeeToBed(_ time: Double, perches: [Int], roosts: [Int], grown: D
 **A new day while it sleeps.** The drawing is made again for the new day. The bee stays asleep and its flower is found again.
 
 **⚠️ CHECK, Claude's choices:** the bee sleeps through rain, frost, gales and cold. A tap does not wake it. Night under rain or frost is drawn as rain or frost, as before. From general knowledge, for William to check: bumblebees caught out late do spend the night on or in flowers, and they shelter in foxglove bells.
+# 14 November 2026, 21:30: plant drawings on the plant cards and pages
+
+**By the plant graphics chat.** William, 21:26, of the plant drawings added at 20:10: "Add these into the app."
+
+**What you see**
+
+- **Each plant's card has its drawing**, at the right of its name: on the Plants page and under Eira's replies, which use the same card. In a month the plant is harvested it is the crop. In a month it flowers it is the flower. Otherwise it is the plant at its best: the crop if it has one, then the flower.
+- **Each plant's page has a "Life stages" card**: every stage in a row, with its name beneath, which slides sideways when it is too long.
+- A plant with no drawings (the mixes, and the plants on the to-buy list that are not also grown) looks as it did.
+
+**How**
+
+| File | What changed |
+|---|---|
+| `PlantDrawings.swift` (new, tested) | Reads the list of kinds. `kind(forPlantNamed:)` finds a plant's kind by its name, so "Leeks" finds "leek". `cardStage` chooses the stage for a card. `pictureName` is a drawing's name in the store of pictures |
+| `PlantDrawingViews.swift` (new, a screen) | `PlantDrawingView` shows one drawing. `PlantStagesCard` is the row of stages |
+| `PlantLibraryCards.swift` | `PlantCardView` shows the drawing before its chevron |
+| `PlantLibraryView.swift` | `stagesCard` on a plant's page: under the plantings card when the page is one column, at the top of the left column when it is two |
+| `Tools/design/build_design_assets.py` | `build_plants` turns `Design/Plants/light` and `dark` into `Assets.xcassets/Plants`, one picture set for each drawing holding its light and its dark copy, and copies the list into the app as `PlantDrawings.json` |
+| `Assets.xcassets/Plants`, `PlantDrawings.json` | Written by that script. Do not edit by hand |
+
+**Why a picture set holds two files.** The drawings have their own colours, and the dark copy has darker fills and a pale line. The app's store of pictures can hold a second copy marked "dark" and hands out the right one by itself, so the code asks for one name and never has to think about light and dark.
+
+**After changing a drawing**: run `python3 Tools/design/plants_all.py /tmp/plants`, copy `light`, `dark` and `plant-drawings.json` into `Design/Plants`, then run `python3 Tools/design/build_design_assets.py`.
+
+**Nothing saved has changed.** No record type was touched.
+
+**The drawings themselves are still a first pass that William has not gone through** (project docs 59, 62 and 63).
+
+# 14 November 2026, 21:35: a fungus key to step through, with a diagram for each choice
+
+**By the mushroom key chat.** William, 18:21: "I want to step through the key in app." At 18:39, choosing a key of Windfall's own over showing someone else's: "B. And ill check the text." At 20:09: "Connect to my mac to attach changes to the main file. Can you make the diagrams a lot better please." At 20:17, with a picture of the new flower shape drawings: "more what we're after".
+
+**What it is.** Wildlife has a new tile, **Fungus key**. It asks one question at a time, each choice with a drawing beside it, and ends at a group or genus: 21 steps, 106 choices and 83 answers. An answer says what to check, names a few common kinds, carries a warning where the group holds deadly or poisonous fungi, and says what it means in a garden. "Add a sighting" starts an unconfirmed sighting with the steps taken written into its notes.
+
+**What it is not.** It never says whether anything can be eaten, and a test fails if the word "edible" appears in it. It is fixed words with no model in it. Eira is unchanged and still refuses to name a fungus (`EiraSafety.fungiReply`).
+
+**⚠️ Every word of the key was written by Claude from memory and none has been checked.** `FungusKey.json` says `"checked": false` and the page says "To check" until that is changed to `true`. It is not copied from John Wright's key, which William sent as the model: that is his copyright. Project doc 58.
+
+| File | What it is |
+|---|---|
+| `Windfall/FungusKey.json` | The key itself. **Correct the words here.** The app follows |
+| `Windfall/FungusKey.swift` | The rules: reading the file, remembering a walk and stepping back, what a sighting made from an answer holds, and `faults()`, which lists anything wrong with the file |
+| `Windfall/FungusKeyView.swift` (new) | The page: the trail of choices as buttons that go back, the question, a card for each choice, the answer card |
+| `Windfall/HubScreens.swift` | The tile, after "Identify from a photo" |
+| `Windfall/WildlifeModels.swift` | `IDSource` gains `key`: a name reached by stepping through a key. It is kept as a word, so older records still open |
+| `Windfall/Theme.swift` | `WIcon.fungusKey`, the tile's icon |
+| `Design/Icons/fungus-*.svg` (53) | The diagrams, in colour on a 100 by 100 grid, in the bold manner of the flower shapes. **The same in light and dark mode**: William saw them with a pale outline and with the dark green kept, on a dark background, and at 21:22 said of the second "Yes, that's better." |
+| `Tools/design/build_design_assets.py` | `fungus-` joins `shape-` in `SAME_IN_DARK`, the list of drawings that get no dark-mode copy (the flower shape chat added that list the same evening) |
+| `Design/Icons/fungus-key.svg` | The tile's icon, an outline like the others |
+| `Tools/design/fungus_kit.py`, `fungus_diagrams.py` | The code that draws the diagrams. `python3 Tools/design/fungus_diagrams.py Design/Icons`, then the build script |
+| `Windfall/DemoGarden.swift`, `MainTabView.swift` | A checking aid: `-demoGarden YES -startSection gardens -demoFungus r-honey` opens the key at that step or answer, for a still picture |
+| `Tools/checks/` | 16 new tests, and `FungusKey.swift` added to the files that are type-checked |
+
+**Why the walk is its own small type.** `FungusWalk` holds the choices taken and where they led, with no screen code in it, so the tests can take a walk, step back and start again without building a screen. The page keeps one in `@State` and draws whatever it has reached.
+
+**Checked:** the project's checks with Swift 6.3.1 in a cloud workspace: 112 files parse, the type check passes, 765 logic tests pass. The tests read the real key and fail if a choice leads nowhere, an answer cannot be reached, or a diagram it names has no drawing.
+
+# 14 November 2026, 20:35: Settings and tools redrawn as tiles
+
+**By the settings chat.** William, 20:29, with a picture of the page on his Mac: "Can you make this settings page better?" The page was a plain list of nine names in a thin line of text at the top of an empty window, while Gardens and Wildlife beside it were drawn with a serif title and glass tiles. Project doc 70.
+
+**What you see now.** A serif title, "Settings and tools", and nine glass tiles under three headings. Each tile has an icon, its name and one line about what is behind it:
+
+| Heading | Tiles |
+|---|---|
+| Set up | Settings, Reminders, Voice, Corner drawing |
+| Find and look back | Search everything, Charts, Knowledge base |
+| Your records | Backup, Export records |
+
+Five of the lines are read from the app as it stands, so a tile can tell you something without being opened: Settings says "Recording as William" once a name is set, Reminders says On or Off, Voice says whether Eira reads her replies aloud, Knowledge base counts its documents and Export records counts what is waiting to be sent.
+
+**The nine pages the tiles lead to are not changed.** They are still plain forms and lists.
+
+## The code, and what it means
+
+| File | What changed |
+|---|---|
+| `Windfall/HubScreens.swift` | The page, `MoreTab`, now lives here with Gardens and Wildlife, and is drawn from the same pieces they use |
+| `Windfall/MainTabView.swift` | The old `MoreTab` taken out. A comment says where it went |
+| `Windfall/ExportService.swift` | `ExportWaiting`, new: the one rule for what is waiting to be sent |
+
+**Why it moved file.** `HubScreens.swift` already holds the pieces a page like this is made from: `ScreenHeader` (the line of text over a serif title), `HubSectionTitle` (a heading), `HubTile` (the icon, name and line) and `hubTileGlass()` (the glass behind a tile). Two of the things it needs, the page widths and the little function that writes "1 bed" or "3 beds", are marked `private`, which means only code in the same file may use them. Putting the page in that file lets it use them as they are.
+
+**Two small functions do the repeating.** A tile was going to be written out nine times and a grid three times, so each is written once:
+
+```swift
+private func tile<Page: View>(_ icon: HubIcon, _ title: String, _ detail: String,
+                              @ViewBuilder page: () -> Page) -> some View {
+    GrowingLink(destination: page) {
+        HubTile(icon: icon, title: title, detail: detail)
+    }
+    .hubTileGlass()
+}
+```
+
+- `private func tile` makes a function that only this page can use.
+- `<Page: View>` says "this works for any kind of page". It is a placeholder: the nine tiles each lead to a different kind, and Swift fills the placeholder in for each.
+- The underscores (`_ icon`) mean the caller does not write the name, so a tile reads as `tile(.symbol("bell"), "Reminders", remindersLine) { NotificationSettingsView() }`.
+- `page: () -> Page` is a piece of code handed in, to be run to make the page. The curly brackets after the call are that piece of code.
+- `GrowingLink` is the link from doc 49: on an iPhone or iPad the page grows out of the tile.
+
+**How a tile knows the state of things.** Three kinds of line at the top of the page each read something and redraw the page when it changes:
+
+```swift
+@Query private var documents: [KnowledgeDocument]
+@AppStorage("recorderName") private var recorderName = ""
+@State private var remindersAreOn: Bool?
+```
+
+- `@Query` asks the database for every record of a kind. Here they are only counted.
+- `@AppStorage("recorderName")` reads one saved setting by its name. The Settings page writes it and this page reads it.
+- `@State` is the page's own memory. The `?` after `Bool` means "true, false or not known yet". Whether reminders are allowed has to be asked of the system, which takes a moment, so the tile says only what reminders are for until the answer is in. That way it never says "Off" and then changes its mind.
+
+**One rule for "waiting to be sent".** The Export page already worked out how many sightings and counts were ready. The new tile needed the same sums. Writing them out a second time would let the two drift apart, so the sums moved into `ExportWaiting` and both now ask it. The Export page gives the same numbers as before.
+
+## Checked
+
+| Check | Result |
+|---|---|
+| Logic checks, Swift 6.3.1 for Linux, in this chat's cloud workspace | 110 files valid, type check passed, cross-file checks clean, **749 logic tests pass, 0 fail** |
+| The Mac, unsigned | `set1-mac.log`, 20:54: BUILD SUCCEEDED, no warnings in the three files |
+| The simulator | `set1-sim.log`, 21:08: BUILD SUCCEEDED |
+| **Looked at on the Mac**, in a test copy with the example garden, in dark mode | The page is as described. All nine tiles are the same height and every line fits on one line. A click on Charts opened Charts |
+
+The cross-file check tripped twice on the first try, on names only. A function called `total` was taken for another file's `total`, and `count: ExportWaiting.wormCounts(...)` was read as "count is an ExportWaiting". The function is now `altogether`, and the Export page's worm count has a name of its own, `pendingWormCounts`.
+
+## Not checked
+
+- **Light mode, an iPhone and an iPad.** The simulators would not start: the Mac was very busy with other chats' builds and the simulator service stopped answering. Two simulators made for this chat, "Windfall settings iPad" and "Windfall settings iPhone", are left for the next try (`windfall-build-logs/settings-shots.sh`).
+- **On an iPhone the tiles are two across**, so some of the lines will run to two lines and tiles in one row may differ a little in height. Gardens has the same.
+- **With William's own records.** The test copy used the example garden.
+- Reminders reading "On". The test copy had never been allowed to send any, so it read "Off".
+
+## ⚠️ CHECK: choices that are Claude's
+
+1. The three headings and which tile sits under which. Settings is first because "Settings" is what the sidebar calls the page.
+2. The words of every line on a tile, and the line over the title.
+3. The icons that are Apple's symbols until drawings are made: the bell, the chart, the books, the drive and the arrow out of a box. Settings, Voice, Search and Corner drawing use Windfall's own.
+4. "Knowledge base" has books for its icon in place of the brain.
+
+# 14 November 2026, 21:44: the Mac's icon follows light and dark mode
+
+**By the "Mac icon" chat, on the branch `mac-icon-dark`.** William, 21:32, once the cream icon was showing in the Dock: "The mac icon should also respond to the light and dark mode".
+
+**Why the icon of 20:57 could not do it.** That icon was a set of plain pictures in the Mac's slots of `AppIcon.appiconset`. A Mac slot holds one picture. Only the iPhone's and iPad's slots have a second, dark one.
+
+**What a Mac wants instead** is Apple's newer kind of icon, a folder whose name ends in `.icon` (the kind its Icon Composer app makes). It holds the drawing and the background apart, so the Mac can change either with the mode. The Mac now has one, `Windfall/AppIconMac.icon`:
+
+| File | What it is |
+|---|---|
+| `AppIconMac.icon/Assets/snowdrop-light.svg` | The light drawing from `Design/AppIcon`, with its cream background rectangle taken out |
+| `AppIconMac.icon/Assets/snowdrop-dark.svg` | The dark drawing (the thin cream outline), with its green background rectangle taken out |
+| `AppIconMac.icon/icon.json` | The instructions: which drawing and which background colour for which mode |
+
+**What `icon.json` says, a piece at a time:**
+
+```
+"fill-specializations": [
+  { "value": { "solid": "srgb:0.98039,0.93333,0.87843,1.00000" } },
+  { "appearance": "dark", "value": { "solid": "srgb:0.02353,0.25882,0.10588,1.00000" } }
+]
+```
+
+The background. `fill` is the colour behind the drawing. A "specialization" is a value for one mode. The first line names no mode, so it is the ordinary one: cream. The second is for `dark`: the icon's dark green. A colour is written as red, green, blue and solidness, each from 0 to 1. Cream `#FAEEE0` is 250, 238 and 224 out of 255, which is 0.98, 0.93 and 0.88.
+
+```
+"image-name-specializations": [
+  { "value": "snowdrop-light.svg" },
+  { "appearance": "dark", "value": "snowdrop-dark.svg" }
+]
+```
+
+The drawing, in the same pattern: the light drawing ordinarily and the dark one in dark mode.
+
+```
+"glass": false     "specular": false     "shadow": { "kind": "none" }     "translucency": { "enabled": false }
+```
+
+Apple's glass look, switched off. Left on, the Mac lays a shine and a shadow over the drawing as if it were a pane of glass. Off, the icon is the flat drawing William approved.
+
+```
+"supported-platforms": { "squares": ["macOS"] }
+```
+
+This icon is for the Mac only.
+
+**How the Mac build is told to use it.** One line, twice, in `Windfall.xcodeproj/project.pbxproj` (once for the Debug build and once for Release):
+
+```
+ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+"ASSETCATALOG_COMPILER_APPICON_NAME[sdk=macosx*]" = AppIconMac;
+```
+
+The first line was there already: the app's icon is the one called `AppIcon`. The second is new. The square brackets are a condition: "when building for a Mac, the name is `AppIconMac`". So an iPhone or iPad build is untouched and still uses the pictures in `AppIcon.appiconset`.
+
+**No Swift changed.** The app's folder is one that Xcode reads whole, so a file put into `Windfall/` is in the app with nothing more to do.
+
+**Taken out again**, because nothing uses them now: the ten Mac slots in `AppIcon.appiconset/Contents.json`, the seven `windfall-app-icon-mac-...png` pictures and `Tools/design/make_mac_app_icon.swift`. They are in the repository's history at `e7cb8be`.
+
+**Two modes come free.** macOS also has a tinted and a clear icon style. The Mac makes both from the same drawing by itself.
 
 # 14 November 2026, 19:20: the to-do cards on Today open out where they are
 

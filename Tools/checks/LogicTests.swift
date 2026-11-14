@@ -1972,6 +1972,99 @@ struct LogicTests {
             check(shapeTitles.count == 20 && undrawn.isEmpty, "each of the guide's \(shapeTitles.count) flower shapes has a drawing (missing: \(undrawn))")
         }
 
+        // MARK: Plant drawings
+        let drawingList = try! PlantDrawings.decode(Data("""
+        {"kinds":[{"slug":"leek","name":"Leek","stages":[{"stage":"seed","label":"Seed"},{"stage":"crop","label":"Ready to lift"},{"stage":"flower","label":"In flower (year 2)"}],"libraryNames":["Leek","Leeks"]},
+                  {"slug":"snowdrop","name":"Snowdrop","stages":[{"stage":"bulb","label":"Bulb"},{"stage":"flower","label":"In flower"},{"stage":"dormant","label":"Dormant"}],"libraryNames":["Snowdrop"]},
+                  {"slug":"ginkgo","name":"Gingko","stages":[{"stage":"young","label":"Young tree"},{"stage":"autumn","label":"Autumn"}],"libraryNames":["Gingko"]},
+                  {"slug":"odd","name":"Odd","stages":[{"stage":"bulb","label":"Bulb"},{"stage":"dormant","label":"Dormant"}],"libraryNames":["Odd"]}],
+         "notDrawn":["Herb mix"]}
+        """.utf8))
+        check(drawingList.kinds.count == 4, "the list of plant drawings is read")
+        check(drawingList.kind(forPlantNamed: "Leeks")?.slug == "leek", "two library names can share one kind's drawings")
+        check(drawingList.kind(forPlantNamed: "  leek ")?.slug == "leek", "a plant's name is matched whatever its capitals and stray spaces")
+        check(drawingList.kind(forPlantNamed: "Herb mix") == nil, "a plant with no drawings has no kind")
+        check(PlantDrawings.pictureName(kind: "broad-bean", stage: "crop") == "Plants/plant-broad-bean-crop", "a drawing's name in the app's store of pictures")
+        if let leek = drawingList.kind(forPlantNamed: "Leek"), let snowdrop = drawingList.kind(forPlantNamed: "Snowdrop"),
+           let ginkgo = drawingList.kind(forPlantNamed: "Gingko"), let odd = drawingList.kind(forPlantNamed: "Odd") {
+            check(PlantDrawings.cardStage(of: leek, month: 11, harvestMonths: [10, 11, 12], floweringMonths: [6])?.stage == "crop", "a card shows the crop in a month the plant is harvested")
+            check(PlantDrawings.cardStage(of: leek, month: 6, harvestMonths: [10, 11, 12], floweringMonths: [6])?.stage == "flower", "a card shows the flower in a month the plant flowers")
+            check(PlantDrawings.cardStage(of: leek, month: 3, harvestMonths: [10], floweringMonths: [6])?.stage == "crop", "out of season a card shows the crop when the plant has one")
+            check(PlantDrawings.cardStage(of: snowdrop, month: 8, harvestMonths: [8], floweringMonths: [2])?.stage == "flower", "a plant with no crop drawing shows its flower, even in a month marked for harvest")
+            check(PlantDrawings.cardStage(of: ginkgo, month: 5, harvestMonths: [], floweringMonths: [])?.stage == "young", "with no crop or flower a card shows the young plant")
+            check(PlantDrawings.cardStage(of: odd, month: 5, harvestMonths: [], floweringMonths: [])?.stage == "dormant", "with none of the usual stages a card shows the last one")
+        } else {
+            check(false, "the example kinds are found by name")
+        }
+        // The real list, the real drawings and the real plant library.
+        if let starterPath = ProcessInfo.processInfo.environment["WINDFALL_STARTER"],
+           let starterData = FileManager.default.contents(atPath: starterPath),
+           let starterFile = try? GardenDataFile.decode(starterData) {
+            let appFolder = URL(fileURLWithPath: starterPath).deletingLastPathComponent()
+            let plantsFolder = appFolder.deletingLastPathComponent().appendingPathComponent("Design/Plants")
+            let inApp = FileManager.default.contents(atPath: appFolder.appendingPathComponent("PlantDrawings.json").path)
+            let inDesign = FileManager.default.contents(atPath: plantsFolder.appendingPathComponent("plant-drawings.json").path)
+            check(inApp != nil && inApp == inDesign, "the app's list of plant drawings is the one in Design/Plants")
+            if let inApp, let realList = try? PlantDrawings.decode(inApp) {
+                var missing: [String] = []
+                for kind in realList.kinds {
+                    for stage in kind.stages {
+                        for look in ["light", "dark"] {
+                            let file = plantsFolder.appendingPathComponent("\(look)/plant-\(kind.slug)-\(stage.stage).svg").path
+                            if !FileManager.default.fileExists(atPath: file) { missing.append("\(look)/\(kind.slug)-\(stage.stage)") }
+                        }
+                    }
+                }
+                check(realList.kinds.count > 150 && missing.isEmpty, "each of the \(realList.kinds.count) kinds has a light and a dark drawing for every stage (missing: \(missing.prefix(5)))")
+                check(realList.kinds.allSatisfy { PlantDrawings.cardStage(of: $0, month: 1, harvestMonths: [], floweringMonths: []) != nil }, "every kind has a stage to show on a card")
+                let libraryNames = ["Permaculture Garden", "Allotment Garden"].flatMap { sheet in
+                    (starterFile.table(named: sheet)?.rows ?? []).compactMap { $0["Common Name"] ?? $0["Name"] }
+                }
+                let undrawn = Set(libraryNames.filter { realList.kind(forPlantNamed: $0) == nil })
+                check(!libraryNames.isEmpty && undrawn.count <= 6, "all but the mixes in the plant library have drawings (\(libraryNames.count) rows, without: \(undrawn.sorted()))")
+            } else {
+                check(false, "the app's list of plant drawings can be read")
+            }
+        }
+
+        // The fungus key: the file is read, a walk is remembered and stepped back, and the real key is sound.
+        let smallKey = FungusKey(data: Data(#"{"start":"a","noneOfThese":"r-none","footer":"f","steps":[{"id":"a","title":"A","question":"Which?","choices":[{"text":"gills","to":"b","picture":"form-gills"},{"text":"a ball","to":"r-ball"}]},{"id":"b","title":"B","question":"Print?","help":"h","choices":[{"text":"white","to":"r-x","detail":"d"},{"text":"none yet","to":"r-how"}]}],"results":[{"id":"r-x","name":"Xs","latin":"Xus","rank":"Genus","confirm":["c"],"danger":"Deadly."},{"id":"r-ball","name":"Slime","latin":"","rank":"Not a fungus","confirm":["c"]},{"id":"r-how","name":"Take a print","latin":"","rank":"How to","confirm":["c"]},{"id":"r-none","name":"Not in this key","latin":"","rank":"No answer","confirm":["c"]}]}"#.utf8))
+        check(smallKey != nil && smallKey?.faults() == [] && smallKey?.isChecked == false && smallKey?.pictures == ["form-gills"] && FungusKey(data: Data("{}".utf8)) == nil && FungusKey(data: Data(#"{"checked":true,"start":"a","noneOfThese":"r","footer":"","steps":[],"results":[]}"#.utf8))?.isChecked == true, "a fungus key is read from its file, and is unchecked until the file says otherwise")
+        if let smallKey, let first = smallKey.step("a"), let second = smallKey.step("b"), let xs = smallKey.answer("r-x") {
+            var walk = FungusWalk(start: smallKey.start)
+            check(walk.isAtStart && walk.here == "a", "a walk begins at the key's first step")
+            walk.choose(first.choices[0], at: first.id)
+            walk.choose(second.choices[0], at: second.id)
+            check(walk.here == "r-x" && walk.taken.map(\.choice) == ["gills", "white"] && smallKey.step(walk.here) == nil && smallKey.answer(walk.here) == xs, "choices are remembered in order and lead to an answer")
+            check(walk.note(reaching: xs) == "Windfall's fungus key led to: Xs (Xus).\nSteps: gills › white\nA key gives a group, not a certain name. Not checked by anyone who knows fungi.", "the walk is written out for a sighting's notes")
+            walk.back()
+            check(walk.here == "b" && walk.taken.count == 1, "Back goes one step back")
+            walk.noneFit(at: "b", in: smallKey)
+            check(walk.here == "r-none" && walk.taken.last?.choice == "None of these fit", "None of these fit leads to the key's own answer for that")
+            walk.back(to: 0)
+            check(walk.isAtStart && walk.here == "a", "going back to the first choice forgets all that came after it")
+            walk.back(); walk.back(to: 7)
+            check(walk.isAtStart && walk.here == "a", "going back from the start, or to a step never taken, changes nothing")
+            walk.choose(first.choices[1], at: first.id); walk.startAgain()
+            check(walk == FungusWalk(start: "a"), "Start again is a fresh walk")
+            var opened = FungusWalk(start: "a", openingAt: "r-x")
+            check(opened.here == "r-x" && opened.isAtStart, "a walk opened part-way in, for a picture, has no trail")
+            opened.startAgain()
+            check(opened.here == "a", "and Start again takes it to the first step")
+            check(smallKey.sightingName(for: xs) == "Xs" && smallKey.taxonGroup(for: xs) == .fungus && smallKey.answer("r-ball").map(smallKey.taxonGroup(for:)) == .other && smallKey.answer("r-how").flatMap(smallKey.sightingName(for:)) == nil && smallKey.answer("r-none").flatMap(smallKey.sightingName(for:)) == "Fungus, not identified", "a sighting takes the answer's name, a slime mould is not filed as a fungus, and a how-to is not a sighting")
+        }
+        let brokenKey = FungusKey(data: Data(#"{"start":"a","noneOfThese":"r-none","footer":"","steps":[{"id":"a","title":"A","question":"Q","choices":[{"text":"an edible one","to":"nowhere"}]}],"results":[{"id":"r-lost","name":"L","latin":"","rank":"Genus","confirm":[]}]}"#.utf8))
+        check(brokenKey?.faults() == ["r-none is not an answer", "a has fewer than two choices", "a leads to nowhere, which does not exist", "nothing leads to r-lost", "r-lost has nothing to check", "the word \"edible\" is in the key"], "a key with faults says what they are: \(brokenKey?.faults() ?? [])")
+        check(IDSource(rawValue: "key") == .key && IDSource.allCases.count == 6, "a name reached by a key is its own kind of source")
+        if let starterPath = ProcessInfo.processInfo.environment["WINDFALL_STARTER"] {
+            let sourceFolder = URL(fileURLWithPath: starterPath).deletingLastPathComponent()
+            let realKey = (try? Data(contentsOf: sourceFolder.appendingPathComponent("FungusKey.json"))).flatMap { FungusKey(data: $0) }
+            check(realKey?.faults() == [] && realKey?.steps.count == 21 && (realKey?.results.count ?? 0) >= 80 && realKey?.isChecked == false, "the real fungus key reads, is sound and is still marked unchecked: \(realKey?.faults() ?? ["not read"])")
+            let icons = sourceFolder.deletingLastPathComponent().appendingPathComponent("Design/Icons")
+            let undrawn = (realKey?.pictures ?? []).filter { !FileManager.default.fileExists(atPath: icons.appendingPathComponent("fungus-\($0).svg").path) }.sorted()
+            check(undrawn.isEmpty && (realKey?.pictures.count ?? 0) >= 50, "every diagram the real fungus key names has a drawing in Design/Icons: \(undrawn)")
+        }
+
         print("   logic tests: \(passes) passed, \(failures) failed")
         exit(failures == 0 ? 0 : 1)
     }

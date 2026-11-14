@@ -40,8 +40,9 @@ OUTLINE_DARK = "#D9E8C4"
 # outline in dark mode: they get no second copy, so the one drawing is
 # shown in both. William chose this for the flower shape drawings on
 # 14 November 2026, after seeing them both ways on the dark background:
-# "Yeah, that's better. Leave them unchanged."
-SAME_IN_DARK = ("shape-",)
+# "Yeah, that's better. Leave them unchanged." He chose the same for the
+# fungus key's diagrams that evening: "Yes, that's better."
+SAME_IN_DARK = ("shape-", "fungus-")
 INFO = {"author": "xcode", "version": 1}
 
 
@@ -136,9 +137,43 @@ def build_icons(catalogue=CATALOGUE):
     return outline, colour
 
 
+def build_plants(catalogue=CATALOGUE):
+    """The plant drawings: Design/Plants/light and /dark become
+    Plants/<name>.imageset, each holding the light drawing and the dark
+    one. The list of which plant uses which drawing is copied into the
+    app as Windfall/PlantDrawings.json."""
+    source = os.path.join(DESIGN, "Plants")
+    folder = os.path.join(catalogue, "Plants")
+    fresh_folder(folder)
+    write_json(os.path.join(folder, "Contents.json"),
+               {"info": INFO, "properties": {"provides-namespace": True}})
+    count = 0
+    for filename in sorted(os.listdir(os.path.join(source, "light"))):
+        if not filename.endswith(".svg"):
+            continue
+        name = filename[:-4]
+        image_set = os.path.join(folder, name + ".imageset")
+        os.makedirs(image_set)
+        shutil.copyfile(os.path.join(source, "light", filename), os.path.join(image_set, filename))
+        shutil.copyfile(os.path.join(source, "dark", filename), os.path.join(image_set, name + "-dark.svg"))
+        write_json(os.path.join(image_set, "Contents.json"), {
+            "images": [{"idiom": "universal", "filename": filename},
+                       {"idiom": "universal", "filename": name + "-dark.svg",
+                        "appearances": [{"appearance": "luminosity", "value": "dark"}]}],
+            "info": INFO,
+            "properties": {"preserves-vector-representation": True,
+                           "template-rendering-intent": "original"}})
+        count += 1
+    shutil.copyfile(os.path.join(source, "plant-drawings.json"),
+                    os.path.join(ROOT, "Windfall", "PlantDrawings.json"))
+    return count
+
+
 if __name__ == "__main__":
     n = build_colours()
     outline, colour = build_icons()
+    plants = build_plants()
+    print(f"{plants} plant drawings written to Windfall/Assets.xcassets/Plants")
     # The same again for the widgets' own store.
     write_json(os.path.join(WIDGET_CATALOGUE, "Contents.json"), {"info": INFO})
     build_colours(WIDGET_CATALOGUE)

@@ -37,6 +37,7 @@ Crosses.swift
 SpeciesTable.swift
 EiraChecks.swift
 EiraIdentify.swift
+FungusKey.swift
 PhotoFacts.swift
 EiraChatLayout.swift
 CornerScene.swift
@@ -44,3 +45,4 @@ KeptFacts.swift
 EiraSources.swift
 PlantFillIn.swift
 GardenJobs.swift
+PlantDrawings.swift
