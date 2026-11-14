@@ -1029,6 +1029,20 @@ _values = State(initialValue: PlantFacts.values(of: plant))
 Germination was not affected. Its column is in days.
 
 **A test reads the real library**: every sow-to-crop figure in it must come out as weeks or months, and none shorter than a fortnight. If a figure is ever written another way, that test will say so.
+## 14 November 2026, 13:30: "Want to pin it down?" in the journal, "tonight" means now, and the weather for earlier today
+
+**On the branch `journal-follow-up`, made from `main` at `06a8915`. Not yet merged.** Built for the Mac with no errors. 537 logic tests pass (17 checks are new). Not yet tried by hand.
+
+**Why.** William wrote "I noticed an insect in my garden tonight" in the journal (13 November, 22:30). The entry was kept, but nothing helped him name the insect while he still remembered it. He also saw two faults: Eira asked "It is 22:30 and dark out. Was this about earlier today?" though he had written "tonight", and the weather chip said the service had no figures for ten that morning.
+
+**What changed.**
+
+1. **Pinning it down** (`JournalChat.swift`, new `JournalPinDown.swift`, `JournalChatView.swift`). When an entry says something was seen (saw, spotted, noticed, found, there was) and names it only loosely ("an insect", "a small brown beetle", "some odd mushrooms"), Eira adds one card: *Want to pin it down?* with **Add a photo**, **Describe it** and **Leave it unidentified**. A photo goes through the same identification as Identify and Eira's chat. Describe asks size in centimetres, colours, wings and how they are held (insects only), what it was doing and where. Either way an unconfirmed sighting is made, dated with the entry. "Red admiral butterfly", "cabbage white butterflies" and "a robin" count as named and get no card.
+2. **Not nagging.** One card per entry, never a run of questions. After three finds in a row go by without the card being used, it comes one time in three (`shouldOfferPinDown`).
+3. **"Tonight" means now** (`timeCheck`). "Tonight", "this evening", "just now", "right now" and "at the moment" stop the after-dark question.
+4. **The weather for earlier today** (`askServiceIfMissing`). Where a garden has a location but its weather diary has no figures yet for that hour, the weather service is now asked at the garden's location. Before, only gardens with no location were asked.
+
+**Will clash with `photo-drop`** in `JournalChat.swift`, as well as the three files doc 37 lists.
 
 ## 14 November 2026, 12:50: a sowing or a planting, added from the plant's own page
 

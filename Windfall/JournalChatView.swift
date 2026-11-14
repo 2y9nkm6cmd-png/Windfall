@@ -40,6 +40,10 @@
 //  turn down (JournalOffers.swift reads the words, JournalOfferCards.swift
 //  draws the cards).
 //
+//  And when the words tell of something seen but not named ("an
+//  insect"), Eira offers to pin it down with a photo or a few details
+//  (JournalPinDown.swift).
+//
 //  Not built yet: names becoming links.
 //
 //  Where it is drawn (14 November 2026). Opened from Eira's bar, on a
@@ -55,6 +59,7 @@ import SwiftUI
 import SwiftData
 import PhotosUI
 import UniformTypeIdentifiers
+import CoreLocation
 
 struct JournalChatView: View {
 
@@ -115,6 +120,15 @@ struct JournalChatView: View {
     @State private var offerDate = Date.now
     /// What Eira says once an offer has been taken up.
     @State private var addedNotes: [String] = []
+
+    // Eira's offer to pin down something seen but not named.
+    @State private var pinDown: PinDownRequest?
+    /// True once Photo or Describe has been used on the current offer.
+    @State private var pinDownWasUsed = false
+    /// How many finds in a row have gone by without the offer being
+    /// used. Kept between launches, so that Eira asks less often once
+    /// it is clear the offer is not wanted (JournalChat.shouldOfferPinDown).
+    @AppStorage("journalPinDownSkips") private var pinDownSkips = 0
 
     // Small things that come and go.
     @State private var showsWhen = false
@@ -370,6 +384,25 @@ struct JournalChatView: View {
                 }
                 ForEach(addedNotes, id: \.self) { note in
                     eiraSays(note)
+                }
+
+                // "Want to pin it down?", for something seen but not named.
+                if let pinDown {
+                    PinDownCard(request: pinDown,
+                                onUsed: {
+                                    pinDownWasUsed = true
+                                    pinDownSkips = 0
+                                },
+                                onSkip: {
+                                    pinDownSkips += 1
+                                    self.pinDown = nil
+                                },
+                                onFinish: { note in
+                                    self.pinDown = nil
+                                    if let note { addedNotes.append(note) }
+                                })
+                    // A new card for each find, not the old one reused.
+                    .id(pinDown.id)
                 }
             }
             .padding(.horizontal, 20)
@@ -1044,8 +1077,21 @@ struct JournalChatView: View {
     /// of the weather service at the place the Today screen used: usually
     /// the device's own location. Before 13 November 2026 this step was
     /// missing, and any time but the last half hour came up blank.
+    ///
+    /// The same is done when a garden does have a location but the
+    /// weather diary has no figures for that hour yet, as for earlier
+    /// today, since the diary is filled a day at a time. Before 14
+    /// November 2026 this case was left blank: "The weather service has
+    /// no figures for this time" for ten o'clock the same morning.
     private func askServiceIfMissing() async {
-        guard place == nil, let near = WeatherService.shared.lastPlace else { return }
+        let near: CLLocationCoordinate2D
+        if let place {
+            near = CLLocationCoordinate2D(latitude: place.latitude, longitude: place.longitude)
+        } else if let last = WeatherService.shared.lastPlace {
+            near = last
+        } else {
+            return
+        }
         let service = WeatherService.shared
         if suggested == nil {
             isAskingWeather = true
@@ -1132,6 +1178,23 @@ struct JournalChatView: View {
             beds: beds.map { OfferBed(key: $0.id.uuidString, name: $0.name) })
         offerDate = entry.date
         addedNotes = []
+
+        // Something seen but not named: offer to pin it down. An offer
+        // still waiting from the last entry, never used, counts as a
+        // skip. So does a find that is not offered while Eira is asking
+        // less often, or the count would never move on to the next time
+        // she asks.
+        if pinDown != nil, !pinDownWasUsed { pinDownSkips += 1 }
+        pinDown = nil
+        pinDownWasUsed = false
+        if let find = JournalChat.unnamedFind(in: text) {
+            if JournalChat.shouldOfferPinDown(skipsInARow: pinDownSkips) {
+                pinDown = PinDownRequest(find: find, date: entry.date, bed: aboutBed,
+                                         photo: waitingPhotos.first?.data)
+            } else {
+                pinDownSkips += 1
+            }
+        }
 
         // Ready for the next thing to be said.
         lastSent = entry.id
