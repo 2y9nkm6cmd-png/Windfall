@@ -140,11 +140,11 @@ struct WeatherDiaryView: View {
         let month = Array(days.prefix(30))
         return VStack(alignment: .leading, spacing: 10) {
             Text("The last 30 days")
-                .font(.headline)
+                .font(.title3.weight(.semibold))
                 .foregroundStyle(Theme.ink)
 
             Text("Temperature, coldest to warmest")
-                .font(.caption)
+                .font(.footnote)
                 .foregroundStyle(Theme.inkSoft)
             Chart {
                 ForEach(month) { day in
@@ -168,7 +168,7 @@ struct WeatherDiaryView: View {
             .accessibilityLabel("Each day's coldest and warmest temperature over the last 30 days")
 
             Text("Rain")
-                .font(.caption)
+                .font(.footnote)
                 .foregroundStyle(Theme.inkSoft)
             Chart {
                 ForEach(month) { day in
@@ -191,7 +191,7 @@ struct WeatherDiaryView: View {
     private func dayList(_ days: [WeatherDay]) -> some View {
         VStack(alignment: .leading, spacing: 0) {
             Text("Day by day")
-                .font(.headline)
+                .font(.title3.weight(.semibold))
                 .foregroundStyle(Theme.ink)
                 .padding(.bottom, 8)
 
@@ -210,7 +210,7 @@ struct WeatherDiaryView: View {
 
             if days.count > listed {
                 Button("Show more") { listed += 30 }
-                    .font(.subheadline)
+                    .font(.body)
                     .foregroundStyle(Theme.leaf)
                     .buttonStyle(.plain)
                     .padding(.top, 12)
@@ -241,7 +241,7 @@ struct WeatherDiaryView: View {
         return VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Text("Frosts this year")
-                    .font(.headline)
+                    .font(.title3.weight(.semibold))
                     .foregroundStyle(Theme.ink)
                 Spacer()
                 ViewAllLink { FrostRecordsView() }
@@ -251,10 +251,10 @@ struct WeatherDiaryView: View {
             LabeledContent("First autumn frost",
                            value: firstAutumn.map { $0.date.formatted(.dateTime.day().month(.wide)) } ?? "None yet")
             Text("The gap between the two is the growing season for anything tender. The diary only knows about frosts on days it holds.")
-                .font(.caption)
+                .font(.footnote)
                 .foregroundStyle(Theme.inkSoft)
         }
-        .font(.subheadline)
+        .font(.body)
         .foregroundStyle(Theme.ink)
         .frame(maxWidth: .infinity, alignment: .leading)
         .glassCard()
@@ -265,10 +265,10 @@ struct WeatherDiaryView: View {
     private func explainer(_ title: String, _ detail: String) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             Text(title)
-                .font(.headline)
+                .font(.title3.weight(.semibold))
                 .foregroundStyle(Theme.ink)
             Text(detail)
-                .font(.subheadline)
+                .font(.body)
                 .foregroundStyle(Theme.inkSoft)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -305,7 +305,7 @@ struct WeatherDiaryView: View {
             Text("These figures are worked out for the garden's place on the map from the weather services' models. They are not readings taken in the garden, so a frost pocket or a sheltered wall will differ.")
             WeatherCredit()
         }
-        .font(.caption)
+        .font(.footnote)
         .foregroundStyle(Theme.inkSoft)
     }
 }
@@ -316,7 +316,7 @@ struct WeatherCredit: View {
     var body: some View {
         if let link = URL(string: "https://open-meteo.com/") {
             Link("Weather data by Open-Meteo.com", destination: link)
-                .font(.caption)
+                .font(.footnote)
                 .tint(Theme.leaf)
         }
     }
@@ -333,13 +333,13 @@ private struct FigureCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(title)
-                .font(.caption)
+                .font(.footnote)
                 .foregroundStyle(Theme.inkSoft)
             Text(figure)
-                .font(.system(.title3, design: .serif, weight: .medium))
+                .font(.system(.title2, design: .serif, weight: .medium))
                 .foregroundStyle(Theme.ink)
             Text(detail ?? " ")
-                .font(.caption)
+                .font(.footnote)
                 .foregroundStyle(Theme.inkSoft)
                 .lineLimit(1)
         }
@@ -358,10 +358,10 @@ private struct WeatherDayRow: View {
         HStack(spacing: 12) {
             VStack(alignment: .leading, spacing: 2) {
                 Text(day.date, format: .dateTime.weekday(.abbreviated).day().month(.abbreviated))
-                    .font(.subheadline.weight(.medium))
+                    .font(.body.weight(.medium))
                     .foregroundStyle(Theme.ink)
                 Text(caption)
-                    .font(.caption)
+                    .font(.footnote)
                     .foregroundStyle(Theme.inkSoft)
             }
             Spacer(minLength: 8)
@@ -370,12 +370,12 @@ private struct WeatherDayRow: View {
             }
             if let rain = day.rainfallMM, rain >= 0.1 {
                 Text("\(rain.formatted(.number.precision(.fractionLength(1)))) mm")
-                    .font(.caption)
+                    .font(.footnote)
                     .foregroundStyle(Theme.inkSoft)
             }
             if let low = day.minTemperatureC, let high = day.maxTemperatureC {
                 Text("\(WeatherDiary.degrees(low)) to \(WeatherDiary.degrees(high))")
-                    .font(.subheadline)
+                    .font(.body)
                     .foregroundStyle(Theme.ink)
                     .monospacedDigit()
             }
@@ -426,7 +426,7 @@ struct WeatherDayView: View {
                              detail: WeatherDiary.words(forCode: day.weatherCode) ?? "Weather")
 
                 Text(WeatherDiary.summary(of: day))
-                    .font(.subheadline)
+                    .font(.body)
                     .foregroundStyle(Theme.ink)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .glassCard()
@@ -444,14 +444,14 @@ struct WeatherDayView: View {
                     row("Soil at seed depth", day.soilTemperatureC.map { "\($0.formatted(.number.precision(.fractionLength(1))))°C" })
                     row("Water lost to the air", day.evaporationMM.map { "\($0.formatted(.number.precision(.fractionLength(1)))) mm" })
                 }
-                .font(.subheadline)
+                .font(.body)
                 .foregroundStyle(Theme.ink)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .glassCard()
 
                 if !day.isComplete {
                     Text("This day has not ended. Its later hours are the forecast, and the figures will settle once it is over.")
-                        .font(.caption)
+                        .font(.footnote)
                         .foregroundStyle(Theme.inkSoft)
                 }
                 WeatherCredit()
@@ -479,11 +479,11 @@ struct WeatherDayView: View {
     private var hourChart: some View {
         VStack(alignment: .leading, spacing: 10) {
             Text("Hour by hour")
-                .font(.headline)
+                .font(.title3.weight(.semibold))
                 .foregroundStyle(Theme.ink)
 
             Text("Temperature")
-                .font(.caption)
+                .font(.footnote)
                 .foregroundStyle(Theme.inkSoft)
             Chart {
                 ForEach(hours) { hour in
@@ -504,7 +504,7 @@ struct WeatherDayView: View {
             // drizzle of a fraction of a millimetre would not show.
             if hours.contains(where: { $0.rain > 0 }) {
                 Text("Rain")
-                    .font(.caption)
+                    .font(.footnote)
                     .foregroundStyle(Theme.inkSoft)
                 Chart {
                     ForEach(hours) { hour in

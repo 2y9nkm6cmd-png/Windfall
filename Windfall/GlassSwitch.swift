@@ -189,7 +189,7 @@ struct GlassSwitch<Value: Hashable>: View {
                     choose(option)
                 } label: {
                     Text(title(option))
-                        .font(.subheadline.weight(option == selection ? .semibold : .regular))
+                        .font(.body.weight(option == selection ? .semibold : .regular))
                         .foregroundStyle(Theme.ink)
                         .lineLimit(1)
                         // Long words shrink a little before they are cut short.

@@ -141,7 +141,7 @@ struct GardenEditorView: View {
                 VStack(alignment: .leading) {
                     Text("You are facing \(Compass.name(forBearing: heading)), \(Int(heading.rounded()))°")
                     Text("Face the way the top of your plan faces, then tap Use.")
-                        .font(.caption)
+                        .font(.footnote)
                         .foregroundStyle(.secondary)
                 }
                 Spacer()
@@ -249,7 +249,7 @@ private struct FacingSetter: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Top of the plan faces")
                     Text("\(Int(garden.topFacesDegrees.rounded()))° · \(Compass.name(forBearing: garden.topFacesDegrees))")
-                        .font(.callout.weight(.semibold))
+                        .font(.body.weight(.semibold))
                         .monospacedDigit()
                         .foregroundStyle(Theme.leaf)
                 }
@@ -270,7 +270,7 @@ private struct FacingSetter: View {
                         .rotationEffect(.degrees(Double(point) * 45))
                 }
                 Text("N")
-                    .font(.caption.weight(.bold))
+                    .font(.footnote.weight(.bold))
                     .foregroundStyle(Theme.leaf)
                     .offset(y: -ringSize / 2 + 24)
 
@@ -286,7 +286,7 @@ private struct FacingSetter: View {
             .accessibilityHidden(true)
 
             Text("North is at the top of the ring. Press plus or minus until the plan sits the way your garden does on a map.")
-                .font(.caption)
+                .font(.footnote)
                 .foregroundStyle(.secondary)
         }
         .padding(.vertical, 4)

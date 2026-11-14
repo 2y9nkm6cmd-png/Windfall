@@ -455,10 +455,10 @@ struct CompanionView: View {
                     if allFriends.isEmpty && enemies.isEmpty {
                         VStack(alignment: .leading, spacing: 4) {
                             Text("Nothing recorded")
-                                .font(.headline)
+                                .font(.title3.weight(.semibold))
                                 .foregroundStyle(Theme.ink)
                             Text("The companion matrix has nothing for \(plantName).")
-                                .font(.subheadline)
+                                .font(.body)
                                 .foregroundStyle(Theme.inkSoft)
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -489,10 +489,10 @@ struct CompanionView: View {
                         HStack(spacing: 10) {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("Found a pest?")
-                                    .font(.headline)
+                                    .font(.title3.weight(.semibold))
                                     .foregroundStyle(Theme.ink)
                                 Text("See every plant the matrix records as helping against it.")
-                                    .font(.subheadline)
+                                    .font(.body)
                                     .foregroundStyle(Theme.inkSoft)
                                     .multilineTextAlignment(.leading)
                             }
@@ -525,7 +525,7 @@ struct CompanionView: View {
     private func pestChips(_ pests: [(name: String, helpers: Int)]) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("A pest on your \(plantName.lowercased())? Pick it to see what helps.")
-                .font(.subheadline)
+                .font(.body)
                 .foregroundStyle(Theme.inkSoft)
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
@@ -553,17 +553,17 @@ struct CompanionView: View {
                 Image(systemName: effect.symbolName)
                     .foregroundStyle(isGood ? Theme.leaf : Theme.amber)
                 Text(isGood ? "Grows well with" : "Keep apart from")
-                    .font(.headline)
+                    .font(.title3.weight(.semibold))
                     .foregroundStyle(Theme.ink)
                 Spacer(minLength: 8)
                 Text("\(partners.count)")
-                    .font(.subheadline)
+                    .font(.body)
                     .foregroundStyle(Theme.inkSoft)
             }
 
             if partners.isEmpty {
                 Text(isGood ? "Nothing in the matrix yet." : "Nothing to keep it apart from.")
-                    .font(.subheadline)
+                    .font(.body)
                     .foregroundStyle(Theme.inkSoft)
             }
 
@@ -590,23 +590,23 @@ struct CompanionView: View {
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(partner.name)
-                    .font(.subheadline.weight(.medium))
+                    .font(.body.weight(.medium))
                     .foregroundStyle(Theme.ink)
                 if !partner.kinds.isEmpty {
                     // The kinds in words, so the symbol never has to be
                     // guessed at.
                     Text(partner.kinds.map(\.words).joined(separator: " · "))
-                        .font(.caption.weight(.medium))
+                        .font(.footnote.weight(.medium))
                         .foregroundStyle(isGood ? Theme.leaf : Theme.amber)
                 }
                 ForEach(partner.doesForPlant, id: \.self) { reason in
                     Text("\(isGood ? "Helps" : "Harms") \(plantName): \(reason)")
-                        .font(.caption)
+                        .font(.footnote)
                         .foregroundStyle(Theme.inkSoft)
                 }
                 ForEach(partner.plantDoesForIt, id: \.self) { reason in
                     Text("\(plantName) \(isGood ? "helps" : "harms") it: \(reason)")
-                        .font(.caption)
+                        .font(.footnote)
                         .foregroundStyle(Theme.inkSoft)
                 }
             }
@@ -624,7 +624,7 @@ struct PestChip: View {
     var body: some View {
         Button(action: action) {
             Text(title)
-                .font(.subheadline.weight(isChosen ? .semibold : .regular))
+                .font(.body.weight(isChosen ? .semibold : .regular))
                 .foregroundStyle(Theme.ink)
                 .lineLimit(1)
                 .padding(.horizontal, 14)
@@ -665,7 +665,7 @@ struct PestHelpersView: View {
 
                 if pests.isEmpty {
                     Text("The companion matrix names no pests yet.")
-                        .font(.subheadline)
+                        .font(.body)
                         .foregroundStyle(Theme.inkSoft)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .glassCard()
@@ -683,7 +683,7 @@ struct PestHelpersView: View {
                     if let picked {
                         VStack(alignment: .leading, spacing: 10) {
                             Text("Against \(picked.lowercased())")
-                                .font(.headline)
+                                .font(.title3.weight(.semibold))
                                 .foregroundStyle(Theme.ink)
 
                             ForEach(helpers) { helper in
@@ -691,13 +691,13 @@ struct PestHelpersView: View {
                                     .overlay(Theme.hairline)
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text(helper.plant)
-                                        .font(.subheadline.weight(.medium))
+                                        .font(.body.weight(.medium))
                                         .foregroundStyle(Theme.ink)
                                     Text("Recorded with: \(helper.protects.joined(separator: ", "))")
-                                        .font(.caption.weight(.medium))
+                                        .font(.footnote.weight(.medium))
                                         .foregroundStyle(Theme.leaf)
                                     Text(helper.reasons.joined(separator: ". "))
-                                        .font(.caption)
+                                        .font(.footnote)
                                         .foregroundStyle(Theme.inkSoft)
                                 }
                             }
@@ -707,7 +707,7 @@ struct PestHelpersView: View {
                     }
 
                     Text("From your companion matrix. Each pairing was recorded for the crops named, and may not hold for others.")
-                        .font(.caption)
+                        .font(.footnote)
                         .foregroundStyle(Theme.inkSoft)
                 }
             }
@@ -753,11 +753,11 @@ struct BedCompanionCheckView: View {
                         Image(systemName: finding.effect.symbolName)
                             .foregroundStyle(finding.effect.colour)
                         Text("\(finding.plantA) and \(finding.plantB)")
-                            .font(.subheadline)
+                            .font(.body)
                     }
                     if let mechanism = finding.mechanism {
                         Text(mechanism)
-                            .font(.caption)
+                            .font(.footnote)
                             .foregroundStyle(.secondary)
                             .padding(.leading, 24)
                     }

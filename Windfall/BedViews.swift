@@ -193,7 +193,7 @@ private struct BedRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(bed.name)
-                .font(.headline)
+                .font(.title3.weight(.semibold))
 
             HStack(spacing: 6) {
                 Text("^[\(bed.orderedSections.count) section](inflect: true)")
@@ -207,7 +207,7 @@ private struct BedRow: View {
                     Text("Hügelkultur")
                 }
             }
-            .font(.caption)
+            .font(.footnote)
             .foregroundStyle(.secondary)
         }
         .padding(.vertical, 2)
@@ -331,12 +331,12 @@ private struct SectionTile: View {
 
             if let first = activePlantings.first?.plant?.commonName {
                 Text(first)
-                    .font(.caption2)
+                    .font(.caption)
                     .lineLimit(1)
                     .foregroundStyle(.secondary)
             } else {
                 Text("Empty")
-                    .font(.caption2)
+                    .font(.caption)
                     .foregroundStyle(.tertiary)
             }
         }

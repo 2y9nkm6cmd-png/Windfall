@@ -344,7 +344,7 @@ struct JournalChatView: View {
                     eiraSays("That reads like one for the journal, so it is waiting in the box below. Check the time and the weather under it, then send.")
                     if let askEiraInstead, !words.isEmpty {
                         Button("It was a question. Ask Eira instead") { askEiraInstead(words) }
-                            .font(.caption.weight(.semibold))
+                            .font(.footnote.weight(.semibold))
                             .buttonStyle(QuietGlassButton())
                             .tint(Theme.leaf)
                             .padding(.leading, 36)
@@ -387,7 +387,7 @@ struct JournalChatView: View {
         HStack(alignment: .top, spacing: 8) {
             EiraSymbol(size: 28)
             Text(text)
-                .font(.subheadline)
+                .font(.body)
                 .foregroundStyle(Theme.ink)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 9)
@@ -413,11 +413,11 @@ struct JournalChatView: View {
             VStack(alignment: .leading, spacing: 6) {
                 if showsHeading {
                     Text(heading)
-                        .font(.subheadline.weight(.semibold))
+                        .font(.body.weight(.semibold))
                 }
                 if !entry.body.isEmpty {
                     Text(entry.body)
-                        .font(.subheadline)
+                        .font(.body)
                 }
                 if let photos = entry.photos, !photos.isEmpty {
                     ScrollView(.horizontal, showsIndicators: false) {
@@ -441,7 +441,7 @@ struct JournalChatView: View {
             }
 
             Text(stampLine(of: entry))
-                .font(.caption2)
+                .font(.caption)
                 .foregroundStyle(Theme.inkSoft)
         }
         .frame(maxWidth: .infinity, alignment: .trailing)
@@ -462,7 +462,7 @@ struct JournalChatView: View {
     /// line in the middle.
     private func recordLine(_ item: TimelineItem) -> some View {
         Text("\(item.title) · \(item.date.formatted(date: .omitted, time: .shortened))")
-            .font(.caption)
+            .font(.footnote)
             .foregroundStyle(Theme.inkSoft)
             .multilineTextAlignment(.center)
             .padding(.horizontal, 12)
@@ -559,11 +559,11 @@ struct JournalChatView: View {
     private func checkCard(question: String, choices: [CheckChoice]) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(question)
-                .font(.subheadline.weight(.medium))
+                .font(.body.weight(.medium))
                 .foregroundStyle(Theme.ink)
             if checkWasSkipped {
                 Text("Choose one, then send.")
-                    .font(.caption)
+                    .font(.footnote)
                     .foregroundStyle(Theme.amber)
             }
             ForEach(choices) { checkChoice in
@@ -580,7 +580,7 @@ struct JournalChatView: View {
                                 .foregroundStyle(Theme.inkSoft)
                         }
                     }
-                    .font(.subheadline)
+                    .font(.body)
                     .foregroundStyle(Theme.ink)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 9)
@@ -652,7 +652,7 @@ struct JournalChatView: View {
 
             if voice.isListening {
                 Text(voice.transcript.isEmpty ? "Listening…" : voice.transcript)
-                    .font(.subheadline)
+                    .font(.body)
                     .foregroundStyle(Theme.inkSoft)
             }
 
@@ -737,9 +737,9 @@ struct JournalChatView: View {
     private func chip(_ text: String, symbol: String) -> some View {
         HStack(spacing: 5) {
             Image(systemName: symbol)
-                .font(.caption)
+                .font(.footnote)
             Text(text)
-                .font(.caption.weight(.medium))
+                .font(.footnote.weight(.medium))
                 .lineLimit(1)
         }
         .foregroundStyle(Theme.ink)
@@ -849,7 +849,7 @@ struct JournalChatView: View {
                 }
 
                 Text(conditionsSource)
-                    .font(.caption)
+                    .font(.footnote)
                     .foregroundStyle(Theme.inkSoft)
 
                 if hasOwnConditions {

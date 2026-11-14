@@ -242,12 +242,12 @@ struct IdentifyView: View {
             // taken just now.
             if facts.wasTakenEarlier(than: .now), let taken = facts.taken {
                 Text("Taken \(taken.formatted(.dateTime.weekday(.wide).day().month(.wide).hour().minute())). A sighting started from this is dated then.")
-                    .font(.caption)
+                    .font(.footnote)
                     .foregroundStyle(Theme.inkSoft)
             }
             if photosLeftOut > 0 {
                 Text("This is the first of \(photosLeftOut + 1) photos. Eira looks at one at a time.")
-                    .font(.caption)
+                    .font(.footnote)
                     .foregroundStyle(Theme.inkSoft)
             }
             HStack(spacing: 10) {
@@ -264,7 +264,7 @@ struct IdentifyView: View {
                 .buttonStyle(QuietGlassButton())
             }
             Text("The photo stays on this device." + (eyeName.map { " Image model: \($0)." } ?? ""))
-                .font(.caption)
+                .font(.footnote)
                 .foregroundStyle(Theme.inkSoft)
         }
 
@@ -292,7 +292,7 @@ struct IdentifyView: View {
             SheetCard {
                 IdentificationCard(identification: identification)
                 Text("Nothing is saved until you start a sighting and confirm the name yourself.")
-                    .font(.caption)
+                    .font(.footnote)
                     .foregroundStyle(Theme.inkSoft)
             }
         }

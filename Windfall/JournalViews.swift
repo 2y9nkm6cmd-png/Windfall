@@ -183,7 +183,7 @@ struct JournalTimelineView: View {
     private func filterCard(counting everything: [TimelineItem]) -> some View {
         VStack(alignment: .leading, spacing: 10) {
             Text("Show")
-                .font(.headline)
+                .font(.title3.weight(.semibold))
                 .foregroundStyle(Theme.ink)
 
             ForEach(TimelineKind.allCases) { kind in
@@ -194,11 +194,11 @@ struct JournalTimelineView: View {
                         TickBox(isOn: kinds.contains(kind))
                         JournalIcon(kind: kind, title: "", size: 20)
                         Text(kind.displayName)
-                            .font(.subheadline)
+                            .font(.body)
                             .foregroundStyle(Theme.ink)
                         Spacer(minLength: 4)
                         Text("\(count(of: kind, in: everything))")
-                            .font(.caption)
+                            .font(.footnote)
                             .monospacedDigit()
                             .foregroundStyle(Theme.inkSoft)
                     }
@@ -210,7 +210,7 @@ struct JournalTimelineView: View {
 
             if kinds.count < TimelineKind.allCases.count {
                 Button("Show everything") { kinds = Set(TimelineKind.allCases) }
-                    .font(.caption.weight(.semibold))
+                    .font(.footnote.weight(.semibold))
                     .buttonStyle(QuietGlassButton())
                     .tint(Theme.leaf)
                     .padding(.top, 2)
@@ -236,7 +236,7 @@ struct JournalTimelineView: View {
                             Text("\(count(of: kind, in: everything))")
                                 .foregroundStyle(Theme.inkSoft)
                         }
-                        .font(.caption)
+                        .font(.footnote)
                         .foregroundStyle(Theme.ink)
                         .padding(.horizontal, 12)
                         .frame(height: 34)
@@ -261,7 +261,7 @@ struct JournalTimelineView: View {
                 Text(isEmpty
                      ? "Nothing recorded yet. Tell Eira what happened in the bar below, or drop photos on this page. Entries, sowings, harvests and sightings all appear here together, a day to a card."
                      : "Nothing of the kinds chosen. Tick more under Show.")
-                    .font(.subheadline)
+                    .font(.body)
                     .foregroundStyle(Theme.inkSoft)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .glassCard()
@@ -280,12 +280,12 @@ struct JournalTimelineView: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(alignment: .firstTextBaseline) {
                 Text(JournalPage.title(for: day.start))
-                    .font(.headline)
+                    .font(.title3.weight(.semibold))
                     .foregroundStyle(Theme.ink)
                 Spacer(minLength: 8)
                 if let words = weatherWords(for: day.start) {
                     Text(words)
-                        .font(.caption)
+                        .font(.footnote)
                         .foregroundStyle(Theme.inkSoft)
                 }
             }
@@ -322,12 +322,12 @@ private struct JournalRow: View {
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(item.title)
-                    .font(.subheadline.weight(.medium))
+                    .font(.body.weight(.medium))
                     .foregroundStyle(Theme.ink)
                     .fixedSize(horizontal: false, vertical: true)
 
                 Text(JournalPage.caption(kind: item.kind.rowName, at: item.date))
-                    .font(.caption)
+                    .font(.footnote)
                     .foregroundStyle(Theme.inkSoft)
 
                 if let detail = item.detail, !detail.isEmpty {
@@ -335,7 +335,7 @@ private struct JournalRow: View {
                     // it gets room and the ordinary ink. For a record it
                     // is a note, and stays small.
                     Text(detail)
-                        .font(item.kind == .diary ? .subheadline : .caption)
+                        .font(item.kind == .diary ? .body : .footnote)
                         .foregroundStyle(item.kind == .diary ? Theme.ink : Theme.inkSoft)
                         .lineLimit(item.kind == .diary ? 8 : 3)
                         .fixedSize(horizontal: false, vertical: true)
@@ -467,7 +467,7 @@ struct DiaryEntryEditor: View {
                 } footer: {
                     if entry.titleIsGenerated {
                         Label("Heading written by Eira", systemImage: "sparkles")
-                            .font(.caption)
+                            .font(.footnote)
                     }
                 }
 

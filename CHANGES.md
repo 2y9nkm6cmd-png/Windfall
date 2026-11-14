@@ -7,6 +7,53 @@ run without the Mac (every file reads as valid Swift, 323 logic tests
 pass). Those do not build the screens. Expect things to put right when
 it is first built, and treat how everything here looks as untried.
 
+## 14 November 2026, 17:35: the text is one step larger everywhere
+
+**On the branch `larger-text`, made from `main` (`0c4857f`).** **Not built and not seen running**: it was written in Claude's cloud workspace, which cannot build the app. It passes the checks that run without the Mac (92 files read as valid Swift, 599 logic tests pass). Those do not draw a screen. **It needs a build on the Mac and a look at each page before it joins `main`.**
+
+**Why.** William, 17:24: "Use the bigger text in the next build". Most of the app's words were 12 or 15 points and Apple's own reading size, 17, was used five times. He saw the larger sizes drawn beside the present ones on the "Windfall fonts" canvas (column A2) first. No font is changed here, only sizes.
+
+**What a text style is.** The app never names a size in points. It asks for one of Apple's named styles:
+
+```swift
+Text(job.title)
+    .font(.subheadline)
+```
+
+`.font(...)` says how the words above it are drawn. `.subheadline` is a name. The device turns the name into points (15 on an iPhone at the standard setting), and into more if the owner has asked for larger text in Settings. So the change is a change of names, and the words still follow that setting.
+
+**The rule: every job uses the style one step larger.**
+
+| Job | Was | Now |
+|---|---|---|
+| Labels: a card's kind line, chips | `.caption2`, 11 | `.caption`, 12 |
+| Details: dates, places, Latin names, tags | `.caption`, 12 | `.footnote`, 13 |
+| List text, buttons, what was written | `.subheadline`, 15 | `.body`, 17 |
+| The few `.callout` lines | 16 | `.body`, 17 |
+| Card headings, names in a list | `.headline`, 17 semibold | `.title3.weight(.semibold)`, 20 |
+| A plant's name on its card | `.headline.weight(.medium)` | `.title3.weight(.medium)`, 20 |
+| Letter headings on Plants, the weather card's figure | `.title3` in the serif, 20 | `.title2` in the serif, 22 |
+| Sheet titles and Eira's panel title | `.title2` in the serif, 22 | `.title` in the serif, 28 |
+| The headline of an identification | `.title3`, 20 | `.title2`, 22 |
+| Screen titles, the count's numbers | 34 and 42 | Unchanged |
+
+`.headline` came with its own semibold. `.title3` does not, so the weight is now written out: `.title3.weight(.semibold)`.
+
+**What changed.** 384 lines in 42 files, each a swap of one name for another, plus a table in `Theme.swift` saying which style goes with which job. **New screens should follow that table.** `.caption2`, `.subheadline`, `.callout` and `.headline` are no longer used anywhere.
+
+**Not changed.**
+
+- The 23 places that give a size in points (`.font(.system(size: 14, ...))`). All but the count's numbers size a symbol, such as the arrow on a button, not words.
+- The symbols drawn with `.font(.title2)`: the send, stop and microphone buttons.
+- Words drawn on a garden plan went from 11 to 12 with everything else. They are placed by sum, so look for labels that now touch.
+
+**What to look for when it is built.** Anything with little room: chips and tags, the capture buttons on Today, the sidebar, the month page's rows, the stepper in a sheet, a plan's labels. The new sizes are close to what the old code drew with the device's text size set one notch larger, so a layout that copes with that setting should cope with this. ⚠️ CHECK: that comparison is from Claude's memory of Apple's size tables.
+
+**On a Mac the gain is smaller.** macOS draws the same named styles smaller than an iPhone does, so Command and plus (13 November) is still the main way to enlarge a page there. ⚠️ CHECK: not looked at on the Mac.
+
+**Joining it to another branch.** A branch written before this one still uses the old names. Where the two touch the same line, keep the other branch's line and move its style up by the table. Lines the other branch added also need moving up: search them for `.caption2`, `.subheadline`, `.callout` and `.headline`. **Do not search for `.caption`**, which is now a right answer.
+
+
 ## 14 November 2026, 17:12: on a Mac, a month's page follows two fingers as it turns
 
 **On the branch `month-drag-mac`, made from `main`.** Built for the Mac and the iOS Simulator with no errors (`mv7-mac.log`, `mv7-sim.log`, in `DerivedData/Windfall-month`). 596 logic tests pass. **A simulator has no trackpad, so the Mac's row was given to a 13-inch iPad with a checking aid and looked at there**, with the example garden: the row held 300 points to the right shows April sliding off and March coming in beside it, cut off cleanly at the sidebar (`shots/mv7-drag.png`); the forward arrow slides December on to January and the back arrow April back to March (`mv7-on.png`, `mv7-back.png`). **Not tried by anyone: two fingers on a real trackpad.**

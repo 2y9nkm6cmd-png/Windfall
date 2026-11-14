@@ -143,10 +143,10 @@ struct PhotoOfferSheet: View {
                     .frame(width: 30)
                 VStack(alignment: .leading, spacing: 2) {
                     Text(title)
-                        .font(.subheadline.weight(.semibold))
+                        .font(.body.weight(.semibold))
                         .foregroundStyle(Theme.ink)
                     Text(detail)
-                        .font(.caption)
+                        .font(.footnote)
                         .foregroundStyle(Theme.inkSoft)
                         .multilineTextAlignment(.leading)
                 }

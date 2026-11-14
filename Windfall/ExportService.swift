@@ -325,10 +325,10 @@ struct ExportView: View {
                         ForEach(result.excluded, id: \.description) { item in
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(item.description)
-                                    .font(.callout)
+                                    .font(.body)
                                 ForEach(item.problems, id: \.self) { problem in
                                     Label(problem, systemImage: "exclamationmark.circle")
-                                        .font(.caption)
+                                        .font(.footnote)
                                         .foregroundStyle(.orange)
                                 }
                             }

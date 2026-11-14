@@ -50,7 +50,7 @@ struct ObservationListView: View {
                             create()
                         } label: {
                             Label("New sighting", systemImage: "plus")
-                                .font(.subheadline.weight(.semibold))
+                                .font(.body.weight(.semibold))
                         }
                         .buttonStyle(.glassProminent)
                         .tint(Theme.leaf)
@@ -63,7 +63,7 @@ struct ObservationListView: View {
                         Text(observations.isEmpty
                              ? "No sightings yet. Record what you see: insects, birds, amphibians, anything."
                              : "No sightings match. Clear the search or choose \"All groups\".")
-                            .font(.subheadline)
+                            .font(.body)
                             .foregroundStyle(Theme.inkSoft)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .glassCard()
@@ -126,7 +126,7 @@ struct ObservationListView: View {
     private func chip(_ words: String, isOn: Bool, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Text(words)
-                .font(.caption)
+                .font(.footnote)
                 .fontWeight(isOn ? .semibold : .regular)
                 .foregroundStyle(Theme.ink)
                 .padding(.horizontal, 12)
@@ -167,16 +167,16 @@ private struct ObservationRow: View {
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(name)
-                    .font(.subheadline.weight(.medium))
+                    .font(.body.weight(.medium))
                     .foregroundStyle(Theme.ink)
 
                 Text(observation.observedAt, format: .dateTime.weekday(.abbreviated).day().month(.wide))
-                    .font(.caption)
+                    .font(.footnote)
                     .foregroundStyle(Theme.inkSoft)
 
                 if let plant = observation.associatedPlantName {
                     Text("On \(plant)")
-                        .font(.caption)
+                        .font(.footnote)
                         .foregroundStyle(Theme.inkSoft)
                 }
 
@@ -333,7 +333,7 @@ struct ObservationEditor: View {
                         WIconView(.photo, size: 18)
                         Text("Add photos")
                     }
-                    .font(.subheadline.weight(.medium))
+                    .font(.body.weight(.medium))
                 }
                 .buttonStyle(QuietGlassButton())
                 .tint(Theme.leaf)
@@ -355,10 +355,10 @@ struct ObservationEditor: View {
                     HStack {
                         VStack(alignment: .leading, spacing: 2) {
                             Text(match.commonName)
-                                .font(.subheadline)
+                                .font(.body)
                                 .foregroundStyle(Theme.ink)
                             if let latin = match.scientificName {
-                                Text(latin).font(.caption).italic()
+                                Text(latin).font(.footnote).italic()
                                     .foregroundStyle(Theme.inkSoft)
                             }
                         }
@@ -393,7 +393,7 @@ struct ObservationEditor: View {
     private var identificationCard: some View {
         SheetCard("Identification") {
             Text("How sure are you?")
-                .font(.subheadline)
+                .font(.body)
                 .foregroundStyle(Theme.ink)
             GlassSwitch(choices: Array(IDConfidence.allCases), selection: Binding(
                 get: { observation.provisionalConfidence ?? .probable },
@@ -406,7 +406,7 @@ struct ObservationEditor: View {
                 HStack(spacing: 10) {
                     TickBox(isOn: observation.isConfirmed)
                     Text("I'm confident in this identification")
-                        .font(.subheadline)
+                        .font(.body)
                         .foregroundStyle(Theme.ink)
                     Spacer(minLength: 0)
                 }
@@ -416,7 +416,7 @@ struct ObservationEditor: View {
             .accessibilityAddTraits(observation.isConfirmed ? .isSelected : [])
 
             Text("Only confirmed identifications are exported to iRecord. Leave this unticked if you are unsure. An unconfirmed record is still useful to you.")
-                .font(.caption)
+                .font(.footnote)
                 .foregroundStyle(Theme.inkSoft)
         }
     }
@@ -482,7 +482,7 @@ struct ObservationEditor: View {
 
             if !knownAssociations.isEmpty {
                 Text("Known from your reference data. Tap one to fill it in.")
-                    .font(.caption)
+                    .font(.footnote)
                     .foregroundStyle(Theme.inkSoft)
                 ForEach(knownAssociations) { link in
                     Button {
@@ -492,11 +492,11 @@ struct ObservationEditor: View {
                     } label: {
                         HStack {
                             Text(link.plantName)
-                                .font(.subheadline)
+                                .font(.body)
                                 .foregroundStyle(Theme.ink)
                             Spacer()
                             Text(link.relationship.displayName)
-                                .font(.caption)
+                                .font(.footnote)
                                 .foregroundStyle(Theme.inkSoft)
                         }
                         .padding(.horizontal, 12)
@@ -521,7 +521,7 @@ struct ObservationEditor: View {
                 )
             }
             Text("How exact")
-                .font(.subheadline)
+                .font(.body)
                 .foregroundStyle(Theme.ink)
             GlassSwitch(choices: [10, 100, 1000], selection: $observation.gridPrecisionMetres) { metres in
                 metres >= 1000 ? "1 km" : "\(metres) m"
@@ -551,7 +551,7 @@ struct ObservationEditor: View {
     private func named<Field: View>(_ label: String, @ViewBuilder field: @escaping () -> Field) -> some View {
         VStack(alignment: .leading, spacing: 5) {
             Text(label)
-                .font(.caption)
+                .font(.footnote)
                 .foregroundStyle(Theme.inkSoft)
             FieldBox(content: field)
         }
@@ -632,10 +632,10 @@ struct ChoiceLabel: View {
             Text(shown)
                 .lineLimit(1)
             Image(systemName: "chevron.up.chevron.down")
-                .font(.caption2.weight(.semibold))
+                .font(.caption.weight(.semibold))
                 .foregroundStyle(Theme.inkSoft)
         }
-        .font(.subheadline)
+        .font(.body)
         .foregroundStyle(Theme.ink)
         .padding(.horizontal, 12)
         .padding(.vertical, 8)

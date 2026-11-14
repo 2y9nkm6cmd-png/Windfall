@@ -311,7 +311,7 @@ struct KnowledgeBaseView: View {
                 } else if !service.progress.isEmpty {
                     Label(service.progress, systemImage: "checkmark.circle")
                         .foregroundStyle(.green)
-                        .font(.callout)
+                        .font(.body)
                 }
             } header: {
                 Text("Documents")
@@ -323,9 +323,9 @@ struct KnowledgeBaseView: View {
                 Section("Indexed") {
                     ForEach(documents) { document in
                         VStack(alignment: .leading, spacing: 2) {
-                            Text(document.title).font(.subheadline)
+                            Text(document.title).font(.body)
                             Text("^[\((document.chunks ?? []).count) passage](inflect: true) · \(document.characterCount.formatted()) characters")
-                                .font(.caption)
+                                .font(.footnote)
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -344,14 +344,14 @@ struct KnowledgeBaseView: View {
                         let hit = testHits[index]
                         VStack(alignment: .leading, spacing: 3) {
                             HStack {
-                                Text(hit.citation).font(.caption.weight(.medium))
+                                Text(hit.citation).font(.footnote.weight(.medium))
                                 Spacer()
                                 Text(String(format: "%.2f", hit.score))
-                                    .font(.caption2.monospacedDigit())
+                                    .font(.caption.monospacedDigit())
                                     .foregroundStyle(.secondary)
                             }
                             Text(hit.chunk.text)
-                                .font(.caption)
+                                .font(.footnote)
                                 .foregroundStyle(.secondary)
                                 .lineLimit(4)
                         }

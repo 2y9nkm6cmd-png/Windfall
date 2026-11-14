@@ -65,6 +65,24 @@ enum Theme {
 
 // MARK: - Text
 
+// WHICH TEXT STYLE FOR WHICH JOB
+// The app never names a size in points. It asks for one of Apple's
+// named styles and the device picks the points, so the words follow the
+// text size chosen in the device's Settings. Since 14 November 2026
+// every job uses the style one step larger than it did. Sizes are for
+// an iPhone or iPad at the standard setting.
+//
+//   Labels: a card's kind line, chips         .caption    12  (was .caption2, 11)
+//   Details: dates, places, Latin names, tags .footnote   13  (was .caption, 12)
+//   List text, buttons, what was written      .body       17  (was .subheadline, 15)
+//   Card headings, names in a list            .title3.weight(.semibold)  20  (was .headline, 17)
+//   Letter headings, a card's large figure    .title2 in the serif       22  (was .title3, 20)
+//   Sheet and panel titles                    .title in the serif        28  (was .title2, 22)
+//   Screen titles                             .screenTitle               34  (unchanged)
+//
+// New screens should follow this table. .caption2, .subheadline,
+// .callout and .headline are no longer used anywhere.
+
 extension Font {
     /// The large serif title at the top of a screen, such as "Today".
     /// Medium weight, not bold, so it stays light on the page.
@@ -302,7 +320,7 @@ struct StatusTag: View {
 
     var body: some View {
         Text(text)
-            .font(.caption)
+            .font(.footnote)
             .foregroundStyle(Theme.ink)
             .padding(.horizontal, 9)
             .padding(.vertical, 4)
