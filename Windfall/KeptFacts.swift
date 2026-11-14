@@ -319,12 +319,16 @@ enum KeptFacts {
     /// A name must appear as whole words, so "pea" is not found in
     /// "pear". One or more plants is allowed for, in either direction:
     /// "carrot" finds Carrots and "apples" finds Apple. When two names
-    /// fit, the longer wins.
+    /// fit, the longer wins. When "Apple" and "Apple (Cider)" both fit
+    /// "apple", the plain one wins: the names are tried shortest first,
+    /// and a later one must be longer to take its place.
     static func plantNamed(in text: String, among names: [String]) -> String? {
         let tidied = EiraSafety.tidied(text)
         var best: String?
         var bestLength = 0
-        for name in Set(names) {
+        // Sorted, so that the answer is the same every time.
+        let inOrder = Set(names).sorted { $0.count != $1.count ? $0.count < $1.count : $0 < $1 }
+        for name in inOrder {
             // "Apple (Cider)" is looked for as "apple".
             let plain = EiraSafety.tidied(withoutBrackets(name)).trimmingCharacters(in: .whitespaces)
             guard plain.count >= 3, plain.count > bestLength else { continue }

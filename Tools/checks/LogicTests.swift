@@ -1408,6 +1408,8 @@ struct LogicTests {
         let whenToPrune = WebText.passages(in: winterPruning, strong: CareTopic.cuttingBack.pageWords, weak: KeptFacts.pageWords(forQuestion: "What does this say about when to prune?"))
         check(whenToPrune.contains("[Quick facts]\nTiming - November to early March") && !whenToPrune.contains("Plums") && !whenToPrune.contains("silver leaf") && !whenToPrune.contains("Secateurs"), "on a page that is all about pruning the question's own words pick the paragraph, a fact with a dash is not a heading, and the teasers for other pages are not read: \(whenToPrune)")
 
+        check(EiraConversation.suggestedWords(from: "Yes, cut away the old leaves to expose the growing points to winter cold\u{2014}this is from the RHS.") == "Cut away the old leaves to expose the growing points to winter cold." && EiraConversation.suggestedWords(from: "Over-pruning\u{2014}especially on tip-bearers\u{2014}may remove fruiting wood.") == "Over-pruning, especially on tip-bearers, may remove fruiting wood." && KeptFacts.plantNamed(in: "How to grow apples", among: ["Apple (Cider)", "Apple (Culinary)", "Apple"]) == "Apple", "a dash that only names the source is cut from the fact to keep, and the plain name wins over one with brackets")
+
         print("   logic tests: \(passes) passed, \(failures) failed")
         exit(failures == 0 ? 0 : 1)
     }

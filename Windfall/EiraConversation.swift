@@ -628,11 +628,17 @@ final class EiraConversation {
         for added in ["\n\nNot checked:", "\n\n" + EiraChecks.nothingSaved] {
             if let range = text.range(of: added) { text = String(text[..<range.lowerBound]) }
         }
-        let oneLine = text.replacingOccurrences(of: "**", with: "")
+        var oneLine = text.replacingOccurrences(of: "**", with: "")
             .split(whereSeparator: \.isNewline)
             .map { $0.trimmingCharacters(in: .whitespaces) }
             .filter { !$0.isEmpty }
             .joined(separator: " ")
+        // "...to winter cold—this is from the RHS." The tail goes, and
+        // any other long dash becomes a comma.
+        oneLine = oneLine.replacingOccurrences(
+            of: "\\s*[\u{2014}\u{2013}-]\\s*(this|that|which) (is|comes|came) from [^.]*",
+            with: "", options: [.regularExpression, .caseInsensitive])
+        oneLine = oneLine.replacingOccurrences(of: "\\s*\u{2014}\\s*", with: ", ", options: .regularExpression)
         let sourceOnly = ["this is from", "this comes from", "this came from", "this advice", "this information",
                           "the advice is from", "the advice comes from", "that is from", "source:"]
         var sentences = EiraChecks.sentences(in: oneLine).filter { sentence in

@@ -295,9 +295,11 @@ extension WebText {
     ///
     /// Returns "" when no line of the page counts.
     static func passages(in text: String, strong: [String], weak: [String] = [], limit: Int = 1100) -> String {
+        // A line with no letter in it is left out: the RHS numbers its
+        // quick facts "1", "2", "3", each on a line of its own.
         let lines = text.components(separatedBy: "\n")
             .map { $0.trimmingCharacters(in: .whitespaces) }
-            .filter { !$0.isEmpty }
+            .filter { line in line.contains { $0.isLetter } }
         let strongWords = strong.map { $0.lowercased() }.filter { !$0.isEmpty }
         let weakWords = weak.map { $0.lowercased() }.filter { !$0.isEmpty }
 

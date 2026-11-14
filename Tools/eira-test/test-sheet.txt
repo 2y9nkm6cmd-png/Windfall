@@ -52,8 +52,10 @@ G3 | Where is my shed?
 # not turn "nothing recorded" into advice. "keep find" presses Keep it on
 # the card H1 should bring up. H2 is a new conversation and should be
 # answered from the plant's own record, saying it was kept from the RHS.
-# H3 hands her a page to read. H needs the internet.
+# H3 hands her a page to read. H4 names no plant, and she should ask
+# which. H needs the internet.
 H1 | After the first big frost, when the rhubarb has wilted, do I need to chop the leaves back?
 keep find
 H2 | Do I need to cut back the rhubarb's leaves in autumn?
 H3 | What does https://www.rhs.org.uk/fruit/apples/winter-pruning say about when to prune?
+H4 | Should I prune?

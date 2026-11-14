@@ -7,6 +7,126 @@ run without the Mac (every file reads as valid Swift, 323 logic tests
 pass). Those do not build the screens. Expect things to put right when
 it is first built, and treat how everything here looks as untried.
 
+## 14 November 2026, 13:45: care questions, the RHS, and keeping what Eira finds
+
+**On the branch `eira-web-finds`, made from `main`.** Built for the Mac and the iOS Simulator with no errors (`wf4-mac.log`, `wf4-sim.log`). 571 logic tests pass. Put to Apple's built-in model through the app, with the example garden and the real RHS website (`eira-care-3.md` in the build logs folder). The screens have been seen as still pictures only.
+
+**Why.** William asked Eira: "After the first big frost, when the rhubarb has wilted, do I need to chop the leaves back?" She searched the plant library, found no pruning advice and answered "You may still leave the leaves until the season's end." The RHS says the opposite. Reading the code turned up three causes:
+
+1. **The plant search never handed over a plant's pruning.** `search_garden` gave the name, sowing months, harvest months and position, and nothing else.
+2. **Rhubarb's Pruning box is empty** in the library, for all three varieties.
+3. **Nothing told her that "nothing recorded" is not advice**, and she could only search Wikipedia, which would not have known.
+
+William then asked for three ways for a fact to reach a plant's record, each kept only when he says so: a web address pasted into the chat, Eira finding the page herself on a trusted site, and a fact typed in by hand. And for a kept fact to go into the right box of the plant's record, and to be checked again after two years.
+
+**What a question now goes through.** Taking the rhubarb question:
+
+1. `EiraChecks.lookupFirst` sees a care word ("chop") in a question and chooses the new lookup `plant_care`. The model is not asked whether to look.
+2. `plant_care` (in `EiraTools.swift`) finds the plant the question names, here Rhubarb, and reads its Pruning box. If the box holds something, that is handed over and the lookup ends.
+3. The box is empty, so the lookup says: "No pruning or cutting back advice is recorded for Rhubarb in the plant library. That means nothing has been written down. It does not mean nothing needs doing."
+4. It then finds the RHS's page for rhubarb (below), picks out the paragraph about cutting back and hands that over too, with the RHS named as a checked source.
+5. The model answers from that. Under its reply a card offers to keep the fact: for Rhubarb, in Pruning, from the RHS.
+6. If **Keep it** is pressed, the words go into the Pruning box of all three rhubarbs, and a small record beside each remembers the RHS, the page's address and the date.
+7. Asked again, step 2 finds the box filled and no website is read.
+
+**New files.**
+
+| File | What it holds |
+|---|---|
+| `KeptFacts.swift` | The record of where a kept value came from (`KeptFact`), the boxes of a plant's record a fact can go into (`PlantField`), the kinds of care question (`CareTopic`) and the rules: which plant, which box, months, the two-year check. No screen code, so all of it is tested |
+| `EiraSources.swift` | The websites Eira knows by name and how far each is trusted, how she finds the RHS's page for a plant, how she remembers which address worked, and how the right paragraph is picked out of a long page |
+| `KeptFactViews.swift` | The card under her reply, the form on a plant's page and the two lists |
+
+**Finding the RHS's page.** The RHS has no search made for programs. But its growing guides sit at addresses made from the plant's name, in several shapes (William: "RHS for example has a few different structure"). These were seen on its site on 14 November 2026:
+
+| Shape | Example |
+|---|---|
+| `/vegetables/<name>/grow-your-own` | rhubarb, carrots, garlic, broad-beans |
+| `/fruit/<name>/grow-your-own` | apples, raspberries, and rhubarb again |
+| `/herbs/<name>/grow-your-own` | mint |
+| `/plants/<name>/growing-guide` | lavender |
+| `/fruit/<name>/<subject>` | `/fruit/apples/winter-pruning`. Not guessed: reached by a pasted address |
+| `/advice/profile?pid=<number>` and `/plants/<number>/<latin-name>/details` | Need the RHS's own number, so they cannot be built from a name. Reached by a pasted address |
+
+```swift
+static func candidates(for name: String, kind: PlantKind) -> [String] {
+    let names = slugs(for: name)
+    ...
+    for section in edible {
+        for slug in names { growYourOwn.append("https://www.rhs.org.uk/\(section)/\(slug)/grow-your-own") }
+    }
+```
+
+- `slugs(for:)` turns a name into the part of an address: "Broad bean" gives `broad-bean` and `broad-beans`. Both are tried because the RHS uses both: `/fruit/apples/` but `/vegetables/rhubarb/`.
+- `edible` is the sections in an order set by the kind of plant, so a fruit tries `/fruit/` first.
+- `"\(section)"` inside a piece of text drops that value into the text. This is how every address here is put together.
+- At most eight addresses are tried. The first whose page title names the plant wins (`RHSFinder.isAbout`). That check matters: a wrong address on the RHS gives a page titled "Page Not Found".
+- `PageMemory` remembers the address that worked, so the next question about rhubarb goes straight there. A plant with no page is remembered too and not tried again for a month.
+
+**Reading a page properly** (`EiraWebLookup.swift`). Four things were wrong or missing, and each was found by putting real RHS pages through the app:
+
+- A page was cut to its first 4,000 characters as it was read. The pruning advice on a growing guide is far below that. `WebPageReader.fetch` now keeps the whole text and `WebText.passages` picks the part that bears on the question.
+- A "not found" page was read as if it were the answer. A site's reply carries a number, 200 for "here it is" and 404 for "no such page", and anything outside 200 to 299 is now treated as no page.
+- The RHS tucks the meaning of a word inside the sentence that uses it, hidden until the word is tapped. Left in, the meaning of "perennial" ("they die back to ground level each autumn") was picked out as pruning advice. Both of the RHS's forms of this are now taken out.
+- At the foot of a page are teasers for other pages. One, about plums, was handed over as advice on apples, and the model answered with the time to prune plums. Reading now stops at "You may also like".
+
+**Which paragraph** (`WebText.passages`). Each line of the page is marked: two marks for a word of the subject ("cut back", "prun", "die back"), two more if its heading holds one, and one for each of the question's own words. On a page that is about the subject from top to bottom, the question's words decide instead. A question that asks when also looks for months and seasons.
+
+**Into the right box** (`KeptFacts.swift`).
+
+```swift
+enum PlantField: String, CaseIterable, Identifiable {
+    case pruning, propagation
+    ...
+    func value(in plant: Plant) -> String? { ... }
+    func set(_ value: String?, in plant: Plant) { ... }
+}
+```
+
+- An `enum` is a fixed list of named choices. This one lists the boxes of a plant's record a fact may go into: 21 of them.
+- `value(in:)` and `set(_:in:)` are the only places that know which property of `Plant` each box is. Everything else says `field.value(in: plant)` and never needs to know.
+- `CaseIterable` gives `PlantField.allCases`, the whole list, which is what the menu on the card shows.
+- The starting choice is made by plain rules from the question (`KeptFacts.field`): "chop", "prune" and "cut back" point to Pruning, "sow" to the sowing months, and anything the rules cannot place goes to Notes. It can be changed on the card.
+- **A box of months takes only months.** "Sow from March to May" is stored as "Mar, Apr, May", because the Year page and the sowing reminders read those boxes. The card shows the months before anything is kept, and a fact naming no month cannot go into such a box.
+- If the box already holds something, the card shows it and offers **Replace** or **Add to it**.
+
+**Where it came from** (`KeptFact`, a new record type). A box holds only its words, so the source lives in a record beside it: the plant, the box, the words, the site, the address, how far the site is trusted, the date, and what the box held before. That last is what makes **Remove** safe: if the box still holds exactly what the fact put there, the old value is put back. If it has been changed by hand since, it is left alone.
+
+**The check after two years.** `KeptFacts.isDue` is true two years after a fact was kept, or after **Still right** was last pressed. A due fact is marked on the plant's page and in the list, and Eira is told it is "over two years ago and due a check" each time she is handed it. She goes on using it.
+
+**The three ways in.**
+
+1. **A pasted address.** `EiraChecks.webAddress` spots a web address in a message. The app then reads that page before the model answers (`EiraConversation.send`), where before it was left to the model to think of it.
+2. **Eira finds it herself.** The `plant_care` lookup above. Only the RHS so far.
+3. **By hand.** A plant's page has a new card, **Kept facts**, with a **Keep a fact** button. The form asks for the fact, the box, and where it was read. Given a web address it recognises the site.
+
+**Where kept facts are seen.** On the plant's page, in the Kept facts card, and as a small green label under the value itself ("RHS, kept Nov 2026"). All together under **Kept facts** in the Options menu of Eira's chat, those due a check first. Each has **Open the source**, **Change it** and **Remove**, and **Still right** once it is due.
+
+**Other changes.**
+
+- `search_garden` now hands over a plant's pruning.
+- "Should I prune?" names no plant. For so short a question about pruning, feeding or dividing, the lookup now tells the model to ask which plant. On the test sheet no model had (doc 29).
+- A page's source line names the site and says how far it is trusted, where before every page was "unverified". The list of sites is `WebSources.all` in `EiraSources.swift`. ⚠️ CHECK: it is Claude's list.
+- Eira's test sheet has a section H for all of this, and `-eiraTestFull YES` writes each lookup out whole.
+
+**Tried with Apple's model** (13:35, `eira-care-3.md`):
+
+| Question | Answer |
+|---|---|
+| The rhubarb question | "cut away the old leaves to expose the growing points to winter cold", from the RHS. The card offered Rhubarb, Pruning, RHS |
+| The same in other words, after Keep it | The same advice, "from your own plant database, kept Nov 2026". No website read |
+| What does `rhs.org.uk/fruit/apples/winter-pruning` say about when to prune? | "every winter, from November to early March" |
+| When should I prune the lavender? | "annually in late summer, just after flowering has finished", from the RHS |
+| Should I prune? | "Which plant are you referring to?" |
+
+**Not done.**
+
+- Only the RHS can be found by name. Gardeners' World and the others on the list can be read from a pasted address.
+- The RHS's terms for an app reading its pages have not been found (doc 36). One page is read when a question needs it, the request says it is Windfall, and nothing is copied or crawled. ⚠️ CHECK before Windfall is ever given to anyone else.
+- The backup file does not carry the kept-fact records. The values themselves are in the plants' records, which it does carry.
+- The card's **Plant** box takes a typed name. It does not yet offer a list to choose from.
+- Nothing here has been tried by hand.
+
 ## 14 November 2026, 12:57: "Sow to crop" was being read as days
 
 **On the branch `sow-to-crop-units`, made from `main` and merged back into it.** 535 logic tests pass.
