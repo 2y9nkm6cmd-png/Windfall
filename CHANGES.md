@@ -85,6 +85,39 @@ withAnimation(reduceMotion ? nil : .snappy(duration: 0.3)) { isOpen.wrappedValue
 
 - The widgets are unchanged. A widget cannot grow.
 - While the cards are being rearranged (jiggling), a heading does not answer a tap, as with everything else inside a card.
+# 14 November 2026, 20:10: plant drawings added to the Design folder
+
+**By the plant graphics chat.** William, 18:15: "Could you create graphics for all the plants I'm growing and have seeds for. Create a graphic for each phase of their life that are relevant." At 19:06: "Make them a bit more detailed and do them all". At 20:06: "Connect to my mac to attach changes to the main file".
+
+**No Swift changed and nothing in the app shows them yet.** This adds files only:
+
+| Where | What |
+|---|---|
+| `Design/Plants/light`, `Design/Plants/dark` | 908 drawings in each: 172 kinds of plant at each stage of life that applies |
+| `Design/Plants/plant-drawings.json` | Each kind, its stages and labels, and the library names that use it |
+| `Design/Plants/README.md` | What the files are and how to make them again |
+| `Tools/design/plant_kit.py`, `plants.py`, `plants_all.py` | The code that draws them. Needs only Python |
+
+**Shading**, at William's word of 20:08 ("If the diagrams need shadowing to make them look more realistic and understandable you could add shading"): every rounded shape has a soft crescent of shade on its lower right, stems and trunks a band down one side, leaves a darker half, and each plant a faint shadow on the soil. It is one named colour, `shade`, laid thinly over the others, so it darkens in light and in dark mode.
+
+**They are a first pass and William has not approved them.** Ten kinds are drawn by hand and 162 are built from templates with Claude's own settings for each plant, none yet checked. Project docs 58 and 59.
+
+**Not done:** showing a drawing on a plant's card or page. That is Swift work for a chat that builds.
+# 14 November 2026, 19:40: Eira's open bar is more solid
+
+**By the "bar opacity" chat, on the branch `eira-bar-opaque`. In `main` since 20:40. It builds for the simulator (`bo1-sim.log`, 20:31). Not yet seen on any device.**
+
+William, 19:34, with a picture of the Journal page on his iPhone: the day's entries and photos showed through the open bar and ran into "Tell Eira". "Could you make Eira's bar more opaque".
+
+**What changed.** One file, `EiraFloatingBar.swift`.
+
+- The open bar now has a layer of the paper's colour inside its glass:
+  `.background(Theme.paper.opacity(expanded ? Self.barFill : 0), in: .capsule)`.
+  `.background(..., in: .capsule)` paints a colour behind the bar's buttons and words, in the bar's own pill shape. `Theme.paper` is the page's colour, so it is cream in light mode and dark green in dark mode. `.opacity(...)` sets how solid it is. `expanded ? x : 0` means "x when the bar is open, otherwise 0", so the closed snowdrop keeps its clear glass.
+- `barFill` is a new named number, 0.85. 0 is clear glass and 1 is solid paper. It is the one number to change if the bar should be more or less solid.
+- The glass itself is untouched, so the bar keeps its rim and its shine when pressed.
+
+**⚠️ CHECK:** 0.85 is Claude's choice. It needs a build and a look in light and dark mode.
 
 # 14 November 2026, 18:40: seven branches joined into main
 
