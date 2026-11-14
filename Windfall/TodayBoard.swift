@@ -211,7 +211,8 @@ struct TodayBoardLayout: Layout {
     // compiler cannot see, and the app's own types (the panels, the
     // plan) are marked as main-thread only. `MainActor.assumeIsolated`
     // says "this is the main thread" so they can be used. If it ever
-    // were not, the app would stop here and say so.
+    // were not, the app would stop here and say so. The two helpers
+    // below are marked `@MainActor` for the same reason.
 
     func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
         MainActor.assumeIsolated {
@@ -226,7 +227,7 @@ struct TodayBoardLayout: Layout {
         }
     }
 
-    private func place(_ subviews: Subviews, in bounds: CGRect) {
+    @MainActor private func place(_ subviews: Subviews, in bounds: CGRect) {
         let plan = plan(width: bounds.width, subviews: subviews)
         session.plan = plan
 
@@ -263,7 +264,7 @@ struct TodayBoardLayout: Layout {
 
     /// The places, for a board this wide. Each card is asked how tall
     /// it wants to be at the width its zone gives it.
-    private func plan(width: CGFloat, subviews: Subviews) -> TodayBoardPlan {
+    @MainActor private func plan(width: CGFloat, subviews: Subviews) -> TodayBoardPlan {
         var cards: [TodayPanel: LayoutSubview] = [:]
         for subview in subviews {
             if case .card(let panel) = subview[BoardRoleKey.self] { cards[panel] = subview }
