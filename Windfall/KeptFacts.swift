@@ -605,6 +605,26 @@ struct KeptFactStore {
         return putBack
     }
 
+    /// A checking aid: keeps two example facts for the example
+    /// garden's rhubarb, one of them old enough to be due a check, so
+    /// that still pictures can be taken of the cards and the list.
+    /// Only ever called for the example garden, whose records live in
+    /// memory. Does nothing if anything is already kept.
+    func keepExamples(asOf: Date = .now) {
+        guard all().isEmpty else { return }
+        let everyPlant = (try? context.fetch(FetchDescriptor<Plant>())) ?? []
+        let rhubarbs = everyPlant.filter { $0.commonName == "Rhubarb" }
+        guard let oneRhubarb = rhubarbs.first else { return }
+        keep(words: "Let the leaves die back in autumn, then cut the old ones away so that the winter cold reaches the crown.",
+             in: .pruning, of: rhubarbs, how: .add, sourceName: "RHS",
+             sourceAddress: "https://www.rhs.org.uk/vegetables/rhubarb/grow-your-own", trust: .checked,
+             question: "Do I need to chop the rhubarb's leaves back after a frost?", on: asOf)
+        keep(words: "Split the crown every five years or so, in late autumn, to keep it cropping well.",
+             in: .propagation, of: [oneRhubarb], how: .add, sourceName: "The Fruit Garden Displayed",
+             sourceAddress: nil, trust: .ownReading,
+             on: asOf.addingTimeInterval(-86_400 * 800))
+    }
+
     /// "Still right": the fact stands for another two years.
     func markChecked(_ fact: KeptFact, on date: Date = .now) {
         fact.checkedAt = date

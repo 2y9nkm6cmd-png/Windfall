@@ -323,7 +323,10 @@ struct EiraChatView: View {
             // `eira-find` shows the card that offers to keep what she
             // read online, and `kept-facts` the list of what is kept.
             if DemoGarden.opens == "eira-find" { conversation.showExampleFind() }
-            if DemoGarden.opens == "kept-facts" { showingKeptFacts = true }
+            if DemoGarden.opens == "kept-facts" {
+                KeptFactStore(context: context).keepExamples()
+                showingKeptFacts = true
+            }
             if DemoGarden.opens == "eira" || DemoGarden.opens == "corrections" {
                 let listed = DemoGarden.opens == "corrections"
                 conversation.showExample(in: EiraChatStore(context: context), kept: listed)

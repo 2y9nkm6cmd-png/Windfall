@@ -540,6 +540,9 @@ struct PlantDetailView: View {
             if DemoGarden.opens == "plantSowing" { adding = .sowing }
             if DemoGarden.opens == "plantPlanting" { adding = .planting }
             if DemoGarden.opens == "keepFact" { isKeepingFact = true }
+            // `-demoOpen keptFacts` shows the page with two example
+            // facts already kept.
+            if DemoGarden.opens == "keptFacts" { KeptFactStore(context: context).keepExamples() }
         }
     }
 
