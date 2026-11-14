@@ -856,50 +856,8 @@ struct LensRefraction: ViewModifier, Animatable {
 
 // The Gardens and Wildlife pages are in HubScreens.swift.
 
-// MARK: - More
-
-struct MoreTab: View {
-    /// A checking aid: `-startSection more -demoCorner YES` opens the
-    /// corner drawing's preview at once, so a picture can be taken of it.
-    @State private var showsCornerPreview = UserDefaults.standard.bool(forKey: "demoCorner")
-
-    var body: some View {
-        List {
-            NavigationLink { UniversalSearchView() } label: {
-                Label("Search everything", systemImage: "magnifyingglass")
-            }
-            NavigationLink { KnowledgeBaseView() } label: {
-                Label("Knowledge base", systemImage: "brain")
-            }
-            NavigationLink { ChartsView() } label: {
-                Label("Charts", systemImage: "chart.xyaxis.line")
-            }
-            NavigationLink { ExportView() } label: {
-                Label("Export records", systemImage: "square.and.arrow.up")
-            }
-            NavigationLink { NotificationSettingsView() } label: {
-                Label("Reminders", systemImage: "bell")
-            }
-            NavigationLink { VoiceSettingsView() } label: {
-                Label("Voice", systemImage: "mic")
-            }
-            NavigationLink { BackupView() } label: {
-                Label("Backup", systemImage: "externaldrive")
-            }
-            // Every month of the drawing in Today's corner, with the
-            // wind and the weather to try. See LivingCorner.swift.
-            NavigationLink { CornerPreviewView() } label: {
-                Label("Corner drawing", systemImage: "leaf")
-            }
-            NavigationLink { SettingsView() } label: {
-                Label("Settings", systemImage: "gear")
-            }
-        }
-        .navigationTitle("Settings and tools")
-        .paperScreen()
-        .navigationDestination(isPresented: $showsCornerPreview) { CornerPreviewView() }
-    }
-}
+// The Settings and tools page (`MoreTab`) is in HubScreens.swift too,
+// since 14 November 2026.
 
 // MARK: - Settings
 

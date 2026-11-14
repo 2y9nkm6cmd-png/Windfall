@@ -260,6 +260,39 @@ final class ExportService {
     }
 }
 
+// MARK: - What is waiting to be sent
+
+/// How many records are ready to go to a recording scheme and have not
+/// been sent yet.
+///
+/// Kept in one place so that the Export page and the tile that leads to
+/// it (on the Settings and tools page) can never give different numbers.
+/// An `enum` with no cases is used here as a labelled box for functions:
+/// nothing is ever made from it, the functions are called on its name,
+/// as in `ExportWaiting.sightings(...)`.
+enum ExportWaiting {
+
+    /// Sightings not yet sent to iRecord that pass every check.
+    static func sightings(_ observations: [WildlifeObservation]) -> Int {
+        observations.filter { !$0.submittedToIRecord && $0.isReadyForSubmission }.count
+    }
+
+    /// FIT Counts not yet sent that pass every check.
+    static func fitCounts(_ surveys: [Survey]) -> Int {
+        surveys.filter { $0.scheme == .fitCount && !$0.submitted && $0.isReadyForSubmission }.count
+    }
+
+    /// Earthworm counts not yet sent.
+    static func wormCounts(_ surveys: [Survey]) -> Int {
+        surveys.filter { $0.scheme == .earthwormCount && !$0.submitted }.count
+    }
+
+    /// All three added together.
+    static func total(sightings observations: [WildlifeObservation], surveys: [Survey]) -> Int {
+        sightings(observations) + fitCounts(surveys) + wormCounts(surveys)
+    }
+}
+
 // MARK: - Export screen
 
 import SwiftUI
@@ -274,13 +307,9 @@ struct ExportView: View {
     @State private var result: ExportResult?
     @State private var shareURL: URL?
 
-    private var pendingObservations: Int {
-        observations.filter { !$0.submittedToIRecord && $0.isReadyForSubmission }.count
-    }
+    private var pendingObservations: Int { ExportWaiting.sightings(observations) }
 
-    private var pendingFITCounts: Int {
-        surveys.filter { $0.scheme == .fitCount && !$0.submitted && $0.isReadyForSubmission }.count
-    }
+    private var pendingFITCounts: Int { ExportWaiting.fitCounts(surveys) }
 
     var body: some View {
         Form {
@@ -298,7 +327,7 @@ struct ExportView: View {
                 }
 
                 exportRow("Earthworm counts",
-                          count: surveys.filter { $0.scheme == .earthwormCount && !$0.submitted }.count,
+                          count: ExportWaiting.wormCounts(surveys),
                           systemImage: "chart.bar.doc.horizontal") {
                     try service.exportEarthwormCounts(surveys)
                 }
