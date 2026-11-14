@@ -760,7 +760,9 @@ struct TodayView: View {
             var due: Date?
             if planting.status == .growing || planting.status == .plantedOut,
                let sown = planting.dateSown,
-               let days = RangeParser.midpoint(in: planting.plant?.sowToCropText) {
+               // Sow to crop is written in weeks or months. DurationParser
+               // turns it into days. See Parsing.swift.
+               let days = DurationParser.days(in: planting.plant?.sowToCropText)?.midpoint {
                 let ready = sown.addingTimeInterval(days * 86_400)
                 if ready <= soon { due = ready }
             }
@@ -878,7 +880,7 @@ struct TodayView: View {
         let due = plantings.filter { planting in
             guard planting.status == .growing || planting.status == .plantedOut,
                   let sown = planting.dateSown,
-                  let days = RangeParser.midpoint(in: planting.plant?.sowToCropText) else { return false }
+                  let days = DurationParser.days(in: planting.plant?.sowToCropText)?.midpoint else { return false }
             return sown.addingTimeInterval(days * 86_400) <= Date.now.addingTimeInterval(14 * 86_400)
         }
         for planting in due.prefix(3) {

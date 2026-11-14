@@ -7,6 +7,30 @@ run without the Mac (every file reads as valid Swift, 323 logic tests
 pass). Those do not build the screens. Expect things to put right when
 it is first built, and treat how everything here looks as untried.
 
+## 14 November 2026, 13:05: "Sow to crop" was being read as days
+
+**On the branch `sow-to-crop-units`, made from `main` and merged back into it.** 535 logic tests pass.
+
+**What was wrong.** Found while reading the plant page's code, not asked for. Every "Sow to crop" figure in the spreadsheet is written in weeks or months: 89 in weeks, 6 in months, none in days. The app took the number and called it days. Garlic's "20 weeks (typical)" was shown on its page as "Sow to crop: 20 days". Worse, Today works out when a crop is due from the same figure, so it would have offered "Harvest garlic" twenty days after planting.
+
+**What changed.**
+
+1. `DurationParser`, new in `Parsing.swift`, reads the unit as well as the number:
+
+   ```swift
+   DurationParser.days(in: "12-16 weeks")      // 84 to 112 days
+   DurationParser.describe("12-16 weeks")      // "12–16 weeks"
+   DurationParser.describe("14")               // "14 days": no unit named means days
+   ```
+
+   It looks for the first unit named in the text (day, week or wk, month or mth, year or yr) and uses only the numbers written before it, so "12 weeks (84 days)" is 12 weeks and not "12 to 84". A week is 7 days, a month a twelfth of a year.
+2. A plant's page shows the figure in its own unit: "20 weeks", "9–12 months" (`PlantPage.swift`).
+3. Today's two harvest reminders turn it into days properly before adding it to the sowing date (`TodayView.swift`).
+
+Germination was not affected. Its column is in days.
+
+**A test reads the real library**: every sow-to-crop figure in it must come out as weeks or months, and none shorter than a fortnight. If a figure is ever written another way, that test will say so.
+
 ## 14 November 2026, 12:50: a sowing or a planting, added from the plant's own page
 
 **On the branch `plant-page-plantings`, made from `main` and merged back into it.** Built for the Mac and the iOS Simulator with no errors (`r33-mac.log`, `r33-sim.log`). 531 logic tests pass. Looked at running in the iPad simulator with the example garden, light and dark.
