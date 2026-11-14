@@ -151,11 +151,15 @@ enum PlantPage {
     /// same height. Each card in turn goes to whichever column is
     /// shorter so far, so the order down each column stays the
     /// spreadsheet's order.
-    static func twoColumns(_ cards: [FactCard]) -> (left: [FactCard], right: [FactCard]) {
+    ///
+    /// `rightHeadStart` is the height, in rows, of anything the page has
+    /// already put at the top of the right-hand column: the sowings and
+    /// plantings card. The sharing-out counts it as already there.
+    static func twoColumns(_ cards: [FactCard], rightHeadStart: Int = 0) -> (left: [FactCard], right: [FactCard]) {
         var left: [FactCard] = []
         var right: [FactCard] = []
         var leftWeight = 0
-        var rightWeight = 0
+        var rightWeight = rightHeadStart
         for factCard in cards {
             if leftWeight <= rightWeight {
                 left.append(factCard)
@@ -209,6 +213,13 @@ enum PlantPage {
                                     detail: bits.joined(separator: " · "),
                                     status: statusWords(planting.status))
             }
+    }
+
+    /// Roughly how tall the sowings and plantings card is, in rows: its
+    /// title, two rows for each line and the row of buttons. With none
+    /// it has one line saying so. Used as the head start in `twoColumns`.
+    static func plantingsCardWeight(lines: Int) -> Int {
+        4 + max(lines, 1) * 2
     }
 
     /// A planting's stage in a word or two.

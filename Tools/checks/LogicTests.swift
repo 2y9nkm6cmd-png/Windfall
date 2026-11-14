@@ -526,6 +526,8 @@ struct LogicTests {
         let achilleaLines = PlantPage.plantingLines(for: pageAchillea)
         check(achilleaLines.map(\.verb) == ["Planted", "Planted", "Sown", "On record"] && achilleaLines.map(\.id) == [potPlanting.id, onePlant.id, springSowing.id, oldRecord.id], "a plant's page lists its sowings and plantings newest first, and one with no date goes by the day it was put on record")
         check(achilleaLines[0].detail == "\(herbBed.orderedSections[0].fullLabel) · 3 plants" && achilleaLines[1].detail == "Not placed · 1 plant" && achilleaLines[2].detail == "Not placed · 30 seeds · round 2" && achilleaLines[3].detail == "Not placed" && achilleaLines[3].date == nil, "each line says where and how many, counting plants for a planting and seeds for a sowing")
+        let headStarted = PlantPage.twoColumns(garlicCards, rightHeadStart: PlantPage.plantingsCardWeight(lines: 4))
+        check(headStarted.left.count > sharedCards.left.count && headStarted.left.count + headStarted.right.count == garlicCards.count && PlantPage.plantingsCardWeight(lines: 0) == PlantPage.plantingsCardWeight(lines: 1) && PlantPage.plantingsCardWeight(lines: 3) > PlantPage.plantingsCardWeight(lines: 1), "the sowings and plantings card at the top of the right-hand column counts towards that column's height, so more of the fact cards go left")
         check(achilleaLines.map(\.status) == ["Growing", "Growing", "Finished", "Growing"] && PlantingStatus.allCases.allSatisfy { !PlantPage.statusWords($0).isEmpty } && PlantPage.statusWords(.germinated) == "Up" && PlantPage.plantingLines(for: Plant(commonName: "Aster")).isEmpty, "each line gives the stage in a word or two, and a plant never sown has no lines")
 
         // Friends, enemies and pests from the companion matrix

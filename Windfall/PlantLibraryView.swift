@@ -450,8 +450,15 @@ struct PlantDetailView: View {
                 VStack(alignment: .leading, spacing: 16) {
                     header
 
+                    // The sowings and plantings card comes first: at the
+                    // top of the right-hand column when there are two,
+                    // and straight under the name when there is one. It
+                    // is the plant in this garden, and it holds the two
+                    // buttons, so it should not sit below a screen of
+                    // facts.
                     if isWide {
-                        let sides = PlantPage.twoColumns(cards)
+                        let headStart = PlantPage.plantingsCardWeight(lines: plant.plantings?.count ?? 0)
+                        let sides = PlantPage.twoColumns(cards, rightHeadStart: headStart)
                         HStack(alignment: .top, spacing: 14) {
                             VStack(spacing: 14) {
                                 ForEach(sides.left) { PlantFactCardView(factCard: $0) }
@@ -459,15 +466,15 @@ struct PlantDetailView: View {
                                 pestsCard
                             }
                             VStack(spacing: 14) {
-                                ForEach(sides.right) { PlantFactCardView(factCard: $0) }
                                 plantingsCard
+                                ForEach(sides.right) { PlantFactCardView(factCard: $0) }
                             }
                         }
                     } else {
+                        plantingsCard
                         ForEach(cards) { PlantFactCardView(factCard: $0) }
                         companionsLink
                         pestsCard
-                        plantingsCard
                     }
                 }
                 .padding(.horizontal, 16)
