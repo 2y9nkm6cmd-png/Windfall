@@ -44,8 +44,9 @@ import CoreAILanguageModels
 enum EiraEngineFactory {
 
     static func make(choice: EiraModelChoice, hub: EiraToolHub) async throws -> EiraEngine {
-        // The 12GB rule comes first. Below it, no model is loaded at all.
-        guard DeviceCapability.canRunEira() else {
+        // The 12GB rule comes first. Below it, no downloaded model is
+        // loaded. Apple's built-in model is not held to it.
+        guard DeviceCapability.canRun(choice.kind) else {
             throw EiraEngineError.deviceBelowMinimum(DeviceCapability.memoryDescription())
         }
 
@@ -56,6 +57,24 @@ enum EiraEngineFactory {
         #endif
 
         throw EiraEngineError.needsNewerSystem
+    }
+
+    /// Whether this device has Apple's built-in model ready to use. Asked
+    /// of the system, which says no on a device without Apple Intelligence
+    /// or with it switched off.
+    static var builtInModelIsAvailable: Bool {
+        #if canImport(FoundationModels) && canImport(CoreAI)
+        if #available(iOS 27.0, macOS 27.0, *) {
+            return SystemLanguageModel.default.isAvailable
+        }
+        #endif
+        return false
+    }
+
+    /// Whether Eira has any model she could use on this device: either
+    /// there is the memory for a downloaded one, or Apple's is here.
+    static var deviceCanRunEira: Bool {
+        DeviceCapability.canRunDownloadedModels() || builtInModelIsAvailable
     }
 }
 

@@ -126,7 +126,22 @@ It is right more often and sure more often, and so it is also sure more often wh
 **For William to check.** ⚠️ CHECK: the genus list and the wording of the warning are Claude's, from general knowledge and not from a field guide. The warning reads: "Take care: this may be one of the carrot family. That family holds deadly plants, hemlock and hemlock water-dropwort among them, that look much like cow parsley, wild carrot, wild celery and parsley. A photo cannot tell them apart safely. If you did not sow it yourself, do not eat any part of it on the strength of this, and wear gloves to handle it: giant hogweed, of the same family, burns the skin." It will also show on photos of your own carrots, parsley, fennel and parsnips, which is why it says "if you did not sow it yourself".
 
 **Not done.** Other dangerous pairs: wild garlic with lords-and-ladies and lily of the valley, comfrey with foxglove. Each needs a checked list first. The "not sure" level (0.85) was set for the older model and should be set again for this one from William's own photos (doc 30).
-## 14 November 2026, 12:25: Find in the Edit menu, and the search box takes the cursor
+## 14 November 2026, 12:24: the 12GB rule no longer stops Apple's built-in model
+
+**On the branch `search-collapse`.** Built for the Mac and the simulator with no errors (`search7-mac.log`, `search7-sim.log`). The seven checks of the rule were run on the Mac on their own and pass. The full logic tests were not run. **Not tried on an 8GB device. Nothing here has been.**
+
+**Why.** William asked whether 8GB devices could have Eira on a smaller model. They could not have her at all: the rule refused every model on a device under 12GB. But the 12GB figure was sized for a downloaded model of about 8B, which Windfall holds in its own memory. Apple's built-in model is run by the system, and it is Eira's default. William agreed that smaller devices should have Eira on it.
+
+1. **`DeviceCapability` in `EiraEngine.swift`.** `canRunEira` is now `canRunDownloadedModels`, the same sum under a truer name. A new `canRun(_ kind:)` answers for one kind of model: always yes for Apple's built-in, the 12GB rule for a Core AI or MLX model.
+2. **`EiraEngineFactory` in `EiraOnDeviceEngine.swift`.** It applies the rule to the model that is chosen, not to the device as a whole. Two new values: `builtInModelIsAvailable`, which asks the system whether Apple's model is on this device and ready, and `deviceCanRunEira`, true if there is the memory for a downloaded model or Apple's is here.
+3. **Eira's bar** (`EiraFloatingBar.swift`) opens Eira when `deviceCanRunEira` is true. On a device with neither, it still falls back to plain search, as before.
+4. **The wording.** Choosing a downloaded model on a small device now says to choose Apple's built-in model in Eira's settings. The Memory line in her settings says which case this device is in.
+
+**CHECK.** That Apple's built-in model is offered on 8GB devices such as the iPhone 15 Pro and iPad mini 7, and that the system runs it outside the app's memory, is Claude's understanding and was not looked up or tried. The code does not rely on it: it asks the system, and a device without the model is treated as before.
+
+**Not done.** A small model of our own for these devices, such as a 2B or 4B Qwen trained on Eira's habits. It would need its own, lower memory line, set by trying it on a real device.
+
+## 14 November 2026, 12:22: Find in the Edit menu, and the search box takes the cursor
 
 **On the branch `search-collapse`.** Built for the Mac with no errors (`search5-mac.log`). Checked in a test copy with the example garden, without bringing it to the front: Edit, Find opens the box and the cursor is in it. The glass closes an empty box and opens it again with the cursor in it. Seven letters sent as key presses arrived in the box and the cross appeared. Escape emptied and closed it. **Not tried**: Command-F pressed on a real keyboard, and clicking away from the box.
 

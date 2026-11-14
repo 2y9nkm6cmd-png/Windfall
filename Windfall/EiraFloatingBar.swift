@@ -314,7 +314,7 @@ struct EiraFloatingBar: View {
             question = ""
             return
         }
-        if DeviceCapability.canRunEira() {
+        if EiraEngineFactory.deviceCanRunEira {
             openEira(with: text)
         } else {
             search()

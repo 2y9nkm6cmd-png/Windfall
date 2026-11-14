@@ -731,8 +731,10 @@ struct EiraSettingsView: View {
             Form {
                 Section {
                     LabeledContent("This device", value: DeviceCapability.memoryDescription())
-                    if !DeviceCapability.canRunEira() {
-                        Label("Eira needs at least \(DeviceCapability.minimumMemoryGB)GB. The rest of Windfall works as normal.",
+                    if !DeviceCapability.canRunDownloadedModels() {
+                        Label(EiraEngineFactory.builtInModelIsAvailable
+                              ? "A downloaded model needs at least \(DeviceCapability.minimumMemoryGB)GB. On this device Eira uses Apple's built-in model."
+                              : "A downloaded model needs at least \(DeviceCapability.minimumMemoryGB)GB, and Apple's built-in model is not available on this device. The rest of Windfall works as normal.",
                               systemImage: "exclamationmark.circle")
                             .font(.callout)
                             .foregroundStyle(.orange)

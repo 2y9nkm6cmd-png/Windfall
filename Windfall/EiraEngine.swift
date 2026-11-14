@@ -9,7 +9,7 @@
 //
 //    - the shapes of a chat message and of the pieces a reply arrives in
 //    - EiraEngine, the one interface the chat screen talks to
-//    - the 12GB rule that decides whether a device can run Eira
+//    - the 12GB rule that decides which models a device can run
 //    - the choice of model, and where downloaded models are kept
 //
 //  The engine that actually runs a model is in EiraOnDeviceEngine.swift.
@@ -115,7 +115,7 @@ enum EiraEngineError: LocalizedError, Equatable {
     var errorDescription: String? {
         switch self {
         case .deviceBelowMinimum(let memory):
-            return "Eira needs a device with at least \(DeviceCapability.minimumMemoryGB)GB of memory. This one has \(memory). The rest of Windfall works as normal."
+            return "A downloaded model needs a device with at least \(DeviceCapability.minimumMemoryGB)GB of memory. This one has \(memory). Choose Apple's built-in model in Eira's settings instead. The rest of Windfall works as normal."
         case .needsNewerSystem:
             return "Eira's on-device models need iOS 27, iPadOS 27 or macOS 27, and the app built with Xcode 27."
         case .builtInModelUnavailable:
@@ -132,8 +132,14 @@ enum EiraEngineError: LocalizedError, Equatable {
 
 // MARK: - The 12GB rule
 
-/// Eira's models only run on devices with at least 12GB of memory.
-/// Smaller devices run the rest of Windfall without her.
+/// A model Windfall downloads and loads into its own memory (a Core AI or
+/// MLX model) only runs on devices with at least 12GB. The figure was
+/// sized for a model of about 8B, which needs 6 to 8GB to itself.
+///
+/// Apple's built-in model is not held to it (William, 14 November 2026).
+/// The system runs that model, outside Windfall's own memory, and Apple
+/// decides which devices have it. So a smaller device that has it gets
+/// Eira on that model. Until this change the rule stopped every model.
 enum DeviceCapability {
 
     static let minimumMemoryGB = 12
@@ -143,10 +149,27 @@ enum DeviceCapability {
     /// 10.5 sits safely between the two.
     static let minimumReportedBytes: UInt64 = 10_500 * 1024 * 1024
 
-    static func canRunEira(
+    /// The 12GB rule itself.
+    static func canRunDownloadedModels(
         physicalMemory: UInt64 = ProcessInfo.processInfo.physicalMemory
     ) -> Bool {
         physicalMemory >= minimumReportedBytes
+    }
+
+    /// Whether this device's memory allows a given kind of model. For
+    /// Apple's built-in model the answer is always yes here. Whether the
+    /// device actually has that model is a separate question, asked of
+    /// the system when the model is loaded.
+    static func canRun(
+        _ kind: EiraModelChoice.Kind,
+        physicalMemory: UInt64 = ProcessInfo.processInfo.physicalMemory
+    ) -> Bool {
+        switch kind {
+        case .appleBuiltIn, .online:
+            return true
+        case .coreAI, .mlx:
+            return canRunDownloadedModels(physicalMemory: physicalMemory)
+        }
     }
 
     /// The device's memory rounded to the size it is sold as.

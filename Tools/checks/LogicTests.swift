@@ -54,10 +54,13 @@ struct LogicTests {
     static func main() async {
         // The 12GB rule
         let gib: UInt64 = 1024 * 1024 * 1024
-        check(!DeviceCapability.canRunEira(physicalMemory: 8 * gib), "an 8GB device cannot run Eira")
-        check(!DeviceCapability.canRunEira(physicalMemory: UInt64(7.5 * Double(gib))), "a device reporting 7.5GB cannot run Eira")
-        check(DeviceCapability.canRunEira(physicalMemory: UInt64(11.3 * Double(gib))), "a 12GB device reporting 11.3GB can run Eira")
-        check(DeviceCapability.canRunEira(physicalMemory: 24 * gib), "a 24GB Mac can run Eira")
+        check(!DeviceCapability.canRunDownloadedModels(physicalMemory: 8 * gib), "an 8GB device cannot run a downloaded model")
+        check(!DeviceCapability.canRunDownloadedModels(physicalMemory: UInt64(7.5 * Double(gib))), "a device reporting 7.5GB cannot run a downloaded model")
+        check(DeviceCapability.canRunDownloadedModels(physicalMemory: UInt64(11.3 * Double(gib))), "a 12GB device reporting 11.3GB can run a downloaded model")
+        check(DeviceCapability.canRunDownloadedModels(physicalMemory: 24 * gib), "a 24GB Mac can run a downloaded model")
+        check(DeviceCapability.canRun(.appleBuiltIn, physicalMemory: 8 * gib), "the 12GB rule does not stop Apple's built-in model on an 8GB device")
+        check(!DeviceCapability.canRun(.coreAI, physicalMemory: 8 * gib) && !DeviceCapability.canRun(.mlx, physicalMemory: 8 * gib), "the 12GB rule still stops both kinds of downloaded model on an 8GB device")
+        check(DeviceCapability.canRun(.coreAI, physicalMemory: 24 * gib) && DeviceCapability.canRun(.mlx, physicalMemory: 24 * gib), "a 24GB Mac can run both kinds of downloaded model")
         check(DeviceCapability.memoryDescription(physicalMemory: UInt64(11.3 * Double(gib))) == "11GB"
               || DeviceCapability.memoryDescription(physicalMemory: UInt64(11.6 * Double(gib))) == "12GB", "memory is described in whole GB")
 
