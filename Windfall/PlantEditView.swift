@@ -82,6 +82,13 @@ struct PlantEditView: View {
                 .task {
                     if opensAt != .naming { scroller.scrollTo(opensAt, anchor: .top) }
                 }
+                // A checking aid, for the example garden only: types
+                // the changes named when the app was started, and saves
+                // them if asked. See DemoGarden.typedEdits.
+                .onAppear {
+                    for (key, text) in DemoGarden.typedEdits { values[key] = text }
+                    if DemoGarden.savesTypedEdits { save() }
+                }
             }
         }
         // With changes typed, swiping the sheet down does not close it.
@@ -122,7 +129,7 @@ struct PlantEditView: View {
                     ForEach(shortFields) { factField in
                         labelled(factField) {
                             HStack(spacing: 6) {
-                                TextField(factField.hint, text: typed(factField.key))
+                                TextField(example(factField), text: typed(factField.key))
                                 // A measurement has its unit beside the
                                 // box, so only the figure is typed.
                                 if case .measure(let unit) = factField.kind {
@@ -139,7 +146,7 @@ struct PlantEditView: View {
                 labelled(factField) {
                     // `axis: .vertical` lets the box grow downwards as
                     // more is typed, from one line up to eight.
-                    TextField(factField.hint, text: typed(factField.key), axis: .vertical)
+                    TextField(example(factField), text: typed(factField.key), axis: .vertical)
                         .lineLimit(1...8)
                 }
             }
@@ -173,6 +180,12 @@ struct PlantEditView: View {
     private func typed(_ key: String) -> Binding<String> {
         Binding(get: { values[key] ?? "" },
                 set: { values[key] = $0 })
+    }
+
+    /// The grey words in an empty box. They begin "e.g." so that an
+    /// example is never taken for something the record holds.
+    private func example(_ factField: PlantFacts.Field) -> String {
+        factField.hint.isEmpty ? "" : "e.g. \(factField.hint)"
     }
 
     /// A fact's name in small soft letters above its box.

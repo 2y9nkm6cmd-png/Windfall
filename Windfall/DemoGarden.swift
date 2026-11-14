@@ -68,9 +68,34 @@ enum DemoGarden {
     ///
     /// `plantSowing` and `plantPlanting`, with `-demoPlant Achillea`,
     /// open the sowing form from that plant's page: the first on seed,
-    /// the second on plants.
+    /// the second on plants. `plantEdit` opens the sheet that edits the
+    /// plant's facts, and `plantEditSowing` opens it at its sowing card.
     static var opens: String? {
         isRequested ? UserDefaults.standard.string(forKey: "demoOpen") : nil
+    }
+
+    /// A checking aid: `-demoEdit "spacingM=0.5|notes=Cut back in March"`
+    /// types those into the sheet that edits a plant as it opens, so a
+    /// still picture can show changes waiting to be saved. Each piece
+    /// is a fact's key from PlantFacts.swift, an equals sign and the
+    /// text. The example garden's records live in memory, so nothing
+    /// real is changed.
+    static var typedEdits: [String: String] {
+        guard isRequested, let written = UserDefaults.standard.string(forKey: "demoEdit") else { return [:] }
+        var found: [String: String] = [:]
+        for piece in written.split(separator: "|") {
+            // `maxSplits: 1` cuts at the first equals sign only, so the
+            // text itself may hold one.
+            let halves = piece.split(separator: "=", maxSplits: 1, omittingEmptySubsequences: false)
+            if halves.count == 2 { found[String(halves[0])] = String(halves[1]) }
+        }
+        return found
+    }
+
+    /// With `-demoEditSave YES` the changes above are saved at once and
+    /// the sheet closes, so a still can show the page afterwards.
+    static var savesTypedEdits: Bool {
+        isRequested && UserDefaults.standard.bool(forKey: "demoEditSave")
     }
 
     /// A checking aid: `-demoMatch YES` makes the Identify screen show a
