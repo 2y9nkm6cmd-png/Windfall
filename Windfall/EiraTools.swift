@@ -339,12 +339,9 @@ struct ToolRunner {
 
     private func searchGarden(_ query: String) -> ToolResult {
         let plants = (try? context.fetch(FetchDescriptor<Plant>())) ?? []
-        let needle = query.lowercased()
 
         let matches = plants.filter {
-            $0.commonName.lowercased().contains(needle)
-                || ($0.latinName?.lowercased().contains(needle) ?? false)
-                || ($0.group?.lowercased().contains(needle) ?? false)
+            ToolRunner.plantMatches(asked: query, texts: [$0.commonName, $0.variety, $0.latinName, $0.group])
         }.prefix(6)
 
         guard !matches.isEmpty else {
@@ -364,6 +361,36 @@ struct ToolRunner {
 
         return ToolResult(text: described.joined(separator: "\n"),
                           source: "user's plant database")
+    }
+
+    /// Whether a plant answers a search of the plant database.
+    ///
+    /// Every word asked for must be somewhere in the plant's name,
+    /// variety, Latin name or group, in any order. Until 14 November
+    /// 2026 the whole phrase had to appear in one of them as written,
+    /// and the variety was not looked at. So "English lavender" did not
+    /// find the plant stored as "Lavender", variety "English", and the
+    /// trained Qwen told William his database had no such plant.
+    ///
+    ///   "English lavender"   finds Lavender — English
+    ///   "Spartan"            finds Apple — Spartan
+    ///   "the broad beans"    finds Broad bean — Aquadulce
+    ///   "lavender"           finds every lavender, as before
+    ///
+    /// Small words such as "the" and "my" are ignored, and a word ending
+    /// in "s" also matches without it, so "beans" finds "bean".
+    nonisolated static func plantMatches(asked: String, texts: [String?]) -> Bool {
+        // `compactMap` drops the pieces a plant does not have.
+        let haystack = texts.compactMap { $0?.lowercased() }.joined(separator: " ")
+        let ignored: Set<String> = ["the", "a", "an", "my", "of", "and", "some", "any", "plant", "plants"]
+        let words = asked.lowercased()
+            .components(separatedBy: CharacterSet.alphanumerics.inverted)
+            .filter { !$0.isEmpty && !ignored.contains($0) }
+        guard !words.isEmpty else { return false }
+        return words.allSatisfy { word in
+            haystack.contains(word)
+                || (word.count > 3 && word.hasSuffix("s") && haystack.contains(String(word.dropLast())))
+        }
     }
 
     /// Whether what a model wrote for a bed means this bed.

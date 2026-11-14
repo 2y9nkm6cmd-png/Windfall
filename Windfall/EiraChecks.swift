@@ -277,10 +277,43 @@ enum EiraChecks {
     ///   "I've saved that for you."                     a claim
     ///   "You recorded a harvest on 9 November."        not: that is about you
     ///   "I have not saved anything."                   not: it says the opposite
+    ///   "Nothing has been recorded in your records."   not: the opposite again
+    ///
+    /// The sentence is read a clause at a time, split at commas and at
+    /// "but" and "and". That way "I cannot save changes, but your sowing
+    /// is now recorded" is still caught by its second half.
     static func claimsToHaveSaved(_ sentence: String) -> Bool {
-        let text = EiraSafety.tidied(sentence)
+        var clauses = sentence.components(separatedBy: CharacterSet(charactersIn: ",;:"))
+        for joiner in [" but ", " and "] {
+            clauses = clauses.flatMap { $0.components(separatedBy: joiner) }
+        }
+        return clauses.contains { clauseClaimsToHaveSaved($0) }
+    }
+
+    /// The same question of one clause.
+    private static func clauseClaimsToHaveSaved(_ clause: String) -> Bool {
+        let text = EiraSafety.tidied(clause)
         let done = ["recorded", "saved", "logged", "added", "stored", "updated", "noted"]
         let will = ["save", "record", "log", "add", "store", "update", "note"]
+
+        // A clause that denies it says the opposite of a claim: "nothing
+        // has been recorded", "no harvests have been logged in your
+        // records", "it has not been saved". Until 14 November 2026
+        // these were taken for claims. The trained Qwen said, rightly,
+        // that nothing had been recorded, and the app took the sentence
+        // out and wrote "Nothing has been saved" under its answer.
+        //
+        // The denial has to come before the saving word. Tidying has
+        // turned "hasn't" into "hasnt". Each such word is listed whole:
+        // looking for any word ending in "nt" would also find "plant".
+        let denials = [" nothing ", " none ", " no ", " not ", " never ", " cannot ",
+                       " cant ", " couldnt ", " dont ", " doesnt ", " didnt ", " hasnt ", " havent ",
+                       " hadnt ", " isnt ", " arent ", " wasnt ", " werent ", " wont ", " wouldnt "]
+        for word in done + will {
+            guard let found = text.range(of: " \(word) ") else { continue }
+            let before = text[..<found.lowerBound] + " "
+            if denials.contains(where: { before.contains($0) }) { return false }
+        }
 
         for word in done {
             // "is now recorded", "has now been saved"
