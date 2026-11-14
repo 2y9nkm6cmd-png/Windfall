@@ -1,3 +1,91 @@
+# 14 November 2026, 19:20: the to-do cards on Today open out where they are
+
+**By the to-do chat, from William's iPhone. Branch `todo-cards-open`, made from `main` at `71d95d4`. Not in `main`. Written in Claude's cloud workspace: the Mac was not connected, so it has not been built or seen running.**
+
+William, 19:00: "We need to make it so that when you tap to do they expand to give you the whole month". Asked what a tap should do, he chose: the card opens out where it is on Today and lists every job, and a second tap folds it.
+
+## What changed, and why
+
+**Before.** "This week" drew six jobs and "This month" drew five. If there were more, a small "View all" link slid in a separate page. And the month's list was cut short before it was ever drawn: four sowings and three harvests at most, so "View all" did not show the whole month either.
+
+**Now.**
+
+- The heading of each card is a button whenever the card holds more than it shows. Beside the title it says how many are tucked away, "12 more", with a down arrow. A tap opens the card and the cards beneath slide down. The words become "Show fewer" and the arrow turns over.
+- An opened card has "Show fewer" at its foot as well, so a long list can be folded without scrolling back up.
+- **"This month", opened, is the whole month**: every plant whose sowing months include this one and has not been sown this year, every crop due within a fortnight, every seed packet to check, and your own jobs. Folded, it is the same short pick as before.
+- A card stays as it was left, open or folded, after visiting a plant's page and after the app is closed.
+- With "Reduce Motion" on, a card opens at once with no sliding.
+- The "View all" page for jobs (`AllJobsView`) is gone. Nothing else used it.
+
+## The code, explained
+
+### `WeekJobs.swift`: `JobFold`, the sums
+
+Kept apart from the screen so the logic tests can run them.
+
+```swift
+static func rowsShown(of count: Int, folded: Int, isOpen: Bool) -> Int {
+    isOpen ? count : min(count, folded)
+}
+```
+
+`a ? b : c` reads "if a then b, otherwise c". Open: every row. Folded: the smaller of how many there are and how many a folded card holds.
+
+`monthPick(from:)` takes the identifiers of the whole month's jobs and gives back the folded card's short list. It walks the list once, counting sowings (identifiers beginning `sow-`) and harvests (`harvest-`). `continue` means "skip the rest of this turn of the loop", so the fifth sowing and the fourth harvest are passed over. `kept.prefix(monthRows)` then takes the first five.
+
+`headingWords(hidden:isOpen:)` gives "12 more", "Show fewer" or nothing. Its answer is `String?`: the question mark means "a String, or nothing at all". `guard hidden > 0 else { return nil }` reads "carry on only if something is hidden, otherwise hand back nothing".
+
+### `TodayView.swift`
+
+```swift
+@AppStorage("todayWeekIsOpen") private var weekIsOpen = false
+@AppStorage("todayMonthIsOpen") private var monthIsOpen = false
+```
+
+`@AppStorage` is a value SwiftUI saves on the device under the name in quotes and redraws the screen for whenever it changes. Plain `@State` would forget it when Today is rebuilt, which happens each time the page is returned to.
+
+`jobs` no longer has `.prefix(4)` and `.prefix(3)` on its two loops. It now works out the whole month, and the folded card asks `JobFold.monthPick` for its short list.
+
+```swift
+private func jobsHeading(_ title: String, hidden: Int, isOpen: Binding<Bool>) -> some View
+```
+
+One heading for both cards. A `Binding<Bool>` is not a copy of true or false but a handle on the value the screen keeps, so the function can change it. `$weekIsOpen`, with the dollar sign, is how that handle is passed. `isOpen.wrappedValue` is the value inside it.
+
+```swift
+withAnimation(reduceMotion ? nil : .snappy(duration: 0.3)) { isOpen.wrappedValue.toggle() }
+```
+
+`toggle()` flips true to false and back. `withAnimation` tells SwiftUI to move everything that changes because of it over 0.3 seconds. `nil` means no animation.
+
+`.contentShape(.rect)` makes the whole width of the heading answer a tap, not only the words. `.allowsHitTesting(hidden > 0)` switches the button off when there is nothing more to show.
+
+## ⚠️ CHECK: choices that are Claude's
+
+1. **"This week" opens to all of this week's jobs, not to the month.** "This month" is the card that gives the whole month.
+2. **The whole month can be long.** In a spring month with many plants marked as growing it could run to a hundred rows or more. Nothing limits it.
+3. A card stays open until it is folded, even across starting the app again.
+4. The heading is the button, not the whole card: each row is already a link to its plant, and its tick box is a button.
+5. The words "12 more" and "Show fewer".
+6. The folded month's caps are now applied after jobs already in "This week" are left out, where before they were applied first. A folded card can show a sowing it used to drop.
+
+## Checked
+
+| | |
+|---|---|
+| Every file reads as valid Swift (109 files) | Yes |
+| The rules type-check | Yes |
+| Logic tests | 739 pass, 5 of them new |
+| Builds for the Mac, iPhone and iPad | **No** |
+| Seen running | **No** |
+
+`TodayView.swift` is a screen, so here it has only been read as valid Swift. The first Mac build is its real test.
+
+## Not done
+
+- The widgets are unchanged. A widget cannot grow.
+- While the cards are being rearranged (jiggling), a heading does not answer a tap, as with everything else inside a card.
+
 # 14 November 2026, 18:40: seven branches joined into main
 
 **By the join chat.** William, 16:44: "When all the app builds have finished, I want to combine them and then issue an iphone, ipad and mac build to test further." The Mac went quiet at 18:17. The join was made in a copy of its own, `~/Developer/windfall-join`, on the branch `join-14nov-evening`, and `main` moved only once it built and passed its tests.
