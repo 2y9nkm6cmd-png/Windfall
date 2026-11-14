@@ -637,7 +637,7 @@ withAnimation(.smooth(duration: 0.3)) {
 
 ## 14 November 2026, 17:50: the weather is fetched by itself
 
-**On the branch `weather-by-itself`, made from `main` at `fb7ce30`, with `main` merged in at `71d95d4` (18:50).** The logic tests pass, 15 of them new, and 14 more for the widgets' sums were run outside the usual checks. **See the knowledge base, doc 60, for whether it has been built and what has been seen.** This entry sits below the 17:36 entry, out of time order, so that it does not clash with entries the open branches add at the top.
+**On the branch `weather-by-itself`, made from `main` at `fb7ce30`, with `main` merged in at `71d95d4` (18:50).** The logic tests pass, 15 of them new, and 14 more for the widgets' sums were run outside the usual checks. **See the knowledge base, doc 61, for whether it has been built and what has been seen.** This entry sits below the 17:36 entry, out of time order, so that it does not clash with entries the open branches add at the top.
 
 **Why.** William, 17:35: "The weather isn't being automatically retrieved." He was looking at a widget or the drawing in Today's corner, on the iPhone and the Mac. Asked how a device with no garden on the map should find out where it is, he chose: "Ask once on opening".
 
