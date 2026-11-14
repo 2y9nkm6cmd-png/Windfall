@@ -22,6 +22,7 @@
 //
 
 import Foundation
+import SwiftData
 #if canImport(FoundationNetworking)
 import FoundationNetworking
 #endif
@@ -189,21 +190,47 @@ struct WebPageReader {
         case notAWebAddress
         case tooLarge
         case notText
+        /// The site answered that there is no such page (or refused).
+        /// The number is the site's own code: 404 is "not found".
+        case notFound(Int)
 
         var errorDescription: String? {
             switch self {
             case .notAWebAddress: return "That is not a web address Eira can open."
             case .tooLarge:       return "That page is too large to read."
             case .notText:        return "That address did not return a readable page."
+            case .notFound(let code): return "The site said there is no page at that address (\(code))."
             }
         }
+    }
+
+    /// A page as it came back, before it is cut to size.
+    struct Page {
+        let title: String?
+        /// All of the page's readable text.
+        let text: String
+        let host: String
+        /// Where the page really was, which can differ from the address
+        /// asked for when the site sends the reader on elsewhere.
+        let address: String
     }
 
     var session: URLSession = .shared
     /// Pages over this size are refused before any text is extracted.
     var maximumBytes = 2_000_000
 
-    func read(_ address: String, limit: Int = 4000) async throws -> (title: String?, text: String, host: String) {
+    /// Fetches a page whole.
+    ///
+    /// Until 14 November 2026 a page was cut to its first 4,000
+    /// characters as it was read. A growing guide's pruning advice can
+    /// sit far below that, so the whole text is now kept here and the
+    /// right part chosen afterwards (WebText.passages).
+    ///
+    /// A site's answer carries a number. 200 means "here it is", 404
+    /// "no such page". Anything outside 200 to 299 is now treated as no
+    /// page, where before a "not found" page was read as if it were
+    /// the answer.
+    func fetch(_ address: String) async throws -> Page {
         guard let url = Self.webURL(from: address), let host = url.host else {
             throw ReadError.notAWebAddress
         }
@@ -212,14 +239,26 @@ struct WebPageReader {
         request.setValue("Windfall/1.0 (personal garden recording app)",
                          forHTTPHeaderField: "User-Agent")
 
-        let (data, _) = try await session.data(for: request)
+        let (data, response) = try await session.data(for: request)
+        // `as?` asks whether the answer is a web answer, which has a code.
+        if let code = (response as? HTTPURLResponse)?.statusCode, !(200...299).contains(code) {
+            throw ReadError.notFound(code)
+        }
         guard data.count <= maximumBytes else { throw ReadError.tooLarge }
         guard let html = String(data: data, encoding: .utf8)
                 ?? String(data: data, encoding: .isoLatin1) else { throw ReadError.notText }
 
-        return (WebText.title(fromHTML: html),
-                WebText.plainText(fromHTML: html, limit: limit),
-                host)
+        let pageTitle = WebText.title(fromHTML: html)
+        let readable = WebText.plainText(fromHTML: html, limit: 200_000)
+        return Page(title: pageTitle,
+                    text: readable,
+                    host: response.url?.host ?? host,
+                    address: response.url?.absoluteString ?? url.absoluteString)
+    }
+
+    func read(_ address: String, limit: Int = 4000) async throws -> (title: String?, text: String, host: String) {
+        let page = try await fetch(address)
+        return (page.title, WebText.truncate(page.text, to: limit), page.host)
     }
 
     /// Accepts only ordinary web addresses. "example.org/page" is treated
@@ -267,7 +306,7 @@ extension EiraTools {
 
 extension ToolRunner {
 
-    func searchWikipedia(_ query: String) async -> ToolResult {
+    func searchWikipedia(_ query: String, question: String = "") async -> ToolResult {
         guard !query.isEmpty else { return ToolResult(text: "No topic given.", source: "app") }
         do {
             guard let article = try await WikipediaLookup().lookUp(query) else {
@@ -275,24 +314,61 @@ extension ToolRunner {
                                   source: "Wikipedia")
             }
             let link = article.url.map { "\n\($0)" } ?? ""
-            return ToolResult(text: "\(article.title): \(article.extract)\(link)",
-                              source: "Wikipedia, unverified general reference")
+            var result = ToolResult(text: "\(article.title): \(article.extract)\(link)",
+                                    source: "Wikipedia, unverified general reference")
+            // What was found can be offered for keeping. See KeptFacts.
+            if let address = article.url {
+                let asked = question.isEmpty ? query : question
+                result.onlineFind = OnlineFind(sourceName: "Wikipedia", trust: .general, address: address,
+                                         title: article.title,
+                                         plantName: plantNamed(in: asked + " " + article.title),
+                                         field: KeptFacts.field(forQuestion: asked, words: ""))
+            }
+            return result
         } catch {
             return ToolResult(text: "Couldn't reach Wikipedia: \(error.localizedDescription)",
                               source: "app")
         }
     }
 
-    func readWebPage(_ address: String) async -> ToolResult {
+    /// Reads one page and hands back the part that bears on the question.
+    ///
+    /// `question` is what the gardener typed, if the app is reading the
+    /// page for them. The address is taken out of it, and what is left
+    /// says which paragraphs to pick: asked about pruning, she is
+    /// handed the pruning. With no question, or a page that does not
+    /// mention it, the top of the page is handed over as before.
+    ///
+    /// The source line names the site and says how far it is trusted
+    /// (EiraSources.swift), where before every page was "unverified".
+    func readWebPage(_ address: String, question: String = "") async -> ToolResult {
         do {
-            let page = try await WebPageReader().read(address)
+            let page = try await WebPageReader().fetch(address)
+            let source = WebSources.source(forAddress: page.address)
+            let asked = question.replacingOccurrences(of: address, with: " ")
+            let topic = CareTopic.find(in: asked)
+            let weak = Array(EiraChecks.wordsThatMatter(in: asked))
+            var body = WebText.passages(in: page.text, strong: topic?.pageWords ?? [], weak: weak)
+            if body.isEmpty { body = WebText.truncate(page.text, to: 1200) }
+
             let heading = page.title.map { "\($0)\n\n" } ?? ""
-            return ToolResult(text: heading + page.text,
-                              source: "web page at \(page.host), unverified")
+            var result = ToolResult(text: heading + body,
+                                    source: "\(source.name), \(source.trust.said), at \(page.address)")
+            result.onlineFind = OnlineFind(sourceName: source.name, trust: source.trust, address: page.address,
+                                     title: page.title,
+                                     plantName: plantNamed(in: asked + " " + (page.title ?? "")),
+                                     field: KeptFacts.field(forQuestion: asked, words: ""))
+            return result
         } catch {
             return ToolResult(text: "Couldn't read that page: \(error.localizedDescription)",
                               source: "app")
         }
+    }
+
+    /// The plant in the library that a piece of text names, if any.
+    func plantNamed(in text: String) -> String? {
+        let plants = (try? context.fetch(FetchDescriptor<Plant>())) ?? []
+        return KeptFacts.plantNamed(in: text, among: plants.map(\.commonName))
     }
 }
 

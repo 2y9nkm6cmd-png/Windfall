@@ -43,6 +43,10 @@ enum PlantPage {
     struct Fact: Identifiable, Equatable {
         let label: String
         let value: String
+        /// Where the value came from, if it was kept from a website or
+        /// a book: "RHS, kept Nov 2026". Nil for everything else, which
+        /// is most things. See KeptFacts.swift.
+        var source: String? = nil
 
         var id: String { label }
 
@@ -87,7 +91,10 @@ enum PlantPage {
 
     /// The cards for a plant, in the spreadsheet's order. A card with
     /// nothing on it is left out.
-    static func cards(for plant: Plant) -> [FactCard] {
+    ///
+    /// `sources` gives, for the name of a fact ("Pruning"), where its
+    /// value came from. A fact named there carries that as its source.
+    static func cards(for plant: Plant, sources: [String: String] = [:]) -> [FactCard] {
         var permaculture: [String] = []
         if plant.isPollinator { permaculture.append("Pollinator plant") }
         if plant.isRepeller { permaculture.append("Pest repeller") }
@@ -144,7 +151,16 @@ enum PlantPage {
                              fact("History", plant.history),
                              fact("Notes", plant.notes)].compactMap { $0 })
         ]
-        return all.filter { !$0.isEmpty }
+        return all.filter { !$0.isEmpty }.map { factCard in
+            guard !sources.isEmpty else { return factCard }
+            var marked = factCard
+            marked.facts = factCard.facts.map { fact in
+                var copy = fact
+                copy.source = sources[fact.label]
+                return copy
+            }
+            return marked
+        }
     }
 
     /// Shares cards between two columns so that they come out about the

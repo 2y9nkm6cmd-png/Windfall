@@ -182,6 +182,9 @@ final class EiraConversation {
         record(sent)
         // An offer from an earlier message that was never answered goes.
         offeredCorrection = nil
+        offeredFind = nil
+        // So does what the lookups found online for the question before.
+        hub?.clearFinds()
 
         // Some questions are answered by fixed wording and never reach the
         // model. See EiraSafety for why. Nothing said on one of these
@@ -213,10 +216,19 @@ final class EiraConversation {
 
         // A lookup chosen by hand comes first. Otherwise a fixed rule
         // may choose one: see EiraChecks.lookupFirst.
-        let lookup = forcedTool ?? EiraChecks.lookupFirst(for: trimmed)
+        var lookup = forcedTool ?? EiraChecks.lookupFirst(for: trimmed)
+        var wanted = subject
+
+        // A web address in the message: the app reads that page first.
+        // Until 14 November 2026 this was left to the model, which has
+        // a "read a web page" lookup and did not always think to use it.
+        if forcedTool == nil, let address = EiraChecks.webAddress(in: trimmed) {
+            lookup = EiraTools.readWebPage
+            wanted = address
+        }
 
         replyTask = Task { [weak self] in
-            await self?.generate(for: trimmed, forcedTool: lookup, about: subject)
+            await self?.generate(for: trimmed, forcedTool: lookup, about: wanted)
         }
     }
 
@@ -315,14 +327,22 @@ final class EiraConversation {
             // What to look for: the subject if one was given, and
             // otherwise the whole message.
             let wanted = subject ?? text
-            let arguments = EiraToolHub.json(["name": wanted, "query": wanted, "plant": wanted, "url": wanted])
+            // "question" is the whole message and "screen" is what was
+            // open, for the lookups that read them (plant_care and
+            // read_web_page). The others ignore what they do not use.
+            let arguments = EiraToolHub.json(["name": wanted, "query": wanted, "plant": wanted, "url": wanted,
+                                              "question": text, "screen": screenNote ?? ""])
             let result = await hub.run(name: forcedTool.name, argumentsJSON: arguments)
-            prompt = """
-            The app has already looked this up for you with \(forcedTool.name):
-            \(result)
+            // A lookup with nothing to say hands back nothing, and then
+            // the question goes to the model exactly as it was typed.
+            if !result.isEmpty {
+                prompt = """
+                The app has already looked this up for you with \(forcedTool.name):
+                \(result)
 
-            Using that, answer: \(text)
-            """
+                Using that, answer: \(text)
+                """
+            }
         }
 
         // Hand over any kept correction that bears on this question,
@@ -415,10 +435,20 @@ final class EiraConversation {
                                          correction: standing)
         }
 
-        record(ChatMessage(
+        let finished = ChatMessage(
             role: .assistant,
             content: stopped && !content.isEmpty ? content + " (stopped)" : content,
-            reasoning: reasoning.isEmpty ? nil : reasoning))
+            reasoning: reasoning.isEmpty ? nil : reasoning)
+        record(finished)
+
+        // If a lookup read something online for this question, offer to
+        // keep it. The chat screen shows the offer as a card under the
+        // reply. Nothing is kept unless "Keep it" is pressed.
+        if !stopped {
+            let asked = messages.last { $0.role == .user }?.content ?? ""
+            offeredFind = EiraConversation.findOffer(from: hub?.finds ?? [], question: asked,
+                                                     reply: content, replyID: finished.id)
+        }
     }
 
     /// Adds a message to the screen and saves it.
@@ -443,6 +473,7 @@ final class EiraConversation {
         lastMetrics = nil
         lastError = nil
         offeredCorrection = nil
+        offeredFind = nil
         forgetPhotos()
         chat = store?.newChat(modelName: modelName)
         needsRestart = true
@@ -458,6 +489,7 @@ final class EiraConversation {
         lastMetrics = nil
         lastError = nil
         offeredCorrection = nil
+        offeredFind = nil
         forgetPhotos()
         needsRestart = true
     }
@@ -541,6 +573,103 @@ final class EiraConversation {
                                 mistake: nil, correction: "My lavender is English lavender, not Dutch.")
             keepOfferedCorrection(as: offeredCorrection?.words ?? "")
         }
+    }
+
+    // MARK: Keeping what was found online
+
+    /// Something a lookup read online for the last question, waiting
+    /// for the gardener to say whether to keep it in a plant's record.
+    struct OfferedFind: Equatable {
+        /// Eira's reply. The card sits under it.
+        let replyID: ChatMessage.ID
+        /// Where it came from: the site, the page and its address.
+        let onlineFind: OnlineFind
+        /// The question that was asked.
+        let question: String
+        /// The fact as first offered: Eira's answer, shortened.
+        let words: String
+        /// The kept records' ids, once "Keep it" has been pressed.
+        var keptIDs: [UUID] = []
+        /// Where it was kept, in words: "Rhubarb, Pruning".
+        var keptWhere: String = ""
+
+        var isKept: Bool { !keptIDs.isEmpty }
+    }
+
+    /// Set when a reply is finished and a lookup had read a web page
+    /// for it. The chat screen does the keeping, because it has the
+    /// database, and tells the conversation with `findWasKept`.
+    private(set) var offeredFind: OfferedFind?
+
+    /// The offer to make for a finished reply, or nil for none.
+    ///
+    /// The last thing found online is the one offered: when Eira reads
+    /// two pages, her answer is most likely built on the second. No
+    /// offer is made for an empty answer or for one of the fixed
+    /// refusals, which have nothing in them worth keeping.
+    static func findOffer(from finds: [OnlineFind], question: String, reply: String, replyID: UUID) -> OfferedFind? {
+        guard let latest = finds.last else { return nil }
+        let words = suggestedWords(from: reply)
+        guard !words.isEmpty, reply != EiraChecks.noAnswer else { return nil }
+        return OfferedFind(replyID: replyID, onlineFind: latest, question: question, words: words)
+    }
+
+    /// Eira's answer cut down to a fact worth keeping: the notes the
+    /// app adds under an answer are taken off, the lines are run
+    /// together and anything past about 300 characters is left out,
+    /// ending on a whole sentence where it can.
+    static func suggestedWords(from reply: String, limit: Int = 300) -> String {
+        var text = reply
+        for added in ["\n\nNot checked:", "\n\n" + EiraChecks.nothingSaved] {
+            if let range = text.range(of: added) { text = String(text[..<range.lowerBound]) }
+        }
+        let oneLine = text.replacingOccurrences(of: "**", with: "")
+            .split(whereSeparator: \.isNewline)
+            .map { $0.trimmingCharacters(in: .whitespaces) }
+            .filter { !$0.isEmpty }
+            .joined(separator: " ")
+        guard oneLine.count > limit else { return oneLine }
+        var kept = ""
+        for sentence in EiraChecks.sentences(in: oneLine) {
+            if kept.count + sentence.count + 1 > limit { break }
+            kept += (kept.isEmpty ? "" : " ") + sentence
+        }
+        return kept.isEmpty ? String(oneLine.prefix(limit)) : kept
+    }
+
+    /// Called by the chat screen once it has written the fact into the
+    /// plant's record.
+    func findWasKept(ids: [UUID], where place: String) {
+        offeredFind?.keptIDs = ids
+        offeredFind?.keptWhere = place
+    }
+
+    /// Called once a kept fact has been taken back. The card offers it
+    /// again.
+    func findWasUndone() {
+        offeredFind?.keptIDs = []
+        offeredFind?.keptWhere = ""
+    }
+
+    /// Takes the card away without keeping anything.
+    func dismissOfferedFind() {
+        offeredFind = nil
+    }
+
+    /// A checking aid: an example exchange in which Eira has read the
+    /// RHS, so a still picture can be taken of the card that offers to
+    /// keep what she found. No model is asked and nothing is fetched.
+    /// See DemoGarden.opens.
+    func showExampleFind() {
+        let exampleAsked = ChatMessage(role: .user, content: "After the first big frost, when the rhubarb has wilted, do I need to chop the leaves back?")
+        let exampleLookup = ChatMessage(role: .tool, content: "No pruning or cutting back advice is recorded for Rhubarb in the plant library. That means nothing has been written down. It does not mean nothing needs doing.\nThe RHS's page \"How to Grow Rhubarb\" says: (the page's own words would be here)\n\n[source: user's plant database, and RHS, a checked source, at https://www.rhs.org.uk/vegetables/rhubarb/grow-your-own]", toolName: "plant_care")
+        let exampleAnswer = ChatMessage(role: .assistant, content: "Nothing is recorded for your rhubarb. The RHS says to let the leaves die back, then cut the old ones away so that the winter cold can reach the crown.")
+        messages = [exampleAsked, exampleLookup, exampleAnswer]
+        let exampleFind = OnlineFind(sourceName: "RHS", trust: .checked,
+                              address: "https://www.rhs.org.uk/vegetables/rhubarb/grow-your-own",
+                              title: "How to Grow Rhubarb", plantName: "Rhubarb", field: .pruning)
+        offeredFind = OfferedFind(replyID: exampleAnswer.id, onlineFind: exampleFind, question: exampleAsked.content,
+                                  words: "Let the leaves die back, then cut the old ones away so that the winter cold can reach the crown.")
     }
 
     /// Every correction kept so far, newest first. For the list in the

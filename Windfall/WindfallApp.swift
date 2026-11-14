@@ -46,7 +46,9 @@ struct WindfallApp: App {
             // Eira: saved conversations and corrections
             EiraChat.self,
             EiraChatMessage.self,
-            EiraCorrection.self
+            EiraCorrection.self,
+            // Where a value kept from a website or a book came from
+            KeptFact.self
         ])
 
         // Everything is stored on this device only. `cloudKitDatabase: .none`
