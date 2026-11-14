@@ -9,7 +9,9 @@ it is first built, and treat how everything here looks as untried.
 
 ## 14 November 2026, 13:45: care questions, the RHS, and keeping what Eira finds
 
-**On the branch `eira-web-finds`, made from `main`.** Built for the Mac and the iOS Simulator with no errors (`wf4-mac.log`, `wf4-sim.log`). 571 logic tests pass. Put to Apple's built-in model through the app, with the example garden and the real RHS website (`eira-care-3.md` in the build logs folder). The screens have been seen as still pictures only.
+**On the branch `eira-web-finds`, made from `main`. Not merged**: William asked at 12:57 for the other chats to finish building before anything is joined. Built for the Mac and the iOS Simulator with no errors (`wf5-mac.log`, `wf5-sim.log`). 571 logic tests pass. Put to Apple's built-in model through the app, with the example garden and the real RHS website (`eira-care-3.md` in the build logs folder). The screens have been seen as still pictures only (`shots/wf5-*.png`).
+
+**The database gains one record type, `KeptFact`.** Checked in the iPad (A16) simulator at 13:47 with a database of its own: a database made by `main` opens in this version, and `main` still opens it afterwards (`wf5-after.out`).
 
 **Why.** William asked Eira: "After the first big frost, when the rhubarb has wilted, do I need to chop the leaves back?" She searched the plant library, found no pruning advice and answered "You may still leave the leaves until the season's end." The RHS says the opposite. Reading the code turned up three causes:
 
