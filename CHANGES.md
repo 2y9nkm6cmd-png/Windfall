@@ -127,6 +127,33 @@ private func putBeeToBed(_ time: Double, perches: [Int], roosts: [Int], grown: D
 **A new day while it sleeps.** The drawing is made again for the new day. The bee stays asleep and its flower is found again.
 
 **⚠️ CHECK, Claude's choices:** the bee sleeps through rain, frost, gales and cold. A tap does not wake it. Night under rain or frost is drawn as rain or frost, as before. From general knowledge, for William to check: bumblebees caught out late do spend the night on or in flowers, and they shelter in foxglove bells.
+# 14 November 2026, 22:47: the Mac's icon gets shine and shadow
+
+**By the "Mac icon" chat, on the branch `mac-icon-glass`.** William, 22:31: "Could you send me what the icon would look like with shine and shadow?" He was sent the flat icon beside two versions. At 22:43: "Shine and shadow works, you could even have more shadow in the dark mode version."
+
+**One file changed, `Windfall/AppIconMac.icon/icon.json`.** No Swift, and nothing for iPhone or iPad.
+
+| Line | Before | Now | What it does |
+|---|---|---|---|
+| `"glass"` | `false` | `true` | Lets the drawing take part in Apple's glass look at all |
+| `"specular"` | `false` | `true` | The shine: a thin bright rim the Mac draws round the edges of the drawing |
+| `"shadow"` | `{ "kind": "none" }` | replaced by the lines below | A soft shadow under the drawing, so it looks lifted off the tile |
+
+```
+"shadow-specializations": [
+  { "value": { "kind": "neutral", "opacity": 0.5 } },
+  { "appearance": "dark", "value": { "kind": "neutral", "opacity": 1.0 } }
+]
+```
+
+This is the same pattern as the background colour and the drawing in the entry of 21:44: a value with no mode named is the ordinary one, and a value marked `dark` is used in dark mode. `kind` is the sort of shadow: `neutral` is a plain grey-black one. `opacity` is its strength, from 0 (none) to 1 (the most the Mac will draw). So the shadow is at half strength in light mode and full strength in dark mode, where a shadow is harder to see against the green.
+
+**1.0 is the ceiling.** If the dark shadow should be stronger still, it cannot be done with this number. The other kind, `layer-color`, was tried: it takes its colour from the drawing and comes out as a pale glow round the leaves in dark mode, not a shadow.
+
+**Translucency is still off** (`"enabled": false`). William asked for shine and shadow only.
+
+**Checked on the Mac:** Apple's icon tool (`ictool`) draws both modes from the changed file, and the light one is the very picture William chose. Xcode's asset step by hand, for the Mac and for iPhone and iPad: no errors or warnings.
+
 # 14 November 2026, 21:30: plant drawings on the plant cards and pages
 
 **By the plant graphics chat.** William, 21:26, of the plant drawings added at 20:10: "Add these into the app."
