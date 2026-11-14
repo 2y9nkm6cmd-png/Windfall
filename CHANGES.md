@@ -1,3 +1,39 @@
+# 14 November 2026, 21:00: the Mac gets the app icon
+
+**By the "Mac icon" chat, on the branch `mac-app-icon`.** William, 20:52, with a picture of his Dock showing two blank tiles for Windfall: "None of the apps have the icon on the app icon."
+
+**Why the Dock was blank.** The icon went in at 17:36 for iPhone and iPad only. `AppIcon.appiconset/Contents.json` is the list of slots an icon has, and each slot says which kind of device it is for. Every slot in it said `"platform" : "ios"`. A Mac build looked for slots marked `"idiom" : "mac"`, found none, and so made no icon file at all: the built Mac app had no `AppIcon.icns` and no icon named in its `Info.plist`. macOS then draws its blank placeholder. iPhone builds made since 17:36 do carry the icon (`AppIcon60x60@2x.png` is inside them).
+
+**No Swift changed.** Three things were added:
+
+| Where | What |
+|---|---|
+| `Tools/design/make_mac_app_icon.swift` | A short script that makes the Mac's pictures from the iPhone's square one |
+| `AppIcon.appiconset/windfall-app-icon-mac-16.png`, `-32`, `-64`, `-128`, `-256`, `-512`, `-1024` | The Mac's pictures, made by that script from the light icon |
+| `AppIcon.appiconset/Contents.json` | Ten Mac slots added. The three iPhone and iPad slots are as they were |
+
+**Why the Mac needs different pictures.** An iPhone takes a plain square and rounds the corners itself. A Mac shows the picture as given, so it must arrive already cut to a rounded square with clear space round it: 824 dots across on a 1024 dot canvas, 100 dots clear each side, which are Apple's measurements. It also wants ten slots (16, 32, 128, 256 and 512 points, each at 1x and 2x) where an iPhone wants one. Seven pictures fill the ten slots, because 16 at 2x and 32 at 1x are the same 32 dots, and so on.
+
+**What a Mac slot looks like:**
+
+```
+{
+  "filename" : "windfall-app-icon-mac-32.png",
+  "idiom" : "mac",
+  "scale" : "2x",
+  "size" : "16x16"
+}
+```
+
+`idiom` is the kind of device. `size` is in points, the unit screens are measured in. `scale` is how many dots there are to a point: `2x` is a sharp (Retina) screen, so a 16 point icon at 2x is a picture 32 dots across.
+
+**Checked on the Mac (macOS 27.2.1, Xcode 27.2):** Xcode's asset step (`actool`) for the Mac, with no errors or warnings, now makes `AppIcon.icns` and names `AppIcon` as the icon. The same step for iPhone and iPad gives what it gave before. A stand-in app holding only that icon was made in `/tmp`, and macOS was asked how it would draw it: the cream tile, full size, with no grey box round it (macOS puts an icon of the wrong shape in a grey box). Twelve points of the Mac picture match the same points of the square one exactly, so nothing is flipped or shifted.
+
+**Not done:**
+
+- **A dark icon on the Mac.** These slots take one picture, so the Mac shows the cream icon in light and dark mode. A Mac icon that changes needs Apple's newer icon file, made in its Icon Composer app.
+- The tinted slot for iPhone and iPad is still empty.
+
 # 14 November 2026, 20:10: plant drawings added to the Design folder
 
 **By the plant graphics chat.** William, 18:15: "Could you create graphics for all the plants I'm growing and have seeds for. Create a graphic for each phase of their life that are relevant." At 19:06: "Make them a bit more detailed and do them all". At 20:06: "Connect to my mac to attach changes to the main file".

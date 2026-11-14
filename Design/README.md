@@ -51,6 +51,18 @@ for look in light dark; do
 done
 ```
 
+### The Mac's icon
+
+A Mac does not round an icon's corners as an iPhone does, so it needs pictures of its own: the same drawing cut to a rounded square with clear space round it, at seven sizes. They are made from the light picture by a script, and are the files named `windfall-app-icon-mac-...png` in the same folder. After making the light picture again, make the Mac's again too (this needs only Xcode, which the Mac has):
+
+```
+swift Tools/design/make_mac_app_icon.swift \
+  Windfall/Assets.xcassets/AppIcon.appiconset/windfall-app-icon-light-1024.png \
+  Windfall/Assets.xcassets/AppIcon.appiconset
+```
+
+The Mac shows this one cream icon in light and dark mode. `Contents.json` in that folder lists which picture fills which slot: the slots marked `"platform" : "ios"` are the iPhone's and iPad's, and those marked `"idiom" : "mac"` are the Mac's.
+
 ## What is in Reference
 
 | File | What it is |
