@@ -7,7 +7,7 @@ run without the Mac (every file reads as valid Swift, 323 logic tests
 pass). Those do not build the screens. Expect things to put right when
 it is first built, and treat how everything here looks as untried.
 
-## 14 November 2026, 15:30: a month of the Year page, opened up
+## 14 November 2026, 15:24: a month of the Year page, opened up
 
 **On the branch `year-month-view`, made from `main`.** Built for the Mac and the iOS Simulator with no errors (`mv1-mac.log`, `mv1-sim.log`, into a build folder of its own, `DerivedData/Windfall-month`). 586 logic tests pass. Looked at running with the example garden as still pictures: April on a 13-inch iPad Pro, dark (two columns), November on an iPhone, light (one column), and the Year page itself (`shots/mv1-*`). **Not tried by hand: pressing a month's name, the two arrows, "Show all", and the Mac's own window.** The pictures were made with the checking aid below, which opens the month's page the same way a press does.
 
