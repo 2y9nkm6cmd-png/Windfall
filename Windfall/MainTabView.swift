@@ -114,6 +114,15 @@ struct MainTabView: View {
         .tint(Theme.leaf)
         // Hands the screen tracker to every screen inside, and to Eira's bar.
         .environment(eiraScreen)
+        // A tap on a widget opens the app with a link. `WidgetRoute`
+        // notes what was asked for, and Today or Eira's bar then does it.
+        .onOpenURL { url in
+            if WidgetRoute.shared.take(url) { selection = .today }
+        }
+        // When the app is put away, leave the widgets an up-to-date file.
+        .onChange(of: scenePhase) {
+            if scenePhase == .background { WidgetShare.refresh(context: context) }
+        }
         // The first time the app runs, fill the plant library from the
         // starter data that ships inside it. After that this does nothing.
         .task {
@@ -810,6 +819,10 @@ struct LensRefraction: ViewModifier, Animatable {
 // MARK: - More
 
 struct MoreTab: View {
+    /// A checking aid: `-startSection more -demoCorner YES` opens the
+    /// corner drawing's preview at once, so a picture can be taken of it.
+    @State private var showsCornerPreview = UserDefaults.standard.bool(forKey: "demoCorner")
+
     var body: some View {
         List {
             NavigationLink { UniversalSearchView() } label: {
@@ -833,12 +846,18 @@ struct MoreTab: View {
             NavigationLink { BackupView() } label: {
                 Label("Backup", systemImage: "externaldrive")
             }
+            // Every month of the drawing in Today's corner, with the
+            // wind and the weather to try. See LivingCorner.swift.
+            NavigationLink { CornerPreviewView() } label: {
+                Label("Corner drawing", systemImage: "leaf")
+            }
             NavigationLink { SettingsView() } label: {
                 Label("Settings", systemImage: "gear")
             }
         }
         .navigationTitle("Settings and tools")
         .paperScreen()
+        .navigationDestination(isPresented: $showsCornerPreview) { CornerPreviewView() }
     }
 }
 

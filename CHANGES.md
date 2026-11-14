@@ -69,6 +69,57 @@ withAnimation(.smooth(duration: 0.3)) {
 - Lifting after 60 points turns the month, however quick or slow the swipe. An iPhone also goes by how fast the finger was moving. This does not.
 - One swipe turns one month at most.
 
+## 14 November 2026, 17:36: the app has its icon, on an iPhone and an iPad
+
+**On the branch `app-icon`, made from `main` (`0c4857f`).** No Swift code changed, so the logic tests were not run again. **This entry sits below the 17:12 one, out of time order, on purpose**: every open branch adds its entry at the top of this file, and an entry added there too would clash with each of them when they are joined.
+
+**Why.** William, 16:16, of the snowdrop with a bumblebee: "Perfect. That's the app icon. You can save that to the project file and use it as the icon going forward." At 17:32: "Make sure when you push the next update, it has the app icon". Until now the app had no icon at all: the place for one was there and was empty, so an iPhone showed Apple's blank grid.
+
+**What was added.**
+
+| File | What it is |
+|---|---|
+| `Design/AppIcon/windfall-app-icon-light.svg` and `-dark.svg` | The two drawings William approved, copied from the project (doc 47). The masters |
+| `Windfall/Assets.xcassets/AppIcon.appiconset/windfall-app-icon-light-1024.png` and `-dark-1024.png` | The same two drawings as pictures 1024 dots square, with no see-through parts. These are what the app is built with |
+| `Windfall/Assets.xcassets/AppIcon.appiconset/Contents.json` | Two lines added, naming the pictures |
+| `Design/README.md` | A section on the app icon and how to make the pictures again |
+
+**What the code means.** `Assets.xcassets` is the app's store of pictures and colours. Inside it, `AppIcon.appiconset` is a folder that holds the icon, and its `Contents.json` is a list of slots. Each slot says what kind of picture it wants, and `filename` says which file in the folder fills it:
+
+```json
+{
+  "filename" : "windfall-app-icon-light-1024.png",
+  "idiom" : "universal",
+  "platform" : "ios",
+  "size" : "1024x1024"
+},
+{
+  "appearances" : [
+    { "appearance" : "luminosity", "value" : "dark" }
+  ],
+  "filename" : "windfall-app-icon-dark-1024.png",
+  "idiom" : "universal",
+  "platform" : "ios",
+  "size" : "1024x1024"
+}
+```
+
+- `"idiom" : "universal"` and `"platform" : "ios"` mean one picture for every iPhone and iPad. Xcode makes each smaller size from it when it builds.
+- A slot with no `appearances` is the ordinary icon. It gets the cream picture.
+- `"value" : "dark"` is the slot iOS uses when the Home Screen's icons are set to Dark. It gets the dark green picture.
+- The only change is the two `filename` lines. Before, the slots had no `filename`, which is what "empty" means here.
+- The project already names this folder as the app's icon (`ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon` in the project file), so nothing else had to change.
+
+**Why the drawings are not in `Design/Icons`.** Project doc 47 suggested that folder. `Tools/design/build_design_assets.py` turns every SVG in it into a small icon for use inside the app, and would have done the same to these two. They are in a folder of their own, `Design/AppIcon`.
+
+**Checked.** The two drawings were typed out from the project's copies. Every shape in the light drawing was compared by a script with the same shape in the dark one, and all 16 match, which is the check that nothing was mistyped. Both pictures were looked at by Claude at full size and at Home Screen size. Each is 1024 by 1024 with no see-through layer.
+
+**Not done.**
+
+1. **The third slot, `tinted`, is still empty.** That is the icon in one colour, for a Home Screen set to Tinted. **⚠️ CHECK**, Claude's understanding: with the slot empty, iOS makes a tinted icon itself from the ordinary one. Not seen.
+2. **The Mac has no icon yet.** The list has slots for iPhone and iPad only. A Mac icon is drawn differently, with rounded corners and a margin, so it needs its own picture and William's eye.
+3. The icon's dark green (`#06421B`) is still not the interface's (doc 47).
+
 ## 14 November 2026, 16:50: a conversation grows out of Eira's bar
 
 **On the branch `eira-bar-expand`, made from `main` (`c89c037`), with `main` (`0ba7173`) merged in.** Built for the Mac and the iOS Simulator with no errors (`eb4-mac.log`, `eb4-sim.log`, in `DerivedData/Windfall-eirabar`). 598 logic tests pass, 2 of them new. Seen as still pictures with the example garden on an 11-inch iPad Pro: the journal's conversation and Eira's chat each standing in the panel, in light and dark, and the bar at rest on Today and on Journal (`shots/eb2-*` and `eb3-*`). **Not seen: an iPhone, and the Mac's own window.** The Mac was too busy with other chats' builds for a second simulator to start. **Nothing has been pressed by hand, and Claude cannot see the panel move.** William judges the growing and the sinking back.
@@ -187,6 +238,78 @@ The Journal page and the bar are separate views, so the page cannot open the bar
 **What changed.** The 19 are added: Astrantia, Beruladium, Bunium, Bupleurum, Eryngium, Falcaria, Ferula, Libanotis, Ligusticum, Meum, Orlaya, Peucedanum, Physospermum, Sanicula, Selinum, Tordylium, Trinia, Trocdaris and Visnaga. Some look nothing like hemlock (sea holly, great masterwort) and get the warning all the same: it is better given too often than too seldom. **CHECK: the genera and their common names are iNaturalist's, fetched on 14 November 2026, and have not been checked against a flora.**
 
 One logic test added: the list holds five of the new genera and 50 in all.
+## 14 November 2026, 16:55: the drawing in Today's corner comes alive
+
+**On the branch `living-corner`, made from `main` (`0ba7173`).** Knowledge base doc 49 has the design and William's decisions. The design was worked out first on a canvas ("Windfall living corner" in William's artifacts), and the drawing code there is the project file `design/living-corner.js`. This is that design carried into Swift.
+
+**Why.** William, 16:02, of the fixed drawing: "it was going to be a live animation linked to the month or season." 16:10: "I wonder if we play on the bee from the app icon." 16:30: "I don't want this to be a thing that people have to set up, just a fun thing that happens." 16:38: "add it in to the next build of the app (add an option in settings for me to see all the different animations and change the weather as an in settings preview)".
+
+**What it does.** A drawing for each month. It grows in when Today opens, sways as hard as the wind is blowing, and changes a little every day. The bee from the app icon flies in from the left, feeds from flower to flower and leaves to the right, then comes back after a random wait of 10 to 20 seconds. Tapping the drawing calls the bee and pushes the sprig, which springs back. In February it is the icon's own snowdrop.
+
+### The four new files
+
+| File | What is in it |
+|---|---|
+| `CornerScene.swift` | The deciding: which month, how far through it, calm or breezy or gusty, fine or rain or frost or night, and whether the bee may fly. No drawing, so it is tested (13 new tests) |
+| `CornerSprigs.swift` | The twelve drawings, the shapes they are built from, the colours and the bee |
+| `CornerIconArt.swift` | The app icon's snowdrop as outlines, for February |
+| `LivingCorner.swift` | The engine that moves it all, the view, and the preview page for Settings |
+
+### How a drawing is put together
+
+Each drawing is **stems** and **parts**. A stem is a curved line. A part is a leaf, flower or fruit fixed part way along a stem. Here is September's bough and one of its pears:
+
+```swift
+let a = twig.stem(at(6, 90), at(38, 30), at(126, 27), width: 1.7)
+twig.add(a, 0.62, .pear(tall: CornerMath.lerp(21, 27, t), ripe: t)) { $0.hangs = true; $0.fan = -3; $0.swing = 0.55 }
+```
+
+- `twig.stem(...)` adds a line from 6, 90 (bottom left) that bends towards 38, 30 and ends at 126, 27. It gives back a number, kept in `a`, that stands for this stem.
+- `twig.add(a, 0.62, ...)` fixes a part to stem `a`, 62% of the way along it.
+- `.pear(tall:ripe:)` says the part is a pear. `t` is how far through the month it is, from 0 to 1. `CornerMath.lerp(21, 27, t)` is a number that slides from 21 to 27 as `t` goes from 0 to 1, so the pear is 21 tall on the 1st and 27 on the 30th.
+- The piece in curly brackets sets what is unusual about this part. `$0` means "the part being added". It hangs straight down and swings like a weight.
+
+Because parts are fixed to stems by "how far along", they follow when the wind bends the stem. Nothing has to be moved by hand.
+
+### How it moves
+
+`LivingCorner` wraps its drawing in a `TimelineView`, which asks for the picture again up to thirty times a second, handing over the time. Every frame the engine works everything out afresh from that time:
+
+- **Growing in**: how many seconds since Today opened decides how much of each stem is drawn and how big each part is.
+- **Swaying**: three slow sine waves of different lengths added together give a lean in degrees. A wave that never quite repeats looks like wind. Points further from the foot of the plant turn more, which makes it bend like a stem.
+- **A tap** adds one more wave that dies away: `nudgeSize * exp(-1.7 * sinceTap) * sin(7.2 * sinceTap)`. `sin` swings back and forth and `exp` of a growing minus number shrinks towards nothing, so the swing gets smaller each time.
+
+It stops redrawing when the app is in the background. With Reduce Motion on it draws once, finished and still, with the bee sitting on the flower.
+
+### Nothing to set up
+
+In `TodayView.swift` the old `BotanicalCorner()` becomes `LivingCorner(cornerScene: cornerScene)`, and `cornerScene` is made from things Today already had:
+
+```swift
+CornerScene.make(date: .now, calendar: .current,
+                 temperatureC: weather.current?.temperatureC,
+                 precipitationMM: weather.current?.precipitationMM,
+                 windSpeedKMH: weather.current?.windSpeedKMH,
+                 isNight: isNight)
+```
+
+- `weather.current` is the last reading from the weather service, or nothing if there has not been one. The `?` means "if there is one".
+- `isNight` was already there, worked out from the sun's position for the garden.
+- With no reading at all the corner shows a light breeze on a fine day.
+
+The limits, all in `CornerScene.swift` and all Claude's choices for William to check: calm under 8 km/h, gusty over 20 (the app's own "too windy" line), rain from 0.1 mm, frost at 0°C or below, and the bee needs 5°C.
+
+### The preview in Settings
+
+The page the sidebar's Settings opens ("Settings and tools", `MoreTab` in `MainTabView.swift`) has a new row, "Corner drawing". It opens `CornerPreviewView`: one large drawing with a month menu, a day slider, wind and weather switches and "Open it again", then all twelve months moving in a grid. Tapping a month in the grid shows it large. Nothing chosen there changes Today. Things happen sooner there than on Today so there is something to watch.
+
+### Smaller things
+
+- The colours are kept inside `CornerSprigs.swift` as `CornerInks`, a light set and a dark set, and not in `Design/colours.json`. Two reasons: a fruit ripening is one colour mixed into another, which needs the numbers, and the new colours are still a proposal (doc 49). Six of them repeat values from `colours.json`. If those change there, change them here too.
+- `BotanicalCorner` is still in `Theme.swift` and is no longer used.
+- The crocus and runner bean drawn before William chose daffodil and lavender are not carried across. They are in `design/living-corner.js`.
+- Checking aids: `-cornerMonth 2 -cornerDay 20 -cornerWind gusty -cornerSky rain` set the scene on Today and in the preview. `-startSection more -demoCorner YES` opens the preview.
+- Names: the cross-file check goes by names, so several here are longer than they need be (`sprigPart`, `cornerSky`, `lineInk`).
 
 ## 14 November 2026, 16:26: the sidebar's lens follows the fingers again
 
@@ -281,6 +404,79 @@ The look of the box (the words, the small arrows, the hairline) was written insi
 - **No search box in the panel.** Not asked for. It would be a small addition.
 - **Choosing "None" does not clear a plant's name that was filled in from "Known from your reference data" without a plant record behind it.** The old menu behaved the same way. Left alone.
 - The sowing form and the other forms that pick a plant were not looked at. Only the sighting form's menu was changed.
+## 14 November 2026, 16:50: widgets for the iPhone and iPad
+
+**Added at 17:40: in `main` since about 17:38, and the widget program is now built for the Mac too.** William, 17:21: "Add them to main and then build them for mac as well, it should be for all devices". 599 logic tests pass on the joined code. What changed for the Mac: `WindfallWidgets` supports `macosx` and is fenced in (`ENABLE_APP_SANDBOX = YES`, which a Mac widget must be); the "iOS only" filters in the project are gone; the app's entitlements file is used on every platform; `WindfallGroup.folder` works on a Mac only for a copy signed with the key to the shared folder (`holdsKey`); the Lock Screen shapes are inside `#if os(iOS)`; and the example garden never writes the widgets' file. `WeekFacts.jobs(today:)` became `WeekFacts.jobs(asOf:)`. **A Mac will not show the widgets yet**: macOS takes widgets only from a signed app, and a signed Mac build failed here ("No Accounts", then "requires a provisioning profile"). Until that is sorted out, running the Mac app from Xcode itself may stop with a signing error. Unsigned builds are not affected. Where the rest of this entry says "iPhone and iPad only" or "the Mac is unchanged", this paragraph wins. The knowledge base, doc 54, has the full account.
+
+**On the branch `widgets`, made from `main` (`c89c037`). Not in `main`.** Built for the iOS Simulator and for the Mac with no errors at the first attempt (`wg1-sim.log`, `wg1-mac.log`, in `DerivedData/Windfall-widgets`). The widget drawings were seen in the simulator on a checking page inside the app, with example content: Paper in light and dark. **Not seen: a real widget on a Home Screen or Lock Screen, a tap on one, a tick, or anything on a real iPhone.** A signed build for a real iPhone also succeeded at 17:05 (`wg1-ios.log`): William's free Apple team accepted the widget program's own identifier and the App Group, and both programs carry the key to the shared folder. It was not installed, because the iPhone was not plugged in. **The logic tests were not run** for this change: `Tools/checks` only looks inside the `Windfall` folder, and this chat had no Swift toolchain in its cloud workspace.
+
+**Why.** William, 15:55: "Could we look at adding widget functionality into the app now". At 15:59: "Draw the options on the windfall redesign canvas first. I'd also like there to be an identify widget". At 16:15: "Build all the widgets you presented to me." The drawings are row 5 of the "Windfall redesign" canvas.
+
+### What a widget is, and why it needs a file
+
+A widget is a second small program that ships inside Windfall. iOS fences the two apart, so a widget cannot open the app's database. They share one folder, called an App Group. **The app writes a small summary file there and the widgets read only that.** The database is not moved and no second program ever opens it.
+
+iOS does not run a widget all the time. It asks for a timeline, a stack of ready-made cards each with a time to show it. Windfall's widgets hand over one card for now and one for each of the next seven midnights.
+
+### The widgets
+
+| Widget | Sizes | What it shows |
+|---|---|---|
+| This week | Small, medium, large, and three Lock Screen shapes | The urgent jobs from Today's "This week". The large one has a ring by each job that ticks it off without opening the app |
+| This month | Small, medium | The month's counts, as on a month's page, and its most pressing plants |
+| Frost and weather | Small, medium | Tonight's lowest temperature, and the next five nights with a snowflake for a frost and a ring for close to freezing |
+| Identify | Small, medium, and a Lock Screen circle | "What is this?", which opens the Identify sheet. The medium one also shows Eira's last answer |
+| Last answer | Small | Eira's last answer under its photo |
+| Capture | Medium | The six buttons from Today |
+| Ask Eira | Small, and a Lock Screen circle | Opens her chat |
+
+Every widget has one setting, **Look**: Paper, which follows light and dark mode, or Garden green. Press and hold a widget and choose Edit Widget.
+
+**A plant that could hurt someone keeps its warning.** When Eira's last answer carries a danger, the warning takes the photo's place on both Identify widgets.
+
+### New folders and files
+
+| File | What it is |
+|---|---|
+| `WindfallShared/WidgetSummary.swift` | Built into both the app and the widgets. The shared folder's name, the summary file's layout, reading it for one day, the ticks, and the links a widget opens the app with |
+| `WindfallShared/WidgetViews.swift` | Built into both. How each widget is drawn, as ordinary SwiftUI views, and the two looks |
+| `WindfallWidgets/WindfallWidgets.swift` | The widget program: the Look setting, the tick button, the timeline and the list of widgets |
+| `WindfallWidgets/Info.plist`, `WindfallWidgets.entitlements` | What tells iOS this is a widget program, and its key to the shared folder |
+| `WindfallWidgets/Assets.xcassets` | The same colours and icons as the app, made by `Tools/design/build_design_assets.py`, which now writes both |
+| `Windfall/WidgetShare.swift` | The app's side. `WeekFacts` gathers the week's facts for any day. `WidgetShare` writes the summary file. `WidgetRoute` follows a tap on a widget. `WidgetGallery` is the checking page |
+| `Windfall/Windfall.entitlements` | The app's key to the shared folder, used on iPhone and iPad only |
+
+### Changes to existing files
+
+- **`TodayView.swift`.** The gathering for "This week" moved out to `WeekFacts.jobs(today:…)` in `WidgetShare.swift`, word for word apart from taking the day as a value, so a widget can ask for the days ahead and can never disagree with Today. The ticks are now kept in the shared settings (`@AppStorage("todayTickedJobs", store: WindfallGroup.defaults)`), which is the app's own settings wherever there is no shared folder. Today refreshes the widgets' file once the weather is in, and does what a widget's button asked for (`followWidget`).
+- **`MainTabView.swift`.** `.onOpenURL` reads a widget's link and shows Today. The widgets' file is refreshed when the app is put away.
+- **`EiraFloatingBar.swift`.** Opens her chat when the "Ask Eira" widget asks.
+- **`EiraVision.swift`, `EiraChatView.swift`.** After an identification, one line notes the answer and a small copy of the photo for the widgets.
+- **`Info.plist`.** Registers links that start `windfall://`.
+- **`Windfall.xcodeproj`.** A second target, `WindfallWidgets`, for iPhone and iPad only. The app builds it first and copies it inside itself, on iOS only (`platformFilters = (ios, )`).
+
+### What does not change
+
+- **The Mac.** The widget program is not built for the Mac and is not inside the Mac app. The shared folder is nil there, so nothing is written and the ticks stay where they were.
+- **The database.** No record type was added or changed.
+
+### Checking aids
+
+`-demoOpen widgets` opens the checking page. `-demoWidgetPage 0`, `1` or `2` picks which widgets. `-demoWidgetLook green` draws them in Garden green.
+
+### Not built, or not as drawn
+
+1. **"Add a sighting" on the Identify widget.** The answer on the widget is a note of what Eira said. The identification itself is gone once its sheet is closed, so there is nothing to start a sighting from. A tap opens Identify.
+2. **"Ask Eira" opens her chat. It does not start listening.**
+3. **Taking a photo with the camera.** The app still has no camera code.
+4. **Widgets on the Mac.** A Mac widget needs a signed app, which looks in the other database (see the knowledge base, doc 31).
+5. Ticks made on the iPhone before this build are not carried into the shared settings.
+
+### ⚠️ CHECK: choices that are Claude's
+
+1. The words under tonight's temperature: "Frost. Cover anything tender before dark.", "Close to freezing. Frost on the ground is possible." and "No frost expected." They use the same 0 and 2 degrees as "This week".
+2. Which plants the "This month" widget lists: up to three from each of sow outdoors, sow indoors, plant out and harvest, the pressing ones first, four in all.
+3. The widget keeps eight days of jobs. After more than a week without opening the app it says "Open Windfall to bring this up to date."
 
 ## 14 November 2026, 15:50: swiping between months, a list of months, and a back swipe that follows the fingers
 
