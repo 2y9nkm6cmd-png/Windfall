@@ -288,7 +288,7 @@ enum ExportWaiting {
     }
 
     /// All three added together.
-    static func total(sightings observations: [WildlifeObservation], surveys: [Survey]) -> Int {
+    static func altogether(sightings observations: [WildlifeObservation], surveys: [Survey]) -> Int {
         sightings(observations) + fitCounts(surveys) + wormCounts(surveys)
     }
 }

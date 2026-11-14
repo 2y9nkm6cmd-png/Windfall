@@ -725,7 +725,7 @@ struct MoreTab: View {
     /// "4 records ready to send", counted by the same rule as the
     /// Export page uses (`ExportWaiting`, in ExportService.swift).
     private var exportLine: String {
-        let waiting = ExportWaiting.total(sightings: sightings, surveys: surveys)
+        let waiting = ExportWaiting.altogether(sightings: sightings, surveys: surveys)
         return waiting == 0 ? "Nothing waiting to send" : "\(counted(waiting, "record")) ready to send"
     }
 }
