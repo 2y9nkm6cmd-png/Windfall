@@ -96,6 +96,8 @@ enum DemoGarden {
     /// right, with the card that offers to keep the correction.
     /// `corrections` does the same and then opens the list of them.
     /// `eira-photo` opens her chat on an example answer to a photo.
+    /// `eira-lookups` opens it on an example reply that made lookups,
+    /// with its closed bubble and a card for the plant found.
     ///
     /// `plantSowing` and `plantPlanting`, with `-demoPlant Achillea`,
     /// open the sowing form from that plant's page: the first on seed,

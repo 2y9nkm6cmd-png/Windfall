@@ -18,7 +18,9 @@
 //                        because Eira cannot save from the chat. A
 //                        scientific name that no lookup supplied is
 //                        flagged as unchecked. An empty reply is said
-//                        to be empty.
+//                        to be empty. An example sentence from her own
+//                        instructions, said back where it does not
+//                        belong, is taken out.
 //
 //  Each rule here exists because a model got exactly that wrong on the
 //  test sheet on 13 November 2026 (knowledge base, doc 27). The rules
@@ -329,6 +331,7 @@ enum EiraChecks {
         case .kept: truth = correctionKept
         }
         var result = withoutSaveClaims(trimmed, saying: truth)
+        result = withoutEchoedExample(result, question: question, lookups: lookups)
 
         let names = uncheckedNames(in: result, against: [question] + lookups + known)
         if !names.isEmpty {
@@ -448,6 +451,56 @@ enum EiraChecks {
         let last = current.trimmingCharacters(in: .whitespaces)
         if !last.isEmpty { found.append(last) }
         return found
+    }
+
+    // MARK: An example from her instructions, said back
+
+    /// The reply without the example sentence from Eira's instructions,
+    /// where it has nothing to do with what was asked.
+    ///
+    /// Rule 8 of her instructions shows the right wording for when a
+    /// lookup finds nothing: "I have no sowings recorded for last week".
+    /// On 14 November 2026 Apple's model, asked to "Find all information
+    /// about comfrey", began its answer with that sentence word for
+    /// word. Nobody had asked about sowing and no lookup had looked for
+    /// any. A small model will sometimes say an example back like this.
+    ///
+    /// The sentence is left alone when it could be a real answer: the
+    /// question speaks of sowing, or a lookup reported on sowings.
+    ///
+    ///   asked about comfrey            the sentence is taken out
+    ///   "What did I sow last week?"    left: it answers the question
+    ///   a lookup said "No sowings in the last 7 days."   left
+    ///
+    /// Only that exact sentence is looked for. A reply that is nothing
+    /// but the sentence is left as it is, because an odd answer is
+    /// better than an empty one.
+    static func withoutEchoedExample(_ reply: String, question: String, lookups: [String] = []) -> String {
+        // " sow" finds sow, sown, sowed, sowing and sowings.
+        if EiraSafety.tidied(question).contains(" sow") { return reply }
+        if lookups.contains(where: { $0.lowercased().contains("sowings") }) { return reply }
+
+        // Compared after tidying, so capitals and the full stop do not
+        // matter.
+        let example = EiraSafety.tidied(EiraPrompt.nothingRecordedExample)
+        var removedAny = false
+        var keptLines: [String] = []
+
+        // Line by line, as in withoutSaveClaims, so paragraphs keep
+        // their shape.
+        for line in reply.components(separatedBy: "\n") {
+            let kept = sentences(in: line).filter { sentence in
+                let isEcho = EiraSafety.tidied(sentence) == example
+                if isEcho { removedAny = true }
+                return !isEcho
+            }
+            if kept.isEmpty && !line.trimmingCharacters(in: .whitespaces).isEmpty { continue }
+            keptLines.append(kept.joined(separator: " "))
+        }
+        guard removedAny else { return reply }
+
+        let rest = keptLines.joined(separator: "\n").trimmingCharacters(in: .whitespacesAndNewlines)
+        return rest.isEmpty ? reply : rest
     }
 
     // MARK: Scientific names nobody looked up

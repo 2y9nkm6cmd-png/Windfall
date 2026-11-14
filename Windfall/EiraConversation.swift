@@ -543,6 +543,30 @@ final class EiraConversation {
         }
     }
 
+    /// A checking aid: an example question whose reply made three
+    /// lookups, so a still picture can be taken of the closed bubble
+    /// above the reply and the plant card under it. No model is asked
+    /// and nothing is saved. The plant is one from the starter library,
+    /// which the example garden holds. See DemoGarden.opens.
+    func showExampleLookups() {
+        let plantLine = "Russian comfrey \u{2014} 'Bocking 14'; (Symphytum \u{00D7} uplandicum 'Bocking 14'); pollinator plant"
+        let visitorLines = "Long-tongued bees: Nectar \u{2014} flower shape Urceolate: Deep tubular \u{2014} Accessed legitimately\n"
+            + "Short-tongued bees: Nectar-robbing \u{2014} flower shape Urceolate: Deep tubular \u{2014} Bites holes through the flower base"
+        // Each result is worded as the real lookup words it, with its
+        // source line, so the bubble and the card read it the same way.
+        let plantsFound = ToolResult(text: plantLine, source: "user's plant database").formatted
+        let visitorsFound = ToolResult(text: visitorLines, source: "user's Plant-Fauna Links sheet").formatted
+        let notesFound = ToolResult(text: "Nothing in the notes about \"comfrey\".", source: "user's knowledge base").formatted
+        let exampleReply = "From your records, you grow **Russian comfrey, 'Bocking 14'** (*Symphytum \u{00D7} uplandicum 'Bocking 14'*), a pollinator plant. Long-tongued bees reach the nectar in its deep tubular flowers, and short-tongued bees rob it by biting through the flower base.\n\nNothing about it is recorded in your notes."
+        messages = [
+            ChatMessage(role: .user, content: "Find all information about comfrey"),
+            ChatMessage(role: .tool, content: plantsFound, toolName: EiraTools.searchGarden.name),
+            ChatMessage(role: .tool, content: visitorsFound, toolName: EiraTools.plantVisitors.name),
+            ChatMessage(role: .tool, content: notesFound, toolName: EiraTools.searchNotes.name),
+            ChatMessage(role: .assistant, content: exampleReply)
+        ]
+    }
+
     /// Every correction kept so far, newest first. For the list in the
     /// chat's Options menu.
     func corrections() -> [EiraCorrection] {

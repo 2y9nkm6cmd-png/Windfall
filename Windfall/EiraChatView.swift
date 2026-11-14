@@ -9,10 +9,18 @@
 //    EiraOnDeviceEngine.swift   runs the model
 //    EiraTools.swift            the lookups and Eira's standing instructions
 //
-//  Three things are always visible, on purpose:
-//    - her reasoning, in a box that opens when tapped
+//  Three things can always be seen, on purpose:
 //    - every lookup she makes, with what came back and from where
+//    - her reasoning, when the model gives any
 //    - which model answered and how fast
+//
+//  The first two sit in one small bubble above each reply, closed until
+//  it is tapped (14 November 2026). Until then each lookup was a row of
+//  its own, and four of them could stand between a question and its
+//  answer. EiraChatLayout.swift folds the conversation into turns, and
+//  EiraChatCards.swift draws the bubble. Under a reply that drew on the
+//  plant library there is a card for each plant found, which opens the
+//  plant's page.
 //
 //  The buttons above the text box force a lookup, because small models
 //  are unreliable at deciding when to look something up. Pressing and
@@ -96,45 +104,63 @@ struct EiraChatView: View {
                             welcome
                         }
 
-                        ForEach(conversation.messages) { message in
-                            if let identification = conversation.identifications[message.id] {
-                                // Her answer to a photo is drawn as a
-                                // card, with what can be done with it.
-                                ChatIdentification(
-                                    identification: identification,
-                                    isAdded: sightingsAdded.contains(message.id),
-                                    canAsk: conversation.modelName != nil && !conversation.isGenerating,
-                                    onAdd: { addSighting(for: message.id, from: identification) },
-                                    onAsk: { question, name in
-                                        conversation.send(question, forcedTool: EiraTools.lookupSpecies, about: name)
-                                    })
-                                    .id(message.id)
-                            } else {
-                                // A photo of yours sits above the
-                                // message it came with.
-                                if let photo = conversation.photos[message.id] {
-                                    PhotoBubble(data: photo)
-                                }
-                                MessageView(message: message) {
-                                    messageToCorrect = message
-                                }
-                                .id(message.id)
-                            }
+                        // The conversation, folded into turns: each
+                        // message with the lookups that led to it.
+                        // See EiraChatLayout.turns.
+                        let turns = EiraChatLayout.turns(from: conversation.messages)
 
-                            // A message of yours that put Eira right is
-                            // followed by a card offering to keep it.
-                            if let offer = conversation.offeredCorrection, offer.messageID == message.id {
-                                CorrectionOfferCard(
-                                    offer: offer,
-                                    onKeep: { words in conversation.keepOfferedCorrection(as: words) },
-                                    onUndo: { conversation.undoKeptCorrection() },
-                                    onDismiss: { conversation.dismissOfferedCorrection() },
-                                    onShowAll: { showingCorrections = true })
+                        ForEach(turns) { turn in
+                            if let message = turn.message {
+                                if let identification = conversation.identifications[message.id] {
+                                    // Her answer to a photo is drawn as a
+                                    // card, with what can be done with it.
+                                    ChatIdentification(
+                                        identification: identification,
+                                        isAdded: sightingsAdded.contains(message.id),
+                                        canAsk: conversation.modelName != nil && !conversation.isGenerating,
+                                        onAdd: { addSighting(for: message.id, from: identification) },
+                                        onAsk: { question, name in
+                                            conversation.send(question, forcedTool: EiraTools.lookupSpecies, about: name)
+                                        })
+                                        .id(message.id)
+                                } else {
+                                    // A photo of yours sits above the
+                                    // message it came with.
+                                    if let photo = conversation.photos[message.id] {
+                                        PhotoBubble(data: photo)
+                                    }
+                                    MessageView(message: message, lookups: turn.lookups) {
+                                        messageToCorrect = message
+                                    }
+                                    .id(message.id)
+                                }
+
+                                // A message of yours that put Eira right is
+                                // followed by a card offering to keep it.
+                                if let offer = conversation.offeredCorrection, offer.messageID == message.id {
+                                    CorrectionOfferCard(
+                                        offer: offer,
+                                        onKeep: { words in conversation.keepOfferedCorrection(as: words) },
+                                        onUndo: { conversation.undoKeptCorrection() },
+                                        onDismiss: { conversation.dismissOfferedCorrection() },
+                                        onShowAll: { showingCorrections = true })
+                                }
+                            } else if !conversation.isGenerating || turn.id != turns.last?.id {
+                                // Lookups whose reply never came, because
+                                // it was stopped or failed. The newest
+                                // turn is left out while she is still
+                                // replying: StreamingView below shows
+                                // its lookups instead.
+                                ThinkingBubble(lookups: turn.lookups)
                             }
                         }
 
                         if conversation.isGenerating {
-                            StreamingView(conversation: conversation)
+                            // `last` is the newest turn. If it has no
+                            // message yet, its lookups belong to the
+                            // reply now being written.
+                            StreamingView(conversation: conversation,
+                                          lookups: turns.last.flatMap { $0.message == nil ? $0.lookups : nil } ?? [])
                                 .id("streaming")
                         }
 
@@ -320,6 +346,11 @@ struct EiraChatView: View {
             // `eira-photo` shows her answer to a photo instead.
             if DemoGarden.opens == "eira-photo" {
                 conversation.showExamplePhoto(answeredBy: EiraIdentify.example(in: context))
+            }
+            // `eira-lookups` shows a reply that made lookups, with its
+            // closed bubble and a plant card.
+            if DemoGarden.opens == "eira-lookups" {
+                conversation.showExampleLookups()
             }
             if DemoGarden.opens == "eira" || DemoGarden.opens == "corrections" {
                 let listed = DemoGarden.opens == "corrections"
@@ -596,9 +627,11 @@ struct EiraChatView: View {
 private struct MessageView: View {
 
     let message: ChatMessage
+    /// The lookups Eira made on the way to this reply. Empty for a
+    /// message of yours.
+    var lookups: [ChatMessage] = []
     /// Called when "Correct this" is chosen on one of Eira's replies.
     let onCorrect: () -> Void
-    @State private var reasoningExpanded = false
 
     var body: some View {
         switch message.role {
@@ -611,27 +644,26 @@ private struct MessageView: View {
                                 in: RoundedRectangle(cornerRadius: 12))
             }
 
-        case .tool:
-            DisclosureGroup {
-                Text(message.content)
-                    .font(.caption.monospaced())
-                    .foregroundStyle(.secondary)
-                    .textSelection(.enabled)
-            } label: {
-                Label(message.toolName ?? "Lookup", systemImage: "magnifyingglass")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-            .padding(8)
-            .background(.secondary.opacity(0.08), in: RoundedRectangle(cornerRadius: 8))
-
         case .assistant:
             VStack(alignment: .leading, spacing: 8) {
-                if let reasoning = message.reasoning, !reasoning.isEmpty {
-                    ReasoningBox(text: reasoning, expanded: $reasoningExpanded)
+                // What she did to reach this reply, closed until tapped.
+                // Left out when she neither looked anything up nor
+                // reasoned, so a plain reply has no empty bubble.
+                if !lookups.isEmpty || !(message.reasoning ?? "").isEmpty {
+                    ThinkingBubble(lookups: lookups, reasoning: message.reasoning)
                 }
-                Text(message.content)
+
+                // `styled` turns **bold** and *italic* marks into bold
+                // and italic. See EiraChatText.
+                Text(EiraChatText.styled(message.content))
                     .textSelection(.enabled)
+
+                // A card for each plant of yours the lookups found.
+                // Only built when a lookup named one, because the view
+                // reads the whole plant library to match the names.
+                if !EiraChatLayout.plantLines(in: lookups).isEmpty {
+                    ChatPlantLinks(lookups: lookups)
+                }
 
                 // In plain sight under every reply. Until 14 November
                 // 2026 it was only in the menu that a press and hold (or
@@ -656,76 +688,33 @@ private struct MessageView: View {
                 }
             }
 
-        case .system:
+        // A lookup is never drawn on its own: it is folded into the
+        // bubble of the reply it led to. Instructions are never drawn.
+        case .tool, .system:
             EmptyView()
         }
     }
 }
 
-// MARK: - Reasoning box
-
-/// Collapsed by default. On a small model the thinking is routinely longer
-/// than the answer, and you'd be scrolling past a wall of it every turn.
-struct ReasoningBox: View {
-
-    let text: String
-    @Binding var expanded: Bool
-    var isLive = false
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Button {
-                withAnimation { expanded.toggle() }
-            } label: {
-                HStack {
-                    Image(systemName: isLive ? "ellipsis.bubble" : "brain")
-                    Text(isLive ? "Thinking…" : "Reasoning")
-                        .font(.caption.weight(.medium))
-                    Spacer()
-                    Image(systemName: expanded ? "chevron.up" : "chevron.down")
-                        .font(.caption2)
-                }
-                .foregroundStyle(.blue)
-            }
-            .buttonStyle(.plain)
-
-            if expanded {
-                Text(text)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .textSelection(.enabled)
-            }
-        }
-        .padding(10)
-        .background(.blue.opacity(0.08), in: RoundedRectangle(cornerRadius: 10))
-        .overlay(
-            RoundedRectangle(cornerRadius: 10)
-                .strokeBorder(.blue.opacity(0.25), lineWidth: 1)
-        )
-    }
-}
-
 // MARK: - Streaming
 
+/// The reply while it is still being written.
 private struct StreamingView: View {
 
     let conversation: EiraConversation
-    @State private var expanded = true
+    /// The lookups made so far for this reply.
+    let lookups: [ChatMessage]
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            if !conversation.streamingReasoning.isEmpty {
-                ReasoningBox(text: conversation.streamingReasoning,
-                             expanded: $expanded, isLive: true)
-            }
+            // The same bubble as a finished reply has, with a spinner
+            // and "Thinking…" on it. It stays closed unless tapped.
+            ThinkingBubble(lookups: lookups,
+                           reasoning: conversation.streamingReasoning,
+                           isLive: true)
 
-            if conversation.streamingContent.isEmpty && conversation.streamingReasoning.isEmpty {
-                HStack(spacing: 6) {
-                    ProgressView().controlSize(.small)
-                    Text("Thinking…").font(.caption).foregroundStyle(.secondary)
-                }
-            } else if !conversation.streamingContent.isEmpty {
-                Text(conversation.streamingContent)
+            if !conversation.streamingContent.isEmpty {
+                Text(EiraChatText.styled(conversation.streamingContent))
             }
         }
     }

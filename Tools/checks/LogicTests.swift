@@ -1473,6 +1473,57 @@ struct LogicTests {
         check(lettered.first?.items == ["Alfalfa", "Apple", "Apple|Pendragon", "apple|Spartan", "apple (Cider)|Camelot", "Apple (Cider)|Fiona"], "within a letter the order is by name and then by variety: \(lettered.first?.items ?? [])")
         check(PlantLetters.groups([String](), name: { $0 }).isEmpty && PlantLetters.groups(["Sage", "sage"], name: { $0 }).first?.items == ["Sage", "sage"], "an empty list gives no letters, and two names alike keep the order they came in")
 
+        // Eira's chat folded into turns, the words on the bubble and the plant cards.
+        let askedIt = ChatMessage(role: .user, content: "Find all information about comfrey")
+        let gardenHit = ChatMessage(role: .tool, content: ToolResult(text: "Russian comfrey \u{2014} 'Bocking 14'; (Symphytum \u{00D7} uplandicum 'Bocking 14'); pollinator plant", source: "user's plant database").formatted, toolName: "search_garden")
+        let visitorHit = ChatMessage(role: .tool, content: ToolResult(text: "Long-tongued bees: Nectar", source: "user's Plant-Fauna Links sheet").formatted, toolName: "plant_visitors")
+        let herAnswer = ChatMessage(role: .assistant, content: "You grow Russian comfrey.")
+        let folded = EiraChatLayout.turns(from: [ChatMessage(role: .system, content: "rules"), askedIt, gardenHit, visitorHit, herAnswer])
+        check(folded.count == 2 && folded[0].id == askedIt.id && folded[0].lookups.isEmpty && folded[0].message?.id == askedIt.id && folded[1].id == herAnswer.id && folded[1].lookups.map(\.id) == [gardenHit.id, visitorHit.id] && folded[1].message?.id == herAnswer.id, "a reply's lookups are folded into its turn, and instructions are left out")
+        let stillWorking = EiraChatLayout.turns(from: [askedIt, gardenHit])
+        check(stillWorking.count == 2 && stillWorking[1].message == nil && stillWorking[1].id == gardenHit.id && stillWorking[1].lookups.count == 1, "lookups with no reply yet make a turn of their own")
+        let askedAgain = ChatMessage(role: .user, content: "And lavender?")
+        let stoppedShort = EiraChatLayout.turns(from: [askedIt, gardenHit, askedAgain, herAnswer])
+        check(stoppedShort.count == 4 && stoppedShort[1].message == nil && stoppedShort[2].message?.id == askedAgain.id && stoppedShort[3].lookups.isEmpty && Set(stoppedShort.map(\.id)).count == 4, "lookups whose reply never came stay with their own question and are not handed to the next reply")
+        check(EiraChatLayout.turns(from: []).isEmpty, "an empty conversation has no turns")
+        let unnamed = EiraChatLayout.title(forLookup: nil)
+        check((EiraTools.all + [EiraTools.sowingNow]).allSatisfy { EiraChatLayout.title(forLookup: $0.name) != unnamed } && EiraChatLayout.title(forLookup: "search_garden") == "Searched your plants" && EiraChatLayout.title(forLookup: "something_new") == unnamed, "every lookup Eira has is named in plain words, and an unknown one is still named")
+        check(EiraChatLayout.summary(lookups: 4, hasReasoning: false) == "Looked in 4 places" && EiraChatLayout.summary(lookups: 1, hasReasoning: false) == "Looked in 1 place" && EiraChatLayout.summary(lookups: 0, hasReasoning: true) == "Thought it through" && EiraChatLayout.summary(lookups: 1, hasReasoning: true) == "Thought it through and looked in 1 place", "the closed bubble says how many places she looked in")
+        let gardenParts = EiraChatLayout.parts(ofResult: gardenHit.content)
+        let cutShort = EiraChatLayout.parts(ofResult: EiraToolHub.trimmed(ToolResult(text: "Apple\nPear\nPlum", source: "user's plant database"), limit: 8))
+        check(gardenParts.source == "user's plant database" && gardenParts.found.hasPrefix("Russian comfrey") && !gardenParts.found.contains("[source") && cutShort.source == "user's plant database" && cutShort.found == "Apple\n(shortened)" && EiraChatLayout.parts(ofResult: " no source here ").found == "no source here" && EiraChatLayout.parts(ofResult: "no source here").source == nil, "a lookup's result is split from the line saying where it came from")
+        let library = ["Apple", "Apple (Cider) \u{2014} Fiona", "Apple \u{2014} Spartan", "Comfrey", "Russian comfrey \u{2014} 'Bocking 14'", "Lavender \u{2014} Hidcote", ""]
+        check(EiraChatLayout.plantNames(foundBy: [gardenHit, visitorHit], among: library) == ["Russian comfrey \u{2014} 'Bocking 14'"], "the plant a search of the library found is picked out by its full name")
+        let appleSearch = ChatMessage(role: .tool, content: ToolResult(text: "Apple \u{2014} Spartan; (Malus domestica); harvest: oct\nApple (Cider) \u{2014} Fiona; (Malus domestica)\nApple\nQuince; (Cydonia oblonga)", source: "user's plant database").formatted, toolName: "search_garden")
+        check(EiraChatLayout.plantNames(foundBy: [appleSearch, appleSearch], among: library) == ["Apple \u{2014} Spartan", "Apple (Cider) \u{2014} Fiona", "Apple"], "each line goes to the plant whose whole name it starts with, in the order found and once only")
+        let speciesHit = ChatMessage(role: .tool, content: ToolResult(text: "In the gardener's own records: Apple (Cider) \u{2014} Fiona (Malus domestica), in the plant library\nAccepted name: Malus domestica", source: "user's records and GBIF species match API").formatted, toolName: "lookup_species")
+        let wildlifeHit = ChatMessage(role: .tool, content: ToolResult(text: "In the gardener's own records: Comfrey (Bombus), in the wildlife list", source: "user's records").formatted, toolName: "lookup_species")
+        check(EiraChatLayout.plantNames(foundBy: [speciesHit], among: library) == ["Apple (Cider) \u{2014} Fiona"] && EiraChatLayout.plantNames(foundBy: [wildlifeHit], among: library).isEmpty, "a species lookup that found the plant in the library names it, and one that found an animal names none")
+        let nothingFound = ChatMessage(role: .tool, content: ToolResult(text: "Nothing matching \"Comfrey\" in the plant database.", source: "user's plant database").formatted, toolName: "search_garden")
+        let notesHit = ChatMessage(role: .tool, content: ToolResult(text: "Comfrey; cut it four times a year", source: "user's own documents").formatted, toolName: "search_notes")
+        check(EiraChatLayout.plantLines(in: [nothingFound, notesHit, visitorHit]).isEmpty && EiraChatLayout.plantNames(foundBy: [nothingFound, notesHit], among: library).isEmpty, "a search that found nothing, and lookups that are not of the plant library, give no plant card")
+        // The same through the real search, so the search's wording and its reader cannot drift apart.
+        let cardShelf = ModelContext()
+        let cardComfrey = Plant(commonName: "Russian comfrey"); cardComfrey.variety = "'Bocking 14'"; cardComfrey.latinName = "Symphytum \u{00D7} uplandicum 'Bocking 14'"; cardComfrey.isPollinator = true
+        let cardBean = Plant(commonName: "Broad bean")
+        cardShelf.insert(cardComfrey); cardShelf.insert(cardBean)
+        let cardHub = EiraToolHub(context: cardShelf)
+        let realSearch = ChatMessage(role: .tool, content: await cardHub.run(name: "search_garden", argumentsJSON: EiraToolHub.json(["query": "comfrey"])), toolName: "search_garden")
+        let realBean = ChatMessage(role: .tool, content: await cardHub.run(name: "search_garden", argumentsJSON: EiraToolHub.json(["query": "broad beans"])), toolName: "search_garden")
+        check(EiraChatLayout.plantNames(foundBy: [realSearch, realBean], among: [cardBean.displayName, cardComfrey.displayName]) == [cardComfrey.displayName, cardBean.displayName], "what the real plant search writes is read back as the plants it found: \(realSearch.content)")
+        let exampleChat = EiraConversation()
+        exampleChat.showExampleLookups()
+        let exampleTurns = EiraChatLayout.turns(from: exampleChat.messages)
+        check(exampleTurns.count == 2 && exampleTurns[1].lookups.count == 3 && EiraChatLayout.plantNames(foundBy: exampleTurns[1].lookups, among: library) == ["Russian comfrey \u{2014} 'Bocking 14'"], "the example for a still picture has one bubble of three lookups and one plant card")
+
+        // An example sentence from her instructions, said back in an answer about something else.
+        let echoed = "I have no sowings recorded for last week.\n\nFrom your records, you're growing Russian comfrey. Nothing is recorded about pollinators visiting it in your notes."
+        let withoutEcho = "From your records, you're growing Russian comfrey. Nothing is recorded about pollinators visiting it in your notes."
+        check(EiraChecks.withoutEchoedExample(echoed, question: "Find all information about comfrey") == withoutEcho && EiraChecks.checked(reply: echoed, question: "Find all information about comfrey", lookups: [gardenHit.content]) == withoutEcho, "the example sentence from her instructions is taken out of an answer about comfrey")
+        check(EiraChecks.withoutEchoedExample(echoed, question: "What did I sow last week?") == echoed && EiraChecks.withoutEchoedExample(echoed, question: "Any sowings lately?") == echoed && EiraChecks.withoutEchoedExample(echoed, question: "What have I planted?", lookups: ["No sowings in the last 7 days.\n\n[source: user's planting records]"]) == echoed, "the same sentence is left alone when sowing was asked about or looked up")
+        check(EiraChecks.withoutEchoedExample("I have no sowings recorded for last week.", question: "Tell me about comfrey") == "I have no sowings recorded for last week." && EiraChecks.withoutEchoedExample("Comfrey is in. i have no sowings recorded for last week! It flowers in May.", question: "comfrey") == "Comfrey is in. It flowers in May." && EiraChecks.withoutEchoedExample("I have no harvests recorded for last week.", question: "comfrey") == "I have no harvests recorded for last week.", "only that exact sentence goes, and a reply that is nothing else is left as it is")
+        check(EiraPrompt.build().contains("\"I have no sowings recorded for last week\" is right. \"You did not sow anything\" is wrong."), "her instructions still give the example in the same words")
+
         print("   logic tests: \(passes) passed, \(failures) failed")
         exit(failures == 0 ? 0 : 1)
     }

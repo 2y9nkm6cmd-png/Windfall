@@ -669,6 +669,14 @@ enum EiraGardenNotes {
 /// garden notes.
 enum EiraPrompt {
 
+    /// The example of right wording given in rule 8 below.
+    ///
+    /// It has a name because a model sometimes says it back word for
+    /// word in an answer about something else, and a fixed rule then
+    /// takes it out (EiraChecks.withoutEchoedExample). Both places read
+    /// it from here, so the two cannot drift apart.
+    static let nothingRecordedExample = "I have no sowings recorded for last week"
+
     static func build(
         date: Date = .now,
         gardenNotes: String = EiraGardenNotes.load(),
@@ -715,8 +723,8 @@ enum EiraPrompt {
         7. Say where each fact came from. If it is your own general \
         knowledge and not from a tool, say "from general knowledge, not checked".
         8. When a tool finds no records, say that nothing is recorded. Do \
-        not say that it did not happen. "I have no sowings recorded for \
-        last week" is right. "You did not sow anything" is wrong.
+        not say that it did not happen. "\(nothingRecordedExample)" is \
+        right. "You did not sow anything" is wrong.
 
         Identification:
         9. Give the scientific name, the features you used, your confidence \
