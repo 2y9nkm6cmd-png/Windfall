@@ -7,6 +7,77 @@ run without the Mac (every file reads as valid Swift, 323 logic tests
 pass). Those do not build the screens. Expect things to put right when
 it is first built, and treat how everything here looks as untried.
 
+## 14 November 2026, 17:13: Eira's lookups in one closed bubble, and a card for the plant
+
+**On the branch `eira-thinking-bubble`, made from `main` (`0ba7173`). Not built.** It was written in a cloud workspace with no Mac. Every file reads as valid Swift, the logic files pass the type check and 613 logic tests pass, 17 of them new. Those checks do not build screens, and three of the files changed are screens (`EiraChatView.swift`, `EiraChatCards.swift`, `EiraFloatingBar.swift`). **Expect things to put right at the first build in Xcode, and treat how it looks as untried.**
+
+**Why.** William, 17:02, with a picture of Eira's chat on his iPhone after asking "Find all information about comfrey": "Eira could work a bit better. The searches that it does to present me with an answer should be in a closed 'thinking' bubble, unless you tap it to see what it's doing. This kind of search should also present you to a link to the database information you have as a little card." The picture showed four grey rows (`search_garden`, `plant_visitors`, `search_notes`, `lookup_species`) between his question and her answer. It also showed two faults he did not mention: her answer began "I have no sowings recorded for last week.", and the bold and italic marks were on screen as asterisks.
+
+### 1. What you see
+
+- **One small bubble above each reply**, closed: "Looked in 4 places". Tap it and it opens to a line for each lookup in plain words ("Searched your plants") with where it looked. Tap a line to see what came back. The model's own reasoning, where a model gives any, is in the same bubble. While she is still replying the bubble has a spinner, says "Thinking…" and names the newest lookup.
+- **A card for each plant her lookups found in your library**, under the reply, headed "In your plant library". It is the same card as on the Plants page. Tap it and the plant's page slides in over the chat. No more than three cards, then "and 2 more, on the Plants page".
+- **Bold and italic are shown as bold and italic.**
+- **The stray sentence is taken out** before the reply is shown.
+
+### 2. Folding the conversation into turns (`EiraChatLayout.swift`, new)
+
+The conversation is kept as a flat list: your message, each lookup, her reply. The screen used to draw that list as it stood. `EiraChatLayout.turns(from:)` now folds it first:
+
+```swift
+struct Turn: Identifiable {
+    let id: UUID
+    let lookups: [ChatMessage]
+    let message: ChatMessage?
+}
+```
+
+- A `struct` is a small bundle of values. This one is a message together with the lookups that led to it.
+- `[ChatMessage]` is a list of messages. `ChatMessage?` with the question mark means "a message, or nothing": lookups can exist before her reply has come.
+- `Identifiable` and `id` let SwiftUI tell the turns apart. The id is the message's own, so a photo or a correction card filed under a message still finds it.
+
+```swift
+case .tool:
+    waiting.append(message)
+case .assistant:
+    turns.append(Turn(id: message.id, lookups: waiting, message: message))
+    waiting = []
+```
+
+- The loop walks the list. A lookup (`.tool`) is put in `waiting`. When her reply (`.assistant`) arrives it takes everything waiting, and the waiting list is emptied.
+- Lookups followed by another message of yours, because the reply was stopped, keep a turn of their own and are never handed to the next reply.
+
+Nothing is changed in what is saved. A saved conversation opens with its bubbles and cards.
+
+### 3. Which plants get a card
+
+No new field is saved for this. A search of the plant library writes one line for each plant, starting with its name. `EiraChatLayout.plantNames(foundBy:among:)` reads those lines back and matches them to the names in the library. Where two names fit a line the longest wins, so the line for the cider apple Fiona is not taken for the plant called plain "Apple". A test runs the real search and reads its result back, so the two cannot drift apart unnoticed.
+
+Cards come from `search_garden` and from a `lookup_species` that found the species in the plant library. `plant_visitors`, `whats_growing` and the notes give none yet.
+
+### 4. Drawing it (`EiraChatCards.swift`, new, and `EiraChatView.swift`)
+
+- `ThinkingBubble` is the bubble. `@State private var isOpen = false` is a value the view keeps for itself between redraws: whether it is open. It starts closed.
+- `ChatPlantLinks` is the cards. Each is a `NavigationLink`, which slides a page in with a back button, around the Plants page's own `PlantCardView`.
+- `EiraChatText.styled` hands the reply to Apple's Markdown reader with `inlineOnlyPreservingWhitespace`, which reads bold, italic and links and leaves line breaks alone.
+- `ReasoningBox`, the blue box, is gone. Its job is inside the bubble. The live reasoning used to start open and now starts closed.
+- In `MessageView`, a lookup is no longer drawn as a row of its own.
+
+### 5. The stray sentence (`EiraChecks.swift`, `EiraTools.swift`)
+
+Rule 8 of Eira's instructions gives an example of right wording: "I have no sowings recorded for last week". Apple's model said it back word for word in an answer about comfrey. `EiraChecks.withoutEchoedExample` takes that exact sentence out, unless the question speaks of sowing or a lookup reported on sowings, when it may be a true answer. The sentence now has one home, `EiraPrompt.nothingRecordedExample`, read by both the instructions and the rule. **The instructions themselves read exactly as before**, so her marks on the test sheet should not move.
+
+### 6. A checking aid
+
+`-demoOpen eira-lookups`, with the example garden, opens her chat on an example of William's question with three lookups, the closed bubble and the comfrey's card. No model is asked.
+
+### Not done
+
+- **Nothing here has been built or seen.**
+- Drawings of each plant on the cards, which William raised in the same message as "a side note". Not started. The chat uses the Plants page's card, so a drawing added to that card will show in both places.
+- In the picture her answer also said nothing was recorded about pollinators visiting comfrey, straight after giving what `plant_visitors` had found. That is the model, and is not changed here.
+- Her spoken replies, if switched on, are still handed the reply with its asterisks.
+
 ## 14 November 2026, 16:26: the sidebar's lens follows the fingers again
 
 **On the branch `sidebar-scroll-follows-fingers`, made from `main`.** One line in `MainTabView.swift`, in `lensScrolled(by:)`.
