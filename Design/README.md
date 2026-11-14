@@ -5,7 +5,7 @@ Everything about how Windfall looks is kept here.
 | Folder or file | What it holds |
 |---|---|
 | `Reference/` | Pictures and files William has sent, each with the date it arrived. These are the originals and are never edited |
-| `Icons/` | One small SVG drawing for each icon in the app. These are the masters: edit one and the app follows |
+| `Icons/` | One small SVG drawing for each icon in the app. These are the masters: edit one and the app follows. The twenty that start `shape-` are the flower shapes: see below |
 | `AppIcon/` | The app's own icon, the snowdrop and bumblebee, as two SVG drawings: light and dark. These are the masters. See "The app icon" below |
 | `colours.json` | Every named colour, each with a light-mode and a dark-mode value |
 | `Archive/` | Anything that has been replaced or set aside, kept in case it is wanted again |
@@ -36,12 +36,27 @@ The script copies the colours and icons into `Windfall/Assets.xcassets`, which i
 
 Icons are drawn on a 24 by 24 grid with a line 1.6 wide and rounded ends.
 
+## The flower shape drawings
+
+Twenty of the files in `Icons/` have names that start `shape-`, one for each shape in the Flower Form Guide: `shape-bilabiate.svg`, `shape-rotate-umbellate.svg` and so on. The Flower shapes pages show them (`Windfall/FlowerShapeViews.swift`).
+
+- **The name is made from the shape's own name**: small letters, commas dropped, each space a hyphen. A new shape in the guide needs only a drawing with the matching name. A test fails if a shape in `StarterData.json` has no drawing.
+- **They are drawn by a script, not by hand**: `Tools/design/flower_shapes.py`. To change one, edit its block in that file and run, from the top of the repository:
+
+  ```
+  python3 Tools/design/flower_shapes.py Design/Icons
+  python3 Tools/design/build_design_assets.py
+  ```
+
+- **They are colour icons**, like the bee and the butterfly: flat petal colours, a darker tone for shade and the dark green outline (`#06472A`), drawn back to front so that one petal can sit over another. **They are the same drawing in light and dark mode.** Other colour icons get a dark-mode copy with a pale outline, but William preferred these left as they are on the dark background, so the script skips any icon whose name starts `shape-` (`SAME_IN_DARK` in `build_design_assets.py`). The cost, which he saw: bare stalks and the spokes of the umbel, drawn only in the outline colour, are faint in dark mode. They were one-colour outlines for an hour on 14 November 2026, until William asked for them to be more realistic.
+- **The shade is its own colour**, `#0A2E1C`, laid thinly over what is beneath. It must not be the outline colour: that one turns pale in dark mode, and the shade would then lighten instead of darken.
+- The botany is Claude's own and has not been checked against a book. Project doc 57 lists what was simplified.
 ## The fungus key's diagrams
 
 The 53 files named `fungus-<name>.svg` in `Icons/` are the diagrams beside the choices in the fungus key (Wildlife, Fungus key). They are colour drawings on a 100 by 100 grid, in the bold manner of the flower shapes: a heavy outline, flat colour and one darker tone for shade.
 
 - **Do not edit them by hand.** They are written by `Tools/design/fungus_diagrams.py`, which uses `Tools/design/fungus_kit.py`. Change a drawing there, then run `python3 Tools/design/fungus_diagrams.py Design/Icons` and the build script above.
-- **They are the same in light and dark mode**, dark green outline and all. William saw them both ways on a dark background on 14 November 2026 and chose this. The build script makes no dark-mode copy of a drawing whose name starts with `fungus-` (`SAME_IN_DARK` in the script). Each part's shade is a deeper tone of its own colour.
+- **They are the same in light and dark mode**, dark green outline and all. William saw them both ways on a dark background on 14 November 2026 and chose this. The build script makes no dark-mode copy of a drawing whose name starts with `fungus-` (`SAME_IN_DARK` in the script, as for the flower shapes). Each part's shade is a deeper tone of its own colour.
 - Each drawing's name is the `picture` a choice gives in `Windfall/FungusKey.json`. A test fails if the key names a drawing that is not here.
 - They are Claude's own diagrams of each feature. None is taken from a photograph or a book.
 - `fungus-key.svg` is different: it is the outline icon on the Wildlife page's tile.
@@ -60,6 +75,18 @@ for look in light dark; do
   python3 -c "from PIL import Image; Image.open('/tmp/icon-$look.png').convert('RGB').save('Windfall/Assets.xcassets/AppIcon.appiconset/windfall-app-icon-$look-1024.png')"
 done
 ```
+
+### The Mac's icon
+
+A Mac does not round an icon's corners as an iPhone does, so it needs pictures of its own: the same drawing cut to a rounded square with clear space round it, at seven sizes. They are made from the light picture by a script, and are the files named `windfall-app-icon-mac-...png` in the same folder. After making the light picture again, make the Mac's again too (this needs only Xcode, which the Mac has):
+
+```
+swift Tools/design/make_mac_app_icon.swift \
+  Windfall/Assets.xcassets/AppIcon.appiconset/windfall-app-icon-light-1024.png \
+  Windfall/Assets.xcassets/AppIcon.appiconset
+```
+
+The Mac shows this one cream icon in light and dark mode. `Contents.json` in that folder lists which picture fills which slot: the slots marked `"platform" : "ios"` are the iPhone's and iPad's, and those marked `"idiom" : "mac"` are the Mac's.
 
 ## What is in Reference
 

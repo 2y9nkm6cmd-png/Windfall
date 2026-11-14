@@ -1,4 +1,4 @@
-# 14 November 2026, 20:28: a fungus key to step through, with a diagram for each choice
+# 14 November 2026, 21:35: a fungus key to step through, with a diagram for each choice
 
 **By the mushroom key chat.** William, 18:21: "I want to step through the key in app." At 18:39, choosing a key of Windfall's own over showing someone else's: "B. And ill check the text." At 20:09: "Connect to my mac to attach changes to the main file. Can you make the diagrams a lot better please." At 20:17, with a picture of the new flower shape drawings: "more what we're after".
 
@@ -17,7 +17,7 @@
 | `Windfall/WildlifeModels.swift` | `IDSource` gains `key`: a name reached by stepping through a key. It is kept as a word, so older records still open |
 | `Windfall/Theme.swift` | `WIcon.fungusKey`, the tile's icon |
 | `Design/Icons/fungus-*.svg` (53) | The diagrams, in colour on a 100 by 100 grid, in the bold manner of the flower shapes. **The same in light and dark mode**: William saw them with a pale outline and with the dark green kept, on a dark background, and at 21:22 said of the second "Yes, that's better." |
-| `Tools/design/build_design_assets.py` | Makes no dark-mode copy of a drawing whose name starts with `fungus-` |
+| `Tools/design/build_design_assets.py` | `fungus-` joins `shape-` in `SAME_IN_DARK`, the list of drawings that get no dark-mode copy (the flower shape chat added that list the same evening) |
 | `Design/Icons/fungus-key.svg` | The tile's icon, an outline like the others |
 | `Tools/design/fungus_kit.py`, `fungus_diagrams.py` | The code that draws the diagrams. `python3 Tools/design/fungus_diagrams.py Design/Icons`, then the build script |
 | `Windfall/DemoGarden.swift`, `MainTabView.swift` | A checking aid: `-demoGarden YES -startSection gardens -demoFungus r-honey` opens the key at that step or answer, for a still picture |
@@ -27,6 +27,127 @@
 
 **Checked:** the project's checks with Swift 6.3.1 in a cloud workspace: 112 files parse, the type check passes, 765 logic tests pass. The tests read the real key and fail if a choice leads nowhere, an answer cannot be reached, or a diagram it names has no drawing.
 
+# 14 November 2026, 21:20: the flower shape drawings keep their dark outline in dark mode
+
+**By the flower shape chat.** William was sent the light-mode drawings unchanged on the dark background, beside the dark-mode copies with a pale outline that the app had been given. He chose the first: "Yeah, that's better. Leave them unchanged."
+
+| File | What and why |
+|---|---|
+| `Tools/design/build_design_assets.py` | New `SAME_IN_DARK`: a colour icon whose name starts `shape-` gets no dark-mode copy, so its one drawing is shown in both modes. Every other colour icon is treated as before |
+| Both asset catalogues | Rebuilt: the twenty `shape-*-dark.svg` copies are gone, and each `Contents.json` lists one picture |
+| `Windfall/FlowerShapeViews.swift`, `Design/README.md` | Comments and notes only |
+
+No Swift code changed. **Not built**: only pictures and their lists changed. The cost William saw and accepted: bare stalks and the umbel's spokes, drawn only in the outline colour, are faint on the dark background.
+
+# 14 November 2026, 20:57: the Mac gets the app icon
+
+**By the "Mac icon" chat, on the branch `mac-app-icon`.** William, 20:52, with a picture of his Dock showing two blank tiles for Windfall: "None of the apps have the icon on the app icon."
+
+**Why the Dock was blank.** The icon went in at 17:36 for iPhone and iPad only. `AppIcon.appiconset/Contents.json` is the list of slots an icon has, and each slot says which kind of device it is for. Every slot in it said `"platform" : "ios"`. A Mac build looked for slots marked `"idiom" : "mac"`, found none, and so made no icon file at all: the built Mac app had no `AppIcon.icns` and no icon named in its `Info.plist`. macOS then draws its blank placeholder. iPhone builds made since 17:36 do carry the icon (`AppIcon60x60@2x.png` is inside them).
+
+**No Swift changed.** Three things were added:
+
+| Where | What |
+|---|---|
+| `Tools/design/make_mac_app_icon.swift` | A short script that makes the Mac's pictures from the iPhone's square one |
+| `AppIcon.appiconset/windfall-app-icon-mac-16.png`, `-32`, `-64`, `-128`, `-256`, `-512`, `-1024` | The Mac's pictures, made by that script from the light icon |
+| `AppIcon.appiconset/Contents.json` | Ten Mac slots added. The three iPhone and iPad slots are as they were |
+
+**Why the Mac needs different pictures.** An iPhone takes a plain square and rounds the corners itself. A Mac shows the picture as given, so it must arrive already cut to a rounded square with clear space round it: 824 dots across on a 1024 dot canvas, 100 dots clear each side, which are Apple's measurements. It also wants ten slots (16, 32, 128, 256 and 512 points, each at 1x and 2x) where an iPhone wants one. Seven pictures fill the ten slots, because 16 at 2x and 32 at 1x are the same 32 dots, and so on.
+
+**What a Mac slot looks like:**
+
+```
+{
+  "filename" : "windfall-app-icon-mac-32.png",
+  "idiom" : "mac",
+  "scale" : "2x",
+  "size" : "16x16"
+}
+```
+
+`idiom` is the kind of device. `size` is in points, the unit screens are measured in. `scale` is how many dots there are to a point: `2x` is a sharp (Retina) screen, so a 16 point icon at 2x is a picture 32 dots across.
+
+**Checked on the Mac (macOS 27.2.1, Xcode 27.2):** Xcode's asset step (`actool`) for the Mac, with no errors or warnings, now makes `AppIcon.icns` and names `AppIcon` as the icon. The same step for iPhone and iPad gives what it gave before. A stand-in app holding only that icon was made in `/tmp`, and macOS was asked how it would draw it: the cream tile, full size, with no grey box round it (macOS puts an icon of the wrong shape in a grey box). Twelve points of the Mac picture match the same points of the square one exactly, so nothing is flipped or shifted.
+
+**Not done:**
+
+- **A dark icon on the Mac.** These slots take one picture, so the Mac shows the cream icon in light and dark mode. A Mac icon that changes needs Apple's newer icon file, made in its Icon Composer app.
+- The tinted slot for iPhone and iPad is still empty.
+
+# 14 November 2026, 20:25: the flower shape drawings redrawn in colour, with shading (branch `flower-shape-drawings`)
+
+**By the flower shape chat.** William, of the one-colour outlines: "Go back through the files and make them more realistic, but still graphicky. they might need shading." Of a sample of four: "They're much better".
+
+| File | What and why |
+|---|---|
+| `Tools/design/flower_shapes.py` | Rewritten. Each drawing is now built back to front from filled pieces, like cut paper, so a petal can sit in front of another. Shade is a darker tone or a thin dark wash on the side away from the light |
+| `Design/Icons/shape-*.svg` (20) | Redrawn by that script, in colour. Same names, so nothing that looks a drawing up by name changes |
+| The two asset catalogues | Rebuilt by `build_design_assets.py`: the twenty are now "colour icons", each with a dark-mode copy whose outline is pale |
+| `Windfall/FlowerShapeViews.swift` | `FlowerShapePicture` no longer tints the drawing. It has `faded`, which the list uses for a gap: most of the colour washed out, and thinner. A shape's own page always shows it in full colour |
+| `Windfall/DemoGarden.swift`, `MainTabView.swift` | Checking aids: `-demoFlowerShapes YES` opens the list and `-demoFlowerShape Bilabiate` one shape's page |
+| `Design/README.md` | Brought up to date |
+
+The colours are those of the plant each drawing is taken from: blue borage, a pink dog rose, a yellow flag iris, a lilac sage. ⚠️ CHECK: the botany and the colours are Claude's own and have not been checked against a book.
+
+# 14 November 2026, 19:35: flower shapes get drawings and a page each (branch `flower-shape-drawings`, not built)
+
+**By the flower shape chat, from a cloud workspace. Nothing here has been built in Xcode or seen on a screen.** The branch was made from `main` at `71d95d4`.
+
+William, of the Flower shapes page on his iPhone: "We need graphics for these." Then, of the first drawings: "Make them a bit more detailed." Then: "Icons next to text and then when you tap them they can expand into a bigger tile page that has a bigger image and details and then examples of what we have that has these flowers."
+
+## What changed
+
+| File | What and why |
+|---|---|
+| `Design/Icons/shape-*.svg` (20 new) | One drawing for each shape in the Flower Form Guide, each of a real plant: a dead-nettle for bilabiate, borage for stellate, a knapweed for tubular capitate. Black only, so the app paints them green or grey |
+| `Tools/design/flower_shapes.py` (new) | Draws those twenty files. The drawings are kept as code so that a line can be moved by changing a number |
+| `Windfall/Assets.xcassets/Icons`, `WindfallWidgets/Assets.xcassets/Icons` | The same twenty, put there by `build_design_assets.py`. Not edited by hand |
+| `Windfall/FaunaModels.swift` | New `FlowerShapeGuide`: the name of a shape's drawing, which plants have a shape, which shapes the garden has, and which animals are recorded on a shape. Here, not in the screen, so it can be tested without a Mac |
+| `Windfall/FlowerShapeViews.swift` (new) | `FlowerShapeCoverageView`, moved from `FaunaViews.swift` and redrawn: a tile for each shape with its drawing beside the words. New `FlowerShapeDetailView`: the page a tile grows into |
+| `Windfall/FaunaViews.swift` | The old plain list taken out. A note says where it went |
+| `Tools/checks/LogicTests.swift` | Seven new tests, one of which fails if any shape in the real guide has no drawing |
+| `Design/README.md` | A section on the flower shape drawings |
+
+## The list page
+
+It was a standard list in the system's look. It is now drawn like Today (the rule in project doc 00): glass tiles on paper.
+
+- Each tile has the drawing at 56 points, then the name, the description and the insects, then the tick or the dashed circle as before.
+- **A tile grows into its page** when tapped, and the page shrinks back into it on the swipe back. That is `GrowingLink` from `GrowFromTile.swift`, the same piece the Gardens and Wildlife tiles use.
+- The shapes are now in name order. Before, they came in whatever order the database gave them.
+
+## The page for one shape
+
+- The drawing at 200 points on a card of its own.
+- The plain word for the shape, its name in the title serif, and a tag: "In your garden" or "A gap in your garden".
+- **The shape**: the guide's description and note.
+- **Who it feeds**: the guide's insects, then every animal the Plant-Fauna Links sheet records on a flower of this shape, as small labels.
+- **In your garden**: the growing plants that have the shape. Each opens that plant's page.
+- **On your list to buy**: the same for plants still to buy. Left out when there are none.
+- **Plants to try**, or **Other plants with this shape** when the garden already has one: the guide's own examples.
+
+## One change to the count
+
+A plant now also counts as having a shape when its own "Flower Form" names one. Before, only the links sheet counted. Four plants in the starter data carry "Stellate" there, so "Shapes present" may go up by one where none of them is in the links sheet. ⚠️ CHECK with William that a plant's own Flower Form should count.
+
+## Checked
+
+- `Tools/checks/run-checks.sh` with Swift 6.3.1: all 110 Swift files pass the syntax check, the logic files pass the type check, the cross-file checks are clean, and **741 tests pass** (734 before).
+- `build_design_assets.py` reports 50 outline icons, up from 30, and changed no existing file.
+
+## Not checked
+
+- **It has not been compiled.** `FlowerShapeViews.swift` is screen code, which these checks only read for syntax. The first build in Xcode may find mistakes.
+- How the drawings look when Xcode draws them, at 56 or at 200 points.
+- The tile growing into its page, on a real iPhone.
+- On a Mac the page slides in as every page does there: `GrowingLink` only grows on iPhone and iPad.
+
+## For the chat that builds it
+
+1. Merge `main` into `flower-shape-drawings` first, then build it for the Mac and the simulator.
+2. Look at Wildlife, Species, Flower shape coverage, and open a shape the garden has and a gap.
+3. Join it to `main` only once it builds and William has seen it.
 # 14 November 2026, 20:10: plant drawings added to the Design folder
 
 **By the plant graphics chat.** William, 18:15: "Could you create graphics for all the plants I'm growing and have seeds for. Create a graphic for each phase of their life that are relevant." At 19:06: "Make them a bit more detailed and do them all". At 20:06: "Connect to my mac to attach changes to the main file".
@@ -45,6 +166,21 @@
 **They are a first pass and William has not approved them.** Ten kinds are drawn by hand and 162 are built from templates with Claude's own settings for each plant, none yet checked. Project docs 58 and 59.
 
 **Not done:** showing a drawing on a plant's card or page. That is Swift work for a chat that builds.
+# 14 November 2026, 19:40: Eira's open bar is more solid
+
+**By the "bar opacity" chat, on the branch `eira-bar-opaque`. In `main` since 20:40. It builds for the simulator (`bo1-sim.log`, 20:31). Not yet seen on any device.**
+
+William, 19:34, with a picture of the Journal page on his iPhone: the day's entries and photos showed through the open bar and ran into "Tell Eira". "Could you make Eira's bar more opaque".
+
+**What changed.** One file, `EiraFloatingBar.swift`.
+
+- The open bar now has a layer of the paper's colour inside its glass:
+  `.background(Theme.paper.opacity(expanded ? Self.barFill : 0), in: .capsule)`.
+  `.background(..., in: .capsule)` paints a colour behind the bar's buttons and words, in the bar's own pill shape. `Theme.paper` is the page's colour, so it is cream in light mode and dark green in dark mode. `.opacity(...)` sets how solid it is. `expanded ? x : 0` means "x when the bar is open, otherwise 0", so the closed snowdrop keeps its clear glass.
+- `barFill` is a new named number, 0.85. 0 is clear glass and 1 is solid paper. It is the one number to change if the bar should be more or less solid.
+- The glass itself is untouched, so the bar keeps its rim and its shine when pressed.
+
+**⚠️ CHECK:** 0.85 is Claude's choice. It needs a build and a look in light and dark mode.
 
 # 14 November 2026, 18:40: seven branches joined into main
 

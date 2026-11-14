@@ -192,6 +192,16 @@ enum DemoGarden {
         isRequested && UserDefaults.standard.bool(forKey: "demoPests")
     }
 
+    /// A checking aid: `-demoFlowerShapes YES` opens the Flower shapes
+    /// page in place of the Gardens page, and `-demoFlowerShape Bilabiate`
+    /// opens that one shape's page, so still pictures can be taken.
+    static var opensFlowerShapes: Bool {
+        isRequested && UserDefaults.standard.bool(forKey: "demoFlowerShapes")
+    }
+    static var opensFlowerShape: String? {
+        isRequested ? UserDefaults.standard.string(forKey: "demoFlowerShape") : nil
+    }
+
     /// A checking aid: `-startSection gardens -demoFungus start` opens
     /// the fungus key in place of the Gardens list, and `-demoFungus
     /// r-honey` opens it at that step or answer (the ids are in

@@ -364,6 +364,10 @@ struct MainTabView: View {
                 CompanionView(plantName: name)
             } else if DemoGarden.opensPests {
                 PestHelpersView()
+            } else if let shapeTitle = DemoGarden.opensFlowerShape {
+                DemoFlowerShapePage(shapeTitle: shapeTitle)
+            } else if DemoGarden.opensFlowerShapes {
+                FlowerShapeCoverageView()
             } else if let place = DemoGarden.opensFungusKey {
                 FungusKeyView(openingAt: place)
             } else {
