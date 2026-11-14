@@ -7,6 +7,106 @@ run without the Mac (every file reads as valid Swift, 323 logic tests
 pass). Those do not build the screens. Expect things to put right when
 it is first built, and treat how everything here looks as untried.
 
+## 14 November 2026, 17:47: jobs of your own, added by telling Eira
+
+**On the branch `own-jobs`, made from `main` (`0c4857f`).** **Not built on the Mac and not seen running.** Written in Claude's cloud workspace from William's phone. It passes the checks that run without the Mac: all 94 files read as valid Swift, the rules type-check, and 624 logic tests pass, 25 of them new. Those do not build the screens. Expect things to put right when it is first built, and treat how the card, the sheet and the page look as untried.
+
+**Why.** William, 17:19: "Sometimes the jobs that need doing in the garden aren't dictated by season or month and they're just jobs that need doing. It would be good to be able to add these in by telling eira... something like 'I need to build the wigwam in the allotment at the weekend' then eira adds that into the task list."
+
+**Before.** "This week" and "This month" on Today were worked out from the plant library, the records and the forecast. Nothing could be added to them. Typed into Eira's bar, William's sentence went to her chat as a question, where a model would look for a record of a wigwam and find none.
+
+**Now.**
+
+- **Tell Eira.** Type or say something to do into her bar, on any page: "I need to build the wigwam in the allotment at the weekend". A card comes up, "Add a job?", with what she understood filled in: *Build the wigwam*, *This weekend*, *Allotment*. Anything can be changed. **Add** saves it. **Not a job** saves nothing and hands the words to her chat as an ordinary message.
+- **In her chat** the same sentence gets the same card, under the message.
+- **On Today** the job is listed in "This week" if its day is within seven days or has gone by, and in "This month" if it has no date or is for later in the month. Ticking it marks it done. It stays struck through for the rest of that day and is then gone from the lists. Tapping its words opens it to change or delete.
+- **By hand.** "This week" has two new links at its foot: **Add a job**, which opens an empty form, and **Your jobs**, a page of every job: with a day, whenever and done in the last month.
+- **No model is used.** Fixed rules read the sentence, as they do for the journal's harvest and sowing offers. So it works on an iPhone that cannot run Eira's model, it is instant, and the same words always give the same card.
+- **Nothing is saved until Add is pressed**, which is the standing rule for everything Eira offers.
+
+**What counts as a job.** "I need to", "we must", "I have to", "I've got to", "remind me to", "remember to", "don't forget to", "add a job to", "Job:" and "Need to" or "Must" at the start. Also something that needs doing: "The fence needs fixing by Friday". **Not jobs:** anything with a question mark, anything opening with an asking word ("do I need to water"), finding out ("I need to know when to prune"), and things already done ("I planted the garlic").
+
+**What days it reads.** Today, tonight, tomorrow, at the weekend, next weekend, this week, next week, this month, next month, a day of the week ("on Saturday", "by Friday", "next Monday"), a date ("on 21 November", "on the 21st"), a month ("in March"), a season ("in winter", "before winter"), "in a fortnight", "in two weeks". "Soon" and "sometime" give no date. ⚠️ CHECK, Claude's choices: "next weekend" is the weekend after the coming one, "next Friday" is the Friday of next week, "at the weekend" said on a Sunday means that Sunday, and the seasons are the Met Office's (winter is December to February). The card shows the days it chose, so a wrong guess can be put right before adding.
+
+**How it is built.**
+
+| File | What it holds |
+|---|---|
+| `GardenJobs.swift` (new) | The record, the rules that read a sentence, the wording of a job's days and the rules for which list a job is in. No screen code, so it is tested without the Mac |
+| `JobViews.swift` (new) | The "Add a job?" card, the sheet for adding or changing one by hand and the "Your jobs" page |
+| `EiraConversation.swift` | `send` offers a job before the model is asked. `offeredJob` holds the offer for the chat screen |
+| `EiraChatView.swift` | Draws the card under the message |
+| `EiraFloatingBar.swift` | `ask()` checks for a job first and opens the card in a sheet |
+| `TodayView.swift` | Jobs of your own in both lists, their ticks, and the two links |
+| `WeekJobs.swift` | A new kind, `own`, and the sorting pulled out into `inOrder` so both kinds of job are sorted by one rule |
+| `WindfallApp.swift`, `BackupService.swift` | The new record is in the database's list and in backups |
+| `DemoGarden.swift` | Two example jobs |
+
+*The record.* A new kind of record needs a class marked `@Model`, which asks SwiftData to store it:
+
+```swift
+@Model
+final class GardenJob {
+    var id: UUID = UUID()
+    var title: String = ""
+    var dueFrom: Date?
+    var dueBy: Date?
+    var siteKey: String?
+    var doneAt: Date?
+    ...
+}
+```
+
+`Date?` with a question mark is an *optional*: a date or nothing. A job has a first day and a last day, so "the weekend" is Saturday to Sunday and "by Friday" is today to Friday. Both empty means whenever. `doneAt` is empty until the job is ticked. Every property has a starting value or is optional because iCloud sync needs that.
+
+*Reading a sentence.* `GardenJobs.offer(in:today:places:)` takes the words and hands back a `JobOffer`, or `nil` if it is not a job. It works in four steps: split the text into words, find an opening such as "I need to", find the day and the garden anywhere in the sentence, and keep what is left as the title.
+
+```swift
+if !notAJob, offeredCorrection == nil, GardenJobs.offer(in: trimmed, today: .now) != nil {
+    offeredJob = OfferedJob(messageID: sent.id, said: trimmed, at: .now)
+    answerWithFixedWording(GardenJobs.offerReply)
+    return
+}
+```
+
+This is the new part of `send` in Eira's conversation. `!= nil` asks "did the reader find a job?". If so the offer is noted for the screen to draw, Eira answers in fixed words and `return` stops there, so the model never sees the message and cannot claim to have saved something.
+
+*A job's days are worded fresh each time.* `whenLine` turns the two dates into words using today's date: "Tomorrow" on Friday is "Today" on Saturday, and a job whose day has gone reads "Was for Saturday 14 November". The words that were said are not kept for this, only the dates.
+
+*Two kinds of tick.* A worked-out job's tick is kept in one line of text for the month, as before. A job of your own keeps its tick on its own record (`doneAt`), so it outlasts the month and will sync once iCloud is on. `JobRow` asks which kind it has been given:
+
+```swift
+if case .own(let own)? = job.link {
+    own.doneAt = own.isDone ? nil : .now
+} else {
+    tickedStore = TickedJobs.toggling(job.id, in: tickedStore)
+}
+```
+
+`if case .own(let own)? = job.link` reads "if this job's link is one of your own jobs, call it `own`". The line after it sets the tick time to now, or clears it if it was already ticked.
+
+**The database.** `GardenJob` is a new record type, the 29th. Adding a type is the kind of change SwiftData makes by itself when an older database is opened. **It has not been tried: run `migrate-test.sh` on the Mac before this goes into `main`.**
+
+**To check when it is built.**
+
+1. The card in a sheet from Eira's bar, on the Mac, iPad and iPhone, light and dark. The When menu and the calendar are the system's own controls and may not sit well on the card.
+2. The card under a message in Eira's chat, in the panel and in the sheet.
+3. "Not a job" from the bar's card: her chat should open a moment later with the same words and no second card.
+4. Today with `-demoGarden YES`: "Build the bean wigwam" in This week and "Order seed potatoes" in This month. Tick each, untick each, tap each to open it.
+5. The two links at the foot of "This week" in a narrow column, where they may crowd.
+6. A sheet opened from a row that is itself on the "Your jobs" page.
+7. `migrate-test.sh`.
+
+**Not done.**
+
+- The journal's conversation does not offer a job. "Mulched the raspberries. Need to net the brassicas at the weekend" typed there is saved as an entry and no card is shown. The reader already finds the job in it.
+- Eira cannot read your jobs back ("what have I got on this week?"). She needs a tool that reads the same lists.
+- Jobs do not appear on the Year page's months or in the widgets (which are not in `main`).
+- No reminder is sent for a job.
+- A job cannot repeat ("every Sunday").
+- One job a message. "I need to build the wigwam and net the brassicas" gives one job with both in its title.
+- A done job cannot be turned into a journal entry.
+
 ## 14 November 2026, 17:12: on a Mac, a month's page follows two fingers as it turns
 
 **On the branch `month-drag-mac`, made from `main`.** Built for the Mac and the iOS Simulator with no errors (`mv7-mac.log`, `mv7-sim.log`, in `DerivedData/Windfall-month`). 596 logic tests pass. **A simulator has no trackpad, so the Mac's row was given to a 13-inch iPad with a checking aid and looked at there**, with the example garden: the row held 300 points to the right shows April sliding off and March coming in beside it, cut off cleanly at the sidebar (`shots/mv7-drag.png`); the forward arrow slides December on to January and the back arrow April back to March (`mv7-on.png`, `mv7-back.png`). **Not tried by anyone: two fingers on a real trackpad.**
