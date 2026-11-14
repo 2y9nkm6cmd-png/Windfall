@@ -7,6 +7,8 @@ Every drawing is Claude's own diagram of a feature. None is traced from
 a photograph or a book.
 """
 import math, os, sys
+# The kit sits beside this file. This line lets Python find it wherever the script is run from.
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from fungus_kit import Art, C, LINE, SHADE, f, pts_d, smooth_d, rot, ellipse_pts
 
 D = {}

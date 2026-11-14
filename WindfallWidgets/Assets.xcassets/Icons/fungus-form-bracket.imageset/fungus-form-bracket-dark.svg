@@ -5,14 +5,14 @@
 <path d="M12,12 L12,34" fill="none" stroke="#8E6E4E" stroke-width="2.5"/>
 <path d="M14.4,50 L14.4,72" fill="none" stroke="#8E6E4E" stroke-width="2.5"/>
 <path d="M11.2,80 L11.2,92" fill="none" stroke="#8E6E4E" stroke-width="2.5"/>
-<path d="M26,4 L26,96" fill="none" stroke="#D9E8C4" stroke-width="3.2"/>
-<path d="M26,16 Q41,11.2 50.5,12.7 Q60,14.2 68,19.7 Q76,25.2 68.5,30.1 Q61,34.9 52.2,36.5 Q43.5,38 34.8,37.5 L26,36.9 Z" fill="#F3E7C9" stroke="#D9E8C4" stroke-width="3.2"/>
-<path d="M26,16 Q41,11.2 50.5,12.7 Q60,14.2 68,19.7 Q76,25.2 69,26.1 Q62,27 53,27.7 Q44,28.3 35,27.7 L26,27 Z" fill="#D9A86C" stroke="#D9E8C4" stroke-width="3.2"/>
+<path d="M26,4 L26,96" fill="none" stroke="#D9E8C4" stroke-width="3.8"/>
+<path d="M26,16 Q41,11.2 50.5,12.7 Q60,14.2 68,19.7 Q76,25.2 68.5,30.1 Q61,34.9 52.2,36.5 Q43.5,38 34.8,37.5 L26,36.9 Z" fill="#F3E7C9" stroke="#D9E8C4" stroke-width="3.8"/>
+<path d="M26,16 Q41,11.2 50.5,12.7 Q60,14.2 68,19.7 Q76,25.2 69,26.1 Q62,27 53,27.7 Q44,28.3 35,27.7 L26,27 Z" fill="#D9A86C" stroke="#D9E8C4" stroke-width="3.8"/>
 <path d="M26,21.5 Q44,20 54,20.5 L64,21.1" fill="none" stroke="#8A4F2B" stroke-width="2.5" stroke-opacity="0.8"/>
-<path d="M53.5,30.5 L76,25.2 L61,34.9 L43.5,38 L26,36.9 L26,33.2 Z" fill="#3A2A1E" fill-opacity="0.21" stroke="none"/>
-<path d="M26,52 Q45.8,45.8 58.3,47.8 Q70.9,49.8 81.4,56.8 Q92,63.8 82.1,69.9 Q72.2,76.1 60.6,78 Q49.1,80 37.5,79.3 L26,78.6 Z" fill="#F3E7C9" stroke="#D9E8C4" stroke-width="3.2"/>
-<path d="M26,52 Q45.8,45.8 58.3,47.8 Q70.9,49.8 81.4,56.8 Q92,63.8 82.8,64.9 Q73.5,66 61.6,66.8 Q49.8,67.7 37.9,66.8 L26,66 Z" fill="#D9A86C" stroke="#D9E8C4" stroke-width="3.2"/>
+<path d="M51,31.4 L74,26.3 L61,34.5 L43.5,37.3 L27.5,36.2 L27.5,33.6 Z" fill="#C4B89A" stroke="none"/>
+<path d="M26,52 Q45.8,45.8 58.3,47.8 Q70.9,49.8 81.4,56.8 Q92,63.8 82.1,69.9 Q72.2,76.1 60.6,78 Q49.1,80 37.5,79.3 L26,78.6 Z" fill="#F3E7C9" stroke="#D9E8C4" stroke-width="3.8"/>
+<path d="M26,52 Q45.8,45.8 58.3,47.8 Q70.9,49.8 81.4,56.8 Q92,63.8 82.8,64.9 Q73.5,66 61.6,66.8 Q49.8,67.7 37.9,66.8 L26,66 Z" fill="#D9A86C" stroke="#D9E8C4" stroke-width="3.8"/>
 <path d="M26,59 Q49.8,57 63,57.7 L76.2,58.4" fill="none" stroke="#8A4F2B" stroke-width="2.5" stroke-opacity="0.8"/>
-<path d="M62.3,70.5 L92,63.8 L72.2,76.1 L49.1,80 L26,78.6 L26,73.8 Z" fill="#3A2A1E" fill-opacity="0.21" stroke="none"/>
+<path d="M59,71.6 L89.4,65.2 L72.2,75.5 L49.1,79.2 L27.5,77.8 L27.5,74.4 Z" fill="#C4B89A" stroke="none"/>
 </g>
 </svg>

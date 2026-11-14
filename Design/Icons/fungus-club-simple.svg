@@ -1,11 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="5 5 90 90">
 <g stroke-linecap="round" stroke-linejoin="round">
-<path d="M14,92.5 Q18,86.5 50,85.5 Q82,86.5 86,92.5 Q50,96 14,92.5 Z" fill="#C4DC84" stroke="#06472A" stroke-width="3.2"/>
-<path d="M50,87 Q50,60 50.5,40 L51,20" fill="none" stroke="#06472A" stroke-width="15.6"/>
-<path d="M36,87 Q33,66 29.5,53 L26,40" fill="none" stroke="#06472A" stroke-width="14.6"/>
-<path d="M64,87 Q67,66 70.5,55 L74,44" fill="none" stroke="#06472A" stroke-width="14.6"/>
-<path d="M24,87 Q20,74 17,67 L14,60" fill="none" stroke="#06472A" stroke-width="13.1"/>
-<path d="M76,87 Q80,74 83,68 L86,62" fill="none" stroke="#06472A" stroke-width="13.1"/>
+<path d="M14,92.5 Q18,86.5 50,85.5 Q82,86.5 86,92.5 Q50,96 14,92.5 Z" fill="#C4DC84" stroke="#06472A" stroke-width="3.8"/>
+<path d="M50,87 Q50,60 50.5,40 L51,20" fill="none" stroke="#06472A" stroke-width="16.8"/>
+<path d="M36,87 Q33,66 29.5,53 L26,40" fill="none" stroke="#06472A" stroke-width="15.8"/>
+<path d="M64,87 Q67,66 70.5,55 L74,44" fill="none" stroke="#06472A" stroke-width="15.8"/>
+<path d="M24,87 Q20,74 17,67 L14,60" fill="none" stroke="#06472A" stroke-width="14.3"/>
+<path d="M76,87 Q80,74 83,68 L86,62" fill="none" stroke="#06472A" stroke-width="14.3"/>
 <path d="M50,87 Q50,60 50.5,40 L51,20" fill="none" stroke="#F2C445" stroke-width="9"/>
 <path d="M36,87 Q33,66 29.5,53 L26,40" fill="none" stroke="#F2C445" stroke-width="8"/>
 <path d="M64,87 Q67,66 70.5,55 L74,44" fill="none" stroke="#F2C445" stroke-width="8"/>
