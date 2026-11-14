@@ -126,6 +126,23 @@ It is right more often and sure more often, and so it is also sure more often wh
 **For William to check.** ⚠️ CHECK: the genus list and the wording of the warning are Claude's, from general knowledge and not from a field guide. The warning reads: "Take care: this may be one of the carrot family. That family holds deadly plants, hemlock and hemlock water-dropwort among them, that look much like cow parsley, wild carrot, wild celery and parsley. A photo cannot tell them apart safely. If you did not sow it yourself, do not eat any part of it on the strength of this, and wear gloves to handle it: giant hogweed, of the same family, burns the skin." It will also show on photos of your own carrots, parsley, fennel and parsnips, which is why it says "if you did not sow it yourself".
 
 **Not done.** Other dangerous pairs: wild garlic with lords-and-ladies and lily of the valley, comfrey with foxglove. Each needs a checked list first. The "not sure" level (0.85) was set for the older model and should be set again for this one from William's own photos (doc 30).
+## 14 November 2026, 12:25: Find in the Edit menu, and the search box takes the cursor
+
+**On the branch `search-collapse`.** Built for the Mac with no errors (`search5-mac.log`). Checked in a test copy with the example garden, without bringing it to the front: Edit, Find opens the box and the cursor is in it. The glass closes an empty box and opens it again with the cursor in it. Seven letters sent as key presses arrived in the box and the cross appeared. Escape emptied and closed it. **Not tried**: Command-F pressed on a real keyboard, and clicking away from the box.
+
+**Why.** William tried Command-F and nothing happened. Looking into it turned up a second fault that nobody had seen yet: when the box opened, the cursor was not in it.
+
+1. **Command-F is now "Find" in the Edit menu** (`FindCommands` in `CollapsingSearch.swift`, added to the app in `WindfallApp.swift`).
+   - *What was wrong.* The shortcut had been given to the magnifying glass button itself. A shortcut on a button inside a Mac toolbar was not picked up.
+   - *How it works now.* The menu line sends a notification, `windfallFind`. A notification is a note pinned to a board that any part of the app can be watching. The search glass watches for it, opens and takes the cursor. The menu does not need to know which screen is showing.
+   - *A limit.* On a screen with no search glass, Find is still in the menu and does nothing.
+2. **The box to type in is now AppKit's text field** (`ToolbarTextBox` and `CursorTakingField`).
+   - *What was wrong.* It was SwiftUI's `TextField`, with `@FocusState` to put the cursor in it. Inside a Mac toolbar that did nothing, with or without a pause first, while the same `@FocusState` worked for Eira's bar in the same window.
+   - *How it works now.* AppKit is the older Mac toolkit SwiftUI sits on. There the window can be told outright which box has the cursor (`makeFirstResponder`). The screen asks by adding one to a number, `cursorRequests`, and the box takes the cursor each time the number changes.
+   - Typing, Escape and leaving the box are reported by AppKit to a helper (the `Coordinator`), which passes them on.
+
+**A correction to the entry below:** it says the glass was tried and worked. It opened and closed, and words put into the box narrowed the list. Whether the cursor arrived was listed as not tried. It did not arrive.
+
 ## 14 November 2026, midday: the Plants search rests as a magnifying glass
 
 **On the branch `search-collapse`, made from `main`.** Built for the Mac and the simulator with no errors (`search1-mac.log`, `search1-sim.log`). Tried in a test copy on the Mac with the example garden: the glass opens the box, typing "spartan" leaves 1 of 376 plants, the cross empties it and the glass closes it again. **Not tried by hand**: whether the cursor lands in the box when the glass is clicked, Command-F, Escape and clicking away. The logic tests were not run. They need the Linux checker, which this chat did not have.

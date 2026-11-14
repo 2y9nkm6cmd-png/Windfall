@@ -31,36 +31,40 @@ struct CollapsingSearchField: View {
     /// for itself and redraws when it changes.
     @State private var open = false
 
-    /// True while the typing cursor is in the box. Setting it to true
-    /// from code puts the cursor there.
-    @FocusState private var typing: Bool
+    /// Goes up by one each time the cursor should be put in the box.
+    /// The box watches the number and takes the cursor when it changes.
+    /// A number is used, not true and false, so that asking twice in a
+    /// row still counts as two requests.
+    @State private var cursorRequests = 0
 
     var body: some View {
         HStack(spacing: 4) {
-            // The magnifying glass. Always there, so Command-F always
-            // has something to press.
+            // The magnifying glass.
             Button(action: pressGlass) {
                 Label(prompt, systemImage: "magnifyingglass")
             }
-            .keyboardShortcut("f", modifiers: .command)
-            .help(open ? "Close search" : prompt)
+            .help(open ? "Close search" : "\(prompt) (Command-F)")
 
             if open {
-                TextField(prompt, text: $text)
-                    .textFieldStyle(.plain)
-                    .frame(width: 190)
-                    .focused($typing)
-                    // The box is not on screen at the moment the glass
-                    // is pressed, so the cursor is placed once it
-                    // has appeared.
-                    .onAppear { typing = true }
+                // The box itself is AppKit's text field, not SwiftUI's
+                // `TextField`. See ToolbarTextBox below for why.
+                ToolbarTextBox(
+                    text: $text,
+                    prompt: prompt,
+                    cursorRequests: cursorRequests,
                     // Escape empties the box and closes it.
-                    .onExitCommand(perform: close)
+                    onEscape: close,
+                    // Clicking away from an empty box closes it. A box
+                    // with words in it stays open, so it is always plain
+                    // why the list is short.
+                    onLeave: { if text.isEmpty { open = false } }
+                )
+                .frame(width: 190)
 
                 if !text.isEmpty {
                     Button {
                         text = ""
-                        typing = true
+                        cursorRequests += 1
                     } label: {
                         Label("Clear search", systemImage: "xmark.circle.fill")
                             .labelStyle(.iconOnly)
@@ -76,14 +80,16 @@ struct CollapsingSearchField: View {
         }
         // If the screen opens with words already in the search, show them.
         .onAppear { if !text.isEmpty { open = true } }
-        // Clicking away from an empty box closes it. A box with words
-        // in it stays open, so it is always plain why the list is short.
-        .onChange(of: typing) { _, isTyping in
-            if !isTyping && text.isEmpty { open = false }
-        }
         // Words can arrive from outside, for example "Clear" being pressed.
         .onChange(of: text) { _, words in
             if !words.isEmpty { open = true }
+        }
+        // "Find" in the Edit menu, or Command-F. The menu sends a message
+        // (see FindCommands below) and any search glass on screen hears it.
+        // If the box is already open this just puts the cursor back in it.
+        .onReceive(NotificationCenter.default.publisher(for: .windfallFind)) { _ in
+            open = true
+            cursorRequests += 1
         }
     }
 
@@ -94,13 +100,154 @@ struct CollapsingSearchField: View {
             open = false
         } else {
             open = true
-            typing = true
+            cursorRequests += 1
         }
     }
 
     private func close() {
         text = ""
         open = false
+    }
+}
+
+// MARK: - The box to type in
+
+/// The text box inside the glass.
+///
+/// Why it is not SwiftUI's own `TextField`: the first version was, with
+/// `@FocusState` to put the cursor in it. Inside a Mac toolbar that did
+/// nothing. The box opened and the cursor stayed where it was, with or
+/// without a pause first (tried 14 November 2026, while the same
+/// `@FocusState` worked for Eira's bar in the same window). So this uses
+/// AppKit, the older Mac toolkit that SwiftUI sits on, where the window
+/// can be told outright which box has the cursor.
+///
+/// `NSViewRepresentable` is SwiftUI's way of holding an AppKit view.
+/// SwiftUI calls `makeNSView` once to build it and `updateNSView` each
+/// time something it depends on changes.
+private struct ToolbarTextBox: NSViewRepresentable {
+
+    @Binding var text: String
+    let prompt: String
+    let cursorRequests: Int
+    let onEscape: () -> Void
+    let onLeave: () -> Void
+
+    func makeNSView(context: Context) -> CursorTakingField {
+        let field = CursorTakingField()
+        field.placeholderString = prompt
+        // No border, background or blue ring of its own. The toolbar's
+        // glass is the box.
+        field.isBordered = false
+        field.drawsBackground = false
+        field.focusRingType = .none
+        field.font = .systemFont(ofSize: NSFont.systemFontSize)
+        // One line that scrolls sideways when the words are too long.
+        field.cell?.usesSingleLineMode = true
+        field.cell?.isScrollable = true
+        // The helper below is told about typing, Escape and leaving.
+        field.delegate = context.coordinator
+        return field
+    }
+
+    func updateNSView(_ field: CursorTakingField, context: Context) {
+        context.coordinator.box = self
+        // Words changed from outside, such as the cross being pressed.
+        if field.stringValue != text { field.stringValue = text }
+        // A new request for the cursor since the last look.
+        if context.coordinator.requestsSeen != cursorRequests {
+            context.coordinator.requestsSeen = cursorRequests
+            field.takeCursor()
+        }
+    }
+
+    func makeCoordinator() -> Coordinator { Coordinator(self) }
+
+    /// The helper AppKit reports to. AppKit tells a "delegate" object
+    /// what happens in a text field, and this passes it on to SwiftUI.
+    final class Coordinator: NSObject, NSTextFieldDelegate {
+        var box: ToolbarTextBox
+        /// Starts at 0, the same as a box that opens without being
+        /// asked for, so that one does not grab the cursor.
+        var requestsSeen = 0
+
+        init(_ box: ToolbarTextBox) { self.box = box }
+
+        /// A letter was typed or removed.
+        func controlTextDidChange(_ note: Notification) {
+            guard let field = note.object as? NSTextField else { return }
+            box.text = field.stringValue
+        }
+
+        /// The cursor left the box.
+        func controlTextDidEndEditing(_ note: Notification) {
+            box.onLeave()
+        }
+
+        /// A key that is a command, not a letter. Escape arrives as
+        /// "cancel". Returning true says it has been dealt with.
+        func control(_ control: NSControl, textView: NSTextView, doCommandBy command: Selector) -> Bool {
+            if command == #selector(NSResponder.cancelOperation(_:)) {
+                box.onEscape()
+                return true
+            }
+            return false
+        }
+    }
+}
+
+/// A text field that can be asked for the cursor before it has been
+/// put in a window, and takes it as soon as it arrives there.
+final class CursorTakingField: NSTextField {
+
+    private var waitingForWindow = false
+
+    func takeCursor() {
+        guard let window else {
+            waitingForWindow = true
+            return
+        }
+        // "First responder" is AppKit's name for whatever has the cursor.
+        // Done on the next turn of the app's loop, so it does not happen
+        // in the middle of SwiftUI drawing the screen.
+        DispatchQueue.main.async { window.makeFirstResponder(self) }
+    }
+
+    override func viewDidMoveToWindow() {
+        super.viewDidMoveToWindow()
+        if waitingForWindow, window != nil {
+            waitingForWindow = false
+            takeCursor()
+        }
+    }
+}
+
+// MARK: - Find in the Edit menu
+
+extension Notification.Name {
+    /// The message sent when Find is chosen. A notification is a note
+    /// pinned to a board that any part of the app can be watching. The
+    /// menu does not need to know which screen is showing, and a screen
+    /// with no search simply is not watching.
+    static let windfallFind = Notification.Name("windfallFind")
+}
+
+/// "Find" in the Mac's Edit menu, with Command-F.
+///
+/// Why it is a menu line and not a shortcut on the glass itself: a
+/// shortcut given to a button in the toolbar was not picked up when
+/// William tried it (14 November 2026). A menu line always is, and the
+/// Edit menu is where a Mac user looks for Find.
+struct FindCommands: Commands {
+    var body: some Commands {
+        // `after: .pasteboard` puts it below Cut, Copy and Paste.
+        CommandGroup(after: .pasteboard) {
+            Divider()
+            Button("Find") {
+                NotificationCenter.default.post(name: .windfallFind, object: nil)
+            }
+            .keyboardShortcut("f", modifiers: .command)
+        }
     }
 }
 #endif
