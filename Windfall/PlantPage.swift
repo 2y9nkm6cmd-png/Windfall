@@ -48,6 +48,10 @@ enum PlantPage {
     struct Fact: Identifiable, Equatable {
         let label: String
         let value: String
+        /// Where the value came from, if it was kept from a website or
+        /// a book: "RHS, kept Nov 2026". Nil for everything else, which
+        /// is most things. See KeptFacts.swift.
+        var source: String? = nil
 
         var id: String { label }
 
@@ -109,8 +113,21 @@ enum PlantPage {
 
     /// The cards for a plant, in the spreadsheet's order. A card with
     /// nothing on it is left out.
-    static func cards(for plant: Plant) -> [FactCard] {
-        PlantFacts.Group.cards.map { card(for: $0, of: plant) }.filter { !$0.isEmpty }
+    ///
+    /// `sources` gives, for the name of a fact ("Pruning"), where its
+    /// value came from. A fact named there carries that as its source.
+    static func cards(for plant: Plant, sources: [String: String] = [:]) -> [FactCard] {
+        let filled = PlantFacts.Group.cards.map { card(for: $0, of: plant) }.filter { !$0.isEmpty }
+        guard !sources.isEmpty else { return filled }
+        return filled.map { factCard in
+            var marked = factCard
+            marked.facts = factCard.facts.map { fact in
+                var copy = fact
+                copy.source = sources[fact.label]
+                return copy
+            }
+            return marked
+        }
     }
 
     /// The groups with nothing to show yet, in order. These are the

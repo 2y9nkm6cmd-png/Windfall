@@ -135,6 +135,8 @@ struct JournalChatView: View {
     @State private var showsConditions = false
     @State private var isDropTarget = false
     @State private var lastSent: UUID?
+    /// The entries whose offer to add a new plant was turned down.
+    @State private var newPlantRefused: Set<UUID> = []
     @State private var renaming: DiaryEntry?
     @State private var newTitle = ""
     @State private var editing: DiaryEntry?
@@ -375,6 +377,15 @@ struct JournalChatView: View {
 
                 if let sent = diary.first(where: { $0.id == lastSent }) {
                     eiraSays(acknowledgement(of: sent))
+
+                    // An entry that says you have planted, sown or
+                    // bought a plant the library does not have: Eira
+                    // offers to add it and look it up. See
+                    // NewPlantMention in PlantFillIn.swift.
+                    if !newPlantRefused.contains(sent.id),
+                       let newName = NewPlantMention.name(in: sent.body, known: plants.map(\.commonName)) {
+                        NewPlantOfferCard(name: newName) { newPlantRefused.insert(sent.id) }
+                    }
                 }
 
                 // What Eira thinks could go on record from it, each as a

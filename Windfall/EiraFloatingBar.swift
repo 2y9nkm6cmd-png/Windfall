@@ -319,13 +319,28 @@ struct EiraFloatingBar: View {
             guard takesPagePhotos, count > 0, let screen else { return }
             takePhotos(screen.takePhotosForBar())
         }
+        // A question handed over by a page, such as the sheet that
+        // fills in a plant's gaps, opens her chat with it. The short
+        // wait lets the sheet that asked finish closing first: a new
+        // sheet cannot open while another is still on its way out.
+        // See EiraScreen.ask.
+        .onChange(of: screen?.questionForBar) { _, waiting in
+            guard waiting != nil, let screen else { return }
+            Task {
+                try? await Task.sleep(for: .milliseconds(600))
+                guard let asked = screen.takeQuestionForBar() else { return }
+                journalRequest = nil
+                eiraRequest = BarRequest(text: asked, lookingAt: screen.current?.full)
+            }
+        }
         // A checking aid: `-demoOpen eira`, `-demoOpen corrections`,
-        // `-demoOpen eira-photo` and `-demoOpen eira-lookups` open her
-        // chat as soon as the bar appears, once. `-demoOpen bar-journal` opens the journal's
-        // conversation from the bar the same way. See DemoGarden.opens.
+        // `-demoOpen eira-photo`, `-demoOpen eira-lookups`, `-demoOpen eira-find`
+        // and `-demoOpen kept-facts` open her chat as soon as the bar appears,
+        // once. `-demoOpen bar-journal` opens the journal's conversation from
+        // the bar the same way. See DemoGarden.opens.
         .onAppear {
             guard !Self.hasOpenedForChecking else { return }
-            if ["eira", "corrections", "eira-photo", "eira-lookups", "eira-lookups-open"].contains(DemoGarden.opens ?? "") {
+            if ["eira", "corrections", "eira-photo", "eira-lookups", "eira-lookups-open", "eira-find", "kept-facts"].contains(DemoGarden.opens ?? "") {
                 Self.hasOpenedForChecking = true
                 eiraRequest = BarRequest(text: "")
             } else if DemoGarden.opens == "bar-journal" {
