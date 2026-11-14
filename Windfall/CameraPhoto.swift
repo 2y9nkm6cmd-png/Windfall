@@ -145,16 +145,22 @@ extension View {
     ///   two-way link to a true-or-false value the screen owns: the
     ///   screen sets it true to open the camera, and the camera sets it
     ///   false again when it closes.
+    /// - `savesToPhotos`: whether a copy may go to the Photos library.
+    ///   Left out, it may, if the switch in Settings is on. The seed
+    ///   packet scanner says false: a picture of a packet is something
+    ///   to read, not a garden photo to keep.
     /// - `onTaken`: what to do with the photo. `Data` is the bytes of a
     ///   JPEG file, the same as every other way in gives.
-    func cameraPhoto(isPresented: Binding<Bool>, onTaken: @escaping (Data) -> Void) -> some View {
-        modifier(CameraPhotoModifier(isPresented: isPresented, onTaken: onTaken))
+    func cameraPhoto(isPresented: Binding<Bool>, savesToPhotos: Bool = true,
+                     onTaken: @escaping (Data) -> Void) -> some View {
+        modifier(CameraPhotoModifier(isPresented: isPresented, savesToPhotos: savesToPhotos, onTaken: onTaken))
     }
 }
 
 private struct CameraPhotoModifier: ViewModifier {
 
     @Binding var isPresented: Bool
+    let savesToPhotos: Bool
     let onTaken: (Data) -> Void
 
     #if os(iOS)
@@ -223,7 +229,7 @@ private struct CameraPhotoModifier: ViewModifier {
             }
             guard let photo = CameraFile.jpeg(from: taken.picture, notes: taken.notes, place: place) else { return }
             onTaken(photo)
-            if CameraRoll.isOn { await CameraRoll.save(photo) }
+            if savesToPhotos && CameraRoll.isOn { await CameraRoll.save(photo) }
         }
     }
     #endif

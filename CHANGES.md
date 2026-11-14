@@ -51,10 +51,20 @@ William, 22:03: "I'd like it saved into photos as well. you should be able to tu
 - `PhotoFacts.written` (new, with a logic test) turns a signed number such as -2.6 into the camera's form, 2.6 and "W". It is the reverse of `PhotoFacts.coordinate`, and the test checks that one undoes the other.
 - `Info.plist`: `NSPhotoLibraryAddUsageDescription` added, and the location sentence now also says it notes where a photo was taken.
 
+## 22:40: the camera in the seed packet scanner
+
+William, 22:30: "Can seed packet scanning access camera as well?"
+
+**Also not built or seen running.** 114 files parse and 778 logic tests pass.
+
+- **`SeedPacketScanner.swift`: "Photograph the packet"**, above "Choose a photo of the packet", on a device with a camera. One `@State`, one button and one `.cameraPhoto` line. Both ways in now end in one new function, `read(_:)`, which shows the photo, reads it and guesses the plant's name.
+- **A packet photo is not copied to the Photos library**, whatever the Settings switch says. `.cameraPhoto` gained a setting for this, `savesToPhotos`, which is true unless a screen says otherwise. The scanner says false.
+- **A fault found and fixed: the scanner read portrait photos sideways.** A phone stores a portrait photo on its side with a note saying which way to turn it. The scanner handed Apple's text reader (Vision) only the pixels, so the note was lost. It now hands over the photo's file (`VNImageRequestHandler(data:)`), and Vision turns it upright itself. This affected photos chosen from the library as well, and would have affected nearly every packet photographed with the camera.
+
 ## Not done
 
 - **One photo at a time.** The camera closes after "Use Photo".
-- Not added to the seed packet scanner, the sighting form, the old diary form, the journal conversation's own photo button or "Add a photo" on the pin-down card. Each is one button and one line now that `CameraPhoto.swift` exists.
+- Not added to the sighting form, the old diary form, the journal conversation's own photo button or "Add a photo" on the pin-down card. Each is one button and one line now that `CameraPhoto.swift` exists.
 - If camera access is refused, Apple's screen opens black. If adding to Photos is refused, no copy is made. Windfall does not yet say so or point to Settings in either case.
 - The photo's position is in its file and in the photo's record. It is still not copied to a sighting's own position (doc 33).
 
@@ -68,6 +78,7 @@ William, 22:03: "I'd like it saved into photos as well. you should be able to tu
 6. The first photo asks to add to Photos, and the photo then appears in the Photos app with its place on the map.
 7. With the Settings switch off, no copy appears in Photos.
 8. A photo taken within a second or two of opening the camera: does it have a position?
+9. Scan a packet: photograph one held upright. The words should be read, and no copy should appear in Photos.
 
 # 14 November 2026, 21:35: a fungus key to step through, with a diagram for each choice
 

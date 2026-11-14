@@ -74,13 +74,12 @@ final class SeedPacketScanner {
         defer { isScanning = false }
 
         #if os(iOS)
-        guard let image = UIImage(data: imageData), let cgImage = image.cgImage else {
+        guard UIImage(data: imageData) != nil else {
             lastError = "Couldn't read that image."
             return
         }
         #elseif os(macOS)
-        guard let image = NSImage(data: imageData),
-              let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil) else {
+        guard NSImage(data: imageData) != nil else {
             lastError = "Couldn't read that image."
             return
         }
@@ -91,7 +90,13 @@ final class SeedPacketScanner {
         request.usesLanguageCorrection = true
         request.recognitionLanguages = ["en-GB", "en-US"]
 
-        let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
+        // Vision is given the photo's file, not just its pixels. A phone
+        // stores a portrait photo on its side with a note saying which
+        // way to turn it. Given the file, Vision reads the note and
+        // turns the picture upright before looking for words. Given
+        // only the pixels (as it was until 14 November 2026) it read a
+        // portrait photo sideways.
+        let handler = VNImageRequestHandler(data: imageData, options: [:])
 
         do {
             try handler.perform([request])
@@ -285,6 +290,8 @@ struct SeedPacketScanView: View {
     @State private var scanner = SeedPacketScanner()
     @State private var pickerItem: PhotosPickerItem?
     @State private var imageData: Data?
+    /// True while the camera is open, on an iPhone or iPad.
+    @State private var isTakingPhoto = false
     @State private var plantName = ""
     @State private var matchedPlant: Plant?
     @State private var showingRawText = false
@@ -301,9 +308,19 @@ struct SeedPacketScanView: View {
                             .clipShape(RoundedRectangle(cornerRadius: 8))
                     }
 
+                    // Only on a device with a camera. See CameraPhoto.swift.
+                    if CameraPhoto.isAvailable {
+                        Button {
+                            isTakingPhoto = true
+                        } label: {
+                            Label(imageData == nil ? "Photograph the packet" : "Photograph it again",
+                                  systemImage: "camera")
+                        }
+                    }
+
                     PhotosPicker(selection: $pickerItem, matching: .images) {
                         Label(imageData == nil ? "Choose a photo of the packet" : "Choose a different photo",
-                              systemImage: "camera")
+                              systemImage: "photo.on.rectangle")
                     }
 
                     if scanner.isScanning {
@@ -389,11 +406,13 @@ struct SeedPacketScanView: View {
                 guard let item else { return }
                 Task {
                     guard let data = try? await item.loadTransferable(type: Data.self) else { return }
-                    imageData = data
-                    scanner.reset()
-                    await scanner.scan(imageData: data)
-                    guessPlantName()
+                    await read(data)
                 }
+            }
+            // The camera. A picture of a packet is not copied to the
+            // Photos library, whatever the switch in Settings says.
+            .cameraPhoto(isPresented: $isTakingPhoto, savesToPhotos: false) { data in
+                Task { await read(data) }
             }
         }
     }
@@ -405,6 +424,15 @@ struct SeedPacketScanView: View {
     }
 
     /// The largest text on a packet is usually the crop name.
+    /// Shows a photo of a packet and reads it. Both ways in, the Photos
+    /// library and the camera, end here, so they behave alike.
+    private func read(_ data: Data) async {
+        imageData = data
+        scanner.reset()
+        await scanner.scan(imageData: data)
+        guessPlantName()
+    }
+
     private func guessPlantName() {
         guard plantName.isEmpty else { return }
         for line in scanner.recognisedLines.prefix(4) {
