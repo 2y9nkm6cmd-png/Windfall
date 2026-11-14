@@ -9,7 +9,7 @@ it is first built, and treat how everything here looks as untried.
 
 ## 14 November 2026, midday: three things the trained Qwen's test turned up
 
-**On the branch `carrot-family-warning`**, with the warning below. Built for the Mac and the simulator as r25 (`c6b747b`), no errors. 474 logic tests pass.
+**In `main` since 12:00**, by way of the branch `carrot-family-warning`, with the warning below. Built for the Mac and the simulator as r26 (`36b0bcd`), no errors. 474 logic tests pass.
 
 The trained Qwen3 8B sat Eira's test sheet for the first time at 11:29 (knowledge base, doc 32). Three of its answers showed faults that were the app's and not the model's.
 
@@ -36,7 +36,7 @@ The trained Qwen3 8B sat Eira's test sheet for the first time at 11:29 (knowledg
 
 ## 14 November 2026, midday: a carrot-family warning on photo matches
 
-**On the branch `carrot-family-warning`, made from `main`.**
+**In `main` since 12:00**, by way of the branch `carrot-family-warning`. Seen in the simulator in light and dark (`shots/carrot-*.png` on the Mac).
 
 **Why.** That morning the fine-tuning chat put a newer image model into Windfall's Models folder at William's request (BioCLIP 2.5 Huge, doc 30). The build chat ran the same 300 unseen UK photos through the app with it:
 
@@ -80,7 +80,7 @@ It is right more often and sure more often, and so it is also sure more often wh
 
 ## 14 November 2026, late morning: telling Eira she is wrong
 
-**On the branch `eira-corrections`, made from `main`.** Built for the Mac and the simulator as r23, with no errors. 457 logic tests pass. Seen in the simulator in light and dark (`shots/corr-*.png` on the Mac). **Not yet tried by hand with a real model.**
+**In `main` since 11:20**, by way of the branch `eira-corrections`. Built for the Mac and the simulator as r23, with no errors. 457 logic tests passed then. Seen in the simulator in light and dark (`shots/corr-*.png` on the Mac). **Tried with Apple's model and the trained Qwen through the test sheet's section G (knowledge base, doc 32). Not yet tried by hand.**
 
 **Why.** William asked: "I assume if it makes mistakes and I tell it that, then it will update the notes it keeps to improve in the future?" It did not. A correction was kept only if he pressed and held a reply and chose "Correct this", which nobody would find. Typing "No, that's wrong" was answered and then forgotten. And there was nowhere to read the corrections already kept, or to take a wrong one back.
 
@@ -102,7 +102,7 @@ It is right more often and sure more often, and so it is also sure more often wh
 
 3. **The "Correct this" sheet is drawn like the rest of the app** (`EiraCorrectionView`). It was a standard `Form`. It is now a `SheetPage` with two `SheetCard`s and a `FieldBox`, the same pieces as the sowing form. It warns if what is typed is longer than the 240 characters read to the model.
 
-4. **A new sheet, Corrections, in the chat's Options menu** (`EiraCorrectionsView`). Every correction, newest first, with the question it answered, when it was kept and a Remove button. From the eleventh on, each is marked "not read to her now". `@Query` reads the list from the database and keeps it current, so a removed card goes without the screen being told.
+4. **A new sheet, Corrections, in the chat's Options menu** (`EiraCorrectionsView`). Every correction, newest first, with the question it answered, when it was kept and a Remove button. From the eleventh on, each is marked "only when a question touches on it" (see the section above on handing corrections over). `@Query` reads the list from the database and keeps it current, so a removed card goes without the screen being told.
 
 5. **Every line of a correction is read to the model** (`EiraCorrection.promptLine`, `EiraChatStore.oneLine`). Only the first line was, so a correction typed over two lines lost its second.
 
