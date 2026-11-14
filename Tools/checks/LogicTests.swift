@@ -1142,18 +1142,19 @@ struct LogicTests {
         knows.seasons = SpeciesSeasons(counts: ["Bombus terrestris": [10, 30, 500, 2000, 3000, 4000, 4000, 3000, 2000, 700, 300, 60], "Iris pseudacorus": [1, 1, 1, 5, 40, 60, 30, 5, 2, 1, 1, 1], "Apis mellifera": [1, 2, 3]])
         knows.month = 1
         let inJanuary = EiraIdentify.judge(guessOf([(buff, 0.93)], sure: true), knowing: knows)
-        check(inJanuary.confidence == .possible && inJanuary.cautions.contains(.init(weight: .doubt, words: "It is rarely recorded in the UK in January: 10 of 19600 records on iNaturalist.")) && inJanuary.cautions.contains { $0.words == "Your wildlife list gives its flight period as Mar to Oct, and this is January." } && inJanuary.spoken.hasPrefix("This may be Buff-tailed Bumblebee"), "a summer insect in January is doubted twice over: \(inJanuary.cautions.map(\.words))")
+        check(inJanuary.confidence == .possible && inJanuary.cautions.contains(.init(weight: .doubt, words: "It is rarely recorded in the UK in January: 10 of 19,600 records on iNaturalist.")) && inJanuary.cautions.contains { $0.words == "Your wildlife list gives its flight period as Mar to Oct, and this is January." } && inJanuary.spoken.hasPrefix("This may be Buff-tailed Bumblebee"), "a summer insect in January is doubted twice over: \(inJanuary.cautions.map(\.words))")
         knows.month = 3
         let inMarch = EiraIdentify.judge(guessOf([(buff, 0.93)], sure: true), knowing: knows)
         check(inMarch.confidence == .probable && inMarch.cautions.isEmpty, "the same insect in March is not doubted")
         knows.month = 11
         let inNovember = EiraIdentify.judge(guessOf([(buff, 0.93)], sure: true), knowing: knows)
-        check(inNovember.cautions.contains(.init(weight: .note, words: "It is not often recorded in the UK in November: 300 of 19600 records on iNaturalist.")) && inNovember.confidence == .possible, "scarce in the month is a note, and outside your own list's flight period is a doubt")
+        check(inNovember.cautions.contains(.init(weight: .note, words: "It is not often recorded in the UK in November: 300 of 19,600 records on iNaturalist.")) && inNovember.confidence == .possible, "scarce in the month is a note, and outside your own list's flight period is a doubt")
         var fromPhoto = knows
         fromPhoto.month = 1
         fromPhoto.monthIsFromPhoto = true
         let datedPhoto = EiraIdentify.judge(guessOf([(buff, 0.93)], sure: true), knowing: fromPhoto)
         check(datedPhoto.cautions.contains { $0.words.hasPrefix("It is rarely recorded in the UK in January, when the photo was taken:") } && datedPhoto.cautions.contains { $0.words.hasSuffix("and the photo was taken in January.") }, "a photo that says when it was taken is judged for that month, and the words say so")
+        check(EiraIdentify.grouped(13374) == "13,374" && EiraIdentify.grouped(999) == "999" && EiraIdentify.grouped(1000) == "1,000" && EiraIdentify.grouped(1234567) == "1,234,567" && EiraIdentify.grouped(0) == "0", "large counts are written with commas")
         var noMonth = knows
         noMonth.month = 0
         check(EiraIdentify.judge(guessOf([(buff, 0.93)], sure: true), knowing: noMonth).cautions.isEmpty, "with the month not known, the month is not checked")

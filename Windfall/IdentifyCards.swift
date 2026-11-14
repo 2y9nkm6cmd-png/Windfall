@@ -314,7 +314,7 @@ private struct CautionRow: View {
     private var symbol: String {
         switch caution.weight {
         case .danger: return "exclamationmark.octagon.fill"
-        case .doubt:  return "questionmark.circle"
+        case .doubt:  return "questionmark.circle.fill"
         case .note:   return "info.circle"
         }
     }
@@ -337,8 +337,11 @@ private struct CautionRow: View {
                     .foregroundStyle(Theme.ink)
                 // Anything Claude supplied that you have not checked
                 // says so, as everywhere else in the project.
+                // The triangle is one of Apple's symbols, not the
+                // emoji: in the simulator the emoji drew as an empty box.
                 if caution.isUnchecked {
-                    Text("⚠️ To check: this comes from a list Claude wrote that you have not checked yet.")
+                    Label("To check: this comes from a list Claude wrote that you have not checked yet.",
+                          systemImage: "exclamationmark.triangle")
                         .font(.caption)
                         .foregroundStyle(Theme.inkSoft)
                 }

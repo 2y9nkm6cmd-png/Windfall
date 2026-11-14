@@ -472,10 +472,10 @@ enum EiraIdentify {
             let when = knowledge.monthIsFromPhoto ? "\(month), when the photo was taken" : month
             switch knowledge.seasons?.standing(of: top.entry.scientific, month: knowledge.month) {
             case .rare(let inMonth, let inYear):
-                cautions.append(.init(weight: .doubt, words: "It is rarely recorded in the UK in \(when): \(inMonth) of \(inYear) records on \(knowledge.seasons?.source ?? "iNaturalist")."))
+                cautions.append(.init(weight: .doubt, words: "It is rarely recorded in the UK in \(when): \(grouped(inMonth)) of \(grouped(inYear)) records on \(knowledge.seasons?.source ?? "iNaturalist")."))
                 confidence = .possible
             case .scarce(let inMonth, let inYear):
-                cautions.append(.init(weight: .note, words: "It is not often recorded in the UK in \(when): \(inMonth) of \(inYear) records on \(knowledge.seasons?.source ?? "iNaturalist")."))
+                cautions.append(.init(weight: .note, words: "It is not often recorded in the UK in \(when): \(grouped(inMonth)) of \(grouped(inYear)) records on \(knowledge.seasons?.source ?? "iNaturalist")."))
             case .usual, .none:
                 break
             }
@@ -629,6 +629,19 @@ enum EiraIdentify {
             lines.append("You have recorded \(who) \(times), \(on) \(day(last))\(standing).")
         }
         return lines
+    }
+
+    /// A whole number with commas between the thousands: "13,374".
+    /// Done by hand so that it reads the same on every device,
+    /// whatever its region is set to.
+    nonisolated static func grouped(_ number: Int) -> String {
+        let digits = String(abs(number))
+        var result = ""
+        for (place, digit) in digits.reversed().enumerated() {
+            if place > 0, place % 3 == 0 { result.append(",") }
+            result.append(digit)
+        }
+        return (number < 0 ? "-" : "") + String(result.reversed())
     }
 
     /// "12 November 2026".
