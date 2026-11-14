@@ -230,6 +230,71 @@ enum EiraChecks {
     /// Said in place of a claim to have saved, once a correction is kept.
     static let correctionKept = "Your correction is kept, and I will be told it at the start of every conversation. Your records themselves are unchanged."
 
+    // MARK: - Before: handing over the corrections that bear on a question
+
+    /// Words too common to say what a question is about.
+    private static let commonWords: Set<String> = [
+        "what", "which", "when", "where", "does", "have", "that", "this", "with", "from", "your", "about",
+        "tell", "there", "also", "kind", "sort", "should", "would", "could", "will", "they", "them", "their",
+        "then", "than", "into", "much", "many", "some", "grow", "growing", "grown", "garden", "plant",
+        "planted", "planting", "year", "month", "week", "today", "best", "good", "need", "want", "like",
+        "make", "know", "please", "thanks", "wrong", "right", "really", "still", "very", "just", "more",
+        "most", "been", "were", "here", "mine", "said", "told"
+    ]
+
+    /// The words of a piece of text that say what it is about: four
+    /// letters or more, not a common word, and without a final "s", so
+    /// that "apples" and "apple" count as the same word.
+    static func wordsThatMatter(in text: String) -> Set<String> {
+        let words = text.lowercased()
+            .components(separatedBy: CharacterSet.alphanumerics.inverted)
+            .map { $0.count > 4 && $0.hasSuffix("s") ? String($0.dropLast()) : $0 }
+            .filter { $0.count >= 4 && !commonWords.contains($0) }
+        return Set(words)
+    }
+
+    /// The kept corrections that bear on a question, newest first.
+    ///
+    /// Why this exists. The ten newest corrections are in Eira's
+    /// standing instructions, and Apple's model uses them. On 14 November
+    /// 2026 the trained Qwen did not: told there was a Bramley apple by
+    /// the shed, it was asked in a new conversation whether there was
+    /// one, ran a lookup, found nothing and said no. A model weighs what
+    /// arrives with the question more than what stood in its
+    /// instructions. So a correction that shares a word with the question
+    /// is now handed over with the question, as a lookup's result is.
+    ///
+    /// It also brings an old correction back when it is needed. Only the
+    /// ten newest fit in the instructions, but every one is searched
+    /// here.
+    ///
+    /// A correction bears on a question when the two share a word that
+    /// matters. The question the correction was first given on counts
+    /// too: "It's a Bramley", given on "Which apple is by the shed?",
+    /// comes back for "Tell me about the apple tree".
+    ///
+    /// `[EiraCorrection]` is a list of the saved records. `limit` keeps
+    /// the hand-over short: a small model reads every word.
+    static func corrections(bearingOn question: String, among all: [EiraCorrection], limit: Int = 3) -> [EiraCorrection] {
+        let asked = wordsThatMatter(in: question)
+        guard !asked.isEmpty else { return [] }
+        let bearing = all.filter { each in
+            // `isDisjoint` is true when two sets share nothing.
+            !asked.isDisjoint(with: wordsThatMatter(in: each.topic + " " + each.correction))
+        }
+        return Array(bearing.prefix(limit))
+    }
+
+    /// The lines put in front of a question when corrections bear on it.
+    /// Only the model sees them.
+    static func handOver(_ corrections: [EiraCorrection]) -> String {
+        let lines = corrections.map { "- " + $0.promptLine }.joined(separator: "\n")
+        return """
+        The gardener has put you right on this before. What they told you is right, even where a lookup finds nothing or disagrees. When you use it, say it is what the gardener told you, not what the records show:
+        \(lines)
+        """
+    }
+
     // MARK: - After: reading the reply by rule
 
     /// Said in place of any claim to have saved something.

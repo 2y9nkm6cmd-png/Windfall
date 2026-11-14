@@ -958,9 +958,9 @@ struct EiraCorrectionsView: View {
     private var detail: String {
         let read = EiraChatStore.correctionsRead
         if corrections.count > read {
-            return "All \(corrections.count) are kept. Eira is told the newest \(read) at the start of every conversation."
+            return "All \(corrections.count) are kept. Eira is told the newest \(read) at the start of every conversation, and any other when a question touches on it."
         }
-        return "Eira is told these at the start of every conversation."
+        return "Eira is told these at the start of every conversation, and again with any question that touches on one."
     }
 
     var body: some View {
@@ -991,7 +991,7 @@ struct EiraCorrectionsView: View {
 
                         HStack {
                             Text(correction.createdAt.formatted(date: .abbreviated, time: .shortened)
-                                 + (place >= EiraChatStore.correctionsRead ? " · not read to her now" : ""))
+                                 + (place >= EiraChatStore.correctionsRead ? " · only when a question touches on it" : ""))
                                 .font(.caption)
                                 .foregroundStyle(Theme.inkSoft)
                             Spacer()
