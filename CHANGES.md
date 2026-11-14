@@ -69,6 +69,57 @@ withAnimation(.smooth(duration: 0.3)) {
 - Lifting after 60 points turns the month, however quick or slow the swipe. An iPhone also goes by how fast the finger was moving. This does not.
 - One swipe turns one month at most.
 
+## 14 November 2026, 17:36: the app has its icon, on an iPhone and an iPad
+
+**On the branch `app-icon`, made from `main` (`0c4857f`).** No Swift code changed, so the logic tests were not run again. **This entry sits below the 17:12 one, out of time order, on purpose**: every open branch adds its entry at the top of this file, and an entry added there too would clash with each of them when they are joined.
+
+**Why.** William, 16:16, of the snowdrop with a bumblebee: "Perfect. That's the app icon. You can save that to the project file and use it as the icon going forward." At 17:32: "Make sure when you push the next update, it has the app icon". Until now the app had no icon at all: the place for one was there and was empty, so an iPhone showed Apple's blank grid.
+
+**What was added.**
+
+| File | What it is |
+|---|---|
+| `Design/AppIcon/windfall-app-icon-light.svg` and `-dark.svg` | The two drawings William approved, copied from the project (doc 47). The masters |
+| `Windfall/Assets.xcassets/AppIcon.appiconset/windfall-app-icon-light-1024.png` and `-dark-1024.png` | The same two drawings as pictures 1024 dots square, with no see-through parts. These are what the app is built with |
+| `Windfall/Assets.xcassets/AppIcon.appiconset/Contents.json` | Two lines added, naming the pictures |
+| `Design/README.md` | A section on the app icon and how to make the pictures again |
+
+**What the code means.** `Assets.xcassets` is the app's store of pictures and colours. Inside it, `AppIcon.appiconset` is a folder that holds the icon, and its `Contents.json` is a list of slots. Each slot says what kind of picture it wants, and `filename` says which file in the folder fills it:
+
+```json
+{
+  "filename" : "windfall-app-icon-light-1024.png",
+  "idiom" : "universal",
+  "platform" : "ios",
+  "size" : "1024x1024"
+},
+{
+  "appearances" : [
+    { "appearance" : "luminosity", "value" : "dark" }
+  ],
+  "filename" : "windfall-app-icon-dark-1024.png",
+  "idiom" : "universal",
+  "platform" : "ios",
+  "size" : "1024x1024"
+}
+```
+
+- `"idiom" : "universal"` and `"platform" : "ios"` mean one picture for every iPhone and iPad. Xcode makes each smaller size from it when it builds.
+- A slot with no `appearances` is the ordinary icon. It gets the cream picture.
+- `"value" : "dark"` is the slot iOS uses when the Home Screen's icons are set to Dark. It gets the dark green picture.
+- The only change is the two `filename` lines. Before, the slots had no `filename`, which is what "empty" means here.
+- The project already names this folder as the app's icon (`ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon` in the project file), so nothing else had to change.
+
+**Why the drawings are not in `Design/Icons`.** Project doc 47 suggested that folder. `Tools/design/build_design_assets.py` turns every SVG in it into a small icon for use inside the app, and would have done the same to these two. They are in a folder of their own, `Design/AppIcon`.
+
+**Checked.** The two drawings were typed out from the project's copies. Every shape in the light drawing was compared by a script with the same shape in the dark one, and all 16 match, which is the check that nothing was mistyped. Both pictures were looked at by Claude at full size and at Home Screen size. Each is 1024 by 1024 with no see-through layer.
+
+**Not done.**
+
+1. **The third slot, `tinted`, is still empty.** That is the icon in one colour, for a Home Screen set to Tinted. **⚠️ CHECK**, Claude's understanding: with the slot empty, iOS makes a tinted icon itself from the ordinary one. Not seen.
+2. **The Mac has no icon yet.** The list has slots for iPhone and iPad only. A Mac icon is drawn differently, with rounded corners and a margin, so it needs its own picture and William's eye.
+3. The icon's dark green (`#06421B`) is still not the interface's (doc 47).
+
 ## 14 November 2026, 16:50: a conversation grows out of Eira's bar
 
 **On the branch `eira-bar-expand`, made from `main` (`c89c037`), with `main` (`0ba7173`) merged in.** Built for the Mac and the iOS Simulator with no errors (`eb4-mac.log`, `eb4-sim.log`, in `DerivedData/Windfall-eirabar`). 598 logic tests pass, 2 of them new. Seen as still pictures with the example garden on an 11-inch iPad Pro: the journal's conversation and Eira's chat each standing in the panel, in light and dark, and the bar at rest on Today and on Journal (`shots/eb2-*` and `eb3-*`). **Not seen: an iPhone, and the Mac's own window.** The Mac was too busy with other chats' builds for a second simulator to start. **Nothing has been pressed by hand, and Claude cannot see the panel move.** William judges the growing and the sinking back.
