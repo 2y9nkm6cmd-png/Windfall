@@ -2004,6 +2004,8 @@ struct LogicTests {
             } else {
                 check(false, "the app's list of plant drawings can be read")
             }
+        }
+
         // The fungus key: the file is read, a walk is remembered and stepped back, and the real key is sound.
         let smallKey = FungusKey(data: Data(#"{"start":"a","noneOfThese":"r-none","footer":"f","steps":[{"id":"a","title":"A","question":"Which?","choices":[{"text":"gills","to":"b","picture":"form-gills"},{"text":"a ball","to":"r-ball"}]},{"id":"b","title":"B","question":"Print?","help":"h","choices":[{"text":"white","to":"r-x","detail":"d"},{"text":"none yet","to":"r-how"}]}],"results":[{"id":"r-x","name":"Xs","latin":"Xus","rank":"Genus","confirm":["c"],"danger":"Deadly."},{"id":"r-ball","name":"Slime","latin":"","rank":"Not a fungus","confirm":["c"]},{"id":"r-how","name":"Take a print","latin":"","rank":"How to","confirm":["c"]},{"id":"r-none","name":"Not in this key","latin":"","rank":"No answer","confirm":["c"]}]}"#.utf8))
         check(smallKey != nil && smallKey?.faults() == [] && smallKey?.isChecked == false && smallKey?.pictures == ["form-gills"] && FungusKey(data: Data("{}".utf8)) == nil && FungusKey(data: Data(#"{"checked":true,"start":"a","noneOfThese":"r","footer":"","steps":[],"results":[]}"#.utf8))?.isChecked == true, "a fungus key is read from its file, and is unchecked until the file says otherwise")
