@@ -101,6 +101,10 @@ struct EiraFloatingBar: View {
     /// What was chosen in the Photos chooser. It hands over opaque
     /// items, and the pictures are loaded from them a moment later.
     @State private var pickedItems: [PhotosPickerItem] = []
+    /// True from the moment photos are chosen until they have been
+    /// fetched. The "+" turns into a spinner meanwhile, so that
+    /// choosing is answered at once.
+    @State private var isFetchingPhotos = false
     /// True while photos are being held over the bar.
     @State private var isDropTarget = false
 
@@ -267,16 +271,20 @@ struct EiraFloatingBar: View {
         // height it is offered (`nil` means "no fixed height").
         .frame(height: growsInPlace ? nil : closedSize)
         // The two choosers behind the "+" button.
+        // `.current` asks for each photo as it is stored. Left to
+        // itself the chooser may first convert a photo to another
+        // format, which takes a moment for each one.
         .photosPicker(isPresented: $isChoosingFromPhotos, selection: $pickedItems,
-                      maxSelectionCount: 10, matching: .images)
+                      maxSelectionCount: 10, matching: .images, preferredItemEncoding: .current)
         .onChange(of: pickedItems) { _, items in
             guard !items.isEmpty else { return }
+            pickedItems = []
+            isFetchingPhotos = true
             Task {
-                var pictures: [Data] = []
-                for item in items {
-                    if let data = try? await item.loadTransferable(type: Data.self) { pictures.append(data) }
-                }
-                pickedItems = []
+                // All fetched at the same time, and handed back in the
+                // order they were chosen (PhotoDrop.swift).
+                let pictures = await PhotoDrop.pictures(from: items)
+                isFetchingPhotos = false
                 takePhotos(pictures)
             }
         }
@@ -575,12 +583,23 @@ struct EiraFloatingBar: View {
                 Label("From a file", systemImage: "folder")
             }
         } label: {
-            WIconView(.add, size: 20)
-                .foregroundStyle(Theme.leaf)
-                .frame(width: 30, height: 44)
-                .contentShape(.rect)
+            // A `ZStack` lays one thing over another. The plus is kept
+            // in place, hidden, while the spinner shows, so the button
+            // stays the same size.
+            ZStack {
+                WIconView(.add, size: 20)
+                    .foregroundStyle(Theme.leaf)
+                    .opacity(isFetchingPhotos ? 0 : 1)
+                if isFetchingPhotos {
+                    ProgressView().controlSize(.small)
+                }
+            }
+            .frame(width: 30, height: 44)
+            .contentShape(.rect)
         }
         .buttonStyle(.plain)
+        // Not pressed again while the last choice is still coming.
+        .disabled(isFetchingPhotos)
         // No little arrow beside it. The plus says enough.
         .menuIndicator(.hidden)
         .fixedSize()

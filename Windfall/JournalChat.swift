@@ -28,6 +28,10 @@
 //  and the questions that help pin it down. See "Pinning down
 //  something seen" at the end.
 //
+//  A sixth, added 14 November 2026: what becomes of an entry's heading
+//  when the entry is changed later (JournalEntryEditor.swift). See
+//  "The heading after a change", below the title.
+//
 //  All of them are fixed rules. None of them uses the AI model, so they
 //  give the same answer every time and work on any device.
 //
@@ -213,6 +217,68 @@ enum JournalChat {
             }
         }
         return heading(from: best)
+    }
+
+    // MARK: - The heading after a change
+
+    /// An entry's two headings, as they should stand once the entry has
+    /// been changed.
+    ///
+    /// An entry can have a heading of your own (`own`), one written for
+    /// you from its words (`written`), both or neither. Where both are
+    /// there, your own is the one shown.
+    struct Heading: Equatable {
+        /// The heading you typed. Nil if you have not typed one.
+        var own: String?
+        /// The heading made from the entry's words. Nil if there is none.
+        var written: String?
+        /// True if `written` has just been made afresh, so that the
+        /// record's note of when it was written should move on too.
+        var writtenIsNew = false
+    }
+
+    /// Works out an entry's headings after it has been changed in the
+    /// editor.
+    ///
+    /// The editor has one box for the heading. It opens holding
+    /// whichever heading the entry shows. So there are three things you
+    /// can have done with the box:
+    ///
+    /// - Left it alone. A heading of your own stays. One that was
+    ///   written for you is written again if the entry's words have
+    ///   changed, since it may no longer say what the entry is about.
+    /// - Emptied it. Any heading of your own goes, and one is written
+    ///   from the words.
+    /// - Typed something else. That becomes your own heading.
+    ///
+    /// - `own`, `written`: the entry's headings before the change.
+    /// - `typed`: what is in the heading box now.
+    /// - `oldWords`, `newWords`: the entry's words before and after.
+    /// - `known`: the roots of names from the garden, as for `title`.
+    static func heading(own: String?, written: String?, typed: String,
+                        oldWords: String, newWords: String, known: Set<String> = []) -> Heading {
+        func tidy(_ text: String?) -> String {
+            (text ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+        let before = Heading(own: tidy(own).isEmpty ? nil : own, written: written)
+        // What the box held when the editor opened.
+        let shown = tidy(own).isEmpty ? tidy(written) : tidy(own)
+        let now = tidy(typed)
+        let words = tidy(newWords)
+
+        /// A heading made from the new words. Left off where it would
+        /// only repeat the entry, as when the entry is first written.
+        func fresh() -> Heading {
+            let made = title(for: words, known: known)
+            return Heading(own: nil, written: made == words ? nil : made, writtenIsNew: true)
+        }
+
+        if now != shown {
+            return now.isEmpty ? fresh() : Heading(own: now, written: written)
+        }
+        // The box was left alone.
+        if before.own != nil || words == tidy(oldWords) { return before }
+        return fresh()
     }
 
     /// Cuts one sentence down to a heading: drops openers such as "This

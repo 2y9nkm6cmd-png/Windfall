@@ -52,3 +52,4 @@ FungusKey.rounded:
 FungusKey.upperBound:
 FungusKey.x:
 FungusKey.y:
+Photo.lastPathComponent:

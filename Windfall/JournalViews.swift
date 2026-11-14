@@ -6,8 +6,13 @@
 //  The sums for the page (which day, which words) are in JournalPage.swift.
 //
 //  New entries are written in JournalChatView.swift, as a conversation.
-//  The form here (DiaryEntryEditor) is kept for changing every detail
-//  of an entry already written, and is reached from there.
+//  An entry already written is changed in JournalEntryEditor.swift,
+//  which opens when the entry is tapped on this page.
+//
+//  The form here (DiaryEntryEditor) is the old way of changing an
+//  entry. Since 14 November 2026 nothing opens it. It is kept because
+//  the function that makes a small copy of a photo lives in it and is
+//  used all over the app.
 //
 //  New things here:
 //
@@ -72,6 +77,10 @@ struct JournalTimelineView: View {
     @State private var droppedStart: JournalStart?
     /// True while photos are being held over the page.
     @State private var isDropTarget = false
+    /// The entry that was tapped, while its editor is open. Nil when
+    /// none is. `.sheet(item:)` below shows the editor whenever this
+    /// holds an entry.
+    @State private var entryToChange: DiaryEntry?
     /// The tracker Eira's bar watches. Dropped photos are handed to
     /// the bar through it, and the bar's panel grows up with them in
     /// it. The question mark means "if there is one". See EiraScreen.
@@ -154,6 +163,11 @@ struct JournalTimelineView: View {
         // no bar, such as a preview.
         .sheet(item: $droppedStart) { start in
             JournalChatView(photos: start.photos)
+        }
+        // An entry that was tapped, opened to be changed or deleted
+        // (JournalEntryEditor.swift).
+        .sheet(item: $entryToChange) { entry in
+            JournalEntrySheet(entry: entry)
         }
     }
 
@@ -289,11 +303,36 @@ struct JournalTimelineView: View {
                 }
             }
             ForEach(day.items) { item in
-                JournalRow(item: item)
+                row(for: item)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .glassCard()
+    }
+
+    /// One line of a day's card. Something you wrote is a button: a
+    /// tap opens it to be changed. (William, 14 November 2026: "There's
+    /// also no way to edit journal entries".) The other records, such
+    /// as sowings and sightings, are changed on their own pages and are
+    /// drawn as they were.
+    ///
+    /// A row only knows the entry's label, its `id`. The entry itself
+    /// is found by looking for that label among the diary's entries.
+    @ViewBuilder
+    private func row(for item: TimelineItem) -> some View {
+        if item.kind == .diary, let entry = diary.first(where: { $0.id == item.id }) {
+            Button {
+                entryToChange = entry
+            } label: {
+                JournalRow(item: item, canBeChanged: true)
+                    // Makes the whole row take the tap, gaps included.
+                    .contentShape(.rect)
+            }
+            .buttonStyle(.plain)
+            .accessibilityHint("Opens the entry so you can change it")
+        } else {
+            JournalRow(item: item)
+        }
     }
 
     /// "3 to 9°C · 2.4 mm of rain", from the weather diary, if it has
@@ -313,6 +352,9 @@ struct JournalTimelineView: View {
 private struct JournalRow: View {
 
     let item: TimelineItem
+    /// True for something that opens to be changed when tapped. A small
+    /// pencil is drawn at the end of the row to say so.
+    var canBeChanged = false
 
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
@@ -353,6 +395,14 @@ private struct JournalRow: View {
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
+
+            if canBeChanged {
+                Image(systemName: "pencil")
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(Theme.inkSoft)
+                    .padding(.top, 3)
+                    .accessibilityHidden(true)
+            }
         }
     }
 }
@@ -596,27 +646,20 @@ struct DiaryEntryEditor: View {
         }
     }
 
-    /// Downscales to roughly 300 pt on the long edge.
-    static func thumbnail(from data: Data, maxDimension: CGFloat = 300) -> Data? {
-        #if os(iOS)
-        guard let image = UIImage(data: data) else { return nil }
-        let scale = min(maxDimension / image.size.width, maxDimension / image.size.height, 1)
-        let target = CGSize(width: image.size.width * scale, height: image.size.height * scale)
-        let renderer = UIGraphicsImageRenderer(size: target)
-        let small = renderer.image { _ in image.draw(in: CGRect(origin: .zero, size: target)) }
-        return small.jpegData(compressionQuality: 0.7)
-        #elseif os(macOS)
-        guard let image = NSImage(data: data) else { return nil }
-        let scale = min(maxDimension / image.size.width, maxDimension / image.size.height, 1)
-        let target = NSSize(width: image.size.width * scale, height: image.size.height * scale)
-        let small = NSImage(size: target)
-        small.lockFocus()
-        image.draw(in: NSRect(origin: .zero, size: target))
-        small.unlockFocus()
-        guard let tiff = small.tiffRepresentation,
-              let rep = NSBitmapImageRep(data: tiff) else { return nil }
-        return rep.representation(using: .jpeg, properties: [.compressionFactor: 0.7])
-        #endif
+    /// A small JPEG copy of a photo, for lists. `maxDimension` is the
+    /// longer side in points, and the copy is made at two pixels to a
+    /// point.
+    ///
+    /// The work is done in PhotoShrink.swift, which reads the photo
+    /// straight down to the size wanted. Until 14 November 2026 this
+    /// opened the whole photo and drew it again smaller, which was slow
+    /// and could only be done on the main thread. `nonisolated` says it
+    /// may now be called from any thread.
+    ///
+    /// Where a screen is waiting on the answer, ask `PhotoWorkshop`
+    /// instead, which does the same in the background.
+    nonisolated static func thumbnail(from data: Data, maxDimension: CGFloat = 300) -> Data? {
+        PhotoShrink.jpeg(from: data, longestSide: PhotoShrink.pixels(forPoints: Double(maxDimension)))
     }
 }
 
