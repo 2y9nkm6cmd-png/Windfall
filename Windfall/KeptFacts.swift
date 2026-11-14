@@ -337,6 +337,17 @@ enum KeptFacts {
         return best
     }
 
+    /// True for a short care question that names no plant and could
+    /// only be answered by asking which: "Should I prune?", "When do I
+    /// mulch?". Only for cutting back, feeding and dividing, which are
+    /// always about one plant. "Is it frosty?" is short too, and is
+    /// not asking about a plant at all.
+    static func shouldAskWhichPlant(_ question: String) -> Bool {
+        guard let topic = CareTopic.find(in: question),
+              [.cuttingBack, .feeding, .dividing].contains(topic) else { return false }
+        return EiraSafety.tidied(question).split(separator: " ").count <= 5
+    }
+
     /// A name with anything in brackets taken off: "Apple (Cider)"
     /// becomes "Apple".
     static func withoutBrackets(_ name: String) -> String {
@@ -363,6 +374,40 @@ enum KeptFacts {
             found.append(name + "s")
         }
         return found
+    }
+
+    // MARK: What to look for on a page
+
+    /// The words of a question that tell one paragraph of a page from
+    /// another, for WebText.passages.
+    ///
+    /// These are the question's own words that matter, less the plant's
+    /// name, which is on every line of a page about that plant. A
+    /// question that asks when ("When do I prune the lavender?") also
+    /// looks for the months, the seasons and words such as "timing",
+    /// so that the paragraph that says when comes first.
+    static func pageWords(forQuestion question: String, plant: String? = nil) -> [String] {
+        var words = EiraChecks.wordsThatMatter(in: question)
+        let dull: Set<String> = ["need", "back", "first", "after", "before", "page", "says", "http", "https",
+                                 "leave", "leaf", "plant", "thing", "time"]
+        words.subtract(dull)
+        if let plant {
+            for each in EiraSafety.tidied(withoutBrackets(plant)).split(separator: " ") {
+                for spelling in spellings(of: String(each)) { words.remove(spelling) }
+            }
+        }
+        let tidied = EiraSafety.tidied(question)
+        // "When do I prune?" asks when. "When the rhubarb has wilted, do
+        // I cut it back?" does not, so "when" must be followed by one
+        // of the words a question puts after it.
+        let asksWhen = [" when do ", " when does ", " when should ", " when can ", " when is ", " when are ",
+                        " when to ", " when would ", " when will ", " what time ", " which month", " what month"]
+        if asksWhen.contains(where: { tidied.contains($0) }) {
+            words.formUnion(["timing", "january", "february", "march", "april", "may ", "june", "july", "august",
+                             "september", "october", "november", "december", "spring", "summer", "autumn",
+                             "winter", "every year", "each year", "annual"])
+        }
+        return words.sorted()
     }
 
     // MARK: Which box a fact belongs in

@@ -352,7 +352,8 @@ extension ToolRunner {
             let source = WebSources.source(forAddress: page.address)
             let asked = question.replacingOccurrences(of: address, with: " ")
             let topic = CareTopic.find(in: asked)
-            let weak = Array(EiraChecks.wordsThatMatter(in: asked))
+            let named = plantNamed(in: asked + " " + (page.title ?? ""))
+            let weak = KeptFacts.pageWords(forQuestion: asked, plant: named)
             var body = WebText.passages(in: page.text, strong: topic?.pageWords ?? [], weak: weak)
             if body.isEmpty { body = WebText.truncate(page.text, to: 1200) }
 
@@ -361,7 +362,7 @@ extension ToolRunner {
                                     source: "\(source.name), \(source.trust.said), at \(page.address)")
             result.onlineFind = OnlineFind(sourceName: source.name, trust: source.trust, address: page.address,
                                      title: page.title,
-                                     plantName: plantNamed(in: asked + " " + (page.title ?? "")),
+                                     plantName: named,
                                      field: KeptFacts.field(forQuestion: asked, words: ""))
             return result
         } catch {

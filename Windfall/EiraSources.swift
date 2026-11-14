@@ -278,14 +278,22 @@ extension WebText {
     /// The paragraphs of a page that bear on a question.
     ///
     /// A growing guide runs to thousands of words and a small model can
-    /// take in a few hundred. So the page is cut into its lines, each
-    /// line is given a mark for every word of `strong` it holds (two
-    /// marks) and of `weak` (one mark), two more if its heading holds a
-    /// strong word, and the best are kept until `limit` characters are
-    /// used. They come back in the page's own
-    /// order, each under the heading it was found beneath.
+    /// take in a few hundred. So the page is cut into its lines and
+    /// each line is marked:
     ///
-    /// Returns "" when no line of the page holds any of the words.
+    ///   - two marks for every word of `strong` it holds, and two more
+    ///     if the heading above it holds one. `strong` is what the
+    ///     question is about: for pruning, "cut back", "prun" and so on.
+    ///   - one mark for every word of `weak`: the question's own words,
+    ///     which tell one pruning paragraph from another.
+    ///
+    /// A line needs a strong word, or a heading with one, to count at
+    /// all. (Where no strong words are given, one weak word will do.)
+    /// The best are kept until `limit` characters are used, and come
+    /// back in the page's own order, each under its heading. A photo's
+    /// caption, which carries a copyright sign, is never kept.
+    ///
+    /// Returns "" when no line of the page counts.
     static func passages(in text: String, strong: [String], weak: [String] = [], limit: Int = 1100) -> String {
         let lines = text.components(separatedBy: "\n")
             .map { $0.trimmingCharacters(in: .whitespaces) }
@@ -307,12 +315,11 @@ extension WebText {
                 underRightHeading = strongWords.contains { lower.contains($0) }
                 continue
             }
-            let marks = strongWords.filter { lower.contains($0) }.count * 2
-                + weakWords.filter { lower.contains($0) }.count
-                + (underRightHeading ? 2 : 0)
-            // A line must hold one of the strong words, sit under a
-            // heading that does, or hold two of the weak ones.
-            if marks >= 2 { marked.append((index, marks)) }
+            if line.contains("\u{00A9}") { continue }   // a photo's caption
+            let strongMarks = strongWords.filter { lower.contains($0) }.count * 2 + (underRightHeading ? 2 : 0)
+            let weakMarks = weakWords.filter { lower.contains($0) }.count
+            let counts = strongWords.isEmpty ? weakMarks > 0 : strongMarks > 0
+            if counts { marked.append((index, strongMarks + weakMarks)) }
         }
         guard !marked.isEmpty else { return "" }
 

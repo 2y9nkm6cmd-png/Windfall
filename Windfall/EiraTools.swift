@@ -580,7 +580,18 @@ struct ToolRunner {
         let plants = (try? context.fetch(FetchDescriptor<Plant>())) ?? []
         let names = plants.map(\.commonName)
         guard let name = KeptFacts.plantNamed(in: question, among: names)
-                ?? KeptFacts.plantNamed(in: screen, among: names) else { return nothing }
+                ?? KeptFacts.plantNamed(in: screen, among: names) else {
+            // "Should I prune?" names no plant. Eira's third rule is to
+            // ask one short question when a question is unclear, and
+            // on the test sheet no model did: each went and searched.
+            // So for the shortest of these she is told to ask.
+            if KeptFacts.shouldAskWhichPlant(question) {
+                return ToolResult(text: "The question names no plant, and no plant's page is open. "
+                                    + "Do not guess and do not look anything up. Ask which plant is meant, in one short question.",
+                                  source: "app")
+            }
+            return nothing
+        }
         guard let topic = CareTopic.find(in: question) else { return nothing }
         // Every variety of it: rhubarb is in the library three times.
         let varieties = plants.filter { $0.commonName == name }
@@ -619,7 +630,7 @@ struct ToolRunner {
                     + "If you answer from your own general knowledge, say it is not checked.",
                 source: "user's plant database")
         }
-        let weak = Array(EiraChecks.wordsThatMatter(in: question))
+        let weak = KeptFacts.pageWords(forQuestion: question, plant: name)
         let passages = WebText.passages(in: page.text, strong: topic.pageWords, weak: weak, limit: 950)
         guard !passages.isEmpty else {
             return ToolResult(

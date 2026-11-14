@@ -1341,7 +1341,7 @@ struct LogicTests {
         let fromScreen = await careHub.run(name: "plant_care", argumentsJSON: EiraToolHub.json(["question": "Do I need to cut it back?", "screen": "the plant Rhubarb, Victoria"]))
         let noPlant = await careHub.run(name: "plant_care", argumentsJSON: EiraToolHub.json(["question": "Should I prune?", "screen": ""]))
         let gardenSearch = await careHub.run(name: "search_garden", argumentsJSON: EiraToolHub.json(["query": "rhubarb"]))
-        check(fromScreen.contains("Rhubarb — Victoria, Pruning") && noPlant.isEmpty && gardenSearch.contains("pruning: Cut the old leaves away"), "the plant can come from the screen that was open, no plant means nothing is handed over, and the plant search now hands over the pruning")
+        check(fromScreen.contains("Rhubarb — Victoria, Pruning") && !noPlant.contains("Rhubarb") && gardenSearch.contains("pruning: Cut the old leaves away"), "the plant can come from the screen that was open, no plant means nothing is handed over, and the plant search now hands over the pruning")
         victoria.pruning = "My own note"
         check(keptStore.remove(keptNow[0]) == false && victoria.pruning == "My own note" && keptStore.remove(keptNow[1]) == true && champagne.pruning == "Remove flower heads" && keptStore.all().isEmpty, "removing a kept fact puts the old value back, unless the box has been changed since")
         check(WebSources.source(forAddress: "https://www.rhs.org.uk/vegetables/rhubarb/grow-your-own") == WebSources.all[0] && WebSources.source(forAddress: "en.wikipedia.org/wiki/Rhubarb").trust == .general && WebSources.source(forAddress: "https://www.gardenersworld.com/how-to/grow-plants/how-to-grow-rhubarb/").name == "Gardeners' World" && WebSources.source(forAddress: "https://example.org/page") == WebSource(name: "example.org", hosts: ["example.org"], trust: .unknown) && WebSources.source(forAddress: "https://notrhs.org.uk/x").trust == .unknown && SourceTrust.checked.said == "a checked source", "a site is known by the end of its address, and one not on the list is said to be unchecked")
@@ -1371,9 +1371,9 @@ struct LogicTests {
         let careEngine = FakeEngine()
         let caring = EiraConversation()
         caring.configure(engine: careEngine, hub: EiraToolHub(context: ModelContext()), store: EiraChatStore(context: ModelContext()))
-        caring.send("Should I prune?")
+        caring.send("How should I water things in a dry summer?")
         await waitUntilIdle(caring)
-        check(careEngine.prompts.last == "Should I prune?" && caring.offeredFind == nil && !caring.messages.contains { $0.role == .tool }, "a care question that names no plant goes to the model exactly as typed, with no lookup shown")
+        check(careEngine.prompts.last == "How should I water things in a dry summer?" && caring.offeredFind == nil && !caring.messages.contains { $0.role == .tool }, "a care question that names no plant goes to the model exactly as typed, with no lookup shown")
         let localHub = EiraToolHub(context: keptContext)
         victoria.pruning = "Cut away dead leaves in autumn."
         let localEngine = FakeEngine()
@@ -1392,6 +1392,15 @@ struct LogicTests {
 
         let glossary = "<p>The ground should be free from <popover-content class=\"x\"><div><p>Perennials die back to ground level each autumn.</p></div></popover-content><span>perennial</span> weeds.</p>"
         check(WebText.plainText(fromHTML: glossary) == "The ground should be free from perennial weeds.", "a pop-up glossary is left out of a page's text: \(WebText.plainText(fromHTML: glossary))")
+
+        check(EiraConversation.suggestedWords(from: "Yes, after the first frost you should cut away the old leaves. This is from the RHS.") == "After the first frost you should cut away the old leaves." && EiraConversation.suggestedWords(from: "Prune in late summer.\n\nThis comes from the RHS website, which is a checked source.") == "Prune in late summer.", "an opening Yes and a sentence that only names the source are left out of the fact to keep")
+        let whenWords = KeptFacts.pageWords(forQuestion: "When should I prune the lavender?", plant: "Lavender"), whyWords = KeptFacts.pageWords(forQuestion: rhubarbQuestion, plant: "Rhubarb")
+        check(whenWords.contains("timing") && whenWords.contains("summer") && whenWords.contains("prune") && !whenWords.contains("lavender") && whyWords.contains("frost") && whyWords.contains("wilted") && !whyWords.contains("rhubarb") && !whyWords.contains("timing") && !whyWords.contains("back"), "the words that tell one paragraph from another leave out the plant's name, and a question that asks when looks for months and seasons")
+        let pruningPage = "Apples: winter pruning\nQuick facts\nTiming November to early March.\nBush trees like these should be pruned every winter \u{00A9} RHS\nWhy prune\nPruning keeps trees healthy and productive, with well-spaced branches.\nProblems\nApple scab is a fungal disease of the leaves and the fruit."
+        check(WebText.passages(in: pruningPage, strong: CareTopic.cuttingBack.pageWords, weak: KeptFacts.pageWords(forQuestion: "When do I prune it?")) == "[Why prune]\nPruning keeps trees healthy and productive, with well-spaced branches." && WebText.passages(in: pruningPage, strong: [], weak: ["scab"]) == "[Problems]\nApple scab is a fungal disease of the leaves and the fruit.", "a line needs a word of the subject to count, a caption is never kept, and with no subject one of the question's words will do")
+        check(KeptFacts.shouldAskWhichPlant("Should I prune?") && KeptFacts.shouldAskWhichPlant("When do I mulch?") && !KeptFacts.shouldAskWhichPlant("Is it frosty?") && !KeptFacts.shouldAskWhichPlant("How do I prune a tree that has not been touched for years?") && !KeptFacts.shouldAskWhichPlant("What is growing?"), "a short pruning or feeding question that names no plant is one to ask about")
+        let askWhich = await careHub.run(name: "plant_care", argumentsJSON: EiraToolHub.json(["question": "Should I prune?", "screen": ""]))
+        check(askWhich.contains("Ask which plant is meant") && careHub.finds.isEmpty, "asked to prune with no plant named, Eira is told to ask which plant")
 
         print("   logic tests: \(passes) passed, \(failures) failed")
         exit(failures == 0 ? 0 : 1)

@@ -618,6 +618,11 @@ final class EiraConversation {
     /// app adds under an answer are taken off, the lines are run
     /// together and anything past about 300 characters is left out,
     /// ending on a whole sentence where it can.
+    ///
+    /// Two habits of speech are tidied away, because the fact will sit
+    /// in a plant's record and not in a conversation: an opening "Yes,"
+    /// and a sentence that only says where it came from ("This is from
+    /// the RHS."). The source is kept beside the fact in any case.
     static func suggestedWords(from reply: String, limit: Int = 300) -> String {
         var text = reply
         for added in ["\n\nNot checked:", "\n\n" + EiraChecks.nothingSaved] {
@@ -628,9 +633,20 @@ final class EiraConversation {
             .map { $0.trimmingCharacters(in: .whitespaces) }
             .filter { !$0.isEmpty }
             .joined(separator: " ")
-        guard oneLine.count > limit else { return oneLine }
+        let sourceOnly = ["this is from", "this comes from", "this came from", "this advice", "this information",
+                          "the advice is from", "the advice comes from", "that is from", "source:"]
+        var sentences = EiraChecks.sentences(in: oneLine).filter { sentence in
+            let lower = sentence.lowercased()
+            return !sourceOnly.contains { lower.hasPrefix($0) }
+        }
+        if let first = sentences.first {
+            for opening in ["Yes, ", "Yes. ", "Yes: "] where first.hasPrefix(opening) {
+                let rest = first.dropFirst(opening.count)
+                sentences[0] = rest.prefix(1).uppercased() + rest.dropFirst()
+            }
+        }
         var kept = ""
-        for sentence in EiraChecks.sentences(in: oneLine) {
+        for sentence in sentences {
             if kept.count + sentence.count + 1 > limit { break }
             kept += (kept.isEmpty ? "" : " ") + sentence
         }
