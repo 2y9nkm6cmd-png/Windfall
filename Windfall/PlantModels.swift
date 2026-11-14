@@ -121,6 +121,20 @@ final class Plant {
     var sourceRow: Int?
     var lastSyncedAt: Date?
 
+    // Changes made in the app. Added 14 November 2026, with the sheet
+    // that edits a plant's facts (PlantEditView.swift).
+
+    /// The facts changed in the app by hand, each by the key it has in
+    /// PlantFacts.swift, such as "spacingM". Loading a spreadsheet file
+    /// leaves these facts as they are. Without this list the file's
+    /// value would quietly replace what was typed here.
+    var changedByHand: [String] = []
+    /// The name and variety the spreadsheet file knows this plant by,
+    /// kept the first time either is changed in the app. Loading the
+    /// file again then finds this record, and does not add the plant a
+    /// second time under its old name.
+    var importedAs: String?
+
     @Relationship(deleteRule: .cascade, inverse: \Planting.plant)
     var plantings: [Planting]? = []
 

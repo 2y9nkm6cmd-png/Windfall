@@ -537,7 +537,45 @@ struct LogicTests {
         check(Planting.nextRound(for: pageAchillea, on: roundDay.addingTimeInterval(-150 * 86_400), calendar: roundCalendar) == 2 && Planting.nextRound(for: pageAchillea, on: roundDay, calendar: roundCalendar) == nil && Planting.nextRound(for: Plant(commonName: "Aster"), on: roundDay, calendar: roundCalendar) == nil, "a succession round counts that year's sowings and not its plantings, and the first sowing of a year has no number")
         let headStarted = PlantPage.twoColumns(garlicCards, rightHeadStart: PlantPage.plantingsCardWeight(lines: 4))
         check(headStarted.left.count > sharedCards.left.count && headStarted.left.count + headStarted.right.count == garlicCards.count && PlantPage.plantingsCardWeight(lines: 0) == PlantPage.plantingsCardWeight(lines: 1) && PlantPage.plantingsCardWeight(lines: 3) > PlantPage.plantingsCardWeight(lines: 1), "the sowings and plantings card at the top of the right-hand column counts towards that column's height, so more of the fact cards go left")
+        let footStarted = PlantPage.twoColumns(garlicCards, leftHeadStart: PlantPage.footCardsWeight(pests: 2, emptyGroups: 3))
+        check(footStarted.right.count > sharedCards.right.count && footStarted.left.count + footStarted.right.count == garlicCards.count && PlantPage.footCardsWeight(pests: 0, emptyGroups: 0) == 3 && PlantPage.footCardsWeight(pests: 2, emptyGroups: 3) == 11, "the cards at the foot of the left-hand column count towards its height, so more of the fact cards go right")
         check(achilleaLines.map(\.status) == ["Growing", "Growing", "Finished", "Growing"] && PlantingStatus.allCases.allSatisfy { !PlantPage.statusWords($0).isEmpty } && PlantPage.statusWords(.germinated) == "Up" && PlantPage.plantingLines(for: Plant(commonName: "Aster")).isEmpty, "each line gives the stage in a word or two, and a plant never sown has no lines")
+
+        // The one list of a plant's facts
+        let notFacts: Set<String> = ["id", "statusRaw", "sourceSites", "sourceSheet", "sourceRow", "lastSyncedAt", "plantings", "seedPackets", "changedByHand", "importedAs"]
+        let storedInAPlant = Mirror(reflecting: Plant(commonName: "x")).children.compactMap(\.label)
+        check(storedInAPlant.count > 60 && storedInAPlant.filter { !notFacts.contains($0) }.allSatisfy { PlantFacts.named($0) != nil } && PlantFacts.all.allSatisfy { storedInAPlant.contains($0.key) }, "every fact a plant's record holds is in the list of facts, and the list names nothing the record lacks (missing: \(storedInAPlant.filter { !notFacts.contains($0) && PlantFacts.named($0) == nil }))")
+        check(Set(PlantFacts.all.map(\.key)).count == PlantFacts.all.count && Set(PlantFacts.all.map { $0.group.rawValue + $0.label }).count == PlantFacts.all.count && PlantFacts.Group.allCases.allSatisfy { !PlantFacts.fields(in: $0).isEmpty } && PlantFacts.named("spacingM")?.label == "Spacing" && PlantFacts.named("nonsense") == nil && PlantFacts.Group.cards.count == 8, "each fact has a key of its own and a label of its own on its card, and every card has facts")
+
+        let editLeek = Plant(commonName: "Leek"); editLeek.variety = "Musselburgh"; editLeek.spacingM = "0.15"; editLeek.sowIndoorsMonthsText = "February, March"; editLeek.isPollinator = true; editLeek.sourceSheet = "Allotment Garden"
+        var leekTyped = PlantFacts.values(of: editLeek)
+        check(leekTyped.count == PlantFacts.all.count && leekTyped["spacingM"] == "0.15" && leekTyped["isPollinator"] == PlantFacts.yes && leekTyped["isRepeller"] == "" && leekTyped["notes"] == "" && PlantFacts.changed(leekTyped, from: editLeek).isEmpty, "the editing sheet starts from every fact as text, and nothing counts as changed until something is typed")
+        leekTyped["spacingM"] = " 0.2 "; leekTyped["notes"] = "Blanch the stems"; leekTyped["isPollinator"] = ""; leekTyped["isRepeller"] = PlantFacts.yes; leekTyped["commonName"] = "   "
+        leekTyped["sowIndoorsMonthsText"] = PlantFacts.toggling(4, in: leekTyped["sowIndoorsMonthsText"] ?? "")
+        let leekChanges = ["spacingM", "isPollinator", "isRepeller", "sowIndoorsMonthsText", "notes"]
+        check(PlantFacts.changed(leekTyped, from: editLeek).map(\.key) == leekChanges, "what was changed is found, in the page's order, and a blanked-out name is not a change")
+        let leekSaved = PlantFacts.save(leekTyped, to: editLeek)
+        check(leekSaved == leekChanges && editLeek.spacingM == "0.2" && editLeek.notes == "Blanch the stems" && !editLeek.isPollinator && editLeek.isRepeller && editLeek.sowIndoorsMonthsText == "feb mar apr" && editLeek.commonName == "Leek" && editLeek.variety == "Musselburgh", "saving writes what changed, tidied, switches a yes or no, and never blanks the name")
+        check(editLeek.changedByHand == leekChanges && editLeek.importedAs == nil && PlantFacts.save(PlantFacts.values(of: editLeek), to: editLeek).isEmpty && editLeek.changedByHand.count == 5, "each saved fact is noted as changed by hand, once, and saving with nothing changed does nothing")
+        var leekRenamed = PlantFacts.values(of: editLeek); leekRenamed["commonName"] = "Leeks"; leekRenamed["spacingM"] = ""; leekRenamed["notes"] = "Blanch the stems well"
+        PlantFacts.save(leekRenamed, to: editLeek)
+        check(editLeek.commonName == "Leeks" && editLeek.importedAs == "leek|musselburgh" && editLeek.spacingM == nil && editLeek.changedByHand == leekChanges + ["commonName"] && PlantFacts.libraryKey(name: "Achillea", variety: nil) == "achillea|", "a rename remembers the name the file knows the plant by, a blanked fact is cleared, and a fact changed twice is noted once")
+        var leekRenamedAgain = PlantFacts.values(of: editLeek); leekRenamedAgain["variety"] = "Musselburgh Improved"
+        PlantFacts.save(leekRenamedAgain, to: editLeek)
+        let homeMade = Plant(commonName: "Mystery squash"); var homeMadeTyped = PlantFacts.values(of: homeMade); homeMadeTyped["commonName"] = "Crown Prince"; PlantFacts.save(homeMadeTyped, to: homeMade)
+        check(editLeek.importedAs == "leek|musselburgh" && editLeek.variety == "Musselburgh Improved" && homeMade.commonName == "Crown Prince" && homeMade.importedAs == nil, "the file's name for a plant is kept from the first rename only, and a plant that never came from a file has none")
+
+        check(PlantFacts.monthText([3, 1, 2, 2, 13, 0]) == "jan feb mar" && PlantFacts.monthText([]) == "" && PlantFacts.toggling(7, in: "") == "jul" && PlantFacts.toggling(2, in: "feb mar") == "mar" && PlantFacts.toggling(6, in: "Summer-Winter") == "jun" && PlantFacts.toggling(5, in: "Mar-May") == "mar apr" && PlantFacts.toggling(12, in: "June, July") == "jun jul dec", "switching a month on or off rewrites the months in the spreadsheet's own style")
+        check(["*", "?", "-", " ", ""].allSatisfy { PlantFacts.isPlaceholder($0) } && ["H6", "0.3", "full", "3 / C"].allSatisfy { !PlantFacts.isPlaceholder($0) }, "a lone star, question mark or dash stands for nothing")
+
+        let pageApple = Plant(commonName: "Apple"); pageApple.variety = "Pendragon"; pageApple.typeLabel = "Scion"; pageApple.pollinationGroup = "3 / C"; pageApple.ploidy = "*"; pageApple.rootstock = "MM106"; pageApple.needsPropagator = true
+        pageApple.stemGrowthMonthsText = "Summer-Winter"; pageApple.sowingTemperatureC = "18-20"; pageApple.sowingPreference = "?"; pageApple.germinationDaysText = "slow"; pageApple.timeToUltimateHeight = "10-20 years"; pageApple.rootSpreadM = "Up to 2-3 times canopy spread"
+        let appleCards = PlantPage.cards(for: pageApple)
+        check(PlantPage.summary(for: pageApple).map(\.value) == ["Pendragon", "Scion"] && appleCards.map(\.group) == [.patterns, .habits, .sowing] && PlantPage.emptyGroups(for: pageApple) == [.permaculture, .constraints, .management, .ecology, .description] && PlantPage.emptyGroups(for: pageGarlic) == [.management, .ecology, .description], "the page knows which cards have nothing on them yet, and the type joins the line at the top")
+        check(appleCards[0].monthRows.isEmpty && appleCards[0].facts == [PlantPage.Fact(label: "Stem growth", value: "Summer-Winter")] && appleCards[1].facts.map(\.value) == ["10-20 years", "Up to 2-3 times canopy spread", "3 / C"] && appleCards[2].facts.map(\.value) == ["slow", "18-20 °C", "MM106"] && appleCards[2].tags == ["Needs a propagator"], "the page shows every filled-in fact: words where months were expected, rootstock and pollination group, a unit only after a figure, and never a lone star or question mark")
+
+        let putBackCount = PlantFacts.keepingHandChanges(in: editLeek) { editLeek.commonName = "Leek"; editLeek.notes = nil; editLeek.spacingM = "0.3"; editLeek.isPollinator = true; editLeek.hardiness = "H5"; editLeek.isRepeller = true }
+        check(putBackCount == 4 && editLeek.commonName == "Leeks" && editLeek.notes == "Blanch the stems well" && editLeek.spacingM == nil && !editLeek.isPollinator && editLeek.isRepeller && editLeek.hardiness == "H5" && PlantFacts.keepingHandChanges(in: Plant(commonName: "Aster")) {} == 0, "facts changed by hand are put back after a rewrite, a cleared one stays cleared, and everything else is left as the rewrite made it")
 
         // Friends, enemies and pests from the companion matrix
         func matrixRow(_ one: String, _ two: String, _ sign: String, _ reason: String?) -> CompanionPair { let pair = CompanionPair(); pair.plantOneName = one; pair.plantTwoName = two; pair.effect = CompanionEffect.parse(sign); pair.mechanism = reason; return pair }
@@ -959,6 +997,54 @@ struct LogicTests {
             check(oldBeds.count == 1 && oldBeds.first?.orderedSections.first?.lengthMetres == 1.2 && oldBeds.first?.lengthMetres == nil, "a backup made before gardens existed still restores")
         } else {
             check(false, "the backup file can be written")
+        }
+
+        // What is typed in the app survives the spreadsheet file being loaded again, and a backup
+        let leekStore = ModelContext()
+        let leekImporter = GardenDataImporter()
+        func leekFile(_ spacing: String, _ more: [String: String] = [:]) -> GardenDataFile {
+            var leekRow = ["Name": "Leek", "Variety/Cultivar": "Musselburgh", "Spacing [m]": spacing, "Notes": "From the file", "Category": "Alliums"]
+            for (heading, cell) in more { leekRow[heading] = cell }
+            return GardenDataFile(source: "test", tables: [GardenTable(name: "Allotment Garden", rows: [leekRow])])
+        }
+        _ = leekImporter.importAll(leekFile("0.15"), into: leekStore)
+        if let libraryLeek = ((try? leekStore.fetch(FetchDescriptor<Plant>())) ?? []).first {
+            var libraryTyped = PlantFacts.values(of: libraryLeek)
+            libraryTyped["spacingM"] = "0.2"; libraryTyped["commonName"] = "Leeks"; libraryTyped["isPollinator"] = PlantFacts.yes; libraryTyped["notes"] = ""
+            PlantFacts.save(libraryTyped, to: libraryLeek)
+            let loadedAgain = leekImporter.importAll(leekFile("0.3", ["Hardiness": "H5"]), into: leekStore)
+            check(((try? leekStore.fetch(FetchDescriptor<Plant>())) ?? []).count == 1 && loadedAgain.plantsAdded == 0 && loadedAgain.plantsUpdated == 1, "a plant renamed in the app is still found by the file's name for it, and is not added a second time (\(loadedAgain.description))")
+            check(libraryLeek.commonName == "Leeks" && libraryLeek.spacingM == "0.2" && libraryLeek.notes == nil && libraryLeek.isPollinator && libraryLeek.hardiness == "H5" && libraryLeek.group == "Alliums", "loading the file again leaves what was typed in the app as it is and still brings in everything else")
+            check(loadedAgain.handChangesKept == 3 && loadedAgain.description.contains("3 facts you changed in the app were kept") && GardenDataImporter.Summary(plantsUpdated: 1, handChangesKept: 1).description.contains("1 fact you changed in the app was kept"), "the import says how many typed facts it left alone (\(loadedAgain.description))")
+
+            let leekPlanting = Planting(); leekPlanting.plant = libraryLeek; leekPlanting.startedFrom = .plant; leekPlanting.quantitySown = 12
+            leekStore.insert(leekPlanting)
+            let leekCross = PlantCross(); leekCross.seedParentKey = libraryLeek.id.uuidString; leekCross.seedParentName = "Leeks"
+            leekStore.insert(leekCross)
+            libraryLeek.pollinationGroup = "3 / C"
+            if let leekBackup = try? BackupService().export(from: leekStore) {
+                let emptyApp = ModelContext()
+                try? BackupService().restore(from: leekBackup, into: emptyApp)
+                let restoredLeek = ((try? emptyApp.fetch(FetchDescriptor<Plant>())) ?? []).first
+                check(restoredLeek?.id == libraryLeek.id && restoredLeek?.commonName == "Leeks" && restoredLeek?.spacingM == "0.2" && restoredLeek?.hardiness == "H5" && restoredLeek?.pollinationGroup == "3 / C" && restoredLeek?.isPollinator == true && restoredLeek?.group == "Alliums", "a backup keeps every fact of a plant, not just eight of them")
+                check(restoredLeek?.changedByHand == libraryLeek.changedByHand && restoredLeek?.importedAs == "leek|musselburgh" && restoredLeek?.sourceSites == libraryLeek.sourceSites && restoredLeek?.status == .growing, "a backup keeps which facts were typed in the app, the file's name for the plant and which garden it is in")
+
+                let freshApp = ModelContext()
+                _ = GardenDataImporter().importAll(leekFile("0.15"), into: freshApp)
+                try? BackupService().restore(from: leekBackup, into: freshApp)
+                let freshPlants = (try? freshApp.fetch(FetchDescriptor<Plant>())) ?? []
+                let freshPlantings = (try? freshApp.fetch(FetchDescriptor<Planting>())) ?? []
+                let freshCrosses = (try? freshApp.fetch(FetchDescriptor<PlantCross>())) ?? []
+                check(freshPlants.count == 1 && freshPlants.first?.id != libraryLeek.id && freshPlantings.count == 1 && freshPlantings.first?.plant === freshPlants.first && freshCrosses.first?.seedParentKey == freshPlants.first?.id.uuidString, "restoring on a fresh copy of the app joins the sowings and crosses to the plant already in its library, and makes no second copy of it")
+                check(freshPlants.first?.commonName == "Leeks" && freshPlants.first?.spacingM == "0.2" && freshPlants.first?.notes == nil && freshPlants.first?.isPollinator == true && freshPlants.first?.changedByHand.count == 4 && freshPlants.first?.importedAs == "leek|musselburgh" && freshPlants.first?.hardiness == nil, "and what was typed in the app comes back on top of the library's own facts, with nothing else overwritten")
+                freshPlants.first?.spacingM = "0.5"
+                try? BackupService().restore(from: leekBackup, into: freshApp)
+                check(freshPlants.first?.spacingM == "0.5" && ((try? freshApp.fetch(FetchDescriptor<Plant>())) ?? []).count == 1 && ((try? freshApp.fetch(FetchDescriptor<Planting>())) ?? []).count == 1, "a second restore adds nothing and does not undo a newer change")
+            } else {
+                check(false, "the backup of an edited plant can be written")
+            }
+        } else {
+            check(false, "the leek arrives from its file")
         }
 
         check(["Bed 3", "bed 3", "3", "bed three", "Bed 3.", " BED  3 "].allSatisfy { ToolRunner.bedMatches(asked: $0, name: "Bed 3") } && !ToolRunner.bedMatches(asked: "3", name: "Bed 30") && !ToolRunner.bedMatches(asked: "Bed 2", name: "Bed 3") && !ToolRunner.bedMatches(asked: "", name: "Bed 3") && ToolRunner.bedMatches(asked: "fruit cage", name: "Fruit Cage") && !ToolRunner.bedMatches(asked: "bed", name: "Bed 3") && ToolRunner.bedMatches(asked: "Bed", name: "Bed"), "a bed is found by its number, its name in any case or a number word, and Bed 3 is not Bed 30")

@@ -13,6 +13,11 @@
 //  that is empty, down to whole cards. Most plants do not have every
 //  column filled in, and a heading with nothing under it is noise.
 //
+//  Which facts there are, and which card each belongs on, is not
+//  decided here. That is the list in PlantFacts.swift, which the sheet
+//  that edits a plant uses too, so the two can never disagree: whatever
+//  can be typed in is shown, and whatever is shown can be changed.
+//
 //  Nothing here draws anything, so it can be tested without a screen.
 //  The drawing is in PlantLibraryView.swift (PlantDetailView).
 //
@@ -53,12 +58,16 @@ enum PlantPage {
 
     /// One card of the page.
     struct FactCard: Identifiable, Equatable {
-        let title: String
+        /// Which group of facts the card holds. Its name is the card's
+        /// heading, and the page hands it to the editing sheet so that
+        /// the sheet opens at the same card.
+        let group: PlantFacts.Group
         var monthRows: [MonthRow] = []
         var facts: [Fact] = []
         /// Short labels shown as chips, such as "Pollinator plant".
         var tags: [String] = []
 
+        var title: String { group.title }
         var id: String { title }
 
         var isEmpty: Bool { monthRows.isEmpty && facts.isEmpty && tags.isEmpty }
@@ -77,74 +86,65 @@ enum PlantPage {
 
     // MARK: - Building the page
 
-    /// The line of facts at the very top: variety, group and whether it
-    /// is an annual, a perennial and so on.
+    /// The line of facts at the very top: variety, group, whether it is
+    /// an annual or a perennial, and the form it is held in. The common
+    /// and Latin names are left out of it, because they are the page's
+    /// title.
     static func summary(for plant: Plant) -> [Fact] {
-        [fact("Variety", plant.variety),
-         fact("Group", plant.group),
-         fact("Classification", plant.classification)].compactMap { $0 }
+        PlantFacts.fields(in: .naming)
+            .filter { $0.key != "commonName" && $0.key != "latinName" }
+            .compactMap { factField in
+                let text = PlantFacts.value(of: factField, in: plant)
+                guard !text.isEmpty, !PlantFacts.isPlaceholder(text) else { return nil }
+                return Fact(label: factField.label, value: text)
+            }
     }
 
     /// The cards for a plant, in the spreadsheet's order. A card with
     /// nothing on it is left out.
     static func cards(for plant: Plant) -> [FactCard] {
-        var permaculture: [String] = []
-        if plant.isPollinator { permaculture.append("Pollinator plant") }
-        if plant.isRepeller { permaculture.append("Pest repeller") }
-        if plant.isUmbelliferous { permaculture.append("Umbelliferous") }
-        if plant.isNitrogenFixer { permaculture.append("Nitrogen fixer") }
-        if plant.isDynamicAccumulator { permaculture.append("Dynamic accumulator") }
-        if plant.isGroundCover { permaculture.append("Ground cover") }
+        PlantFacts.Group.cards.map { card(for: $0, of: plant) }.filter { !$0.isEmpty }
+    }
 
-        let all = [
-            FactCard(title: "Growth Patterns",
-                     monthRows: [months("Flowering", plant.floweringMonthsText, .flowering),
-                                 months("Stem growth", plant.stemGrowthMonthsText, .growth),
-                                 months("Foliage", plant.foliageMonthsText, .growth),
-                                 months("Fruiting", plant.fruitingMonthsText, .fruiting)].compactMap { $0 },
-                     facts: [fact("Plant type", plant.plantType),
-                             fact("Habits", plant.habits)].compactMap { $0 }),
-            FactCard(title: "Growth Habits",
-                     facts: [fact("Max height", plant.maxHeightM, unit: "m"),
-                             fact("Spread", plant.spreadM, unit: "m"),
-                             fact("Root depth", plant.rootDepthM, unit: "m"),
-                             fact("Spacing", plant.spacingM, unit: "m"),
-                             fact("Flower form", plant.flowerForm),
-                             fact("Layer", plant.layer)].compactMap { $0 }),
-            FactCard(title: "Permaculture Category", tags: permaculture),
-            FactCard(title: "Sowing from Seed",
-                     monthRows: [months("Sow indoors", plant.sowIndoorsMonthsText, .sowIndoors),
-                                 months("Sow outdoors", plant.sowOutdoorsMonthsText, .sowOutdoors),
-                                 months("Plant out", plant.plantOutMonthsText, .plantOut),
-                                 months("Harvest", plant.harvestMonthsText, .harvest)].compactMap { $0 },
-                     facts: [duration("Germination", plant.germinationDaysText),
-                             duration("Sow to crop", plant.sowToCropText),
-                             fact("Sowing depth", plant.sowingDepthMM, unit: "mm"),
-                             fact("Propagation", plant.propagation)].compactMap { $0 }),
-            FactCard(title: "Growth Constraints",
-                     facts: [fact("Sun / shade", plant.sunShade),
-                             fact("Position", plant.position),
-                             fact("Hardiness", plant.hardiness),
-                             fact("Soil pH", plant.soilPH),
-                             fact("Soil conditions", plant.preferredSoilConditions),
-                             fact("Pests", plant.knownPests),
-                             fact("Diseases", plant.knownDiseases)].compactMap { $0 }),
-            FactCard(title: "Human Management",
-                     facts: [fact("Pruning", plant.pruning),
-                             fact("Pruning group", plant.pruningGroup),
-                             fact("Culinary uses", plant.culinaryUses),
-                             fact("Medicinal uses", plant.medicinalUses),
-                             fact("Toxicity", plant.toxicityCautions)].compactMap { $0 }),
-            FactCard(title: "Ecological Interactions",
-                     facts: [fact("Partner plants", plant.partnerPlants),
-                             fact("Antagonistic plants", plant.antagonisticPlants),
-                             fact("Pollinators", plant.pollinators)].compactMap { $0 }),
-            FactCard(title: "Description",
-                     facts: [fact("Appearance", plant.appearance),
-                             fact("History", plant.history),
-                             fact("Notes", plant.notes)].compactMap { $0 })
-        ]
-        return all.filter { !$0.isEmpty }
+    /// The groups with nothing to show yet, in order. These are the
+    /// cards the page leaves out. It lists them at its foot, each a way
+    /// in to the editing sheet, so that an empty group can be started.
+    static func emptyGroups(for plant: Plant) -> [PlantFacts.Group] {
+        PlantFacts.Group.cards.filter { card(for: $0, of: plant).isEmpty }
+    }
+
+    /// One card: every filled-in fact of its group, each put in the
+    /// part of the card that suits what kind of fact it is.
+    private static func card(for factGroup: PlantFacts.Group, of plant: Plant) -> FactCard {
+        var factCard = FactCard(group: factGroup)
+        for factField in PlantFacts.fields(in: factGroup) {
+            let text = PlantFacts.value(of: factField, in: plant)
+            // Nothing there, or only the spreadsheet's "*" or "?".
+            guard !text.isEmpty, !PlantFacts.isPlaceholder(text) else { continue }
+
+            switch factField.kind {
+            case .yesNo:
+                factCard.tags.append(factField.label)
+            case .months(let monthKind):
+                let found = MonthParser.months(in: text)
+                if found.isEmpty {
+                    // Words that are not months, such as "Spring to
+                    // summer", are still worth showing, as plain text.
+                    factCard.facts.append(Fact(label: factField.label, value: text))
+                } else {
+                    factCard.monthRows.append(MonthRow(label: factField.label, months: found, kind: monthKind))
+                }
+            case .measure(let unit):
+                factCard.facts.append(Fact(label: factField.label, value: measured(text, unit: unit)))
+            case .duration:
+                // In its own unit: "20 weeks". Text with no figure in it
+                // is shown as it is.
+                factCard.facts.append(Fact(label: factField.label, value: DurationParser.describe(text) ?? text))
+            case .text, .longText:
+                factCard.facts.append(Fact(label: factField.label, value: text))
+            }
+        }
+        return factCard
     }
 
     /// Shares cards between two columns so that they come out about the
@@ -152,13 +152,16 @@ enum PlantPage {
     /// shorter so far, so the order down each column stays the
     /// spreadsheet's order.
     ///
-    /// `rightHeadStart` is the height, in rows, of anything the page has
-    /// already put at the top of the right-hand column: the sowings and
-    /// plantings card. The sharing-out counts it as already there.
-    static func twoColumns(_ cards: [FactCard], rightHeadStart: Int = 0) -> (left: [FactCard], right: [FactCard]) {
+    /// The two head starts are the heights, in rows, of what else the
+    /// page puts in each column: the sowings and plantings card at the
+    /// top of the right-hand one, and the companions, pests and "Add
+    /// information" cards at the foot of the left-hand one. The
+    /// sharing-out counts them as already there.
+    static func twoColumns(_ cards: [FactCard], leftHeadStart: Int = 0, rightHeadStart: Int = 0)
+        -> (left: [FactCard], right: [FactCard]) {
         var left: [FactCard] = []
         var right: [FactCard] = []
-        var leftWeight = 0
+        var leftWeight = leftHeadStart
         var rightWeight = rightHeadStart
         for factCard in cards {
             if leftWeight <= rightWeight {
@@ -222,6 +225,14 @@ enum PlantPage {
         4 + max(lines, 1) * 2
     }
 
+    /// Roughly how tall the cards at the foot of the left-hand column
+    /// are, in rows: the link to companions, the pests card if the
+    /// plant has any (`pests` is how many) and the "Add information"
+    /// card if any group is empty (`emptyGroups` is how many).
+    static func footCardsWeight(pests: Int, emptyGroups: Int) -> Int {
+        3 + (pests == 0 ? 0 : 2 + (pests + 1) / 2) + (emptyGroups == 0 ? 0 : 3 + (emptyGroups + 1) / 2)
+    }
+
     /// A planting's stage in a word or two.
     static func statusWords(_ status: PlantingStatus) -> String {
         switch status {
@@ -238,25 +249,11 @@ enum PlantPage {
 
     // MARK: - Pieces
 
-    /// A fact, or nil if there is nothing to say. A unit is added when
-    /// the value ends in a figure, so "0.15" reads "0.15 m" and a value
-    /// that already has its unit is left alone.
-    private static func fact(_ label: String, _ value: String?, unit: String? = nil) -> Fact? {
-        guard let trimmed = value?.trimmingCharacters(in: .whitespacesAndNewlines), !trimmed.isEmpty else { return nil }
-        if let unit, let last = trimmed.last, last.isNumber {
-            return Fact(label: label, value: "\(trimmed) \(unit)")
-        }
-        return Fact(label: label, value: trimmed)
-    }
-
-    /// A length of time in the unit it was written in: "14 days",
-    /// "7–21 days", "20 weeks", "9–12 months". Days where none is named.
-    private static func duration(_ label: String, _ text: String?) -> Fact? {
-        DurationParser.describe(text).map { Fact(label: label, value: $0) }
-    }
-
-    private static func months(_ label: String, _ text: String?, _ kind: MonthKind) -> MonthRow? {
-        let found = MonthParser.months(in: text)
-        return found.isEmpty ? nil : MonthRow(label: label, months: found, kind: kind)
+    /// A figure with its unit. The unit is added when the value ends in
+    /// a figure, so "0.15" reads "0.15 m" and a value that already has
+    /// its unit, or is words, is left alone.
+    private static func measured(_ text: String, unit: String) -> String {
+        guard let last = text.last, last.isNumber else { return text }
+        return "\(text) \(unit)"
     }
 }
