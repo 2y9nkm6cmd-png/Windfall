@@ -124,6 +124,9 @@ struct EiraFloatingBar: View {
     private let rim: CGFloat = 5
     private var symbolSize: CGFloat { Self.restingHeight - rim * 2 }
     private var closedSize: CGFloat { Self.restingHeight }
+    /// How solid the open bar's layer of paper is, from 0 (clear glass)
+    /// to 1 (solid paper). Raise it for a more solid bar.
+    private static let barFill: Double = 0.85
 
     /// True on the Journal page, where the bar is for telling Eira what
     /// happened. See `EiraSight.isJournal`.
@@ -196,6 +199,12 @@ struct EiraFloatingBar: View {
                 // with it, travels left as it grows.
                 .frame(width: expanded ? max(barWidth - rebound, closedSize) : closedSize,
                        height: closedSize, alignment: .leading)
+                // A layer of the paper's colour inside the glass, so that the
+                // page behind does not show through the open bar and muddle
+                // the words in it. `barFill` is how solid it is: 0 is clear
+                // glass, 1 is solid paper. Closed, the snowdrop's bubble is
+                // left as clear glass.
+                .background(Theme.paper.opacity(expanded ? Self.barFill : 0), in: .capsule)
                 .glassEffect(.regular.interactive(), in: .capsule)
                 // While photos are held over the bar, a dashed line round it
                 // shows that it will take them.

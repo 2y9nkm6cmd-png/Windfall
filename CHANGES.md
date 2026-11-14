@@ -89,6 +89,21 @@ A plant now also counts as having a shape when its own "Flower Form" names one. 
 **They are a first pass and William has not approved them.** Ten kinds are drawn by hand and 162 are built from templates with Claude's own settings for each plant, none yet checked. Project docs 58 and 59.
 
 **Not done:** showing a drawing on a plant's card or page. That is Swift work for a chat that builds.
+# 14 November 2026, 19:40: Eira's open bar is more solid
+
+**By the "bar opacity" chat, on the branch `eira-bar-opaque`. In `main` since 20:40. It builds for the simulator (`bo1-sim.log`, 20:31). Not yet seen on any device.**
+
+William, 19:34, with a picture of the Journal page on his iPhone: the day's entries and photos showed through the open bar and ran into "Tell Eira". "Could you make Eira's bar more opaque".
+
+**What changed.** One file, `EiraFloatingBar.swift`.
+
+- The open bar now has a layer of the paper's colour inside its glass:
+  `.background(Theme.paper.opacity(expanded ? Self.barFill : 0), in: .capsule)`.
+  `.background(..., in: .capsule)` paints a colour behind the bar's buttons and words, in the bar's own pill shape. `Theme.paper` is the page's colour, so it is cream in light mode and dark green in dark mode. `.opacity(...)` sets how solid it is. `expanded ? x : 0` means "x when the bar is open, otherwise 0", so the closed snowdrop keeps its clear glass.
+- `barFill` is a new named number, 0.85. 0 is clear glass and 1 is solid paper. It is the one number to change if the bar should be more or less solid.
+- The glass itself is untouched, so the bar keeps its rim and its shine when pressed.
+
+**⚠️ CHECK:** 0.85 is Claude's choice. It needs a build and a look in light and dark mode.
 
 # 14 November 2026, 18:40: seven branches joined into main
 
