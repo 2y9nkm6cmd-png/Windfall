@@ -322,6 +322,10 @@ struct EiraFloatingBar: View {
                 journalRequest = BarRequest(text: "")
             }
         }
+        // The "Ask Eira" widget: opens her chat. See WidgetRoute.
+        .onChange(of: WidgetRoute.shared.pending, initial: true) {
+            if WidgetRoute.shared.claim(["eira"]) != nil { openEira(with: nil) }
+        }
     }
 
     // MARK: The panel
@@ -451,10 +455,6 @@ struct EiraFloatingBar: View {
             // the page, so there it is left alone.
             if expanded { fieldHasFocus = true }
             #endif
-        }
-        // The "Ask Eira" widget: opens her chat. See WidgetRoute.
-        .onChange(of: WidgetRoute.shared.pending, initial: true) {
-            if WidgetRoute.shared.claim(["eira"]) != nil { openEira(with: nil) }
         }
     }
 
