@@ -42,10 +42,11 @@
 //
 //  Not built yet: names becoming links.
 //
-//  Where it is drawn (14 November 2026). On a Mac and an iPad, opened
-//  from Eira's bar, the conversation is drawn in the panel that grows
-//  out of the bar (EiraPanel.swift) and is handed that panel's controls.
-//  Everywhere else it is a sheet, as before. The conversation itself is
+//  Where it is drawn (14 November 2026). Opened from Eira's bar, on a
+//  Mac, an iPad or an iPhone, the conversation is drawn in the panel
+//  that grows out of the bar (EiraPanel.swift) and is handed that
+//  panel's controls. Opened any other way, such as from Today's Note
+//  button, it is a sheet, as before. The conversation itself is
 //  the same in both: only its heading and the surface under the box to
 //  write in differ.
 //

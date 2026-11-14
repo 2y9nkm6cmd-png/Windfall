@@ -72,11 +72,9 @@ struct JournalTimelineView: View {
     @State private var droppedStart: JournalStart?
     /// True while photos are being held over the page.
     @State private var isDropTarget = false
-    // Wide (a Mac, an iPad) or narrow (an iPhone). On a wide screen
-    // dropped photos go to Eira's bar, whose panel grows up from it.
-    @Environment(\.horizontalSizeClass) private var sizeClass
-    /// The tracker Eira's bar watches. The question mark means "if
-    /// there is one". See EiraScreen.
+    /// The tracker Eira's bar watches. Dropped photos are handed to
+    /// the bar through it, and the bar's panel grows up with them in
+    /// it. The question mark means "if there is one". See EiraScreen.
     @Environment(EiraScreen.self) private var eiraScreen: EiraScreen?
 
     /// Everything of every kind, whatever the filter says. The counts
@@ -132,7 +130,7 @@ struct JournalTimelineView: View {
             Task {
                 let pictures = await PhotoDrop.pictures(from: providers)
                 guard !pictures.isEmpty else { return }
-                if sizeClass != .compact, let eiraScreen {
+                if let eiraScreen {
                     // Eira's bar is at the foot of this page. It takes
                     // the photos and opens the conversation in its
                     // panel, so no second window comes up.
@@ -151,8 +149,9 @@ struct JournalTimelineView: View {
         // Writing is a conversation with Eira (JournalChatView.swift).
         // It is opened from her bar at the foot of the page, which on
         // this page reads "Tell Eira what happened in the garden", or
-        // by dropping photos here. On a Mac and an iPad it grows out
-        // of the bar. This sheet is for an iPhone.
+        // by dropping photos here. Either way it grows out of the bar.
+        // This sheet is only for a Journal page shown where there is
+        // no bar, such as a preview.
         .sheet(item: $droppedStart) { start in
             JournalChatView(photos: start.photos)
         }

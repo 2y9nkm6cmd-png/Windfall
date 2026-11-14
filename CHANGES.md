@@ -77,6 +77,80 @@ Rule 8 of Eira's instructions gives an example of right wording: "I have no sowi
 - Drawings of each plant on the cards, which William raised in the same message as "a side note". Not started. The chat uses the Plants page's card, so a drawing added to that card will show in both places.
 - In the picture her answer also said nothing was recorded about pollinators visiting comfrey, straight after giving what `plant_visitors` had found. That is the model, and is not changed here.
 - Her spoken replies, if switched on, are still handed the reply with its asterisks.
+## 14 November 2026, 17:55: an iPhone's conversations grow out of Eira's bar too
+
+**On the branch `eira-panel-iphone`, made from `main` (`0c4857f`), with `main` (`ece03c9`) merged in.** Built for the Mac and the iOS Simulator with no errors (`eb6-mac.log`, `eb6-sim.log`, in `DerivedData/Windfall-eirabar`). 612 logic tests pass. Seen as still pictures with the example garden on an iPhone 17 Pro in the simulator (`shots/eb5-phone-*`): the journal's conversation in the panel, Eira's chat in the panel, and the Journal page with the bar at rest above the tabs. Not seen: Today on an iPhone with the snowdrop closed. **Nothing has been pressed by hand, and nobody has yet seen it with an iPhone's keyboard up.**
+
+**Why.** William, 17:23: "Does the chat change width on window resize on a mac? I want it to behave the same way on iphone as well." The entry of 16:50 below gave the panel to the Mac and the iPad and left the iPhone with its sheets, which was Claude's choice and not his.
+
+**The answer to his question.** Yes, up to a point. The panel is as wide as Eira's bar, and the bar is as wide as the page, so the panel narrows and widens as the window is dragged. It stops at 760 points, because a line of writing much wider than that is tiring to read. The button with two arrows lifts that limit.
+
+### 1. What you see on an iPhone
+
+Exactly what a Mac and an iPad do: send something from Eira's bar, or press its microphone or book button, and the bar grows upwards into the panel with the conversation in it. Done sinks it back. Two things differ, both because of the size of the screen:
+
+- **The panel is always as tall as the page.** On a Mac it stops at 620 points unless made larger. An iPhone has no height to spare.
+- **There is no button for a larger size**, because there is no larger size to go to.
+
+The row of tabs along the bottom stays where it is, under the panel's foot.
+
+### 2. How (`MainTabView.swift`)
+
+The iPhone layout now places the bar the way the other layout does. Before:
+
+```swift
+.safeAreaInset(edge: .bottom, spacing: 0) {
+    EiraFloatingBar()
+        .padding(.horizontal, 16)
+        .padding(.bottom, 8)
+}
+```
+
+After:
+
+```swift
+.safeAreaInset(edge: .bottom, spacing: 0) {
+    Color.clear.frame(height: EiraFloatingBar.restingHeight + 8)
+}
+.overlay(alignment: .bottom) {
+    EiraFloatingBar(growsInPlace: true, takesPagePhotos: section == .journal)
+        .padding(.horizontal, 16)
+        .padding(.bottom, 8)
+}
+```
+
+- `safeAreaInset` still keeps a strip clear at the foot of each page, so a long list can be scrolled out from under the bar. The strip now holds nothing (`Color.clear`) and is as tall as the bar plus the 8 points beneath it.
+- `.overlay` is a layer on top of the page with the page's whole space. The bar sits at its foot and has the rest to grow into. In the strip it had 60 points and nowhere to go.
+- `growsInPlace: true` asks for the panel in place of the sheets.
+
+### 3. One bar for each tab (`EiraFloatingBar.swift`)
+
+An iPhone has five tabs and each has a bar of its own. Photos dropped on the Journal page are handed to "Eira's bar" through the tracker (the entry of 16:50, part 6), and with five bars listening, the wrong one could have taken them and opened its panel on a tab nobody was looking at. `takesPagePhotos` is true only for the Journal tab's bar (`section == .journal`), and a bar where it is false leaves the photos alone.
+
+### 4. The panel on a narrow bar (`EiraPanel.swift`, `EiraFloatingBar.swift`)
+
+```swift
+panel(for: open, room: geometry.size.height, isPhoneWide: barWidth < EiraPanel.phoneWidth)
+```
+
+A bar narrower than 500 points is on an iPhone, or on an iPad that is sharing its screen with another app. `isPhoneWide` then does two things: the panel is drawn at its fullest (`let isFull = panelIsLarge || isPhoneWide`), and `EiraPanelControls` is given `offersLargerSize: false`, which is what leaves the button out of the heading.
+
+### 5. Photos dropped on the Journal page (`JournalViews.swift`)
+
+They now go to the bar on every device. The page's own sheet is kept only for a Journal page shown with no bar at all.
+
+### ⚠️ CHECK: choices that are Claude's
+
+1. The panel on an iPhone is as tall as the page, with no smaller size.
+2. The tabs stay showing under the panel.
+3. Nothing but Done closes it. A swipe down on the panel does not.
+
+### Not built
+
+- A swipe down to put the panel away, as a sheet has on an iPhone.
+- An iPhone held sideways. The panel is not fitted to a screen that wide and that short.
+- `growsInPlace` is now true in every layout, so the two sheets in `EiraFloatingBar.swift` are never shown. They are kept so that going back is one word. If the panel stays, they can be taken out.
+
 ## 14 November 2026, 17:12: on a Mac, a month's page follows two fingers as it turns
 
 **On the branch `month-drag-mac`, made from `main`.** Built for the Mac and the iOS Simulator with no errors (`mv7-mac.log`, `mv7-sim.log`, in `DerivedData/Windfall-month`). 596 logic tests pass. **A simulator has no trackpad, so the Mac's row was given to a 13-inch iPad with a checking aid and looked at there**, with the example garden: the row held 300 points to the right shows April sliding off and March coming in beside it, cut off cleanly at the sidebar (`shots/mv7-drag.png`); the forward arrow slides December on to January and the back arrow April back to March (`mv7-on.png`, `mv7-back.png`). **Not tried by anyone: two fingers on a real trackpad.**
@@ -308,6 +382,78 @@ The Journal page and the bar are separate views, so the page cannot open the bar
 **What changed.** The 19 are added: Astrantia, Beruladium, Bunium, Bupleurum, Eryngium, Falcaria, Ferula, Libanotis, Ligusticum, Meum, Orlaya, Peucedanum, Physospermum, Sanicula, Selinum, Tordylium, Trinia, Trocdaris and Visnaga. Some look nothing like hemlock (sea holly, great masterwort) and get the warning all the same: it is better given too often than too seldom. **CHECK: the genera and their common names are iNaturalist's, fetched on 14 November 2026, and have not been checked against a flora.**
 
 One logic test added: the list holds five of the new genera and 50 in all.
+## 14 November 2026, 16:55: the drawing in Today's corner comes alive
+
+**On the branch `living-corner`, made from `main` (`0ba7173`).** Knowledge base doc 49 has the design and William's decisions. The design was worked out first on a canvas ("Windfall living corner" in William's artifacts), and the drawing code there is the project file `design/living-corner.js`. This is that design carried into Swift.
+
+**Why.** William, 16:02, of the fixed drawing: "it was going to be a live animation linked to the month or season." 16:10: "I wonder if we play on the bee from the app icon." 16:30: "I don't want this to be a thing that people have to set up, just a fun thing that happens." 16:38: "add it in to the next build of the app (add an option in settings for me to see all the different animations and change the weather as an in settings preview)".
+
+**What it does.** A drawing for each month. It grows in when Today opens, sways as hard as the wind is blowing, and changes a little every day. The bee from the app icon flies in from the left, feeds from flower to flower and leaves to the right, then comes back after a random wait of 10 to 20 seconds. Tapping the drawing calls the bee and pushes the sprig, which springs back. In February it is the icon's own snowdrop.
+
+### The four new files
+
+| File | What is in it |
+|---|---|
+| `CornerScene.swift` | The deciding: which month, how far through it, calm or breezy or gusty, fine or rain or frost or night, and whether the bee may fly. No drawing, so it is tested (13 new tests) |
+| `CornerSprigs.swift` | The twelve drawings, the shapes they are built from, the colours and the bee |
+| `CornerIconArt.swift` | The app icon's snowdrop as outlines, for February |
+| `LivingCorner.swift` | The engine that moves it all, the view, and the preview page for Settings |
+
+### How a drawing is put together
+
+Each drawing is **stems** and **parts**. A stem is a curved line. A part is a leaf, flower or fruit fixed part way along a stem. Here is September's bough and one of its pears:
+
+```swift
+let a = twig.stem(at(6, 90), at(38, 30), at(126, 27), width: 1.7)
+twig.add(a, 0.62, .pear(tall: CornerMath.lerp(21, 27, t), ripe: t)) { $0.hangs = true; $0.fan = -3; $0.swing = 0.55 }
+```
+
+- `twig.stem(...)` adds a line from 6, 90 (bottom left) that bends towards 38, 30 and ends at 126, 27. It gives back a number, kept in `a`, that stands for this stem.
+- `twig.add(a, 0.62, ...)` fixes a part to stem `a`, 62% of the way along it.
+- `.pear(tall:ripe:)` says the part is a pear. `t` is how far through the month it is, from 0 to 1. `CornerMath.lerp(21, 27, t)` is a number that slides from 21 to 27 as `t` goes from 0 to 1, so the pear is 21 tall on the 1st and 27 on the 30th.
+- The piece in curly brackets sets what is unusual about this part. `$0` means "the part being added". It hangs straight down and swings like a weight.
+
+Because parts are fixed to stems by "how far along", they follow when the wind bends the stem. Nothing has to be moved by hand.
+
+### How it moves
+
+`LivingCorner` wraps its drawing in a `TimelineView`, which asks for the picture again up to thirty times a second, handing over the time. Every frame the engine works everything out afresh from that time:
+
+- **Growing in**: how many seconds since Today opened decides how much of each stem is drawn and how big each part is.
+- **Swaying**: three slow sine waves of different lengths added together give a lean in degrees. A wave that never quite repeats looks like wind. Points further from the foot of the plant turn more, which makes it bend like a stem.
+- **A tap** adds one more wave that dies away: `nudgeSize * exp(-1.7 * sinceTap) * sin(7.2 * sinceTap)`. `sin` swings back and forth and `exp` of a growing minus number shrinks towards nothing, so the swing gets smaller each time.
+
+It stops redrawing when the app is in the background. With Reduce Motion on it draws once, finished and still, with the bee sitting on the flower.
+
+### Nothing to set up
+
+In `TodayView.swift` the old `BotanicalCorner()` becomes `LivingCorner(cornerScene: cornerScene)`, and `cornerScene` is made from things Today already had:
+
+```swift
+CornerScene.make(date: .now, calendar: .current,
+                 temperatureC: weather.current?.temperatureC,
+                 precipitationMM: weather.current?.precipitationMM,
+                 windSpeedKMH: weather.current?.windSpeedKMH,
+                 isNight: isNight)
+```
+
+- `weather.current` is the last reading from the weather service, or nothing if there has not been one. The `?` means "if there is one".
+- `isNight` was already there, worked out from the sun's position for the garden.
+- With no reading at all the corner shows a light breeze on a fine day.
+
+The limits, all in `CornerScene.swift` and all Claude's choices for William to check: calm under 8 km/h, gusty over 20 (the app's own "too windy" line), rain from 0.1 mm, frost at 0°C or below, and the bee needs 5°C.
+
+### The preview in Settings
+
+The page the sidebar's Settings opens ("Settings and tools", `MoreTab` in `MainTabView.swift`) has a new row, "Corner drawing". It opens `CornerPreviewView`: one large drawing with a month menu, a day slider, wind and weather switches and "Open it again", then all twelve months moving in a grid. Tapping a month in the grid shows it large. Nothing chosen there changes Today. Things happen sooner there than on Today so there is something to watch.
+
+### Smaller things
+
+- The colours are kept inside `CornerSprigs.swift` as `CornerInks`, a light set and a dark set, and not in `Design/colours.json`. Two reasons: a fruit ripening is one colour mixed into another, which needs the numbers, and the new colours are still a proposal (doc 49). Six of them repeat values from `colours.json`. If those change there, change them here too.
+- `BotanicalCorner` is still in `Theme.swift` and is no longer used.
+- The crocus and runner bean drawn before William chose daffodil and lavender are not carried across. They are in `design/living-corner.js`.
+- Checking aids: `-cornerMonth 2 -cornerDay 20 -cornerWind gusty -cornerSky rain` set the scene on Today and in the preview. `-startSection more -demoCorner YES` opens the preview.
+- Names: the cross-file check goes by names, so several here are longer than they need be (`sprigPart`, `cornerSky`, `lineInk`).
 
 ## 14 November 2026, 16:26: the sidebar's lens follows the fingers again
 

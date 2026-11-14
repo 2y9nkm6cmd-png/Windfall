@@ -39,3 +39,4 @@ EiraChecks.swift
 EiraIdentify.swift
 PhotoFacts.swift
 EiraChatLayout.swift
+CornerScene.swift

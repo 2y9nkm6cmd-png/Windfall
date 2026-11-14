@@ -35,9 +35,12 @@
 //  in the middle of the screen. The bar grows upwards into a panel of
 //  glass with the conversation inside it, and "Done" lowers it back.
 //  That is what `growsInPlace` switches on. The parts the panel shares
-//  with the conversations are in EiraPanel.swift. On an iPhone the
-//  sheets are kept. Search and the card that asks what to do with a
-//  photo are still sheets everywhere.
+//  with the conversations are in EiraPanel.swift. An iPhone kept its
+//  sheets for an hour or two and then got the panel as well (William,
+//  17:23 the same day: "I want it to behave the same way on iphone").
+//  There the panel is as wide as the bar and as tall as the page.
+//  Search and the card that asks what to do with a photo are still
+//  sheets everywhere.
 //
 
 import SwiftUI
@@ -47,9 +50,17 @@ import PhotosUI
 struct EiraFloatingBar: View {
 
     /// True where a conversation should grow up out of the bar as a
-    /// panel, which is on a Mac and an iPad. False, as on an iPhone,
-    /// keeps the sheets. MainTabView.swift chooses.
+    /// panel. MainTabView.swift sets it for every layout: a Mac, an
+    /// iPad and an iPhone. False opens the conversations as sheets, as
+    /// they were until 14 November 2026. That way is kept so that it is
+    /// one word to go back to, and for a bar drawn with no page to grow
+    /// into.
     var growsInPlace = false
+
+    /// False for a bar that should leave photos dropped on a page
+    /// alone. An iPhone has one bar for each tab, and only the Journal
+    /// tab's bar should pick up photos dropped on the Journal page.
+    var takesPagePhotos = true
 
     // @AppStorage keeps a small setting on the device, so the choice is
     // remembered the next time the app opens.
@@ -215,7 +226,7 @@ struct EiraFloatingBar: View {
                 // MainTabView.swift), and `geometry.size.height` is
                 // that height: all the room the panel can have.
                 if let open = openInPanel {
-                    panel(for: open, room: geometry.size.height)
+                    panel(for: open, room: geometry.size.height, isPhoneWide: barWidth < EiraPanel.phoneWidth)
                 }
             }
             // Everything sits at the foot of the space, however tall
@@ -305,7 +316,7 @@ struct EiraFloatingBar: View {
         // `onChange` runs its closure whenever the value it names
         // changes. See EiraScreen.handToBar.
         .onChange(of: screen?.photosForBar.count ?? 0) { _, count in
-            guard count > 0, let screen else { return }
+            guard takesPagePhotos, count > 0, let screen else { return }
             takePhotos(screen.takePhotosForBar())
         }
         // A checking aid: `-demoOpen eira`, `-demoOpen corrections`,
@@ -362,12 +373,18 @@ struct EiraFloatingBar: View {
     ///
     /// - `room`: the height there is between the top of the page and
     ///   the bar's bottom edge.
+    /// - `isPhoneWide`: true when the bar is no wider than an iPhone.
+    ///   The panel then always takes all the height there is, and the
+    ///   button for a larger size is left out, because there is no
+    ///   larger size to go to.
     ///
     /// The panel is drawn inside the bar's own space, not hung outside
     /// it, so that every button in it is certain to take a tap.
-    private func panel(for open: OpenInPanel, room: CGFloat) -> some View {
-        let controls = EiraPanelControls(isLarge: $panelIsLarge, takesKeyboard: panelTakesKeyboard,
-                                         close: lowerPanel)
+    private func panel(for open: OpenInPanel, room: CGFloat, isPhoneWide: Bool) -> some View {
+        let controls = EiraPanelControls(isLarge: $panelIsLarge, offersLargerSize: !isPhoneWide,
+                                         takesKeyboard: panelTakesKeyboard, close: lowerPanel)
+        // On an iPhone the panel is always at its fullest.
+        let isFull = panelIsLarge || isPhoneWide
         // Down, the panel is the bar's own shape: a capsule is a
         // rectangle whose corners are rounded by half its height. Up,
         // its corners are gentler.
@@ -400,11 +417,11 @@ struct EiraFloatingBar: View {
         .opacity(panelIsUp ? 1 : 0)
         // As wide as the bar, up to a width that is comfortable to
         // read. The larger size takes the bar's whole width.
-        .frame(maxWidth: panelIsLarge ? .infinity : EiraPanel.usualWidth)
+        .frame(maxWidth: isFull ? .infinity : EiraPanel.usualWidth)
         // The height is what grows. `alignment: .bottom` keeps the
         // foot of the conversation, where the box to type in is, on the
         // bar's own line while the rest is uncovered above it.
-        .frame(height: panelIsUp ? EiraPanel.height(room: room, isLarge: panelIsLarge) : closedSize,
+        .frame(height: panelIsUp ? EiraPanel.height(room: room, isLarge: isFull) : closedSize,
                alignment: .bottom)
         // Nothing is drawn outside the panel's shape while it is small.
         .clipShape(.rect(cornerRadius: corner))
