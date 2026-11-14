@@ -169,10 +169,18 @@ struct WaitingPhoto: Identifiable {
     /// The photo's file, as it came. Nil while it is being fetched
     /// from the Photos library.
     var data: Data?
-    /// The small copy to draw. Nil while it is being made.
+    /// The small copy to draw. Nil while it is being made. Empty if
+    /// one could not be made, so that the spinner stops: the photo is
+    /// still kept.
     var thumbnail: Data?
     /// When and where it was taken, read from the file.
     var facts = PhotoFacts()
+
+    /// The small copy to keep with the photo's record, or nil if there
+    /// is none, in which case one is made when the record is.
+    var thumbnailToKeep: Data? {
+        thumbnail.flatMap { $0.isEmpty ? nil : $0 }
+    }
 }
 
 /// The tile for a photo that is on its way: the small copy once there
@@ -180,7 +188,8 @@ struct WaitingPhoto: Identifiable {
 /// photo off again.
 struct WaitingPhotoTile: View {
 
-    /// The small copy to draw. Nil shows the spinner.
+    /// The small copy to draw. Nil shows the spinner. Bytes that are
+    /// not a picture show a plain photo symbol.
     let thumbnail: Data?
     var size: CGFloat = 64
     /// What the cross does.
@@ -189,10 +198,16 @@ struct WaitingPhotoTile: View {
     var body: some View {
         ZStack {
             Theme.card
-            if let thumbnail, let picture = PhotoThumbnail.image(from: thumbnail) {
-                picture
-                    .resizable()
-                    .scaledToFill()
+            if let thumbnail {
+                if let picture = PhotoThumbnail.image(from: thumbnail) {
+                    picture
+                        .resizable()
+                        .scaledToFill()
+                } else {
+                    // No small copy could be made of it.
+                    Image(systemName: "photo")
+                        .foregroundStyle(Theme.inkSoft)
+                }
             } else {
                 // Still being fetched or made smaller.
                 ProgressView().controlSize(.small)
