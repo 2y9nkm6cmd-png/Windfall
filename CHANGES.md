@@ -7,6 +7,65 @@ run without the Mac (every file reads as valid Swift, 323 logic tests
 pass). Those do not build the screens. Expect things to put right when
 it is first built, and treat how everything here looks as untried.
 
+## 14 November 2026, 13:33: one way of giving Eira a photo
+
+**On the branch `eira-photo-join`, made from `main` (`4bd75fc`). It joins `photo-drop` to `main`.** In its own copy of the code, `~/Developer/windfall-photojoin`. Builds for the Mac and the simulator with no errors (`pj1-mac.log`, `pj1-sim.log`). 551 logic tests pass, 2 of them new.
+
+**Why.** William, 11:39: "Eira should use the image model as well as identify though, right?" and at 13:09, "Build it". By then two other chats had built most of it, apart from each other. The identification chat had built Eira's judgement of a photo and the camera button in her chat, which were in `main`. The photo chat had built the "+" on her bar, dropping a photo and the photo's own date, on `photo-drop`. `photo-drop` was made before the Identify screen was rewritten, so the two clashed. At 13:14 William sent a picture of the Journal page with two Eiras on it. That was put right on `photo-drop` and arrives with this join.
+
+**The clashes, and how each was settled.**
+
+1. `EiraVision.swift`, the Identify screen, in four places. `main`'s screen is kept, with Eira's judgement and the shared card. `photo-drop`'s additions are put back into it: a photo to begin with (`startingPhoto`), a photo dropped on the screen and the line saying when the photo was taken.
+2. `CHANGES.md` and `Tools/checks/logic-files.txt`. Both branches had added lines in the same place. Both sets are kept. The photo chat's entry now sits below the later ones from `main`, a little out of time order.
+
+**What was made one.**
+
+1. **One function starts a sighting from a photo**: `EiraIdentify.startSighting` in `IdentifyCards.swift`. It can now be handed two more things:
+
+   ```swift
+   EiraIdentify.startSighting(from: identification,    // Eira's answer, or nil
+                              photo: imageData,        // the copy made smaller
+                              original: originalData,  // the photo as it came
+                              facts: facts,            // when and where it was taken
+                              in: context)
+   ```
+
+   In the function's own first lines these are written `original: Data? = nil` and `facts: PhotoFacts? = nil`. The question mark means "this, or nothing". The `= nil` means "nothing, if the caller leaves it out", so older callers still work. With the facts, a photo taken on Wednesday starts a sighting dated Wednesday. With the original, the photo is kept by `Photo.record`, the photo chat's one way of keeping a photo, so it reaches the photo folder if one has been chosen. The Identify screen and Eira's chat both call this function. Before, a sighting started in the chat was dated the moment Add was pressed and kept only the smaller copy.
+
+2. **One reader for a photo's date.** There were two. `SpeciesEye.monthTaken` cut the month out of the camera's text. `PhotoFacts` reads the whole date, falls back to a second date in the file and throws out a camera whose clock was never set. `PhotoFacts` gained:
+
+   ```swift
+   func month(in calendar: Calendar = .current) -> Int? {
+       taken.map { calendar.component(.month, from: $0) }
+   }
+   ```
+
+   `taken` is the date, or nothing. `.map` does what is in the braces only if there is a date and hands back nothing if there is not. `$0` stands for that date. `calendar.component(.month, from:)` asks the calendar which month the moment falls in. `SpeciesEye.monthTaken` is gone. The month Eira judges a species by now comes from the same reading as the date a sighting is given.
+
+3. **A photo can be dropped on Eira's chat**, as it already could on her bar, the Journal page and the Identify screen (`.onDrop` in `EiraChatView.swift`). Several are looked at one after another, each with its own answer.
+
+4. **Eira's chat remembers each photo's facts and its original** (`photoFacts` and `photoOriginals`), so that Add a sighting can use them. Only the last eight originals are held, because each is several megabytes. An older photo still starts a sighting, from its smaller copy.
+
+**What "What is this?" now leads to.** The "+" on Eira's bar, and a photo dropped on it, open the card of three offers as the photo chat built it. "What is this?" opens the Identify screen in the same sheet, and that screen is now the one with Eira's judgement. Nothing had to be written for that. The offer card already opened `IdentifyView`, and the join put the newer screen behind that name.
+
+**Seen.** Three pictures from the iPad mini simulator with the example garden: `shots/pj-journal.png`, `pj-offer.png` and `pj-identify.png`. This chat had no way to look at a picture, so their words were read by a small program, `read-picture.swift` in the build logs folder.
+
+- The Journal page has one bar, at the foot, reading "Tell Eira what happened i…" with a "+" beside it.
+- The offer card shows "Taken Wednesday 11 November at 2:02 pm" and the three offers.
+- The Identify screen shows "Taken Wednesday 11 November at 2:02 pm. A sighting started from this is dated then." and the button "Start a sighting from this".
+
+**Not seen or tried.**
+
+- Eira's card on the Identify screen in these pictures. It was below the foot of the sheet. The identification chat's own pictures show it.
+- Any drag, on any device. A script cannot make one.
+- A real photo through the image model from the "+" or from a drop. The simulator has no image model and shows an example answer.
+- Add a sighting from Eira's chat with a dated photo, and the photo folder.
+- The Mac's own window.
+
+**Not built.** Naming what is in a photo inside the journal's conversation. Another chat was changing `JournalChat.swift` and `JournalChatView.swift` at the time, on `journal-follow-up`.
+
+**Found and left.** Sixteen Python package files (`*.whl`, 13MB) have sat at the top of the repository since `7e61a86`. One is called `swift`. They look like the result of asking Python's installer for "swift", which is an unrelated package of that name. ⚠️ CHECK: a guess from the file names. Nothing in the app uses them.
+
 ## 14 November 2026, 12:57: "Sow to crop" was being read as days
 
 **On the branch `sow-to-crop-units`, made from `main` and merged back into it.** 535 logic tests pass.
