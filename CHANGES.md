@@ -7,6 +7,33 @@ run without the Mac (every file reads as valid Swift, 323 logic tests
 pass). Those do not build the screens. Expect things to put right when
 it is first built, and treat how everything here looks as untried.
 
+## 14 November 2026, midday: three things the trained Qwen's test turned up
+
+**On the branch `carrot-family-warning`**, with the warning below. Built for the Mac and the simulator as r25 (`c6b747b`), no errors. 474 logic tests pass.
+
+The trained Qwen3 8B sat Eira's test sheet for the first time at 11:29 (knowledge base, doc 32). Three of its answers showed faults that were the app's and not the model's.
+
+**1. "Nothing has been recorded" was taken for a claim to have saved** (`EiraChecks.claimsToHaveSaved`).
+
+- *What happened.* Asked what had been harvested this month, the model answered that there were no harvests and that nothing had been recorded. The rule that removes false claims of saving looks for "been recorded… in your…". It found those words, took the sentence out and wrote "Nothing has been saved. I cannot change your records from this chat" under the answer.
+- *The change.* The sentence is now read a clause at a time, split at commas and at "but" and "and". In each clause, if a denial ("nothing", "no", "not", "never", "hasn't" and the like) comes before the saving word, the clause is not a claim. "I cannot save changes, but your sowing is now recorded" is still caught, by its second clause.
+- *A trap avoided.* The first try looked for any word ending in "nt" to catch "hasn't" and "haven't" (the code strips apostrophes first). That would also have read "plant" and "current" as denials, so "Your plant is now recorded" would have slipped through. Each such word is now listed whole, and a test holds that sentence in place.
+
+**2. The plant search could not find "English lavender"** (`ToolRunner.plantMatches`, used by the `search_garden` lookup in `EiraTools.swift`).
+
+- *What happened.* The plant is stored as Lavender, with English as its variety. The lookup wanted the whole phrase "english lavender" inside one field, and never looked at the variety at all. So the model was told "Nothing matching", and told William his database had no such plant. "Spartan" would not have found Apple, Spartan either.
+- *The change.* The search is split into words. Small words ("the", "my") are dropped. Every word left must be somewhere in the plant's name, variety, Latin name or group, in any order. A word ending in "s" also matches without it.
+- `allSatisfy` in the code means "true only if every item passes".
+
+**3. A kept correction could be ignored** (`EiraChecks.corrections(bearingOn:among:)`, `handOver`, used in `EiraConversation.generate`).
+
+- *What happened.* The new section G of the test sheet: tell Eira "No, that's wrong. There is also a Bramley apple by the shed", press Keep it, then ask in a new conversation "Do I have a Bramley apple?" Apple's model said yes. The trained Qwen ran a lookup, found nothing and said no, although the correction was in its instructions. A model weighs what arrives with the question more than what stood in its instructions.
+- *The change.* Before a question goes to the model, every kept correction is compared with it. One that shares a word that matters with the question, or with the question it was first given on, is put in front of the question, under a line saying it is the gardener's own word and outranks an empty lookup. At most three, newest first.
+- *"A word that matters"* (`wordsThatMatter`): four letters or more, not one of about sixty common words ("what", "have", "garden", "plant"…), with a final "s" taken off. Each text becomes a `Set` of such words, and `isDisjoint` asks whether two sets share nothing.
+- *A bonus.* Only the ten newest corrections fit in the instructions. This searches all of them, so an old one comes back when a question touches on it. The Corrections list now says so.
+- *The wording.* Apple's model, using a correction, said "the garden record confirms" it. The records did not. The line now ends: say "you told me". Do not say the records show it, unless a lookup shows it too.
+- Only the model sees the added lines. The conversation on screen, and what is saved, keep the question as it was typed.
+
 ## 14 November 2026, midday: a carrot-family warning on photo matches
 
 **On the branch `carrot-family-warning`, made from `main`.**
