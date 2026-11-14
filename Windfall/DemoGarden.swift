@@ -309,6 +309,17 @@ enum DemoGarden {
             context.insert(bought)
         }
 
+        // Two jobs of your own, so that "This week" and "This month"
+        // each have one to show. The first is read from a sentence, the
+        // way Eira would read it. See GardenJobs.swift.
+        let said = "I need to build the bean wigwam in the allotment at the weekend"
+        let wigwam = GardenJob(title: "Build the bean wigwam")
+        wigwam.span = GardenJobs.offer(in: said, today: .now)?.span ?? .whenever
+        wigwam.siteKey = GardenSite.allotment.rawValue
+        wigwam.saidAs = said
+        context.insert(wigwam)
+        context.insert(GardenJob(title: "Order seed potatoes"))
+
         // Two sightings: one confirmed, one waiting to be confirmed.
         let butterfly = WildlifeObservation()
         butterfly.commonName = "Small tortoiseshell"

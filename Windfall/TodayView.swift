@@ -47,6 +47,9 @@ struct TodayView: View {
            sort: [SortDescriptor(\Bed.displayOrder)]) private var beds: [Bed]
     @Query(sort: [SortDescriptor(\Garden.displayOrder)]) private var gardens: [Garden]
     @Query private var features: [GardenFeature]
+    /// Jobs of your own, added by telling Eira or by hand. The oldest
+    /// first, which is the order those with no date are listed in.
+    @Query(sort: [SortDescriptor(\GardenJob.createdAt)]) private var ownJobs: [GardenJob]
     /// The newest finished days of the weather diary, for "This week".
     @Query(TodayFetch.latestWeather) private var finishedWeather: [WeatherDay]
 
@@ -58,6 +61,8 @@ struct TodayView: View {
     @State private var weatherPlace: CLLocationCoordinate2D?
     @State private var sheet: CaptureSheet?
     @State private var shownGardenKey: String?
+    /// True while the sheet for adding a job by hand is up.
+    @State private var isAddingJob = false
 
     /// Jobs ticked off this month, kept on the device.
     // `store:` names the settings shared with the widgets, so a job
@@ -804,8 +809,23 @@ struct TodayView: View {
     private var weekJobs: [WeekJob] {
         // The gathering is in WidgetShare.swift, so the widgets can ask
         // for the same list for the days ahead.
-        WeekFacts.jobs(asOf: .now, plants: plants, plantings: plantings,
-                       finishedWeather: finishedWeather, outlook: weather.outlook)
+        let worked = WeekFacts.jobs(asOf: .now, plants: plants, plantings: plantings,
+                                    finishedWeather: finishedWeather, outlook: weather.outlook)
+        // Jobs of your own that fall this week, or are overdue, go in
+        // among the worked-out ones and the whole list is put in order
+        // again: weather first, then whatever is soonest.
+        return WeekJobs.inOrder(worked + GardenJobs.thisWeek(ownFacts, today: .now))
+    }
+
+    /// Your own jobs as the plain facts the rules work from. See
+    /// GardenJobs.swift.
+    private var ownFacts: [JobFacts] {
+        ownJobs.map { $0.facts(gardens: gardens) }
+    }
+
+    /// The record behind one of your own jobs, found by its key.
+    private func ownJob(_ key: String?) -> GardenJob? {
+        ownJobs.first { $0.id.uuidString == key }
     }
 
     /// A week job as a line with a tick box, linked to its plant or
@@ -813,13 +833,16 @@ struct TodayView: View {
     private func row(for job: WeekJob) -> TodayJob {
         var link: TodayJob.Link?
         if let subject = job.subject {
-            if job.kind == .sow {
+            if job.kind == .own {
+                link = ownJob(subject).map { TodayJob.Link.own($0) }
+            } else if job.kind == .sow {
                 link = plants.first { $0.id.uuidString == subject }.map { TodayJob.Link.plant($0) }
             } else {
                 link = plantings.first { $0.id.uuidString == subject }.map { TodayJob.Link.planting($0) }
             }
         }
-        return TodayJob(id: job.id, title: job.title, detail: job.detail, link: link)
+        // A job of your own with no garden and no day has no second line.
+        return TodayJob(id: job.id, title: job.title, detail: job.detail.isEmpty ? nil : job.detail, link: link)
     }
 
     private func weekCard(_ week: [WeekJob]) -> some View {
@@ -861,9 +884,39 @@ struct TodayView: View {
                  : "The urgent few, from your sowing months, your records and the week's forecast.")
                 .font(.footnote)
                 .foregroundStyle(Theme.inkSoft)
+
+            // Jobs of your own: a way to add one by hand, and the page
+            // that lists them all. Telling Eira is the other way in.
+            HStack(spacing: 14) {
+                Button {
+                    isAddingJob = true
+                } label: {
+                    Label("Add a job", systemImage: "plus")
+                }
+                .buttonStyle(.plain)
+
+                Spacer(minLength: 0)
+
+                NavigationLink {
+                    OwnJobsView()
+                } label: {
+                    HStack(spacing: 3) {
+                        // How many of your own are still to do.
+                        let open = ownJobs.filter { !$0.isDone }.count
+                        Text(open == 0 ? "Your jobs" : "Your jobs (\(open))")
+                        WIconView(.arrowRight, size: 13)
+                    }
+                }
+                .buttonStyle(.plain)
+            }
+            .font(.subheadline)
+            .foregroundStyle(Theme.leaf)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .glassCard()
+        .sheet(isPresented: $isAddingJob) {
+            JobSheet()
+        }
     }
 
     // MARK: Jobs
@@ -872,6 +925,16 @@ struct TodayView: View {
     private var jobs: [TodayJob] {
         var list: [TodayJob] = []
         let year = Calendar.current.component(.year, from: .now)
+
+        // Jobs of your own that are not in "This week": those with no
+        // date, and those for later this month. They come first, since
+        // you asked for them yourself.
+        for facts in GardenJobs.laterThisMonth(ownFacts, today: .now) {
+            guard let own = ownJob(facts.key) else { continue }
+            let listID = GardenJobs.listID(for: facts.key)
+            list.append(TodayJob(id: listID, title: facts.title,
+                                 detail: GardenJobs.detail(for: facts, today: .now), link: .own(own)))
+        }
 
         // Plants whose sowing months include this one and which have not
         // been sown this year.
@@ -1256,6 +1319,9 @@ struct TodayJob: Identifiable {
     enum Link {
         case plant(Plant)
         case planting(Planting)
+        /// A job of your own. Its tick is kept on the record itself and
+        /// tapping it opens it to be changed.
+        case own(GardenJob)
     }
 
     let id: String
@@ -1293,12 +1359,26 @@ struct JobRow: View {
     let job: TodayJob
     @Binding var tickedStore: String
 
-    private var isTicked: Bool { TickedJobs.ids(in: tickedStore).contains(job.id) }
+    /// The job of your own being changed, if one has been tapped.
+    @State private var editing: GardenJob?
+
+    /// A worked-out job's tick is in the month's line of text. A job of
+    /// your own keeps its tick on its record, so that it lasts beyond
+    /// the month and, once iCloud sync is on, shows on every device.
+    private var isTicked: Bool {
+        if case .own(let own)? = job.link { return own.isDone }
+        return TickedJobs.ids(in: tickedStore).contains(job.id)
+    }
 
     var body: some View {
         HStack(alignment: .top, spacing: 10) {
             Button {
-                tickedStore = TickedJobs.toggling(job.id, in: tickedStore)
+                if case .own(let own)? = job.link {
+                    // Ticked now, or unticked if it was ticked already.
+                    own.doneAt = own.isDone ? nil : .now
+                } else {
+                    tickedStore = TickedJobs.toggling(job.id, in: tickedStore)
+                }
             } label: {
                 TickBox(isOn: isTicked)
                     .frame(width: 30, height: 30)
@@ -1310,9 +1390,15 @@ struct JobRow: View {
             switch job.link {
             case .plant(let plant)?: NavigationLink(value: plant) { words }.buttonStyle(.plain)
             case .planting(let planting)?: NavigationLink(value: planting) { words }.buttonStyle(.plain)
+            case .own(let own)?: Button { editing = own } label: { words }.buttonStyle(.plain)
             case nil: words
             }
             Spacer(minLength: 0)
+        }
+        // `.sheet(item:)` shows the sheet whenever `editing` holds a job
+        // and takes it away when it is emptied again.
+        .sheet(item: $editing) { own in
+            JobSheet(job: own)
         }
     }
 
