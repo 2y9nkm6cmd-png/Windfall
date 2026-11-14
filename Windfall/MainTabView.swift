@@ -364,6 +364,8 @@ struct MainTabView: View {
                 CompanionView(plantName: name)
             } else if DemoGarden.opensPests {
                 PestHelpersView()
+            } else if let place = DemoGarden.opensFungusKey {
+                FungusKeyView(openingAt: place)
             } else {
                 GardenTab()
             }

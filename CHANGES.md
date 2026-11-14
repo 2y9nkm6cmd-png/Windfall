@@ -19,11 +19,12 @@
 | `Design/Icons/fungus-*.svg` (53) | The diagrams, in colour on a 100 by 100 grid, in the bold manner of the flower shapes. Each gets a dark-mode copy from the build script, which swaps the outline for pale green |
 | `Design/Icons/fungus-key.svg` | The tile's icon, an outline like the others |
 | `Tools/design/fungus_kit.py`, `fungus_diagrams.py` | The code that draws the diagrams. `python3 Tools/design/fungus_diagrams.py Design/Icons`, then the build script |
-| `Tools/checks/` | 14 new tests, and `FungusKey.swift` added to the files that are type-checked |
+| `Windfall/DemoGarden.swift`, `MainTabView.swift` | A checking aid: `-demoGarden YES -startSection gardens -demoFungus r-honey` opens the key at that step or answer, for a still picture |
+| `Tools/checks/` | 16 new tests, and `FungusKey.swift` added to the files that are type-checked |
 
 **Why the walk is its own small type.** `FungusWalk` holds the choices taken and where they led, with no screen code in it, so the tests can take a walk, step back and start again without building a screen. The page keeps one in `@State` and draws whatever it has reached.
 
-**Checked:** the project's checks with Swift 6.3.1 in a cloud workspace: 112 files parse, the type check passes, 763 logic tests pass. The tests read the real key and fail if a choice leads nowhere, an answer cannot be reached, or a diagram it names has no drawing.
+**Checked:** the project's checks with Swift 6.3.1 in a cloud workspace: 112 files parse, the type check passes, 765 logic tests pass. The tests read the real key and fail if a choice leads nowhere, an answer cannot be reached, or a diagram it names has no drawing.
 
 # 14 November 2026, 20:10: plant drawings added to the Design folder
 

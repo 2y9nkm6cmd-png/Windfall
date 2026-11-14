@@ -192,6 +192,14 @@ enum DemoGarden {
         isRequested && UserDefaults.standard.bool(forKey: "demoPests")
     }
 
+    /// A checking aid: `-startSection gardens -demoFungus start` opens
+    /// the fungus key in place of the Gardens list, and `-demoFungus
+    /// r-honey` opens it at that step or answer (the ids are in
+    /// FungusKey.json), so a still picture can be taken of any of them.
+    static var opensFungusKey: String? {
+        isRequested ? UserDefaults.standard.string(forKey: "demoFungus") : nil
+    }
+
     /// A checking aid: `-demoOpen sighting -demoPlantLetter M` opens the
     /// sighting form, then its list of plants, already jumped to M, so a
     /// still picture can show the row of letters and where a jump lands.

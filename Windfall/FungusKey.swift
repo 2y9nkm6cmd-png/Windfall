@@ -211,6 +211,13 @@ struct FungusWalk: Equatable {
         here = start
     }
 
+    /// A walk that opens part-way in, with no trail behind it. Only the
+    /// checking aid `-demoFungus` uses this, to show one step or answer.
+    init(start: String, openingAt place: String) {
+        self.start = start
+        here = place
+    }
+
     /// Take a choice: remember it and move on. `mutating` marks a
     /// function that changes the struct it belongs to.
     mutating func choose(_ choice: FungusKey.Choice, at step: String) {

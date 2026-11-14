@@ -1934,6 +1934,10 @@ struct LogicTests {
             check(walk.isAtStart && walk.here == "a", "going back from the start, or to a step never taken, changes nothing")
             walk.choose(first.choices[1], at: first.id); walk.startAgain()
             check(walk == FungusWalk(start: "a"), "Start again is a fresh walk")
+            var opened = FungusWalk(start: "a", openingAt: "r-x")
+            check(opened.here == "r-x" && opened.isAtStart, "a walk opened part-way in, for a picture, has no trail")
+            opened.startAgain()
+            check(opened.here == "a", "and Start again takes it to the first step")
             check(smallKey.sightingName(for: xs) == "Xs" && smallKey.taxonGroup(for: xs) == .fungus && smallKey.answer("r-ball").map(smallKey.taxonGroup(for:)) == .other && smallKey.answer("r-how").flatMap(smallKey.sightingName(for:)) == nil && smallKey.answer("r-none").flatMap(smallKey.sightingName(for:)) == "Fungus, not identified", "a sighting takes the answer's name, a slime mould is not filed as a fungus, and a how-to is not a sighting")
         }
         let brokenKey = FungusKey(data: Data(#"{"start":"a","noneOfThese":"r-none","footer":"","steps":[{"id":"a","title":"A","question":"Q","choices":[{"text":"an edible one","to":"nowhere"}]}],"results":[{"id":"r-lost","name":"L","latin":"","rank":"Genus","confirm":[]}]}"#.utf8))

@@ -28,7 +28,20 @@ struct FungusKeyView: View {
     /// `@State` is a value the screen owns. When it changes, SwiftUI
     /// draws the screen again. Every tap changes `walk`, which is how
     /// the next question appears.
-    @State private var walk = FungusWalk(start: FungusKey.shared?.start ?? "start")
+    @State private var walk: FungusWalk
+
+    /// `openingAt` is for the checking aid `-demoFungus` (DemoGarden),
+    /// which opens the key at one step or answer for a still picture.
+    /// Left out, the key opens at its first question.
+    ///
+    /// A `@State` value is given its first value through the name with
+    /// an underscore, `_walk`, because `walk` itself is only the value
+    /// and the underscore name is the box that holds it.
+    init(openingAt place: String? = nil) {
+        let start = FungusKey.shared?.start ?? "start"
+        let isKnown = place.map { FungusKey.shared?.step($0) != nil || FungusKey.shared?.answer($0) != nil } ?? false
+        _walk = State(initialValue: isKnown ? FungusWalk(start: start, openingAt: place ?? start) : FungusWalk(start: start))
+    }
 
     /// The answer a sighting has already been added for, so that the
     /// button cannot add the same one twice.
