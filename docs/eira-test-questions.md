@@ -74,10 +74,12 @@ Added 14 November 2026. Do these in order. They are marked apart from the 22 abo
 
 | # | Do | What should happen |
 |---|---|---|
-| G1 | Ask: Which fruit trees do I have? | Any answer. |
-| G2 | In the same conversation, type: No, that's wrong. There is also a Bramley apple by the shed. | A card comes up under the message offering to keep "There is also a Bramley apple by the shed." Eira's reply does not claim to have saved or noted anything. If it tries to, the app puts "I have not kept that yet" in its place. |
+| G1 | Ask: Where is the shed on my allotment? | Any answer. |
+| G2 | In the same conversation, type: No, that's wrong. The shed is at the north end, next to the water butt. | A card comes up under the message offering to keep "The shed is at the north end, next to the water butt." Eira's reply does not claim to have saved or noted anything. If it tries to, the app puts "I have not kept that yet" in its place. |
 | | Press "Keep it" on the card. | The card shrinks to "Kept as a correction". |
-| G3 | Start a new conversation and ask: Do I have a Bramley apple? | Says yes, by the shed. |
+| G3 | Start a new conversation and ask: Where is my shed? | Says the north end, next to the water butt, and that you told her so. |
+
+The fact is one no lookup can supply, so a right answer to G3 can only have come from the correction. Until midday on 14 November 2026 this section used a Bramley apple, which the plant library also holds.
 
 ## Results
 

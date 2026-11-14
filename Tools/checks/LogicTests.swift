@@ -573,6 +573,8 @@ struct LogicTests {
         checkingDefaults.set("Vegetables", forKey: "plantsKind"); checkingDefaults.set("Brassicas", forKey: "plantsFamily"); checkingDefaults.set("Sowing", forKey: "plantsSeason"); checkingDefaults.set(4, forKey: "plantsMonth"); checkingDefaults.set("Pollinator", forKey: "plantsRole")
         let fromArguments = PlantFilter.fromLaunchArguments(checkingDefaults)
         check(fromArguments.kind == .vegetables && fromArguments.family == "brassica" && fromArguments.season == .sowing && fromArguments.seasonMonth == 4 && fromArguments.roles == [.pollinator], "the checking aid sets each filter from launch arguments")
+        checkingDefaults.set("apple", forKey: "plantsSearch")
+        check(PlantFilter.fromLaunchArguments(checkingDefaults).search == "apple", "the checking aid can fill in the search box")
         check(plantFilter.kindChoices(shelf, today: 11).map(\.count) == [1, 3, 1, 1] && plantFilter.kindChoices(shelf, today: 11).map(\.key) == ["Fruit", "Vegetables", "Green manure", "Not sorted"], "kind counts ignore the kind already chosen, so each says what it would show")
         // What is on screen is passed to the model, and only to the model
         conversation.screenNote = "the plant Apple, Spartan"
@@ -943,6 +945,46 @@ struct LogicTests {
         check(EiraChecks.uncheckedNames(in: "The **red mason bee** (*Osmia bicornis*) is a solitary bee.", against: ["Wikipedia article \"Osmia bicornis\": Osmia bicornis is a species of mason bee"]).isEmpty && EiraChecks.uncheckedNames(in: "You grow **Lavandula angustifolia** (English Lavender) and *Limonium britannicum* (Rock Sea Lavender).", against: ["Lavender — English; (Lavandula angustifolia) Rock Sea Lavender; (Limonium britannicum)"]).isEmpty, "a name the lookup supplied is not flagged, in italics, bold or brackets")
         check(EiraChecks.uncheckedNames(in: "Try (Sweet pea), (Large blue), (French beans), (Common sense), (Bed three), *Note this*, *Bombus* and (the Megachilidae family). Use `recent_records` with `kind=sowings`.", against: []).isEmpty && EiraChecks.uncheckedNames(in: "Dutch lavender (Lavandula x intermedia) and *Aglais io*.", against: []) == ["Aglais io", "Lavandula intermedia"], "ordinary English in brackets or italics is not taken for a name, and a hybrid and a two-letter name are")
         check(EiraChecks.sentences(in: "One. Two? Three! Four") == ["One.", "Two?", "Three!", "Four"] && EiraChecks.sentences(in: "It is 2.5 m wide.") == ["It is 2.5 m wide."], "a line is split into sentences at a stop followed by a space")
+        // Corrections that bear on a question are handed over with it.
+        func savedCorrection(_ topic: String, _ words: String) -> EiraCorrection { let made = EiraCorrection(); made.topic = topic; made.correction = words; return made }
+        let bramleyNote = savedCorrection("Which fruit trees do I have?", "There is also a Bramley apple by the shed.")
+        let lavenderNote = savedCorrection("What kind of lavender do I grow?", "My lavender is English lavender, Lavandula angustifolia.")
+        let shedNote = savedCorrection("Which apple is by the shed?", "It's a Bramley.")
+        check(EiraChecks.corrections(bearingOn: "Do I have a Bramley apple?", among: [lavenderNote, bramleyNote]).map(\.correction) == ["There is also a Bramley apple by the shed."], "a correction that shares a word with the question is handed over, and one that does not is left out")
+        check(EiraChecks.corrections(bearingOn: "Tell me about the apple trees", among: [shedNote]).count == 1 && EiraChecks.corrections(bearingOn: "When do lavenders flower?", among: [lavenderNote, bramleyNote]).map(\.topic) == ["What kind of lavender do I grow?"], "the question a correction was given on counts too, and a plural finds its singular")
+        check(EiraChecks.corrections(bearingOn: "What should I be sowing now?", among: [lavenderNote, bramleyNote, shedNote]).isEmpty && EiraChecks.corrections(bearingOn: "What do I grow in my garden?", among: [lavenderNote, bramleyNote]).isEmpty && EiraChecks.corrections(bearingOn: "Hi", among: [bramleyNote]).isEmpty, "common words alone bring no correction back")
+        check(EiraChecks.corrections(bearingOn: "apple", among: (1...6).map { savedCorrection("", "Apple note \($0)") }).count == 3, "no more than three are handed over")
+        check(EiraChecks.wordsThatMatter(in: "Which fruit trees do I have, please?") == ["fruit", "tree"] && EiraChecks.handOver([bramleyNote]).contains("- On \"Which fruit trees do I have?\": There is also a Bramley apple by the shed.") && EiraChecks.handOver([bramleyNote]).contains("say \"you told me\""), "the hand-over lists each correction under a line saying whose word it is")
+        let handContext = ModelContext()
+        let handStore = EiraChatStore(context: handContext)
+        let handEngine = FakeEngine()
+        let handing = EiraConversation()
+        handing.configure(engine: handEngine, hub: EiraToolHub(context: handContext), store: handStore)
+        handStore.addCorrection(topic: "Which fruit trees do I have?", mistake: nil, correction: "There is also a Bramley apple by the shed.")
+        handing.send("Do I have a Bramley apple?")
+        await waitUntilIdle(handing)
+        check(handEngine.prompts.last?.contains("has put you right on this before") == true && handEngine.prompts.last?.contains("There is also a Bramley apple by the shed.") == true && handEngine.prompts.last?.hasSuffix("Do I have a Bramley apple?") == true && handing.messages.first?.content == "Do I have a Bramley apple?", "the model is handed the correction with the question, and the question on screen is as it was typed")
+        handing.send("What visits marjoram?")
+        await waitUntilIdle(handing)
+        check(handEngine.prompts.last == "What visits marjoram?", "a question the corrections do not bear on goes to the model as it is")
+        // Saying that nothing was saved is not a claim to have saved.
+        check(["Nothing has been recorded in your harvest records in the last 30 days.", "No harvests have been logged in your records.", "It has not been saved to your records.", "That hasn't been added to your journal.", "In the last 30 days nothing has been recorded in your records.", "I have not saved anything.", "I haven't recorded that."].allSatisfy { !EiraChecks.claimsToHaveSaved($0) }, "a sentence that says nothing was saved is left alone")
+        check(["I cannot save changes directly, but your sowing of carrots in bed 2 is now recorded in the system.", "Nothing was lost and your harvest has been saved to your records.", "I can't change records; I've noted that for you.", "No problem, I've saved that for you.", "Your plant is now recorded in the system.", "The current count has been saved to your records."].allSatisfy { EiraChecks.claimsToHaveSaved($0) }, "a claim after a denial in the same sentence is still caught, and a word like plant is not read as a denial")
+        check(EiraChecks.checked(reply: "No harvests in the last 30 days. Nothing has been recorded in your harvest records.", question: "", lookups: []) == "No harvests in the last 30 days. Nothing has been recorded in your harvest records.", "an honest 'nothing recorded' reaches the gardener as it was written")
+        // The plant search: every word, any order, and the variety counts.
+        check(ToolRunner.plantMatches(asked: "English lavender", texts: ["Lavender", "English", "Lavandula angustifolia", "Herbs"]) && ToolRunner.plantMatches(asked: "Spartan", texts: ["Apple", "Spartan", nil, "Fruit"]) && ToolRunner.plantMatches(asked: "the broad beans", texts: ["Broad bean", "Aquadulce Claudia", nil, "Beans"]) && ToolRunner.plantMatches(asked: "lavandula", texts: ["Lavender", "English", "Lavandula angustifolia", nil]), "a plant is found by its words in any order, by its variety and by its Latin name")
+        check(!ToolRunner.plantMatches(asked: "Dutch lavender", texts: ["Lavender", "English", "Lavandula angustifolia", "Herbs"]) && !ToolRunner.plantMatches(asked: "", texts: ["Lavender"]) && !ToolRunner.plantMatches(asked: "the my", texts: ["Lavender"]) && !ToolRunner.plantMatches(asked: "fruit trees", texts: ["Apple", "Spartan", nil, "Fruit"]), "a word that is nowhere in the plant stops the match, and small words alone match nothing")
+        // The carrot-family warning on a photo match.
+        let cowParsley = SpeciesCandidate(entry: SpeciesEntry(scientific: "Anthriscus sylvestris", common: "Cow Parsley", group: "Plantae", taught: false), share: 0.99)
+        let hemlockThird = SpeciesCandidate(entry: SpeciesEntry(scientific: "Conium maculatum", common: "Hemlock", group: "Plantae", taught: false), share: 0.004)
+        let yellowIris = SpeciesCandidate(entry: SpeciesEntry(scientific: "Iris pseudacorus", common: "Yellow Iris", group: "Plantae", taught: false), share: 0.87)
+        let wheatear = SpeciesCandidate(entry: SpeciesEntry(scientific: "Oenanthe oenanthe", common: "Northern Wheatear", group: "Aves", taught: false), share: 0.9)
+        let dropwort = SpeciesCandidate(entry: SpeciesEntry(scientific: "Oenanthe crocata", common: "Hemlock Water-dropwort", group: "Plantae", taught: false), share: 0.06)
+        check(SpeciesGuess(candidates: [cowParsley, hemlockThird], isSure: true).lookAlikeWarning == DangerousLookAlikes.carrotFamilyWarning, "a carrot-family plant named outright still gets the warning")
+        check(SpeciesGuess(candidates: [yellowIris, dropwort], isSure: true).lookAlikeWarning != nil, "a carrot-family plant in second place is enough for the warning")
+        check(SpeciesGuess(candidates: [yellowIris, wheatear], isSure: false).lookAlikeWarning == nil && SpeciesGuess(candidates: [], isSure: false).lookAlikeWarning == nil, "a bird that shares a plant's genus name brings no warning, and nor does an empty answer")
+        check(DangerousLookAlikes.genus(of: "Conium maculatum") == "Conium" && DangerousLookAlikes.genus(of: "") == "" && DangerousLookAlikes.isCarrotFamily(dropwort.entry) && !DangerousLookAlikes.isCarrotFamily(wheatear.entry) && !DangerousLookAlikes.isCarrotFamily(yellowIris.entry), "the genus is the first word, and the group must be a plant")
+        check(["hemlock", "hemlock water-dropwort", "giant hogweed", "did not sow it yourself"].allSatisfy { DangerousLookAlikes.carrotFamilyWarning.contains($0) }, "the warning names the deadly plants and says what to do")
         // A correction typed as an ordinary message.
         let correctionsRead: [(typed: String, kept: String?)] = [
             ("No, that's wrong. It's a Bramley.", "It's a Bramley."),
@@ -1108,7 +1150,7 @@ struct LogicTests {
             SpeciesGuess(candidates: shares.map { SpeciesCandidate(entry: $0.0, share: $0.1) }, isSure: sure)
         }
         let buff = entry("Bombus terrestris", "Buff-tailed Bumblebee"), white = entry("Bombus lucorum", "White-tailed Bumblebee"), garden = entry("Bombus hortorum", "Garden Bumblebee")
-        let lavender = entry("Lavandula angustifolia", "English Lavender", "Plantae"), iris = entry("Iris pseudacorus", "Yellow Iris", "Plantae"), dropwort = entry("Oenanthe crocata", "Hemlock Water-dropwort", "Plantae"), cowParsley = entry("Anthriscus sylvestris", "Cow Parsley", "Plantae")
+        let lavender = entry("Lavandula angustifolia", "English Lavender", "Plantae"), iris = entry("Iris pseudacorus", "Yellow Iris", "Plantae"), dropwortEntry = entry("Oenanthe crocata", "Hemlock Water-dropwort", "Plantae"), cowParsleyEntry = entry("Anthriscus sylvestris", "Cow Parsley", "Plantae")
         let midday = { (day: Int) -> Date in Calendar(identifier: .gregorian).date(from: DateComponents(timeZone: TimeZone(identifier: "Europe/London"), year: 2026, month: 11, day: day, hour: 12))! }
         var knows = IdentifyKnowledge(month: 6)
         knows.plants = [KnownPlant(name: "Lavender, Hidcote", latin: "Lavandula angustifolia 'Hidcote'"), KnownPlant(name: "Lavender, Munstead", latin: "Lavandula angustifolia")]
@@ -1170,13 +1212,16 @@ struct LogicTests {
             check((realLookalikes?.groups.count ?? 0) >= 40 && realLookalikes?.isChecked == false && realLookalikes?.group(holding: "Bombus lucorum")?.names.contains("Bombus terrestris") == true, "the real look-alikes file reads and is still marked unchecked")
         }
         // Dangers.
-        let deadlySecond = EiraIdentify.judge(guessOf([(iris, 0.87), (dropwort, 0.08), (lavender, 0.01)], sure: true), knowing: IdentifyKnowledge(month: 6))
+        let deadlySecond = EiraIdentify.judge(guessOf([(iris, 0.87), (dropwortEntry, 0.08), (lavender, 0.01)], sure: true), knowing: IdentifyKnowledge(month: 6))
         check(deadlySecond.verdict == .named && deadlySecond.cautions.first?.weight == .danger && deadlySecond.cautions.first?.words.hasPrefix("Hemlock Water-dropwort (Oenanthe crocata) is among the possibilities. Hemlock water-dropwort is deadly poisonous") == true && deadlySecond.cautions.first?.isUnchecked == true, "a deadly plant in second place is warned of, whatever was named first")
-        let deadlyFaint = EiraIdentify.judge(guessOf([(iris, 0.97), (dropwort, 0.01)], sure: true), knowing: IdentifyKnowledge(month: 6))
-        check(deadlyFaint.cautions.isEmpty, "a deadly plant at under 2% is not mentioned")
-        let umbel = EiraIdentify.judge(guessOf([(cowParsley, 0.47), (iris, 0.3)], sure: false), knowing: IdentifyKnowledge(month: 6))
+        let deadlyFaint = EiraIdentify.judge(guessOf([(iris, 0.97), (dropwortEntry, 0.01)], sure: true), knowing: IdentifyKnowledge(month: 6))
+        check(deadlyFaint.cautions.count == 1 && deadlyFaint.cautions[0].words == DangerousLookAlikes.carrotFamilyWarning && deadlyFaint.cautions[0].weight == .danger && !deadlyFaint.cautions[0].isUnchecked, "a deadly carrot-family plant at under 2% is not named, and the family's own warning still shows")
+        check(deadlySecond.cautions.count == 1, "a carrot-family plant warned of by name is not warned of a second time as one of its family")
+        let faintFoxglove = EiraIdentify.judge(guessOf([(iris, 0.97), (entry("Digitalis purpurea", "Foxglove", "Plantae"), 0.01)], sure: true), knowing: IdentifyKnowledge(month: 6))
+        check(faintFoxglove.cautions.isEmpty, "a dangerous plant of another family at under 2% is not mentioned")
+        let umbel = EiraIdentify.judge(guessOf([(cowParsleyEntry, 0.47), (iris, 0.3)], sure: false), knowing: IdentifyKnowledge(month: 6))
         check(umbel.cautions.count == 1 && umbel.cautions[0].weight == .danger && umbel.cautions[0].words.contains("carrot family") && umbel.verdict == .notSure, "any of the carrot family at the top brings the hemlock warning, sure or not")
-        check(PlantDangers.danger(of: "Conium maculatum L.") != nil && PlantDangers.danger(of: "Lavandula angustifolia") == nil && PlantDangers.isUmbellifer("Daucus carota") && !PlantDangers.isUmbellifer("Iris pseudacorus") && EiraIdentify.dangers(in: [SpeciesCandidate(entry: entry("Conium maculatum", "Hemlock", "Plantae"), share: 0.9)]).count == 1, "hemlock is warned of once, as itself and not again as one of its family")
+        check(PlantDangers.danger(of: "Conium maculatum L.") != nil && PlantDangers.danger(of: "Lavandula angustifolia") == nil && EiraIdentify.dangers(in: [SpeciesCandidate(entry: entry("Conium maculatum", "Hemlock", "Plantae"), share: 0.9)]).count == 1, "hemlock is warned of once, as itself and not again as one of its family")
         let potLabel = EiraIdentify.judge(guessOf([(entry("Stachys byzantina", "Lamb's-ear", "Plantae", source: "pot label in William's photos, to check"), 0.95)], sure: true), knowing: IdentifyKnowledge(month: 6))
         check(potLabel.cautions.count == 1 && potLabel.cautions[0].weight == .note && potLabel.cautions[0].words.contains("pot label") && potLabel.confidence == .probable, "a name that came from a pot label says so")
         check((try? JSONDecoder().decode(SpeciesEntry.self, from: Data(#"{"scientific":"A b","common":null,"group":"Plantae","taught":false,"source":"William's plant database"}"#.utf8)))?.source == "William's plant database" && (try? JSONDecoder().decode(SpeciesEntry.self, from: Data(#"{"scientific":"A b","common":null,"group":"Plantae","taught":false}"#.utf8)))?.source == nil, "a species list reads with or without each name's source")

@@ -130,6 +130,9 @@ final class EiraConversation {
     private var replyTask: Task<Void, Never>?
     /// Set when the engine must begin again with fresh instructions.
     private var needsRestart = true
+    /// The corrections handed to the model with the question now being
+    /// answered. A name in one of them counts as supplied, not remembered.
+    private var handedOver: [String] = []
 
     // MARK: Setting up
 
@@ -322,6 +325,16 @@ final class EiraConversation {
             """
         }
 
+        // Hand over any kept correction that bears on this question,
+        // in front of the question itself, where a model weighs it most.
+        // Every correction is searched, not only the newest ten. See
+        // EiraChecks.corrections(bearingOn:among:).
+        let bearing = EiraChecks.corrections(bearingOn: text, among: store?.corrections() ?? [])
+        handedOver = bearing.map(\.promptLine)
+        if !bearing.isEmpty {
+            prompt = EiraChecks.handOver(bearing) + "\n\n" + prompt
+        }
+
         // Tell the model what is open on screen, if anything. Only the
         // model sees this line. The conversation on screen, and what is
         // saved, keep the question exactly as it was typed.
@@ -392,7 +405,7 @@ final class EiraConversation {
             let lookups = asked.map { index in
                 messages[(index + 1)...].filter { $0.role == .tool }.map(\.content)
             } ?? []
-            let known = [EiraGardenNotes.load(), screenNote ?? ""] + (store?.recentCorrectionLines() ?? [])
+            let known = [EiraGardenNotes.load(), screenNote ?? ""] + (store?.recentCorrectionLines() ?? []) + handedOver
             // Was the question a correction, and has it been kept yet?
             var standing = EiraChecks.CorrectionStanding.notACorrection
             if let offer = offeredCorrection {

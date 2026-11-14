@@ -182,7 +182,10 @@ struct IdentifyView: View {
             eyeName = SpeciesEyeFiles.chosen()?.name
             // A checking aid: an example answer, so the cards can be
             // looked at where the model cannot run. See DemoGarden.
-            if DemoGarden.showsExampleMatch { identification = EiraIdentify.example(in: context) }
+            // `-demoMatch hemlock` shows the carrot-family warning instead.
+            if DemoGarden.showsExampleMatch {
+                identification = EiraIdentify.example(in: context, carrotFamily: DemoGarden.showsCarrotFamilyMatch)
+            }
         }
     }
 

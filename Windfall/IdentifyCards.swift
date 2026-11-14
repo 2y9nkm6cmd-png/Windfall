@@ -175,15 +175,23 @@ extension EiraIdentify {
     /// real records like any other, so the lines about your lists are
     /// true. Never shown unless the app was started with the example
     /// garden and asked for it (DemoGarden.showsExampleMatch).
-    static func example(in context: ModelContext) -> EiraIdentification {
-        let guess = SpeciesGuess(
-            candidates: [
-                SpeciesCandidate(entry: SpeciesEntry(scientific: "Bombus terrestris", common: "Buff-tailed Bumblebee", group: "Insecta", taught: true), share: 0.93),
-                SpeciesCandidate(entry: SpeciesEntry(scientific: "Bombus lucorum", common: "White-tailed Bumblebee", group: "Insecta", taught: true), share: 0.05),
-                SpeciesCandidate(entry: SpeciesEntry(scientific: "Bombus hortorum", common: "Garden Bumblebee", group: "Insecta", taught: true), share: 0.01)
-            ],
-            isSure: true)
-        return judge(guess, knowing: .gathered(from: context), listSize: 776, modelName: "an example, not a model")
+    ///
+    /// With `carrotFamily` it is the real mistake of 14 November 2026
+    /// instead: a photo of hemlock named as cow parsley, to look at the
+    /// warning that brings up (`-demoMatch hemlock`).
+    static func example(in context: ModelContext, carrotFamily: Bool = false) -> EiraIdentification {
+        func possible(_ scientific: String, _ common: String, _ group: String, _ share: Double) -> SpeciesCandidate {
+            SpeciesCandidate(entry: SpeciesEntry(scientific: scientific, common: common, group: group, taught: false), share: share)
+        }
+        let candidates = carrotFamily
+            ? [possible("Anthriscus sylvestris", "Cow Parsley", "Plantae", 0.996),
+               possible("Conium maculatum", "Hemlock", "Plantae", 0.003),
+               possible("Anthriscus cerefolium", "Chervil", "Plantae", 0.001)]
+            : [possible("Bombus terrestris", "Buff-tailed Bumblebee", "Insecta", 0.93),
+               possible("Bombus lucorum", "White-tailed Bumblebee", "Insecta", 0.05),
+               possible("Bombus hortorum", "Garden Bumblebee", "Insecta", 0.01)]
+        return judge(SpeciesGuess(candidates: candidates, isSure: true),
+                     knowing: .gathered(from: context), listSize: 776, modelName: "an example, not a model")
     }
 }
 
@@ -313,7 +321,7 @@ private struct CautionRow: View {
 
     private var symbol: String {
         switch caution.weight {
-        case .danger: return "exclamationmark.octagon.fill"
+        case .danger: return "exclamationmark.triangle.fill"
         case .doubt:  return "questionmark.circle.fill"
         case .note:   return "info.circle"
         }
@@ -321,24 +329,25 @@ private struct CautionRow: View {
 
     private var colour: Color {
         switch caution.weight {
-        case .danger: return .red
+        case .danger: return .orange
         case .doubt:  return Theme.amber
         case .note:   return Theme.inkSoft
         }
     }
 
-    var body: some View {
+    /// The symbol, the words and, where it applies, the "to check" line.
+    private var row: some View {
         HStack(alignment: .firstTextBaseline, spacing: 8) {
             Image(systemName: symbol)
                 .foregroundStyle(colour)
             VStack(alignment: .leading, spacing: 2) {
                 Text(caution.words)
-                    .font(.callout)
+                    .font(caution.weight == .danger ? .callout.weight(.medium) : .callout)
                     .foregroundStyle(Theme.ink)
                 // Anything Claude supplied that you have not checked
-                // says so, as everywhere else in the project.
-                // The triangle is one of Apple's symbols, not the
-                // emoji: in the simulator the emoji drew as an empty box.
+                // says so, as everywhere else in the project. The
+                // triangle is one of Apple's symbols, not the emoji:
+                // in the simulator the emoji drew as an empty box.
                 if caution.isUnchecked {
                     Label("To check: this comes from a list Claude wrote that you have not checked yet.",
                           systemImage: "exclamationmark.triangle")
@@ -348,6 +357,23 @@ private struct CautionRow: View {
             }
         }
         .accessibilityElement(children: .combine)
+    }
+
+    var body: some View {
+        if caution.weight == .danger {
+            // In plain sight: an orange box, as first drawn for the
+            // carrot-family warning on 14 November 2026.
+            row
+                .padding(12)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Color.orange.opacity(0.14), in: .rect(cornerRadius: 12))
+                .overlay {
+                    RoundedRectangle(cornerRadius: 12)
+                        .strokeBorder(Color.orange.opacity(0.55))
+                }
+        } else {
+            row
+        }
     }
 }
 

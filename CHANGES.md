@@ -22,9 +22,9 @@ it is first built, and treat how everything here looks as untried.
    - *Look-alikes.* If the name is in a group that cannot be told apart from a photo (`SpeciesLookalikes.json`), she says "Buff-tailed Bumblebee or a look-alike", names the group and gives the reason. ⚠️ CHECK: that file was written by Claude from memory on 13 November. Every warning from it is marked "to check" on screen until the file's own `"checked": false` is changed to `true`.
    - *The month.* The name is checked against UK records month by month (`SpeciesMonths.json`: iNaturalist's counts for 609 species, fetched on 13 November, real figures) and against the flight period in William's own wildlife list. Rarely recorded in that month, or outside his list's flight period, turns "probable" into "possible". **The month is the one the photo was taken in**, read from the photo's own date where it has one, and otherwise this month. ⚠️ CHECK: the levels are Claude's: under 2% of a species' records in the month is "not often", under 0.5% is "rarely".
    - *The records.* Each name is looked up in the plant list, the wildlife list and past sightings: "It is in your plant list: Lavender, Hidcote", "You have recorded it 3 times, last on 12 November 2026, 2 of them confirmed". Names are compared by genus and species only, so a variety or an author's name does not stop a match.
-   - *Dangers.* A plant on a list of 19 dangerous ones (`PlantDangers`) brings a red warning if it is the first name or holds 2% or more of the model's belief, whatever was named first. Any of the carrot family as the first name brings the hemlock warning. This answers the photo of hemlock water-dropwort that was named as yellow iris at 87%. ⚠️ CHECK: the list is Claude's, from general knowledge. It is not a list of every poisonous plant.
+   - *Dangers.* A plant on a list of 19 dangerous ones (`PlantDangers`) brings a boxed warning if it is the first name or holds 2% or more of the model's belief, whatever was named first. This answers the photo of hemlock water-dropwort that was named as yellow iris at 87%. ⚠️ CHECK: the list is Claude's, from general knowledge. It is not a list of every poisonous plant. **The carrot-family warning is the one another chat built the same morning** (`DangerousLookAlikes`, in the entry below). Eira's rules call it and do not repeat it: it shows when any of the three names on screen is of that family, unless one of them has already been warned of by name.
 
-   None of it needs the screen or Apple's AI frameworks, so all of it is tested without a Mac: 40 new logic tests.
+   None of it needs the screen or Apple's AI frameworks, so all of it is tested without a Mac: 43 new logic tests.
 
 2. **One card for the answer, used in two places** (`IdentifyCards.swift`, new). `IdentificationCard` draws the verdict, the warnings, the model's three closest names as bars and the lines from the records. The Identify screen uses it, and so does Eira's chat. The same file gathers what the rules need from the database (`IdentifyKnowledge.gathered`), runs the whole job (`EiraIdentify.identify`) and starts a sighting (`EiraIdentify.startSighting`).
 
@@ -53,10 +53,80 @@ it is first built, and treat how everything here looks as untried.
 - Dropping a photo on to the chat. Another chat is building drops for the journal (`photo-drop`), and its `PhotoFacts` reads a photo's date and place more fully than the month read here. The two should be joined when both are in `main`.
 - The rest of the chat screen is still in the old look.
 - An image model still cannot be added from inside the app, and the species list is still made on the Mac.
+## 14 November 2026, midday: three things the trained Qwen's test turned up
+
+**In `main` since 12:00**, by way of the branch `carrot-family-warning`, with the warning below. Built for the Mac and the simulator as r26 (`36b0bcd`), no errors. 474 logic tests pass.
+
+The trained Qwen3 8B sat Eira's test sheet for the first time at 11:29 (knowledge base, doc 32). Three of its answers showed faults that were the app's and not the model's.
+
+**1. "Nothing has been recorded" was taken for a claim to have saved** (`EiraChecks.claimsToHaveSaved`).
+
+- *What happened.* Asked what had been harvested this month, the model answered that there were no harvests and that nothing had been recorded. The rule that removes false claims of saving looks for "been recorded… in your…". It found those words, took the sentence out and wrote "Nothing has been saved. I cannot change your records from this chat" under the answer.
+- *The change.* The sentence is now read a clause at a time, split at commas and at "but" and "and". In each clause, if a denial ("nothing", "no", "not", "never", "hasn't" and the like) comes before the saving word, the clause is not a claim. "I cannot save changes, but your sowing is now recorded" is still caught, by its second clause.
+- *A trap avoided.* The first try looked for any word ending in "nt" to catch "hasn't" and "haven't" (the code strips apostrophes first). That would also have read "plant" and "current" as denials, so "Your plant is now recorded" would have slipped through. Each such word is now listed whole, and a test holds that sentence in place.
+
+**2. The plant search could not find "English lavender"** (`ToolRunner.plantMatches`, used by the `search_garden` lookup in `EiraTools.swift`).
+
+- *What happened.* The plant is stored as Lavender, with English as its variety. The lookup wanted the whole phrase "english lavender" inside one field, and never looked at the variety at all. So the model was told "Nothing matching", and told William his database had no such plant. "Spartan" would not have found Apple, Spartan either.
+- *The change.* The search is split into words. Small words ("the", "my") are dropped. Every word left must be somewhere in the plant's name, variety, Latin name or group, in any order. A word ending in "s" also matches without it.
+- `allSatisfy` in the code means "true only if every item passes".
+
+**3. A kept correction could be ignored** (`EiraChecks.corrections(bearingOn:among:)`, `handOver`, used in `EiraConversation.generate`).
+
+- *What happened.* The new section G of the test sheet: tell Eira "No, that's wrong. There is also a Bramley apple by the shed", press Keep it, then ask in a new conversation "Do I have a Bramley apple?" Apple's model said yes. The trained Qwen ran a lookup, found nothing and said no, although the correction was in its instructions. A model weighs what arrives with the question more than what stood in its instructions.
+- *The change.* Before a question goes to the model, every kept correction is compared with it. One that shares a word that matters with the question, or with the question it was first given on, is put in front of the question, under a line saying it is the gardener's own word and outranks an empty lookup. At most three, newest first.
+- *"A word that matters"* (`wordsThatMatter`): four letters or more, not one of about sixty common words ("what", "have", "garden", "plant"…), with a final "s" taken off. Each text becomes a `Set` of such words, and `isDisjoint` asks whether two sets share nothing.
+- *A bonus.* Only the ten newest corrections fit in the instructions. This searches all of them, so an old one comes back when a question touches on it. The Corrections list now says so.
+- *The wording.* Apple's model, using a correction, said "the garden record confirms" it. The records did not. The line now ends: say "you told me". Do not say the records show it, unless a lookup shows it too.
+- Only the model sees the added lines. The conversation on screen, and what is saved, keep the question as it was typed.
+
+## 14 November 2026, midday: a carrot-family warning on photo matches
+
+**In `main` since 12:00**, by way of the branch `carrot-family-warning`. Seen in the simulator in light and dark (`shots/carrot-*.png` on the Mac).
+
+**Why.** That morning the fine-tuning chat put a newer image model into Windfall's Models folder at William's request (BioCLIP 2.5 Huge, doc 30). The build chat ran the same 300 unseen UK photos through the app with it:
+
+| | BioCLIP 2 | BioCLIP 2.5 Huge |
+|---|---|---|
+| First answer right | 289 | 293 |
+| Right answer among the three | 295 | 299 |
+| Named outright | 272, of which 1 wrong | 294, of which 4 wrong |
+
+It is right more often and sure more often, and so it is also sure more often when wrong. **It named a photo of hemlock as cow parsley at over 99%.** The older model had said "not sure" for that photo, and had its own such mistake (hemlock water-dropwort named as yellow iris). Both plants are deadly. Both are in the carrot family. Both times a carrot-family plant was among the three candidates on screen.
+
+**What changed.**
+
+- `DangerousLookAlikes` in `SpeciesTable.swift`: a list of 31 carrot-family genera (the first word of a scientific name), and one function. If any of the three candidates is a plant whose genus is in the list, `SpeciesGuess.lookAlikeWarning` returns the warning. Otherwise it returns nil.
+- The Identify screen (`EiraVision.swift`) shows that warning in an orange box above the names, however sure the model is. The small print under every answer is unchanged.
+- *Why the group is checked as well as the name.* An animal can share a plant's genus name. Oenanthe is the water-dropworts and also the wheatears, which are birds. So the rule asks that the candidate is a plant.
+- *Why "any of the three" and not only the first.* In the first mistake the first answer was an iris. The deadly plant was second, at 6%.
+- The photo test run (`SpeciesTestRun.swift`) now counts how often the warning shows, how many photos really were of the family and whether any of those went without it.
+- `-demoMatch hemlock` shows the warning in the simulator, with the real mistake as the example.
+- The comments in `SpeciesTable.swift` no longer say the model is BioCLIP 2 with 768 numbers. The table says how many numbers its rows hold, so the code works with either.
+
+**For William to check.** ⚠️ CHECK: the genus list and the wording of the warning are Claude's, from general knowledge and not from a field guide. The warning reads: "Take care: this may be one of the carrot family. That family holds deadly plants, hemlock and hemlock water-dropwort among them, that look much like cow parsley, wild carrot, wild celery and parsley. A photo cannot tell them apart safely. If you did not sow it yourself, do not eat any part of it on the strength of this, and wear gloves to handle it: giant hogweed, of the same family, burns the skin." It will also show on photos of your own carrots, parsley, fennel and parsnips, which is why it says "if you did not sow it yourself".
+
+**Not done.** Other dangerous pairs: wild garlic with lords-and-ladies and lily of the valley, comfrey with foxglove. Each needs a checked list first. The "not sure" level (0.85) was set for the older model and should be set again for this one from William's own photos (doc 30).
+## 14 November 2026, midday: the Plants search rests as a magnifying glass
+
+**On the branch `search-collapse`, made from `main`.** Built for the Mac and the simulator with no errors (`search1-mac.log`, `search1-sim.log`). Tried in a test copy on the Mac with the example garden: the glass opens the box, typing "spartan" leaves 1 of 376 plants, the cross empties it and the glass closes it again. **Not tried by hand**: whether the cursor lands in the box when the glass is clicked, Command-F, Escape and clicking away. The logic tests were not run. They need the Linux checker, which this chat did not have.
+
+**Why.** William asked whether the wide search box at the top of the Plants window is needed now that Eira can search. It is: it narrows the list as each letter is typed, with no model, and it works on devices that cannot run Eira. But it does not need to take up the toolbar while it is not in use. William chose to have it rest as a magnifying glass.
+
+**What changed.**
+
+1. **A new piece, `CollapsingSearchField`, in a new file `CollapsingSearch.swift`.** Mac only. It is a magnifying glass button that opens into a box to type in.
+   - *Why not Apple's own.* SwiftUI's `.searchable` puts a wide box in a Mac toolbar for good. Apple's shrinking version, `.searchToolbarBehavior(.minimize)`, is marked as not available on a Mac in the macOS 27.2 kit (read from the kit's own list on the Mac, 14 November 2026).
+   - *How it behaves.* Click the glass, or press Command-F, and the box opens with the cursor in it. A cross appears once there are words, and empties the box. Escape empties and closes. Clicking away from an empty box closes it. A box with words in it stays open, so it is always plain why the list is short. The glass pressed again with nothing typed closes the box.
+   - *How the code holds it.* Two values: `open` (is the box showing) and `typing` (is the cursor in it). The words themselves are not kept here. They are a `@Binding` to the screen's own filter, exactly as with `.searchable`, so nothing about how plants are matched has changed.
+2. **`PlantLibraryView.swift`.** On a Mac the `.searchable` line is fenced off with `#if os(iOS)` and the new piece is added to the toolbar, after the Garden data button, with a `ToolbarSpacer(.fixed)` between so each has its own piece of glass. **The iPhone and iPad are unchanged.**
+3. **A checking aid.** `-plantsSearch apple` starts the Plants screen with "apple" already typed (`PlantFilter.fromLaunchArguments`). One logic test added for it.
+
+**Not done.** The Year page, Species, Seed and Sightings still have the wide box. The same piece would fit each of them in a line or two.
 
 ## 14 November 2026, late morning: telling Eira she is wrong
 
-**On the branch `eira-corrections`, made from `main`.** Built for the Mac and the simulator as r23, with no errors. 457 logic tests pass. Seen in the simulator in light and dark (`shots/corr-*.png` on the Mac). **Not yet tried by hand with a real model.**
+**In `main` since 11:20**, by way of the branch `eira-corrections`. Built for the Mac and the simulator as r23, with no errors. 457 logic tests passed then. Seen in the simulator in light and dark (`shots/corr-*.png` on the Mac). **Tried with Apple's model and the trained Qwen through the test sheet's section G (knowledge base, doc 32). Not yet tried by hand.**
 
 **Why.** William asked: "I assume if it makes mistakes and I tell it that, then it will update the notes it keeps to improve in the future?" It did not. A correction was kept only if he pressed and held a reply and chose "Correct this", which nobody would find. Typing "No, that's wrong" was answered and then forgotten. And there was nowhere to read the corrections already kept, or to take a wrong one back.
 
@@ -78,7 +148,7 @@ it is first built, and treat how everything here looks as untried.
 
 3. **The "Correct this" sheet is drawn like the rest of the app** (`EiraCorrectionView`). It was a standard `Form`. It is now a `SheetPage` with two `SheetCard`s and a `FieldBox`, the same pieces as the sowing form. It warns if what is typed is longer than the 240 characters read to the model.
 
-4. **A new sheet, Corrections, in the chat's Options menu** (`EiraCorrectionsView`). Every correction, newest first, with the question it answered, when it was kept and a Remove button. From the eleventh on, each is marked "not read to her now". `@Query` reads the list from the database and keeps it current, so a removed card goes without the screen being told.
+4. **A new sheet, Corrections, in the chat's Options menu** (`EiraCorrectionsView`). Every correction, newest first, with the question it answered, when it was kept and a Remove button. From the eleventh on, each is marked "only when a question touches on it" (see the section above on handing corrections over). `@Query` reads the list from the database and keeps it current, so a removed card goes without the screen being told.
 
 5. **Every line of a correction is read to the model** (`EiraCorrection.promptLine`, `EiraChatStore.oneLine`). Only the first line was, so a correction typed over two lines lost its second.
 

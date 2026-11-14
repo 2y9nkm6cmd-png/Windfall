@@ -230,6 +230,75 @@ enum EiraChecks {
     /// Said in place of a claim to have saved, once a correction is kept.
     static let correctionKept = "Your correction is kept, and I will be told it at the start of every conversation. Your records themselves are unchanged."
 
+    // MARK: - Before: handing over the corrections that bear on a question
+
+    /// Words too common to say what a question is about.
+    private static let commonWords: Set<String> = [
+        "what", "which", "when", "where", "does", "have", "that", "this", "with", "from", "your", "about",
+        "tell", "there", "also", "kind", "sort", "should", "would", "could", "will", "they", "them", "their",
+        "then", "than", "into", "much", "many", "some", "grow", "growing", "grown", "garden", "plant",
+        "planted", "planting", "year", "month", "week", "today", "best", "good", "need", "want", "like",
+        "make", "know", "please", "thanks", "wrong", "right", "really", "still", "very", "just", "more",
+        "most", "been", "were", "here", "mine", "said", "told"
+    ]
+
+    /// The words of a piece of text that say what it is about: four
+    /// letters or more, not a common word, and without a final "s", so
+    /// that "apples" and "apple" count as the same word.
+    static func wordsThatMatter(in text: String) -> Set<String> {
+        let words = text.lowercased()
+            .components(separatedBy: CharacterSet.alphanumerics.inverted)
+            .map { $0.count > 4 && $0.hasSuffix("s") ? String($0.dropLast()) : $0 }
+            .filter { $0.count >= 4 && !commonWords.contains($0) }
+        return Set(words)
+    }
+
+    /// The kept corrections that bear on a question, newest first.
+    ///
+    /// Why this exists. The ten newest corrections are in Eira's
+    /// standing instructions, and Apple's model uses them. On 14 November
+    /// 2026 the trained Qwen did not: told there was a Bramley apple by
+    /// the shed, it was asked in a new conversation whether there was
+    /// one, ran a lookup, found nothing and said no. A model weighs what
+    /// arrives with the question more than what stood in its
+    /// instructions. So a correction that shares a word with the question
+    /// is now handed over with the question, as a lookup's result is.
+    ///
+    /// It also brings an old correction back when it is needed. Only the
+    /// ten newest fit in the instructions, but every one is searched
+    /// here.
+    ///
+    /// A correction bears on a question when the two share a word that
+    /// matters. The question the correction was first given on counts
+    /// too: "It's a Bramley", given on "Which apple is by the shed?",
+    /// comes back for "Tell me about the apple tree".
+    ///
+    /// `[EiraCorrection]` is a list of the saved records. `limit` keeps
+    /// the hand-over short: a small model reads every word.
+    static func corrections(bearingOn question: String, among all: [EiraCorrection], limit: Int = 3) -> [EiraCorrection] {
+        let asked = wordsThatMatter(in: question)
+        guard !asked.isEmpty else { return [] }
+        let bearing = all.filter { each in
+            // `isDisjoint` is true when two sets share nothing.
+            !asked.isDisjoint(with: wordsThatMatter(in: each.topic + " " + each.correction))
+        }
+        return Array(bearing.prefix(limit))
+    }
+
+    /// The lines put in front of a question when corrections bear on it.
+    /// Only the model sees them.
+    ///
+    /// The wording about "you told me" is there because Apple's model,
+    /// using a correction on 14 November 2026, said "the garden record
+    /// confirms" it. The records did not hold it. William had told her.
+    static func handOver(_ corrections: [EiraCorrection]) -> String {
+        let lines = corrections.map { "- " + $0.promptLine }.joined(separator: "\n")
+        return """
+        The gardener you are talking to has put you right on this before. What they told you is right, even where a lookup finds nothing or disagrees. When you use it, say "you told me". Do not say the records show it, unless a lookup shows it too:
+        \(lines)
+        """
+    }
+
     // MARK: - After: reading the reply by rule
 
     /// Said in place of any claim to have saved something.
@@ -277,10 +346,43 @@ enum EiraChecks {
     ///   "I've saved that for you."                     a claim
     ///   "You recorded a harvest on 9 November."        not: that is about you
     ///   "I have not saved anything."                   not: it says the opposite
+    ///   "Nothing has been recorded in your records."   not: the opposite again
+    ///
+    /// The sentence is read a clause at a time, split at commas and at
+    /// "but" and "and". That way "I cannot save changes, but your sowing
+    /// is now recorded" is still caught by its second half.
     static func claimsToHaveSaved(_ sentence: String) -> Bool {
-        let text = EiraSafety.tidied(sentence)
+        var clauses = sentence.components(separatedBy: CharacterSet(charactersIn: ",;:"))
+        for joiner in [" but ", " and "] {
+            clauses = clauses.flatMap { $0.components(separatedBy: joiner) }
+        }
+        return clauses.contains { clauseClaimsToHaveSaved($0) }
+    }
+
+    /// The same question of one clause.
+    private static func clauseClaimsToHaveSaved(_ clause: String) -> Bool {
+        let text = EiraSafety.tidied(clause)
         let done = ["recorded", "saved", "logged", "added", "stored", "updated", "noted"]
         let will = ["save", "record", "log", "add", "store", "update", "note"]
+
+        // A clause that denies it says the opposite of a claim: "nothing
+        // has been recorded", "no harvests have been logged in your
+        // records", "it has not been saved". Until 14 November 2026
+        // these were taken for claims. The trained Qwen said, rightly,
+        // that nothing had been recorded, and the app took the sentence
+        // out and wrote "Nothing has been saved" under its answer.
+        //
+        // The denial has to come before the saving word. Tidying has
+        // turned "hasn't" into "hasnt". Each such word is listed whole:
+        // looking for any word ending in "nt" would also find "plant".
+        let denials = [" nothing ", " none ", " no ", " not ", " never ", " cannot ",
+                       " cant ", " couldnt ", " dont ", " doesnt ", " didnt ", " hasnt ", " havent ",
+                       " hadnt ", " isnt ", " arent ", " wasnt ", " werent ", " wont ", " wouldnt "]
+        for word in done + will {
+            guard let found = text.range(of: " \(word) ") else { continue }
+            let before = text[..<found.lowerBound] + " "
+            if denials.contains(where: { before.contains($0) }) { return false }
+        }
 
         for word in done {
             // "is now recorded", "has now been saved"

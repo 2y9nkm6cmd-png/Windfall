@@ -21,7 +21,8 @@
 //    4. She looks the names up in your plant list, your wildlife list
 //       and your past sightings, and says what she finds.
 //    5. If a dangerous plant is among the possibilities she says so,
-//       whichever name came first.
+//       whichever name came first. The carrot-family warning comes
+//       from DangerousLookAlikes in SpeciesTable.swift.
 //
 //  The answer is an `EiraIdentification`. The Identify screen and
 //  Eira's chat both draw it with the same card (IdentifyCards.swift).
@@ -223,22 +224,10 @@ enum PlantDangers {
         "nerium oleander": "Oleander is deadly poisonous in every part"
     ]
 
-    /// The carrot family: cow parsley, hogweed, wild carrot and the
-    /// rest. Its members are easily mistaken for one another and it
-    /// holds hemlock and hemlock water-dropwort.
-    nonisolated static let umbellifers: Set<String> = [
-        "anthriscus", "heracleum", "daucus", "angelica", "aegopodium", "chaerophyllum", "conium",
-        "oenanthe", "pastinaca", "torilis", "smyrnium", "foeniculum", "apium", "sium", "cicuta",
-        "aethusa", "petroselinum", "coriandrum", "levisticum", "myrrhis", "conopodium", "pimpinella"
-    ]
-
     nonisolated static func danger(of scientific: String) -> String? {
         harmful[SpeciesName.key(scientific)]
     }
 
-    nonisolated static func isUmbellifer(_ scientific: String) -> Bool {
-        umbellifers.contains(SpeciesName.genus(scientific).lowercased())
-    }
 }
 
 /// Everything Eira can check a photo's answer against. The screen
@@ -553,15 +542,25 @@ enum EiraIdentify {
     // MARK: Rule 5: dangers
 
     /// A warning for each dangerous plant among the possibilities, and
-    /// one for the carrot family if the first name belongs to it.
+    /// one for the carrot family if any of the three names shown
+    /// belongs to it.
     ///
-    /// A dangerous plant counts if it is the first name, or holds at
-    /// least 2 in 100 of the model's belief. ⚠️ CHECK: that level is
+    /// Two lists are used. `PlantDangers` (above) names particular
+    /// plants. A plant on it counts if it is the first name, or holds
+    /// at least 2 in 100 of the model's belief. ⚠️ CHECK: that level is
     /// Claude's judgement. It is low on purpose: in the test of 14
     /// November 2026 a photo of hemlock water-dropwort was named as
     /// yellow iris at 87% (project doc 27).
+    ///
+    /// `DangerousLookAlikes` (SpeciesTable.swift, written by another
+    /// chat the same morning) knows the carrot family, and warns
+    /// however small the share: BioCLIP 2.5 Huge named a photo of
+    /// hemlock as cow parsley at over 99%. Its warning is left out only
+    /// when a carrot-family plant has already been warned of by name,
+    /// so the same thing is not said twice.
     static func dangers(in candidates: [SpeciesCandidate]) -> [EiraIdentification.Caution] {
         var found: [EiraIdentification.Caution] = []
+        var namedOneOfTheFamily = false
         for (place, candidate) in candidates.enumerated() where candidate.entry.group == "Plantae" {
             guard place == 0 || candidate.share >= 0.02,
                   let danger = PlantDangers.danger(of: candidate.entry.scientific) else { continue }
@@ -569,13 +568,11 @@ enum EiraIdentify {
             found.append(.init(weight: .danger,
                                words: "\(opening)\(danger). Do not eat it or handle it on the strength of a photo.",
                                isUnchecked: true))
+            if DangerousLookAlikes.isCarrotFamily(candidate.entry) { namedOneOfTheFamily = true }
         }
-        if let top = candidates.first, top.entry.group == "Plantae",
-           PlantDangers.isUmbellifer(top.entry.scientific),
-           PlantDangers.danger(of: top.entry.scientific) == nil {
-            found.append(.init(weight: .danger,
-                               words: "This is one of the carrot family, whose members are easily mistaken for one another. The family includes hemlock and hemlock water-dropwort, which are deadly. Never eat a wild one on the strength of a photo.",
-                               isUnchecked: true))
+        if !namedOneOfTheFamily,
+           let warning = DangerousLookAlikes.warning(for: Array(candidates.prefix(3))) {
+            found.append(.init(weight: .danger, words: warning))
         }
         return found
     }
