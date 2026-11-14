@@ -275,9 +275,13 @@ enum EiraTestRun {
         let took = Date.now.timeIntervalSince(askedAt)
         let fresh = conversation.messages.dropFirst(alreadyThere)
 
+        // `-eiraTestFull YES` writes each lookup out whole, for seeing
+        // exactly what the model was handed. Otherwise its first 300
+        // characters.
+        let lookupLimit = word(after: "-eiraTestFull") == nil ? 300 : 4000
         for message in fresh where message.role == .tool {
             note("**Looked up** with \(message.toolName ?? "a tool"): "
-                 + EiraTestSheet.shortened(message.content, limit: 300) + "\n")
+                 + EiraTestSheet.shortened(message.content, limit: lookupLimit) + "\n")
         }
         let reply = fresh.last(where: { $0.role == .assistant })
         if let thinking = reply?.reasoning, !thinking.isEmpty {
