@@ -43,9 +43,11 @@ struct PhotoOfferSheet: View {
     }
 
     @State private var stage = Stage.offer
-    /// Small copies of the photos to show on the card. Made once, when
-    /// the card appears, because making them takes a moment.
-    @State private var smallCopies: [Data] = []
+    /// Small copies of the photos to show on the card, one for each
+    /// photo and in the same order. Each is nil until it has been made:
+    /// they are made in the background, one after another, and a grey
+    /// tile with a spinner stands in for each meanwhile.
+    @State private var smallCopies: [Data?] = []
     /// When and where each photo was taken.
     @State private var facts: [PhotoFacts] = []
 
@@ -81,8 +83,21 @@ struct PhotoOfferSheet: View {
         }
         .task {
             guard facts.isEmpty else { return }
+            // The camera's notes are quick to read: the picture is not
+            // opened for them.
             facts = photos.map { PhotoFacts.read(from: $0) }
-            smallCopies = photos.compactMap { DiaryEntryEditor.thumbnail(from: $0, maxDimension: 600) }
+            // A grey tile for each photo first, so the card is never
+            // empty. Then the copies, each put in its place as it comes
+            // back from the workshop (PhotoShrink.swift). Until 14
+            // November 2026 all of them were made on the main thread
+            // before anything was shown.
+            smallCopies = Array(repeating: nil, count: photos.count)
+            for (place, photo) in photos.enumerated() {
+                let small = await PhotoWorkshop.shared.jpeg(from: photo, longestSide: PhotoShrink.cardSide)
+                // An empty `Data` marks "tried, and it is not a picture",
+                // so that its spinner stops.
+                smallCopies[place] = small ?? Data()
+            }
         }
     }
 
@@ -95,12 +110,19 @@ struct PhotoOfferSheet: View {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 8) {
                             ForEach(Array(smallCopies.enumerated()), id: \.offset) { _, copy in
-                                if let picture = PhotoThumbnail.image(from: copy) {
+                                if let copy, let picture = PhotoThumbnail.image(from: copy) {
                                     picture
                                         .resizable()
                                         .scaledToFit()
                                         .frame(height: 170)
                                         .clipShape(.rect(cornerRadius: 12))
+                                } else if copy == nil {
+                                    // Not made yet.
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .fill(Theme.card.opacity(0.85))
+                                        .frame(width: 128, height: 170)
+                                        .overlay { ProgressView() }
+                                        .accessibilityLabel("Photo, loading")
                                 }
                             }
                         }

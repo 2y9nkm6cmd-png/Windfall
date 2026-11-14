@@ -44,6 +44,10 @@
 //  insect"), Eira offers to pin it down with a photo or a few details
 //  (JournalPinDown.swift).
 //
+//  An entry already written is changed in its own sheet
+//  (JournalEntryEditor.swift), opened by the pencil under the entry or
+//  by pressing and holding it.
+//
 //  Not built yet: names becoming links.
 //
 //  Where it is drawn (14 November 2026). Opened from Eira's bar, on a
@@ -206,8 +210,15 @@ struct JournalChatView: View {
         hasOwnConditions ? ownTemperature : suggested.map { ($0.temperatureC * 10).rounded() / 10 }
     }
 
+    /// True while a chosen photo has not arrived yet. Sending waits for
+    /// it, so that a photo cannot be left behind by a quick press.
+    private var photosAreComing: Bool {
+        waitingPhotos.contains { $0.data == nil }
+    }
+
     private var canSend: Bool {
-        !words.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || !waitingPhotos.isEmpty
+        guard !photosAreComing else { return false }
+        return !words.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || !waitingPhotos.isEmpty
     }
 
     /// One line of the day: something written, or another record.
@@ -307,7 +318,7 @@ struct JournalChatView: View {
         }
         .onChange(of: pickerItems) { _, items in
             guard !items.isEmpty else { return }
-            Task { await loadPicked(items) }
+            loadPicked(items)
         }
         .alert("Rename", isPresented: Binding(get: { renaming != nil }, set: { if !$0 { renaming = nil } })) {
             TextField("Title", text: $newTitle)
@@ -317,10 +328,11 @@ struct JournalChatView: View {
             }
             Button("Cancel", role: .cancel) { renaming = nil }
         }
-        // The old form, for changing every detail of something already
-        // written.
+        // The editor, for changing anything about something already
+        // written (JournalEntryEditor.swift). Until 14 November 2026
+        // this opened the old diary form.
         .sheet(item: $editing) { entry in
-            DiaryEntryEditor(entry: entry).macSheetSize(width: 520, height: 640)
+            JournalEntrySheet(entry: entry)
         }
     }
 
@@ -477,17 +489,35 @@ struct JournalChatView: View {
             .background(Theme.leafFill, in: .rect(cornerRadius: 18))
             // Press and hold, or right-click on a Mac.
             .contextMenu {
+                Button("Change this entry") { editing = entry }
                 Button("Rename") {
                     newTitle = heading
                     renaming = entry
                 }
-                Button("Change the details") { editing = entry }
                 Button("Delete", role: .destructive) { context.delete(entry) }
             }
 
-            Text(stampLine(of: entry))
-                .font(.caption)
-                .foregroundStyle(Theme.inkSoft)
+            // The stamp, and a pencil that opens the entry to be
+            // changed. The pencil is there because press and hold is
+            // easy to miss: nothing on screen says it can be done.
+            HStack(spacing: 6) {
+                Text(stampLine(of: entry))
+                    .font(.caption)
+                    .foregroundStyle(Theme.inkSoft)
+                Button {
+                    editing = entry
+                } label: {
+                    Image(systemName: "pencil")
+                        .font(.footnote.weight(.semibold))
+                        .foregroundStyle(Theme.inkSoft)
+                        // A larger area to press than the pencil itself.
+                        .frame(width: 30, height: 26)
+                        .contentShape(.rect)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Change this entry")
+                .help("Change this entry")
+            }
         }
         .frame(maxWidth: .infinity, alignment: .trailing)
         .padding(.leading, 44)
@@ -688,8 +718,10 @@ struct JournalChatView: View {
             if !waitingPhotos.isEmpty {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 8) {
-                        ForEach(waitingPhotos) { photo in
-                            waitingThumbnail(photo)
+                        ForEach(waitingPhotos) { waitingPhoto in
+                            WaitingPhotoTile(thumbnail: waitingPhoto.thumbnail) {
+                                waitingPhotos.removeAll { $0.id == waitingPhoto.id }
+                            }
                         }
                     }
                 }
@@ -702,7 +734,11 @@ struct JournalChatView: View {
             }
 
             HStack(alignment: .bottom, spacing: 8) {
-                PhotosPicker(selection: $pickerItems, maxSelectionCount: 10, matching: .images) {
+                // `.current` asks for each photo as it is stored. Left to
+                // itself the chooser may first convert a photo to another
+                // format, which takes a moment for each one.
+                PhotosPicker(selection: $pickerItems, maxSelectionCount: 10, matching: .images,
+                             preferredItemEncoding: .current) {
                     roundSymbol("photo.badge.plus")
                 }
                 .buttonStyle(.plain)
@@ -983,47 +1019,53 @@ struct JournalChatView: View {
 
     // MARK: Photos
 
-    /// A photo chosen or dropped, not yet sent.
-    private struct WaitingPhoto: Identifiable {
-        let id = UUID()
-        let data: Data
-        let thumbnail: Data?
-        /// When and where it was taken, read from the file.
-        let facts: PhotoFacts
-    }
+    // A photo chosen or dropped and not yet sent is a `WaitingPhoto`,
+    // drawn as a `WaitingPhotoTile`. Both are in PhotoDrop.swift, since
+    // the editor for an entry already written uses them too
+    // (JournalEntryEditor.swift).
+    //
+    // A photo is put in the box the moment it is chosen, as a grey tile
+    // with a spinner, and filled in as its parts arrive: first the
+    // photo's own bytes, then the small copy to draw. (Until 14
+    // November 2026 nothing was shown until both were ready, and the
+    // small copy was made on the main thread, so the whole app stood
+    // still while it was. See PhotoShrink.swift.)
 
-    private func waitingThumbnail(_ photo: WaitingPhoto) -> some View {
-        ZStack {
-            if let picture = PhotoThumbnail.image(from: photo.thumbnail ?? photo.data) {
-                picture
-                    .resizable()
-                    .scaledToFill()
-            } else {
-                Theme.card
-            }
-        }
-        .frame(width: 64, height: 64)
-        .clipShape(.rect(cornerRadius: 10))
-        .overlay(alignment: .topTrailing) {
-            Button {
-                waitingPhotos.removeAll { $0.id == photo.id }
-            } label: {
-                Image(systemName: "xmark")
-                    .font(.system(size: 9, weight: .bold))
-                    .foregroundStyle(Theme.ink)
-                    .frame(width: 20, height: 20)
-                    .background(Theme.card, in: .circle)
-            }
-            .buttonStyle(.plain)
-            .padding(3)
-            .accessibilityLabel("Remove photo")
-        }
-    }
-
+    /// Takes in a photo whose bytes are already to hand: one dropped
+    /// here, or handed over when the conversation opened. Its tile
+    /// appears at once and its small copy follows.
     private func addPhoto(_ data: Data) {
-        waitingPhotos.append(WaitingPhoto(data: data, thumbnail: DiaryEntryEditor.thumbnail(from: data),
-                                          facts: PhotoFacts.read(from: data)))
+        let waitingPhoto = WaitingPhoto()
+        waitingPhotos.append(waitingPhoto)
+        fill(waitingPhoto.id, with: data)
+    }
+
+    /// Puts a photo's bytes into its tile, then has its small copy made
+    /// in the background.
+    ///
+    /// `Task { }` starts a piece of work that runs alongside this
+    /// function, which returns straight away. Inside it, `await` is
+    /// where the task steps aside while the workshop makes the copy.
+    /// When the copy comes back the tile is looked up again by its
+    /// label, because it may have been removed with its cross
+    /// meanwhile, or sent.
+    private func fill(_ id: UUID, with data: Data) {
+        guard let slot = waitingPhotos.firstIndex(where: { $0.id == id }) else { return }
+        waitingPhotos[slot].data = data
+        // The camera's notes are read without opening the picture, so
+        // this is quick enough to do here.
+        waitingPhotos[slot].facts = PhotoFacts.read(from: data)
         lookUpPhotoWeather()
+        Task {
+            let small = await PhotoWorkshop.shared.jpeg(from: data, longestSide: PhotoShrink.tileSide)
+            guard let slot = waitingPhotos.firstIndex(where: { $0.id == id }) else { return }
+            if let small {
+                waitingPhotos[slot].thumbnail = small
+            } else {
+                // Not a picture after all.
+                waitingPhotos.remove(at: slot)
+            }
+        }
     }
 
     /// Puts the photos the conversation was opened with into the box.
@@ -1048,15 +1090,28 @@ struct JournalChatView: View {
         }
     }
 
-    /// Photos chosen with the button. They arrive one at a time, a
-    /// moment after being chosen.
-    private func loadPicked(_ items: [PhotosPickerItem]) async {
-        for item in items {
-            if let data = try? await item.loadTransferable(type: Data.self) {
-                addPhoto(data)
+    /// Photos chosen with the button.
+    ///
+    /// A grey tile goes in the box for each one straight away, in the
+    /// order chosen. The photos themselves are then fetched all at the
+    /// same time, each in a task of its own, and each fills its own
+    /// tile when it arrives. Fetching can take a while: a photo kept
+    /// in iCloud has to be downloaded first.
+    private func loadPicked(_ items: [PhotosPickerItem]) {
+        pickerItems = []
+        let coming = items.map { _ in WaitingPhoto() }
+        waitingPhotos.append(contentsOf: coming)
+        // `zip` pairs the two lists up: first with first, and so on.
+        for (item, waitingPhoto) in zip(items, coming) {
+            Task {
+                if let data = try? await item.loadTransferable(type: Data.self) {
+                    fill(waitingPhoto.id, with: data)
+                } else {
+                    // It could not be fetched. Its tile goes.
+                    waitingPhotos.removeAll { $0.id == waitingPhoto.id }
+                }
             }
         }
-        pickerItems = []
     }
 
     /// Photos dragged on to the sheet. Returns true if any of what was
@@ -1142,6 +1197,9 @@ struct JournalChatView: View {
     private func send() {
         let text = words.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty || !waitingPhotos.isEmpty else { return }
+        // A photo still on its way would be left behind. The send
+        // button is greyed out meanwhile. This catches the Return key.
+        guard !photosAreComing else { return }
 
         // A question about when this was has to be answered first. Its
         // card turns amber.
@@ -1171,9 +1229,10 @@ struct JournalChatView: View {
         context.insert(entry)
 
         for waiting in waitingPhotos {
+            guard let data = waiting.data else { continue }
             // The photo keeps the time it was taken, whichever time the
             // entry is stamped with.
-            let photo = Photo.record(of: waiting.data, facts: waiting.facts, thumbnail: waiting.thumbnail,
+            let photo = Photo.record(of: data, facts: waiting.facts, thumbnail: waiting.thumbnail,
                                      otherwiseAt: entry.date)
             photo.diaryEntry = entry
             entry.photos?.append(photo)

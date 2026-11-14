@@ -25,8 +25,15 @@
 //                    The rest of the app waits with `await`. This turns
 //                    the first into the second.
 //
+//  withTaskGroup     Starts several pieces of work at the same time and
+//                    collects their answers as each finishes. Used at
+//                    the foot of `PhotoDrop` to fetch every photo chosen
+//                    in the Photos chooser at once, where they used to
+//                    be fetched one after another.
+//
 
 import SwiftUI
+import PhotosUI
 import UniformTypeIdentifiers
 
 enum PhotoDrop {
@@ -90,6 +97,32 @@ enum PhotoDrop {
     private static func isPicture(_ url: URL) -> Bool {
         UTType(filenameExtension: url.pathExtension)?.conforms(to: .image) ?? false
     }
+
+    /// Reads the photos chosen in Apple's Photos chooser, in the order
+    /// they were chosen. Any that cannot be fetched is left out.
+    ///
+    /// The chooser hands over a list of items, each a promise of a
+    /// photo. Fetching one can take a while, most of all when iCloud
+    /// holds the original and it has to be downloaded. So they are all
+    /// asked for at the same time: each `addTask` starts one fetch
+    /// without waiting for the one before, and the `for await` loop
+    /// collects the answers as they come in. They can finish in any
+    /// order, so each answer carries its place in the list and the
+    /// photos are put back in that order at the end.
+    static func pictures(from items: [PhotosPickerItem]) async -> [Data] {
+        await withTaskGroup(of: (Int, Data?).self) { group in
+            for (place, item) in items.enumerated() {
+                group.addTask {
+                    (place, try? await item.loadTransferable(type: Data.self))
+                }
+            }
+            var found: [Int: Data] = [:]
+            for await (place, data) in group {
+                if let data { found[place] = data }
+            }
+            return items.indices.compactMap { found[$0] }
+        }
+    }
 }
 
 /// A dashed outline with a few words in the middle, drawn over a place
@@ -119,6 +152,67 @@ struct PhotoDropOutline: View {
         .padding(8)
         // The outline is only a picture. The drop goes to what is under it.
         .allowsHitTesting(false)
+    }
+}
+
+// MARK: - A photo that is on its way
+
+/// A photo chosen or dropped, and not yet kept with a record.
+///
+/// It is shown the moment it is chosen, as a grey tile with a spinner,
+/// and filled in as its parts arrive: first the photo's own bytes,
+/// then the small copy to draw. Used by the journal's conversation
+/// (JournalChatView.swift) and by the editor for an entry already
+/// written (JournalEntryEditor.swift).
+struct WaitingPhoto: Identifiable {
+    let id = UUID()
+    /// The photo's file, as it came. Nil while it is being fetched
+    /// from the Photos library.
+    var data: Data?
+    /// The small copy to draw. Nil while it is being made.
+    var thumbnail: Data?
+    /// When and where it was taken, read from the file.
+    var facts = PhotoFacts()
+}
+
+/// The tile for a photo that is on its way: the small copy once there
+/// is one, a spinner until then, and a cross in the corner to take the
+/// photo off again.
+struct WaitingPhotoTile: View {
+
+    /// The small copy to draw. Nil shows the spinner.
+    let thumbnail: Data?
+    var size: CGFloat = 64
+    /// What the cross does.
+    let onRemove: () -> Void
+
+    var body: some View {
+        ZStack {
+            Theme.card
+            if let thumbnail, let picture = PhotoThumbnail.image(from: thumbnail) {
+                picture
+                    .resizable()
+                    .scaledToFill()
+            } else {
+                // Still being fetched or made smaller.
+                ProgressView().controlSize(.small)
+            }
+        }
+        .frame(width: size, height: size)
+        .clipShape(.rect(cornerRadius: 10))
+        .accessibilityLabel(thumbnail == nil ? "Photo, loading" : "Photo")
+        .overlay(alignment: .topTrailing) {
+            Button(action: onRemove) {
+                Image(systemName: "xmark")
+                    .font(.system(size: 9, weight: .bold))
+                    .foregroundStyle(Theme.ink)
+                    .frame(width: 20, height: 20)
+                    .background(Theme.card, in: .circle)
+            }
+            .buttonStyle(.plain)
+            .padding(3)
+            .accessibilityLabel("Remove photo")
+        }
     }
 }
 
@@ -152,7 +246,7 @@ extension Photo {
         // keeps a smaller copy. Otherwise the app keeps the original
         // itself, as it always did. See PhotoStore.swift.
         if PhotoStore.keep(original: data, taken: photo.capturedAt, id: photo.id) {
-            photo.imageData = DiaryEntryEditor.thumbnail(from: data, maxDimension: PhotoStore.keptCopySide) ?? data
+            photo.imageData = PhotoShrink.jpeg(from: data, longestSide: PhotoStore.keptCopySide) ?? data
         } else {
             photo.imageData = smallerCopy ?? data
         }

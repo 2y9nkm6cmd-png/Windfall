@@ -46,3 +46,4 @@ TodayBoardPlan.title:
 TodayBoardPlan.value:
 TodayBoardPlan.viabilityRate:
 TodayPanel.path:
+Photo.lastPathComponent:

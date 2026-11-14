@@ -16,7 +16,7 @@
 //  and running.")
 //
 //  What stays in the app with each photo's record is a smaller copy, at
-//  most 2048 points on its longer side, and the small one for lists. So
+//  most 2048 pixels on its longer side, and the small one for lists. So
 //  every photo can still be shown when the original has not been fetched
 //  from iCloud, or the folder has been moved.
 //
@@ -53,8 +53,11 @@ enum PhotoStore {
     private static let bookmarkKey = "photoFolderBookmark"
     private static let nameKey = "photoFolderName"
 
-    /// The longer side of the copy kept in the app, in points.
-    static let keptCopySide: CGFloat = 2048
+    /// The longer side of the copy kept in the app, in pixels. (Until
+    /// 14 November 2026 this was in points and drawn at the screen's
+    /// own scale, which on an iPhone came out larger than the photo
+    /// itself. See PhotoShrink.swift.)
+    static let keptCopySide = PhotoShrink.lookSide
 
     // MARK: The folder
 

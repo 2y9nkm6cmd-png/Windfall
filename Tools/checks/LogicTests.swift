@@ -595,6 +595,24 @@ struct LogicTests {
         check(JournalChat.title(for: rambling) == "Mulching the raspberries with leaf mould" && JournalChat.title(for: "Lovely sunny day. Picked the last of the Jonagolds.") == "Lovely sunny day" && JournalChat.title(for: "Lovely sunny day. Picked the last of the Jonagolds.", known: ["jonagold"]) == "Picked the last of the Jonagolds", "a title comes from the sentence the entry keeps coming back to, or one that names something in the garden, not just the first")
         check(JournalChat.title(for: "Wren in the hedge. Robin on the spade. Beans are up. The beans in bed 3 need string. Watered the beans.") == "Beans are up" && JournalChat.title(for: "Wet. Windy. Cold.") == "Wet", "of sentences that score the same the earliest wins, and with nothing repeated the first is used")
 
+        // An entry's heading after the entry is changed
+        let mulchingWords = "Spent the morning mulching the raspberries with leaf mould. The raspberries look healthy."
+        let pruningWords = "Pruned the apple trees and burnt the prunings. The apple trees look better for it."
+        let headingLeft = JournalChat.heading(own: nil, written: "Mulching the raspberries with leaf mould", typed: "Mulching the raspberries with leaf mould", oldWords: mulchingWords, newWords: mulchingWords)
+        check(headingLeft == JournalChat.Heading(own: nil, written: "Mulching the raspberries with leaf mould") && !headingLeft.writtenIsNew, "an entry saved with nothing changed keeps the heading written for it")
+        let headingReworded = JournalChat.heading(own: nil, written: "Mulching the raspberries with leaf mould", typed: "Mulching the raspberries with leaf mould", oldWords: mulchingWords, newWords: pruningWords)
+        check(headingReworded.own == nil && headingReworded.written == JournalChat.title(for: pruningWords) && headingReworded.written != "Mulching the raspberries with leaf mould" && headingReworded.writtenIsNew, "a heading that was written for you is written again when the entry's words change")
+        let headingOwnKept = JournalChat.heading(own: "Raspberry day", written: "Mulching the raspberries with leaf mould", typed: " Raspberry day ", oldWords: mulchingWords, newWords: pruningWords)
+        check(headingOwnKept == JournalChat.Heading(own: "Raspberry day", written: "Mulching the raspberries with leaf mould"), "a heading of your own stays when the words change, and spaces round it do not count as a change")
+        let headingTyped = JournalChat.heading(own: nil, written: "Mulching the raspberries with leaf mould", typed: "  Leaf mould at last ", oldWords: mulchingWords, newWords: mulchingWords)
+        check(headingTyped == JournalChat.Heading(own: "Leaf mould at last", written: "Mulching the raspberries with leaf mould"), "typing over the heading makes it your own, tidied of spaces")
+        let headingEmptied = JournalChat.heading(own: "Raspberry day", written: nil, typed: "", oldWords: mulchingWords, newWords: mulchingWords)
+        check(headingEmptied.own == nil && headingEmptied.written == JournalChat.title(for: mulchingWords) && headingEmptied.writtenIsNew, "emptying the heading drops your own and writes one from the words")
+        let headingShort = JournalChat.heading(own: nil, written: nil, typed: "", oldWords: "Slugs", newWords: "Wet")
+        check(headingShort == JournalChat.Heading(own: nil, written: nil, writtenIsNew: true), "a heading that would only repeat the entry is left off")
+        let headingKnown = JournalChat.heading(own: nil, written: "Lovely sunny day", typed: "Lovely sunny day", oldWords: "Lovely sunny day.", newWords: "Lovely sunny day. Picked the last of the Jonagolds.", known: ["jonagold"])
+        check(headingKnown.written == "Picked the last of the Jonagolds", "the heading written after a change favours a sentence that names something in the garden")
+
         // What the journal's words offer as records
         let offerPlants = [OfferPlant(key: "jonagold", commonName: "Apple", variety: "Jonagold"),
                            OfferPlant(key: "spartan", commonName: "Apple", variety: "Spartan"),
