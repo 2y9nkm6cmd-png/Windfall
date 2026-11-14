@@ -88,6 +88,45 @@ William, 19:34, with a picture of the Journal page on his iPhone: the day's entr
 - The glass itself is untouched, so the bar keeps its rim and its shine when pressed.
 
 **⚠️ CHECK:** 0.85 is Claude's choice. It needs a build and a look in light and dark mode.
+# 14 November 2026, 20:10: Eira's bar and keyboard put away by touch again, and a swipe down on the panel
+
+**By the "put away" chat**, from William's phone and then his Mac. Branch `eira-put-away`, made from `main` at `8fd0f0c`.
+
+William, 19:37: "the tapping and swiping to close Eira isnt working at the minute on the phone". Asked where: on the Journal page and on the other pages, both.
+
+**Two different causes.**
+
+1. **On the Journal page it never could.** The bar is always open there, so the code that puts the bar away was switched off (`canBePutAway`), and nothing else put the keyboard away.
+2. **On the other pages it had worked at 16:57 and then stopped.** The first version hung an invisible layer, 4,000 points square, out beyond the bar's own strip to catch touches on the page. The bar's code was then reshaped for the panel and the two were joined by hand at 17:13. Why touches stopped reaching the layer was not found.
+
+## What changed
+
+**`EiraFloatingBar.swift`**
+
+- **The touch layer is now inside the bar's own space.** Since the panel, the bar is given the whole page to stand in (`growsInPlace`). The layer is the first thing in the bar's `ZStack`, so it is underneath everything, and exactly as large as that space. A view is only certain to be handed a touch that lands inside the space its parent gave it, which is the same reason the panel is drawn inside that space.
+- `touchAwayLayer(travel:fillsTheSpace:)`: `fillsTheSpace` chooses between the new layer and the old huge one. The old one is kept only for a bar that is no taller than itself, which no layout uses today.
+- **`keyboardCanBePutAway`**, new: true when the bar stays open (pinned, or on the Journal page) and its text box has the keyboard.
+- **`touchPutsSomethingAway`**, new: `canBePutAway || keyboardCanBePutAway`. The layer is only there while this is true, so the page works as usual the rest of the time.
+- **`putAway(travel:)`**, new: closes the bar if it can close. Otherwise it sets `fieldHasFocus = false`, which hands the keyboard back, and the bar stays open.
+- The swipe down on the bar calls `putAway` too, so on the Journal page it puts the keyboard away.
+- `swipeDownPutsAway` was `private` to this file. It is now usable from other files, so the panel can use it.
+
+**`EiraPanel.swift`**
+
+- **A swipe down on the panel's heading lowers the panel**, as Done does. `contentShape(.rect)` makes the empty stretch between the title and the buttons count as part of the heading. Only the heading takes the swipe, because the conversation below it scrolls.
+
+**A Mac is unchanged.** All of this is inside `#if os(iOS)`.
+
+## Not changed
+
+- A tap on the page does not close the panel. On an iPhone the panel covers the page, and on an iPad the page behind it is meant to stay in use.
+- The first touch that puts the bar or keyboard away is still not passed on to the page.
+
+## CHECK: choices that are Claude's
+
+1. On the Journal page a touch puts the keyboard away and leaves the bar open.
+2. The same applies on an iPad, and wherever "Keep the bar open" is ticked: while the bar's box has the keyboard, the first tap on the page only puts the keyboard away.
+3. The swipe down on the panel's heading. William was asked whether he wanted it and did not say.
 
 # 14 November 2026, 18:40: seven branches joined into main
 
