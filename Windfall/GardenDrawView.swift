@@ -34,27 +34,44 @@ import SwiftData
 
 // MARK: - Metres to points
 
-/// One drawing's scale: how many points on the screen stand for a metre,
-/// and where the plot's top-left corner sits.
-///
-/// A margin of a metre and a half is left all round the plot, so things
-/// outside it (a neighbour's tree) can be seen and dragged there.
-struct DrawScale {
+/// The piece of ground a drawing shows, in metres: the plot, anything
+/// drawn outside it (a neighbour's tree), and a margin all round so
+/// things can be dragged out past the edge.
+struct DrawBox: Equatable {
 
     static let margin = 1.5
+
+    var minX: Double, minY: Double, maxX: Double, maxY: Double
+
+    var across: Double { maxX - minX }
+    var down: Double { maxY - minY }
+
+    /// The box round a plot and a list of outlines, with the margin added.
+    init(width: Double, depth: Double, outlines: [[PlanPoint]]) {
+        let spots = outlines.flatMap { $0 } + [PlanPoint(x: 0, y: 0), PlanPoint(x: width, y: depth)]
+        minX = (spots.map(\.x).min() ?? 0) - Self.margin
+        minY = (spots.map(\.y).min() ?? 0) - Self.margin
+        maxX = (spots.map(\.x).max() ?? width) + Self.margin
+        maxY = (spots.map(\.y).max() ?? depth) + Self.margin
+    }
+}
+
+/// One drawing's scale: how many points on the screen stand for a metre,
+/// and where the plot's top-left corner sits.
+struct DrawScale {
 
     /// Points for one metre.
     let scale: CGFloat
     /// Where the plot's top-left corner is, in points.
     let origin: CGPoint
 
-    init(size: CGSize, width: Double, depth: Double) {
-        let across = CGFloat(width + Self.margin * 2)
-        let down = CGFloat(depth + Self.margin * 2)
-        let fit = max(min(size.width / across, size.height / down), 1)
+    init(size: CGSize, ground: DrawBox) {
+        let fit = max(min(size.width / CGFloat(ground.across), size.height / CGFloat(ground.down)), 1)
         scale = fit
-        origin = CGPoint(x: (size.width - across * fit) / 2 + CGFloat(Self.margin) * fit,
-                         y: (size.height - down * fit) / 2 + CGFloat(Self.margin) * fit)
+        // Centre the box in the space, then step back from the box's
+        // corner to the plot's corner, which is at 0, 0 on the plan.
+        origin = CGPoint(x: (size.width - CGFloat(ground.across) * fit) / 2 - CGFloat(ground.minX) * fit,
+                         y: (size.height - CGFloat(ground.down) * fit) / 2 - CGFloat(ground.minY) * fit)
     }
 
     /// A place on the plan, as a point on the screen.
@@ -107,6 +124,11 @@ struct GardenDrawBoard: View {
     }
 
     @State private var grab: Grab = .idle
+
+    /// The ground shown while a drag is under way. Without this the
+    /// drawing would rescale under the finger whenever a thing was
+    /// dragged past the edge, and seem to slide away.
+    @State private var heldBox: DrawBox?
 
     /// How far the knob stands off the end of a thing, in points.
     private let knobReach: CGFloat = 26
@@ -172,8 +194,9 @@ struct GardenDrawBoard: View {
     var body: some View {
         let shapes = drawn
         let width = plotWidth, depth = plotDepth
+        let ground = heldBox ?? DrawBox(width: width, depth: depth, outlines: shapes.map(\.outline))
         GeometryReader { geometry in
-            let fit = DrawScale(size: geometry.size, width: width, depth: depth)
+            let fit = DrawScale(size: geometry.size, ground: ground)
             Canvas { context, _ in
                 draw(shapes, in: &context, fit: fit, width: width, depth: depth)
             }
@@ -181,12 +204,12 @@ struct GardenDrawBoard: View {
             .onTapGesture { point in
                 chosenID = thing(at: point, fit: fit)?.planID
             }
-            .gesture(dragging(fit))
+            .gesture(dragging(fit, ground: ground))
             .allowsHitTesting(isLive)
         }
-        // The same proportions as the plot and its margin, so there are
-        // no empty bands beside a long thin garden.
-        .aspectRatio(CGFloat((width + DrawScale.margin * 2) / (depth + DrawScale.margin * 2)), contentMode: .fit)
+        // The same proportions as the ground shown, so there are no
+        // empty bands beside a long thin garden.
+        .aspectRatio(CGFloat(ground.across / ground.down), contentMode: .fit)
         .accessibilityElement()
         .accessibilityLabel("Plan of \(garden.name), \(beds.count) beds")
     }
@@ -225,10 +248,13 @@ struct GardenDrawBoard: View {
         return near.filter { $0.gap < 22 }.min { $0.gap < $1.gap }?.thing
     }
 
-    private func dragging(_ fit: DrawScale) -> some Gesture {
+    private func dragging(_ fit: DrawScale, ground: DrawBox) -> some Gesture {
         DragGesture(minimumDistance: 3)
             .onChanged { value in
-                if case .idle = grab { grab = takeHold(at: value.startLocation, fit: fit) }
+                if case .idle = grab {
+                    grab = takeHold(at: value.startLocation, fit: fit)
+                    heldBox = ground
+                }
                 let dx = Double(value.translation.width / fit.scale)
                 let dy = Double(value.translation.height / fit.scale)
                 switch grab {
@@ -256,7 +282,11 @@ struct GardenDrawBoard: View {
                     thing.rotationDegrees = GardenDrawing.snappedTurn(toFinger - knobStarts)
                 }
             }
-            .onEnded { _ in grab = .idle }
+            .onEnded { _ in
+                grab = .idle
+                // Letting go lets the drawing take in the new layout.
+                withAnimation(.smooth(duration: 0.25)) { heldBox = nil }
+            }
     }
 
     /// Decides what a drag has hold of, from where it began.
@@ -740,7 +770,7 @@ struct GardenDrawView: View {
                     VStack(alignment: .leading, spacing: 12) {
                         heading
                         board
-                        ScrollView { panel }
+                        ScrollView { panel.padding(.bottom, 90) }
                     }
                 }
             }
@@ -792,6 +822,11 @@ struct GardenDrawView: View {
         }
         .eiraLooksAt("the plan of \(garden.name.isEmpty ? "a garden" : "the garden called " + garden.name), being drawn",
                      short: garden.name.isEmpty ? nil : "the plan of \(garden.name)")
+        .onAppear {
+            // A checking aid: `-demoDrawChoose YES` starts with the first
+            // bed chosen, so a still picture can show the handles.
+            if UserDefaults.standard.bool(forKey: "demoDrawChoose") { chosenID = beds.first?.id }
+        }
     }
 
     private var heading: some View {

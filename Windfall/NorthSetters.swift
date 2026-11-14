@@ -62,7 +62,7 @@ struct NorthRing: View {
 
             // The plan, the way it was drawn. It does not turn.
             GardenPlanView(garden: garden, beds: beds, features: features)
-                .frame(width: size * 0.56, height: size * 0.56)
+                .frame(width: size * 0.62, height: size * 0.62)
                 .allowsHitTesting(false)
 
             Text("N")
@@ -206,7 +206,7 @@ struct NorthByPointing: View {
             }
             .padding(.horizontal, 16)
             .padding(.top, 8)
-            .padding(.bottom, 20)
+            .padding(.bottom, 110)
         }
         .paperScreen()
         .navigationTitle("North")
@@ -338,7 +338,7 @@ struct NorthByMap: View {
             }
             .padding(.horizontal, 16)
             .padding(.top, 8)
-            .padding(.bottom, 20)
+            .padding(.bottom, 110)
         }
         .paperScreen()
         .navigationTitle("North")
@@ -366,10 +366,18 @@ struct NorthByMap: View {
             MapPolygon(coordinates: outline)
                 .foregroundStyle(Theme.leafFill.opacity(0.3))
                 .stroke(Theme.leaf, lineWidth: 3)
-            // The top edge is drawn in white so it can be told from the
-            // other three.
-            MapPolyline(coordinates: [outline[0], outline[1]])
-                .stroke(.white, lineWidth: 5)
+            // A label on the middle of the top edge, so it can be told
+            // from the other three.
+            Annotation("", coordinate: CLLocationCoordinate2D(
+                latitude: (outline[0].latitude + outline[1].latitude) / 2,
+                longitude: (outline[0].longitude + outline[1].longitude) / 2)) {
+                Text("top")
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(Theme.leaf)
+                    .padding(.horizontal, 7)
+                    .padding(.vertical, 2)
+                    .background(.white, in: .capsule)
+            }
         }
         .mapStyle(.imagery)
         .onMapCameraChange(frequency: .continuous) { context in
@@ -385,7 +393,7 @@ struct NorthByMap: View {
             Text(GardenDrawing.facingWords(turn))
                 .font(.title3.weight(.semibold))
                 .foregroundStyle(Theme.ink)
-            Text("The white edge is the top of your plan. Turn the outline until it sits over your plot.")
+            Text("The edge marked \"top\" is the top of your plan. Turn the outline until it sits over your plot.")
                 .font(.footnote)
                 .foregroundStyle(Theme.inkSoft)
                 .multilineTextAlignment(.center)
@@ -396,7 +404,7 @@ struct NorthByMap: View {
                     .accessibilityLabel("Turn the outline")
                 turnButton("arrow.clockwise", by: 1, says: "Turn the outline one degree clockwise")
             }
-            Button("Move the outline to the middle of the map") {
+            Button("Bring the outline here") {
                 if let mapMiddle { outlineMiddle = mapMiddle }
             }
             .buttonStyle(QuietGlassButton())

@@ -42,7 +42,9 @@ private struct PlotPicture: View {
             // proportions into what is left.
             let space = CGSize(width: size.width - 110, height: size.height - 78)
             let scale = min(space.width / CGFloat(max(width, 1)), space.height / CGFloat(max(depth, 1)))
-            let box = CGRect(x: (size.width - CGFloat(width) * scale) / 2 + 20, y: 36,
+            // In the middle, nudged right and down to balance the labels.
+            let box = CGRect(x: (size.width - CGFloat(width) * scale) / 2 + 20,
+                             y: (size.height - CGFloat(depth) * scale) / 2 + 4,
                              width: CGFloat(width) * scale, height: CGFloat(depth) * scale)
             context.fill(Path(box), with: .color(Theme.card))
             context.stroke(Path(box), with: .color(Theme.inkSoft), lineWidth: 1.4)
@@ -87,8 +89,9 @@ struct GardenDrawSteps: View {
            sort: [SortDescriptor(\Bed.displayOrder)]) private var allBeds: [Bed]
     @Query(sort: [SortDescriptor(\GardenFeature.createdAt)]) private var allFeatures: [GardenFeature]
 
-    /// Which of the four steps is showing.
-    @State private var step = 1
+    /// Which of the four steps is showing. A checking aid:
+    /// `-demoDrawStep 3` starts at another step, for pictures.
+    @State private var step = min(max(UserDefaults.standard.integer(forKey: "demoDrawStep"), 1), 4)
     /// The bed being asked about in step 3.
     @State private var bedID: UUID?
     /// The shed, path or tree being asked about in step 4.
@@ -171,6 +174,9 @@ struct GardenDrawSteps: View {
             .leafButton()
             .controlSize(.large)
         }
+        // Eira's button floats in the bottom right corner of every
+        // screen. This keeps Next out from under it.
+        .padding(.trailing, 84)
     }
 
     /// A row of names to choose between, with the chosen one filled in.
@@ -383,7 +389,7 @@ struct GardenDrawChooser: View {
             }
             .padding(.horizontal, 16)
             .padding(.top, 8)
-            .padding(.bottom, 20)
+            .padding(.bottom, 110)
         }
         .paperScreen()
         .navigationTitle(garden.name.isEmpty ? "Garden" : garden.name)
