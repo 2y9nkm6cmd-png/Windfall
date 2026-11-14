@@ -68,6 +68,22 @@ enum DemoGarden {
         }
     }
 
+    /// Checking aids for the way a Mac moves the row of months, which a
+    /// simulator cannot otherwise show. `-demoMonthMacRow YES` gives an
+    /// iPhone or iPad the Mac's row of three pages. With it,
+    /// `-demoMonthDrag 300` holds the row 300 points to the right a
+    /// moment after the page appears, as if two fingers had dragged it
+    /// part of the way to the month before.
+    static var usesMacMonthRow: Bool {
+        isRequested && UserDefaults.standard.bool(forKey: "demoMonthMacRow")
+    }
+
+    static var dragsMonthRow: CGFloat? {
+        guard isRequested else { return nil }
+        let points = UserDefaults.standard.double(forKey: "demoMonthDrag")
+        return points == 0 ? nil : CGFloat(points)
+    }
+
     static var thenMonth: Int? {
         guard isRequested else { return nil }
         let month = UserDefaults.standard.integer(forKey: "demoMonthThen")

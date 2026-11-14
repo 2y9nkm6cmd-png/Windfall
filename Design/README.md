@@ -6,6 +6,7 @@ Everything about how Windfall looks is kept here.
 |---|---|
 | `Reference/` | Pictures and files William has sent, each with the date it arrived. These are the originals and are never edited |
 | `Icons/` | One small SVG drawing for each icon in the app. These are the masters: edit one and the app follows |
+| `AppIcon/` | The app's own icon, the snowdrop and bumblebee, as two SVG drawings: light and dark. These are the masters. See "The app icon" below |
 | `colours.json` | Every named colour, each with a light-mode and a dark-mode value |
 | `Archive/` | Anything that has been replaced or set aside, kept in case it is wanted again |
 
@@ -34,6 +35,21 @@ The script copies the colours and icons into `Windfall/Assets.xcassets`, which i
 - **Colour icons**, such as the butterfly, have other colours in them and are shown as drawn. Their dark green outline (`#06472A`) is swapped for pale green in dark mode, which the script does by itself.
 
 Icons are drawn on a 24 by 24 grid with a line 1.6 wide and rounded ends.
+
+## The app icon
+
+The icon William chose on 14 November 2026 is kept as two drawings in `AppIcon/`: `windfall-app-icon-light.svg` (on cream) and `windfall-app-icon-dark.svg` (on dark green). Project doc 47 says how it was drawn and how to change a wing or the cream outline by hand.
+
+**They are not in `Icons/` on purpose.** The script above turns every SVG in `Icons/` into a small icon for use inside the app, and would do the same to these.
+
+An app icon cannot be an SVG. Xcode wants a picture 1024 dots square with no see-through parts. So each drawing is turned into a PNG, and the PNGs live in `Windfall/Assets.xcassets/AppIcon.appiconset`. After changing a drawing, make its picture again from the top of the repository (this needs `rsvg-convert` and Python's Pillow, which the Mac may not have: Claude's cloud workspace does):
+
+```
+for look in light dark; do
+  rsvg-convert -w 1024 -h 1024 Design/AppIcon/windfall-app-icon-$look.svg -o /tmp/icon-$look.png
+  python3 -c "from PIL import Image; Image.open('/tmp/icon-$look.png').convert('RGB').save('Windfall/Assets.xcassets/AppIcon.appiconset/windfall-app-icon-$look-1024.png')"
+done
+```
 
 ## What is in Reference
 
@@ -93,6 +109,7 @@ Icons are drawn on a 24 by 24 grid with a line 1.6 wide and rounded ends.
 | `2026-11-14 screenshot-plant-page-achillea-mac.png` | Achillea's page on the Mac, dark, sent with "Could you make it so that you can add a planting of plants in the plant page?" |
 | `2026-11-14 screenshot-year-page-month-heading-mac.png` | The top of the Year page on the Mac, dark, with every job showing, sent with "when you click or tap the month at the top of this page, you can see the month bigger and see what needs to be planted that month" |
 | `2026-11-14 screenshot-iphone-settings-back-swipe.heic` | An iPhone's Settings part-way through a swipe back, the page before in view underneath, sent with "When you swipe back to the previous screen can you make it so that the screen swipes over like in this screenshot" |
+| `2026-11-14 screenshot-journal-sheet-over-eira-bar-mac.png` | The Journal page on the Mac, dark, with the journal's conversation open as a sheet over it and Eira's bar idle underneath, sent with "Can we make it so that chat expands from the Eira bar, rather than opening up a new window?" |
 
 ## What is in Archive
 

@@ -72,6 +72,12 @@ struct JournalTimelineView: View {
     @State private var droppedStart: JournalStart?
     /// True while photos are being held over the page.
     @State private var isDropTarget = false
+    // Wide (a Mac, an iPad) or narrow (an iPhone). On a wide screen
+    // dropped photos go to Eira's bar, whose panel grows up from it.
+    @Environment(\.horizontalSizeClass) private var sizeClass
+    /// The tracker Eira's bar watches. The question mark means "if
+    /// there is one". See EiraScreen.
+    @Environment(EiraScreen.self) private var eiraScreen: EiraScreen?
 
     /// Everything of every kind, whatever the filter says. The counts
     /// beside each kind are made from this.
@@ -125,7 +131,15 @@ struct JournalTimelineView: View {
             guard PhotoDrop.mayHold(providers) else { return false }
             Task {
                 let pictures = await PhotoDrop.pictures(from: providers)
-                if !pictures.isEmpty { droppedStart = JournalStart(photos: pictures) }
+                guard !pictures.isEmpty else { return }
+                if sizeClass != .compact, let eiraScreen {
+                    // Eira's bar is at the foot of this page. It takes
+                    // the photos and opens the conversation in its
+                    // panel, so no second window comes up.
+                    eiraScreen.handToBar(pictures)
+                } else {
+                    droppedStart = JournalStart(photos: pictures)
+                }
             }
             return true
         }
@@ -137,7 +151,8 @@ struct JournalTimelineView: View {
         // Writing is a conversation with Eira (JournalChatView.swift).
         // It is opened from her bar at the foot of the page, which on
         // this page reads "Tell Eira what happened in the garden", or
-        // by dropping photos here.
+        // by dropping photos here. On a Mac and an iPad it grows out
+        // of the bar. This sheet is for an iPhone.
         .sheet(item: $droppedStart) { start in
             JournalChatView(photos: start.photos)
         }

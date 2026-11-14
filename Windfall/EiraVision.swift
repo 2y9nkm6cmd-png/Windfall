@@ -345,6 +345,8 @@ struct IdentifyView: View {
 
         do {
             identification = try await EiraIdentify.identify(photo: imageData, taken: facts.month(), context: context)
+            // For the Identify widgets: her last answer, with its photo.
+            if let identification { WidgetShare.noteAnswer(identification, photo: imageData) }
             eyeName = SpeciesEye.shared.loaded?.name ?? eyeName
         } catch let problem {
             // The error's own words say what is missing and what can

@@ -46,6 +46,14 @@ struct EiraChatView: View {
     var lookingAt: String? = nil
     @State private var hasPassedOnScreen = false
 
+    /// Set when the chat is drawn in the panel that grows out of Eira's
+    /// bar, and nil when it is a page or a sheet. In the panel there is
+    /// no bar along the top for a title and buttons, so the chat wears
+    /// the panel's own heading. See EiraPanel.swift.
+    var panel: EiraPanelControls? = nil
+    // @FocusState says whether the box to type in has the keyboard.
+    @FocusState private var boxHasFocus: Bool
+
     @Environment(\.modelContext) private var context
 
     @State private var conversation = EiraConversation()
@@ -84,6 +92,196 @@ struct EiraChatView: View {
     private let endOfChat = "end of chat"
 
     var body: some View {
+        framed
+        // When the settings close, load whichever model is now chosen.
+        .sheet(isPresented: $showingSettings, onDismiss: {
+            Task { await loadEngine() }
+        }) {
+            EiraSettingsView()
+                .macSheetSize(width: 520, height: 600)
+        }
+        .sheet(isPresented: $showingHistory) {
+            EiraHistoryView { chat in
+                conversation.open(chat)
+                showingHistory = false
+            }
+            .macSheetSize()
+        }
+        .sheet(item: $messageToCorrect) { message in
+            EiraCorrectionView(message: message) { correction in
+                conversation.correct(message, with: correction)
+            }
+        }
+        .sheet(isPresented: $showingCorrections) {
+            EiraCorrectionsView { correction in
+                conversation.remove(correction)
+            }
+        }
+        // A photo for her from the Photos library. Choosing one sets
+        // `pickedPhoto`, and the `onChange` below reads it.
+        .photosPicker(isPresented: $isChoosingPhoto, selection: $pickedPhoto, matching: .images)
+        .onChange(of: pickedPhoto) { _, item in
+            guard let item else { return }
+            pickedPhoto = nil
+            Task {
+                if let data = try? await item.loadTransferable(type: Data.self) { await look(at: data) }
+            }
+        }
+        // Or one that is a file, which on a Mac is often where they are.
+        .fileImporter(isPresented: $isChoosingPhotoFile, allowedContentTypes: [.image]) { result in
+            guard case .success(let url) = result else { return }
+            // Leave to read a file chosen in a file window lasts only
+            // between these two calls.
+            let hasLeave = url.startAccessingSecurityScopedResource()
+            defer { if hasLeave { url.stopAccessingSecurityScopedResource() } }
+            if let data = try? Data(contentsOf: url) {
+                Task { await look(at: data) }
+            }
+        }
+        // Or one dragged on to the chat, from Finder or from Photos.
+        // Several are looked at one after another, each with its own
+        // answer. PhotoDrop reads each as its file's own bytes, so the
+        // date the camera wrote into it survives.
+        .onDrop(of: PhotoDrop.kinds, isTargeted: $isDropTarget) { providers in
+            guard PhotoDrop.mayHold(providers) else { return false }
+            Task {
+                for picture in await PhotoDrop.pictures(from: providers) {
+                    await look(at: picture)
+                }
+            }
+            return true
+        }
+        .overlay {
+            if isDropTarget {
+                PhotoDropOutline(words: "Drop a photo to ask what it is")
+            }
+        }
+        // In the panel, typing carries on from Eira's bar: this box
+        // takes the keyboard from the bar's. The short wait is because
+        // the box has to be on screen before it can be handed anything.
+        .task {
+            guard panel?.takesKeyboard == true else { return }
+            try? await Task.sleep(for: .milliseconds(60))
+            boxHasFocus = true
+        }
+        .task {
+            // Before anything is sent, pass on what was open on screen.
+            // Once only, so "Don't use this" is never quietly undone.
+            if !hasPassedOnScreen {
+                hasPassedOnScreen = true
+                conversation.screenNote = lookingAt
+            }
+            await loadEngine()
+            // A checking aid: an example exchange, so a still picture can
+            // be taken of the chat. See DemoGarden.opens.
+            // `eira-photo` shows her answer to a photo instead.
+            if DemoGarden.opens == "eira-photo" {
+                conversation.showExamplePhoto(answeredBy: EiraIdentify.example(in: context))
+            }
+            if DemoGarden.opens == "eira" || DemoGarden.opens == "corrections" {
+                let listed = DemoGarden.opens == "corrections"
+                conversation.showExample(in: EiraChatStore(context: context), kept: listed)
+                showingCorrections = listed
+            }
+            // Only look at what is already allowed. Opening Eira should
+            // never put a permission box in front of you.
+            voice.checkExistingPermission()
+            // Send the question typed into Eira's bar, once. If she is not
+            // available it is left in the text box so it is not lost.
+            if let openingQuestion, !hasSentOpeningQuestion {
+                hasSentOpeningQuestion = true
+                if conversation.modelName != nil {
+                    conversation.send(openingQuestion)
+                } else {
+                    input = openingQuestion
+                }
+            }
+        }
+        .onChange(of: conversation.isGenerating) { wasGenerating, isGenerating in
+            // Read the reply aloud once it has finished, if asked to.
+            guard wasGenerating, !isGenerating, speaksReplies,
+                  let last = conversation.messages.last,
+                  last.role == .assistant, !last.content.isEmpty else { return }
+            voice.speak(last.content)
+        }
+    }
+
+    /// The conversation with its heading.
+    ///
+    /// In the panel the heading is the panel's own, with the Options
+    /// menu beside its buttons. Anywhere else the title and the menu go
+    /// in the bar along the top, as they always have.
+    @ViewBuilder
+    private var framed: some View {
+        if let panel {
+            PanelPage("Eira", controls: panel) {
+                Menu {
+                    optionsItems
+                } label: {
+                    // Drawn to match the panel's other buttons.
+                    Image(systemName: "ellipsis")
+                        .font(.subheadline.weight(.medium))
+                        .foregroundStyle(Theme.ink)
+                        .frame(minHeight: 18)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 7)
+                        .contentShape(.capsule)
+                        .glassEffect(.regular.tint(Theme.card.opacity(0.5)).interactive(), in: .capsule)
+                }
+                .buttonStyle(.plain)
+                .menuIndicator(.hidden)
+                .fixedSize()
+                .help("Options")
+                .accessibilityLabel("Options")
+            } content: {
+                chatColumn
+            }
+        } else {
+            chatColumn
+                .navigationTitle("Eira")
+                .paperScreen()
+                #if os(iOS)
+                .navigationBarTitleDisplayMode(.inline)
+                #endif
+                .toolbar {
+                    ToolbarItem(placement: .primaryAction) {
+                        Menu {
+                            optionsItems
+                        } label: {
+                            Label("Options", systemImage: "ellipsis.circle")
+                        }
+                    }
+                }
+        }
+    }
+
+    /// What is in the Options menu, wherever the menu is drawn.
+    @ViewBuilder
+    private var optionsItems: some View {
+        Button {
+            conversation.clear()
+        } label: {
+            Label("New conversation", systemImage: "square.and.pencil")
+        }
+        Button {
+            showingHistory = true
+        } label: {
+            Label("Past conversations", systemImage: "clock.arrow.circlepath")
+        }
+        Button {
+            showingCorrections = true
+        } label: {
+            Label("Corrections", systemImage: "pencil.and.outline")
+        }
+        Button {
+            showingSettings = true
+        } label: {
+            Label("Model and garden notes", systemImage: "gear")
+        }
+    }
+
+    /// The conversation itself: the messages, then the box to type in.
+    private var chatColumn: some View {
         VStack(spacing: 0) {
             if let problem = conversation.setupProblem {
                 unavailableBanner(problem)
@@ -170,6 +368,11 @@ struct EiraChatView: View {
                     }
                     .padding()
                 }
+                // In the panel the conversation hugs the foot, next to
+                // the box, and stays there while the panel grows. `nil`
+                // leaves a page or a sheet as it was, starting from the
+                // top.
+                .defaultScrollAnchor(panel == nil ? nil : .bottom)
                 // Keep the newest thing in view: a message, the reply as
                 // it arrives, or a card offering to keep a correction.
                 // Each `onChange` runs its closure when the value it
@@ -185,6 +388,16 @@ struct EiraChatView: View {
                 }
                 .onChange(of: conversation.isLooking) { _, _ in
                     withAnimation { proxy.scrollTo(endOfChat, anchor: .bottom) }
+                }
+                // In the panel the list starts with no height at all and
+                // gains it as the panel grows. Anything scrolled to
+                // before then is left stranded at the top, with a blank
+                // space under it. So whenever the list's height changes,
+                // the end is brought back into view. `onGeometryChange`
+                // runs its second closure when the value worked out by
+                // its first, here the height, changes.
+                .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { _ in
+                    if panel != nil { proxy.scrollTo(endOfChat, anchor: .bottom) }
                 }
             }
 
@@ -210,142 +423,6 @@ struct EiraChatView: View {
             }
 
             inputBar
-        }
-        .navigationTitle("Eira")
-        .paperScreen()
-        #if os(iOS)
-        .navigationBarTitleDisplayMode(.inline)
-        #endif
-        .toolbar {
-            ToolbarItem(placement: .primaryAction) {
-                Menu {
-                    Button {
-                        conversation.clear()
-                    } label: {
-                        Label("New conversation", systemImage: "square.and.pencil")
-                    }
-                    Button {
-                        showingHistory = true
-                    } label: {
-                        Label("Past conversations", systemImage: "clock.arrow.circlepath")
-                    }
-                    Button {
-                        showingCorrections = true
-                    } label: {
-                        Label("Corrections", systemImage: "pencil.and.outline")
-                    }
-                    Button {
-                        showingSettings = true
-                    } label: {
-                        Label("Model and garden notes", systemImage: "gear")
-                    }
-                } label: {
-                    Label("Options", systemImage: "ellipsis.circle")
-                }
-            }
-        }
-        // When the settings close, load whichever model is now chosen.
-        .sheet(isPresented: $showingSettings, onDismiss: {
-            Task { await loadEngine() }
-        }) {
-            EiraSettingsView()
-                .macSheetSize(width: 520, height: 600)
-        }
-        .sheet(isPresented: $showingHistory) {
-            EiraHistoryView { chat in
-                conversation.open(chat)
-                showingHistory = false
-            }
-            .macSheetSize()
-        }
-        .sheet(item: $messageToCorrect) { message in
-            EiraCorrectionView(message: message) { correction in
-                conversation.correct(message, with: correction)
-            }
-        }
-        .sheet(isPresented: $showingCorrections) {
-            EiraCorrectionsView { correction in
-                conversation.remove(correction)
-            }
-        }
-        // A photo for her from the Photos library. Choosing one sets
-        // `pickedPhoto`, and the `onChange` below reads it.
-        .photosPicker(isPresented: $isChoosingPhoto, selection: $pickedPhoto, matching: .images)
-        .onChange(of: pickedPhoto) { _, item in
-            guard let item else { return }
-            pickedPhoto = nil
-            Task {
-                if let data = try? await item.loadTransferable(type: Data.self) { await look(at: data) }
-            }
-        }
-        // Or one that is a file, which on a Mac is often where they are.
-        .fileImporter(isPresented: $isChoosingPhotoFile, allowedContentTypes: [.image]) { result in
-            guard case .success(let url) = result else { return }
-            // Leave to read a file chosen in a file window lasts only
-            // between these two calls.
-            let hasLeave = url.startAccessingSecurityScopedResource()
-            defer { if hasLeave { url.stopAccessingSecurityScopedResource() } }
-            if let data = try? Data(contentsOf: url) {
-                Task { await look(at: data) }
-            }
-        }
-        // Or one dragged on to the chat, from Finder or from Photos.
-        // Several are looked at one after another, each with its own
-        // answer. PhotoDrop reads each as its file's own bytes, so the
-        // date the camera wrote into it survives.
-        .onDrop(of: PhotoDrop.kinds, isTargeted: $isDropTarget) { providers in
-            guard PhotoDrop.mayHold(providers) else { return false }
-            Task {
-                for picture in await PhotoDrop.pictures(from: providers) {
-                    await look(at: picture)
-                }
-            }
-            return true
-        }
-        .overlay {
-            if isDropTarget {
-                PhotoDropOutline(words: "Drop a photo to ask what it is")
-            }
-        }
-        .task {
-            // Before anything is sent, pass on what was open on screen.
-            // Once only, so "Don't use this" is never quietly undone.
-            if !hasPassedOnScreen {
-                hasPassedOnScreen = true
-                conversation.screenNote = lookingAt
-            }
-            await loadEngine()
-            // A checking aid: an example exchange, so a still picture can
-            // be taken of the chat. See DemoGarden.opens.
-            // `eira-photo` shows her answer to a photo instead.
-            if DemoGarden.opens == "eira-photo" {
-                conversation.showExamplePhoto(answeredBy: EiraIdentify.example(in: context))
-            }
-            if DemoGarden.opens == "eira" || DemoGarden.opens == "corrections" {
-                let listed = DemoGarden.opens == "corrections"
-                conversation.showExample(in: EiraChatStore(context: context), kept: listed)
-                showingCorrections = listed
-            }
-            // Only look at what is already allowed. Opening Eira should
-            // never put a permission box in front of you.
-            voice.checkExistingPermission()
-            // Send the question typed into Eira's bar, once. If she is not
-            // available it is left in the text box so it is not lost.
-            if let openingQuestion, !hasSentOpeningQuestion {
-                hasSentOpeningQuestion = true
-                if conversation.modelName != nil {
-                    conversation.send(openingQuestion)
-                } else {
-                    input = openingQuestion
-                }
-            }
-        }
-        .onChange(of: conversation.isGenerating) { wasGenerating, isGenerating in
-            // Read the reply aloud once it has finished, if asked to.
-            guard wasGenerating, !isGenerating, speaksReplies,
-                  let last = conversation.messages.last,
-                  last.role == .assistant, !last.content.isEmpty else { return }
-            voice.speak(last.content)
         }
     }
 
@@ -460,6 +537,7 @@ struct EiraChatView: View {
                 TextField("Ask Eira…", text: $input, axis: .vertical)
                     .lineLimit(1...4)
                     .textFieldStyle(.roundedBorder)
+                    .focused($boxHasFocus)
                     // Return sends. Shift-Return or Option-Return starts a new
                     // line. `.ignored` hands the key back to the text box.
                     .onKeyPress(.return, phases: .down) { press in
@@ -511,7 +589,9 @@ struct EiraChatView: View {
                 }
             }
         }
-        .padding(8)
+        // A little more room in the panel, whose rounded corners would
+        // otherwise clip the buttons at each end.
+        .padding(panel == nil ? 8 : 12)
     }
 
     /// Sends whatever is in the text box. Shared by the send button and
@@ -552,6 +632,8 @@ struct EiraChatView: View {
         }
         do {
             let identification = try await EiraIdentify.identify(photo: photo, taken: facts.month(), context: context)
+            // For the Identify widgets: her last answer, with its photo.
+            WidgetShare.noteAnswer(identification, photo: photo)
             conversation.answerPhoto(photoID, with: identification)
         } catch let problem {
             conversation.photoFailed(problem.localizedDescription)

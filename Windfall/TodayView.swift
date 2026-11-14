@@ -61,7 +61,10 @@ struct TodayView: View {
     @State private var shownGardenKey: String?
 
     /// Jobs ticked off this month, kept on the device.
-    @AppStorage("todayTickedJobs") private var tickedStore = ""
+    // `store:` names the settings shared with the widgets, so a job
+    // ticked on the large "This week" widget is ticked here too. Where
+    // there is no shared folder it is nil, which means the app's own.
+    @AppStorage("todayTickedJobs", store: WindfallGroup.defaults) private var tickedStore = ""
 
     /// Where the cards have been put, at each of the three widths, as a
     /// line of saved text. Empty means the standard arrangement. See
@@ -151,7 +154,14 @@ struct TodayView: View {
         .task {
             openForChecking()
             await refreshWeather(mayAskForLocation: false)
+            // The forecast is in: bring the widgets' file up to date.
+            WidgetShare.refresh(context: context)
         }
+        // A tap on a widget's button arrives here. `initial: true` also
+        // runs it when Today first appears, for a tap that opened the app.
+        .onChange(of: WidgetRoute.shared.pending, initial: true) { followWidget() }
+        // A job ticked here should show as ticked on the widgets.
+        .onChange(of: tickedStore) { WidgetShare.reload() }
     }
 
     /// A checking aid: opens one sheet as soon as Today appears. See
@@ -165,8 +175,23 @@ struct TodayView: View {
         case "sighting": startSighting()
         case "identify": sheet = .identify
         case "photo": sheet = .photoOffer
+        case "widgets": sheet = .widgets
         case "journal": startNote(draft: UserDefaults.standard.string(forKey: "demoDraft") ?? "")
         default: break
+        }
+    }
+
+    /// Does what a widget's button asked for: the same as pressing the
+    /// matching capture button on this screen. See `WidgetRoute`.
+    private func followWidget() {
+        guard let asked = WidgetRoute.shared.claim(["sowing", "harvest", "sighting", "fit", "note", "photo", "identify"]) else { return }
+        switch asked {
+        case "sowing": sheet = .sowing
+        case "harvest": sheet = .harvest
+        case "sighting": startSighting()
+        case "fit": startSurvey(.fitCount)
+        case "note": startNote(draft: "")
+        default: sheet = .identify
         }
     }
 
@@ -744,6 +769,8 @@ struct TodayView: View {
             RunSurveyView(survey: survey)
         case .journal(let draft):
             JournalChatView(draft: draft, photos: checkingPhotos)
+        case .widgets:
+            WidgetGallery()
         }
     }
 
@@ -752,67 +779,10 @@ struct TodayView: View {
     /// The urgent jobs. The rules that pick them are in WeekJobs.swift.
     /// This gathers the plain facts those rules need from the records.
     private var weekJobs: [WeekJob] {
-        let calendar = Calendar.current
-        let year = calendar.component(.year, from: .now)
-
-        // Sowing and planting-out months can only be about to end in
-        // the last week of a month. For the rest of the month the plant
-        // library is not gone through at all.
-        let monthIsEnding = WeekJobs.daysLeftInMonth(today: .now) <= WeekJobs.window
-
-        var shelf: [WeekPlant] = []
-        if monthIsEnding {
-            shelf = plants.filter { $0.status == .growing }.map { plant in
-                WeekPlant(key: plant.id.uuidString, name: plant.displayName,
-                          sowIndoors: MonthParser.months(in: plant.sowIndoorsMonthsText),
-                          sowOutdoors: MonthParser.months(in: plant.sowOutdoorsMonthsText),
-                          isSownThisYear: (plant.plantings ?? []).contains { planting in
-                              planting.dateSown.map { calendar.component(.year, from: $0) == year } ?? false
-                          })
-            }
-        }
-
-        // Only sowings that could give a job are passed on: seedlings
-        // waiting to go out, and crops due in the next few days.
-        let soon = Date.now.addingTimeInterval(Double(WeekJobs.window + 1) * 86_400)
-        let growing: [WeekSowing] = plantings.compactMap { planting in
-            let isUnderCover = planting.sowingLocation == .indoors || planting.sowingLocation == .undercover
-            let isWaiting = monthIsEnding && isUnderCover && planting.datePlantedOut == nil
-                && (planting.status == .sown || planting.status == .germinated)
-            var due: Date?
-            if planting.status == .growing || planting.status == .plantedOut,
-               let sown = planting.dateSown,
-               // Sow to crop is written in weeks or months. DurationParser
-               // turns it into days. See Parsing.swift.
-               let days = DurationParser.days(in: planting.plant?.sowToCropText)?.midpoint {
-                let ready = sown.addingTimeInterval(days * 86_400)
-                if ready <= soon { due = ready }
-            }
-            guard isWaiting || due != nil else { return nil }
-            return WeekSowing(key: planting.id.uuidString,
-                              name: planting.plant?.displayName ?? "crop",
-                              beds: planting.bedNames,
-                              plantOut: isWaiting ? MonthParser.months(in: planting.plant?.plantOutMonthsText) : [],
-                              isWaitingToGoOut: isWaiting,
-                              cropDue: due)
-        }
-
-        // Last week's rain and water lost, from the weather diary: the
-        // seven newest finished days for one garden. Left out if the
-        // diary has not been brought up to date in the last few days.
-        var rain: Double?
-        var lost: Double?
-        if let newest = finishedWeather.first, newest.date > Date.now.addingTimeInterval(-3 * 86_400) {
-            let lastWeek = finishedWeather.filter { $0.siteRaw == newest.siteRaw }.prefix(7)
-            if lastWeek.count == 7 {
-                rain = lastWeek.reduce(0) { $0 + ($1.rainfallMM ?? 0) }
-                lost = lastWeek.reduce(0) { $0 + ($1.evaporationMM ?? 0) }
-            }
-        }
-
-        return WeekJobs.list(today: .now, plants: shelf, sowings: growing,
-                             outlook: weather.outlook,
-                             pastRainMM: rain, pastEvaporationMM: lost)
+        // The gathering is in WidgetShare.swift, so the widgets can ask
+        // for the same list for the days ahead.
+        WeekFacts.jobs(asOf: .now, plants: plants, plantings: plantings,
+                       finishedWeather: finishedWeather, outlook: weather.outlook)
     }
 
     /// A week job as a line with a tick box, linked to its plant or
@@ -1389,6 +1359,8 @@ enum CaptureSheet: Identifiable {
     /// The card that asks what to do with a photo. Only opened from
     /// here by a checking aid. See `DemoGarden.photos`.
     case photoOffer
+    /// The widgets drawn inside the app. A checking aid: see WidgetGallery.
+    case widgets
     case newSighting(WildlifeObservation)
     case sighting(WildlifeObservation)
     case survey(Survey)
@@ -1401,6 +1373,7 @@ enum CaptureSheet: Identifiable {
         case .harvest: return "harvest"
         case .identify: return "identify"
         case .photoOffer: return "photo-offer"
+        case .widgets: return "widgets"
         case .newSighting(let observation): return "new-sighting-\(observation.id)"
         case .sighting(let observation): return "sighting-\(observation.id)"
         case .survey(let survey): return "survey-\(survey.id)"

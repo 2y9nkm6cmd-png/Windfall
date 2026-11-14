@@ -7,6 +7,237 @@ run without the Mac (every file reads as valid Swift, 323 logic tests
 pass). Those do not build the screens. Expect things to put right when
 it is first built, and treat how everything here looks as untried.
 
+## 14 November 2026, 17:12: on a Mac, a month's page follows two fingers as it turns
+
+**On the branch `month-drag-mac`, made from `main`.** Built for the Mac and the iOS Simulator with no errors (`mv7-mac.log`, `mv7-sim.log`, in `DerivedData/Windfall-month`). 596 logic tests pass. **A simulator has no trackpad, so the Mac's row was given to a 13-inch iPad with a checking aid and looked at there**, with the example garden: the row held 300 points to the right shows April sliding off and March coming in beside it, cut off cleanly at the sidebar (`shots/mv7-drag.png`); the forward arrow slides December on to January and the back arrow April back to March (`mv7-on.png`, `mv7-back.png`). **Not tried by anyone: two fingers on a real trackpad.**
+
+**Why.** William, 16:49: "Currently the month swipe works on the iphone exactly as I want it. So that when you're touching the screen you can see the swiping happening like you're dragging something. This is how I want it to work with two finger swipe on the mac."
+
+**Before, on a Mac.** Two fingers swiped sideways did nothing you could see until they had gone 60 points. Then the month turned by itself.
+
+**Now.** The page moves with the fingers from the start, and the month before or after comes into view beside it. Lift the fingers after 60 points or more and the row slides on to that month. Lift sooner and it settles back. The arrows by the month's name slide the same way. **The iPhone and iPad are not changed.**
+
+**Why the Mac needs its own way.** On an iPhone the months are a row that scrolls sideways, and the system moves it under the finger. On a Mac a sideways scroll goes to whatever is under the pointer, which is a page that only scrolls up and down, so the row never heard it. That is why the first version read the trackpad itself and jumped. This version still reads the trackpad itself, and now moves the row with it.
+
+**How it is built** (`YearMonthView.swift`).
+
+*Three pages in a row.* On a Mac the page draws the month showing with its two neighbours, and shows only the middle one:
+
+```swift
+let threePages = [pageNow - 1, pageNow, pageNow + 1]
+
+MonthRowSlide(monthDrag: monthDrag) {
+    HStack(alignment: .top, spacing: 0) {
+        ForEach(threePages, id: \.self) { page in
+            monthPage(YearCalendar.month(atPage: page), from: chosenFrom, isWide: isWide)
+                .frame(width: space.width, height: space.height)
+        }
+    }
+}
+.frame(width: space.width, height: space.height)
+.clipped()
+```
+
+- `HStack` lays the three pages side by side. Each is made exactly one page wide.
+- The `.frame` after it is one page wide and holds the row by its middle, so the middle page fills it. `.clipped()` hides what falls outside: the pages either side.
+- `MonthRowSlide` draws the row somewhere else: `monthRow.offset(x: monthDrag.across)`. `offset` moves where a view is drawn without moving anything around it. As `across` grows, the row slides right and the month before comes into view.
+
+*The number that moves it.* `MonthDrag` is a small class marked `@Observable`, holding `across`: how far the row has been dragged. Only a view that reads `across` is redrawn when it changes, and only `MonthRowSlide` reads it. So a drag, which changes it about a hundred times a second, redraws the row's place and none of the cards.
+
+*The trackpad.* `MonthSwipes` already listened to the Mac's scrolling. It used to count up to 60 points and then say "turn". It now reports the distance all the way along (`whenDragged`), and which way to turn when the fingers lift (`whenLifted`).
+
+*Finishing the turn.*
+
+```swift
+withAnimation(.smooth(duration: 0.3)) {
+    monthDrag.across = landing
+} completion: {
+    shownPage = target
+    monthDrag.across = 0
+}
+```
+
+- `withAnimation` glides `across` to `landing`, which is one page's width to the left or right, so the neighbour ends up filling the page.
+- `completion` is run when the glide has finished. In one go, with no animation, the neighbour becomes the month showing and the row goes back to rest. The two cancel out, so nothing is seen to move. The row is then ready for the next swipe, with new neighbours.
+
+**Changed besides.** While the fingers are moving sideways, the scroll is used up by the row, so the page under the pointer does not creep up or down as well. The glide the Mac sends after the fingers lift is used up too.
+
+**Checking aids**, because a simulator has no trackpad: `-demoMonthMacRow YES` gives an iPad the Mac's row of three pages, and with it `-demoMonthDrag 300` holds the row 300 points to the right, as if part-way through a swipe.
+
+**Choices that are Claude's.** ⚠️ CHECK each.
+
+- Lifting after 60 points turns the month, however quick or slow the swipe. An iPhone also goes by how fast the finger was moving. This does not.
+- One swipe turns one month at most.
+
+## 14 November 2026, 17:36: the app has its icon, on an iPhone and an iPad
+
+**On the branch `app-icon`, made from `main` (`0c4857f`).** No Swift code changed, so the logic tests were not run again. **This entry sits below the 17:12 one, out of time order, on purpose**: every open branch adds its entry at the top of this file, and an entry added there too would clash with each of them when they are joined.
+
+**Why.** William, 16:16, of the snowdrop with a bumblebee: "Perfect. That's the app icon. You can save that to the project file and use it as the icon going forward." At 17:32: "Make sure when you push the next update, it has the app icon". Until now the app had no icon at all: the place for one was there and was empty, so an iPhone showed Apple's blank grid.
+
+**What was added.**
+
+| File | What it is |
+|---|---|
+| `Design/AppIcon/windfall-app-icon-light.svg` and `-dark.svg` | The two drawings William approved, copied from the project (doc 47). The masters |
+| `Windfall/Assets.xcassets/AppIcon.appiconset/windfall-app-icon-light-1024.png` and `-dark-1024.png` | The same two drawings as pictures 1024 dots square, with no see-through parts. These are what the app is built with |
+| `Windfall/Assets.xcassets/AppIcon.appiconset/Contents.json` | Two lines added, naming the pictures |
+| `Design/README.md` | A section on the app icon and how to make the pictures again |
+
+**What the code means.** `Assets.xcassets` is the app's store of pictures and colours. Inside it, `AppIcon.appiconset` is a folder that holds the icon, and its `Contents.json` is a list of slots. Each slot says what kind of picture it wants, and `filename` says which file in the folder fills it:
+
+```json
+{
+  "filename" : "windfall-app-icon-light-1024.png",
+  "idiom" : "universal",
+  "platform" : "ios",
+  "size" : "1024x1024"
+},
+{
+  "appearances" : [
+    { "appearance" : "luminosity", "value" : "dark" }
+  ],
+  "filename" : "windfall-app-icon-dark-1024.png",
+  "idiom" : "universal",
+  "platform" : "ios",
+  "size" : "1024x1024"
+}
+```
+
+- `"idiom" : "universal"` and `"platform" : "ios"` mean one picture for every iPhone and iPad. Xcode makes each smaller size from it when it builds.
+- A slot with no `appearances` is the ordinary icon. It gets the cream picture.
+- `"value" : "dark"` is the slot iOS uses when the Home Screen's icons are set to Dark. It gets the dark green picture.
+- The only change is the two `filename` lines. Before, the slots had no `filename`, which is what "empty" means here.
+- The project already names this folder as the app's icon (`ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon` in the project file), so nothing else had to change.
+
+**Why the drawings are not in `Design/Icons`.** Project doc 47 suggested that folder. `Tools/design/build_design_assets.py` turns every SVG in it into a small icon for use inside the app, and would have done the same to these two. They are in a folder of their own, `Design/AppIcon`.
+
+**Checked.** The two drawings were typed out from the project's copies. Every shape in the light drawing was compared by a script with the same shape in the dark one, and all 16 match, which is the check that nothing was mistyped. Both pictures were looked at by Claude at full size and at Home Screen size. Each is 1024 by 1024 with no see-through layer.
+
+**Not done.**
+
+1. **The third slot, `tinted`, is still empty.** That is the icon in one colour, for a Home Screen set to Tinted. **⚠️ CHECK**, Claude's understanding: with the slot empty, iOS makes a tinted icon itself from the ordinary one. Not seen.
+2. **The Mac has no icon yet.** The list has slots for iPhone and iPad only. A Mac icon is drawn differently, with rounded corners and a margin, so it needs its own picture and William's eye.
+3. The icon's dark green (`#06421B`) is still not the interface's (doc 47).
+
+## 14 November 2026, 16:50: a conversation grows out of Eira's bar
+
+**On the branch `eira-bar-expand`, made from `main` (`c89c037`), with `main` (`0ba7173`) merged in.** Built for the Mac and the iOS Simulator with no errors (`eb4-mac.log`, `eb4-sim.log`, in `DerivedData/Windfall-eirabar`). 598 logic tests pass, 2 of them new. Seen as still pictures with the example garden on an 11-inch iPad Pro: the journal's conversation and Eira's chat each standing in the panel, in light and dark, and the bar at rest on Today and on Journal (`shots/eb2-*` and `eb3-*`). **Not seen: an iPhone, and the Mac's own window.** The Mac was too busy with other chats' builds for a second simulator to start. **Nothing has been pressed by hand, and Claude cannot see the panel move.** William judges the growing and the sinking back.
+
+**Why.** William, 15:45, with a picture of the Journal page on the Mac: the journal's conversation open as a sheet in the middle of the window, with its own box to type in, and Eira's bar with a second box idle underneath. "Can we make it so that chat expands from the Eira bar, rather than opening up a new window?" His picture is in `Design/Reference`, `2026-11-14 screenshot-journal-sheet-over-eira-bar-mac.png`.
+
+### 1. What you see
+
+On a Mac and an iPad:
+
+- Send something from Eira's bar, press its microphone or book button, or give it a photo on the Journal page. The bar itself grows upwards into a panel of glass, and the conversation is inside it. The box to type in runs along the panel's foot, exactly where the bar was, so the bar seems to become the box.
+- The page behind is not dimmed and still works. You can scroll it, or go to another page, with the panel still up.
+- **Done**, or the Esc key, sinks the panel back into the bar.
+- The button with two arrows makes the panel larger: the bar's whole width and the page's whole height. The app remembers which size you left it at.
+- On a Mac the keyboard goes straight to the panel's box, so typing carries on. Afterwards it goes back to the bar.
+- Photos dropped on the Journal page now open in the panel too. That page used to bring up a sheet of its own.
+
+Both conversations use it: the journal's, and Eira's own chat. "It was a question. Ask Eira instead" now swaps what is in the panel at once. As a sheet it had to close one window, wait and open another.
+
+**Not changed:** an iPhone still slides a sheet up, which on a screen that size is nearly the same thing. Search, the card that asks what to do with a photo away from the Journal page, and the Note button on Today are still sheets everywhere.
+
+### 2. How the panel grows (`EiraFloatingBar.swift`)
+
+A sheet is a separate window that SwiftUI puts on top of everything. The panel is not. It is an ordinary view drawn in the same place as the bar, whose height is changed with an animation:
+
+```swift
+.frame(height: panelIsUp ? EiraPanel.height(room: room, isLarge: panelIsLarge) : closedSize,
+       alignment: .bottom)
+.clipShape(.rect(cornerRadius: corner))
+.glassEffect(.regular.tint(Theme.paper.opacity(0.8)), in: .rect(cornerRadius: corner))
+.onAppear(perform: raisePanel)
+```
+
+- `panelIsUp` is a true-or-false value the bar keeps (`@State`). The line reads: "if the panel is up, be as tall as the sum says. If not, be as tall as the bar."
+- The panel is first drawn with `panelIsUp` false, so it starts the size and shape of the bar. `.onAppear` runs `raisePanel` the moment it is on screen, and that sets `panelIsUp` to true inside `withAnimation`. SwiftUI then draws every size in between, which is the growing.
+- `alignment: .bottom` keeps the foot of the conversation on the bar's line while the rest is uncovered above it.
+- `corner` goes from half the bar's height (a capsule) to 28 points, so the round ends of the bar ease into the panel's corners.
+- `.clipShape` stops anything being drawn outside that shape while it is small. `.glassEffect` is the same glass the bar is made of, tinted with the paper's colour so the writing stays easy to read over a busy page.
+- **Done** runs `lowerPanel`, which sets `panelIsUp` back to false with an animation. Only when that has finished (`completion:`) is the conversation let go.
+
+Which conversation is in the panel is worked out from two values the bar already had, `journalRequest` and `eiraRequest`. They used to open sheets. `sheetOnly(...)` now hands the two `.sheet` lines a value that is always empty wherever the bar grows in place, so no sheet appears, and `openInPanel` reads the same two values to decide what to draw.
+
+### 3. Where the bar lives (`MainTabView.swift`)
+
+The bar used to sit inside a strip at the foot of the page (`safeAreaInset`). A strip 60 points tall has no room for a panel, and a view hung outside its own space may not take taps. So:
+
+- The strip is still kept clear, with nothing in it (`Color.clear`), so a long list can still be scrolled out from under the bar.
+- The bar is now in an **overlay**: a layer on top of the page, given the page's whole space. It sits at the foot of that space and grows into the rest of it. The empty part of the layer takes no taps, so the page underneath works as before.
+
+`EiraFloatingBar(growsInPlace: true)` is how the Mac and iPad layout asks for the panel. The iPhone layout does not ask, and is as it was.
+
+### 4. The parts they share (`EiraPanel.swift`, new)
+
+- `EiraPanelControls`: what a conversation is handed when it is in the panel. It holds the larger-size switch, whether to take the keyboard, and the function that closes the panel.
+- `EiraPanel`: the sizes in one place. The panel is at most 760 points wide and 620 tall unless made larger, and never taller than the page.
+- `PanelPage`: the heading a conversation wears in the panel. It does for the panel what `SheetPage` does for a sheet: title, the line under it, the larger-size button and Done.
+
+### 5. The two conversations (`JournalChatView.swift`, `EiraChatView.swift`)
+
+Each takes an optional `panel:`. Given one, it wears `PanelPage`. Given none, it is a sheet or a page exactly as before, so Today's Note button, the iPhone and every other way in are untouched.
+
+- In the journal's conversation the box to write in loses its own card of glass when it is in the panel, because glass laid on glass turns murky. A fine line above it takes the card's place.
+- Eira's chat has no bar along the top in the panel, so its Options menu moved into the heading as a button with three dots. The four things in the menu are now written once (`optionsItems`) and used in both places.
+- Eira's chat hugs the foot of the panel (`.defaultScrollAnchor(.bottom)`), so it stays put while the panel grows.
+- Each box has a `@FocusState`, which is how a view asks for the keyboard.
+
+### 6. Photos dropped on the Journal page (`EiraScreen.swift`, `JournalViews.swift`)
+
+The Journal page and the bar are separate views, so the page cannot open the bar's panel directly. Both already share `EiraScreen`, the tracker that tells Eira what is on screen. It gained a small pigeonhole: the page puts dropped photos in it (`handToBar`), and the bar, which watches it, takes them out (`takePhotosForBar`) and opens the panel. They are handed over once and then gone, so the same photos cannot start two entries. Two new logic tests cover that.
+
+### Checking aid
+
+`-demoOpen bar-journal` opens the journal's conversation from Eira's bar as soon as the bar appears, as `-demoOpen eira` does for her chat. With `-startSection journal` it gives the picture William sent, in its new form.
+
+### ⚠️ CHECK: choices that are Claude's
+
+1. The panel is glass tinted with the paper's colour at 80%. The page shows through faintly.
+2. It is at most 760 points wide and 620 tall, on the left above where the snowdrop sits, with a larger size on the button.
+3. The page behind stays live and is not dimmed. Clicking on the page does not close the panel. Only Done and Esc do.
+4. The panel stays up when you go to another page.
+5. An iPhone keeps its sheets.
+6. Search and the photo card are still sheets.
+
+### Not built
+
+- The box in the panel is the conversation's own, not the bar's. They sit in the same place, so it reads as one, but the snowdrop and the bar's search and book buttons are not in the panel.
+- Today's Note button and the Journal offer on Today still open the journal's conversation as a sheet.
+- Dragging the panel's top edge to resize it.
+- The panel does not shrink to fit a short conversation.
+
+## 14 November 2026, 16:45: Eira's bar can be put away by touch on an iPhone, and the carrot-family warning knows 19 more genera
+
+**On the branch `iphone-first-fixes`, made from `main` (`db45898`).** Built and signed for William's iPhone 16 with no errors (`iphone-5.log`, in `DerivedData/Windfall-iphone`) and installed on it at 16:44. Every file reads as valid Swift. **The full logic tests were not run**: they need Linux with Swift, and one test was added. **Nothing here has been tried by hand.** The two touch gestures can only be judged on the phone.
+
+### 1. Putting Eira's bar away (`EiraFloatingBar.swift`)
+
+**Why.** William, 16:04, on first trying the app on his iPhone: once the bar is open "you can't tap out of the chat or swipe the chat down to get rid of it. Tapping the eira icon removes it though." On a Mac the Escape key closes the bar. An iPhone has no Escape key, so the snowdrop was the only way.
+
+**What changed, on an iPhone or iPad only:**
+
+- **A touch on the page closes the bar.** `touchAwayLayer` is an invisible layer that exists only while the bar is open. `Color.clear` draws nothing, and `contentShape(Rectangle())` makes that nothing count as somewhere a finger can land. It is 4,000 points square and lined up with the bottom of the bar, so it reaches up over the whole page. It sits behind the bar (`.background`), so the bar's own buttons get their taps first. A tap on it, or the start of a scroll, calls `close`.
+- **The first touch only closes the bar.** It is not passed on to the page, so nothing is opened by accident.
+- **A swipe down on the bar closes it.** `swipeDownPutsAway` watches for a drag with `simultaneousGesture`, which notices the drag without taking touches away from the text box and buttons. It counts when the finger went at least 30 points down, and further down than sideways.
+- `canBePutAway` is true only when the bar was opened by hand. It is false when the bar is pinned open and on the Journal page, where the bar is always open, so neither of those is changed.
+
+**A Mac is left alone**, with `#if os(iOS)`. A click that did nothing but close the bar would be a nuisance there, and a downward drag across a text box is how text is selected.
+
+**Joined to the panel, 17:15.** `main` gained "a conversation grows out of Eira's bar" (the entry above) while this was on its branch, and both had changed the same lines. The bar's new shape is `main`'s. The swipe and the touch layer were put back on the bar inside it, and `canBePutAway` now also stands down while a conversation is in the panel, because the page behind the panel is meant to go on working. William had tried the version before this join on his iPhone at 16:57 ("It seems to work"). The joined version was built and put on the phone afterwards.
+
+**To check on the phone:** that a tap above the open bar closes it, that a swipe down on the bar closes it, that the bar's own buttons still work, and that the page scrolls normally once the bar is closed.
+
+### 2. The carrot-family warning (`SpeciesTable.swift`)
+
+**Why.** The image model's list on the phone was widened the same afternoon from 778 names to 6,421 (project doc 50). The warning works from `carrotFamilyGenera`, a list of 31 genera. iNaturalist has confirmed UK records for carrot-family plants in 50 genera. Without the other 19, a hemlock look-alike could have been named as one of them with no warning.
+
+**What changed.** The 19 are added: Astrantia, Beruladium, Bunium, Bupleurum, Eryngium, Falcaria, Ferula, Libanotis, Ligusticum, Meum, Orlaya, Peucedanum, Physospermum, Sanicula, Selinum, Tordylium, Trinia, Trocdaris and Visnaga. Some look nothing like hemlock (sea holly, great masterwort) and get the warning all the same: it is better given too often than too seldom. **CHECK: the genera and their common names are iNaturalist's, fetched on 14 November 2026, and have not been checked against a flora.**
+
+One logic test added: the list holds five of the new genera and 50 in all.
 ## 14 November 2026, 16:55: the drawing in Today's corner comes alive
 
 **On the branch `living-corner`, made from `main` (`0ba7173`).** Knowledge base doc 49 has the design and William's decisions. The design was worked out first on a canvas ("Windfall living corner" in William's artifacts), and the drawing code there is the project file `design/living-corner.js`. This is that design carried into Swift.
@@ -173,6 +404,79 @@ The look of the box (the words, the small arrows, the hairline) was written insi
 - **No search box in the panel.** Not asked for. It would be a small addition.
 - **Choosing "None" does not clear a plant's name that was filled in from "Known from your reference data" without a plant record behind it.** The old menu behaved the same way. Left alone.
 - The sowing form and the other forms that pick a plant were not looked at. Only the sighting form's menu was changed.
+## 14 November 2026, 16:50: widgets for the iPhone and iPad
+
+**Added at 17:40: in `main` since about 17:38, and the widget program is now built for the Mac too.** William, 17:21: "Add them to main and then build them for mac as well, it should be for all devices". 599 logic tests pass on the joined code. What changed for the Mac: `WindfallWidgets` supports `macosx` and is fenced in (`ENABLE_APP_SANDBOX = YES`, which a Mac widget must be); the "iOS only" filters in the project are gone; the app's entitlements file is used on every platform; `WindfallGroup.folder` works on a Mac only for a copy signed with the key to the shared folder (`holdsKey`); the Lock Screen shapes are inside `#if os(iOS)`; and the example garden never writes the widgets' file. `WeekFacts.jobs(today:)` became `WeekFacts.jobs(asOf:)`. **A Mac will not show the widgets yet**: macOS takes widgets only from a signed app, and a signed Mac build failed here ("No Accounts", then "requires a provisioning profile"). Until that is sorted out, running the Mac app from Xcode itself may stop with a signing error. Unsigned builds are not affected. Where the rest of this entry says "iPhone and iPad only" or "the Mac is unchanged", this paragraph wins. The knowledge base, doc 54, has the full account.
+
+**On the branch `widgets`, made from `main` (`c89c037`). Not in `main`.** Built for the iOS Simulator and for the Mac with no errors at the first attempt (`wg1-sim.log`, `wg1-mac.log`, in `DerivedData/Windfall-widgets`). The widget drawings were seen in the simulator on a checking page inside the app, with example content: Paper in light and dark. **Not seen: a real widget on a Home Screen or Lock Screen, a tap on one, a tick, or anything on a real iPhone.** A signed build for a real iPhone also succeeded at 17:05 (`wg1-ios.log`): William's free Apple team accepted the widget program's own identifier and the App Group, and both programs carry the key to the shared folder. It was not installed, because the iPhone was not plugged in. **The logic tests were not run** for this change: `Tools/checks` only looks inside the `Windfall` folder, and this chat had no Swift toolchain in its cloud workspace.
+
+**Why.** William, 15:55: "Could we look at adding widget functionality into the app now". At 15:59: "Draw the options on the windfall redesign canvas first. I'd also like there to be an identify widget". At 16:15: "Build all the widgets you presented to me." The drawings are row 5 of the "Windfall redesign" canvas.
+
+### What a widget is, and why it needs a file
+
+A widget is a second small program that ships inside Windfall. iOS fences the two apart, so a widget cannot open the app's database. They share one folder, called an App Group. **The app writes a small summary file there and the widgets read only that.** The database is not moved and no second program ever opens it.
+
+iOS does not run a widget all the time. It asks for a timeline, a stack of ready-made cards each with a time to show it. Windfall's widgets hand over one card for now and one for each of the next seven midnights.
+
+### The widgets
+
+| Widget | Sizes | What it shows |
+|---|---|---|
+| This week | Small, medium, large, and three Lock Screen shapes | The urgent jobs from Today's "This week". The large one has a ring by each job that ticks it off without opening the app |
+| This month | Small, medium | The month's counts, as on a month's page, and its most pressing plants |
+| Frost and weather | Small, medium | Tonight's lowest temperature, and the next five nights with a snowflake for a frost and a ring for close to freezing |
+| Identify | Small, medium, and a Lock Screen circle | "What is this?", which opens the Identify sheet. The medium one also shows Eira's last answer |
+| Last answer | Small | Eira's last answer under its photo |
+| Capture | Medium | The six buttons from Today |
+| Ask Eira | Small, and a Lock Screen circle | Opens her chat |
+
+Every widget has one setting, **Look**: Paper, which follows light and dark mode, or Garden green. Press and hold a widget and choose Edit Widget.
+
+**A plant that could hurt someone keeps its warning.** When Eira's last answer carries a danger, the warning takes the photo's place on both Identify widgets.
+
+### New folders and files
+
+| File | What it is |
+|---|---|
+| `WindfallShared/WidgetSummary.swift` | Built into both the app and the widgets. The shared folder's name, the summary file's layout, reading it for one day, the ticks, and the links a widget opens the app with |
+| `WindfallShared/WidgetViews.swift` | Built into both. How each widget is drawn, as ordinary SwiftUI views, and the two looks |
+| `WindfallWidgets/WindfallWidgets.swift` | The widget program: the Look setting, the tick button, the timeline and the list of widgets |
+| `WindfallWidgets/Info.plist`, `WindfallWidgets.entitlements` | What tells iOS this is a widget program, and its key to the shared folder |
+| `WindfallWidgets/Assets.xcassets` | The same colours and icons as the app, made by `Tools/design/build_design_assets.py`, which now writes both |
+| `Windfall/WidgetShare.swift` | The app's side. `WeekFacts` gathers the week's facts for any day. `WidgetShare` writes the summary file. `WidgetRoute` follows a tap on a widget. `WidgetGallery` is the checking page |
+| `Windfall/Windfall.entitlements` | The app's key to the shared folder, used on iPhone and iPad only |
+
+### Changes to existing files
+
+- **`TodayView.swift`.** The gathering for "This week" moved out to `WeekFacts.jobs(today:…)` in `WidgetShare.swift`, word for word apart from taking the day as a value, so a widget can ask for the days ahead and can never disagree with Today. The ticks are now kept in the shared settings (`@AppStorage("todayTickedJobs", store: WindfallGroup.defaults)`), which is the app's own settings wherever there is no shared folder. Today refreshes the widgets' file once the weather is in, and does what a widget's button asked for (`followWidget`).
+- **`MainTabView.swift`.** `.onOpenURL` reads a widget's link and shows Today. The widgets' file is refreshed when the app is put away.
+- **`EiraFloatingBar.swift`.** Opens her chat when the "Ask Eira" widget asks.
+- **`EiraVision.swift`, `EiraChatView.swift`.** After an identification, one line notes the answer and a small copy of the photo for the widgets.
+- **`Info.plist`.** Registers links that start `windfall://`.
+- **`Windfall.xcodeproj`.** A second target, `WindfallWidgets`, for iPhone and iPad only. The app builds it first and copies it inside itself, on iOS only (`platformFilters = (ios, )`).
+
+### What does not change
+
+- **The Mac.** The widget program is not built for the Mac and is not inside the Mac app. The shared folder is nil there, so nothing is written and the ticks stay where they were.
+- **The database.** No record type was added or changed.
+
+### Checking aids
+
+`-demoOpen widgets` opens the checking page. `-demoWidgetPage 0`, `1` or `2` picks which widgets. `-demoWidgetLook green` draws them in Garden green.
+
+### Not built, or not as drawn
+
+1. **"Add a sighting" on the Identify widget.** The answer on the widget is a note of what Eira said. The identification itself is gone once its sheet is closed, so there is nothing to start a sighting from. A tap opens Identify.
+2. **"Ask Eira" opens her chat. It does not start listening.**
+3. **Taking a photo with the camera.** The app still has no camera code.
+4. **Widgets on the Mac.** A Mac widget needs a signed app, which looks in the other database (see the knowledge base, doc 31).
+5. Ticks made on the iPhone before this build are not carried into the shared settings.
+
+### ⚠️ CHECK: choices that are Claude's
+
+1. The words under tonight's temperature: "Frost. Cover anything tender before dark.", "Close to freezing. Frost on the ground is possible." and "No frost expected." They use the same 0 and 2 degrees as "This week".
+2. Which plants the "This month" widget lists: up to three from each of sow outdoors, sow indoors, plant out and harvest, the pressing ones first, four in all.
+3. The widget keeps eight days of jobs. After more than a week without opening the app it says "Open Windfall to bring this up to date."
 
 ## 14 November 2026, 15:50: swiping between months, a list of months, and a back swipe that follows the fingers
 

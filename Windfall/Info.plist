@@ -2,6 +2,17 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.54brookroad.Windfall</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>windfall</string>
+			</array>
+		</dict>
+	</array>
 	<key>NSSpeechRecognitionUsageDescription</key>
 	<string>Windfall turns what you say into text so you can talk to Eira and dictate records.</string>
 	<key>NSMicrophoneUsageDescription</key>
