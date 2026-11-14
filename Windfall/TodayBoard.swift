@@ -32,8 +32,15 @@
 //  (`TodayBoardPlan`), away from the drawing, so they can be tested
 //  without a screen.
 //
+//  On an iPhone or iPad the press and hold is the system's own (UIKit's
+//  long press, in `FingerHold` at the foot of this file), not SwiftUI's.
+//  SwiftUI's kept the page from scrolling. See the note on `withPickUp`.
+//
 
 import SwiftUI
+#if os(iOS)
+import UIKit
+#endif
 
 // MARK: - Names and timings
 
@@ -319,7 +326,7 @@ struct BoardCard<Content: View>: View {
         let isHeld = session.held == panel
         let isLifted = isHeld || session.pressed == panel
 
-        content
+        withPickUp(content
             // While rearranging, the buttons inside a card are switched
             // off, so a press moves the card and does not press them.
             .allowsHitTesting(!isArranging)
@@ -347,8 +354,7 @@ struct BoardCard<Content: View>: View {
             .scaleEffect(isLifted ? liftScale : 1)
             .offset(isHeld ? carriedBy : .zero)
             // Drawn above the other cards while it is lifted.
-            .zIndex(isLifted ? 10 : 0)
-            .simultaneousGesture(holdThenCarry)
+            .zIndex(isLifted ? 10 : 0))
             // Tidies up however the touch ended.
             .onChange(of: isTouching) { _, touching in
                 if !touching { actions.ended(panel) }
@@ -371,11 +377,51 @@ struct BoardCard<Content: View>: View {
         1 + min(0.05, 14 / max(size.width, 1))
     }
 
+    /// How long a press must last before the card lifts, and how far the
+    /// finger may wander in that time and still count as holding still.
+    private var hold: Double { isArranging ? TodayBoard.holdToLift : TodayBoard.holdToBegin }
+    private var slack: CGFloat { isArranging ? 40 : 10 }
+
+    /// Puts the press and hold on the card, in the way that suits the
+    /// device.
+    ///
+    /// - On a Mac: SwiftUI's own gesture, as before. A pointer does not
+    ///   scroll by pressing and moving, so nothing is in its way.
+    /// - On an iPhone or iPad: `FingerHold`, UIKit's long press.
+    ///
+    /// **Why they differ (found on William's iPhone, 14 November 2026:
+    /// "you can't scroll up and down on the today view").** On a touch
+    /// screen the page scrolls by a finger pressing and moving, and that
+    /// finger nearly always lands on a card, because the cards fill the
+    /// page. A SwiftUI press-and-hold on something inside a scrolling
+    /// page takes the touch for itself from the first moment, so the
+    /// page never hears that the finger moved. It does this even when
+    /// added with `simultaneousGesture`, which is meant to share. This
+    /// has been so since iOS 18 and is widely reported. UIKit's long
+    /// press and the page's scrolling are both UIKit's, and are built to
+    /// settle between themselves which of them a touch belongs to.
+    ///
+    /// `#if os(iOS)` is read when the app is built, not when it runs:
+    /// the iPhone's app holds only the first line and the Mac's only
+    /// the second. `@ViewBuilder` lets the two lines be different kinds
+    /// of view.
+    @ViewBuilder
+    private func withPickUp(_ card: some View) -> some View {
+        #if os(iOS)
+        card.gesture(FingerHold(hold: hold, slack: slack,
+                                pressed: { actions.pressed(panel) },
+                                carried: { actions.carried(panel, $0) },
+                                ended: { actions.ended(panel) }))
+        #else
+        card.simultaneousGesture(holdThenCarry)
+        #endif
+    }
+
     /// Press and hold, then carry. Two gestures in a row: the second
-    /// only begins once the first has finished.
+    /// only begins once the first has finished. Used on a Mac. An iPhone
+    /// or iPad uses `FingerHold`.
     private var holdThenCarry: some Gesture {
-        LongPressGesture(minimumDuration: isArranging ? TodayBoard.holdToLift : TodayBoard.holdToBegin,
-                         maximumDistance: isArranging ? 40 : 10)
+        LongPressGesture(minimumDuration: hold, maximumDistance: slack)
             .sequenced(before: DragGesture(minimumDistance: 0, coordinateSpace: .named(TodayBoard.pageSpace)))
             .updating($isTouching) { value, touching, _ in
                 if case .second = value { touching = true }
@@ -393,6 +439,87 @@ struct BoardCard<Content: View>: View {
             .onEnded { _ in actions.ended(panel) }
     }
 }
+
+// MARK: - Picking a card up
+
+#if os(iOS)
+/// UIKit's long press, handed to SwiftUI.
+///
+/// `UIGestureRecognizerRepresentable` is SwiftUI's way of borrowing one
+/// of UIKit's gestures. It asks for three things:
+///
+/// - `makeUIGestureRecognizer`: make the gesture, once.
+/// - `updateUIGestureRecognizer`: bring it up to date whenever the card
+///   is redrawn. The hold is shorter once the cards are jiggling.
+/// - `handleUIGestureRecognizerAction`: called each time the gesture has
+///   news.
+///
+/// A long press tells its news as a `state`:
+///
+/// - `.began`: the finger has stayed put for long enough. The card lifts.
+///   From here the page cannot start to scroll with this finger.
+/// - `.changed`: the finger has moved, still down. The card is carried.
+/// - `.ended`, `.cancelled`, `.failed`: the finger lifted, or the system
+///   called the touch off. The card is let go.
+///
+/// If the finger moves more than `slack` points before the hold is up,
+/// the long press gives up and the page scrolls. That is the whole fix.
+struct FingerHold: UIGestureRecognizerRepresentable {
+    let hold: Double
+    let slack: CGFloat
+    let pressed: () -> Void
+    /// Where the finger is, in the page's own coordinates.
+    let carried: (CGPoint) -> Void
+    let ended: () -> Void
+
+    func makeCoordinator(converter: CoordinateSpaceConverter) -> Coordinator { Coordinator() }
+
+    func makeUIGestureRecognizer(context: Context) -> UILongPressGestureRecognizer {
+        let press = UILongPressGestureRecognizer()
+        press.minimumPressDuration = hold
+        press.allowableMovement = slack
+        press.delegate = context.coordinator
+        return press
+    }
+
+    func updateUIGestureRecognizer(_ press: UILongPressGestureRecognizer, context: Context) {
+        press.minimumPressDuration = hold
+        press.allowableMovement = slack
+    }
+
+    func handleUIGestureRecognizerAction(_ press: UILongPressGestureRecognizer, context: Context) {
+        switch press.state {
+        case .began:
+            pressed()
+        case .changed:
+            // `converter` turns the finger's place into the page's own
+            // coordinates, the same ones the Mac's gesture reports in.
+            carried(context.converter.location(in: .named(TodayBoard.pageSpace)))
+        case .ended, .cancelled, .failed:
+            ended()
+        default:
+            break
+        }
+    }
+
+    /// Answers UIKit's question "may these two gestures both go on at
+    /// once?".
+    ///
+    /// - With the page's scrolling: no. Whichever is sure first takes the
+    ///   touch and the other stands down. A quick swipe scrolls. A finger
+    ///   held still lifts the card.
+    /// - With anything else, such as the buttons inside a card: yes, as
+    ///   `simultaneousGesture` allowed before, so a press that starts on
+    ///   a button can still lift the card.
+    @MainActor
+    final class Coordinator: NSObject, UIGestureRecognizerDelegate {
+        func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer,
+                               shouldRecognizeSimultaneouslyWith other: UIGestureRecognizer) -> Bool {
+            !(other.view is UIScrollView)
+        }
+    }
+}
+#endif
 
 // MARK: - The jiggle
 
