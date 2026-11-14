@@ -56,6 +56,10 @@ struct CornerScene: Equatable {
     var cornerSky: CornerWeather = .fine
     /// False when it is too cold for a bumblebee to fly.
     var isWarmEnoughForBee = true
+    /// True after dark. Kept apart from `cornerSky`, which can only say
+    /// one thing at a time: on a wet night it says rain, and the drawing
+    /// still needs to know that it is night.
+    var isNight = false
 
     // MARK: The limits
 
@@ -139,21 +143,32 @@ struct CornerScene: Equatable {
                            monthProgress: progress(day: parts.day ?? 15, daysInMonth: daysInMonth),
                            breeze: wind(forKMH: windSpeedKMH),
                            cornerSky: weather(temperatureC: temperatureC, precipitationMM: precipitationMM, isNight: isNight),
-                           isWarmEnoughForBee: temperatureC.map { $0 >= beeMinimumC } ?? true)
+                           isWarmEnoughForBee: temperatureC.map { $0 >= beeMinimumC } ?? true,
+                           isNight: isNight)
     }
 
     /// True in a month with flowers. Says nothing about the weather.
     var hasBee: Bool { CornerScene.beeMonths.contains(monthNumber) }
 
-    /// True when the bee may be about: a month with flowers, and not
-    /// raining, frosty, gusty or too cold. At night this is still true,
-    /// because the bee is there, asleep on a flower.
-    var beeIsAbout: Bool {
-        hasBee && cornerSky != .rain && cornerSky != .frost && breeze != .gusty && isWarmEnoughForBee
+    /// True after dark, whichever of the two ways it was said: the
+    /// weather drawn is night, or it is night under rain or frost.
+    var isAfterDark: Bool { isNight || cornerSky == .night }
+
+    /// True when the weather would let a bumblebee fly: not raining,
+    /// frosty, gusty or too cold.
+    var isBeeWeather: Bool {
+        cornerSky != .rain && cornerSky != .frost && breeze != .gusty && isWarmEnoughForBee
     }
 
-    /// True when the bee is asleep on a flower and not flying.
-    var beeSleeps: Bool { beeIsAbout && cornerSky == .night }
+    /// True when the bee is in the picture: out and about by day in bee
+    /// weather, or asleep in its flower at night.
+    var beeIsAbout: Bool { hasBee && (isAfterDark || isBeeWeather) }
+
+    /// True when the bee is asleep in its flower and not flying: every
+    /// night in a month with flowers, whatever the weather (William,
+    /// 14 November 2026). Rain, frost, wind and cold keep it from
+    /// flying. They do not send it away from where it sleeps.
+    var beeSleeps: Bool { hasBee && isAfterDark }
 
     /// What happens now and then in this month besides the bee.
     var moment: CornerMoment {

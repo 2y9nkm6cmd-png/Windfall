@@ -88,6 +88,9 @@ final class CornerEngine {
 
     private static let gridWidth = 150.0
     private static let gridHeight = 96.0
+    /// For this many seconds after the drawing opens it counts as
+    /// "just opened": a bee that is asleep is there from the start.
+    private static let openingSeconds = 3.0
 
     private func random(_ low: Double, _ high: Double) -> Double { Double.random(in: low...high) }
 
@@ -167,7 +170,13 @@ final class CornerEngine {
         } else if shownScene?.monthProgress != cornerScene.monthProgress {
             // The day changed: the same plant, a little further on.
             rebuild(for: cornerScene)
-            if beeMode != .away { beeMode = .away; beeIsAsleep = false; beeNextAt = time + 1.2 }
+            if beeIsAsleep {
+                // Asleep, it stays asleep. Its flower is found again
+                // below, because the parts were all made afresh.
+                beePartIndex = nil
+            } else if beeMode != .away {
+                beeMode = .away; beeNextAt = time + 1.2
+            }
         }
         shownScene = cornerScene
         let frameGap = min(max(time - lastFrameAt, 0), 0.1)
@@ -204,7 +213,11 @@ final class CornerEngine {
 
         // Parts.
         var shedders: [Int] = []
+        /// Flowers open and fully grown: where the bee can land.
         var perches: [Int] = []
+        /// The same flowers from the moment they first show, however
+        /// small: where a sleeping bee already is as the drawing opens.
+        var roosts: [Int] = []
         var beeIsDrawn = false
         for index in sprig.parts.indices {
             let sprigPart = sprig.parts[index]
@@ -226,7 +239,10 @@ final class CornerEngine {
             }
             placings[index] = CornerPlacing(x: base.x, y: base.y, turn: degrees * CornerMath.degree, scaleNow: grownSize, isShown: true)
             if sprigPart.sheds { shedders.append(index) }
-            if sprigPart.perch != nil && grownSize > 0.95 && sprigPart.isOpenEnoughForBee { perches.append(index) }
+            if sprigPart.perch != nil && sprigPart.isOpenEnoughForBee {
+                roosts.append(index)
+                if grownSize > 0.95 { perches.append(index) }
+            }
 
             // The apple that drops: it falls faster and faster, turning,
             // and fades before the foot of the frame.
@@ -281,7 +297,7 @@ final class CornerEngine {
         }
 
         drawDrifts(in: &context, inks, time, shedders: shedders, frameGap: frameGap)
-        moveBee(time, perches: perches, grown: grown)
+        moveBee(time, perches: perches, roosts: roosts, grown: grown)
         if !beeIsDrawn { drawBee(in: &context, inks, time) }
     }
 
@@ -387,18 +403,31 @@ final class CornerEngine {
     /// Decides the bee's next move. Its route is William's: in from the
     /// left, to each flower in turn from left to right, out to the
     /// right, and back in from the left after a wait.
-    private func moveBee(_ time: Double, perches: [Int], grown: Double) {
+    private func moveBee(_ time: Double, perches: [Int], roosts: [Int], grown: Double) {
         guard let showing = shownScene else { return }
+
+        // Night: the bee is asleep in its flower, whatever the weather.
+        if showing.beeSleeps {
+            putBeeToBed(time, perches: perches, roosts: roosts, grown: grown)
+            return
+        }
+        // Morning: it wakes where it slept and feeds for a moment. From
+        // there the rules below carry on as on any day, so it flies off
+        // properly and is never simply switched off.
+        if beeIsAsleep {
+            beeIsAsleep = false
+            if beePartIndex != nil {
+                beeMode = .feeding; beeSince = time; beeFor = random(2.4, 3.6); beeQueue = []
+            } else {
+                beeMode = .away; beeNextAt = time + 1
+            }
+        }
+
         let isAbout = showing.beeIsAbout
         if !isAbout || perches.isEmpty {
             if beeMode == .arriving || beeMode == .feeding { beeLeaves(time) }
             if beeMode == .away { return }
         }
-        if showing.beeSleeps, let first = perches.first {
-            if grown > 2.2 { beePartIndex = first; beeMode = .feeding; beeSince = time; beeFor = .greatestFiniteMagnitude; beeIsAsleep = true }
-            return
-        }
-        if beeIsAsleep { beeIsAsleep = false; beeMode = .away; beeNextAt = time + 1 }
 
         switch beeMode {
         case .away:
@@ -436,6 +465,51 @@ final class CornerEngine {
         }
     }
 
+    /// Night. Sees that the bee ends up asleep in its flower.
+    ///
+    /// When the drawing has only just opened, the bee is there already
+    /// and grows in with its flower. If night falls while the drawing
+    /// is open, the bee lands or stays where it is, and then sleeps. It
+    /// is never simply switched on.
+    private func putBeeToBed(_ time: Double, perches: [Int], roosts: [Int], grown: Double) {
+        if beeIsAsleep {
+            // Already asleep. If the drawing was made afresh for a new
+            // day, find its flower again.
+            if beePartIndex == nil { beePartIndex = roosts.first }
+            return
+        }
+        switch beeMode {
+        case .away:
+            if grown < CornerEngine.openingSeconds {
+                if let roost = roosts.first { beeBedsDown(on: roost, at: time) }
+            } else if let landing = perches.first {
+                // Night fell with the bee away: it flies in to bed.
+                beePartIndex = landing
+                beeQueue = []
+                beeFrom = CGPoint(x: -8, y: random(10, 44))
+                beeMode = .arriving; beeSince = time; beeFor = 2.1
+            }
+        case .arriving, .hopping:
+            // In the air: it lands first.
+            if time - beeSince >= beeFor, let index = beePartIndex { beeBedsDown(on: index, at: time) }
+        case .feeding:
+            // On a flower: it nods off where it is.
+            if let index = beePartIndex { beeBedsDown(on: index, at: time) }
+        case .leaving:
+            // On its way out: it goes, and then flies in to bed.
+            if time - beeSince >= beeFor { beeMode = .away }
+        }
+    }
+
+    /// Puts the bee to sleep on a flower. `greatestFiniteMagnitude` is
+    /// the largest number there is, so "sleep for this long" never ends
+    /// by itself: only morning wakes it.
+    private func beeBedsDown(on index: Int, at time: Double) {
+        beePartIndex = index
+        beeQueue = []
+        beeMode = .feeding; beeSince = time; beeFor = .greatestFiniteMagnitude; beeIsAsleep = true
+    }
+
     private func beeLeaves(_ time: Double) {
         if let beePlace {
             beeFrom = beePlace
@@ -458,17 +532,22 @@ final class CornerEngine {
     private func drawBee(in context: inout GraphicsContext, _ inks: CornerInks, _ time: Double) {
         guard beeMode != .away, let index = beePartIndex, placings.indices.contains(index), placings[index].isShown else { return }
         let sprigPart = sprig.parts[index]
+        /// How far its flower has grown in: 1 once the drawing is open.
+        let flowerSize = placings[index].scaleNow
         var seat = perchPlace(index)
         if !sprigPart.perchIsExact { // its front, not its middle, meets the flower
-            seat.x -= cos(seat.turn) * 3.5
-            seat.y -= sin(seat.turn) * 3.5
+            seat.x -= cos(seat.turn) * 3.5 * flowerSize
+            seat.y -= sin(seat.turn) * 3.5 * flowerSize
         }
         let share = CornerMath.clamp((time - beeSince) / beeFor)
         var x = seat.x, y = seat.y, turn = seat.turn, isFlying = true
         if beeMode == .feeding {
             isFlying = false
             if sprigPart.beeClimbsIn {
-                let inside = sin(.pi * share) * (sprigPart.bellLength * 0.75 + 4)
+                // Feeding, it climbs into the bell and backs out again.
+                // Asleep, it stays tucked half way in, its back end showing.
+                let reach = sprigPart.bellLength * 0.75 + 4
+                let inside = beeIsAsleep ? reach * 0.5 * flowerSize : sin(.pi * share) * reach
                 x += cos(seat.turn) * inside; y += sin(seat.turn) * inside
             } else if !beeIsAsleep { // a small bob as it feeds
                 x += cos(seat.turn) * sin(time * 7) * 0.3; y += sin(seat.turn) * sin(time * 7) * 0.3
@@ -494,6 +573,8 @@ final class CornerEngine {
         g.opacity = isFlying ? CornerMath.clamp(min(x + 8, CornerEngine.gridWidth + 8 - x) / 12) : 1
         g.translateBy(x: x, y: y)
         g.rotate(by: .radians(turn))
+        // Asleep as the drawing opens, it grows in with its flower.
+        if beeIsAsleep { g.scaleBy(x: flowerSize, y: flowerSize) }
         CornerDraw.bee(in: &g, inks, isFlying: isFlying, time: time)
     }
 }
@@ -543,7 +624,9 @@ extension CornerScene {
     /// Checking aids, for taking pictures of the corner in a state the
     /// day does not offer. Launch arguments, each optional:
     /// `-cornerMonth 2 -cornerDay 20 -cornerWind gusty -cornerSky rain`.
-    /// With none given the scene comes back unchanged.
+    /// `-cornerNight YES` makes it night under whatever the sky is, for
+    /// a wet or frosty night. With none given the scene comes back
+    /// unchanged.
     func withCheckingAids() -> CornerScene {
         let defaults = UserDefaults.standard
         var changed = self
@@ -553,6 +636,7 @@ extension CornerScene {
         if (1...31).contains(day) { changed.monthProgress = CornerScene.progress(day: day, daysInMonth: 30) }
         if let wind = defaults.string(forKey: "cornerWind").flatMap(CornerWind.init(rawValue:)) { changed.breeze = wind }
         if let chosenSky = defaults.string(forKey: "cornerSky").flatMap(CornerWeather.init(rawValue:)) { changed.cornerSky = chosenSky }
+        if defaults.object(forKey: "cornerNight") != nil { changed.isNight = defaults.bool(forKey: "cornerNight") }
         return changed
     }
 }
@@ -599,10 +683,10 @@ struct CornerPreviewView: View {
     private var beeLine: String {
         let showing = shownScene
         if !showing.hasBee { return monthNumber == 10 ? "No bee this month. The falling apple is October's moment." : "The bee is asleep underground." }
+        if showing.beeSleeps { return "At night the bee sleeps in its flower, whatever the weather. A tap does not wake it." }
         if cornerSky == .rain { return "It is raining, so the bee stays away." }
         if cornerSky == .frost { return "It is frosty, so the bee stays away." }
         if breeze == .gusty { return "It is too windy for the bee to fly." }
-        if cornerSky == .night { return "At night the bee sleeps on the flower." }
         return "The bee comes in from the left and leaves to the right. Tap the drawing to call it."
     }
 

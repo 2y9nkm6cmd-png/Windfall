@@ -1,3 +1,74 @@
+# 14 November 2026, 21:51: at night the bee is asleep in its flower (branch `bee-asleep-at-night`)
+
+**By the "bee asleep" chat.** William, 21:28: "The bee doesn't seem to be flying in in the corner drawing." It was night, and the corner was following its rules. Then, 21:33: "At night, can the bee be sleeping in the flower".
+
+**What was happening at night before this.**
+
+1. Rain, frost, a wind over 20 km/h or a reading under 5°C sent the bee away by night as well as by day. On most November nights there was no bee at all.
+2. On a dry, mild night the bee was switched on, asleep, 2.2 seconds after Today opened. It did not fly in and it did not grow in. It blinked into place.
+
+**What happens now.** In every month that has a bee, the bee is asleep in its flower all night, whatever the weather. It is there from the moment the drawing opens and grows in with its flower. The rain, the frost sparkle and the wind are still drawn round it. A tap still pushes the sprig, and the bee sleeps on.
+
+| File | What and why |
+|---|---|
+| `Windfall/CornerScene.swift` | New `isNight`, kept apart from `cornerSky`. New `isAfterDark` and `isBeeWeather`. `beeSleeps` and `beeIsAbout` rewritten |
+| `Windfall/LivingCorner.swift` | New `roosts`, `putBeeToBed` and `beeBedsDown`. The bee is drawn at its flower's size while it sleeps. Waking and a new day no longer switch it off. A checking aid, `-cornerNight YES`. The preview's line about the bee |
+| `Tools/checks/LogicTests.swift` | Five new tests |
+
+**Why `isNight` had to be added.** `cornerSky` holds one kind of weather, and rain wins over frost, which wins over night. So on a wet night it said `.rain` and nothing in the scene said it was dark. The old rule asked `cornerSky == .night`, which a wet or frosty night never is.
+
+```swift
+var isAfterDark: Bool { isNight || cornerSky == .night }
+var isBeeWeather: Bool {
+    cornerSky != .rain && cornerSky != .frost && breeze != .gusty && isWarmEnoughForBee
+}
+var beeIsAbout: Bool { hasBee && (isAfterDark || isBeeWeather) }
+var beeSleeps: Bool { hasBee && isAfterDark }
+```
+
+- Each of these is a question the scene answers with yes or no (`Bool`). `||` is "or", `&&` is "and", `!=` is "is not".
+- `isAfterDark`: it is night if the new flag says so, or if night is the weather being drawn. The second half keeps the preview page's Night choice working.
+- `isBeeWeather` is the old list of things that stop a bee flying, given a name of its own.
+- `beeIsAbout`: a month with a bee, and either it is night or the weather suits. Before, the weather had to suit even at night.
+- `beeSleeps`: a month with a bee, and night. Nothing about the weather.
+
+**Why the bee blinked, and what replaced it.** The old lines waited 2.2 seconds and then set the bee down. The new function is called on every frame while it is night:
+
+```swift
+private func putBeeToBed(_ time: Double, perches: [Int], roosts: [Int], grown: Double) {
+    if beeIsAsleep {
+        if beePartIndex == nil { beePartIndex = roosts.first }
+        return
+    }
+    switch beeMode {
+    case .away:
+        if grown < CornerEngine.openingSeconds {
+            if let roost = roosts.first { beeBedsDown(on: roost, at: time) }
+        } else if let landing = perches.first {
+            // it flies in to bed
+        }
+    case .arriving, .hopping:
+        if time - beeSince >= beeFor, let index = beePartIndex { beeBedsDown(on: index, at: time) }
+    case .feeding:
+        if let index = beePartIndex { beeBedsDown(on: index, at: time) }
+    case .leaving:
+        if time - beeSince >= beeFor { beeMode = .away }
+    }
+}
+```
+
+- `switch beeMode` picks one branch by what the bee is doing now.
+- `grown` is how many seconds the drawing has been open. Under `openingSeconds` (3) the drawing has just opened, so the bee is put straight on its flower. `roosts` lists the flowers a bee can sit on from the moment each first shows, however small. `perches`, which was there before, lists them only once fully grown.
+- Later than that, night has fallen with Today open. A bee that is away flies in. One in the air lands first. One on a flower nods off where it is. One leaving goes, and then flies in.
+- In `drawBee`, `if beeIsAsleep { g.scaleBy(x: flowerSize, y: flowerSize) }` draws the sleeping bee at the size its flower has reached, so the two grow in together.
+- In a foxglove the sleeping bee is tucked half way into its bell, with its back end showing.
+
+**Morning.** The bee used to be switched off and flown in again a second later. It now wakes where it slept, feeds for about three seconds and carries on by the day's rules, so in rain it flies off to the right.
+
+**A new day while it sleeps.** The drawing is made again for the new day. The bee stays asleep and its flower is found again.
+
+**⚠️ CHECK, Claude's choices:** the bee sleeps through rain, frost, gales and cold. A tap does not wake it. Night under rain or frost is drawn as rain or frost, as before. From general knowledge, for William to check: bumblebees caught out late do spend the night on or in flowers, and they shelter in foxglove bells.
+
 # 14 November 2026, 19:20: the to-do cards on Today open out where they are
 
 **Joined to `main` at 21:32 on 14 November 2026** by the night join chat, in its own copy (`~/Developer/windfall-night`, branch `join-14nov-night`). It merged cleanly with the weather work in `TodayView.swift`. Built for the Mac (`nt3-mac.log`) and the simulator (`nt4-sim.log`) together with Eira's more solid bar and the flower shapes: both succeeded. 761 logic tests pass. **It has still not been seen running or tried by hand.**
