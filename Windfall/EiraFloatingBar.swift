@@ -314,7 +314,7 @@ struct EiraFloatingBar: View {
         // conversation from the bar the same way. See DemoGarden.opens.
         .onAppear {
             guard !Self.hasOpenedForChecking else { return }
-            if ["eira", "corrections", "eira-photo"].contains(DemoGarden.opens ?? "") {
+            if ["eira", "corrections", "eira-photo", "eira-find", "kept-facts"].contains(DemoGarden.opens ?? "") {
                 Self.hasOpenedForChecking = true
                 eiraRequest = BarRequest(text: "")
             } else if DemoGarden.opens == "bar-journal" {

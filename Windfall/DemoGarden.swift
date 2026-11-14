@@ -112,6 +112,12 @@ enum DemoGarden {
     /// right, with the card that offers to keep the correction.
     /// `corrections` does the same and then opens the list of them.
     /// `eira-photo` opens her chat on an example answer to a photo.
+    /// `eira-find` opens her chat on an example answer built on the
+    /// RHS, with the card that offers to keep what she found, and
+    /// `kept-facts` opens the list of kept facts. `keepFact`, with
+    /// `-demoPlant Rhubarb`, opens the form for keeping a fact by hand,
+    /// and `keptFacts` shows that plant's page with two example facts
+    /// kept.
     ///
     /// `plantSowing` and `plantPlanting`, with `-demoPlant Achillea`,
     /// open the sowing form from that plant's page: the first on seed,

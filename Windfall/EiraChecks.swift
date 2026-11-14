@@ -70,6 +70,48 @@ enum EiraChecks {
         if asksAboutSowing && nowWords.contains(where: { text.contains($0) }) {
             return EiraTools.sowingNow
         }
+
+        // A second rule, 14 November 2026. A question about caring for
+        // a plant (pruning, feeding, cutting back and so on) is looked
+        // up in that plant's own record first, and on the RHS if the
+        // record has nothing. Asked whether to chop back the rhubarb
+        // after a frost, Apple's model searched the plant list, found
+        // no pruning advice and said "you may still leave the leaves".
+        //
+        // Whether a plant from the library is named is not known here,
+        // because this rule cannot see the database. The lookup itself
+        // checks, and hands nothing over if none is.
+        //
+        // A question about what you have done ("Have I sown the carrots
+        // this month?") asks for your records, not for advice, and is
+        // left to the model and its records lookup as before.
+        let asksForRecords = [" have i ", " did i ", " ive ", " i have ", " when did ", " my records ", " recorded "]
+        if CareTopic.find(in: question) != nil, !asksForRecords.contains(where: { text.contains($0) }) {
+            return EiraTools.plantCare
+        }
+        return nil
+    }
+
+    /// The web address in a message, if there is one.
+    ///
+    ///   "What does https://www.rhs.org.uk/fruit/apples say about scab?"
+    ///   "Read rhs.org.uk/vegetables/rhubarb/grow-your-own for me"
+    ///
+    /// When a message holds an address, the app reads that page before
+    /// the model answers, so the model does not have to decide to. An
+    /// address is a word that starts with "http://" or "https://", or
+    /// with "www.", or that has a dot and a slash in it and an ending
+    /// such as ".uk" before the slash. A full stop or bracket at its
+    /// end is taken off.
+    static func webAddress(in typed: String) -> String? {
+        for piece in typed.components(separatedBy: .whitespacesAndNewlines) {
+            var word = piece.trimmingCharacters(in: CharacterSet(charactersIn: "()[]<>\"'"))
+            while let last = word.last, ".,;:!?".contains(last) { word.removeLast() }
+            let lower = word.lowercased()
+            let looksLikeOne = lower.hasPrefix("http://") || lower.hasPrefix("https://") || lower.hasPrefix("www.")
+                || (lower.contains("/") && lower.range(of: "^[a-z0-9-]+(\\.[a-z0-9-]+)+/", options: .regularExpression) != nil)
+            if looksLikeOne, WebPageReader.webURL(from: word) != nil { return word }
+        }
         return nil
     }
 

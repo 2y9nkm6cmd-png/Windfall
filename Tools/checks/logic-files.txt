@@ -38,3 +38,5 @@ SpeciesTable.swift
 EiraChecks.swift
 EiraIdentify.swift
 PhotoFacts.swift
+KeptFacts.swift
+EiraSources.swift
