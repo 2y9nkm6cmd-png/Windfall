@@ -28,6 +28,8 @@ struct PlantLibraryView: View {
     /// One value, so "Clear" can put it all back in one go.
     @State private var filter = PlantFilter.fromLaunchArguments()
     @State private var showingImport = false
+    /// True while the form for a new plant is open.
+    @State private var isAddingPlant = false
 
     /// This month, 1 to 12.
     private var today: Int { Calendar.current.component(.month, from: .now) }
@@ -78,6 +80,16 @@ struct PlantLibraryView: View {
         .paperScreen()
         .navigationDestination(for: Plant.self) { PlantDetailView(plant: $0) }
         .toolbar {
+            // Adds one plant by hand. Until 14 November 2026 a plant
+            // could only arrive from the spreadsheet file or a seed
+            // packet. See PlantFillInViews.swift.
+            ToolbarItem(placement: .primaryAction) {
+                Button {
+                    isAddingPlant = true
+                } label: {
+                    Label("New plant", systemImage: "plus")
+                }
+            }
             ToolbarItem(placement: .primaryAction) {
                 Button {
                     showingImport = true
@@ -95,6 +107,9 @@ struct PlantLibraryView: View {
                 CollapsingSearchField(text: $filter.search, prompt: "Search plants")
             }
             #endif
+        }
+        .sheet(isPresented: $isAddingPlant) {
+            NewPlantSheet()
         }
         .sheet(isPresented: $showingImport) {
             NavigationStack {
@@ -442,6 +457,9 @@ struct PlantDetailView: View {
     /// closed. Every Edit button on the page sets this and nothing else,
     /// in the same way as `adding` above.
     @State private var editing: PlantFacts.Group?
+    /// True while the sheet that looks up this plant's gaps is open.
+    /// See PlantFillInViews.swift.
+    @State private var isFillingGaps = false
     // Facts kept in this plant's record from a website or from your
     // own reading. See KeptFacts.swift.
     @Environment(\.modelContext) private var context
@@ -500,6 +518,7 @@ struct PlantDetailView: View {
                                 companionsLink
                                 pestsCard
                                 if !addGoesRight { moreToAddCard }
+                                gapsCard
                                 keptFactsCard
                             }
                             VStack(spacing: 14) {
@@ -518,6 +537,7 @@ struct PlantDetailView: View {
                         companionsLink
                         pestsCard
                         moreToAddCard
+                        gapsCard
                         keptFactsCard
                     }
                 }
@@ -550,6 +570,10 @@ struct PlantDetailView: View {
         .sheet(item: $editing) { factGroup in
             PlantEditView(plant: plant, openingAt: factGroup)
         }
+        // The sheet that looks up what this plant's record lacks.
+        .sheet(isPresented: $isFillingGaps) {
+            FillInSheet(plant: plant)
+        }
         // The form for keeping a fact by hand, and the same form for
         // changing one already kept.
         .sheet(isPresented: $isKeepingFact) {
@@ -569,10 +593,19 @@ struct PlantDetailView: View {
             if DemoGarden.opens == "plantEdit" { editing = .naming }
             if DemoGarden.opens == "plantEditSowing" { editing = .sowing }
             if DemoGarden.opens == "keepFact" { isKeepingFact = true }
+            // `-demoOpen fillGaps` opens the sheet that looks up the
+            // plant's gaps. It reads the RHS, so it needs the internet.
+            if DemoGarden.opens == "fillGaps" { isFillingGaps = true }
             // `-demoOpen keptFacts` shows the page with two example
             // facts already kept.
             if DemoGarden.opens == "keptFacts" { KeptFactStore(context: context).keepExamples() }
         }
+    }
+
+    /// How full the record is, and the button that looks up the rest.
+    /// The card leaves itself out when there is no gap worth filling.
+    private var gapsCard: some View {
+        GapsCard(plant: plant) { isFillingGaps = true }
     }
 
     /// The facts kept for this plant, and the button to keep another.

@@ -308,6 +308,20 @@ struct EiraFloatingBar: View {
             guard count > 0, let screen else { return }
             takePhotos(screen.takePhotosForBar())
         }
+        // A question handed over by a page, such as the sheet that
+        // fills in a plant's gaps, opens her chat with it. The short
+        // wait lets the sheet that asked finish closing first: a new
+        // sheet cannot open while another is still on its way out.
+        // See EiraScreen.ask.
+        .onChange(of: screen?.questionForBar) { _, waiting in
+            guard waiting != nil, let screen else { return }
+            Task {
+                try? await Task.sleep(for: .milliseconds(600))
+                guard let asked = screen.takeQuestionForBar() else { return }
+                journalRequest = nil
+                eiraRequest = BarRequest(text: asked, lookingAt: screen.current?.full)
+            }
+        }
         // A checking aid: `-demoOpen eira`, `-demoOpen corrections` and
         // `-demoOpen eira-photo` open her chat as soon as the bar
         // appears, once. `-demoOpen bar-journal` opens the journal's

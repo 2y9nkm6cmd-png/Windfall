@@ -65,6 +65,10 @@ struct EiraChatView: View {
     @State private var showingCorrections = false
     /// True while the list of kept facts is open.
     @State private var showingKeptFacts = false
+    /// The plant library, to tell a new plant from one already there.
+    @Query private var libraryPlants: [Plant]
+    /// The messages whose offer to add a new plant was turned down.
+    @State private var newPlantRefused: Set<UUID> = []
     @State private var voice = VoiceInput()
     @AppStorage("eiraSpeaksReplies") private var speaksReplies = false
 
@@ -345,6 +349,19 @@ struct EiraChatView: View {
                                     onUndo: { conversation.undoKeptCorrection() },
                                     onDismiss: { conversation.dismissOfferedCorrection() },
                                     onShowAll: { showingCorrections = true })
+                            }
+
+                            // A message of yours that says you have
+                            // planted, sown or bought a plant the
+                            // library does not have is followed by a
+                            // card offering to add it and look it up.
+                            // Fixed rules decide, not the model. See
+                            // NewPlantMention in PlantFillIn.swift.
+                            // Once the plant is added the rules find
+                            // nothing new, and the card goes by itself.
+                            if message.role == .user, !newPlantRefused.contains(message.id),
+                               let newName = NewPlantMention.name(in: message.content, known: libraryPlants.map(\.commonName)) {
+                                NewPlantOfferCard(name: newName) { newPlantRefused.insert(message.id) }
                             }
 
                             // A reply of hers that was built on a web

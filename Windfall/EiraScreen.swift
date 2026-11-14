@@ -94,6 +94,25 @@ final class EiraScreen {
         return photos
     }
 
+    /// A question a page wants put to Eira, such as "How and when
+    /// should I prune medlar?" from the sheet that fills in a plant's
+    /// gaps (PlantFillInViews.swift). The bar picks it up and opens
+    /// her chat with it, as if it had been typed there.
+    private(set) var questionForBar: String?
+
+    /// A page hands a question over for the bar.
+    func ask(_ question: String) {
+        questionForBar = question
+    }
+
+    /// The bar takes it. Handed over once and then gone, so the same
+    /// question is never asked twice.
+    func takeQuestionForBar() -> String? {
+        let question = questionForBar
+        questionForBar = nil
+        return question
+    }
+
     /// The sentence that is put in front of a question for the model.
     ///
     /// It says plainly that this is background, because a small model

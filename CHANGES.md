@@ -7,6 +7,53 @@ run without the Mac (every file reads as valid Swift, 323 logic tests
 pass). Those do not build the screens. Expect things to put right when
 it is first built, and treat how everything here looks as untried.
 
+## 14 November 2026, 18:25: a new plant is looked up, and a plant's gaps are filled in
+
+**On the branch `plant-fill-in`, made from `main` at `0c4857f` with `eira-web-finds` joined to it. Written without the Mac, so NOT BUILT.** Every file reads as valid Swift and 664 logic tests pass, 29 of them new. The rules were also run from this branch's own code against the live RHS site for seven plants. **The screens have never been compiled or seen.** Expect things to put right at the first build.
+
+**Why.** William, 17:06: "when you add a new plant to the app or tell Eira youve planted a new plant, it will run a search and fill in as much information about the plant as it can find and you just have to approve each thing. I'd also like a smart way to fill in the gaps."
+
+**What was found first.** The app had no way to add one plant by hand: a plant could only arrive from the spreadsheet file or a seed packet. And the library is mostly gaps: of 437 rows, 19 have a hardiness, 24 have pruning advice and 14 have pests.
+
+**What it does now.**
+
+- **Plants has a "+" button.** It asks for a name, and optionally a variety, a Latin name and a group, adds the plant and opens the look-up at once.
+- **A plant's page has a "Fill the gaps" card**: how many of the facts that matter are filled in, and "Look them up".
+- **In Eira's chat and the journal's conversation**, saying you have planted, sown or bought a plant the library does not have ("I planted a medlar by the pond") brings a card: "Medlar is not in your plant library yet. Add it and look it up".
+- **The look-up shows one card for each empty box it found something for.** Each has the value (which can be changed), the words it was read from, the source and how far it is trusted, and Keep and Skip. **Nothing is written until Keep is pressed on that card.** A kept value gets a KeptFact beside it, so the plant's page shows "RHS, kept Nov 2026" and it is due a check after two years, exactly as a fact kept from Eira's chat.
+- **Under the cards, what is still empty**, with three ways on: Ask Eira (for the boxes she has a care lookup for), paste any web address to have the same rules read that page, or type the facts in.
+
+**Where the suggestions come from, best first.**
+
+1. **Your own library** (`LibraryFill`). If the other rhubarbs say "Hardy perennial", a new rhubarb is offered that. A box that can differ by variety, such as the harvest months, needs two other varieties that agree. No internet needed.
+2. **The RHS** (`PlantFillIn.lookUp`). The growing guide is found from the plant's name, as Eira already does. Its month-by-month calendar gives the months to sow, plant and harvest. The guide links to the RHS's own page for the species and often the variety, and those hold height, spread, hardiness, sun, soil, pH, foliage, pests, diseases, pruning and propagation. At most three pages for one plant.
+3. **Worked out from the family** (`FamilyRules`). The carrot family are umbellifers, most of the pea family fix nitrogen, and a vegetable in the cabbage family is a brassica. The family comes from the RHS's page, or from GBIF if only the Latin name is known. Marked "Worked out, not read".
+
+**Facts are read by fixed rules, not by the AI model** (`PageFacts`). A rule reads the same page the same way each time and cannot make up a figure that is not on the page. Each rule gives nothing when it is not sure. What rules cannot do is read loose prose, which is what "Ask Eira" is for.
+
+**How the code is laid out.**
+
+- `PlantFillIn.swift` (new, no screens, in the logic tests): `PlantGaps` decides which empty boxes matter and to which plants (an apple tree is not asked when to sow it). `LibraryFill`, `RHSPage`, `PageFacts` and `FamilyRules` are the three sources. `PlantFillIn.suggestions` chooses one suggestion for each empty box and notes where two sources disagree. `NewPlantMention` hears a new plant in a sentence.
+- `PlantFillInViews.swift` (new, screens): `NewPlantSheet`, `FillInSheet`, `GapsCard`, `NewPlantOfferCard`.
+- `KeptFacts.swift`: a `KeptFact` gains `factKey`, so a kept value can sit in any of the record's 66 boxes and not only the 21 a sentence fits. Removing one and the source labels go through `PlantFacts`.
+- `EiraSources.swift`: two more kinds of source, "Your own records" and "Worked out, not read". The RHS page finder moved here from `EiraTools.swift`, unchanged, so both can use it.
+- `EiraWebLookup.swift`: a page that has been fetched keeps the page as the site sent it (`html`), because the calendar's coloured months and the links are lost in plain text.
+- `EiraScreen.swift` and `EiraFloatingBar.swift`: a page can hand Eira's bar a question (`ask`), which is how "Ask Eira" works.
+- `PlantLibraryView.swift`, `EiraChatView.swift`, `JournalChatView.swift`: the button and the cards.
+
+**The join with `eira-web-finds`.** Seven files clashed and both sides were kept in each (`b5017dc`). One thing was put right on the way: a kept fact is now noted as changed by hand, so loading the spreadsheet file again no longer replaces it.
+
+**Tried against the live RHS site** from this branch's code, on Linux: rhubarb 'Timperley Early' came back with 17 facts from the variety's own page and the guide. Leek with 10, including Alliums worked out through GBIF. Broad bean with 10, including "Nitrogen fixer". Apple, medlar and lavender with 3 to 5 each: their guides give no Latin name, so the species page is not found.
+
+**Known weak points.**
+
+- The RHS's calendar has one row for sowing and does not say indoors or outdoors. The page's wording decides, and the card says to check.
+- The older style of RHS guide (`/fruit/rhubarb/`) has no calendar.
+- Pruning, propagation, pests and diseases from a plant page are the RHS's own words, cut to a sentence or two, for William to shorten on the card.
+- Flowering from a plant page is by season, so to the nearest three months.
+- **Site terms are still open** (doc 36). This reads up to three RHS pages for one plant, when asked, saying it is Windfall.
+- There is no list across the whole library yet of which plants have most to gain. `PlantGaps.mostToGain` is written and tested, with no screen.
+
 ## 14 November 2026, 17:12: on a Mac, a month's page follows two fingers as it turns
 
 **On the branch `month-drag-mac`, made from `main`.** Built for the Mac and the iOS Simulator with no errors (`mv7-mac.log`, `mv7-sim.log`, in `DerivedData/Windfall-month`). 596 logic tests pass. **A simulator has no trackpad, so the Mac's row was given to a 13-inch iPad with a checking aid and looked at there**, with the example garden: the row held 300 points to the right shows April sliding off and March coming in beside it, cut off cleanly at the sidebar (`shots/mv7-drag.png`); the forward arrow slides December on to January and the back arrow April back to March (`mv7-on.png`, `mv7-back.png`). **Not tried by anyone: two fingers on a real trackpad.**

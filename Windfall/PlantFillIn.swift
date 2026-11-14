@@ -429,7 +429,9 @@ enum RHSPage {
     static func linkName(_ link: String) -> String {
         let parts = link.split(separator: "/").map(String.init)
         guard parts.count >= 3 else { return "" }
-        let words = parts[2].replacingOccurrences(of: "times;", with: "x").split(separator: "-").map(String.init)
+        // In small letters: the RHS's older pages write these links
+        // with capitals, "Rheum-x-hybridum-Timperley-Early".
+        let words = parts[2].lowercased().replacingOccurrences(of: "times;", with: "x").split(separator: "-").map(String.init)
         return words.filter { $0 != "i" && !$0.isEmpty }.joined(separator: "-")
     }
 
@@ -443,8 +445,10 @@ enum RHSPage {
     /// variety link must be the variety's name, with or without "agm"
     /// after it (AGM is the RHS's award, tacked on to the name), or the
     /// plant's genus and then the variety's name, as in
-    /// "rheum-hybridum-timperley-early". A variety called "Early" does
-    /// not find "timperley-early".
+    /// "rheum-hybridum-timperley-early". Where the Latin name is not
+    /// known, a longer name ending in the variety's will do, so long
+    /// as the variety's name is eight letters or more. A variety called
+    /// "Early" does not find "timperley-early".
     static func links(forLatin latin: String?, variety: String?, among links: [String]) -> (species: String?, variety: String?) {
         var species: String?
         var ofVariety: String?
@@ -456,8 +460,9 @@ enum RHSPage {
             if ofVariety == nil, varietySlug.count >= 3 {
                 let bare = name.hasSuffix("-agm") ? String(name.dropLast(4)) : name
                 let genus = latinSlug.split(separator: "-").first.map(String.init) ?? ""
-                let afterGenus = !genus.isEmpty && bare.hasPrefix(genus + "-") && bare.hasSuffix("-" + varietySlug)
-                if bare == varietySlug || afterGenus { ofVariety = link }
+                let startsWithGenus = !genus.isEmpty && bare.hasPrefix(genus + "-")
+                let endsWithVariety = bare.hasSuffix("-" + varietySlug)
+                if bare == varietySlug || (endsWithVariety && (startsWithGenus || varietySlug.count >= 8)) { ofVariety = link }
             }
         }
         return (species, ofVariety)
