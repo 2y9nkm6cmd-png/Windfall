@@ -30,12 +30,26 @@
 //  conversation. Until 14 November the Journal page had a second bar of
 //  its own at the top for this, so Eira appeared twice on one page.
 //
+//  The panel (14 November 2026). On a Mac and an iPad a conversation
+//  opened from the bar no longer comes up as a sheet, a second window
+//  in the middle of the screen. The bar grows upwards into a panel of
+//  glass with the conversation inside it, and "Done" lowers it back.
+//  That is what `growsInPlace` switches on. The parts the panel shares
+//  with the conversations are in EiraPanel.swift. On an iPhone the
+//  sheets are kept. Search and the card that asks what to do with a
+//  photo are still sheets everywhere.
+//
 
 import SwiftUI
 import SwiftData
 import PhotosUI
 
 struct EiraFloatingBar: View {
+
+    /// True where a conversation should grow up out of the bar as a
+    /// panel, which is on a Mac and an iPad. False, as on an iPhone,
+    /// keeps the sheets. MainTabView.swift chooses.
+    var growsInPlace = false
 
     // @AppStorage keeps a small setting on the device, so the choice is
     // remembered the next time the app opens.
@@ -75,12 +89,26 @@ struct EiraFloatingBar: View {
     /// True while photos are being held over the bar.
     @State private var isDropTarget = false
 
+    // The panel.
+    /// True once the panel has risen out of the bar. It is set a moment
+    /// after a conversation is asked for, and that change is what is
+    /// animated: the panel is first drawn the size of the bar, then
+    /// grows.
+    @State private var panelIsUp = false
+    /// True when the larger size was last chosen. Kept on the device,
+    /// so the panel opens next time at the size it was left.
+    @AppStorage("eiraPanelIsLarge") private var panelIsLarge = false
+
     // @FocusState says whether the text box has the keyboard.
     @FocusState private var fieldHasFocus: Bool
 
-    private let symbolSize: CGFloat = 50
+    /// How tall the bar is. `static` means the number belongs to the
+    /// bar as a kind of thing, so MainTabView.swift can read it to keep
+    /// a strip that tall clear at the foot of every page.
+    static let restingHeight: CGFloat = 60
     private let rim: CGFloat = 5
-    private var closedSize: CGFloat { symbolSize + rim * 2 }
+    private var symbolSize: CGFloat { Self.restingHeight - rim * 2 }
+    private var closedSize: CGFloat { Self.restingHeight }
 
     /// True on the Journal page, where the bar is for telling Eira what
     /// happened. See `EiraSight.isJournal`.
@@ -113,63 +141,92 @@ struct EiraFloatingBar: View {
             // the way across to the sidebar.
             let barWidth = geometry.size.width
 
-            HStack(spacing: 10) {
-                symbolButton(travel: barWidth - closedSize)
+            // A ZStack lays its contents one on top of another. The bar
+            // is underneath and the panel, when there is one, on top,
+            // with their bottom left corners together.
+            ZStack(alignment: .bottomLeading) {
+                HStack(spacing: 10) {
+                    symbolButton(travel: barWidth - closedSize)
 
-                if expanded {
-                    photoButton
+                    if expanded {
+                        photoButton
 
-                    TextField(hint(isNarrow: barWidth < 430), text: $question)
-                        .textFieldStyle(.plain)
-                        .foregroundStyle(Theme.ink)
-                        .focused($fieldHasFocus)
-                        .onSubmit(ask)
-                        .onKeyPress(.escape) {
-                            close()
-                            return .handled
+                        TextField(hint(isNarrow: barWidth < 430), text: $question)
+                            .textFieldStyle(.plain)
+                            .foregroundStyle(Theme.ink)
+                            .focused($fieldHasFocus)
+                            .onSubmit(ask)
+                            .onKeyPress(.escape) {
+                                close()
+                                return .handled
+                            }
+                            .transition(.opacity)
+
+                        // On the Journal page of an iPhone there is not room
+                        // for every button and the words as well, so search
+                        // gives way. Return still searches or asks.
+                        if !(onJournal && barWidth < 430) {
+                            barButton(.search, label: "Search everything") { search() }
                         }
-                        .transition(.opacity)
+                        barButton(.microphone, label: "Open Eira to talk or type") { openEira(with: nil) }
+                        if onJournal {
+                            barButton(.journalEntry, label: "Write in the journal") { openJournal() }
+                        }
+                    }
+                }
+                .padding(.leading, rim)
+                .padding(.trailing, expanded ? 14 : rim)
+                // The frame grows from the snowdrop's width to the bar's width.
+                // It is pinned to the right, so the left edge, and the snowdrop
+                // with it, travels left as it grows.
+                .frame(width: expanded ? max(barWidth - rebound, closedSize) : closedSize,
+                       height: closedSize, alignment: .leading)
+                .glassEffect(.regular.interactive(), in: .capsule)
+                // While photos are held over the bar, a dashed line round it
+                // shows that it will take them.
+                .overlay {
+                    if isDropTarget {
+                        Capsule()
+                            .strokeBorder(Theme.leaf, style: StrokeStyle(lineWidth: 2.5, dash: [8, 6]))
+                            .allowsHitTesting(false)
+                    }
+                }
+                // Photos dragged on to the bar. The bar itself is the target,
+                // not the empty strip beside it, which has to go on letting
+                // taps through to the page underneath.
+                .onDrop(of: PhotoDrop.kinds, isTargeted: $isDropTarget) { providers in
+                    guard PhotoDrop.mayHold(providers) else { return false }
+                    Task { takePhotos(await PhotoDrop.pictures(from: providers)) }
+                    return true
+                }
+                // On an iPhone or iPad, a swipe down on the open bar puts it
+                // away. See "Putting the bar away by touch" below.
+                .swipeDownPutsAway(isOn: canBePutAway) { close(travel: barWidth - closedSize) }
+                // While the panel is up it stands where the bar was, so the
+                // bar fades out beneath it and takes no taps.
+                .opacity(panelIsUp ? 0 : 1)
+                .allowsHitTesting(!panelIsUp)
+                .frame(maxWidth: .infinity, alignment: .trailing)
+                // And so does a touch anywhere on the page above it.
+                .background(alignment: .bottom) { touchAwayLayer(travel: barWidth - closedSize) }
 
-                    // On the Journal page of an iPhone there is not room
-                    // for every button and the words as well, so search
-                    // gives way. Return still searches or asks.
-                    if !(onJournal && barWidth < 430) {
-                        barButton(.search, label: "Search everything") { search() }
-                    }
-                    barButton(.microphone, label: "Open Eira to talk or type") { openEira(with: nil) }
-                    if onJournal {
-                        barButton(.journalEntry, label: "Write in the journal") { openJournal() }
-                    }
+                // The panel. Where the bar grows in place it has been
+                // given the whole height of the page to stand in (see
+                // MainTabView.swift), and `geometry.size.height` is
+                // that height: all the room the panel can have.
+                if let open = openInPanel {
+                    panel(for: open, room: geometry.size.height)
                 }
             }
-            .padding(.leading, rim)
-            .padding(.trailing, expanded ? 14 : rim)
-            // The frame grows from the snowdrop's width to the bar's width.
-            // It is pinned to the right, so the left edge, and the snowdrop
-            // with it, travels left as it grows.
-            .frame(width: expanded ? max(barWidth - rebound, closedSize) : closedSize,
-                   height: closedSize, alignment: .leading)
-            .glassEffect(.regular.interactive(), in: .capsule)
-            // While photos are held over the bar, a dashed line round it
-            // shows that it will take them.
-            .overlay {
-                if isDropTarget {
-                    Capsule()
-                        .strokeBorder(Theme.leaf, style: StrokeStyle(lineWidth: 2.5, dash: [8, 6]))
-                        .allowsHitTesting(false)
-                }
-            }
-            // Photos dragged on to the bar. The bar itself is the target,
-            // not the empty strip beside it, which has to go on letting
-            // taps through to the page underneath.
-            .onDrop(of: PhotoDrop.kinds, isTargeted: $isDropTarget) { providers in
-                guard PhotoDrop.mayHold(providers) else { return false }
-                Task { takePhotos(await PhotoDrop.pictures(from: providers)) }
-                return true
-            }
-            .frame(maxWidth: .infinity, alignment: .trailing)
+            // Everything sits at the foot of the space, however tall
+            // that is. The empty space above takes no taps, so the page
+            // underneath can still be used.
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
         }
-        .frame(height: closedSize)
+        // Where conversations open as sheets, the bar is only ever as
+        // tall as itself. Where it grows in place it takes all the
+        // height it is offered (`nil` means "no fixed height").
+        .frame(height: growsInPlace ? nil : closedSize)
         // The two choosers behind the "+" button.
         .photosPicker(isPresented: $isChoosingFromPhotos, selection: $pickedItems,
                       maxSelectionCount: 10, matching: .images)
@@ -202,7 +259,7 @@ struct EiraFloatingBar: View {
         .sheet(item: $photoRequest) { request in
             PhotoOfferSheet(photos: request.photos)
         }
-        .sheet(item: $eiraRequest) { request in
+        .sheet(item: sheetOnly($eiraRequest)) { request in
             NavigationStack {
                 EiraChatView(openingQuestion: request.text.isEmpty ? nil : request.text,
                              lookingAt: request.lookingAt)
@@ -216,7 +273,7 @@ struct EiraFloatingBar: View {
         }
         // Something told to Eira, and not asked of her, goes to the
         // journal's conversation with the words ready to send.
-        .sheet(item: $journalRequest) { request in
+        .sheet(item: sheetOnly($journalRequest)) { request in
             // Eira only says "that reads like one for the journal" when
             // words were typed and no photos came with them.
             JournalChatView(draft: request.text, photos: request.photos,
@@ -243,14 +300,157 @@ struct EiraFloatingBar: View {
             }
             .macSheetSize(width: 580, height: 660)
         }
+        // Photos dropped on the Journal page are handed here, so that
+        // they open in the panel like anything else given to the bar.
+        // `onChange` runs its closure whenever the value it names
+        // changes. See EiraScreen.handToBar.
+        .onChange(of: screen?.photosForBar.count ?? 0) { _, count in
+            guard count > 0, let screen else { return }
+            takePhotos(screen.takePhotosForBar())
+        }
         // A checking aid: `-demoOpen eira`, `-demoOpen corrections` and
         // `-demoOpen eira-photo` open her chat as soon as the bar
-        // appears, once. See DemoGarden.opens.
+        // appears, once. `-demoOpen bar-journal` opens the journal's
+        // conversation from the bar the same way. See DemoGarden.opens.
         .onAppear {
-            guard !Self.hasOpenedForChecking,
-                  ["eira", "corrections", "eira-photo"].contains(DemoGarden.opens ?? "") else { return }
-            Self.hasOpenedForChecking = true
-            eiraRequest = BarRequest(text: "")
+            guard !Self.hasOpenedForChecking else { return }
+            if ["eira", "corrections", "eira-photo"].contains(DemoGarden.opens ?? "") {
+                Self.hasOpenedForChecking = true
+                eiraRequest = BarRequest(text: "")
+            } else if DemoGarden.opens == "bar-journal" {
+                Self.hasOpenedForChecking = true
+                journalRequest = BarRequest(text: "")
+            }
+        }
+    }
+
+    // MARK: The panel
+
+    /// A conversation that is open in the panel.
+    ///
+    /// An `enum` is a value that is one of a fixed set of things. Each
+    /// case here carries the request that opened it.
+    private enum OpenInPanel {
+        case journal(BarRequest)
+        case eira(BarRequest)
+    }
+
+    /// The conversation to draw in the panel, if there is one. Always
+    /// nil where the bar opens sheets instead.
+    private var openInPanel: OpenInPanel? {
+        guard growsInPlace else { return nil }
+        if let journalRequest { return .journal(journalRequest) }
+        if let eiraRequest { return .eira(eiraRequest) }
+        return nil
+    }
+
+    /// Keeps a sheet from opening where the panel does the job.
+    ///
+    /// `.sheet(item:)` shows a sheet whenever the value it is given is
+    /// not nil. Where the bar grows in place it is handed a value that
+    /// is always nil (`.constant(nil)`), so its sheet never appears.
+    private func sheetOnly(_ request: Binding<BarRequest?>) -> Binding<BarRequest?> {
+        growsInPlace ? .constant(nil) : request
+    }
+
+    /// The panel: a sheet of glass that starts as the bar and grows
+    /// upwards, with the conversation inside it.
+    ///
+    /// - `room`: the height there is between the top of the page and
+    ///   the bar's bottom edge.
+    ///
+    /// The panel is drawn inside the bar's own space, not hung outside
+    /// it, so that every button in it is certain to take a tap.
+    private func panel(for open: OpenInPanel, room: CGFloat) -> some View {
+        let controls = EiraPanelControls(isLarge: $panelIsLarge, takesKeyboard: panelTakesKeyboard,
+                                         close: lowerPanel)
+        // Down, the panel is the bar's own shape: a capsule is a
+        // rectangle whose corners are rounded by half its height. Up,
+        // its corners are gentler.
+        let corner = panelIsUp ? EiraPanel.corner : closedSize / 2
+
+        return Group {
+            switch open {
+            case .journal(let request):
+                // Eira only says "that reads like one for the journal"
+                // when words were typed and no photos came with them.
+                JournalChatView(draft: request.text, photos: request.photos,
+                                cameFromEirasBar: !request.text.isEmpty && request.photos.isEmpty,
+                                panel: controls) { asked in
+                    // "Ask Eira instead": the same words go to her
+                    // chat. The panel stays up and what is inside it
+                    // changes, so there is nothing to wait for.
+                    journalRequest = nil
+                    eiraRequest = BarRequest(text: asked, lookingAt: request.lookingAt)
+                }
+                // A new request is a new conversation. Giving each its
+                // own identity makes SwiftUI start it afresh.
+                .id(request.id)
+            case .eira(let request):
+                EiraChatView(openingQuestion: request.text.isEmpty ? nil : request.text,
+                             lookingAt: request.lookingAt, panel: controls)
+                    .id(request.id)
+            }
+        }
+        // The conversation fades in as the panel rises.
+        .opacity(panelIsUp ? 1 : 0)
+        // As wide as the bar, up to a width that is comfortable to
+        // read. The larger size takes the bar's whole width.
+        .frame(maxWidth: panelIsLarge ? .infinity : EiraPanel.usualWidth)
+        // The height is what grows. `alignment: .bottom` keeps the
+        // foot of the conversation, where the box to type in is, on the
+        // bar's own line while the rest is uncovered above it.
+        .frame(height: panelIsUp ? EiraPanel.height(room: room, isLarge: panelIsLarge) : closedSize,
+               alignment: .bottom)
+        // Nothing is drawn outside the panel's shape while it is small.
+        .clipShape(.rect(cornerRadius: corner))
+        // Glass, like the bar, tinted with the paper's colour so that
+        // writing on it stays easy to read over a busy page.
+        .glassEffect(.regular.tint(Theme.paper.opacity(0.8)), in: .rect(cornerRadius: corner))
+        // The panel is first drawn the size of the bar. As soon as it
+        // is on screen it is told to rise.
+        .onAppear(perform: raisePanel)
+    }
+
+    /// Whether the conversation's box should take the keyboard when
+    /// the panel opens. See `EiraPanelControls.takesKeyboard`.
+    private var panelTakesKeyboard: Bool {
+        #if os(macOS)
+        return true
+        #else
+        return fieldHasFocus
+        #endif
+    }
+
+    private func raisePanel() {
+        guard !panelIsUp else { return }
+        // A spring overshoots a little and settles, like the bar's own
+        // bump. With Reduce Motion on, the panel simply fades in.
+        let rise: Animation = reduceMotion ? .easeInOut(duration: 0.2) : .spring(duration: 0.5, bounce: 0.16)
+        withAnimation(rise) {
+            panelIsUp = true
+        }
+    }
+
+    /// "Done", or the Esc key: the panel sinks back into the bar, and
+    /// only then is the conversation let go.
+    private func lowerPanel() {
+        let sink: Animation = reduceMotion ? .easeInOut(duration: 0.2) : .smooth(duration: 0.32)
+        withAnimation(sink) {
+            panelIsUp = false
+        } completion: {
+            // If something has opened the panel again in the meantime,
+            // leave it alone.
+            guard !panelIsUp else { return }
+            journalRequest = nil
+            eiraRequest = nil
+            #if os(macOS)
+            // On a Mac the keyboard goes back to the bar's own box, so
+            // the next thing can be typed without reaching for the
+            // mouse. On an iPad that would bring the keyboard up over
+            // the page, so there it is left alone.
+            if expanded { fieldHasFocus = true }
+            #endif
         }
         // The "Ask Eira" widget: opens her chat. See WidgetRoute.
         .onChange(of: WidgetRoute.shared.pending, initial: true) {
@@ -332,6 +532,51 @@ struct EiraFloatingBar: View {
         .accessibilityLabel(label)
         .help(label)
         .transition(.opacity)
+    }
+
+    // MARK: Putting the bar away by touch
+
+    /// True when the bar was opened by hand, and so can be put away. It
+    /// is false when the bar is pinned open, and on the Journal page,
+    /// where it is always open.
+    ///
+    /// It is also false while a conversation stands in the panel that
+    /// grows out of the bar on an iPad. The page behind the panel is
+    /// meant to go on working, so nothing may be laid over it then.
+    private var canBePutAway: Bool {
+        isOpen && !staysOpen && !onJournal && !panelIsUp && openInPanel == nil
+    }
+
+    /// An invisible layer over the page while the bar is open, on an
+    /// iPhone or iPad. A tap on it, or the start of a scroll, puts the
+    /// bar away. (William, 14 November 2026, on first trying the app on
+    /// his iPhone: the only way to close the bar was the snowdrop.)
+    ///
+    /// - `Color.clear` draws nothing. `contentShape` makes that nothing
+    ///   count as a place a finger can land.
+    /// - The layer is far larger than any screen and is lined up with
+    ///   the bottom of the bar, so it reaches up over the whole page.
+    ///   It sits behind the bar, so the bar's own buttons still get
+    ///   their taps first.
+    /// - The first touch only closes the bar. It is not passed on to
+    ///   the page, so nothing is opened by accident.
+    ///
+    /// A Mac is left alone: there the Escape key closes the bar, and a
+    /// click that did nothing but close it would be a nuisance.
+    @ViewBuilder
+    private func touchAwayLayer(travel: CGFloat) -> some View {
+        #if os(iOS)
+        if canBePutAway {
+            Color.clear
+                .frame(width: 4000, height: 4000)
+                .contentShape(Rectangle())
+                .onTapGesture { close(travel: travel) }
+                .simultaneousGesture(
+                    DragGesture(minimumDistance: 12).onChanged { _ in close(travel: travel) }
+                )
+                .accessibilityHidden(true)
+        }
+        #endif
     }
 
     // MARK: Opening and closing
@@ -546,5 +791,33 @@ private struct EiraLooksAt: ViewModifier {
             // The same screen can change what it shows, for example when
             // a plant is renamed.
             .onChange(of: sight) { _, changed in screen?.show(changed, id: id) }
+    }
+}
+
+
+// MARK: - A swipe down
+
+private extension View {
+    /// On an iPhone or iPad, calls `action` when a finger is dragged
+    /// downwards across this view. On a Mac it does nothing, because a
+    /// downward drag across a text box there is how text is selected.
+    ///
+    /// - `simultaneousGesture` lets the drag be noticed without taking
+    ///   touches away from the text box and buttons inside the view.
+    /// - `translation` is how far the finger moved. The drag counts
+    ///   when it went at least 30 points down, and further down than
+    ///   sideways.
+    @ViewBuilder
+    func swipeDownPutsAway(isOn: Bool, action: @escaping () -> Void) -> some View {
+        #if os(iOS)
+        simultaneousGesture(
+            DragGesture(minimumDistance: 20).onEnded { drag in
+                let moved = drag.translation
+                if isOn && moved.height > 30 && moved.height > abs(moved.width) { action() }
+            }
+        )
+        #else
+        self
+        #endif
     }
 }

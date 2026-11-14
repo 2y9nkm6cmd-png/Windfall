@@ -68,6 +68,22 @@ enum DemoGarden {
         }
     }
 
+    /// Checking aids for the way a Mac moves the row of months, which a
+    /// simulator cannot otherwise show. `-demoMonthMacRow YES` gives an
+    /// iPhone or iPad the Mac's row of three pages. With it,
+    /// `-demoMonthDrag 300` holds the row 300 points to the right a
+    /// moment after the page appears, as if two fingers had dragged it
+    /// part of the way to the month before.
+    static var usesMacMonthRow: Bool {
+        isRequested && UserDefaults.standard.bool(forKey: "demoMonthMacRow")
+    }
+
+    static var dragsMonthRow: CGFloat? {
+        guard isRequested else { return nil }
+        let points = UserDefaults.standard.double(forKey: "demoMonthDrag")
+        return points == 0 ? nil : CGFloat(points)
+    }
+
     static var thenMonth: Int? {
         guard isRequested else { return nil }
         let month = UserDefaults.standard.integer(forKey: "demoMonthThen")
@@ -164,6 +180,16 @@ enum DemoGarden {
     }
     static var opensPests: Bool {
         isRequested && UserDefaults.standard.bool(forKey: "demoPests")
+    }
+
+    /// A checking aid: `-demoOpen sighting -demoPlantLetter M` opens the
+    /// sighting form, then its list of plants, already jumped to M, so a
+    /// still picture can show the row of letters and where a jump lands.
+    /// Nil when it was not asked for.
+    static var jumpsToPlantLetter: String? {
+        guard isRequested, let letter = UserDefaults.standard.string(forKey: "demoPlantLetter"),
+              !letter.isEmpty else { return nil }
+        return letter.uppercased()
     }
 
     /// Fills the empty in-memory store with an example garden. Does

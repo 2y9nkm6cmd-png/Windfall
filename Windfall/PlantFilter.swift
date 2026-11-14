@@ -341,3 +341,85 @@ struct PlantFilter: Equatable {
         return (1...12).contains(month) ? names[month - 1] : ""
     }
 }
+
+// MARK: - Jumping to a first letter
+
+/// The plants that begin with one letter, for a list split up by letter.
+///
+/// `<Item>` makes this "generic": it can hold plants, or plain names in
+/// a test, and Swift checks each use on its own.
+struct LetterGroup<Item>: Identifiable {
+    /// "A" to "Z", or "#" for a name that begins with anything else.
+    let letter: String
+    let items: [Item]
+
+    /// What SwiftUI tells the groups apart by. No two share a letter.
+    var id: String { letter }
+}
+
+/// The workings behind the row of letters in the plant chooser
+/// (PlantChooser.swift): which letter a name is filed under, and the
+/// whole list put in order and split up by letter.
+enum PlantLetters {
+
+    /// The heading for names that do not begin with a letter.
+    static let other = "#"
+
+    /// "A" to "Z". 65 is the number computers use for a capital A and 90
+    /// the number for Z.
+    static let alphabet: [String] = (UInt8(65)...UInt8(90)).map { String(UnicodeScalar($0)) }
+
+    /// The letter a name is filed under.
+    ///
+    /// Anything in front of the first letter or number is skipped, so
+    /// "'Autumn Bliss'" is under A. An accent is dropped, so "Échalote"
+    /// is under E. A name that begins with a number, or has no letters
+    /// at all, goes under "#".
+    static func letter(for name: String) -> String {
+        guard let first = name.first(where: { $0.isLetter || $0.isNumber }) else { return other }
+        let plain = key(String(first)).uppercased()
+        return alphabet.contains(plain) ? plain : other
+    }
+
+    /// A name tidied for putting in order: lower case, no accents and no
+    /// spaces at the ends.
+    static func key(_ name: String) -> String {
+        name.trimmingCharacters(in: .whitespaces)
+            .folding(options: [.diacriticInsensitive, .caseInsensitive], locale: nil)
+            .lowercased()
+    }
+
+    /// The whole list in order and split up by letter.
+    ///
+    /// Within a letter the order is by name, then by `detail` (a plant's
+    /// variety), with a plant that has no variety before those that do.
+    /// The letters come out A to Z with "#" last. A letter with nothing
+    /// under it is left out.
+    ///
+    /// `name` and `detail` are small functions handed in, so this can be
+    /// given plants by the app and plain text by the tests.
+    static func groups<Item>(_ items: [Item],
+                             name: (Item) -> String,
+                             detail: (Item) -> String? = { _ in nil }) -> [LetterGroup<Item>] {
+        // Each item is paired with its tidied name and variety once, so
+        // the sorting below does not tidy them again at every comparison.
+        // `place` is where the item came in the list as given, which settles
+        // the order of two items that are otherwise the same.
+        let keyed = items.enumerated().map { place, item in
+            (item: item, name: key(name(item)), detail: key(detail(item) ?? ""), place: place)
+        }
+        let inOrder = keyed.sorted { a, b in
+            if a.name != b.name { return a.name < b.name }
+            if a.detail != b.detail { return a.detail < b.detail }
+            return a.place < b.place
+        }
+        // A dictionary keeps one list for each letter.
+        var byLetter: [String: [Item]] = [:]
+        for entry in inOrder {
+            byLetter[letter(for: name(entry.item)), default: []].append(entry.item)
+        }
+        return (alphabet + [other]).compactMap { letter in
+            byLetter[letter].map { LetterGroup(letter: letter, items: $0) }
+        }
+    }
+}

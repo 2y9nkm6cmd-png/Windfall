@@ -21,9 +21,7 @@ import Observation
 import SwiftData
 import SwiftUI
 import UniformTypeIdentifiers
-#if os(iOS)
 import WidgetKit
-#endif
 
 // MARK: - The week's facts
 
@@ -118,10 +116,12 @@ enum WidgetShare {
     /// Brings the widgets' file up to date from the records. Called when
     /// Today has fetched the weather and when the app is put away.
     ///
-    /// It does nothing where there is no shared folder: on a Mac, and in
-    /// an unsigned copy. It only reads the records. It never changes one.
+    /// It does nothing where there is no shared folder, which means any
+    /// unsigned copy. It only reads the records. It never changes one.
+    /// The example garden never writes the file, so made-up jobs cannot
+    /// turn up on a real Home Screen or desktop.
     static func refresh(context: ModelContext) {
-        guard WindfallGroup.folder != nil else { return }
+        guard WindfallGroup.folder != nil, !DemoGarden.isRequested else { return }
         let calendar = Calendar.current
         let now = Date.now
         var summary = WidgetSummaryStore.read() ?? WidgetSummary(written: now)
@@ -166,10 +166,8 @@ enum WidgetShare {
 
     /// Asks iOS to draw the widgets again.
     static func reload() {
-        #if os(iOS)
         guard WindfallGroup.folder != nil else { return }
         WidgetCenter.shared.reloadAllTimelines()
-        #endif
     }
 
     /// One month for the "This month" widget: the same counts as the
@@ -215,7 +213,7 @@ enum WidgetShare {
     /// small copy of the photo. A warning about a plant that could hurt
     /// someone always travels with the answer.
     static func noteAnswer(_ identification: EiraIdentification, photo: Data?) {
-        guard WindfallGroup.folder != nil, identification.verdict != .nothing else { return }
+        guard WindfallGroup.folder != nil, !DemoGarden.isRequested, identification.verdict != .nothing else { return }
         var summary = WidgetSummaryStore.read() ?? WidgetSummary(written: .now)
         var hasPhoto = false
         if let photo, let url = WidgetSummaryStore.photoURL, let small = smallCopy(of: photo) {

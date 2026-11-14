@@ -209,16 +209,30 @@ struct MainTabView: View {
             .pageZoomWhereOffered()
             // A little air between the sidebar and a screen's title.
             .padding(.leading, 10)
-            // safeAreaInset places Eira's button along the bottom and tells
-            // every screen that the strip is taken, so a long list can
-            // always be scrolled clear of it.
+            // safeAreaInset tells every screen that a strip along the
+            // bottom is taken, so a long list can always be scrolled
+            // clear of Eira's bar. The strip itself is empty: it is as
+            // tall as the bar and the gap beneath it.
+            //
+            // (Until 14 November 2026 the bar itself was put in this
+            // strip. It moved to the overlay below so that it has the
+            // whole height of the page to grow into.)
             .safeAreaInset(edge: .bottom, spacing: 0) {
+                Color.clear.frame(height: EiraFloatingBar.restingHeight + 14)
+            }
+            // An overlay is drawn on top of a view and given the same
+            // space. Eira's bar sits at the foot of it. A conversation
+            // opened from the bar grows up out of it as a panel, into
+            // the rest of that space (`growsInPlace`, EiraPanel.swift).
+            // The page underneath still takes every tap that does not
+            // land on the bar or the panel.
+            .overlay(alignment: .bottom) {
                 // The bar opens across the page and stops a little inside
                 // the edges of the cards above it. The cards begin 14 to
                 // 16 points in from the left and 16 to 24 from the right.
                 // (It ran on past them to the sidebar until William
                 // asked, on 13 November 2026, for it to sit within.)
-                EiraFloatingBar()
+                EiraFloatingBar(growsInPlace: true)
                     .padding(.leading, 20)
                     .padding(.trailing, 28)
                     .padding(.bottom, 14)
@@ -660,13 +674,19 @@ struct SidebarView: View {
         // dies away. The lens has already settled, so that is ignored.
         guard scroll.momentumPhase.isEmpty else { return }
 
-        // How far down the list to go, in points. The Mac has already
-        // turned the scroll the way System Settings says, so the lens
-        // moves as a list would scroll. With natural scrolling (the
-        // Mac's default) fingers pushed up go down the list.
-        // (Until 13 November 2026 the lens followed the fingers like a
-        // drag instead, which William found backwards.)
-        let fingers = -scroll.scrollingDeltaY
+        // Which way the fingers went, as points down the screen. The
+        // lens follows the fingers, as if they were dragging it:
+        // fingers moving down carry the lens down.
+        //
+        // The Mac reports a scroll already turned the way System
+        // Settings says. With "natural scrolling" on (the Mac's
+        // default) fingers moving down give a positive number. With it
+        // off they give a negative one, so that is turned back here.
+        //
+        // (For a day, from the evening of 13 November 2026, the lens
+        // moved as a list scrolls instead: fingers pushed up went down
+        // the list. William asked for this way back on 14 November.)
+        let fingers = scroll.isDirectionInvertedFromDevice ? scroll.scrollingDeltaY : -scroll.scrollingDeltaY
 
         // A mouse wheel has no beginning or end, only clicks. Each
         // click moves one row.

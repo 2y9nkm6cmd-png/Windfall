@@ -69,6 +69,31 @@ final class EiraScreen {
         showing.removeAll { $0.id == id }
     }
 
+    // MARK: Photos on their way to Eira's bar
+
+    /// Photos a page has been given that belong with Eira's bar, each
+    /// as its file's own bytes. The Journal page puts photos dropped on
+    /// it here, and the bar picks them up and opens the journal's
+    /// conversation in its panel. Until 14 November 2026 the page
+    /// opened a sheet of its own for them.
+    ///
+    /// `private(set)` means any code can read this, and only the two
+    /// functions below can change it.
+    private(set) var photosForBar: [Data] = []
+
+    /// A page hands photos over for the bar.
+    func handToBar(_ photos: [Data]) {
+        photosForBar = photos
+    }
+
+    /// The bar takes them. They are handed over once and then gone,
+    /// so the same photos never start two entries.
+    func takePhotosForBar() -> [Data] {
+        let photos = photosForBar
+        photosForBar = []
+        return photos
+    }
+
     /// The sentence that is put in front of a question for the model.
     ///
     /// It says plainly that this is background, because a small model

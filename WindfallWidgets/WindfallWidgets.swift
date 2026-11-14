@@ -2,7 +2,7 @@
 //  WindfallWidgets.swift
 //  WindfallWidgets
 //
-//  The widget program itself: iPhone and iPad only for now.
+//  The widget program itself, for iPhone, iPad and Mac.
 //
 //  How a widget works. iOS does not run a widget all the time. It asks
 //  for a "timeline": a stack of ready-made cards, each with the time it
@@ -135,6 +135,18 @@ extension View {
     }
 }
 
+/// The Lock Screen shapes, which exist only on iPhone and iPad. On a
+/// Mac both lists are empty, so a widget there offers its other sizes.
+enum WidgetShapes {
+    #if os(iOS)
+    static let weekLockScreen: [WidgetFamily] = [.accessoryInline, .accessoryCircular, .accessoryRectangular]
+    static let lockScreenCircle: [WidgetFamily] = [.accessoryCircular]
+    #else
+    static let weekLockScreen: [WidgetFamily] = []
+    static let lockScreenCircle: [WidgetFamily] = []
+    #endif
+}
+
 private extension WidgetFamily {
     var size: WidgetSize {
         switch self {
@@ -156,6 +168,9 @@ struct WeekWidgetBody: View {
     private var toDo: [WidgetJob] { (jobs ?? []).filter { !entry.ticked.contains($0.id) } }
 
     var body: some View {
+        #if os(iOS)
+        // The Lock Screen shapes. A Mac has none, and the `#if` keeps
+        // these lines out of the Mac's copy of the program altogether.
         switch family {
         case .accessoryInline:
             // The single line above the Lock Screen's clock.
@@ -181,14 +196,22 @@ struct WeekWidgetBody: View {
             .containerBackground(.clear, for: .widget)
             .widgetURL(WidgetLink.today)
         default:
-            WeekWidgetView(jobs: jobs, ticked: entry.ticked, size: family.size, palette: entry.palette,
-                           tickControl: { job, ring in
-                               // Button(intent:) is the kind of button a
-                               // widget may have: it runs TickJobIntent.
-                               AnyView(Button(intent: TickJobIntent(jobID: job.id)) { ring }.buttonStyle(.plain))
-                           })
-                .windfallWidget(entry.palette, opens: WidgetLink.today)
+            home
         }
+        #else
+        home
+        #endif
+    }
+
+    /// The Home Screen and desktop sizes.
+    private var home: some View {
+        WeekWidgetView(jobs: jobs, ticked: entry.ticked, size: family.size, palette: entry.palette,
+                       tickControl: { job, ring in
+                           // Button(intent:) is the kind of button a
+                           // widget may have: it runs TickJobIntent.
+                           AnyView(Button(intent: TickJobIntent(jobID: job.id)) { ring }.buttonStyle(.plain))
+                       })
+            .windfallWidget(entry.palette, opens: WidgetLink.today)
     }
 }
 
@@ -199,8 +222,7 @@ struct WeekWidget: Widget {
         }
         .configurationDisplayName("This week")
         .description("The jobs that will not wait: frost, wind, last chances to sow and crops that are ready.")
-        .supportedFamilies([.systemSmall, .systemMedium, .systemLarge,
-                            .accessoryInline, .accessoryCircular, .accessoryRectangular])
+        .supportedFamilies([.systemSmall, .systemMedium, .systemLarge] + WidgetShapes.weekLockScreen)
     }
 }
 
@@ -262,7 +284,7 @@ struct IdentifyWidget: Widget {
         }
         .configurationDisplayName("Identify")
         .description("Give Eira a photo. The wider one also shows her last answer.")
-        .supportedFamilies([.systemSmall, .systemMedium, .accessoryCircular])
+        .supportedFamilies([.systemSmall, .systemMedium] + WidgetShapes.lockScreenCircle)
     }
 }
 
@@ -271,6 +293,7 @@ struct IdentifyWidgetBody: View {
     @Environment(\.widgetFamily) private var family
 
     var body: some View {
+        #if os(iOS)
         if family == .accessoryCircular {
             ZStack {
                 AccessoryWidgetBackground()
@@ -280,10 +303,17 @@ struct IdentifyWidgetBody: View {
             .containerBackground(.clear, for: .widget)
             .widgetURL(WidgetLink.identify)
         } else {
-            IdentifyWidgetView(answer: entry.summary?.answer, photo: entry.photo,
-                               style: family == .systemSmall ? .button : .withAnswer, palette: entry.palette)
-                .windfallWidget(entry.palette, opens: WidgetLink.identify)
+            home
         }
+        #else
+        home
+        #endif
+    }
+
+    private var home: some View {
+        IdentifyWidgetView(answer: entry.summary?.answer, photo: entry.photo,
+                           style: family == .systemSmall ? .button : .withAnswer, palette: entry.palette)
+            .windfallWidget(entry.palette, opens: WidgetLink.identify)
     }
 }
 
@@ -327,7 +357,7 @@ struct EiraWidget: Widget {
         }
         .configurationDisplayName("Ask Eira")
         .description("Opens Eira's chat.")
-        .supportedFamilies([.systemSmall, .accessoryCircular])
+        .supportedFamilies([.systemSmall] + WidgetShapes.lockScreenCircle)
     }
 }
 
@@ -336,6 +366,7 @@ struct EiraWidgetBody: View {
     @Environment(\.widgetFamily) private var family
 
     var body: some View {
+        #if os(iOS)
         if family == .accessoryCircular {
             ZStack {
                 AccessoryWidgetBackground()
@@ -345,9 +376,16 @@ struct EiraWidgetBody: View {
             .containerBackground(.clear, for: .widget)
             .widgetURL(WidgetLink.eira)
         } else {
-            EiraWidgetView(palette: entry.palette)
-                .windfallWidget(entry.palette, opens: WidgetLink.eira)
+            home
         }
+        #else
+        home
+        #endif
+    }
+
+    private var home: some View {
+        EiraWidgetView(palette: entry.palette)
+            .windfallWidget(entry.palette, opens: WidgetLink.eira)
     }
 }
 

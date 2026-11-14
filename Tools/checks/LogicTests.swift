@@ -740,6 +740,11 @@ struct LogicTests {
         check(tracker.current?.full == "the plant library", "a screen that comes back goes on top")
         tracker.hide(id: rootID); tracker.hide(id: detailID)
         check(tracker.current == nil, "with every screen gone there is nothing to tell")
+        // Photos a page hands over for Eira's bar
+        tracker.handToBar([Data([1, 2]), Data([3])])
+        check(tracker.photosForBar.count == 2, "photos dropped on a page wait for Eira's bar")
+        let handedOver = tracker.takePhotosForBar()
+        check(handedOver == [Data([1, 2]), Data([3])] && tracker.photosForBar.isEmpty && tracker.takePhotosForBar().isEmpty, "the bar takes them once and they are gone")
         check(EiraSight.name("Apple", variety: "Spartan") == "Apple, Spartan" && EiraSight.name("Chervil", variety: " ") == "Chervil" && EiraSight.name("Chervil", variety: nil) == "Chervil", "a name carries its variety only when it has one")
         // Preserving, pesticides and medicine are fixed wording too
         let stopped: [(String, String)] = [
@@ -1184,6 +1189,7 @@ struct LogicTests {
         check(SpeciesGuess(candidates: [yellowIris, dropwort], isSure: true).lookAlikeWarning != nil, "a carrot-family plant in second place is enough for the warning")
         check(SpeciesGuess(candidates: [yellowIris, wheatear], isSure: false).lookAlikeWarning == nil && SpeciesGuess(candidates: [], isSure: false).lookAlikeWarning == nil, "a bird that shares a plant's genus name brings no warning, and nor does an empty answer")
         check(DangerousLookAlikes.genus(of: "Conium maculatum") == "Conium" && DangerousLookAlikes.genus(of: "") == "" && DangerousLookAlikes.isCarrotFamily(dropwort.entry) && !DangerousLookAlikes.isCarrotFamily(wheatear.entry) && !DangerousLookAlikes.isCarrotFamily(yellowIris.entry), "the genus is the first word, and the group must be a plant")
+        check(["Selinum", "Peucedanum", "Bunium", "Ligusticum", "Eryngium"].allSatisfy { DangerousLookAlikes.carrotFamilyGenera.contains($0) } && DangerousLookAlikes.carrotFamilyGenera.count == 50, "the carrot-family list holds the 19 genera added for the wide list, 50 in all")
         check(["hemlock", "hemlock water-dropwort", "giant hogweed", "did not sow it yourself"].allSatisfy { DangerousLookAlikes.carrotFamilyWarning.contains($0) }, "the warning names the deadly plants and says what to do")
         // A correction typed as an ordinary message.
         let correctionsRead: [(typed: String, kept: String?)] = [
@@ -1461,6 +1467,17 @@ struct LogicTests {
         asking.send("What does it feed on?")
         await waitUntilIdle(asking)
         check(photoEngine.starts.last?.history.contains { $0.role == .assistant && $0.content.contains("This looks like Buff-tailed Bumblebee") } == true && asking.messages.last?.role == .assistant, "the text model is handed her answer to the photo before a follow-up question")
+
+        // The row of letters in the plant chooser.
+        check(PlantLetters.alphabet.count == 26 && PlantLetters.alphabet.first == "A" && PlantLetters.alphabet.last == "Z", "the alphabet runs from A to Z")
+        check(PlantLetters.letter(for: "marjoram") == "M" && PlantLetters.letter(for: "  Yarrow") == "Y" && PlantLetters.letter(for: "'Autumn Bliss'") == "A" && PlantLetters.letter(for: "Échalote") == "E", "a name is filed under its first letter, whatever its case, accent or opening mark")
+        check(PlantLetters.letter(for: "3 Sisters") == PlantLetters.other && PlantLetters.letter(for: "") == PlantLetters.other && PlantLetters.letter(for: "—") == PlantLetters.other, "a name with no first letter is filed under #")
+        let lettered = PlantLetters.groups(["Basil", "apple|Spartan", "Apple (Cider)|Fiona", "Apple|Pendragon", "Yarrow", "7 Up", "Apple", "Alfalfa", "apple (Cider)|Camelot"],
+                                           name: { String($0.split(separator: "|")[0]) },
+                                           detail: { $0.contains("|") ? String($0.split(separator: "|")[1]) : nil })
+        check(lettered.map(\.letter) == ["A", "B", "Y", "#"], "letters come out A to Z with # last, and empty ones are left out: \(lettered.map(\.letter))")
+        check(lettered.first?.items == ["Alfalfa", "Apple", "Apple|Pendragon", "apple|Spartan", "apple (Cider)|Camelot", "Apple (Cider)|Fiona"], "within a letter the order is by name and then by variety: \(lettered.first?.items ?? [])")
+        check(PlantLetters.groups([String](), name: { $0 }).isEmpty && PlantLetters.groups(["Sage", "sage"], name: { $0 }).first?.items == ["Sage", "sage"], "an empty list gives no letters, and two names alike keep the order they came in")
 
         print("   logic tests: \(passes) passed, \(failures) failed")
         exit(failures == 0 ? 0 : 1)

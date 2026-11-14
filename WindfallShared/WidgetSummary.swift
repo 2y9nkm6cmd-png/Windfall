@@ -19,6 +19,9 @@
 //
 
 import Foundation
+#if os(macOS)
+import Security
+#endif
 
 // MARK: - The shared folder
 
@@ -28,16 +31,29 @@ nonisolated enum WindfallGroup {
     /// files, which is what gives each program its key to the folder.
     static let identifier = "group.com.54brookroad.Windfall"
 
-    /// The shared folder, or nil where there is none: on a Mac, and in
-    /// any copy built without signing. Everything below does nothing
-    /// when this is nil.
+    /// The shared folder, or nil where there is none: in any copy built
+    /// without signing. Everything below does nothing when this is nil.
     static var folder: URL? {
-        #if os(iOS)
-        return FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: identifier)
-        #else
-        return nil
+        #if os(macOS)
+        // A Mac hands the folder's address to any program that asks,
+        // key or no key, and then questions the person at the keyboard
+        // when a program without the key tries to use it. So the key is
+        // looked for first. An unsigned copy has none and gets nil.
+        guard holdsKey else { return nil }
         #endif
+        return FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: identifier)
     }
+
+    #if os(macOS)
+    /// True if this copy of the program was signed with the App Group
+    /// in its entitlements. Asked once and remembered.
+    private static let holdsKey: Bool = {
+        guard let task = SecTaskCreateFromSelf(nil),
+              let groups = SecTaskCopyValueForEntitlement(task, "com.apple.security.application-groups" as CFString, nil) as? [String]
+        else { return false }
+        return groups.contains(identifier)
+    }()
+    #endif
 
     /// Small settings both programs can read and write, such as which
     /// jobs are ticked. Nil where there is no shared folder, and the app
