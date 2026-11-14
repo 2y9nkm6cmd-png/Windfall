@@ -177,12 +177,17 @@ struct PlantEditView: View {
 
     /// A fact's name in small soft letters above its box.
     private func labelled<Box: View>(_ factField: PlantFacts.Field, @ViewBuilder box: () -> Box) -> some View {
-        VStack(alignment: .leading, spacing: 5) {
+        // The box is made here, once, and the finished box is handed to
+        // FieldBox. FieldBox keeps hold of what it is given to use
+        // later, and Swift does not let it keep `box` itself, which is
+        // only lent to this function for as long as it runs.
+        let inside = box()
+        return VStack(alignment: .leading, spacing: 5) {
             Text(factField.label)
                 .font(.caption)
                 .foregroundStyle(Theme.inkSoft)
             FieldBox {
-                box()
+                inside
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
