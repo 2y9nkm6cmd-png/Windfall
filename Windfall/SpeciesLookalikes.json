@@ -1,0 +1,348 @@
+{
+ "about": "Species that cannot reliably be told apart from a photo, or only from one particular view. WRITTEN BY CLAUDE FROM MEMORY on 13 November 2026. CHECK every line against a field guide or the recording scheme before relying on it. When the image model's top answer is in a group, Eira should say 'one of these' and give the reason, not pick one.",
+ "checked": false,
+ "groups": [
+  {
+   "names": [
+    "Bombus terrestris",
+    "Bombus lucorum"
+   ],
+   "why": "Workers of the buff-tailed and white-tailed bumblebees cannot reliably be separated by eye. Queens and males usually can."
+  },
+  {
+   "names": [
+    "Bombus pascuorum",
+    "Bombus humilis",
+    "Bombus muscorum"
+   ],
+   "why": "The ginger carder bees are very alike. Separating them needs a close view of the hairs on the sides of the thorax and on the abdomen, and worn bees often cannot be named."
+  },
+  {
+   "names": [
+    "Bombus hortorum",
+    "Bombus ruderatus"
+   ],
+   "why": "The garden and ruderal bumblebees are very alike. Face length and band shape help but many photos will not show enough."
+  },
+  {
+   "names": [
+    "Bombus lapidarius",
+    "Bombus rupestris",
+    "Bombus ruderarius"
+   ],
+   "why": "Black bumblebees with red tails: the red-tailed bumblebee, its cuckoo and the red-shanked carder bee. Wing colour and the hairs on the hind leg separate them."
+  },
+  {
+   "names": [
+    "Andrena haemorrhoa",
+    "Andrena cineraria",
+    "Andrena fulva"
+   ],
+   "why": "These three are distinctive as fresh females, but most other mining bees (Andrena) need a microscope, so a mining bee that is not a clear match should be left at 'a mining bee'."
+  },
+  {
+   "names": [
+    "Vespula vulgaris",
+    "Vespula germanica"
+   ],
+   "why": "Common and German wasps are separated by the mark on the face and the pattern on the thorax, which a photo from above rarely shows."
+  },
+  {
+   "names": [
+    "Eristalis tenax",
+    "Eristalis pertinax",
+    "Eristalis arbustorum"
+   ],
+   "why": "Drone flies are separated by leg colour, the stripe on the face and the eye hairs. A photo needs to show the front legs and face."
+  },
+  {
+   "names": [
+    "Syrphus ribesii",
+    "Syrphus vitripennis",
+    "Syrphus torvus"
+   ],
+   "why": "Syrphus hoverflies cannot be separated from above. Females need a view of the hind leg, and males usually need a microscope."
+  },
+  {
+   "names": [
+    "Eupeodes corollae",
+    "Eupeodes luniger"
+   ],
+   "why": "These hoverflies differ in the shape of the yellow marks and whether they reach the edge of the abdomen. Many photos are not clear enough."
+  },
+  {
+   "names": [
+    "Platycheirus albimanus"
+   ],
+   "why": "Platycheirus hoverflies are a large group of similar species. Males are named from their front legs, and many females cannot be named from a photo."
+  },
+  {
+   "names": [
+    "Sphaerophoria scripta"
+   ],
+   "why": "Only males with the long abdomen reaching past the wing tips can be named. Female Sphaerophoria cannot be separated from a photo."
+  },
+  {
+   "names": [
+    "Melanostoma scalare",
+    "Melanostoma mellinum"
+   ],
+   "why": "Separated by the shape of the abdomen and its marks, which is hard to judge in a photo."
+  },
+  {
+   "names": [
+    "Chrysoperla carnea"
+   ],
+   "why": "The common green lacewing is a group of species that cannot be separated by eye."
+  },
+  {
+   "names": [
+    "Aphis fabae"
+   ],
+   "why": "Black aphids on plants other than beans may be other species. Aphids are named from the plant they are on and often need a microscope."
+  },
+  {
+   "names": [
+    "Myrmica sabuleti",
+    "Myrmica rubra",
+    "Myrmica ruginodis",
+    "Myrmica scabrinodis"
+   ],
+   "why": "Red ants (Myrmica) need a microscope to tell apart."
+  },
+  {
+   "names": [
+    "Pieris rapae",
+    "Pieris napi",
+    "Pieris brassicae"
+   ],
+   "why": "The whites are separated by the underside of the hindwing (green veins) and the size and shape of the black wing tip. A view from above alone is often not enough."
+  },
+  {
+   "names": [
+    "Thymelicus sylvestris",
+    "Thymelicus lineola"
+   ],
+   "why": "Small and Essex skippers are separated by the colour of the underside of the antenna tips, which needs a head-on photo."
+  },
+  {
+   "names": [
+    "Polyommatus icarus",
+    "Aricia agestis"
+   ],
+   "why": "Female common blues can be brown and look like the brown argus. The spots on the underside separate them."
+  },
+  {
+   "names": [
+    "Noctua comes",
+    "Noctua janthe",
+    "Noctua fimbriata",
+    "Noctua pronuba"
+   ],
+   "why": "The yellow underwings are variable. Size, the shape of the dark hindwing border and marks on the forewing separate them, and worn moths are hard."
+  },
+  {
+   "names": [
+    "Mythimna impura",
+    "Mythimna pallens"
+   ],
+   "why": "Smoky and common wainscots are separated mainly by hindwing colour, which a resting moth hides."
+  },
+  {
+   "names": [
+    "Mesoligia furuncula"
+   ],
+   "why": "The minors are small, variable moths. Several related species can only be named by dissection."
+  },
+  {
+   "names": [
+    "Hoplodrina ambigua"
+   ],
+   "why": "Vine's rustic, the uncertain and the rustic are very alike and often recorded together."
+  },
+  {
+   "names": [
+    "Orthosia cerasi",
+    "Orthosia cruda",
+    "Orthosia incerta"
+   ],
+   "why": "The spring quakers and the clouded drab are variable and overlap. Size and the shape of the marks help."
+  },
+  {
+   "names": [
+    "Eilema griseola",
+    "Eilema lurideola"
+   ],
+   "why": "Footman moths are separated by wing shape and the yellow stripe along the front edge."
+  },
+  {
+   "names": [
+    "Agriphila tristella",
+    "Agriphila straminella",
+    "Agriphila geniculea",
+    "Chrysoteuchia culmella"
+   ],
+   "why": "Grass moths are small and alike. Worn ones often cannot be named."
+  },
+  {
+   "names": [
+    "Eudonia lacustrata",
+    "Eudonia mercurella"
+   ],
+   "why": "The small grey scopariine moths are hard to name from photos."
+  },
+  {
+   "names": [
+    "Gymnoscelis rufifasciata",
+    "Eupithecia centaureata"
+   ],
+   "why": "Most pugs are difficult. The lime-speck pug is distinctive, but many others are not safely named from a photo."
+  },
+  {
+   "names": [
+    "Sympetrum striolatum",
+    "Sympetrum sanguineum"
+   ],
+   "why": "Common and ruddy darters are separated by leg colour (striped or all black) and the shape of the abdomen."
+  },
+  {
+   "names": [
+    "Coenagrion puella",
+    "Enallagma cyathigerum"
+   ],
+   "why": "Azure and common blue damselflies are separated by the mark on the second segment and the stripes on the side of the thorax."
+  },
+  {
+   "names": [
+    "Chorthippus brunneus",
+    "Pseudochorthippus parallelus",
+    "Omocestus viridulus"
+   ],
+   "why": "Grasshoppers vary a great deal in colour. They are named from the shape of the lines on the pronotum, wing length and song."
+  },
+  {
+   "names": [
+    "Meconema thalassinum",
+    "Meconema meridionale"
+   ],
+   "why": "The oak bush-crickets are separated by wing length: the southern one has only tiny wing stubs."
+  },
+  {
+   "names": [
+    "Palomena prasina",
+    "Nezara viridula"
+   ],
+   "why": "The green shield bug and the southern green shield bug are alike, especially as nymphs."
+  },
+  {
+   "names": [
+    "Pterostichus madidus"
+   ],
+   "why": "Many black ground beetles look alike and need a close view of the legs and the shape of the thorax."
+  },
+  {
+   "names": [
+    "Otiorhynchus sulcatus"
+   ],
+   "why": "Several similar weevils occur in gardens."
+  },
+  {
+   "names": [
+    "Steatoda nobilis",
+    "Steatoda grossa",
+    "Steatoda bipunctata"
+   ],
+   "why": "False widow spiders are variable and overlap in pattern. Certain naming usually needs a specialist."
+  },
+  {
+   "names": [
+    "Cepaea nemoralis",
+    "Cepaea hortensis"
+   ],
+   "why": "Banded snails are separated by the colour of the lip of the adult shell (dark or white), which must be in view, and a few break the rule."
+  },
+  {
+   "names": [
+    "Trochulus striolatus",
+    "Hygromia cinctella",
+    "Monacha cantiana"
+   ],
+   "why": "Small brown garden snails are easily confused, especially when young."
+  },
+  {
+   "names": [
+    "Deroceras reticulatum",
+    "Limacus maculatus",
+    "Limax maximus"
+   ],
+   "why": "Slugs vary and young ones differ from adults. Many slugs cannot be named from a photo, and some need dissection."
+  },
+  {
+   "names": [
+    "Lissotriton vulgaris",
+    "Lissotriton helveticus"
+   ],
+   "why": "Female and young smooth and palmate newts are very alike. The throat (spotted or plain) separates them."
+  },
+  {
+   "names": [
+    "Rana temporaria",
+    "Pelophylax ridibundus"
+   ],
+   "why": "Common frogs have a dark patch behind the eye. Water frogs do not, and are harder to tell from one another."
+  },
+  {
+   "names": [
+    "Pipistrellus pipistrellus",
+    "Pipistrellus pygmaeus"
+   ],
+   "why": "Common and soprano pipistrelles are separated by the pitch of their calls on a bat detector, not by sight."
+  },
+  {
+   "names": [
+    "Apodemus sylvaticus",
+    "Apodemus flavicollis"
+   ],
+   "why": "Wood mice and yellow-necked mice are separated by the yellow collar across the chest."
+  },
+  {
+   "names": [
+    "Microtus agrestis",
+    "Clethrionomys glareolus"
+   ],
+   "why": "Field and bank voles differ in fur colour and tail length, which a quick photo may not show."
+  },
+  {
+   "names": [
+    "Phylloscopus collybita",
+    "Phylloscopus trochilus"
+   ],
+   "why": "Chiffchaff and willow warbler are best told apart by song. Leg colour and wing length help in a good photo."
+  },
+  {
+   "names": [
+    "Poecile palustris",
+    "Poecile montanus"
+   ],
+   "why": "Marsh and willow tits are told apart most reliably by call."
+  },
+  {
+   "names": [
+    "Taraxacum officinale"
+   ],
+   "why": "Dandelions are a group of several hundred very similar microspecies. 'Dandelion' is as far as a photo goes."
+  },
+  {
+   "names": [
+    "Rubus fruticosus"
+   ],
+   "why": "Brambles are a group of several hundred microspecies. 'Bramble' is as far as a photo goes."
+  },
+  {
+   "names": [
+    "Rosa canina"
+   ],
+   "why": "Wild roses hybridise and several look alike. Hips, sepals and prickles are needed."
+  }
+ ]
+}
