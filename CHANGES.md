@@ -74,6 +74,10 @@ _values = State(initialValue: PlantFacts.values(of: plant))
 - **The Mac itself has not been looked at by Claude.** The two-column page was seen on a 13-inch iPad, which lays out the same way. The pencils, the Edit button and the size of the sheet on the Mac are untried.
 - Saving was seen working in the running app: five example changes typed into the sheet, saved, and shown on the page. Typing by hand and pressing the month buttons have not been tried by anyone.
 
+**For other code that writes a plant's fact.** `PlantFacts.write("...", forKey: "pruning", to: plant)` writes one box and notes it as changed by hand, so the import leaves it alone. It is there for the work on keeping facts read on the web (the branch `eira-web-finds`).
+
+**Found after this was merged: an older build quietly undoes a newer database.** Tried at 13:45 in the simulator. A build from before this change was started on a database this version had opened. It opened with no complaint, and afterwards the two new values were gone from every plant. The plants themselves were untouched. So SwiftData reshapes a database to fit whichever build opens it, and an older build removes whatever it does not know. **Only the newest build should be opened on real records.** A chat's own test build is run with the example garden. Knowledge base doc 42 has the detail and a suggestion for a guard.
+
 **Checking aids.** `-demoPlant Achillea -demoOpen plantEdit` opens the sheet, and `plantEditSowing` opens it at the sowing card. `-demoEdit "spacingM=0.4|notes=Cut back in March"` types changes into it, and `-demoEditSave YES` saves them, so a still can show the page afterwards.
 ## 14 November 2026, 13:33: one way of giving Eira a photo
 
