@@ -119,14 +119,59 @@ struct WIconView: View {
 
 // MARK: - Glass and paper
 
+extension EnvironmentValues {
+    /// When true, `cardGlass` paints a plain surface in place of Liquid
+    /// Glass. Today sets it while its cards are being rearranged.
+    ///
+    /// `@Entry` makes a new setting that a view can hand down to
+    /// everything inside it with `.environment(\.paintsGlassFlat, true)`.
+    @Entry var paintsGlassFlat = false
+}
+
+/// Liquid Glass, or a plain stand-in for it.
+///
+/// Why: glass works out its look from whatever is behind it, blurred and
+/// bent. When a card tilts, that has to be worked out again on every
+/// frame. With every card on Today rocking at once this took about a
+/// tenth of a second a frame (measured in the iPad simulator, 13 November
+/// 2026), so the jiggle showed about ten pictures a second and the cards
+/// jumped from one lean to the other instead of rocking. A painted
+/// surface costs almost nothing to tilt.
+struct CardGlass<S: Shape>: ViewModifier {
+    let tint: Color
+    let shape: S
+    let interactive: Bool
+    @Environment(\.paintsGlassFlat) private var paintsFlat
+
+    func body(content: Content) -> some View {
+        if paintsFlat {
+            content.background {
+                // Cream, then the glass's own tint over it, with a fine
+                // light edge like the rim of the glass.
+                shape.fill(Theme.card.opacity(0.92))
+                    .overlay { shape.fill(tint) }
+                    .overlay { shape.stroke(.white.opacity(0.45), lineWidth: 1) }
+            }
+        } else {
+            content.glassEffect(interactive ? .regular.tint(tint).interactive() : .regular.tint(tint),
+                                in: shape)
+        }
+    }
+}
+
 extension View {
 
     /// Turns a view into a panel of frosted glass with rounded corners.
     /// The slight cream tint keeps text on it easy to read.
     func glassCard(cornerRadius: CGFloat = Theme.cardRadius, padding: CGFloat = 16) -> some View {
         self.padding(padding)
-            .glassEffect(.regular.tint(Theme.card.opacity(0.55)),
-                         in: .rect(cornerRadius: cornerRadius))
+            .cardGlass(Theme.card.opacity(0.55), in: .rect(cornerRadius: cornerRadius))
+    }
+
+    /// Glass that can be swapped for a plain painted surface. See
+    /// `CardGlass` for why.
+    func cardGlass<S: Shape>(_ tint: Color, in shape: S, interactive: Bool = false) -> some View {
+        modifier(CardGlass(tint: tint, shape: shape, interactive: interactive))
     }
 
     /// Gives a screen the cream paper background. Lists and forms have a

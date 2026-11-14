@@ -232,6 +232,9 @@ struct TodayView: View {
                         .strokeBorder(Theme.leaf, lineWidth: 2.5)
                 }
             }
+            // While rearranging, glass is painted flat so the cards can
+            // rock smoothly. See `CardGlass` in Theme.swift.
+            .environment(\.paintsGlassFlat, isArranging)
             .modifier(Wiggle(isOn: isArranging,
                              leansLeft: canvas.arrangement.readingOrder.firstIndex(of: panel).map { $0 % 2 == 0 } ?? false))
             .modifier(LiftToArrange(panel: panel, title: title(of: panel), isArranging: isArranging) { isLifted in
@@ -397,7 +400,7 @@ struct TodayView: View {
                 .contentShape(.circle)
         }
         .buttonStyle(.plain)
-        .glassEffect(.regular.tint(Theme.card.opacity(0.6)).interactive(), in: .circle)
+        .cardGlass(Theme.card.opacity(0.6), in: .circle, interactive: true)
         .disabled(!canMove)
         .opacity(canMove ? 1 : 0.35)
         .accessibilityLabel("Move \(title(of: panel)) \(step < 0 ? "earlier" : "later")")
@@ -448,7 +451,10 @@ struct TodayView: View {
         .padding(.horizontal, 14)
         .padding(.vertical, 10)
         .frame(maxWidth: 520)
-        .glassEffect(.regular.tint(Theme.card.opacity(0.7)), in: .rect(cornerRadius: 20))
+        .cardGlass(Theme.card.opacity(0.7), in: .rect(cornerRadius: 20))
+        // This bar shows only while rearranging, over the rocking cards,
+        // so it is painted flat too. See `CardGlass` in Theme.swift.
+        .environment(\.paintsGlassFlat, true)
         .padding(.horizontal, 16)
         .padding(.top, 8)
     }
@@ -667,8 +673,7 @@ struct TodayView: View {
                         .contentShape(.rect)
                     }
                     .buttonStyle(.plain)
-                    .glassEffect(.regular.tint(Theme.card.opacity(0.5)).interactive(),
-                                 in: .rect(cornerRadius: 18))
+                    .cardGlass(Theme.card.opacity(0.5), in: .rect(cornerRadius: 18), interactive: true)
                 }
             }
         }
@@ -1142,8 +1147,7 @@ struct TodayView: View {
                 .contentShape(.rect)
             }
             .buttonStyle(.plain)
-            .glassEffect(.regular.tint(Theme.journalCard.opacity(0.8)).interactive(),
-                         in: .rect(cornerRadius: Theme.cardRadius))
+            .cardGlass(Theme.journalCard.opacity(0.8), in: .rect(cornerRadius: Theme.cardRadius), interactive: true)
         }
     }
 }
@@ -1190,20 +1194,35 @@ private enum PanelRoom {
     case page, wideColumn, sideColumn
 }
 
-/// The jiggle. A card rocks and bobs a little, over and over, while
-/// `isOn` is true.
+/// The jiggle. A card rocks gently from side to side, over and over,
+/// while `isOn` is true.
 ///
 /// Apple publishes no figures for the jiggle of the icons on the Home
 /// Screen, so this copies what can be seen there:
 ///
-///   - each thing turns a degree or so about its middle, quickly;
-///   - it also bobs up and down by about a point, at a pace of its own;
+///   - each thing turns a little about its middle, one way then the
+///     other, and nothing else: no bobbing up and down;
 ///   - no two things keep the same time, so they drift in and out of
 ///     step and never move as one.
 ///
-/// The first version here rocked every card through the same angle at
-/// the same pace, which read as a machine and not as a jiggle (William,
-/// 13 November 2026).
+/// History (William, 13 November 2026):
+///   - first version: every card rocked through the same angle at the
+///     same pace, which read as a machine;
+///   - second version: added a bob up and down at a second pace, about
+///     three rocks a second. William: "too much, too fast" and "the
+///     wrong kind of motion". The bob made it bounce, and setting the
+///     starting lean in the same moment as starting the animation could
+///     let SwiftUI skip the lean, so a card rocked out to one side only.
+///
+/// This version uses a keyframe animation: a list of the angles the card
+/// passes through, and how long it takes to reach each one. SwiftUI plays
+/// the list and, with `repeating`, plays it again for as long as `isOn`
+/// is true. When `isOn` turns false it finishes the swing it is on and
+/// comes to rest upright.
+///
+/// ⚠️ CHECK: the pace (a full rock, left and right and back, in about half
+/// a second) is Claude's judgement, slower than before. Adjust
+/// `rockSeconds` if it still looks wrong.
 ///
 /// A ViewModifier is a reusable change that can be applied to any view,
 /// here with `.modifier(Wiggle(...))`.
@@ -1215,27 +1234,39 @@ private struct Wiggle: ViewModifier {
     // Set in the system's Accessibility settings by people for whom
     // movement on screen is unpleasant.
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var tilt = 0.0
-    @State private var bob = 0.0
     /// How wide the card is, which sets how far it may turn.
     @State private var cardWidth: CGFloat = 320
-    // Each card's own pace, chosen once when it is made. `@State` keeps
-    // the two numbers for as long as the card lives.
-    @State private var tiltPace = Double.random(in: 0.115...0.165)
-    @State private var bobPace = Double.random(in: 0.17...0.25)
+    /// Each card's own time for one full rock, chosen once when it is
+    /// made. `@State` keeps the number for as long as the card lives.
+    @State private var rockSeconds = Double.random(in: 0.46...0.58)
 
-    /// The angle that moves the card's corners about a point and three
-    /// quarters. A small card turns further than a wide one, as an icon
+    /// The angle, in degrees, that moves the card's corners about a point
+    /// and a half. A small card turns further than a wide one, as an icon
     /// turns further than a widget.
     private var angle: Double {
-        let radians = 1.75 / max(Double(cardWidth) / 2, 40)
-        return min(1.8, max(0.22, radians * 180 / .pi))
+        let radians = 1.5 / max(Double(cardWidth) / 2, 40)
+        return min(1.5, max(0.2, radians * 180 / .pi))
     }
 
     func body(content: Content) -> some View {
+        // Which way this card leans first: +1 or -1.
+        let lean = leansLeft ? -1.0 : 1.0
+        let quarter = rockSeconds / 4
+
         content
-            .rotationEffect(.degrees(tilt))
-            .offset(y: bob)
+            .keyframeAnimator(initialValue: 0.0,
+                              repeating: isOn && !reduceMotion) { view, tilt in
+                // `tilt` is the angle the keyframes have reached right now.
+                view.rotationEffect(.degrees(tilt))
+            } keyframes: { _ in
+                // Upright, out to one side, across to the other, and back
+                // to upright. `CubicKeyframe` curves smoothly through each
+                // angle, so the card slows at each end of its swing like
+                // something rocking, rather than bouncing off a wall.
+                CubicKeyframe(angle * lean, duration: quarter)
+                CubicKeyframe(-angle * lean, duration: quarter * 2)
+                CubicKeyframe(0, duration: quarter)
+            }
             .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { cardWidth = $0 }
             .overlay {
                 // With Reduce Motion on, a dashed outline says "this can
@@ -1243,28 +1274,6 @@ private struct Wiggle: ViewModifier {
                 if isOn && reduceMotion {
                     RoundedRectangle(cornerRadius: Theme.cardRadius)
                         .strokeBorder(Theme.inkSoft, style: StrokeStyle(lineWidth: 1.5, dash: [6, 5]))
-                }
-            }
-            // `initial: true` runs this when the card first appears too,
-            // so a card that has just been moved carries on jiggling.
-            .onChange(of: isOn, initial: true) { _, isNowOn in
-                if isNowOn && !reduceMotion {
-                    // Start at one end of the swing, then rock to the
-                    // other and back for ever.
-                    let lean = leansLeft ? -1.0 : 1.0
-                    tilt = -angle * lean
-                    bob = -0.7
-                    withAnimation(.easeInOut(duration: tiltPace).repeatForever(autoreverses: true)) {
-                        tilt = angle * lean
-                    }
-                    withAnimation(.easeInOut(duration: bobPace).repeatForever(autoreverses: true)) {
-                        bob = 0.7
-                    }
-                } else {
-                    withAnimation(.easeOut(duration: 0.15)) {
-                        tilt = 0
-                        bob = 0
-                    }
                 }
             }
     }
@@ -1566,8 +1575,7 @@ struct HarvestPicker: View {
                             .contentShape(.rect)
                         }
                         .buttonStyle(.plain)
-                        .glassEffect(.regular.tint(Theme.card.opacity(0.5)).interactive(),
-                                     in: .rect(cornerRadius: 18))
+                        .cardGlass(Theme.card.opacity(0.5), in: .rect(cornerRadius: 18), interactive: true)
                     }
                 }
             }
