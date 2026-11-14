@@ -7,6 +7,78 @@ run without the Mac (every file reads as valid Swift, 323 logic tests
 pass). Those do not build the screens. Expect things to put right when
 it is first built, and treat how everything here looks as untried.
 
+## 14 November 2026, 16:50: widgets for the iPhone and iPad
+
+**On the branch `widgets`, made from `main` (`c89c037`). Not in `main`.** Built for the iOS Simulator and for the Mac with no errors at the first attempt (`wg1-sim.log`, `wg1-mac.log`, in `DerivedData/Windfall-widgets`). The widget drawings were seen in the simulator on a checking page inside the app, with example content: Paper in light and dark. **Not seen: a real widget on a Home Screen or Lock Screen, a tap on one, a tick, or anything on a real iPhone.** **The logic tests were not run** for this change: `Tools/checks` only looks inside the `Windfall` folder, and this chat had no Swift toolchain in its cloud workspace.
+
+**Why.** William, 15:55: "Could we look at adding widget functionality into the app now". At 15:59: "Draw the options on the windfall redesign canvas first. I'd also like there to be an identify widget". At 16:15: "Build all the widgets you presented to me." The drawings are row 5 of the "Windfall redesign" canvas.
+
+### What a widget is, and why it needs a file
+
+A widget is a second small program that ships inside Windfall. iOS fences the two apart, so a widget cannot open the app's database. They share one folder, called an App Group. **The app writes a small summary file there and the widgets read only that.** The database is not moved and no second program ever opens it.
+
+iOS does not run a widget all the time. It asks for a timeline, a stack of ready-made cards each with a time to show it. Windfall's widgets hand over one card for now and one for each of the next seven midnights.
+
+### The widgets
+
+| Widget | Sizes | What it shows |
+|---|---|---|
+| This week | Small, medium, large, and three Lock Screen shapes | The urgent jobs from Today's "This week". The large one has a ring by each job that ticks it off without opening the app |
+| This month | Small, medium | The month's counts, as on a month's page, and its most pressing plants |
+| Frost and weather | Small, medium | Tonight's lowest temperature, and the next five nights with a snowflake for a frost and a ring for close to freezing |
+| Identify | Small, medium, and a Lock Screen circle | "What is this?", which opens the Identify sheet. The medium one also shows Eira's last answer |
+| Last answer | Small | Eira's last answer under its photo |
+| Capture | Medium | The six buttons from Today |
+| Ask Eira | Small, and a Lock Screen circle | Opens her chat |
+
+Every widget has one setting, **Look**: Paper, which follows light and dark mode, or Garden green. Press and hold a widget and choose Edit Widget.
+
+**A plant that could hurt someone keeps its warning.** When Eira's last answer carries a danger, the warning takes the photo's place on both Identify widgets.
+
+### New folders and files
+
+| File | What it is |
+|---|---|
+| `WindfallShared/WidgetSummary.swift` | Built into both the app and the widgets. The shared folder's name, the summary file's layout, reading it for one day, the ticks, and the links a widget opens the app with |
+| `WindfallShared/WidgetViews.swift` | Built into both. How each widget is drawn, as ordinary SwiftUI views, and the two looks |
+| `WindfallWidgets/WindfallWidgets.swift` | The widget program: the Look setting, the tick button, the timeline and the list of widgets |
+| `WindfallWidgets/Info.plist`, `WindfallWidgets.entitlements` | What tells iOS this is a widget program, and its key to the shared folder |
+| `WindfallWidgets/Assets.xcassets` | The same colours and icons as the app, made by `Tools/design/build_design_assets.py`, which now writes both |
+| `Windfall/WidgetShare.swift` | The app's side. `WeekFacts` gathers the week's facts for any day. `WidgetShare` writes the summary file. `WidgetRoute` follows a tap on a widget. `WidgetGallery` is the checking page |
+| `Windfall/Windfall.entitlements` | The app's key to the shared folder, used on iPhone and iPad only |
+
+### Changes to existing files
+
+- **`TodayView.swift`.** The gathering for "This week" moved out to `WeekFacts.jobs(today:…)` in `WidgetShare.swift`, word for word apart from taking the day as a value, so a widget can ask for the days ahead and can never disagree with Today. The ticks are now kept in the shared settings (`@AppStorage("todayTickedJobs", store: WindfallGroup.defaults)`), which is the app's own settings wherever there is no shared folder. Today refreshes the widgets' file once the weather is in, and does what a widget's button asked for (`followWidget`).
+- **`MainTabView.swift`.** `.onOpenURL` reads a widget's link and shows Today. The widgets' file is refreshed when the app is put away.
+- **`EiraFloatingBar.swift`.** Opens her chat when the "Ask Eira" widget asks.
+- **`EiraVision.swift`, `EiraChatView.swift`.** After an identification, one line notes the answer and a small copy of the photo for the widgets.
+- **`Info.plist`.** Registers links that start `windfall://`.
+- **`Windfall.xcodeproj`.** A second target, `WindfallWidgets`, for iPhone and iPad only. The app builds it first and copies it inside itself, on iOS only (`platformFilters = (ios, )`).
+
+### What does not change
+
+- **The Mac.** The widget program is not built for the Mac and is not inside the Mac app. The shared folder is nil there, so nothing is written and the ticks stay where they were.
+- **The database.** No record type was added or changed.
+
+### Checking aids
+
+`-demoOpen widgets` opens the checking page. `-demoWidgetPage 0`, `1` or `2` picks which widgets. `-demoWidgetLook green` draws them in Garden green.
+
+### Not built, or not as drawn
+
+1. **"Add a sighting" on the Identify widget.** The answer on the widget is a note of what Eira said. The identification itself is gone once its sheet is closed, so there is nothing to start a sighting from. A tap opens Identify.
+2. **"Ask Eira" opens her chat. It does not start listening.**
+3. **Taking a photo with the camera.** The app still has no camera code.
+4. **Widgets on the Mac.** A Mac widget needs a signed app, which looks in the other database (see the knowledge base, doc 31).
+5. Ticks made on the iPhone before this build are not carried into the shared settings.
+
+### ⚠️ CHECK: choices that are Claude's
+
+1. The words under tonight's temperature: "Frost. Cover anything tender before dark.", "Close to freezing. Frost on the ground is possible." and "No frost expected." They use the same 0 and 2 degrees as "This week".
+2. Which plants the "This month" widget lists: up to three from each of sow outdoors, sow indoors, plant out and harvest, the pressing ones first, four in all.
+3. The widget keeps eight days of jobs. After more than a week without opening the app it says "Open Windfall to bring this up to date."
+
 ## 14 November 2026, 15:50: swiping between months, a list of months, and a back swipe that follows the fingers
 
 **On the branch `year-month-swipe`, made from `main`.** Built for the Mac and the iOS Simulator with no errors (`mv5-mac.log`, `mv5-sim.log`, in `DerivedData/Windfall-month`). 590 logic tests pass. Seen as still pictures with the example garden: a month's page opening on the right month, the forward and back arrows turning it (December on to January, January back to December) and a month chosen from the list, on a 13-inch iPad Pro and an iPhone. **Not tried by hand, and a still picture cannot show them: a swipe with a finger, the list of months open, and everything on the Mac's trackpad.** The Mac build was started hidden with the example garden and did not crash. Nobody has yet seen the Mac's back swipe move.
