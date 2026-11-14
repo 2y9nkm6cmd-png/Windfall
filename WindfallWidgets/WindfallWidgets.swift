@@ -100,6 +100,11 @@ struct WindfallProvider: AppIntentTimelineProvider {
 
     /// One card for now and one for each of the next seven midnights,
     /// because every widget's content turns over with the day.
+    ///
+    /// Before the cards are made, the forecast is fetched afresh if the
+    /// one in the file is more than three hours old, so the widgets keep
+    /// up with the weather without the app being opened. See
+    /// WindfallShared/WidgetForecast.swift.
     func timeline(for configuration: LookIntent, in context: Context) async -> Timeline<WindfallEntry> {
         let calendar = Calendar.current
         var times: [Date] = [.now]
@@ -107,14 +112,20 @@ struct WindfallProvider: AppIntentTimelineProvider {
         for day in 1...7 {
             if let midnight = calendar.date(byAdding: .day, value: day, to: startOfToday) { times.append(midnight) }
         }
-        let summary = WidgetSummaryStore.read()
+        // Reads the file, and fetches a new forecast first if one is due.
+        let summary = await WidgetForecast.refreshIfDue()
         let ticked = WidgetTicks.current()
         let photo = widgetLastPhoto()
         let entries = times.map {
             WindfallEntry(date: $0, summary: summary, ticked: ticked, look: look(configuration), photo: photo)
         }
-        // `.atEnd` asks iOS to come back for more once the last card
-        // has been shown. The app also asks whenever it writes the file.
+        // When to be asked again. `.after` names a time: three hours
+        // after the forecast was fetched. Where the file names no place
+        // to ask about, `.atEnd` waits until the last card has been
+        // shown. The app also asks whenever it writes the file.
+        if let nextLook = WidgetForecast.nextLook(summary) {
+            return Timeline(entries: entries, policy: .after(nextLook))
+        }
         return Timeline(entries: entries, policy: .atEnd)
     }
 

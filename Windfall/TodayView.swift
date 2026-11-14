@@ -58,7 +58,11 @@ struct TodayView: View {
     /// the weather and fetched it again every time.
     private var weather: WeatherService { .shared }
     /// Where the weather was last asked about, used to tell day from night.
-    @State private var weatherPlace: CLLocationCoordinate2D?
+    /// Read from the shared service, since the app as a whole now fetches
+    /// the weather and not this page. See WeatherNow.swift.
+    private var weatherPlace: CLLocationCoordinate2D? { weather.lastPlace }
+    /// True while the device's position is being saved as a garden's place.
+    @State private var isSavingPlace = false
     @State private var sheet: CaptureSheet?
     @State private var shownGardenKey: String?
     /// True while the sheet for adding a job by hand is up.
@@ -180,9 +184,9 @@ struct TodayView: View {
         }
         .task {
             openForChecking()
-            await refreshWeather(mayAskForLocation: false)
-            // The forecast is in: bring the widgets' file up to date.
-            WidgetShare.refresh(context: context)
+            // The weather is no longer fetched from here. The app does it
+            // for every page at once: on opening, on coming back to the
+            // front and every quarter of an hour. See WeatherNow.swift.
         }
         // A tap on a widget's button arrives here. `initial: true` also
         // runs it when Today first appears, for a tap that opened the app.
@@ -652,9 +656,19 @@ struct TodayView: View {
 
     private var conditionsDetail: String {
         guard let now = weather.current else {
-            return weather.lastError ?? "Weather comes from Open-Meteo, using your garden's location."
+            if let problem = weather.lastError { return problem }
+            // Said No to the location question, and no garden is placed.
+            if locationManager.authorisationStatus == .denied || locationManager.authorisationStatus == .restricted {
+                return "Windfall may not use this device's location. Give a garden its place in Gardens and the weather will follow."
+            }
+            return "Weather comes from Open-Meteo, using your garden's location."
         }
         var parts = ["\(Int(now.temperatureC.rounded()))°C, \(skyWords(now)), \(now.isDry ? "dry" : "raining")."]
+        if offersToSavePlace {
+            // Says where the reading is from, and why the button is there.
+            parts.append("This is where you are now. If that is your garden, save it as the garden's place.")
+            return parts.joined(separator: " ")
+        }
         if isFITSeason {
             if let days = daysSinceLastFITCount {
                 parts.append("Last count \(days) \(days == 1 ? "day" : "days") ago.")
@@ -677,6 +691,8 @@ struct TodayView: View {
             }
             .buttonStyle(QuietGlassButton())
             .disabled(weather.isLoading)
+        } else if offersToSavePlace {
+            savePlaceMenu
         } else if isFITSeason || isWormSeason {
             Button {
                 startSurvey(isFITSeason ? .fitCount : .earthwormCount)
@@ -695,22 +711,61 @@ struct TodayView: View {
         }
     }
 
-    /// Finds somewhere to ask the weather about: a garden with a location
-    /// first, then the device. It only asks permission for the device's
-    /// location when a button has been tapped, never on opening.
+    /// For the "Check now" button, which shows only while there is no
+    /// reading at all. It fetches at once, and may bring up Apple's
+    /// location question if that has never been answered.
     private func refreshWeather(mayAskForLocation: Bool) async {
-        var coordinate: CLLocationCoordinate2D?
-        if let garden = activeGardens.first(where: { $0.latitude != nil && $0.longitude != nil }),
-           let latitude = garden.latitude, let longitude = garden.longitude {
-            coordinate = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
-        } else if let known = locationManager.location {
-            coordinate = known.coordinate
-        } else if locationManager.isAuthorised || mayAskForLocation {
-            coordinate = await locationManager.currentLocation()?.coordinate
+        await WeatherNow.refresh(context: context, locationManager: locationManager,
+                                 mayAsk: mayAskForLocation, force: true)
+    }
+
+    /// Gardens with no place on the map yet, for the offer below.
+    private var gardensToPlace: [Garden] {
+        activeGardens.filter { $0.latitude == nil || $0.longitude == nil }
+    }
+
+    /// True when the weather shown is for wherever the device is, because
+    /// no garden has a place yet. The card then offers to save this spot
+    /// as a garden's place, which is what starts that garden's weather
+    /// diary.
+    private var offersToSavePlace: Bool {
+        weather.current != nil && weather.isFromDevice && !gardensToPlace.isEmpty
+            && gardensToPlace.count == activeGardens.count
+    }
+
+    /// The offer itself: a menu naming each garden. Choosing one saves
+    /// where the device is now as that garden's place.
+    private var savePlaceMenu: some View {
+        Menu {
+            ForEach(gardensToPlace) { garden in
+                Button(garden.name) {
+                    Task {
+                        isSavingPlace = true
+                        await WeatherNow.savePlace(for: garden, locationManager: locationManager)
+                        isSavingPlace = false
+                    }
+                }
+            }
+        } label: {
+            // Drawn to match "Check now" (QuietGlassButton in
+            // SheetParts.swift). A menu does not take a button style of
+            // our own, so the same look is written out on its label.
+            Text(isSavingPlace ? "Saving…" : "I am in my garden")
+                .font(.body.weight(.medium))
+                .foregroundStyle(Theme.ink)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 7)
+                .contentShape(.capsule)
         }
-        guard let coordinate else { return }
-        weatherPlace = coordinate
-        _ = await weather.conditions(at: coordinate)
+        // Show the label as it is, rather than as Apple's own pop-up
+        // button, which would draw a second frame around it.
+        .menuStyle(.button)
+        .buttonStyle(.plain)
+        .menuIndicator(.hidden)
+        // Keeps the words on one line however little room there is.
+        .fixedSize()
+        .glassEffect(.regular.tint(Theme.card.opacity(0.5)).interactive(), in: .capsule)
+        .disabled(isSavingPlace)
     }
 
     // MARK: Capture
