@@ -751,7 +751,7 @@ struct TodayView: View {
             // SheetParts.swift). A menu does not take a button style of
             // our own, so the same look is written out on its label.
             Text(isSavingPlace ? "Saving…" : "I am in my garden")
-                .font(.subheadline.weight(.medium))
+                .font(.body.weight(.medium))
                 .foregroundStyle(Theme.ink)
                 .padding(.horizontal, 14)
                 .padding(.vertical, 7)

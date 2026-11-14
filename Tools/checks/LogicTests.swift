@@ -369,33 +369,33 @@ struct LogicTests {
         let deviceSpot = CLLocationCoordinate2D(latitude: 52.2, longitude: -1.9)
         let nowService = WeatherService()
         nowService.download = { url in nowAsked.append(url.absoluteString); return nowReply }
-        var reading = await nowService.refresh(gardenPlace: gardenSpot, deviceLocation: { deviceAsked += 1; return deviceSpot })
+        var reading = await nowService.refresh(gardenAt: gardenSpot, deviceLocation: { deviceAsked += 1; return deviceSpot })
         check(reading?.temperatureC == 7.4 && nowAsked.count == 1 && nowAsked[0].contains("latitude=51.500") && deviceAsked == 0 && !nowService.isFromDevice && nowService.outlook.count == 2, "with a garden placed, the weather is fetched for the garden and the device is not asked where it is")
-        reading = await nowService.refresh(gardenPlace: gardenSpot, deviceLocation: { deviceAsked += 1; return deviceSpot })
+        reading = await nowService.refresh(gardenAt: gardenSpot, deviceLocation: { deviceAsked += 1; return deviceSpot })
         check(reading?.temperatureC == 7.4 && nowAsked.count == 1, "a reading under a quarter of an hour old is used again")
-        reading = await nowService.refresh(gardenPlace: gardenSpot, deviceLocation: { deviceAsked += 1; return deviceSpot }, force: true)
+        reading = await nowService.refresh(gardenAt: gardenSpot, deviceLocation: { deviceAsked += 1; return deviceSpot }, force: true)
         check(nowAsked.count == 2, "asking by hand fetches again")
 
         let roaming = WeatherService()
         roaming.download = { url in nowAsked.append(url.absoluteString); return nowReply }
         nowAsked = []; deviceAsked = 0
-        reading = await roaming.refresh(gardenPlace: nil, deviceLocation: { deviceAsked += 1; return nil })
+        reading = await roaming.refresh(gardenAt: nil, deviceLocation: { deviceAsked += 1; return nil })
         check(reading == nil && nowAsked.isEmpty && deviceAsked == 1 && !roaming.isFromDevice, "with no garden placed and no position from the device, nothing is fetched")
-        reading = await roaming.refresh(gardenPlace: nil, deviceLocation: { deviceAsked += 1; return deviceSpot })
+        reading = await roaming.refresh(gardenAt: nil, deviceLocation: { deviceAsked += 1; return deviceSpot })
         check(reading?.temperatureC == 7.4 && nowAsked.count == 1 && nowAsked[0].contains("latitude=52.200") && roaming.isFromDevice && roaming.readingPlace?.latitude == 52.2, "with no garden placed, the weather is fetched for where the device is")
-        reading = await roaming.refresh(gardenPlace: nil, deviceLocation: { deviceAsked += 1; return deviceSpot })
+        reading = await roaming.refresh(gardenAt: nil, deviceLocation: { deviceAsked += 1; return deviceSpot })
         check(nowAsked.count == 1 && deviceAsked == 2, "while that reading is fresh the device is not asked where it is again")
-        reading = await roaming.refresh(gardenPlace: gardenSpot, deviceLocation: { deviceAsked += 1; return deviceSpot })
+        reading = await roaming.refresh(gardenAt: gardenSpot, deviceLocation: { deviceAsked += 1; return deviceSpot })
         check(nowAsked.count == 2 && nowAsked[1].contains("latitude=51.500") && !roaming.isFromDevice && deviceAsked == 2, "a garden given its place far from the device is fetched for at once, fresh reading or not")
         let nearby = WeatherService()
         nearby.download = { url in nowAsked.append(url.absoluteString); return nowReply }
         nowAsked = []
-        _ = await nearby.refresh(gardenPlace: nil, deviceLocation: { gardenSpot })
-        reading = await nearby.refresh(gardenPlace: CLLocationCoordinate2D(latitude: 51.5002, longitude: -2.5503), deviceLocation: { gardenSpot })
+        _ = await nearby.refresh(gardenAt: nil, deviceLocation: { gardenSpot })
+        reading = await nearby.refresh(gardenAt: CLLocationCoordinate2D(latitude: 51.5002, longitude: -2.5503), deviceLocation: { gardenSpot })
         check(nowAsked.count == 1 && reading != nil && !nearby.isFromDevice, "saving the spot the device is at as a garden's place keeps the reading and stops calling it the device's")
         let offline = WeatherService()
         offline.download = { _ in throw WeatherDiary.ReplyError(message: "offline") }
-        reading = await offline.refresh(gardenPlace: gardenSpot, deviceLocation: { nil })
+        reading = await offline.refresh(gardenAt: gardenSpot, deviceLocation: { nil })
         check(reading == nil && offline.lastError == "offline" && offline.current == nil, "with no signal there is no reading and the reason is kept")
 
         // Rearranging the Today screen

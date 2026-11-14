@@ -60,7 +60,7 @@ enum WeatherNow {
         // it would leave the run waiting, so it is never asked there.
         let mayAskHere = mayAsk && !DemoGarden.isRequested
         await WeatherService.shared.refresh(
-            gardenPlace: WeatherPlace.garden(among: gardens),
+            gardenAt: WeatherPlace.garden(among: gardens),
             deviceLocation: { await locationManager.currentLocation(mayAsk: mayAskHere)?.coordinate },
             force: force)
         // The forecast is in, or could not be had: either way the

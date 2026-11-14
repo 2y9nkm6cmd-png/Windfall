@@ -240,9 +240,9 @@ final class WeatherService {
     /// first: a garden's place if any garden has one, and otherwise
     /// wherever the device is.
     ///
-    /// - `gardenPlace`: from `WeatherPlace.garden(among:)`. Nil when no
+    /// - `gardenAt`: from `WeatherPlace.garden(among:)`. Nil when no
     ///   garden has a place on the map yet.
-    /// - `deviceLocation`: asked only when `gardenPlace` is nil. It is
+    /// - `deviceLocation`: asked only when `gardenAt` is nil. It is
     ///   handed in as a piece of code to run, not as a location manager,
     ///   so that this file needs nothing from CoreLocation's machinery
     ///   and the tests can put a fixed spot in its place.
@@ -251,11 +251,11 @@ final class WeatherService {
     /// the same spot is used again, and the device is not asked where it
     /// is while such a reading stands.
     @discardableResult
-    func refresh(gardenPlace: CLLocationCoordinate2D?,
+    func refresh(gardenAt: CLLocationCoordinate2D?,
                  deviceLocation: () async -> CLLocationCoordinate2D?,
                  force: Bool = false) async -> CurrentConditions? {
-        if let gardenPlace {
-            let reading = await conditions(at: gardenPlace, force: force)
+        if let gardenAt {
+            let reading = await conditions(at: gardenAt, force: force)
             if reading != nil { isFromDevice = false }
             return reading
         }
