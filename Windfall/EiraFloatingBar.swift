@@ -160,6 +160,13 @@ struct EiraFloatingBar: View {
             // is underneath and the panel, when there is one, on top,
             // with their bottom left corners together.
             ZStack(alignment: .bottomLeading) {
+                // First in the list, so underneath everything else: the
+                // layer that lets a touch on the page put the bar or the
+                // keyboard away. See "Putting the bar away by touch".
+                if growsInPlace {
+                    touchAwayLayer(travel: barWidth - closedSize, fillsTheSpace: true)
+                }
+
                 HStack(spacing: 10) {
                     symbolButton(travel: barWidth - closedSize)
 
@@ -215,15 +222,23 @@ struct EiraFloatingBar: View {
                     return true
                 }
                 // On an iPhone or iPad, a swipe down on the open bar puts it
-                // away. See "Putting the bar away by touch" below.
-                .swipeDownPutsAway(isOn: canBePutAway) { close(travel: barWidth - closedSize) }
+                // away, or puts the keyboard away where the bar stays open.
+                // See "Putting the bar away by touch" below.
+                .swipeDownPutsAway(isOn: touchPutsSomethingAway) { putAway(travel: barWidth - closedSize) }
                 // While the panel is up it stands where the bar was, so the
                 // bar fades out beneath it and takes no taps.
                 .opacity(panelIsUp ? 0 : 1)
                 .allowsHitTesting(!panelIsUp)
                 .frame(maxWidth: .infinity, alignment: .trailing)
-                // And so does a touch anywhere on the page above it.
-                .background(alignment: .bottom) { touchAwayLayer(travel: barWidth - closedSize) }
+                // And so does a touch anywhere on the page above it. Where
+                // the bar has the whole page to stand in, the layer for
+                // that is at the top of this ZStack. Only a bar that is
+                // no taller than itself still needs it hung behind here.
+                .background(alignment: .bottom) {
+                    if !growsInPlace {
+                        touchAwayLayer(travel: barWidth - closedSize, fillsTheSpace: false)
+                    }
+                }
 
                 // The panel. Where the bar grows in place it has been
                 // given the whole height of the page to stand in (see
@@ -591,32 +606,75 @@ struct EiraFloatingBar: View {
         isOpen && !staysOpen && !onJournal && !panelIsUp && openInPanel == nil
     }
 
-    /// An invisible layer over the page while the bar is open, on an
-    /// iPhone or iPad. A tap on it, or the start of a scroll, puts the
-    /// bar away. (William, 14 November 2026, on first trying the app on
-    /// his iPhone: the only way to close the bar was the snowdrop.)
+    /// True when the bar cannot be put away but its keyboard can: the
+    /// bar is pinned open, or is on the Journal page where it is always
+    /// open, and its text box has the keyboard. (William, 14 November
+    /// 2026: on the Journal page of his iPhone nothing put the keyboard
+    /// away.)
+    private var keyboardCanBePutAway: Bool {
+        fieldHasFocus && (staysOpen || onJournal) && !panelIsUp && openInPanel == nil
+    }
+
+    /// True when a touch on the page should be caught, because there is
+    /// a bar or a keyboard for it to put away.
+    private var touchPutsSomethingAway: Bool {
+        canBePutAway || keyboardCanBePutAway
+    }
+
+    /// What a touch on the page, or a swipe down on the bar, does. It
+    /// closes the bar if the bar can close. Otherwise it only takes the
+    /// keyboard away, and the bar stays as it is.
+    private func putAway(travel: CGFloat) {
+        if canBePutAway {
+            close(travel: travel)
+        } else if keyboardCanBePutAway {
+            fieldHasFocus = false
+        }
+    }
+
+    /// An invisible layer over the page, on an iPhone or iPad, while
+    /// there is something for a touch to put away. A tap on it, or the
+    /// start of a scroll, closes the bar, or takes the keyboard away
+    /// where the bar stays open. (William, 14 November 2026, on first
+    /// trying the app on his iPhone: the only way to close the bar was
+    /// the snowdrop.)
     ///
     /// - `Color.clear` draws nothing. `contentShape` makes that nothing
     ///   count as a place a finger can land.
-    /// - The layer is far larger than any screen and is lined up with
-    ///   the bottom of the bar, so it reaches up over the whole page.
-    ///   It sits behind the bar, so the bar's own buttons still get
+    /// - `fillsTheSpace` is true where the bar has been given the whole
+    ///   page to stand in (`growsInPlace`). The layer is then exactly
+    ///   as large as that space and lies inside it. That matters: a
+    ///   view is only certain to be handed a touch that lands inside
+    ///   the space its parent was given. The first version hung a huge
+    ///   layer out beyond the bar's own strip. William found on the
+    ///   evening of 14 November that touches no longer reached it on
+    ///   his iPhone, after the bar's code had been reshaped for the
+    ///   panel. Why was not found. This way does not depend on it.
+    /// - `padding(-40)` lets it reach a little beyond the space, over
+    ///   the gap left round the bar at the sides and foot of the page.
+    /// - Where the bar is only as tall as itself, the old huge layer is
+    ///   still used, lined up with the bottom of the bar. No layout
+    ///   uses that today.
+    /// - It is underneath the bar, so the bar's own buttons still get
     ///   their taps first.
-    /// - The first touch only closes the bar. It is not passed on to
-    ///   the page, so nothing is opened by accident.
+    /// - The first touch only puts the bar or the keyboard away. It is
+    ///   not passed on to the page, so nothing is opened by accident.
     ///
     /// A Mac is left alone: there the Escape key closes the bar, and a
     /// click that did nothing but close it would be a nuisance.
     @ViewBuilder
-    private func touchAwayLayer(travel: CGFloat) -> some View {
+    private func touchAwayLayer(travel: CGFloat, fillsTheSpace: Bool) -> some View {
         #if os(iOS)
-        if canBePutAway {
+        if touchPutsSomethingAway {
             Color.clear
-                .frame(width: 4000, height: 4000)
+                // `nil` means "no fixed size": the colour then takes all
+                // the space it is offered, which is the whole page.
+                .frame(width: fillsTheSpace ? nil : 4000, height: fillsTheSpace ? nil : 4000)
+                .padding(fillsTheSpace ? -40 : 0)
                 .contentShape(Rectangle())
-                .onTapGesture { close(travel: travel) }
+                .onTapGesture { putAway(travel: travel) }
                 .simultaneousGesture(
-                    DragGesture(minimumDistance: 12).onChanged { _ in close(travel: travel) }
+                    DragGesture(minimumDistance: 12).onChanged { _ in putAway(travel: travel) }
                 )
                 .accessibilityHidden(true)
         }
@@ -875,7 +933,7 @@ private struct EiraLooksAt: ViewModifier {
 
 // MARK: - A swipe down
 
-private extension View {
+extension View {
     /// On an iPhone or iPad, calls `action` when a finger is dragged
     /// downwards across this view. On a Mac it does nothing, because a
     /// downward drag across a text box there is how text is selected.
