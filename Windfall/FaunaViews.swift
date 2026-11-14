@@ -171,80 +171,9 @@ struct FaunaDetailView: View {
 }
 
 // MARK: - Flower shape coverage
-
-/// The book's advice is "have as many different flower shapes as possible".
-/// This counts them, so it becomes a measurable thing rather than a maxim.
-struct FlowerShapeCoverageView: View {
-
-    @Query private var shapes: [FlowerShape]
-    @Query private var links: [PlantFaunaLink]
-    @Query(sort: [SortDescriptor(\Plant.commonName)]) private var plants: [Plant]
-
-    /// Shapes present in the garden, from plants you actually grow.
-    private var covered: Set<String> {
-        let growing = Set(plants
-            .filter { $0.status == .growing }
-            .map { $0.commonName.lowercased() })
-
-        return Set(links
-            .filter { growing.contains($0.plantName.lowercased()) }
-            .compactMap { $0.shapeOnly })
-    }
-
-    private var missing: [FlowerShape] {
-        shapes.filter { !covered.contains($0.name) }
-    }
-
-    var body: some View {
-        List {
-            Section {
-                LabeledContent("Shapes present", value: "\(covered.count) of \(shapes.count)")
-            } footer: {
-                Text("Each flower shape serves a different set of insects. A garden of eleven bilabiates feeds one guild very well and everything else not at all.")
-            }
-
-            Section("You have") {
-                ForEach(shapes.filter { covered.contains($0.name) }) { shape in
-                    shapeRow(shape, present: true)
-                }
-            }
-
-            if !missing.isEmpty {
-                Section("Gaps") {
-                    ForEach(missing) { shape in
-                        shapeRow(shape, present: false)
-                    }
-                }
-            }
-        }
-        .navigationTitle("Flower shapes")
-        .paperScreen()
-    }
-
-    @ViewBuilder
-    private func shapeRow(_ shape: FlowerShape, present: Bool) -> some View {
-        VStack(alignment: .leading, spacing: 3) {
-            HStack {
-                Text(shape.name).font(.body.weight(.medium))
-                Spacer()
-                Image(systemName: present ? "checkmark.circle.fill" : "circle.dashed")
-                    .foregroundStyle(present ? .green : .secondary)
-            }
-            if let description = shape.shapeDescription {
-                Text(description).font(.footnote).foregroundStyle(.secondary)
-            }
-            if let insects = shape.insectsServed {
-                Text(insects).font(.caption).foregroundStyle(.tertiary)
-            }
-            if !present, let examples = shape.examplePlants {
-                Text("Try: \(examples)")
-                    .font(.caption)
-                    .foregroundStyle(.blue)
-            }
-        }
-        .padding(.vertical, 2)
-    }
-}
+//
+// `FlowerShapeCoverageView` moved to FlowerShapeViews.swift on
+// 14 November 2026, when it gained drawings and a page for each shape.
 
 // MARK: - Cascades
 
