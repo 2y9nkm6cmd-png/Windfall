@@ -7,6 +7,70 @@ run without the Mac (every file reads as valid Swift, 323 logic tests
 pass). Those do not build the screens. Expect things to put right when
 it is first built, and treat how everything here looks as untried.
 
+## 14 November 2026, 12:50: a sowing or a planting, added from the plant's own page
+
+**On the branch `plant-page-plantings`, made from `main` and merged back into it.** Built for the Mac and the iOS Simulator with no errors (`r33-mac.log`, `r33-sim.log`). 531 logic tests pass. Looked at running in the iPad simulator with the example garden, light and dark.
+
+**Why.** William, looking at the Achillea page: "Could you make it so that you can add a planting of plants in the plant page?" Two things stood in the way. A sowing could only be started from Today or the Sowings list, by finding the plant all over again. And only a plant kept by cloning (a fruit tree, garlic, a potato) could be recorded as *planted*. An achillea bought in a pot could only be written down as seed sown, which is not what happened.
+
+**What changed.**
+
+1. **The card** (`PlantLibraryView.swift`, in `PlantDetailView`). "Sowings" is now "Sowings and plantings". It is always there, where before it was left out until the plant had been sown, and it comes first: under the name when the page is one column, at the top of the right-hand column when it is two. Each row says "Planted 24 Oct 2026" or "Sown 14 Mar 2026", then where and how many ("Herb bed · A · 3 plants"), then the stage, and opens that sowing's own page. Under the rows are two buttons, **Add a sowing** and **Add a planting**.
+
+2. **The form opens with the plant already chosen** (`PlantingViews.swift`). `NewPlantingView` gained a starting point:
+
+   ```swift
+   init(plant: Plant? = nil, asPlanting: Bool = false) {
+       _selectedPlant = State(initialValue: plant)
+       opensAsPlanting = asPlanting
+   }
+   ```
+
+   - An `init` is the code that runs when a thing is made. This one takes two things, and each has a value to fall back on (`= nil`, `= false`), so the old `NewPlantingView()` on Today still works unchanged.
+   - `Plant?` means "a plant, or nothing". `nil` is the nothing.
+   - `selectedPlant` is `@State`: a value the form keeps and redraws itself for. `_selectedPlant` with the underscore is the box that value lives in, and `State(initialValue: plant)` is how a starting value is put in the box before the form first appears.
+
+3. **Every plant can go in as a plant** (`SeedTruth.swift`). `SeedTruth.starts` lists the ways of starting that the form offers. It used to hand back an empty list for an ordinary plant, which meant "do not ask". It now always ends with `.plant`, so the form asks **Seed** or **Plants**. For a plant where saved seed matters (a squash, an F1) the three choices are "Seed from a packet", "Seed I saved" and "Plants", as before plus one. A new rule, `asksSeedSource`, keeps one promise from before: for an ordinary plant the form never asked where the seed came from, so nothing about a packet is written into the record.
+
+4. **What is saved for a planting.** `startedFrom = .plant` and the stage "growing", with the date as the day it was planted. The journal already words that as "Planted Achillea" and "3 planted". A planting's own page now says "Planted" where it said "Sown".
+
+5. **A succession round counts sowings only** (`PlantModels.swift`, `Planting.nextRound`). The first still of the new form said "Succession round 3" on a planting, because every earlier record that year was counted. A round is a round of sowing: plants going in neither get a number nor use one up.
+
+6. **The wording of the rows is tested** (`PlantPage.swift`, `plantingLines`). As with the rest of the page, the words are worked out in a file with no screen code, so the checks can run them without a Mac: newest first, "plants" for a planting and "seeds" for a sowing, "1 plant" not "1 plants", "On record" for one with no date.
+
+**How the buttons open the form.** This pattern is worth knowing, because Windfall uses it everywhere:
+
+```swift
+private enum AddingToGarden: String, Identifiable {
+    case sowing, planting
+    var id: String { rawValue }
+}
+@State private var adding: AddingToGarden?
+
+Button("Add a planting") { adding = .planting }
+
+.sheet(item: $adding) { which in
+    NewPlantingView(plant: plant, asPlanting: which == .planting)
+}
+```
+
+- An `enum` is a short list of named choices: here, which of the two forms.
+- `adding` holds one of them, or nothing (the `?`). A button does nothing but set it.
+- `.sheet(item:)` watches `adding`. While it holds a choice the sheet is up, and it hands the choice to the code in the braces as `which`. When the sheet is closed, SwiftUI sets `adding` back to nothing by itself. `Identifiable` (the `id` line) is what lets it tell one choice from another.
+- So the button never "opens" anything. It changes a value, and the screen follows the value. That is the idea behind all of SwiftUI.
+
+**Also in this change.**
+
+- The example garden has a sowing and a planting of achillea, so the card has something to show in a still. Example data only: it lives in memory and never touches real records.
+- Checking aids: `-demoPlant Achillea -demoOpen plantPlanting` and `-demoOpen plantSowing` open the form from the page.
+- The checks had been failing on `main` since the Plants search work: a variable called `box` in `CollapsingSearch.swift` was read by the cross-file check as every other `box` in the app. It is now `textBox`. Nothing was wrong with the app itself.
+- William's screenshot is filed in `Design/Reference`.
+
+**To check.**
+
+- Is "Seed" and "Plants" the right pair of words? And "For plants that came as plants: bought, given, divided or grown from a cutting"?
+- Is the card in the right place, first on the page?
+
 ## 14 November 2026, midday: Eira identifies from a photo, and a page for testing the image models
 
 **On the branch `eira-identify`, made from `main` and merged back into it.** Built for the Mac and the iOS Simulator with no errors (`identify-7-mac.log`, `identify-7-sim.log`). 520 logic tests pass. Both image models were run through the app on the same 300 UK photos and scored as they did before (the table below). The answer card was seen in the simulator, in the Identify sheet and in Eira's chat, on example answers. **Not yet tried by hand: giving Eira a real photo in the chat, "Add a sighting", "Ask Eira about it" and the whole of the test page.** The test page has only been compiled. William is the first to run it.
