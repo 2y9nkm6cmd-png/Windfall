@@ -168,6 +168,15 @@ struct PlantCardView: View {
                     }
                 }
                 Spacer(minLength: 0)
+                // The plant's drawing, when it has one: the crop in a
+                // month it is harvested, the flower in a month it flowers,
+                // otherwise the plant at its best.
+                if let kind = PlantDrawings.shared.kind(forPlantNamed: plant.commonName),
+                   let stage = PlantDrawings.cardStage(of: kind, month: month,
+                                                       harvestMonths: MonthParser.months(in: plant.harvestMonthsText),
+                                                       floweringMonths: MonthParser.months(in: plant.floweringMonthsText)) {
+                    PlantDrawingView(kind: kind.slug, stage: stage.stage, size: 60)
+                }
                 // Says the card opens something.
                 WIconView(.chevronRight, size: 12)
                     .foregroundStyle(Theme.inkSoft)

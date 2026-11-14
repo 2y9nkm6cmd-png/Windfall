@@ -1,3 +1,32 @@
+# 14 November 2026, 21:30: plant drawings on the plant cards and pages
+
+**By the plant graphics chat.** William, 21:26, of the plant drawings added at 20:10: "Add these into the app."
+
+**What you see**
+
+- **Each plant's card has its drawing**, at the right of its name: on the Plants page and under Eira's replies, which use the same card. In a month the plant is harvested it is the crop. In a month it flowers it is the flower. Otherwise it is the plant at its best: the crop if it has one, then the flower.
+- **Each plant's page has a "Life stages" card**: every stage in a row, with its name beneath, which slides sideways when it is too long.
+- A plant with no drawings (the mixes, and the plants on the to-buy list that are not also grown) looks as it did.
+
+**How**
+
+| File | What changed |
+|---|---|
+| `PlantDrawings.swift` (new, tested) | Reads the list of kinds. `kind(forPlantNamed:)` finds a plant's kind by its name, so "Leeks" finds "leek". `cardStage` chooses the stage for a card. `pictureName` is a drawing's name in the store of pictures |
+| `PlantDrawingViews.swift` (new, a screen) | `PlantDrawingView` shows one drawing. `PlantStagesCard` is the row of stages |
+| `PlantLibraryCards.swift` | `PlantCardView` shows the drawing before its chevron |
+| `PlantLibraryView.swift` | `stagesCard` on a plant's page: under the plantings card when the page is one column, at the top of the left column when it is two |
+| `Tools/design/build_design_assets.py` | `build_plants` turns `Design/Plants/light` and `dark` into `Assets.xcassets/Plants`, one picture set for each drawing holding its light and its dark copy, and copies the list into the app as `PlantDrawings.json` |
+| `Assets.xcassets/Plants`, `PlantDrawings.json` | Written by that script. Do not edit by hand |
+
+**Why a picture set holds two files.** The drawings have their own colours, and the dark copy has darker fills and a pale line. The app's store of pictures can hold a second copy marked "dark" and hands out the right one by itself, so the code asks for one name and never has to think about light and dark.
+
+**After changing a drawing**: run `python3 Tools/design/plants_all.py /tmp/plants`, copy `light`, `dark` and `plant-drawings.json` into `Design/Plants`, then run `python3 Tools/design/build_design_assets.py`.
+
+**Nothing saved has changed.** No record type was touched.
+
+**The drawings themselves are still a first pass that William has not gone through** (project docs 59, 62 and 63).
+
 # 14 November 2026, 21:20: the flower shape drawings keep their dark outline in dark mode
 
 **By the flower shape chat.** William was sent the light-mode drawings unchanged on the dark background, beside the dark-mode copies with a pale outline that the app had been given. He chose the first: "Yeah, that's better. Leave them unchanged."
