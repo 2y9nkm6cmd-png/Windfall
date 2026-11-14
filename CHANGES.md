@@ -1,3 +1,48 @@
+# 14 November 2026, 22:02: sending a journal entry puts the panel away
+
+**By the "send closes" chat, on the branch `journal-send-closes`, written from William's phone with no Mac linked. Not built and not tried: no Swift compiler was to hand. Not in `main`.**
+
+William, 21:46, with a screen recording from his iPhone: "When I press send, it should send. I shouldnt then need to press done."
+
+**What the recording showed.** A photo and the word "Test" in the journal's panel, after dark. Two things stood between pressing send and being back on the Journal page:
+
+1. The card "It is 21:45 and dark out. Was this about earlier?" was up. Send did nothing but turn it amber. After choosing "Now", send had to be pressed a second time.
+2. Once sent, the panel stayed up with "Noted at 9:45 pm" in it until Done was pressed.
+
+One file changed, `Windfall/JournalChatView.swift`, in three places.
+
+**1. The end of `send()`: the panel closes itself.**
+
+```
+if let panel, offers.isEmpty, pinDown == nil,
+   NewPlantMention.name(in: text, known: plants.map(\.commonName)) == nil {
+    boxHasFocus = false
+    panel.close()
+}
+```
+
+- `if let panel`: `panel` is an optional, a value that may be missing (nil). It is set only when the conversation is drawn in the panel. `if let` runs what follows only when it is there, so a conversation in a sheet is unchanged.
+- The commas mean "and". `offers.isEmpty`: Eira found no harvest or sowing to add. `pinDown == nil`: nothing seen and unnamed to pin down. `NewPlantMention.name(...) == nil`: no plant the library lacks. **If any of the three has a card to show, the panel stays up**, because closing would throw the card away before it was seen.
+- `boxHasFocus = false` lets go of the keyboard so it does not cover the page.
+- `panel.close()` is the same function Done calls (`lowerPanel` in `EiraFloatingBar.swift`).
+
+**2. `answer(_:)` and `answerPhotoCheck(_:with:)`: choosing a time sends, if send was already pressed.**
+
+```
+let sendWasPressed = checkWasSkipped
+...
+checkWasSkipped = false
+if sendWasPressed { send() }
+```
+
+`checkWasSkipped` is set to true when send is pressed while the question is unanswered. It is copied into `sendWasPressed` first because the next lines clear it. If the question is answered before send is pressed, nothing is sent, as before.
+
+**3. The amber line on the card** now reads "Choose one and it will be sent." in place of "Choose one, then send."
+
+**Claude's choices, for William to confirm:** the panel stays up when Eira has a card to show; the keyboard is put away as the panel closes; the time question is still asked and is not skipped.
+
+**To try:** after dark, a photo and a word, press send, choose "Now": it should send and the panel sink. Then "Harvested 2 kg of potatoes": the panel should stay, with the harvest card. On a Mac the keyboard should go back to the bar's box.
+
 # 14 November 2026, 21:44: the Mac's icon follows light and dark mode
 
 **By the "Mac icon" chat, on the branch `mac-icon-dark`.** William, 21:32, once the cream icon was showing in the Dock: "The mac icon should also respond to the light and dark mode".
