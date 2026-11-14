@@ -175,6 +175,15 @@ struct PanelPage<Accessory: View, Content: View>: View {
         .padding(.horizontal, 20)
         .padding(.top, 18)
         .padding(.bottom, 12)
+        // On an iPhone or iPad, a swipe down on the heading lowers the
+        // panel, as a sheet can be swiped away. `contentShape` makes
+        // the empty stretch between the title and the buttons count as
+        // part of the heading, so a finger can start there. Only the
+        // heading takes the swipe: the conversation below it scrolls.
+        // (`swipeDownPutsAway` is in EiraFloatingBar.swift. On a Mac
+        // it does nothing.)
+        .contentShape(.rect)
+        .swipeDownPutsAway(isOn: true) { controls.close() }
     }
 }
 
