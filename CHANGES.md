@@ -28,7 +28,7 @@ Nothing else about the sidebar is changed: the gearing (0.6), settling on the ne
 
 ## 14 November 2026, 16:27: a page grows out of the tile that was tapped
 
-**On the branch `tile-grow`, made from `main` at `c89c037`. NOT BUILT.** Written in a chat started from William's iPhone, which could not reach the Mac. It passes the checks that run without a Mac (all 91 files read as valid Swift, 590 logic tests pass). Those do not build screens, so nobody has seen this move. **Build it for the iPhone before it goes into `main`.**
+**On the branch `tile-grow`. Built for William's iPhone (signed, `tg1-iphone.log`, 16:48) and for the Mac (`tg3-mac.log`, 17:11) with no errors, at the first attempt.** 596 logic tests pass. Written from William's iPhone without the Mac, then built once he moved the chat to the Mac. **On his iPhone since 17:08**, mixed with the iPhone chat's `iphone-first-fixes` at his word (the branch `tile-grow-phone-mix`, for the phone only). **Nobody has yet said what it looks like moving: it waits on William before it goes into `main`.** His recording is `Design/Reference/2026-11-14 recording-iphone-gardens-tiles-slide-in.mp4`.
 
 **Why.** William, 16:21, with a recording of the Gardens page on his iPhone (tapping "Garden map", swiping back, tapping "Weather"): "I'd like these tiles and any time you tap a tile like this that leads to more information for it to grow from the tile. Still swipe back though as previously agreed."
 
@@ -75,7 +75,7 @@ Plants and Sightings open their pages a different way (the card hands over a rec
 
 **To put the old slide back without a rebuild:** start the app with `-tilesSlide YES`.
 
-**To watch for on the first build.**
+**To watch for on the phone.**
 
 1. **A tile that vanishes after a swipe back.** Other developers report this as a fault in iOS 26 itself with this transition: after swiping back, the thing that was tapped is not drawn again, though it still works if tapped (Apple's developer forums, threads 796805, 802908 and 807715, reported up to iOS 26.4). The back button does not cause it. Not known: whether William's iPhone has it. If it does, the choices are a known workaround that makes the tile flash, or going back to the slide.
 2. **The swipe back looks different.** The page shrinks towards its tile as it follows the finger. It does not slide off to the right as it did. Apple also lets a page opened this way be pulled down from its top to go back. Neither can be switched off separately.
