@@ -180,6 +180,98 @@ final class FlowerShape {
     init(name: String = "") { self.name = name }
 }
 
+// MARK: - Flower shapes: pictures and plants
+
+/// The sums behind the Flower shapes pages: which drawing goes with a
+/// shape, and which plants have it.
+///
+/// Added on 14 November 2026, when William asked for a drawing beside
+/// each shape and a page for each one showing "examples of what we have
+/// that has these flowers".
+///
+/// An `enum` with no cases is a common Swift way to make a named drawer
+/// for functions. Nothing is ever made from it; it only gives the
+/// functions a family name, as in `FlowerShapeGuide.pictureName(...)`.
+enum FlowerShapeGuide {
+
+    /// The name of a shape's drawing in the app's store of pictures.
+    ///
+    ///     "Rotate, umbellate"  becomes  "Icons/shape-rotate-umbellate"
+    ///
+    /// It works from the shape's own name, so a shape added to the guide
+    /// later needs only a drawing with the matching file name in
+    /// `Design/Icons`, and no new code.
+    static func pictureName(forShape shapeTitle: String) -> String {
+        let slug = shapeTitle
+            .trimmingCharacters(in: .whitespaces)
+            .lowercased()
+            // Commas go, and each space becomes a hyphen.
+            .replacingOccurrences(of: ",", with: "")
+            .replacingOccurrences(of: " ", with: "-")
+        return "Icons/shape-\(slug)"
+    }
+
+    /// The shape at the front of a piece of text, in small letters.
+    ///
+    ///     "Bilabiate: Shallow tubular"  gives  "bilabiate"
+    ///     "Stellate"                    gives  "stellate"
+    ///
+    /// Small letters so that "stellate" and "Stellate" count as one.
+    static func shapeKey(in text: String?) -> String? {
+        guard let text else { return nil }
+        let front = text.components(separatedBy: ":").first ?? text
+        let key = front.trimmingCharacters(in: .whitespaces).lowercased()
+        return key.isEmpty ? nil : key
+    }
+
+    /// The plants that have a shape, in name order.
+    ///
+    /// A plant has a shape in either of two ways:
+    ///   1. a row of the Plant-Fauna Links sheet names the plant and
+    ///      gives that shape, or
+    ///   2. the plant's own "Flower Form" says so.
+    ///
+    /// Only plants whose status is in `keeping` are returned, so the
+    /// page can ask for what is growing and what is still to buy apart.
+    static func plantsHaving(shapeTitle: String,
+                             in library: [Plant],
+                             guideLinks: [PlantFaunaLink],
+                             keeping wantedStatus: PlantStatus = .growing) -> [Plant] {
+        guard let key = shapeKey(in: shapeTitle) else { return [] }
+        // Every plant name the links sheet gives this shape to.
+        let linkedNames = Set(guideLinks
+            .filter { shapeKey(in: $0.flowerShape) == key }
+            .map { $0.plantName.lowercased() })
+        return library
+            .filter { $0.status == wantedStatus }
+            .filter { linkedNames.contains($0.commonName.lowercased()) || shapeKey(in: $0.flowerForm) == key }
+            .sorted { $0.commonName.localizedCaseInsensitiveCompare($1.commonName) == .orderedAscending }
+    }
+
+    /// The shapes the garden has, as keys in small letters: every shape
+    /// that at least one growing plant has.
+    static func shapeKeysGrowing(in library: [Plant], guideLinks: [PlantFaunaLink]) -> Set<String> {
+        let growing = library.filter { $0.status == .growing }
+        let growingNames = Set(growing.map { $0.commonName.lowercased() })
+        let fromLinks = guideLinks
+            .filter { growingNames.contains($0.plantName.lowercased()) }
+            .compactMap { shapeKey(in: $0.flowerShape) }
+        let fromPlants = growing.compactMap { shapeKey(in: $0.flowerForm) }
+        return Set(fromLinks + fromPlants)
+    }
+
+    /// The animals the links sheet records on flowers of a shape, each
+    /// named once, in name order.
+    static func visitorNames(ofShape shapeTitle: String, guideLinks: [PlantFaunaLink]) -> [String] {
+        guard let key = shapeKey(in: shapeTitle) else { return [] }
+        let seen = guideLinks
+            .filter { shapeKey(in: $0.flowerShape) == key }
+            .map { $0.faunaName.trimmingCharacters(in: .whitespaces) }
+            .filter { !$0.isEmpty }
+        return Set(seen).sorted()
+    }
+}
+
 // MARK: - Cascades
 
 /// Plant to herbivore to predator. Three columns because the chains are

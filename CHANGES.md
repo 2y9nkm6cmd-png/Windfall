@@ -1,3 +1,62 @@
+# 14 November 2026, 19:40: flower shapes get drawings and a page each (branch `flower-shape-drawings`, not built)
+
+**By the flower shape chat, from a cloud workspace. Nothing here has been built in Xcode or seen on a screen.** The branch was made from `main` at `71d95d4`.
+
+William, of the Flower shapes page on his iPhone: "We need graphics for these." Then, of the first drawings: "Make them a bit more detailed." Then: "Icons next to text and then when you tap them they can expand into a bigger tile page that has a bigger image and details and then examples of what we have that has these flowers."
+
+## What changed
+
+| File | What and why |
+|---|---|
+| `Design/Icons/shape-*.svg` (20 new) | One drawing for each shape in the Flower Form Guide, each of a real plant: a dead-nettle for bilabiate, borage for stellate, a knapweed for tubular capitate. Black only, so the app paints them green or grey |
+| `Tools/design/flower_shapes.py` (new) | Draws those twenty files. The drawings are kept as code so that a line can be moved by changing a number |
+| `Windfall/Assets.xcassets/Icons`, `WindfallWidgets/Assets.xcassets/Icons` | The same twenty, put there by `build_design_assets.py`. Not edited by hand |
+| `Windfall/FaunaModels.swift` | New `FlowerShapeGuide`: the name of a shape's drawing, which plants have a shape, which shapes the garden has, and which animals are recorded on a shape. Here, not in the screen, so it can be tested without a Mac |
+| `Windfall/FlowerShapeViews.swift` (new) | `FlowerShapeCoverageView`, moved from `FaunaViews.swift` and redrawn: a tile for each shape with its drawing beside the words. New `FlowerShapeDetailView`: the page a tile grows into |
+| `Windfall/FaunaViews.swift` | The old plain list taken out. A note says where it went |
+| `Tools/checks/LogicTests.swift` | Seven new tests, one of which fails if any shape in the real guide has no drawing |
+| `Design/README.md` | A section on the flower shape drawings |
+
+## The list page
+
+It was a standard list in the system's look. It is now drawn like Today (the rule in project doc 00): glass tiles on paper.
+
+- Each tile has the drawing at 56 points, then the name, the description and the insects, then the tick or the dashed circle as before.
+- **A tile grows into its page** when tapped, and the page shrinks back into it on the swipe back. That is `GrowingLink` from `GrowFromTile.swift`, the same piece the Gardens and Wildlife tiles use.
+- The shapes are now in name order. Before, they came in whatever order the database gave them.
+
+## The page for one shape
+
+- The drawing at 200 points on a card of its own.
+- The plain word for the shape, its name in the title serif, and a tag: "In your garden" or "A gap in your garden".
+- **The shape**: the guide's description and note.
+- **Who it feeds**: the guide's insects, then every animal the Plant-Fauna Links sheet records on a flower of this shape, as small labels.
+- **In your garden**: the growing plants that have the shape. Each opens that plant's page.
+- **On your list to buy**: the same for plants still to buy. Left out when there are none.
+- **Plants to try**, or **Other plants with this shape** when the garden already has one: the guide's own examples.
+
+## One change to the count
+
+A plant now also counts as having a shape when its own "Flower Form" names one. Before, only the links sheet counted. Four plants in the starter data carry "Stellate" there, so "Shapes present" may go up by one where none of them is in the links sheet. ⚠️ CHECK with William that a plant's own Flower Form should count.
+
+## Checked
+
+- `Tools/checks/run-checks.sh` with Swift 6.3.1: all 110 Swift files pass the syntax check, the logic files pass the type check, the cross-file checks are clean, and **741 tests pass** (734 before).
+- `build_design_assets.py` reports 50 outline icons, up from 30, and changed no existing file.
+
+## Not checked
+
+- **It has not been compiled.** `FlowerShapeViews.swift` is screen code, which these checks only read for syntax. The first build in Xcode may find mistakes.
+- How the drawings look when Xcode draws them, at 56 or at 200 points.
+- The tile growing into its page, on a real iPhone.
+- On a Mac the page slides in as every page does there: `GrowingLink` only grows on iPhone and iPad.
+
+## For the chat that builds it
+
+1. Merge `main` into `flower-shape-drawings` first, then build it for the Mac and the simulator.
+2. Look at Wildlife, Species, Flower shape coverage, and open a shape the garden has and a gap.
+3. Join it to `main` only once it builds and William has seen it.
+
 # 14 November 2026, 18:40: seven branches joined into main
 
 **By the join chat.** William, 16:44: "When all the app builds have finished, I want to combine them and then issue an iphone, ipad and mac build to test further." The Mac went quiet at 18:17. The join was made in a copy of its own, `~/Developer/windfall-join`, on the branch `join-14nov-evening`, and `main` moved only once it built and passed its tests.

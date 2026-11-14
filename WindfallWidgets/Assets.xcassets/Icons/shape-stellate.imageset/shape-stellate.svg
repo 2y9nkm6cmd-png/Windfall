@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+<g fill="none" stroke="#000000" stroke-width="0.85" stroke-linecap="round" stroke-linejoin="round">
+<path d="M12,2 Q13.48,3.26 14.17,9.31 Q20.14,8.1 21.8,9.12 Q21.05,10.91 15.52,13.44 Q18.51,18.74 18.05,20.63 Q16.12,20.48 12,16 Q7.88,20.48 5.95,20.63 Q5.49,18.74 8.48,13.44 Q2.95,10.91 2.2,9.12 Q3.86,8.1 9.83,9.31 Q10.52,3.26 12,2 Z"/><path d="M12,8.7 L12,4" stroke-width="0.5"/><path d="M14.39,8.25 L17.23,5.1 L15.11,8.78" stroke-width="0.59"/><path d="M15.42,11.19 L19.89,9.74" stroke-width="0.5"/><path d="M16.59,13.32 L20.46,15.05 L16.31,14.17" stroke-width="0.59"/><path d="M14.12,15.21 L16.88,19.01" stroke-width="0.5"/><path d="M12.45,16.98 L12,21.2 L11.55,16.98" stroke-width="0.59"/><path d="M9.88,15.21 L7.12,19.01" stroke-width="0.5"/><path d="M7.69,14.17 L3.54,15.05 L7.41,13.32" stroke-width="0.59"/><path d="M8.58,11.19 L4.11,9.74" stroke-width="0.5"/><path d="M8.89,8.78 L6.77,5.1 L9.61,8.25" stroke-width="0.59"/><circle cx="12" cy="12.3" r="2.4" stroke-width="0.59"/><circle cx="12" cy="12.3" r="1.2" fill="#000000" stroke="none"/>
+</g>
+</svg>

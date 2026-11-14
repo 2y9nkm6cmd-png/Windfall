@@ -5,7 +5,7 @@ Everything about how Windfall looks is kept here.
 | Folder or file | What it holds |
 |---|---|
 | `Reference/` | Pictures and files William has sent, each with the date it arrived. These are the originals and are never edited |
-| `Icons/` | One small SVG drawing for each icon in the app. These are the masters: edit one and the app follows |
+| `Icons/` | One small SVG drawing for each icon in the app. These are the masters: edit one and the app follows. The twenty that start `shape-` are the flower shapes: see below |
 | `AppIcon/` | The app's own icon, the snowdrop and bumblebee, as two SVG drawings: light and dark. These are the masters. See "The app icon" below |
 | `colours.json` | Every named colour, each with a light-mode and a dark-mode value |
 | `Archive/` | Anything that has been replaced or set aside, kept in case it is wanted again |
@@ -35,6 +35,21 @@ The script copies the colours and icons into `Windfall/Assets.xcassets`, which i
 - **Colour icons**, such as the butterfly, have other colours in them and are shown as drawn. Their dark green outline (`#06472A`) is swapped for pale green in dark mode, which the script does by itself.
 
 Icons are drawn on a 24 by 24 grid with a line 1.6 wide and rounded ends.
+
+## The flower shape drawings
+
+Twenty of the files in `Icons/` have names that start `shape-`, one for each shape in the Flower Form Guide: `shape-bilabiate.svg`, `shape-rotate-umbellate.svg` and so on. The Flower shapes pages show them (`Windfall/FlowerShapeViews.swift`).
+
+- **The name is made from the shape's own name**: small letters, commas dropped, each space a hyphen. A new shape in the guide needs only a drawing with the matching name. A test fails if a shape in `StarterData.json` has no drawing.
+- **They are drawn by a script, not by hand**: `Tools/design/flower_shapes.py`. To change one, edit its block in that file and run, from the top of the repository:
+
+  ```
+  python3 Tools/design/flower_shapes.py Design/Icons
+  python3 Tools/design/build_design_assets.py
+  ```
+
+- They are outline icons like the rest, on the same 24 by 24 grid, but with a finer line (0.85, with 0.5 for veins and stamens) because they are shown two to eight times the size of a navigation icon.
+- The botany is Claude's own and has not been checked against a book. Project doc 57 lists what was simplified.
 
 ## The app icon
 
