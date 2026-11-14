@@ -30,6 +30,10 @@ import json, os, re, shutil, sys
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 DESIGN = os.path.join(ROOT, "Design")
 CATALOGUE = os.path.join(ROOT, "Windfall", "Assets.xcassets")
+# The widgets are a second small program with a store of its own. It gets
+# the same colours and icons, under the same names, so a widget and the
+# app can share the code that draws them. See WindfallShared.
+WIDGET_CATALOGUE = os.path.join(ROOT, "WindfallWidgets", "Assets.xcassets")
 OUTLINE_LIGHT = "#06472A"
 OUTLINE_DARK = "#D9E8C4"
 INFO = {"author": "xcode", "version": 1}
@@ -66,10 +70,10 @@ def fresh_folder(path):
     os.makedirs(path)
 
 
-def build_colours():
+def build_colours(catalogue=CATALOGUE):
     with open(os.path.join(DESIGN, "colours.json"), encoding="utf-8") as f:
         colours = json.load(f)["colours"]
-    folder = os.path.join(CATALOGUE, "Colours")
+    folder = os.path.join(catalogue, "Colours")
     fresh_folder(folder)
     # "provides-namespace" means the app asks for "Colours/Paper", not just
     # "Paper", so a colour can never clash with an icon of the same name.
@@ -78,15 +82,15 @@ def build_colours():
     for c in colours:
         write_json(os.path.join(folder, c["name"] + ".colorset", "Contents.json"),
                    colour_set(c["light"], c["dark"]))
-        if c["name"] == "Leaf":
-            write_json(os.path.join(CATALOGUE, "AccentColor.colorset", "Contents.json"),
+        if c["name"] == "Leaf" and catalogue == CATALOGUE:
+            write_json(os.path.join(catalogue, "AccentColor.colorset", "Contents.json"),
                        colour_set(c["light"], c["dark"]))
     return len(colours)
 
 
-def build_icons():
+def build_icons(catalogue=CATALOGUE):
     source = os.path.join(DESIGN, "Icons")
-    folder = os.path.join(CATALOGUE, "Icons")
+    folder = os.path.join(catalogue, "Icons")
     fresh_folder(folder)
     write_json(os.path.join(folder, "Contents.json"),
                {"info": INFO, "properties": {"provides-namespace": True}})
@@ -126,4 +130,8 @@ def build_icons():
 if __name__ == "__main__":
     n = build_colours()
     outline, colour = build_icons()
+    # The same again for the widgets' own store.
+    write_json(os.path.join(WIDGET_CATALOGUE, "Contents.json"), {"info": INFO})
+    build_colours(WIDGET_CATALOGUE)
+    build_icons(WIDGET_CATALOGUE)
     print(f"{n} colours, {outline} outline icons and {colour} colour icons written to Windfall/Assets.xcassets")

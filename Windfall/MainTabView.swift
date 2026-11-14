@@ -114,6 +114,15 @@ struct MainTabView: View {
         .tint(Theme.leaf)
         // Hands the screen tracker to every screen inside, and to Eira's bar.
         .environment(eiraScreen)
+        // A tap on a widget opens the app with a link. `WidgetRoute`
+        // notes what was asked for, and Today or Eira's bar then does it.
+        .onOpenURL { url in
+            if WidgetRoute.shared.take(url) { selection = .today }
+        }
+        // When the app is put away, leave the widgets an up-to-date file.
+        .onChange(of: scenePhase) {
+            if scenePhase == .background { WidgetShare.refresh(context: context) }
+        }
         // The first time the app runs, fill the plant library from the
         // starter data that ships inside it. After that this does nothing.
         .task {

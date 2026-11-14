@@ -552,6 +552,8 @@ struct EiraChatView: View {
         }
         do {
             let identification = try await EiraIdentify.identify(photo: photo, taken: facts.month(), context: context)
+            // For the Identify widgets: her last answer, with its photo.
+            WidgetShare.noteAnswer(identification, photo: photo)
             conversation.answerPhoto(photoID, with: identification)
         } catch let problem {
             conversation.photoFailed(problem.localizedDescription)

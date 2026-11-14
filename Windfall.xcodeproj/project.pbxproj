@@ -8,10 +8,36 @@
 
 /* Begin PBXBuildFile section */
 		C0A1AA002F9F000100EAB897 /* WindfallCoreAI in Frameworks */ = {isa = PBXBuildFile; productRef = C0A1AA012F9F000100EAB897 /* WindfallCoreAI */; };
+		AA0000012FA7000100EAB897 /* WindfallWidgets.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = AA0000022FA7000100EAB897 /* WindfallWidgets.appex */; platformFilters = (ios, ); settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		AA00000A2FA7000100EAB897 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F4C49A5D2F72972C00EAB897 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AA0000092FA7000100EAB897;
+			remoteInfo = WindfallWidgets;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		AA00000C2FA7000100EAB897 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				AA0000012FA7000100EAB897 /* WindfallWidgets.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		F4C49A652F72972C00EAB897 /* Windfall.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Windfall.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA0000022FA7000100EAB897 /* WindfallWidgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = WindfallWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -22,6 +48,13 @@
 			);
 			target = F4C49A642F72972C00EAB897 /* Windfall */;
 		};
+		AA0000032FA7000100EAB897 /* Exceptions for "WindfallWidgets" folder in "WindfallWidgets" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = AA0000092FA7000100EAB897 /* WindfallWidgets */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -31,6 +64,19 @@
 				F4C6684D2F7303000014B67B /* Exceptions for "Windfall" folder in "Windfall" target */,
 			);
 			path = Windfall;
+			sourceTree = "<group>";
+		};
+		AA0000052FA7000100EAB897 /* WindfallShared */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = WindfallShared;
+			sourceTree = "<group>";
+		};
+		AA0000042FA7000100EAB897 /* WindfallWidgets */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				AA0000032FA7000100EAB897 /* Exceptions for "WindfallWidgets" folder in "WindfallWidgets" target */,
+			);
+			path = WindfallWidgets;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -44,6 +90,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		AA0000072FA7000100EAB897 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -51,6 +104,8 @@
 			isa = PBXGroup;
 			children = (
 				F4C49A672F72972C00EAB897 /* Windfall */,
+				AA0000052FA7000100EAB897 /* WindfallShared */,
+				AA0000042FA7000100EAB897 /* WindfallWidgets */,
 				F4C49A662F72972C00EAB897 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -59,6 +114,7 @@
 			isa = PBXGroup;
 			children = (
 				F4C49A652F72972C00EAB897 /* Windfall.app */,
+				AA0000022FA7000100EAB897 /* WindfallWidgets.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -73,13 +129,16 @@
 				F4C49A612F72972C00EAB897 /* Sources */,
 				F4C49A622F72972C00EAB897 /* Frameworks */,
 				F4C49A632F72972C00EAB897 /* Resources */,
+				AA00000C2FA7000100EAB897 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				AA00000B2FA7000100EAB897 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				F4C49A672F72972C00EAB897 /* Windfall */,
+				AA0000052FA7000100EAB897 /* WindfallShared */,
 			);
 			name = Windfall;
 			packageProductDependencies = (
@@ -88,6 +147,27 @@
 			productName = Windfall;
 			productReference = F4C49A652F72972C00EAB897 /* Windfall.app */;
 			productType = "com.apple.product-type.application";
+		};
+		AA0000092FA7000100EAB897 /* WindfallWidgets */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AA00000F2FA7000100EAB897 /* Build configuration list for PBXNativeTarget "WindfallWidgets" */;
+			buildPhases = (
+				AA0000062FA7000100EAB897 /* Sources */,
+				AA0000072FA7000100EAB897 /* Frameworks */,
+				AA0000082FA7000100EAB897 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				AA0000052FA7000100EAB897 /* WindfallShared */,
+				AA0000042FA7000100EAB897 /* WindfallWidgets */,
+			);
+			name = WindfallWidgets;
+			productName = WindfallWidgets;
+			productReference = AA0000022FA7000100EAB897 /* WindfallWidgets.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -101,6 +181,9 @@
 				TargetAttributes = {
 					F4C49A642F72972C00EAB897 = {
 						CreatedOnToolsVersion = 26.3;
+					};
+					AA0000092FA7000100EAB897 = {
+						CreatedOnToolsVersion = 27.2;
 					};
 				};
 			};
@@ -122,12 +205,20 @@
 			projectRoot = "";
 			targets = (
 				F4C49A642F72972C00EAB897 /* Windfall */,
+				AA0000092FA7000100EAB897 /* WindfallWidgets */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		F4C49A632F72972C00EAB897 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AA0000082FA7000100EAB897 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -144,7 +235,25 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		AA0000062FA7000100EAB897 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		AA00000B2FA7000100EAB897 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			platformFilters = (
+				ios,
+			);
+			target = AA0000092FA7000100EAB897 /* WindfallWidgets */;
+			targetProxy = AA00000A2FA7000100EAB897 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		F4C49A6E2F72972D00EAB897 /* Debug */ = {
@@ -271,6 +380,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				"CODE_SIGN_ENTITLEMENTS[sdk=iphone*]" = Windfall/Windfall.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = SMHL368J85;
@@ -315,6 +425,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				"CODE_SIGN_ENTITLEMENTS[sdk=iphone*]" = Windfall/Windfall.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = SMHL368J85;
@@ -354,6 +465,68 @@
 			};
 			name = Release;
 		};
+		AA00000D2FA7000100EAB897 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = WindfallWidgets/WindfallWidgets.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = SMHL368J85;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = WindfallWidgets/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Windfall;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.54brookroad.Windfall.Widgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		AA00000E2FA7000100EAB897 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = WindfallWidgets/WindfallWidgets.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = SMHL368J85;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = WindfallWidgets/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Windfall;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.54brookroad.Windfall.Widgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -371,6 +544,15 @@
 			buildConfigurations = (
 				F4C49A712F72972D00EAB897 /* Debug */,
 				F4C49A722F72972D00EAB897 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AA00000F2FA7000100EAB897 /* Build configuration list for PBXNativeTarget "WindfallWidgets" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AA00000D2FA7000100EAB897 /* Debug */,
+				AA00000E2FA7000100EAB897 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
