@@ -16,6 +16,9 @@
 //
 
 import Foundation
+// For a place's latitude and longitude, which this file reads when it
+// tells the widgets where to ask the weather about.
+import CoreLocation
 import ImageIO
 import Observation
 import SwiftData
