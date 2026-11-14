@@ -1,3 +1,81 @@
+# 14 November 2026, 18:40: seven branches joined into main
+
+**By the join chat.** William, 16:44: "When all the app builds have finished, I want to combine them and then issue an iphone, ipad and mac build to test further." The Mac went quiet at 18:17. The join was made in a copy of its own, `~/Developer/windfall-join`, on the branch `join-14nov-evening`, and `main` moved only once it built and passed its tests.
+
+**What came in**, in this order:
+
+| Branch | What it is | Had it been built before? |
+|---|---|---|
+| `home-screen-rearrange` | Carrying Today's cards, like a Home Screen | Yes, at midday |
+| `journal-follow-up` | "Want to pin it down?" in the journal | Yes, at 13:30 |
+| `tile-grow` | A page grows out of the tile that was tapped | Yes, and on the iPhone at 17:08 |
+| `larger-text` | Every text style one step larger | No |
+| `plant-fill-in`, which carries `eira-web-finds` | Kept facts. A new plant is looked up. A plant's gaps are filled | No |
+| `own-jobs` | Jobs of your own, added by telling Eira | No |
+
+`tile-grow-phone-mix` was left out, as its own note asks: it was for the phone only.
+
+**Every entry below that says "not in main", "not built" or "not yet merged" for one of these branches is out of date as of this entry.**
+
+## Where the branches met, and what was done
+
+A "clash" is a place where two branches changed the same lines, so git cannot choose for itself and marks both versions in the file for a person to settle.
+
+| File | The clash | Settled by |
+|---|---|---|
+| `CHANGES.md`, `Tools/checks/logic-files.txt`, the logic tests | Each branch added its own entries at the same spot | Keeping both, one after the other |
+| `JournalChat.swift` | Two branches each added a job to the list in the opening comment | Keeping both. The pin-down is now called the fifth job |
+| `EiraChatView.swift`, `TodayView.swift` (with `larger-text`) | `larger-text` changed a text style on lines that another branch had since rewritten or removed | Keeping the newer code, then moving its text styles up (below) |
+| `EiraChatView.swift` (with `plant-fill-in`) | The sheet for a plant's page and the sheet for kept facts were added at the same spot. So were two checking aids | Keeping both, each with its own closing brace |
+| `EiraConversation.swift` | An example reply with lookups and the whole kept-find section were added at the same spot. Three lines that clear a waiting offer each gained one more line | Keeping both |
+| `EiraFloatingBar.swift` | Both sides changed the list of names that open Eira's chat for a picture | One list holding every name |
+| `TodayView.swift` (with `own-jobs`) | `main` had moved the gathering of the week's jobs into `WidgetShare.swift` so the widgets could use it. `own-jobs` still had the old gathering, with your own jobs added at its end | `main`'s one call, then your own jobs added to its answer and the list put in order again |
+
+## Three things that did not build, and why
+
+A join with no clashes is not proof that it builds. The compiler found three places where code from one branch relied on something another branch had changed.
+
+1. **Eira's chat, three cards outside their message.** `main` now draws the chat turn by turn (`ForEach(turns)`), and a turn may have no message: lookups whose reply never came. The cards for a new plant, a kept find and a job were written when the chat was drawn message by message, so they used `message` where there might not be one. They now sit inside `if let message = turn.message { ... }`, which means "only when this turn has a message, and call it `message` in here".
+2. **The journal's pin-down** called `SpeciesEye.monthTaken(of:)`, which `main` replaced at 13:33 with one reader for a photo's own facts. It now calls `PhotoFacts.read(from: data).month()`.
+3. **The logic tests** had two values named `tall`, one from the Today board's tests and one from the photo tests. Swift does not allow the same name twice in one place. The Today board's is now `cardHeights`.
+
+## Larger text, for the lines the other branches brought
+
+`larger-text` moved 384 lines up one step. Lines written on other branches still had the old names. `windfall-build-logs/join-text-styles.py` found them: a line that is word for word in `larger-text`'s copy of the file has been moved up already, and any other line has not. 74 lines in 9 files were moved up by the same table:
+
+| Was | Now |
+|---|---|
+| `.caption2` | `.caption` |
+| `.caption` | `.footnote` |
+| `.subheadline`, `.callout` | `.body` |
+| `.headline` | `.title3.weight(.semibold)` |
+
+- `.caption` was moved only in the seven files that were wholly new (`EiraChatCards`, `JobViews`, `JournalPinDown`, `KeptFactViews`, `LivingCorner`, `PlantFillInViews`, `TodayBoard`), each of which also used an old name that settles which table it was written to.
+- **The widgets' own files are left at their old sizes**, as the fonts chat suggested: a widget has very little room.
+- **⚠️ CHECK: the larger titles were not carried over.** `larger-text` also moved sheet titles and serif headings up a step. On the new screens those were left alone, because which `.title3` is a heading and which is not cannot be told by rule. Look at the sheets for a job, a kept fact and "Fill the gaps".
+
+## Checked
+
+| Check | Result |
+|---|---|
+| Logic checks, Swift 6.3.1 on Linux (`Tools/checks/run-checks.sh`) | 109 files read as valid Swift. The logic files type-check. 30 record types and 30 in the schema. **734 logic tests pass** |
+| Built for the Mac | No errors, at the third attempt (`join3-mac.log`, 18:28) |
+| Built for the simulator, which also builds the widget program | No errors, at the first attempt (`join4-sim.log`, 18:29) |
+| A database made by `main` of 18:10 opens in this version | Yes. iPad mini simulator, a database of its own (`join-migrate.sh`, 18:32) |
+| This version's database still opens in `main` of 18:10 | Yes |
+| Crash reports | None |
+| Pictures, with the example garden, their words read by `read-picture.swift` | Today on an iPad mini and an iPhone: the wigwam job in "This week", "+ Add a job", "Your jobs (2)", "Order seed potatoes" in "This month". The list of kept facts. Eira's chat with one closed bubble and the card that offers to keep a find. Rhubarb's page. "Fill the gaps" on Rhubarb 'Victoria', which read the real RHS page and offered 3 suggestions. `shots/join-*.png` |
+
+The name-guessing check (`check_members.py`) raised 32 false alarms, because the joined branches brought new types whose usual variable names (`session`, `key`, `a`, `b`, `question`, `other`, `target`) are used for other things elsewhere. They are now listed in `known-false-alarms.txt`. The Mac build is the proof that they are false.
+
+## Not checked
+
+- **Nothing was tried by hand.** No press, drag or swipe. A script cannot make one.
+- **Nobody has looked at a picture.** The join chat could only read the words in them. Whether the larger text fits its chips, buttons and rows is for William's eye.
+- Carrying a card on Today now that the living corner, the widgets' card and your own jobs are on the same page.
+- The "Fill the gaps" card on a plant's page was not in the top screen of the picture. The sheet it opens was.
+- The new plant form (Plants, "+").
+
 # 14 November 2026, midday: rearranging Today like a Home Screen
 
 **The `home-screen-rearrange` branch**, made from `main`. Built for the Mac
