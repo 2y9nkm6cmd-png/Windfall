@@ -64,6 +64,7 @@ enum DemoGarden {
     /// `eira` opens her chat on an example exchange in which she is put
     /// right, with the card that offers to keep the correction.
     /// `corrections` does the same and then opens the list of them.
+    /// `eira-photo` opens her chat on an example answer to a photo.
     static var opens: String? {
         isRequested ? UserDefaults.standard.string(forKey: "demoOpen") : nil
     }

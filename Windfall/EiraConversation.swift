@@ -162,7 +162,13 @@ final class EiraConversation {
     /// Sends a message. `forcedTool` runs a lookup first whether or not
     /// the model would have thought to, because small models are
     /// unreliable at deciding when to look something up.
-    func send(_ text: String, forcedTool: ToolDefinition? = nil) {
+    ///
+    /// `subject` is what that lookup is given to look for, when it is
+    /// not the whole message. "Tell me about Buff-tailed Bumblebee
+    /// (Bombus terrestris)." is the message, and "Bombus terrestris" is
+    /// what to look up. Added 14 November 2026, for asking about a
+    /// species Eira has just named from a photo.
+    func send(_ text: String, forcedTool: ToolDefinition? = nil, about subject: String? = nil) {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard engine != nil, !trimmed.isEmpty, !isGenerating, !isLooking else { return }
 
@@ -207,7 +213,7 @@ final class EiraConversation {
         let lookup = forcedTool ?? EiraChecks.lookupFirst(for: trimmed)
 
         replyTask = Task { [weak self] in
-            await self?.generate(for: trimmed, forcedTool: lookup)
+            await self?.generate(for: trimmed, forcedTool: lookup, about: subject)
         }
     }
 
@@ -262,6 +268,14 @@ final class EiraConversation {
         needsRestart = true
     }
 
+    /// A checking aid: puts an example photo exchange on screen, so a
+    /// still picture can be taken of the card where the image model
+    /// cannot run. There is no photo behind it. See DemoGarden.opens.
+    func showExamplePhoto(answeredBy identification: EiraIdentification) {
+        guard let photoID = givePhoto(Data()) else { return }
+        answerPhoto(photoID, with: identification)
+    }
+
     /// Forgets the photos, at the start of another conversation.
     private func forgetPhotos() {
         photos = [:]
@@ -284,7 +298,7 @@ final class EiraConversation {
         replyTask?.cancel()
     }
 
-    private func generate(for text: String, forcedTool: ToolDefinition?) async {
+    private func generate(for text: String, forcedTool: ToolDefinition?, about subject: String? = nil) async {
         guard let engine else { isGenerating = false; return }
         defer {
             isGenerating = false
@@ -295,7 +309,10 @@ final class EiraConversation {
 
         var prompt = text
         if let forcedTool, let hub {
-            let arguments = EiraToolHub.json(["name": text, "query": text, "plant": text, "url": text])
+            // What to look for: the subject if one was given, and
+            // otherwise the whole message.
+            let wanted = subject ?? text
+            let arguments = EiraToolHub.json(["name": wanted, "query": wanted, "plant": wanted, "url": wanted])
             let result = await hub.run(name: forcedTool.name, argumentsJSON: arguments)
             prompt = """
             The app has already looked this up for you with \(forcedTool.name):

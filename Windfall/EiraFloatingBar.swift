@@ -144,12 +144,12 @@ struct EiraFloatingBar: View {
             }
             .macSheetSize(width: 580, height: 660)
         }
-        // A checking aid: `-demoOpen eira` and `-demoOpen corrections`
-        // open her chat as soon as the bar appears, once. See
-        // DemoGarden.opens.
+        // A checking aid: `-demoOpen eira`, `-demoOpen corrections` and
+        // `-demoOpen eira-photo` open her chat as soon as the bar
+        // appears, once. See DemoGarden.opens.
         .onAppear {
             guard !Self.hasOpenedForChecking,
-                  DemoGarden.opens == "eira" || DemoGarden.opens == "corrections" else { return }
+                  ["eira", "corrections", "eira-photo"].contains(DemoGarden.opens ?? "") else { return }
             Self.hasOpenedForChecking = true
             eiraRequest = BarRequest(text: "")
         }

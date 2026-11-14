@@ -4,12 +4,21 @@
 //
 //  Identifying a plant or animal from a photograph.
 //
-//  How it works now (13 November 2026). The photo is matched against a
-//  list of UK species by BioCLIP 2, a model that runs on this device
-//  through Core AI. SpeciesEye.swift runs it and SpeciesTable.swift does
-//  the matching. It names a species only when the match is strong, and
-//  otherwise says it is not sure and shows the closest few. It cannot
+//  How it works now (14 November 2026). Two steps.
+//
+//  First the photo is matched against a list of UK species by an image
+//  model that runs on this device through Core AI. SpeciesEye.swift
+//  runs it and SpeciesTable.swift does the matching. The model cannot
 //  describe a photo or answer a question about it: it only matches.
+//
+//  Then Eira judges the match by fixed rules (EiraIdentify.swift): she
+//  checks it against your plant list, your wildlife list, your past
+//  sightings and the month, says when a species cannot be told from
+//  its look-alikes, gives the genus when the species is unclear, and
+//  warns when a dangerous plant is among the possibilities.
+//
+//  The answer is drawn by the card in IdentifyCards.swift, which Eira's
+//  chat uses too.
 //
 //  If the model's files are not on the device, the screen says so and
 //  the photo can still be saved as a sighting to identify yourself.
@@ -80,17 +89,20 @@ struct IdentifyView: View {
     @State private var pickerItem: PhotosPickerItem?
     @State private var isChoosingFile = false
     @State private var imageData: Data?
-    /// What the model made of the photo.
-    @State private var guess: SpeciesGuess?
+    /// What Eira made of the photo: the image model's match, judged
+    /// against your records and the month.
+    @State private var identification: EiraIdentification?
     @State private var isWorking = false
     @State private var error: String?
+    /// The image model in use, for saying which under the photo.
+    @State private var eyeName: String?
 
     private let heading = "Identify from a photo"
     /// What the button under an answer says.
     private var sightingTitle: String {
-        guess?.isSure == true ? "Start a sighting from this" : "Start a sighting to identify later"
+        identification?.isNameable == true ? "Start a sighting from this" : "Start a sighting to identify later"
     }
-    private let subheading = "Eira compares it with UK plants and animals."
+    private let subheading = "Eira compares it with UK plants and animals, and with your records."
 
     var body: some View {
         Group {
@@ -100,7 +112,7 @@ struct IdentifyView: View {
                     // answer stays at the foot of the sheet, in view
                     // however long the cards are.
                     SheetScroll { cards }
-                    if guess != nil {
+                    if identification != nil {
                         SheetMainButton(sightingTitle) { createObservation() }
                     }
                 }
@@ -111,7 +123,7 @@ struct IdentifyView: View {
                         cards
                         // On a page there is no foot to stand on, so
                         // the button follows the cards.
-                        if guess != nil {
+                        if identification != nil {
                             Button {
                                 createObservation()
                             } label: {
@@ -125,6 +137,17 @@ struct IdentifyView: View {
                             .tint(Theme.leaf)
                             .foregroundStyle(Theme.onLeaf)
                         }
+
+                        // The way to the page that compares the image
+                        // models. Only here, where there is a stack of
+                        // pages to push it on to: a sheet has none.
+                        NavigationLink {
+                            EyeTestView()
+                        } label: {
+                            Label("Test the image models", systemImage: "square.split.2x1")
+                        }
+                        .buttonStyle(QuietGlassButton())
+                        .padding(.top, 6)
                     }
                     // Reads best in a column, not across a wide window.
                     .frame(maxWidth: 640, alignment: .leading)
@@ -154,9 +177,10 @@ struct IdentifyView: View {
             if let data = try? Data(contentsOf: url) { take(data) }
         }
         .task {
+            eyeName = SpeciesEyeFiles.chosen()?.name
             // A checking aid: an example answer, so the cards can be
             // looked at where the model cannot run. See DemoGarden.
-            if DemoGarden.showsExampleMatch { guess = IdentifyView.exampleMatch }
+            if DemoGarden.showsExampleMatch { identification = EiraIdentify.example(in: context) }
         }
     }
 
@@ -185,7 +209,7 @@ struct IdentifyView: View {
                 }
                 .buttonStyle(QuietGlassButton())
             }
-            Text("The photo stays on this device.")
+            Text("The photo stays on this device." + (eyeName.map { " Image model: \($0)." } ?? ""))
                 .font(.caption)
                 .foregroundStyle(Theme.inkSoft)
         }
@@ -209,18 +233,11 @@ struct IdentifyView: View {
             .disabled(isWorking)
         }
 
-        if let guess {
-            SheetCard(guess.isSure ? "Eira's match" : "Eira is not sure") {
-                if !guess.isSure {
-                    Text("None of these is strong enough to name. A closer or sharper photo may help. It may also be something she was never shown.")
-                        .font(.callout)
-                        .foregroundStyle(Theme.inkSoft)
-                }
-                ForEach(Array(guess.candidates.enumerated()), id: \.offset) { place, possible in
-                    CandidateRow(possible: possible, isNamed: guess.isSure && place == 0)
-                }
-                Text((SpeciesEye.shared.table?.caveat ?? "Never eat anything on the strength of a match. Treat it as a suggestion to check.")
-                     + " Nothing is saved until you start a sighting and confirm the name yourself.")
+        if let identification {
+            // The card is shared with Eira's chat: IdentifyCards.swift.
+            SheetCard {
+                IdentificationCard(identification: identification)
+                Text("Nothing is saved until you start a sighting and confirm the name yourself.")
                     .font(.caption)
                     .foregroundStyle(Theme.inkSoft)
             }
@@ -230,7 +247,7 @@ struct IdentifyView: View {
             ProblemsCard(problems: [error])
         }
 
-        if imageData != nil, guess == nil {
+        if imageData != nil, identification == nil {
             Button {
                 createObservation()
             } label: {
@@ -249,11 +266,12 @@ struct IdentifyView: View {
     /// sighting, and a fraction of the size of the original.
     private func take(_ data: Data) {
         imageData = DiaryEntryEditor.thumbnail(from: data, maxDimension: 1024) ?? data
-        guess = nil
+        identification = nil
         error = nil
     }
 
-    /// Asks the on-device model what the photo most resembles.
+    /// Asks the image model what the photo most resembles, and has
+    /// Eira judge the answer against your records and the month.
     ///
     /// `async` because loading the model the first time takes a moment
     /// and the screen must stay usable meanwhile. `defer` runs when the
@@ -262,12 +280,13 @@ struct IdentifyView: View {
     private func identify() async {
         guard let imageData else { return }
         isWorking = true
-        guess = nil
+        identification = nil
         error = nil
         defer { isWorking = false }
 
         do {
-            guess = try await SpeciesEye.shared.guess(forPhoto: imageData)
+            identification = try await EiraIdentify.identify(photo: imageData, context: context)
+            eyeName = SpeciesEye.shared.loaded?.name ?? eyeName
         } catch let problem {
             // The error's own words say what is missing and what can
             // still be done. See SpeciesEyeError.
@@ -276,103 +295,14 @@ struct IdentifyView: View {
     }
 
     /// Creates an unconfirmed sighting with the photo attached. The
-    /// suggestion goes into provisionalID, never confirmedID.
+    /// suggestion goes into provisionalID, never confirmedID. Shared
+    /// with Eira's chat: see EiraIdentify.startSighting.
     private func createObservation() {
-        let observation = WildlifeObservation()
-        observation.recorderName = UserDefaults.standard.string(forKey: "recorderName")
-        if let guess, let top = guess.likeliest {
-            let closest = guess.candidates
-                .map { "\($0.entry.title), \($0.percent)" }
-                .joined(separator: "; ")
-            if guess.isSure {
-                // A strong match becomes the provisional name. It is
-                // still only a suggestion until you confirm it.
-                observation.provisionalID = top.entry.scientific
-                observation.provisionalSource = .onDeviceModel
-                observation.provisionalConfidence = .probable
-                observation.notes = "Suggested by Eira from a photograph (\(closest)). Needs confirming."
-            } else {
-                // A weak match is not written in as a name at all.
-                observation.notes = "Eira was not sure from the photograph. Closest: \(closest)."
-            }
-        } else {
-            observation.notes = "Photo saved without an identification."
-        }
-
-        if let imageData {
-            let photo = Photo()
-            photo.imageData = imageData
-            photo.thumbnailData = DiaryEntryEditor.thumbnail(from: imageData)
-            photo.observation = observation
-            observation.photos = [photo]
-        }
-
-        context.insert(observation)
+        EiraIdentify.startSighting(from: identification, photo: imageData, in: context)
         dismiss()
     }
 
     private func displayImage(_ data: Data) -> Image? {
-        #if os(iOS)
-        guard let ui = UIImage(data: data) else { return nil }
-        return Image(uiImage: ui)
-        #elseif os(macOS)
-        guard let ns = NSImage(data: data) else { return nil }
-        return Image(nsImage: ns)
-        #endif
-    }
-
-    /// A made-up answer for looking at the cards. Never shown unless
-    /// the app was started with the example garden and asked for it.
-    static let exampleMatch = SpeciesGuess(
-        candidates: [
-            SpeciesCandidate(entry: SpeciesEntry(scientific: "Bombus terrestris", common: "Buff-tailed Bumblebee", group: "Insecta", taught: true), share: 0.93),
-            SpeciesCandidate(entry: SpeciesEntry(scientific: "Bombus lucorum", common: "White-tailed Bumblebee", group: "Insecta", taught: true), share: 0.05),
-            SpeciesCandidate(entry: SpeciesEntry(scientific: "Bombus hortorum", common: "Garden Bumblebee", group: "Insecta", taught: true), share: 0.01)
-        ],
-        isSure: true)
-}
-
-/// One possible species: its names, its share as a bar and as a figure.
-private struct CandidateRow: View {
-
-    let possible: SpeciesCandidate
-    /// True for the one species that is being named outright.
-    let isNamed: Bool
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 5) {
-            HStack(alignment: .firstTextBaseline) {
-                VStack(alignment: .leading, spacing: 1) {
-                    Text(possible.entry.common ?? possible.entry.scientific)
-                        .font(isNamed ? .title3.weight(.semibold) : .body)
-                        .foregroundStyle(Theme.ink)
-                    if possible.entry.common != nil {
-                        Text(possible.entry.scientific)
-                            .font(.callout)
-                            .italic()
-                            .foregroundStyle(Theme.inkSoft)
-                    }
-                }
-                Spacer(minLength: 8)
-                Text(possible.percent)
-                    .font(.callout.monospacedDigit())
-                    .foregroundStyle(isNamed ? Theme.leaf : Theme.inkSoft)
-            }
-            // The share as a bar: a full-width track with a filled part.
-            // GeometryReader tells the bar how wide its space is, so the
-            // filled part can be that width times the share.
-            GeometryReader { space in
-                ZStack(alignment: .leading) {
-                    Capsule().fill(Theme.hairline)
-                    Capsule()
-                        .fill(isNamed ? Theme.leaf : Theme.inkSoft.opacity(0.55))
-                        .frame(width: max(3, space.size.width * possible.share))
-                }
-            }
-            .frame(height: 5)
-        }
-        .padding(.vertical, 2)
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(possible.entry.title), \(possible.percent)")
+        PhotoPicture.image(data)
     }
 }

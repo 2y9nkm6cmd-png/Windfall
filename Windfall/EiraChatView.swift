@@ -18,10 +18,17 @@
 //  are unreliable at deciding when to look something up. Pressing and
 //  holding one of her replies lets you correct it, and she keeps that.
 //
+//  A photo can be given to her with the camera button beside the text
+//  box (14 November 2026). Her answer to it is a card, drawn by
+//  IdentifyCards.swift from the rules in EiraIdentify.swift. Naming a
+//  photo does not use her text model, so it works even where no text
+//  model can run. Asking her about the species afterwards does.
+//
 
 import SwiftUI
 import UniformTypeIdentifiers
 import SwiftData
+import PhotosUI
 
 // MARK: - Chat screen
 
@@ -50,6 +57,17 @@ struct EiraChatView: View {
     @State private var voice = VoiceInput()
     @AppStorage("eiraSpeaksReplies") private var speaksReplies = false
 
+    // Giving her a photo.
+    /// True while the Photos library is open to choose one.
+    @State private var isChoosingPhoto = false
+    /// True while a file window is open to choose one.
+    @State private var isChoosingPhotoFile = false
+    /// The photo chosen in the Photos library, until it has been read.
+    @State private var pickedPhoto: PhotosPickerItem?
+    /// The answers a sighting has been started from, by the id of her
+    /// reply, so each shows "Added" in place of its button.
+    @State private var sightingsAdded: Set<UUID> = []
+
     /// The name of the marker at the bottom of the conversation.
     private let endOfChat = "end of chat"
 
@@ -67,10 +85,29 @@ struct EiraChatView: View {
                         }
 
                         ForEach(conversation.messages) { message in
-                            MessageView(message: message) {
-                                messageToCorrect = message
+                            if let identification = conversation.identifications[message.id] {
+                                // Her answer to a photo is drawn as a
+                                // card, with what can be done with it.
+                                ChatIdentification(
+                                    identification: identification,
+                                    isAdded: sightingsAdded.contains(message.id),
+                                    canAsk: conversation.modelName != nil && !conversation.isGenerating,
+                                    onAdd: { addSighting(for: message.id, from: identification) },
+                                    onAsk: { question, name in
+                                        conversation.send(question, forcedTool: EiraTools.lookupSpecies, about: name)
+                                    })
+                                    .id(message.id)
+                            } else {
+                                // A photo of yours sits above the
+                                // message it came with.
+                                if let photo = conversation.photos[message.id] {
+                                    PhotoBubble(data: photo)
+                                }
+                                MessageView(message: message) {
+                                    messageToCorrect = message
+                                }
+                                .id(message.id)
                             }
-                            .id(message.id)
 
                             // A message of yours that put Eira right is
                             // followed by a card offering to keep it.
@@ -87,6 +124,15 @@ struct EiraChatView: View {
                         if conversation.isGenerating {
                             StreamingView(conversation: conversation)
                                 .id("streaming")
+                        }
+
+                        if conversation.isLooking {
+                            HStack(spacing: 6) {
+                                ProgressView().controlSize(.small)
+                                Text("Looking at the photo…")
+                                    .font(.callout)
+                                    .foregroundStyle(Theme.inkSoft)
+                            }
                         }
 
                         if let metrics = conversation.lastMetrics,
@@ -123,6 +169,9 @@ struct EiraChatView: View {
                     withAnimation { proxy.scrollTo(endOfChat, anchor: .bottom) }
                 }
                 .onChange(of: conversation.offeredCorrection?.messageID) { _, _ in
+                    withAnimation { proxy.scrollTo(endOfChat, anchor: .bottom) }
+                }
+                .onChange(of: conversation.isLooking) { _, _ in
                     withAnimation { proxy.scrollTo(endOfChat, anchor: .bottom) }
                 }
             }
@@ -207,6 +256,27 @@ struct EiraChatView: View {
                 conversation.remove(correction)
             }
         }
+        // A photo for her from the Photos library. Choosing one sets
+        // `pickedPhoto`, and the `onChange` below reads it.
+        .photosPicker(isPresented: $isChoosingPhoto, selection: $pickedPhoto, matching: .images)
+        .onChange(of: pickedPhoto) { _, item in
+            guard let item else { return }
+            pickedPhoto = nil
+            Task {
+                if let data = try? await item.loadTransferable(type: Data.self) { await look(at: data) }
+            }
+        }
+        // Or one that is a file, which on a Mac is often where they are.
+        .fileImporter(isPresented: $isChoosingPhotoFile, allowedContentTypes: [.image]) { result in
+            guard case .success(let url) = result else { return }
+            // Leave to read a file chosen in a file window lasts only
+            // between these two calls.
+            let hasLeave = url.startAccessingSecurityScopedResource()
+            defer { if hasLeave { url.stopAccessingSecurityScopedResource() } }
+            if let data = try? Data(contentsOf: url) {
+                Task { await look(at: data) }
+            }
+        }
         .task {
             // Before anything is sent, pass on what was open on screen.
             // Once only, so "Don't use this" is never quietly undone.
@@ -217,6 +287,10 @@ struct EiraChatView: View {
             await loadEngine()
             // A checking aid: an example exchange, so a still picture can
             // be taken of the chat. See DemoGarden.opens.
+            // `eira-photo` shows her answer to a photo instead.
+            if DemoGarden.opens == "eira-photo" {
+                conversation.showExamplePhoto(answeredBy: EiraIdentify.example(in: context))
+            }
             if DemoGarden.opens == "eira" || DemoGarden.opens == "corrections" {
                 let listed = DemoGarden.opens == "corrections"
                 conversation.showExample(in: EiraChatStore(context: context), kept: listed)
@@ -328,6 +402,31 @@ struct EiraChatView: View {
             }
 
             HStack(spacing: 8) {
+                // Give her a photo to name. A Menu is a button that
+                // opens a short list of choices.
+                Menu {
+                    Button {
+                        isChoosingPhoto = true
+                    } label: {
+                        Label("From Photos", systemImage: "photo.on.rectangle")
+                    }
+                    Button {
+                        isChoosingPhotoFile = true
+                    } label: {
+                        Label("From a file", systemImage: "folder")
+                    }
+                } label: {
+                    Image(systemName: "camera")
+                        .frame(width: 32, height: 32)
+                }
+                .menuStyle(.button)
+                .buttonStyle(.borderless)
+                .menuIndicator(.hidden)
+                .fixedSize()
+                .disabled(conversation.isGenerating || conversation.isLooking)
+                .help("Ask what is in a photo")
+                .accessibilityLabel("Ask what is in a photo")
+
                 TextField("Ask Eira…", text: $input, axis: .vertical)
                     .lineLimit(1...4)
                     .textFieldStyle(.roundedBorder)
@@ -392,6 +491,38 @@ struct EiraChatView: View {
         guard !text.isEmpty, conversation.modelName != nil, !conversation.isGenerating else { return }
         input = ""
         conversation.send(text)
+    }
+
+    // MARK: Photos
+
+    /// Gives Eira a photo and puts her answer into the conversation.
+    ///
+    /// Three steps. The photo joins the conversation as your message.
+    /// The image model and the fixed rules work out an answer
+    /// (EiraIdentify.identify). The answer joins the conversation, or
+    /// the reason there is none does.
+    ///
+    /// The photo is kept at no more than 1024 pixels on its longest
+    /// side, as on the Identify screen: plenty to name from and to keep
+    /// with a sighting.
+    private func look(at data: Data) async {
+        let photo = DiaryEntryEditor.thumbnail(from: data, maxDimension: 1024) ?? data
+        guard let photoID = conversation.givePhoto(photo) else { return }
+        do {
+            let identification = try await EiraIdentify.identify(photo: photo, context: context)
+            conversation.answerPhoto(photoID, with: identification)
+        } catch let problem {
+            conversation.photoFailed(problem.localizedDescription)
+        }
+    }
+
+    /// Starts an unconfirmed sighting from one of her answers, with the
+    /// photo it was about. This is the only thing here that saves to
+    /// your records, and only when you press its button.
+    private func addSighting(for replyID: UUID, from identification: EiraIdentification) {
+        let photo = conversation.photoBehind[replyID].flatMap { conversation.photos[$0] }
+        EiraIdentify.startSighting(from: identification, photo: photo, in: context)
+        sightingsAdded.insert(replyID)
     }
 
     private func forceButton(_ title: String, tool: ToolDefinition) -> some View {
