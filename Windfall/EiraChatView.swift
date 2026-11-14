@@ -54,6 +54,8 @@ struct EiraChatView: View {
     @State private var showingHistory = false
     @State private var messageToCorrect: ChatMessage?
     @State private var showingCorrections = false
+    /// True while the list of kept facts is open.
+    @State private var showingKeptFacts = false
     @State private var voice = VoiceInput()
     @AppStorage("eiraSpeaksReplies") private var speaksReplies = false
 
@@ -119,6 +121,22 @@ struct EiraChatView: View {
                                     onDismiss: { conversation.dismissOfferedCorrection() },
                                     onShowAll: { showingCorrections = true })
                             }
+
+                            // A reply of hers that was built on a web
+                            // page is followed by a card offering to
+                            // keep what she found in the plant's record.
+                            // `.id(...)` gives the card a name of its
+                            // own, so a new offer starts with a fresh
+                            // card and not the last one's typing.
+                            if let find = conversation.offeredFind, find.replyID == message.id {
+                                FindOfferCard(
+                                    offer: find,
+                                    onKept: { ids, place in conversation.findWasKept(ids: ids, where: place) },
+                                    onUndone: { conversation.findWasUndone() },
+                                    onDismiss: { conversation.dismissOfferedFind() },
+                                    onShowAll: { showingKeptFacts = true })
+                                    .id("find-\(find.replyID)")
+                            }
                         }
 
                         if conversation.isGenerating {
@@ -174,6 +192,9 @@ struct EiraChatView: View {
                 .onChange(of: conversation.isLooking) { _, _ in
                     withAnimation { proxy.scrollTo(endOfChat, anchor: .bottom) }
                 }
+                .onChange(of: conversation.offeredFind?.replyID) { _, _ in
+                    withAnimation { proxy.scrollTo(endOfChat, anchor: .bottom) }
+                }
             }
 
             Divider()
@@ -223,6 +244,11 @@ struct EiraChatView: View {
                         Label("Corrections", systemImage: "pencil.and.outline")
                     }
                     Button {
+                        showingKeptFacts = true
+                    } label: {
+                        Label("Kept facts", systemImage: "bookmark")
+                    }
+                    Button {
                         showingSettings = true
                     } label: {
                         Label("Model and garden notes", systemImage: "gear")
@@ -255,6 +281,9 @@ struct EiraChatView: View {
             EiraCorrectionsView { correction in
                 conversation.remove(correction)
             }
+        }
+        .sheet(isPresented: $showingKeptFacts) {
+            KeptFactsView()
         }
         // A photo for her from the Photos library. Choosing one sets
         // `pickedPhoto`, and the `onChange` below reads it.
@@ -291,6 +320,10 @@ struct EiraChatView: View {
             if DemoGarden.opens == "eira-photo" {
                 conversation.showExamplePhoto(answeredBy: EiraIdentify.example(in: context))
             }
+            // `eira-find` shows the card that offers to keep what she
+            // read online, and `kept-facts` the list of what is kept.
+            if DemoGarden.opens == "eira-find" { conversation.showExampleFind() }
+            if DemoGarden.opens == "kept-facts" { showingKeptFacts = true }
             if DemoGarden.opens == "eira" || DemoGarden.opens == "corrections" {
                 let listed = DemoGarden.opens == "corrections"
                 conversation.showExample(in: EiraChatStore(context: context), kept: listed)

@@ -50,6 +50,9 @@ enum SourceTrust: String, CaseIterable, Identifiable {
     case general
     /// A site that is not on the list.
     case unknown
+    /// Something you read yourself and typed in: a book, a seed
+    /// packet, a neighbour's advice.
+    case ownReading
 
     var id: String { rawValue }
 
@@ -60,6 +63,7 @@ enum SourceTrust: String, CaseIterable, Identifiable {
         case .guide: return "a general gardening guide, not a checked source"
         case .general: return "a general reference, not a checked source"
         case .unknown: return "a web page that has not been checked"
+        case .ownReading: return "typed in by the gardener from their own reading"
         }
     }
 
@@ -70,6 +74,7 @@ enum SourceTrust: String, CaseIterable, Identifiable {
         case .guide: return "General guide"
         case .general: return "General reference"
         case .unknown: return "Not a known source"
+        case .ownReading: return "Your own reading"
         }
     }
 }

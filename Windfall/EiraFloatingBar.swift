@@ -149,7 +149,7 @@ struct EiraFloatingBar: View {
         // appears, once. See DemoGarden.opens.
         .onAppear {
             guard !Self.hasOpenedForChecking,
-                  ["eira", "corrections", "eira-photo"].contains(DemoGarden.opens ?? "") else { return }
+                  ["eira", "corrections", "eira-photo", "eira-find", "kept-facts"].contains(DemoGarden.opens ?? "") else { return }
             Self.hasOpenedForChecking = true
             eiraRequest = BarRequest(text: "")
         }
