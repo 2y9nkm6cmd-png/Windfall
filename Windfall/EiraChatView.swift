@@ -39,6 +39,10 @@ struct EiraChatView: View {
     /// opened from her bar with something already typed.
     var openingQuestion: String? = nil
     @State private var hasSentOpeningQuestion = false
+    /// True when the opening question has already been offered as a job
+    /// to add, in the bar's own sheet, and turned down. It is then sent
+    /// to Eira as an ordinary message and not offered a second time.
+    var openingIsNotAJob = false
 
     /// What was on screen when the chat was opened from Eira's bar, such
     /// as "the plant Apple, Spartan". Eira is told this with each
@@ -55,6 +59,10 @@ struct EiraChatView: View {
     @FocusState private var boxHasFocus: Bool
 
     @Environment(\.modelContext) private var context
+
+    /// The gardens on record, for the card that offers to add a job:
+    /// it looks for a garden's name in what was said.
+    @Query(sort: [SortDescriptor(\Garden.displayOrder)]) private var gardens: [Garden]
 
     @State private var conversation = EiraConversation()
     @State private var input = ""
@@ -191,7 +199,7 @@ struct EiraChatView: View {
             if let openingQuestion, !hasSentOpeningQuestion {
                 hasSentOpeningQuestion = true
                 if conversation.modelName != nil {
-                    conversation.send(openingQuestion)
+                    conversation.send(openingQuestion, notAJob: openingIsNotAJob)
                 } else {
                     input = openingQuestion
                 }
@@ -329,6 +337,17 @@ struct EiraChatView: View {
                                     onDismiss: { conversation.dismissOfferedCorrection() },
                                     onShowAll: { showingCorrections = true })
                             }
+
+                            // A message of yours that read as a job to
+                            // do is followed by a card offering to add
+                            // it. Once added, Eira's next line says so
+                            // and the card is no longer needed.
+                            if let offer = conversation.offeredJob, offer.messageID == message.id, !offer.isAdded {
+                                JobOfferCard(
+                                    said: offer.said, today: offer.at, gardens: gardens.filter(\.isActive),
+                                    onAdd: { title, line in conversation.jobWasAdded(title: title, saying: line) },
+                                    onDismiss: { conversation.dismissOfferedJob() })
+                            }
                         }
 
                         if conversation.isGenerating {
@@ -384,6 +403,9 @@ struct EiraChatView: View {
                     withAnimation { proxy.scrollTo(endOfChat, anchor: .bottom) }
                 }
                 .onChange(of: conversation.offeredCorrection?.messageID) { _, _ in
+                    withAnimation { proxy.scrollTo(endOfChat, anchor: .bottom) }
+                }
+                .onChange(of: conversation.offeredJob?.messageID) { _, _ in
                     withAnimation { proxy.scrollTo(endOfChat, anchor: .bottom) }
                 }
                 .onChange(of: conversation.isLooking) { _, _ in

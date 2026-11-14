@@ -171,7 +171,12 @@ final class EiraConversation {
     /// (Bombus terrestris)." is the message, and "Bombus terrestris" is
     /// what to look up. Added 14 November 2026, for asking about a
     /// species Eira has just named from a photo.
-    func send(_ text: String, forcedTool: ToolDefinition? = nil, about subject: String? = nil) {
+    ///
+    /// `notAJob` is true when these words have already been offered as
+    /// a job to add and turned down, so they are not offered again.
+    /// Added 14 November 2026 with jobs of your own (GardenJobs.swift).
+    func send(_ text: String, forcedTool: ToolDefinition? = nil, about subject: String? = nil,
+              notAJob: Bool = false) {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard engine != nil, !trimmed.isEmpty, !isGenerating, !isLooking else { return }
 
@@ -182,6 +187,7 @@ final class EiraConversation {
         record(sent)
         // An offer from an earlier message that was never answered goes.
         offeredCorrection = nil
+        offeredJob = nil
 
         // Some questions are answered by fixed wording and never reach the
         // model. See EiraSafety for why. Nothing said on one of these
@@ -197,6 +203,19 @@ final class EiraConversation {
         // EiraChecks.correctionWords.
         if let replyBefore, let fact = EiraChecks.correctionWords(in: trimmed, answering: replyBefore.content) {
             offeredCorrection = OfferedCorrection(messageID: sent.id, replyID: replyBefore.id, words: fact)
+        }
+
+        // Something to do, such as "I need to build the wigwam at the
+        // weekend". The chat screen shows a card under the message with
+        // what was understood, and the job is added only when Add is
+        // pressed. Fixed rules read it (GardenJobs.offer), and fixed
+        // wording answers it, so no model is needed and none can claim
+        // to have saved what it has not. A message that puts her right
+        // is left to the correction card above.
+        if !notAJob, offeredCorrection == nil, GardenJobs.offer(in: trimmed, today: .now) != nil {
+            offeredJob = OfferedJob(messageID: sent.id, said: trimmed, at: .now)
+            answerWithFixedWording(GardenJobs.offerReply)
+            return
         }
 
         // Asked to save something. The chat cannot change your records,
@@ -241,6 +260,7 @@ final class EiraConversation {
         let photoMessage = ChatMessage(role: .user, content: words)
         record(photoMessage)
         offeredCorrection = nil
+        offeredJob = nil
         photos[photoMessage.id] = data
         isLooking = true
         lastError = nil
@@ -443,6 +463,7 @@ final class EiraConversation {
         lastMetrics = nil
         lastError = nil
         offeredCorrection = nil
+        offeredJob = nil
         forgetPhotos()
         chat = store?.newChat(modelName: modelName)
         needsRestart = true
@@ -458,8 +479,46 @@ final class EiraConversation {
         lastMetrics = nil
         lastError = nil
         offeredCorrection = nil
+        offeredJob = nil
         forgetPhotos()
         needsRestart = true
+    }
+
+    // MARK: A job to add
+
+    /// A message that read as a job to do, waiting for the gardener to
+    /// say whether to add it.
+    struct OfferedJob {
+        /// Your message. The card sits under it.
+        let messageID: ChatMessage.ID
+        /// The words, which the card reads again with the gardens'
+        /// names to hand.
+        let said: String
+        /// When it was said. "At the weekend" is worked out from this.
+        let at: Date
+        /// The job's title, once Add has been pressed.
+        var addedAs: String?
+
+        var isAdded: Bool { addedAs != nil }
+    }
+
+    /// Set by `send` when a message reads as a job. Nothing is added
+    /// until the card's Add button is pressed. The card makes the record
+    /// itself, because this file keeps away from the garden's records.
+    private(set) var offeredJob: OfferedJob?
+
+    /// The card's Add button has made the job. `line` is what Eira says.
+    func jobWasAdded(title: String, saying line: String) {
+        guard let offer = offeredJob, !offer.isAdded else { return }
+        offeredJob?.addedAs = title
+        answerWithFixedWording(line)
+    }
+
+    /// "Not a job" was pressed. The card goes and nothing is added.
+    func dismissOfferedJob() {
+        guard let offer = offeredJob, !offer.isAdded else { return }
+        offeredJob = nil
+        answerWithFixedWording(GardenJobs.notAJobReply)
     }
 
     // MARK: Being put right

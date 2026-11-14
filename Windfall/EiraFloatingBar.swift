@@ -76,6 +76,10 @@ struct EiraFloatingBar: View {
     @State private var searchRequest: BarRequest?
     /// Set when what was typed reads as something for the journal.
     @State private var journalRequest: BarRequest?
+    /// Set when what was typed reads as a job to do, such as "I need to
+    /// build the wigwam at the weekend". It opens the card that offers
+    /// to add it. The rule is in GardenJobs.swift.
+    @State private var jobRequest: BarRequest?
 
     /// Set when a photo is given to Eira anywhere but the Journal page.
     /// It opens the card that asks what to do with it.
@@ -259,9 +263,16 @@ struct EiraFloatingBar: View {
         .sheet(item: $photoRequest) { request in
             PhotoOfferSheet(photos: request.photos)
         }
+        // Something to do, told to Eira: she offers to add it to your
+        // jobs. "Not a job" hands the same words to her chat, on a
+        // device that can run her.
+        .sheet(item: $jobRequest) { request in
+            JobOfferSheet(said: request.text, onAskEira: askEiraInstead(of: request))
+        }
         .sheet(item: sheetOnly($eiraRequest)) { request in
             NavigationStack {
                 EiraChatView(openingQuestion: request.text.isEmpty ? nil : request.text,
+                             openingIsNotAJob: request.isNotAJob,
                              lookingAt: request.lookingAt)
                     .toolbar {
                         ToolbarItem(placement: .cancellationAction) {
@@ -388,6 +399,7 @@ struct EiraFloatingBar: View {
                 .id(request.id)
             case .eira(let request):
                 EiraChatView(openingQuestion: request.text.isEmpty ? nil : request.text,
+                             openingIsNotAJob: request.isNotAJob,
                              lookingAt: request.lookingAt, panel: controls)
                     .id(request.id)
             }
@@ -682,6 +694,16 @@ struct EiraFloatingBar: View {
     private func ask() {
         let text = question.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty else { return }
+        // "I need to build the wigwam at the weekend" is something to
+        // do. Eira offers to add it to your jobs, on any page and on
+        // any device, since fixed rules read it and no model is needed.
+        // This comes first because such a sentence is neither a
+        // question for her nor an account of the day for the journal.
+        if GardenJobs.offer(in: text, today: .now) != nil {
+            jobRequest = BarRequest(text: text, lookingAt: screen?.current?.full)
+            question = ""
+            return
+        }
         // "Today I planted beans" is not a question. It belongs in the
         // journal, where Eira notes the time and weather and offers to
         // put the sowing on record. The rule is in JournalChat.swift.
@@ -701,6 +723,27 @@ struct EiraFloatingBar: View {
             openEira(with: text)
         } else {
             search()
+        }
+    }
+
+    /// What "Not a job" does on the card that offers to add a job: the
+    /// same words go to Eira's chat, marked so that she does not offer
+    /// the card a second time. Nil on a device that cannot run her,
+    /// where "Not a job" just closes the card.
+    ///
+    /// The return type reads "a function that takes a String and gives
+    /// nothing back, or nil". The `?` is what allows the nil.
+    private func askEiraInstead(of request: BarRequest) -> ((String) -> Void)? {
+        guard EiraEngineFactory.deviceCanRunEira else { return nil }
+        return { asked in
+            // One sheet has to be gone before the next can open, so her
+            // chat follows a moment after this one closes.
+            jobRequest = nil
+            let looking = request.lookingAt
+            Task {
+                try? await Task.sleep(for: .milliseconds(450))
+                eiraRequest = BarRequest(text: asked, lookingAt: looking, isNotAJob: true)
+            }
         }
     }
 
@@ -748,6 +791,9 @@ struct BarRequest: Identifiable {
     var lookingAt: String? = nil
     /// Photos given with the words, each as its file's own bytes.
     var photos: [Data] = []
+    /// True when the words were offered as a job to add and turned
+    /// down, so Eira's chat does not offer the same card again.
+    var isNotAJob = false
 }
 
 // MARK: - Telling Eira what is on screen

@@ -40,6 +40,8 @@ struct WindfallApp: App {
             // Journal
             DiaryEntry.self,
             Photo.self,
+            // Jobs of your own, added by telling Eira or by hand
+            GardenJob.self,
             // Knowledge base
             KnowledgeDocument.self,
             KnowledgeChunk.self,

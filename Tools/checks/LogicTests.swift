@@ -1479,6 +1479,78 @@ struct LogicTests {
         check(lettered.first?.items == ["Alfalfa", "Apple", "Apple|Pendragon", "apple|Spartan", "apple (Cider)|Camelot", "Apple (Cider)|Fiona"], "within a letter the order is by name and then by variety: \(lettered.first?.items ?? [])")
         check(PlantLetters.groups([String](), name: { $0 }).isEmpty && PlantLetters.groups(["Sage", "sage"], name: { $0 }).first?.items == ["Sage", "sage"], "an empty list gives no letters, and two names alike keep the order they came in")
 
+        // Jobs of your own, read from what is said to Eira.
+        var jobCalendar = Calendar(identifier: .gregorian)
+        jobCalendar.timeZone = TimeZone(identifier: "Europe/London")!
+        jobCalendar.locale = Locale(identifier: "en_GB")
+        func jobDay(_ month: Int, _ day: Int, year: Int = 2026, hour: Int = 0) -> Date {
+            jobCalendar.date(from: DateComponents(year: year, month: month, day: day, hour: hour))!
+        }
+        let wednesday = jobDay(11, 11, hour: 10), saturday = jobDay(11, 14, hour: 17), sunday = jobDay(11, 15, hour: 9)
+        let jobPlaces = [JobPlace(key: "allotment", name: "Allotment"), JobPlace(key: "permaculture", name: "Home garden")]
+        func job(_ said: String, on today: Date = wednesday) -> JobOffer? {
+            GardenJobs.offer(in: said, today: today, places: jobPlaces, calendar: jobCalendar)
+        }
+        func jobWords(_ said: String, on today: Date = wednesday) -> String? {
+            job(said, on: today).map { GardenJobs.whenLine($0.span, today: today, calendar: jobCalendar) ?? "No date" }
+        }
+        let wigwam = job("I need to build the wigwam in the allotment at the weekend")
+        check(wigwam == JobOffer(title: "Build the wigwam", span: JobDays(from: jobDay(11, 14), by: jobDay(11, 15)), siteKey: "allotment"), "William's sentence gives the job, the weekend and the garden: \(String(describing: wigwam))")
+        check(job("At the weekend I need to build the wigwam.")?.title == "Build the wigwam" && job("At the weekend I need to build the wigwam.")?.span == wigwam?.span, "the day can come before the job")
+        check(job("I need to build the wigwam at the weekend", on: saturday)?.span == JobDays(from: jobDay(11, 14), by: jobDay(11, 15)) && job("I need to build the wigwam at the weekend", on: sunday)?.span == .day(jobDay(11, 15)), "on a Saturday the weekend is today and tomorrow, and on a Sunday it is what is left of it")
+        check(job("Remind me to order seed potatoes") == JobOffer(title: "Order seed potatoes", span: .whenever, siteKey: nil) && job("I've got to sharpen the secateurs sometime")?.title == "Sharpen the secateurs" && job("I’ve got to sharpen the secateurs sometime")?.span == .whenever, "a job with no day has no date, and \"sometime\" is not kept in its name")
+        check(job("Eira, can you remind me to net the brassicas on Saturday morning please")?.title == "Net the brassicas" && jobWords("Eira, can you remind me to net the brassicas on Saturday morning please") == "Saturday", "a polite way of asking is read through, and a day of the week is the next one")
+        check(job("Need to turn the compost tomorrow") == JobOffer(title: "Turn the compost", span: .day(jobDay(11, 12)), siteKey: nil) && job("Remember to shut the greenhouse tonight")?.span == .day(jobDay(11, 11)) && job("must order seeds by the end of the month")?.span == JobDays(from: jobDay(11, 11), by: jobDay(11, 30)), "tomorrow, tonight and the end of the month are worked out from today")
+        check(job("Add a job to fix the gate at the allotment next week") == JobOffer(title: "Fix the gate", span: JobDays(from: jobDay(11, 16), by: jobDay(11, 22)), siteKey: "allotment") && job("Job: clear the gutters on the greenhouse in March")?.span == JobDays(from: jobDay(3, 1, year: 2027), by: jobDay(3, 31, year: 2027)) && job("Job: clear the gutters on the greenhouse in March")?.title == "Clear the gutters on the greenhouse", "a job can be asked for by name, next week runs Monday to Sunday and a month gone by means next year's")
+        check(job("We must weed the allotment this week") == JobOffer(title: "Weed the allotment", span: JobDays(from: jobDay(11, 11), by: jobDay(11, 15)), siteKey: "allotment") && job("I need to tidy the shed in the garden today")?.siteKey == "permaculture" && job("I need to tidy the shed in the garden today")?.title == "Tidy the shed", "a garden is found by a word only it has, and stays in the job's name when nothing leads up to it")
+        check(job("The fence needs fixing by Friday") == JobOffer(title: "The fence needs fixing", span: JobDays(from: jobDay(11, 11), by: jobDay(11, 13)), siteKey: nil) && jobWords("The fence needs fixing by Friday") == "By Friday" && job("the beds need mulching before winter")?.span == JobDays(from: jobDay(11, 11), by: jobDay(11, 30)), "something that needs doing is a job, by a day means from now until then and before winter ends in November")
+        check(job("I need to prune the apple trees in winter")?.span == JobDays(from: jobDay(12, 1), by: jobDay(2, 28, year: 2027)) && job("I need to sow broad beans on 21 November")?.span == .day(jobDay(11, 21)) && job("I need to pick up manure on the 21st")?.span == .day(jobDay(11, 21)) && job("I need to pick up manure on the 5th")?.span == .day(jobDay(12, 5)) && job("I need to stake the dahlias in a couple of weeks")?.span == .day(jobDay(11, 25)), "a season, a date, a day of the month and a count of weeks are each read")
+        check(job("I have to move the water butt next Friday")?.span == .day(jobDay(11, 20)) && job("I have to move the water butt on Friday")?.span == .day(jobDay(11, 13)) && job("I have to move the water butt on Wednesday")?.span == .day(jobDay(11, 18)) && job("Mulched the raspberries. Need to net the brassicas next weekend.") == JobOffer(title: "Net the brassicas", span: JobDays(from: jobDay(11, 21), by: jobDay(11, 22)), siteKey: nil), "next Friday is next week's, today's own day means a week on, and a job is found in the second sentence")
+        check(["Do I need to water the beans?", "do i need to water the beans", "I need to know when to prune the apple", "I need to find out what is eating the kale", "I planted the garlic", "When should I build the wigwam", "I don't need to water today", "The beans may need water soon", "I must have left the gate open", "I need watering cans", "What needs doing this week", "How do I build a wigwam", "I picked 2kg of apples at the weekend", "The beans may be ready this week"].allSatisfy { job($0) == nil }, "questions, things done and guesses are not jobs")
+        check(jobWords("I need to dig the pond on 9 January") == "Saturday 9 January 2027" && GardenJobs.whenLine(JobDays(from: jobDay(11, 21), by: jobDay(11, 22)), today: wednesday, calendar: jobCalendar) == "Weekend of 21 November" && GardenJobs.whenLine(JobDays(from: jobDay(11, 16), by: jobDay(11, 22)), today: wednesday, calendar: jobCalendar) == "Next week" && GardenJobs.whenLine(JobDays(from: jobDay(12, 1), by: jobDay(12, 31)), today: wednesday, calendar: jobCalendar) == "December" && GardenJobs.whenLine(JobDays(from: jobDay(11, 23), by: jobDay(12, 2)), today: wednesday, calendar: jobCalendar) == "23 November to 2 December" && GardenJobs.whenLine(.whenever, today: wednesday, calendar: jobCalendar) == nil, "a job's days are worded from the dates themselves")
+        check(GardenJobs.whenLine(.day(jobDay(11, 12)), today: wednesday, calendar: jobCalendar) == "Tomorrow" && GardenJobs.whenLine(.day(jobDay(11, 12)), today: jobDay(11, 12, hour: 8), calendar: jobCalendar) == "Today" && GardenJobs.whenLine(JobDays(from: jobDay(11, 14), by: jobDay(11, 15)), today: sunday, calendar: jobCalendar) == "This weekend", "tomorrow becomes today overnight, and the weekend is still this weekend on its Sunday")
+        check(GardenJobs.choices(today: wednesday, calendar: jobCalendar).map { GardenJobs.whenLine($0, today: wednesday, calendar: jobCalendar) ?? "No date" } == ["No date", "Today", "Tomorrow", "This weekend", "This week", "Next week", "This month"] && GardenJobs.choices(today: sunday, calendar: jobCalendar).map { GardenJobs.whenLine($0, today: sunday, calendar: jobCalendar) ?? "No date" } == ["No date", "Today", "Tomorrow", "Next week", "This month"], "the card offers seven days to choose from, and fewer on a Sunday when three of them are today")
+        // The lists on Today.
+        let ownJobs = [
+            JobFacts(key: "wigwam", title: "Build the wigwam", span: JobDays(from: jobDay(11, 14), by: jobDay(11, 15)), place: "Allotment", doneAt: nil),
+            JobFacts(key: "potatoes", title: "Order seed potatoes", span: .whenever, place: nil, doneAt: nil),
+            JobFacts(key: "gate", title: "Fix the gate", span: .day(jobDay(11, 7)), place: "Allotment", doneAt: nil),
+            JobFacts(key: "pond", title: "Dig the pond", span: .day(jobDay(11, 28)), place: nil, doneAt: nil),
+            JobFacts(key: "gutters", title: "Clear the gutters", span: JobDays(from: jobDay(3, 1, year: 2027), by: jobDay(3, 31, year: 2027)), place: nil, doneAt: nil),
+            JobFacts(key: "hoe", title: "Sharpen the hoe", span: .day(jobDay(11, 12)), place: nil, doneAt: jobDay(11, 11, hour: 9)),
+            JobFacts(key: "nets", title: "Mend the nets", span: .day(jobDay(11, 10)), place: nil, doneAt: jobDay(11, 10, hour: 15))
+        ]
+        let ownWeek = WeekJobs.inOrder(GardenJobs.thisWeek(ownJobs, today: wednesday, calendar: jobCalendar))
+        check(ownWeek.map(\.id) == ["own-gate", "own-hoe", "own-wigwam"] && ownWeek.allSatisfy { $0.kind == .own } && ownWeek.map(\.detail) == ["Allotment · Was for Saturday 7 November", "Tomorrow", "Allotment · This weekend"], "this week holds an overdue job first, then those within seven days, and one ticked today stays until tomorrow: \(ownWeek.map(\.detail))")
+        check(GardenJobs.laterThisMonth(ownJobs, today: wednesday, calendar: jobCalendar).map(\.key) == ["potatoes", "pond"] && GardenJobs.thisWeek(ownJobs, today: jobDay(11, 21, hour: 8), calendar: jobCalendar).map(\.id).contains("own-pond"), "this month holds the jobs with no date and those for later in the month, a job for March waits, and each moves up when its week comes")
+        let frostJob = WeekJob(id: "frost-2026-11-12", kind: .frost, title: "Frost tonight", detail: "", subject: nil, daysLeft: 3)
+        check(WeekJobs.inOrder(ownWeek + [frostJob]).first?.id == "frost-2026-11-12", "weather still comes before a job of your own")
+        check(GardenJobs.addedLine(title: "Build the wigwam", span: JobDays(from: jobDay(11, 14), by: jobDay(11, 15)), today: wednesday, calendar: jobCalendar) == "Added to your jobs: Build the wigwam. It is down for this weekend." && GardenJobs.addedLine(title: "Order seed potatoes", span: .whenever, today: wednesday, calendar: jobCalendar).hasSuffix("stays on your list until you tick it."), "Eira says what was added and when it is for")
+
+        // A job told to Eira in her chat.
+        let jobEngine = FakeEngine()
+        let jobChat = EiraConversation()
+        jobChat.configure(engine: jobEngine, hub: EiraToolHub(context: ModelContext()), store: EiraChatStore(context: ModelContext()))
+        jobChat.send("I need to build the wigwam in the allotment at the weekend")
+        await waitUntilIdle(jobChat)
+        let jobMessage = jobChat.messages.first
+        check(jobChat.offeredJob?.messageID == jobMessage?.id && jobChat.offeredJob?.said == "I need to build the wigwam in the allotment at the weekend" && jobChat.offeredJob?.isAdded == false && jobChat.messages.count == 2 && jobChat.messages.last?.content == GardenJobs.offerReply && jobEngine.starts.isEmpty, "a job told to Eira is offered as a card, answered in fixed words and never reaches the model")
+        jobChat.jobWasAdded(title: "Build the wigwam", saying: "Added to your jobs: Build the wigwam.")
+        check(jobChat.offeredJob?.addedAs == "Build the wigwam" && jobChat.messages.count == 3 && jobChat.messages.last?.content == "Added to your jobs: Build the wigwam.", "once Add is pressed she says what was added")
+        jobChat.jobWasAdded(title: "Build the wigwam", saying: "again")
+        jobChat.dismissOfferedJob()
+        check(jobChat.messages.count == 3 && jobChat.offeredJob?.isAdded == true, "a job is added once, and cannot be turned down after it is added")
+        jobChat.send("Remind me to order seed potatoes")
+        await waitUntilIdle(jobChat)
+        jobChat.dismissOfferedJob()
+        check(jobChat.offeredJob == nil && jobChat.messages.last?.content == GardenJobs.notAJobReply, "Not a job takes the card away and says how to ask instead")
+        jobChat.send("I need to build the wigwam at the weekend", notAJob: true)
+        await waitUntilIdle(jobChat)
+        check(jobChat.offeredJob == nil && jobEngine.starts.count == 1, "words already turned down as a job go to the model and are not offered again")
+        jobChat.send("When should I build the wigwam?")
+        await waitUntilIdle(jobChat)
+        check(jobChat.offeredJob == nil && jobChat.messages.last?.content != GardenJobs.offerReply, "a question about a job is still a question")
+
         print("   logic tests: \(passes) passed, \(failures) failed")
         exit(failures == 0 ? 0 : 1)
     }
