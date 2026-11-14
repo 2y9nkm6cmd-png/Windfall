@@ -28,6 +28,11 @@ struct EiraSight: Equatable {
     var short: String?
     /// The phrase Eira is given, such as "the plant Apple, Spartan".
     var full: String
+    /// True for the Journal page. There Eira's bar is for telling her
+    /// what happened: it stays open, what is typed is taken as an
+    /// entry unless it plainly asks something, and a photo given to
+    /// her starts an entry. Added 14 November 2026.
+    var isJournal = false
 }
 
 extension EiraSight {

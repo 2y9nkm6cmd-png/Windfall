@@ -36,3 +36,4 @@ Crosses.swift
 SpeciesTable.swift
 EiraChecks.swift
 EiraIdentify.swift
+PhotoFacts.swift

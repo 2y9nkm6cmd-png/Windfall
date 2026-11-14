@@ -82,6 +82,13 @@ struct IdentifyView: View {
     /// True when it is shown as a sheet, from Today. False when it is a
     /// page pushed on from the Wildlife page, which has its own way back.
     var inSheet = false
+    /// A photo to begin with, as its file's own bytes: one given to Eira
+    /// with her "+" button or dropped on her bar. She looks at it as
+    /// soon as the screen opens.
+    var startingPhoto: Data? = nil
+    /// How many more photos came with it. She looks at one at a time,
+    /// and says so.
+    var photosLeftOut = 0
 
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
@@ -92,12 +99,20 @@ struct IdentifyView: View {
     /// What Eira made of the photo: the image model's match, judged
     /// against your records and the month.
     @State private var identification: EiraIdentification?
+    /// The photo as it came, before it was made smaller. Kept so that
+    /// the original can go to the photo folder if a sighting is started.
+    @State private var originalData: Data?
+    /// When and where the photo was taken, read from its file before it
+    /// is made smaller. Making it smaller loses the camera's notes.
+    @State private var facts = PhotoFacts()
+    /// True once the starting photo has been taken in, so it happens once.
+    @State private var hasTakenStartingPhoto = false
+    /// True while a photo is being held over the screen.
+    @State private var isDropTarget = false
     @State private var isWorking = false
     @State private var error: String?
     /// The image model in use, for saying which under the photo.
     @State private var eyeName: String?
-    /// The month the photo was taken, 1 to 12, if the photo says.
-    @State private var monthTaken: Int?
 
     private let heading = "Identify from a photo"
     /// What the button under an answer says.
@@ -178,8 +193,30 @@ struct IdentifyView: View {
             defer { if hasLeave { url.stopAccessingSecurityScopedResource() } }
             if let data = try? Data(contentsOf: url) { take(data) }
         }
+        // A photo dragged on to the screen is looked at straight away.
+        .onDrop(of: PhotoDrop.kinds, isTargeted: $isDropTarget) { providers in
+            guard PhotoDrop.mayHold(providers) else { return false }
+            Task {
+                guard let first = await PhotoDrop.pictures(from: providers).first else { return }
+                take(first)
+                await identify()
+            }
+            return true
+        }
+        .overlay {
+            if isDropTarget {
+                PhotoDropOutline(words: "Drop a photo to ask what it is")
+            }
+        }
         .task {
             eyeName = SpeciesEyeFiles.chosen()?.name
+            // A photo handed over with Eira's "+" or dropped on her bar
+            // is looked at as soon as the screen opens.
+            if let startingPhoto, !hasTakenStartingPhoto {
+                hasTakenStartingPhoto = true
+                take(startingPhoto)
+                if !DemoGarden.showsExampleMatch { await identify() }
+            }
             // A checking aid: an example answer, so the cards can be
             // looked at where the model cannot run. See DemoGarden.
             // `-demoMatch hemlock` shows the carrot-family warning instead.
@@ -200,6 +237,18 @@ struct IdentifyView: View {
                     .scaledToFit()
                     .frame(maxWidth: .infinity, maxHeight: 280)
                     .clipShape(RoundedRectangle(cornerRadius: 14))
+            }
+            // The photo's own date, where it has one and it was not
+            // taken just now.
+            if facts.wasTakenEarlier(than: .now), let taken = facts.taken {
+                Text("Taken \(taken.formatted(.dateTime.weekday(.wide).day().month(.wide).hour().minute())). A sighting started from this is dated then.")
+                    .font(.caption)
+                    .foregroundStyle(Theme.inkSoft)
+            }
+            if photosLeftOut > 0 {
+                Text("This is the first of \(photosLeftOut + 1) photos. Eira looks at one at a time.")
+                    .font(.caption)
+                    .foregroundStyle(Theme.inkSoft)
             }
             HStack(spacing: 10) {
                 PhotosPicker(selection: $pickerItem, matching: .images) {
@@ -270,8 +319,11 @@ struct IdentifyView: View {
     /// side. That is plenty to identify from and to keep with a
     /// sighting, and a fraction of the size of the original.
     private func take(_ data: Data) {
-        // The date is read first: shrinking the photo loses it.
-        monthTaken = SpeciesEye.monthTaken(of: data)
+        // Read the date and place first, from the photo as it came:
+        // making it smaller loses them. The date gives Eira the month
+        // to judge a species by (PhotoFacts.month).
+        facts = PhotoFacts.read(from: data)
+        originalData = data
         imageData = DiaryEntryEditor.thumbnail(from: data, maxDimension: 1024) ?? data
         identification = nil
         error = nil
@@ -292,7 +344,7 @@ struct IdentifyView: View {
         defer { isWorking = false }
 
         do {
-            identification = try await EiraIdentify.identify(photo: imageData, taken: monthTaken, context: context)
+            identification = try await EiraIdentify.identify(photo: imageData, taken: facts.month(), context: context)
             eyeName = SpeciesEye.shared.loaded?.name ?? eyeName
         } catch let problem {
             // The error's own words say what is missing and what can
@@ -305,7 +357,10 @@ struct IdentifyView: View {
     /// suggestion goes into provisionalID, never confirmedID. Shared
     /// with Eira's chat: see EiraIdentify.startSighting.
     private func createObservation() {
-        EiraIdentify.startSighting(from: identification, photo: imageData, in: context)
+        // The photo's own date becomes the sighting's, and the original
+        // goes to the photo folder if one has been chosen.
+        EiraIdentify.startSighting(from: identification, photo: imageData,
+                                   original: originalData, facts: facts, in: context)
         dismiss()
     }
 
