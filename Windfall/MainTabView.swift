@@ -200,16 +200,30 @@ struct MainTabView: View {
             .pageZoomWhereOffered()
             // A little air between the sidebar and a screen's title.
             .padding(.leading, 10)
-            // safeAreaInset places Eira's button along the bottom and tells
-            // every screen that the strip is taken, so a long list can
-            // always be scrolled clear of it.
+            // safeAreaInset tells every screen that a strip along the
+            // bottom is taken, so a long list can always be scrolled
+            // clear of Eira's bar. The strip itself is empty: it is as
+            // tall as the bar and the gap beneath it.
+            //
+            // (Until 14 November 2026 the bar itself was put in this
+            // strip. It moved to the overlay below so that it has the
+            // whole height of the page to grow into.)
             .safeAreaInset(edge: .bottom, spacing: 0) {
+                Color.clear.frame(height: EiraFloatingBar.restingHeight + 14)
+            }
+            // An overlay is drawn on top of a view and given the same
+            // space. Eira's bar sits at the foot of it. A conversation
+            // opened from the bar grows up out of it as a panel, into
+            // the rest of that space (`growsInPlace`, EiraPanel.swift).
+            // The page underneath still takes every tap that does not
+            // land on the bar or the panel.
+            .overlay(alignment: .bottom) {
                 // The bar opens across the page and stops a little inside
                 // the edges of the cards above it. The cards begin 14 to
                 // 16 points in from the left and 16 to 24 from the right.
                 // (It ran on past them to the sidebar until William
                 // asked, on 13 November 2026, for it to sit within.)
-                EiraFloatingBar()
+                EiraFloatingBar(growsInPlace: true)
                     .padding(.leading, 20)
                     .padding(.trailing, 28)
                     .padding(.bottom, 14)
