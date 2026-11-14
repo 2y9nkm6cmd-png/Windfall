@@ -2,12 +2,15 @@
 //  HubScreens.swift
 //  Windfall
 //
-//  The Gardens and Wildlife pages, drawn in the same way as Today: a large
+//  The Gardens, Wildlife and Settings pages, drawn in the same way as Today: a large
 //  serif title, glass cards and tiles, and real numbers from the records,
 //  in place of plain lists of links.
 //
 //  Moved here from MainTabView.swift on 12 November 2026, when they were
 //  redrawn at William's request.
+//
+//  The Settings and tools page joined them on 14 November 2026, redrawn
+//  in the same way.
 //
 
 import SwiftUI
@@ -458,6 +461,14 @@ struct WildlifeTab: View {
                             detail: "Ask what you have seen")
                 }
                 .hubTileGlass()
+
+                // The image model knows no fungi, so they have a key
+                // of their own to step through (FungusKeyView.swift).
+                GrowingLink { FungusKeyView() } label: {
+                    HubTile(icon: .drawn(.fungusKey), title: "Fungus key",
+                            detail: "Step to a group for a record")
+                }
+                .hubTileGlass()
             }
         }
     }
@@ -565,6 +576,165 @@ struct WildlifeTab: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .glassCard()
+    }
+}
+
+// MARK: - Settings and tools
+
+/// The Settings and tools page: tiles in three groups, each with a line
+/// saying what is behind it, in place of a plain list of names.
+///
+/// Redrawn on 14 November 2026 at William's request ("Can you make this
+/// settings page better?") to match Gardens and Wildlife, and moved here
+/// from MainTabView.swift at the same time. The pages the tiles lead to
+/// are unchanged.
+///
+/// It is still called `MoreTab`, its name from when the last tab on an
+/// iPhone was "More", so that nothing else in the app has to change.
+struct MoreTab: View {
+
+    // These three are only counted, for the lines on two of the tiles.
+    // `@Query` asks the database for every record of a kind and redraws
+    // the page when one is added or removed.
+    @Query private var documents: [KnowledgeDocument]
+    @Query private var sightings: [WildlifeObservation]
+    @Query private var surveys: [Survey]
+
+    // `@AppStorage` reads one saved setting and redraws the page when it
+    // changes. Both of these are set on the pages the tiles lead to, so
+    // each tile can say how things stand without being opened.
+    /// The name that goes on every record sent to iRecord.
+    @AppStorage("recorderName") private var recorderName = ""
+    /// Whether Eira reads her replies aloud.
+    @AppStorage("eiraSpeaksReplies") private var speaksReplies = false
+
+    /// Asks the system whether Windfall may send reminders.
+    @State private var reminders = NotificationService()
+    /// The system's answer. It is nil (nothing) until the answer has
+    /// come back, so the tile never says "Off" and then changes its mind.
+    @State private var remindersAreOn: Bool?
+
+    /// A checking aid: `-startSection more -demoCorner YES` opens the
+    /// corner drawing's preview at once, so a picture can be taken of it.
+    @State private var showsCornerPreview = UserDefaults.standard.bool(forKey: "demoCorner")
+
+    var body: some View {
+        GeometryReader { geometry in
+            let layout = PageWidth(geometry.size.width)
+            // Two tiles across on an iPhone, four on anything wider, as
+            // on Gardens and Wildlife.
+            let columns = layout == .narrow ? 2 : 4
+            ScrollView {
+                VStack(alignment: .leading, spacing: 16) {
+                    ScreenHeader(title: "Settings and tools",
+                                 detail: "Set Windfall up, find things and look after your records")
+
+                    HubSectionTitle("Set up")
+                    tileGrid(columns) {
+                        tile(.drawn(.settings), "Settings", settingsLine) { SettingsView() }
+                        tile(.symbol("bell"), "Reminders", remindersLine) { NotificationSettingsView() }
+                        tile(.drawn(.microphone), "Voice", voiceLine) { VoiceSettingsView() }
+                        // Every month of the drawing in Today's corner,
+                        // with the wind and the weather to try. See
+                        // LivingCorner.swift.
+                        tile(.drawn(.sprig), "Corner drawing", "Today's corner, month by month") { CornerPreviewView() }
+                    }
+
+                    HubSectionTitle("Find and look back")
+                    tileGrid(columns) {
+                        tile(.drawn(.search), "Search everything", "Plants, records and the journal") { UniversalSearchView() }
+                        tile(.symbol("chart.xyaxis.line"), "Charts", "Harvests and pollinators by year") { ChartsView() }
+                        tile(.symbol("books.vertical"), "Knowledge base", knowledgeLine) { KnowledgeBaseView() }
+                    }
+
+                    HubSectionTitle("Your records")
+                    tileGrid(columns) {
+                        tile(.symbol("externaldrive"), "Backup", "Everything but photos, in one file") { BackupView() }
+                        tile(.symbol("square.and.arrow.up"), "Export records", exportLine) { ExportView() }
+                    }
+                }
+                .padding(.leading, layout.leading)
+                .padding(.trailing, layout.trailing)
+                .padding(.top, 12)
+                .padding(.bottom, 20)
+            }
+        }
+        .paperScreen()
+        .navigationTitle("Settings and tools")
+        #if os(iOS)
+        // The big "Settings and tools" above is the title, as on Today.
+        .toolbar(.hidden, for: .navigationBar)
+        #endif
+        .navigationDestination(isPresented: $showsCornerPreview) { CornerPreviewView() }
+        // `.task` runs once the page is on screen. `await` waits for the
+        // system's answer without freezing the page in the meantime.
+        .task {
+            await reminders.refreshStatus()
+            remindersAreOn = reminders.isAuthorised
+        }
+    }
+
+    // MARK: Tiles
+
+    /// One group of tiles, laid out in a grid `columns` wide.
+    ///
+    /// `Tiles` in the angle brackets stands for "whatever views are
+    /// handed in", and `@ViewBuilder` is what lets them be written as a
+    /// plain list between the curly brackets, as above.
+    private func tileGrid<Tiles: View>(_ columns: Int, @ViewBuilder tiles: () -> Tiles) -> some View {
+        // The container lets tiles of glass that sit close together be
+        // worked out as one piece, which is quicker to draw.
+        GlassEffectContainer(spacing: 10) {
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: columns),
+                      spacing: 10) {
+                tiles()
+            }
+        }
+    }
+
+    /// One tile: its icon, its name, a line about it and the page it
+    /// opens. On an iPhone or iPad the page grows out of the tile
+    /// (`GrowingLink`, in GrowFromTile.swift).
+    private func tile<Page: View>(_ icon: HubIcon, _ title: String, _ detail: String,
+                                  @ViewBuilder page: () -> Page) -> some View {
+        GrowingLink(destination: page) {
+            HubTile(icon: icon, title: title, detail: detail)
+        }
+        .hubTileGlass()
+    }
+
+    // MARK: The line on each tile
+
+    /// "Recording as William", or what the page holds if no name is set.
+    private var settingsLine: String {
+        // Spaces alone do not count as a name.
+        let name = recorderName.trimmingCharacters(in: .whitespaces)
+        return name.isEmpty ? "Your name, photos and Eira's bar" : "Recording as \(name)"
+    }
+
+    /// "On · counts, sowing and frost".
+    private var remindersLine: String {
+        // Not known yet: say only what the reminders are for. `guard let`
+        // unwraps the answer if there is one, and leaves early if not.
+        guard let isOn = remindersAreOn else { return "Counts, sowing and frost" }
+        return (isOn ? "On" : "Off") + " · counts, sowing and frost"
+    }
+
+    private var voiceLine: String {
+        speaksReplies ? "Speak to Eira · replies read aloud" : "Speak to Eira · replies on screen"
+    }
+
+    /// "3 documents for Eira to search".
+    private var knowledgeLine: String {
+        documents.isEmpty ? "Add notes for Eira to search"
+                          : "\(counted(documents.count, "document")) for Eira to search"
+    }
+
+    /// "4 records ready to send", counted by the same rule as the
+    /// Export page uses (`ExportWaiting`, in ExportService.swift).
+    private var exportLine: String {
+        let waiting = ExportWaiting.altogether(sightings: sightings, surveys: surveys)
+        return waiting == 0 ? "Nothing waiting to send" : "\(counted(waiting, "record")) ready to send"
     }
 }
 

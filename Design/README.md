@@ -51,6 +51,15 @@ Twenty of the files in `Icons/` have names that start `shape-`, one for each sha
 - **They are colour icons**, like the bee and the butterfly: flat petal colours, a darker tone for shade and the dark green outline (`#06472A`), drawn back to front so that one petal can sit over another. **They are the same drawing in light and dark mode.** Other colour icons get a dark-mode copy with a pale outline, but William preferred these left as they are on the dark background, so the script skips any icon whose name starts `shape-` (`SAME_IN_DARK` in `build_design_assets.py`). The cost, which he saw: bare stalks and the spokes of the umbel, drawn only in the outline colour, are faint in dark mode. They were one-colour outlines for an hour on 14 November 2026, until William asked for them to be more realistic.
 - **The shade is its own colour**, `#0A2E1C`, laid thinly over what is beneath. It must not be the outline colour: that one turns pale in dark mode, and the shade would then lighten instead of darken.
 - The botany is Claude's own and has not been checked against a book. Project doc 57 lists what was simplified.
+## The fungus key's diagrams
+
+The 53 files named `fungus-<name>.svg` in `Icons/` are the diagrams beside the choices in the fungus key (Wildlife, Fungus key). They are colour drawings on a 100 by 100 grid, in the bold manner of the flower shapes: a heavy outline, flat colour and one darker tone for shade.
+
+- **Do not edit them by hand.** They are written by `Tools/design/fungus_diagrams.py`, which uses `Tools/design/fungus_kit.py`. Change a drawing there, then run `python3 Tools/design/fungus_diagrams.py Design/Icons` and the build script above.
+- **They are the same in light and dark mode**, dark green outline and all. William saw them both ways on a dark background on 14 November 2026 and chose this. The build script makes no dark-mode copy of a drawing whose name starts with `fungus-` (`SAME_IN_DARK` in the script, as for the flower shapes). Each part's shade is a deeper tone of its own colour.
+- Each drawing's name is the `picture` a choice gives in `Windfall/FungusKey.json`. A test fails if the key names a drawing that is not here.
+- They are Claude's own diagrams of each feature. None is taken from a photograph or a book.
+- `fungus-key.svg` is different: it is the outline icon on the Wildlife page's tile.
 
 ## The app icon
 
@@ -69,15 +78,26 @@ done
 
 ### The Mac's icon
 
-A Mac does not round an icon's corners as an iPhone does, so it needs pictures of its own: the same drawing cut to a rounded square with clear space round it, at seven sizes. They are made from the light picture by a script, and are the files named `windfall-app-icon-mac-...png` in the same folder. After making the light picture again, make the Mac's again too (this needs only Xcode, which the Mac has):
+A Mac's icon is kept apart, in `Windfall/AppIconMac.icon`. It is Apple's newer kind of icon (the kind its Icon Composer app makes), which holds the drawing and the background separately, so the Mac can show the cream icon in light mode and the green one in dark mode.
+
+| In `AppIconMac.icon` | What it is |
+|---|---|
+| `Assets/snowdrop-light.svg`, `Assets/snowdrop-dark.svg` | The two drawings from `AppIcon/`, each with its one background rectangle taken out |
+| `icon.json` | Which drawing and which background colour go with which mode |
+
+After changing a drawing in `AppIcon/`, copy it into `AppIconMac.icon/Assets` under the name above and delete its background line, the one that reads `<rect width="1024" height="1024" fill="..."/>`. To change a background colour, change it in `icon.json`.
+
+To see what the Mac will make of it, without building the app (a picture for each mode: `Default`, `Dark`, `TintedLight`, `TintedDark`, `ClearLight`, `ClearDark`):
 
 ```
-swift Tools/design/make_mac_app_icon.swift \
-  Windfall/Assets.xcassets/AppIcon.appiconset/windfall-app-icon-light-1024.png \
-  Windfall/Assets.xcassets/AppIcon.appiconset
+"/Applications/Xcode.app/Contents/Applications/Icon Composer.app/Contents/Executables/ictool" \
+  Windfall/AppIconMac.icon --export-image --output-file /tmp/icon-dark.png \
+  --platform macOS --rendition Dark --width 512 --height 512 --scale 1
 ```
 
-The Mac shows this one cream icon in light and dark mode. `Contents.json` in that folder lists which picture fills which slot: the slots marked `"platform" : "ios"` are the iPhone's and iPad's, and those marked `"idiom" : "mac"` are the Mac's.
+The same tool says what is wrong if `icon.json` has a mistake in it. The file can also be opened in Icon Composer (Xcode's menu, Open Developer Tool).
+
+The Mac build is pointed at this icon by one line in the project's settings, `"ASSETCATALOG_COMPILER_APPICON_NAME[sdk=macosx*]" = AppIconMac;`. iPhone and iPad builds do not use it.
 
 ## What is in Reference
 
@@ -138,6 +158,7 @@ The Mac shows this one cream icon in light and dark mode. `Contents.json` in tha
 | `2026-11-14 screenshot-year-page-month-heading-mac.png` | The top of the Year page on the Mac, dark, with every job showing, sent with "when you click or tap the month at the top of this page, you can see the month bigger and see what needs to be planted that month" |
 | `2026-11-14 screenshot-iphone-settings-back-swipe.heic` | An iPhone's Settings part-way through a swipe back, the page before in view underneath, sent with "When you swipe back to the previous screen can you make it so that the screen swipes over like in this screenshot" |
 | `2026-11-14 screenshot-journal-sheet-over-eira-bar-mac.png` | The Journal page on the Mac, dark, with the journal's conversation open as a sheet over it and Eira's bar idle underneath, sent with "Can we make it so that chat expands from the Eira bar, rather than opening up a new window?" |
+| `2026-11-14 screenshot-mac-settings-and-tools-plain-list.png` | The Settings and tools page on the Mac, dark, as a plain list of nine names, sent with "Can you make this settings page better?" |
 
 ## What is in Archive
 

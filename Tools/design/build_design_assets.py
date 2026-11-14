@@ -40,8 +40,9 @@ OUTLINE_DARK = "#D9E8C4"
 # outline in dark mode: they get no second copy, so the one drawing is
 # shown in both. William chose this for the flower shape drawings on
 # 14 November 2026, after seeing them both ways on the dark background:
-# "Yeah, that's better. Leave them unchanged."
-SAME_IN_DARK = ("shape-",)
+# "Yeah, that's better. Leave them unchanged." He chose the same for the
+# fungus key's diagrams that evening: "Yes, that's better."
+SAME_IN_DARK = ("shape-", "fungus-")
 INFO = {"author": "xcode", "version": 1}
 
 

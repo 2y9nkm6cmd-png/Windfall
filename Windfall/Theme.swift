@@ -112,6 +112,8 @@ enum WIcon: String {
     case clearNight = "clear-night"
     case butterfly, bee, ladybird
     case sprig
+    /// The Fungus key's tile on the Wildlife page.
+    case fungusKey = "fungus-key"
 }
 
 /// Draws one icon at a size. Outline icons take the colour of the text
