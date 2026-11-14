@@ -113,9 +113,12 @@ extension EiraIdentify {
     /// your records and the month (`judge`). `async throws` because the
     /// first step waits for the model and can fail: the model may be
     /// missing, or the photo unreadable.
+    ///
+    /// `eye` is which image model to use. Left out, it is Eira's own.
     static func identify(photo data: Data,
                          context: ModelContext,
-                         eye: SpeciesEye = .shared) async throws -> EiraIdentification {
+                         eye chosen: SpeciesEye? = nil) async throws -> EiraIdentification {
+        let eye = chosen ?? SpeciesEye.shared
         let guess = try await eye.guess(forPhoto: data)
         return judge(guess,
                      knowing: .gathered(from: context),
