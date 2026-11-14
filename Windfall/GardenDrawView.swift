@@ -402,6 +402,10 @@ struct GardenDrawBoard: View {
         line.move(to: start)
         line.addLine(to: end)
         context.stroke(line, with: .color(Theme.leaf), style: StrokeStyle(lineWidth: bold ? 3 : 1.6, lineCap: .round))
+        // Two short lines meeting at a corner would have their numbers
+        // on top of each other, so a short line goes without. The
+        // numbers are always written beneath the plan as well.
+        guard marks.count == 1 || hypot(end.x - start.x, end.y - start.y) >= 44 else { return }
         let label = context.resolve(Text(words).font(.caption.weight(.semibold)).foregroundStyle(Theme.leaf))
         let size = label.measure(in: CGSize(width: 200, height: 40))
         let centre = CGPoint(x: (start.x + end.x) / 2, y: (start.y + end.y) / 2)

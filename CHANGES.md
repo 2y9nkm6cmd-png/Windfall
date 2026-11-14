@@ -1,3 +1,29 @@
+# 14 November 2026, 22:45: drawing a garden on the plan, step by step, and three ways to set north
+
+**By the Gardens page chat (knowledge base docs 50, 63 and 71).** Branch `garden-draw`. **Not in `main`.** William, 20:26: "The main issues are the drawing of the garden and orientation of it, that interface was difficult to use." Then, of storyboards E, F and G on the design canvas, 20:44: "Put them all in for now so I can test them out."
+
+**Every option is in, side by side, behind "Edit layout" on a garden's plan card. It is there to be tried, not as the finished design.**
+
+| File | What |
+|---|---|
+| `Windfall/GardenDrawing.swift` (new) | The sums, with no screens: snapping to ten centimetres, turning, repeating a bed in a row, north from a place on a ring, a plot's corners on a map. Also `PlanPlaceable`, a protocol that lets a bed and a feature be handled the same way |
+| `Windfall/GardenDrawView.swift` (new) | "Drag it, then type the number". `GardenDrawBoard` is the plan that can be touched: drag to move, a ring at the far corner to size, a green knob to turn. `GardenDrawView` is the page, with the chosen thing's four numbers as buttons. Sheets for typing numbers, a new bed, "Repeat" and the plot. `DrawMaker` makes beds and features |
+| `Windfall/GardenDrawSteps.swift` (new) | `GardenDrawSteps`: the plot, north, each bed, then sheds and trees, one question at a time with a picture. `GardenDrawChooser`: the page that lists every editor and every way of setting north |
+| `Windfall/NorthSetters.swift` (new) | `NorthRing` and `NorthRingSetter` (drag an N round a ring), `NorthByPointing` (the device's compass, with a picture of where to stand), `NorthByMap` (the plot's outline over a satellite picture, using MapKit) |
+| `Windfall/GardenPlanView.swift` | "Draw this garden" and "Edit layout" open `GardenDrawChooser`. They opened `GardenEditorView`, which is now one of the chooser's entries |
+| `Windfall/DemoGarden.swift` | Checking aid: `-demoEditor YES -demoDraw drag\|steps\|ring\|point\|map\|chooser` |
+| `Tools/checks/LogicTests.swift`, `logic-files.txt` | 20 new tests. 768 pass |
+
+**No record changed shape.** Beds, features and gardens are stored exactly as before, so nothing needs migrating and the older editor reads what the new ones write.
+
+**North is stored as it always was** (`Garden.topFacesDegrees`). The new screens show it the other way round: the plan stays as drawn and north moves.
+
+**New to the app: MapKit**, in `NorthByMap` only. Opening that page asks Apple Maps for a satellite picture of where the garden is.
+
+Checking aids: `-demoDrawChoose YES` starts the drag page with the first bed chosen. `-demoDrawStep 3` starts the steps at step 3. `-startSection gardens` is needed with `-demoEditor`, because the editor stands in for the Gardens page.
+
+**Built** for the Mac and the simulator (`gd3-mac.log`, `gd3-sim.log`). **Seen** as still pictures on an iPhone simulator. **Not tried by hand by Claude:** no drag, twist, resize or typing.
+
 # 14 November 2026, 20:10: plant drawings added to the Design folder
 
 **By the plant graphics chat.** William, 18:15: "Could you create graphics for all the plants I'm growing and have seeds for. Create a graphic for each phase of their life that are relevant." At 19:06: "Make them a bit more detailed and do them all". At 20:06: "Connect to my mac to attach changes to the main file".
