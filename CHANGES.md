@@ -7,6 +7,27 @@ run without the Mac (every file reads as valid Swift, 323 logic tests
 pass). Those do not build the screens. Expect things to put right when
 it is first built, and treat how everything here looks as untried.
 
+## 14 November 2026, morning: other chats' work brought into the main branch
+
+**What happened.** On the evening of 13 November William asked other chats for four things, and each was committed on the Mac without being sent to GitHub:
+
+| Commit | What | Asked of |
+|---|---|---|
+| `476540a` | The Plants page as glass cards under letters (`PlantLibraryCards.swift`, new) | the fine-tuning chat |
+| `8fdca0b` | The Settings icon redrawn as an even eight-tooth gear | the settings icon chat ("Commit and relaunch the app") |
+| `0fd5dfc` | The Today jiggle as a smooth side-to-side rock | the wiggle chat |
+| `1b2c05f` | The journal asks the weather service for the stamp's hour, and the sidebar scrolls the way the Mac is set | another chat |
+
+Two of them were committed straight onto the Mac's copy of `today-rearrange`. **The build chat's own script, `pull.sh`, then moved that copy back to what GitHub had, at 22:42, and they dropped out of the working copy.** Nothing was lost: a chat had already gathered all four on a local branch, `launch-13nov`. But from 22:42 anyone running the working copy from Xcode got the old gear back.
+
+**What changed.**
+
+- `launch-13nov` is merged into `today-rearrange` (`3b05ea5`). Git combined the two without a single clash. The checks pass on the result: 401 logic tests.
+- One name in `PlantLibraryCards.swift` was changed (`runs` to `stretches`), only so that the cross-file checker does not confuse it with a function of the same name elsewhere.
+- **`pull.sh` now refuses to move the Mac's copy if it holds commits GitHub does not have.** It prints them and stops. Before, it used `git checkout -B`, which means "make this branch match that one, whatever it held". That is the right tool only when nothing else writes to the copy, and on 13 November four chats did.
+
+**The lesson**, now in doc 00: a chat that commits on the Mac sends its commits to GitHub straight away, or works in its own copy.
+
 ## 14 November 2026, morning: a warning under every photo match
 
 **Why.** 300 unseen UK photos were run through the app with its new list of 776 names. It was right first time on 289 and said "not sure" for 10 of the 11 it got wrong. The eleventh was a photo of hemlock water-dropwort, one of the most poisonous plants in Britain, named as yellow iris at 87%. Hemlock itself was read as cow parsley or chervil, which the "not sure" level caught.

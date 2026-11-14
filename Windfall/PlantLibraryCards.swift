@@ -36,7 +36,7 @@ enum MonthSpan {
         func after(_ month: Int) -> Int { month == 12 ? 1 : month + 1 }
         let starts = valid.filter { !valid.contains(before($0)) }.sorted()
 
-        let runs = starts.map { start -> String in
+        let stretches = starts.map { start -> String in
             var end = start
             var length = 1
             while valid.contains(after(end)) {
@@ -49,7 +49,7 @@ enum MonthSpan {
             default: return "\(names[start - 1]) to \(names[end - 1])"
             }
         }
-        return runs.joined(separator: ", ")
+        return stretches.joined(separator: ", ")
     }
 }
 
