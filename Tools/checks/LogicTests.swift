@@ -740,6 +740,11 @@ struct LogicTests {
         check(tracker.current?.full == "the plant library", "a screen that comes back goes on top")
         tracker.hide(id: rootID); tracker.hide(id: detailID)
         check(tracker.current == nil, "with every screen gone there is nothing to tell")
+        // Photos a page hands over for Eira's bar
+        tracker.handToBar([Data([1, 2]), Data([3])])
+        check(tracker.photosForBar.count == 2, "photos dropped on a page wait for Eira's bar")
+        let handedOver = tracker.takePhotosForBar()
+        check(handedOver == [Data([1, 2]), Data([3])] && tracker.photosForBar.isEmpty && tracker.takePhotosForBar().isEmpty, "the bar takes them once and they are gone")
         check(EiraSight.name("Apple", variety: "Spartan") == "Apple, Spartan" && EiraSight.name("Chervil", variety: " ") == "Chervil" && EiraSight.name("Chervil", variety: nil) == "Chervil", "a name carries its variety only when it has one")
         // Preserving, pesticides and medicine are fixed wording too
         let stopped: [(String, String)] = [

@@ -42,6 +42,13 @@
 //
 //  Not built yet: names becoming links.
 //
+//  Where it is drawn (14 November 2026). On a Mac and an iPad, opened
+//  from Eira's bar, the conversation is drawn in the panel that grows
+//  out of the bar (EiraPanel.swift) and is handed that panel's controls.
+//  Everywhere else it is a sheet, as before. The conversation itself is
+//  the same in both: only its heading and the surface under the box to
+//  write in differ.
+//
 
 import SwiftUI
 import SwiftData
@@ -117,6 +124,9 @@ struct JournalChatView: View {
     @State private var newTitle = ""
     @State private var editing: DiaryEntry?
     @State private var voice = VoiceInput()
+    // @FocusState says whether the box to write in has the keyboard,
+    // and setting it to true hands the keyboard over.
+    @FocusState private var boxHasFocus: Bool
 
     /// True when the words came from Eira's bar, so she says why the
     /// journal has opened.
@@ -124,17 +134,24 @@ struct JournalChatView: View {
     /// Hands the words back to Eira's ordinary chat, if they were a
     /// question after all. Nil where there is no bar to go back to.
     private let askEiraInstead: ((String) -> Void)?
+    /// Set when this is drawn in the panel that grows out of Eira's
+    /// bar, and nil when it is in a sheet. See EiraPanel.swift.
+    private let panel: EiraPanelControls?
 
     /// - `draft`: words to start with, such as Today's list of what has
     ///   been logged.
     /// - `photos`: photos to start with, each as its file's own bytes.
+    /// - `panel`: the panel's controls, when this is drawn in the panel
+    ///   that grows out of Eira's bar. Left out, this is a sheet.
     init(draft: String = "", photos: [Data] = [], cameFromEirasBar: Bool = false,
+         panel: EiraPanelControls? = nil,
          askEiraInstead: ((String) -> Void)? = nil) {
         // `_words` is the storage behind `@State var words`. This is how
         // a starting value is handed to it from outside.
         _words = State(initialValue: draft)
         self.startingPhotos = photos
         self.cameFromEirasBar = cameFromEirasBar
+        self.panel = panel
         self.askEiraInstead = askEiraInstead
     }
 
@@ -228,7 +245,7 @@ struct JournalChatView: View {
         // Worked out once for this redraw.
         let lines = dayLines
 
-        SheetPage("Journal", detail: dayWords, dismissTitle: "Done") {
+        page {
             VStack(spacing: 0) {
                 thread(lines)
                 // The photos' own day is asked about first. It is firmer
@@ -259,6 +276,14 @@ struct JournalChatView: View {
             takeStartingPhotos()
             await askServiceIfMissing()
         }
+        // In the panel, typing carries on from Eira's bar: this box
+        // takes the keyboard from the bar's. The short wait is because
+        // the box has to be on screen before it can be handed anything.
+        .task {
+            guard panel?.takesKeyboard == true else { return }
+            try? await Task.sleep(for: .milliseconds(60))
+            boxHasFocus = true
+        }
         .onChange(of: chosenWhen) { _, _ in
             suggested = conditions(at: stampDate)
             Task { await askServiceIfMissing() }
@@ -279,6 +304,21 @@ struct JournalChatView: View {
         // written.
         .sheet(item: $editing) { entry in
             DiaryEntryEditor(entry: entry).macSheetSize(width: 520, height: 640)
+        }
+    }
+
+    /// The heading and frame round the conversation: the panel's own
+    /// when this is drawn in the panel, a sheet's when it is not.
+    ///
+    /// `@ViewBuilder` lets a function hand back one kind of view or
+    /// another depending on an `if`. `Inside` stands for "whatever view
+    /// is put inside", here the conversation.
+    @ViewBuilder
+    private func page<Inside: View>(@ViewBuilder _ inside: @escaping () -> Inside) -> some View {
+        if let panel {
+            PanelPage("Journal", detail: dayWords, controls: panel, content: inside)
+        } else {
+            SheetPage("Journal", detail: dayWords, dismissTitle: "Done", content: inside)
         }
     }
 
@@ -337,7 +377,9 @@ struct JournalChatView: View {
         // Opens at the newest line and stays there as lines are added,
         // as a chat does.
         .defaultScrollAnchor(.bottom)
-        .frame(minHeight: 200)
+        // The panel can be shorter than a sheet in a small window, so
+        // the day so far is allowed to shrink further there.
+        .frame(minHeight: panel == nil ? 200 : 80)
     }
 
     /// Something Eira says: her snowdrop and a pale bubble, on the left.
@@ -587,7 +629,7 @@ struct JournalChatView: View {
     // MARK: The box to write in
 
     private var composer: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        composerSurface(VStack(alignment: .leading, spacing: 10) {
             // The stamp, as three chips. They scroll sideways if the
             // sheet is too narrow to show all three.
             ScrollView(.horizontal, showsIndicators: false) {
@@ -628,6 +670,7 @@ struct JournalChatView: View {
                     .lineLimit(1...6)
                     .textFieldStyle(.plain)
                     .foregroundStyle(Theme.ink)
+                    .focused($boxHasFocus)
                     .padding(.horizontal, 14)
                     .padding(.vertical, 10)
                     .background(Theme.card.opacity(0.85), in: .rect(cornerRadius: 20))
@@ -660,11 +703,34 @@ struct JournalChatView: View {
                 .opacity(canSend ? 1 : 0.4)
                 .accessibilityLabel("Send")
             }
+        })
+    }
+
+    /// What the box to write in sits on.
+    ///
+    /// In a sheet it has a card of glass to itself. In the panel the
+    /// panel is already glass, and glass laid on glass turns murky, so
+    /// there the box sits straight on the panel's foot with a fine line
+    /// above it. That is also where Eira's bar was before it grew, so
+    /// the bar seems to have become the box.
+    @ViewBuilder
+    private func composerSurface<Box: View>(_ box: Box) -> some View {
+        if panel == nil {
+            box
+                .padding(12)
+                .glassEffect(.regular.tint(Theme.card.opacity(0.55)), in: .rect(cornerRadius: 24))
+                .padding(.horizontal, 14)
+                .padding(.bottom, 14)
+        } else {
+            VStack(spacing: 10) {
+                Rectangle()
+                    .fill(Theme.hairline)
+                    .frame(height: 1)
+                box
+                    .padding(.horizontal, 14)
+            }
+            .padding(.bottom, 12)
         }
-        .padding(12)
-        .glassEffect(.regular.tint(Theme.card.opacity(0.55)), in: .rect(cornerRadius: 24))
-        .padding(.horizontal, 14)
-        .padding(.bottom, 14)
     }
 
     /// The look of a chip: a small symbol and a few words in a capsule.
