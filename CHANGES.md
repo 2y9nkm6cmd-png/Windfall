@@ -165,7 +165,7 @@ The cross-file check tripped twice on the first try, on names only. A function c
 2. The words of every line on a tile, and the line over the title.
 3. The icons that are Apple's symbols until drawings are made: the bell, the chart, the books, the drive and the arrow out of a box. Settings, Voice, Search and Corner drawing use Windfall's own.
 4. "Knowledge base" has books for its icon in place of the brain.
-# 14 November 2026, 23:05: on an iPhone or iPad, pressing send in the journal puts the keyboard away
+# 14 November 2026, 22:58: on an iPhone or iPad, pressing send in the journal puts the keyboard away
 
 **By the "iPad" chat, on the branch `journal-send-keyboard`, made from `journal-send-closes` (the entry below), so it holds that work too. Not in `main`.** Project doc 73.
 
