@@ -179,9 +179,18 @@ struct ThinkingBubble: View {
 /// The card is the one the Plants page uses (PlantCardView), so a plant
 /// looks the same in both places, and anything added to that card later
 /// (a drawing of the plant, say) appears here too.
+///
+/// This view does not open the page itself. It calls `onOpen` with the
+/// plant, and the chat screen opens the page as a sheet. That works
+/// wherever the chat is drawn: as a sheet on an iPhone, and in the panel
+/// that grows out of Eira's bar on a Mac or an iPad, where there is no
+/// stack of pages for a plant's page to be pushed on to.
 struct ChatPlantLinks: View {
 
     let lookups: [ChatMessage]
+    /// Called with the plant whose card was tapped. A closure is a
+    /// piece of code handed in from outside, here by the chat screen.
+    let onOpen: (Plant) -> Void
 
     /// No more cards than this under one reply. A search for "apple"
     /// can find six plants, which would bury the answer.
@@ -205,13 +214,12 @@ struct ChatPlantLinks: View {
                     .foregroundStyle(Theme.inkSoft)
 
                 ForEach(Array(found.prefix(mostCards))) { plant in
-                    // A NavigationLink slides the plant's page in over
-                    // the chat, with a back button to return.
-                    NavigationLink {
-                        PlantDetailView(plant: plant)
+                    Button {
+                        onOpen(plant)
                     } label: {
                         PlantCardView(plant: plant, month: month)
                     }
+                    // `.plain` stops the button tinting the card blue.
                     .buttonStyle(.plain)
                     .accessibilityHint("Opens this plant's page")
                 }

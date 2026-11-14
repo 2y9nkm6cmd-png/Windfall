@@ -9,14 +9,14 @@ it is first built, and treat how everything here looks as untried.
 
 ## 14 November 2026, 17:13: Eira's lookups in one closed bubble, and a card for the plant
 
-**On the branch `eira-thinking-bubble`, made from `main` (`0ba7173`). Not built.** It was written in a cloud workspace with no Mac. Every file reads as valid Swift, the logic files pass the type check and 613 logic tests pass, 17 of them new. Those checks do not build screens, and three of the files changed are screens (`EiraChatView.swift`, `EiraChatCards.swift`, `EiraFloatingBar.swift`). **Expect things to put right at the first build in Xcode, and treat how it looks as untried.**
+**On the branch `eira-thinking-bubble`, made from `main` (`0ba7173`), with `main` (`43e8a3a`, the panel that grows out of Eira's bar) merged into it at 17:15. Not built.** It was written in a cloud workspace with no Mac. Every file reads as valid Swift, the logic files pass the type check and 615 logic tests pass, 17 of them new. Those checks do not build screens, and three of the files changed are screens (`EiraChatView.swift`, `EiraChatCards.swift`, `EiraFloatingBar.swift`). **Expect things to put right at the first build in Xcode, and treat how it looks as untried.**
 
 **Why.** William, 17:02, with a picture of Eira's chat on his iPhone after asking "Find all information about comfrey": "Eira could work a bit better. The searches that it does to present me with an answer should be in a closed 'thinking' bubble, unless you tap it to see what it's doing. This kind of search should also present you to a link to the database information you have as a little card." The picture showed four grey rows (`search_garden`, `plant_visitors`, `search_notes`, `lookup_species`) between his question and her answer. It also showed two faults he did not mention: her answer began "I have no sowings recorded for last week.", and the bold and italic marks were on screen as asterisks.
 
 ### 1. What you see
 
 - **One small bubble above each reply**, closed: "Looked in 4 places". Tap it and it opens to a line for each lookup in plain words ("Searched your plants") with where it looked. Tap a line to see what came back. The model's own reasoning, where a model gives any, is in the same bubble. While she is still replying the bubble has a spinner, says "Thinking…" and names the newest lookup.
-- **A card for each plant her lookups found in your library**, under the reply, headed "In your plant library". It is the same card as on the Plants page. Tap it and the plant's page slides in over the chat. No more than three cards, then "and 2 more, on the Plants page".
+- **A card for each plant her lookups found in your library**, under the reply, headed "In your plant library". It is the same card as on the Plants page. Tap it and the plant's page opens as a sheet over the chat, with Done to come back. No more than three cards, then "and 2 more, on the Plants page".
 - **Bold and italic are shown as bold and italic.**
 - **The stray sentence is taken out** before the reply is shown.
 
@@ -58,7 +58,7 @@ Cards come from `search_garden` and from a `lookup_species` that found the speci
 ### 4. Drawing it (`EiraChatCards.swift`, new, and `EiraChatView.swift`)
 
 - `ThinkingBubble` is the bubble. `@State private var isOpen = false` is a value the view keeps for itself between redraws: whether it is open. It starts closed.
-- `ChatPlantLinks` is the cards. Each is a `NavigationLink`, which slides a page in with a back button, around the Plants page's own `PlantCardView`.
+- `ChatPlantLinks` is the cards. Each is a button around the Plants page's own `PlantCardView`. Pressing one sets `plantToShow` on the chat screen, and `.sheet(item: $plantToShow)` there opens the plant's page. **Why a sheet and not a page pushed on to the chat:** since 17:04 the chat on a Mac or an iPad is drawn in the panel that grows out of Eira's bar, where there is no stack of pages to push on to. A sheet works there and on an iPhone alike.
 - `EiraChatText.styled` hands the reply to Apple's Markdown reader with `inlineOnlyPreservingWhitespace`, which reads bold, italic and links and leaves line breaks alone.
 - `ReasoningBox`, the blue box, is gone. Its job is inside the bubble. The live reasoning used to start open and now starts closed.
 - In `MessageView`, a lookup is no longer drawn as a row of its own.
@@ -78,6 +78,95 @@ Rule 8 of Eira's instructions gives an example of right wording: "I have no sowi
 - In the picture her answer also said nothing was recorded about pollinators visiting comfrey, straight after giving what `plant_visitors` had found. That is the model, and is not changed here.
 - Her spoken replies, if switched on, are still handed the reply with its asterisks.
 
+## 14 November 2026, 16:50: a conversation grows out of Eira's bar
+
+**On the branch `eira-bar-expand`, made from `main` (`c89c037`), with `main` (`0ba7173`) merged in.** Built for the Mac and the iOS Simulator with no errors (`eb4-mac.log`, `eb4-sim.log`, in `DerivedData/Windfall-eirabar`). 598 logic tests pass, 2 of them new. Seen as still pictures with the example garden on an 11-inch iPad Pro: the journal's conversation and Eira's chat each standing in the panel, in light and dark, and the bar at rest on Today and on Journal (`shots/eb2-*` and `eb3-*`). **Not seen: an iPhone, and the Mac's own window.** The Mac was too busy with other chats' builds for a second simulator to start. **Nothing has been pressed by hand, and Claude cannot see the panel move.** William judges the growing and the sinking back.
+
+**Why.** William, 15:45, with a picture of the Journal page on the Mac: the journal's conversation open as a sheet in the middle of the window, with its own box to type in, and Eira's bar with a second box idle underneath. "Can we make it so that chat expands from the Eira bar, rather than opening up a new window?" His picture is in `Design/Reference`, `2026-11-14 screenshot-journal-sheet-over-eira-bar-mac.png`.
+
+### 1. What you see
+
+On a Mac and an iPad:
+
+- Send something from Eira's bar, press its microphone or book button, or give it a photo on the Journal page. The bar itself grows upwards into a panel of glass, and the conversation is inside it. The box to type in runs along the panel's foot, exactly where the bar was, so the bar seems to become the box.
+- The page behind is not dimmed and still works. You can scroll it, or go to another page, with the panel still up.
+- **Done**, or the Esc key, sinks the panel back into the bar.
+- The button with two arrows makes the panel larger: the bar's whole width and the page's whole height. The app remembers which size you left it at.
+- On a Mac the keyboard goes straight to the panel's box, so typing carries on. Afterwards it goes back to the bar.
+- Photos dropped on the Journal page now open in the panel too. That page used to bring up a sheet of its own.
+
+Both conversations use it: the journal's, and Eira's own chat. "It was a question. Ask Eira instead" now swaps what is in the panel at once. As a sheet it had to close one window, wait and open another.
+
+**Not changed:** an iPhone still slides a sheet up, which on a screen that size is nearly the same thing. Search, the card that asks what to do with a photo away from the Journal page, and the Note button on Today are still sheets everywhere.
+
+### 2. How the panel grows (`EiraFloatingBar.swift`)
+
+A sheet is a separate window that SwiftUI puts on top of everything. The panel is not. It is an ordinary view drawn in the same place as the bar, whose height is changed with an animation:
+
+```swift
+.frame(height: panelIsUp ? EiraPanel.height(room: room, isLarge: panelIsLarge) : closedSize,
+       alignment: .bottom)
+.clipShape(.rect(cornerRadius: corner))
+.glassEffect(.regular.tint(Theme.paper.opacity(0.8)), in: .rect(cornerRadius: corner))
+.onAppear(perform: raisePanel)
+```
+
+- `panelIsUp` is a true-or-false value the bar keeps (`@State`). The line reads: "if the panel is up, be as tall as the sum says. If not, be as tall as the bar."
+- The panel is first drawn with `panelIsUp` false, so it starts the size and shape of the bar. `.onAppear` runs `raisePanel` the moment it is on screen, and that sets `panelIsUp` to true inside `withAnimation`. SwiftUI then draws every size in between, which is the growing.
+- `alignment: .bottom` keeps the foot of the conversation on the bar's line while the rest is uncovered above it.
+- `corner` goes from half the bar's height (a capsule) to 28 points, so the round ends of the bar ease into the panel's corners.
+- `.clipShape` stops anything being drawn outside that shape while it is small. `.glassEffect` is the same glass the bar is made of, tinted with the paper's colour so the writing stays easy to read over a busy page.
+- **Done** runs `lowerPanel`, which sets `panelIsUp` back to false with an animation. Only when that has finished (`completion:`) is the conversation let go.
+
+Which conversation is in the panel is worked out from two values the bar already had, `journalRequest` and `eiraRequest`. They used to open sheets. `sheetOnly(...)` now hands the two `.sheet` lines a value that is always empty wherever the bar grows in place, so no sheet appears, and `openInPanel` reads the same two values to decide what to draw.
+
+### 3. Where the bar lives (`MainTabView.swift`)
+
+The bar used to sit inside a strip at the foot of the page (`safeAreaInset`). A strip 60 points tall has no room for a panel, and a view hung outside its own space may not take taps. So:
+
+- The strip is still kept clear, with nothing in it (`Color.clear`), so a long list can still be scrolled out from under the bar.
+- The bar is now in an **overlay**: a layer on top of the page, given the page's whole space. It sits at the foot of that space and grows into the rest of it. The empty part of the layer takes no taps, so the page underneath works as before.
+
+`EiraFloatingBar(growsInPlace: true)` is how the Mac and iPad layout asks for the panel. The iPhone layout does not ask, and is as it was.
+
+### 4. The parts they share (`EiraPanel.swift`, new)
+
+- `EiraPanelControls`: what a conversation is handed when it is in the panel. It holds the larger-size switch, whether to take the keyboard, and the function that closes the panel.
+- `EiraPanel`: the sizes in one place. The panel is at most 760 points wide and 620 tall unless made larger, and never taller than the page.
+- `PanelPage`: the heading a conversation wears in the panel. It does for the panel what `SheetPage` does for a sheet: title, the line under it, the larger-size button and Done.
+
+### 5. The two conversations (`JournalChatView.swift`, `EiraChatView.swift`)
+
+Each takes an optional `panel:`. Given one, it wears `PanelPage`. Given none, it is a sheet or a page exactly as before, so Today's Note button, the iPhone and every other way in are untouched.
+
+- In the journal's conversation the box to write in loses its own card of glass when it is in the panel, because glass laid on glass turns murky. A fine line above it takes the card's place.
+- Eira's chat has no bar along the top in the panel, so its Options menu moved into the heading as a button with three dots. The four things in the menu are now written once (`optionsItems`) and used in both places.
+- Eira's chat hugs the foot of the panel (`.defaultScrollAnchor(.bottom)`), so it stays put while the panel grows.
+- Each box has a `@FocusState`, which is how a view asks for the keyboard.
+
+### 6. Photos dropped on the Journal page (`EiraScreen.swift`, `JournalViews.swift`)
+
+The Journal page and the bar are separate views, so the page cannot open the bar's panel directly. Both already share `EiraScreen`, the tracker that tells Eira what is on screen. It gained a small pigeonhole: the page puts dropped photos in it (`handToBar`), and the bar, which watches it, takes them out (`takePhotosForBar`) and opens the panel. They are handed over once and then gone, so the same photos cannot start two entries. Two new logic tests cover that.
+
+### Checking aid
+
+`-demoOpen bar-journal` opens the journal's conversation from Eira's bar as soon as the bar appears, as `-demoOpen eira` does for her chat. With `-startSection journal` it gives the picture William sent, in its new form.
+
+### ⚠️ CHECK: choices that are Claude's
+
+1. The panel is glass tinted with the paper's colour at 80%. The page shows through faintly.
+2. It is at most 760 points wide and 620 tall, on the left above where the snowdrop sits, with a larger size on the button.
+3. The page behind stays live and is not dimmed. Clicking on the page does not close the panel. Only Done and Esc do.
+4. The panel stays up when you go to another page.
+5. An iPhone keeps its sheets.
+6. Search and the photo card are still sheets.
+
+### Not built
+
+- The box in the panel is the conversation's own, not the bar's. They sit in the same place, so it reads as one, but the snowdrop and the bar's search and book buttons are not in the panel.
+- Today's Note button and the Journal offer on Today still open the journal's conversation as a sheet.
+- Dragging the panel's top edge to resize it.
+- The panel does not shrink to fit a short conversation.
 ## 14 November 2026, 16:26: the sidebar's lens follows the fingers again
 
 **On the branch `sidebar-scroll-follows-fingers`, made from `main`.** One line in `MainTabView.swift`, in `lensScrolled(by:)`.
