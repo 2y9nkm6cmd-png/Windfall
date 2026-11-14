@@ -3,16 +3,6 @@
     {
       "idiom": "universal",
       "filename": "fungus-under-smooth.svg"
-    },
-    {
-      "idiom": "universal",
-      "filename": "fungus-under-smooth-dark.svg",
-      "appearances": [
-        {
-          "appearance": "luminosity",
-          "value": "dark"
-        }
-      ]
     }
   ],
   "info": {

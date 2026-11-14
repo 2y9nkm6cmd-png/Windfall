@@ -16,7 +16,8 @@
 | `Windfall/HubScreens.swift` | The tile, after "Identify from a photo" |
 | `Windfall/WildlifeModels.swift` | `IDSource` gains `key`: a name reached by stepping through a key. It is kept as a word, so older records still open |
 | `Windfall/Theme.swift` | `WIcon.fungusKey`, the tile's icon |
-| `Design/Icons/fungus-*.svg` (53) | The diagrams, in colour on a 100 by 100 grid, in the bold manner of the flower shapes. Each gets a dark-mode copy from the build script, which swaps the outline for pale green |
+| `Design/Icons/fungus-*.svg` (53) | The diagrams, in colour on a 100 by 100 grid, in the bold manner of the flower shapes. **The same in light and dark mode**: William saw them with a pale outline and with the dark green kept, on a dark background, and at 21:22 said of the second "Yes, that's better." |
+| `Tools/design/build_design_assets.py` | Makes no dark-mode copy of a drawing whose name starts with `fungus-` |
 | `Design/Icons/fungus-key.svg` | The tile's icon, an outline like the others |
 | `Tools/design/fungus_kit.py`, `fungus_diagrams.py` | The code that draws the diagrams. `python3 Tools/design/fungus_diagrams.py Design/Icons`, then the build script |
 | `Windfall/DemoGarden.swift`, `MainTabView.swift` | A checking aid: `-demoGarden YES -startSection gardens -demoFungus r-honey` opens the key at that step or answer, for a still picture |

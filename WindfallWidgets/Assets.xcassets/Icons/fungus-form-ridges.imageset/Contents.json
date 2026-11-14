@@ -3,16 +3,6 @@
     {
       "idiom": "universal",
       "filename": "fungus-form-ridges.svg"
-    },
-    {
-      "idiom": "universal",
-      "filename": "fungus-form-ridges-dark.svg",
-      "appearances": [
-        {
-          "appearance": "luminosity",
-          "value": "dark"
-        }
-      ]
     }
   ],
   "info": {

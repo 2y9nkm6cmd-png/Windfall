@@ -3,16 +3,6 @@
     {
       "idiom": "universal",
       "filename": "fungus-ball-star.svg"
-    },
-    {
-      "idiom": "universal",
-      "filename": "fungus-ball-star-dark.svg",
-      "appearances": [
-        {
-          "appearance": "luminosity",
-          "value": "dark"
-        }
-      ]
     }
   ],
   "info": {

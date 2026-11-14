@@ -3,16 +3,6 @@
     {
       "idiom": "universal",
       "filename": "fungus-spore-black.svg"
-    },
-    {
-      "idiom": "universal",
-      "filename": "fungus-spore-black-dark.svg",
-      "appearances": [
-        {
-          "appearance": "luminosity",
-          "value": "dark"
-        }
-      ]
     }
   ],
   "info": {

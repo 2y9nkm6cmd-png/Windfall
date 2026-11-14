@@ -3,16 +3,6 @@
     {
       "idiom": "universal",
       "filename": "fungus-form-pores.svg"
-    },
-    {
-      "idiom": "universal",
-      "filename": "fungus-form-pores-dark.svg",
-      "appearances": [
-        {
-          "appearance": "luminosity",
-          "value": "dark"
-        }
-      ]
     }
   ],
   "info": {

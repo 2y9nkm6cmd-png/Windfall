@@ -3,16 +3,6 @@
     {
       "idiom": "universal",
       "filename": "fungus-stem-ring.svg"
-    },
-    {
-      "idiom": "universal",
-      "filename": "fungus-stem-ring-dark.svg",
-      "appearances": [
-        {
-          "appearance": "luminosity",
-          "value": "dark"
-        }
-      ]
     }
   ],
   "info": {

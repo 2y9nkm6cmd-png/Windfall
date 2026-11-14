@@ -3,16 +3,6 @@
     {
       "idiom": "universal",
       "filename": "fungus-flesh-snap.svg"
-    },
-    {
-      "idiom": "universal",
-      "filename": "fungus-flesh-snap-dark.svg",
-      "appearances": [
-        {
-          "appearance": "luminosity",
-          "value": "dark"
-        }
-      ]
     }
   ],
   "info": {

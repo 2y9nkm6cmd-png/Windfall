@@ -3,16 +3,6 @@
     {
       "idiom": "universal",
       "filename": "fungus-cap-slimy.svg"
-    },
-    {
-      "idiom": "universal",
-      "filename": "fungus-cap-slimy-dark.svg",
-      "appearances": [
-        {
-          "appearance": "luminosity",
-          "value": "dark"
-        }
-      ]
     }
   ],
   "info": {

@@ -5,14 +5,15 @@ grows downwards), in colour, in the manner of the plant drawings
 (Tools/design or design/plant_kit.py): a dark green outline, flat fills,
 a soft shaded side and a little ground or wood to stand on.
 
-One file serves light and dark. The outline is #06472A, which the
-repository's build_design_assets.py swaps for a pale green in dark mode.
-Shading uses a brown that is NOT swapped, so shade stays shade.
+One file serves light and dark, unchanged: the outline stays dark green
+on a dark background too (William, 14 November 2026). The repository's
+build_design_assets.py leaves drawings named fungus-... alone for that
+reason, where it gives other colour drawings a pale outline in dark mode.
 """
 import math
 
-LINE = "#06472A"     # outline: swapped for pale green in dark mode by the build script
-SHADE = "#3A2A1E"    # shading, always used at low strength
+LINE = "#06472A"     # the outline, the app's own dark green
+SHADE = "#3A2A1E"    # shading where no colour is known, always used at low strength
 LW = 1.5        # the usual outline, before BOLD
 BOLD = 2.5      # every outline is drawn this many times heavier: the bold look of the flower shapes
 TINT = 1.7      # the same for coloured detail lines

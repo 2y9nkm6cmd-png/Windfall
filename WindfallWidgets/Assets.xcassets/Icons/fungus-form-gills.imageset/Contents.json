@@ -3,16 +3,6 @@
     {
       "idiom": "universal",
       "filename": "fungus-form-gills.svg"
-    },
-    {
-      "idiom": "universal",
-      "filename": "fungus-form-gills-dark.svg",
-      "appearances": [
-        {
-          "appearance": "luminosity",
-          "value": "dark"
-        }
-      ]
     }
   ],
   "info": {

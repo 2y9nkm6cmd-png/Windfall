@@ -3,16 +3,6 @@
     {
       "idiom": "universal",
       "filename": "fungus-form-bracket.svg"
-    },
-    {
-      "idiom": "universal",
-      "filename": "fungus-form-bracket-dark.svg",
-      "appearances": [
-        {
-          "appearance": "luminosity",
-          "value": "dark"
-        }
-      ]
     }
   ],
   "info": {

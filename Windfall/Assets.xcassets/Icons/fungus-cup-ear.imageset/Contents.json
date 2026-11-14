@@ -3,16 +3,6 @@
     {
       "idiom": "universal",
       "filename": "fungus-cup-ear.svg"
-    },
-    {
-      "idiom": "universal",
-      "filename": "fungus-cup-ear-dark.svg",
-      "appearances": [
-        {
-          "appearance": "luminosity",
-          "value": "dark"
-        }
-      ]
     }
   ],
   "info": {

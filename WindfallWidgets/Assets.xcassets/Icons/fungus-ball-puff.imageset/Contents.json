@@ -3,16 +3,6 @@
     {
       "idiom": "universal",
       "filename": "fungus-ball-puff.svg"
-    },
-    {
-      "idiom": "universal",
-      "filename": "fungus-ball-puff-dark.svg",
-      "appearances": [
-        {
-          "appearance": "luminosity",
-          "value": "dark"
-        }
-      ]
     }
   ],
   "info": {

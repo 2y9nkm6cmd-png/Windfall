@@ -3,16 +3,6 @@
     {
       "idiom": "universal",
       "filename": "fungus-flesh-fibrous.svg"
-    },
-    {
-      "idiom": "universal",
-      "filename": "fungus-flesh-fibrous-dark.svg",
-      "appearances": [
-        {
-          "appearance": "luminosity",
-          "value": "dark"
-        }
-      ]
     }
   ],
   "info": {

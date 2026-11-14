@@ -3,16 +3,6 @@
     {
       "idiom": "universal",
       "filename": "fungus-stem-scabers.svg"
-    },
-    {
-      "idiom": "universal",
-      "filename": "fungus-stem-scabers-dark.svg",
-      "appearances": [
-        {
-          "appearance": "luminosity",
-          "value": "dark"
-        }
-      ]
     }
   ],
   "info": {

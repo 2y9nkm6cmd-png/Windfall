@@ -3,16 +3,6 @@
     {
       "idiom": "universal",
       "filename": "fungus-cap-inky.svg"
-    },
-    {
-      "idiom": "universal",
-      "filename": "fungus-cap-inky-dark.svg",
-      "appearances": [
-        {
-          "appearance": "luminosity",
-          "value": "dark"
-        }
-      ]
     }
   ],
   "info": {

@@ -3,16 +3,6 @@
     {
       "idiom": "universal",
       "filename": "fungus-tuft-wood.svg"
-    },
-    {
-      "idiom": "universal",
-      "filename": "fungus-tuft-wood-dark.svg",
-      "appearances": [
-        {
-          "appearance": "luminosity",
-          "value": "dark"
-        }
-      ]
     }
   ],
   "info": {

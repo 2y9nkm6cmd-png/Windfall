@@ -3,16 +3,6 @@
     {
       "idiom": "universal",
       "filename": "fungus-stem-net.svg"
-    },
-    {
-      "idiom": "universal",
-      "filename": "fungus-stem-net-dark.svg",
-      "appearances": [
-        {
-          "appearance": "luminosity",
-          "value": "dark"
-        }
-      ]
     }
   ],
   "info": {

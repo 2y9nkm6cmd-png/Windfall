@@ -3,16 +3,6 @@
     {
       "idiom": "universal",
       "filename": "fungus-gills-waxy.svg"
-    },
-    {
-      "idiom": "universal",
-      "filename": "fungus-gills-waxy-dark.svg",
-      "appearances": [
-        {
-          "appearance": "luminosity",
-          "value": "dark"
-        }
-      ]
     }
   ],
   "info": {

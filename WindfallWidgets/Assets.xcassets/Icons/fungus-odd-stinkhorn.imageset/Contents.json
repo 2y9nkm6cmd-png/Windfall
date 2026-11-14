@@ -3,16 +3,6 @@
     {
       "idiom": "universal",
       "filename": "fungus-odd-stinkhorn.svg"
-    },
-    {
-      "idiom": "universal",
-      "filename": "fungus-odd-stinkhorn-dark.svg",
-      "appearances": [
-        {
-          "appearance": "luminosity",
-          "value": "dark"
-        }
-      ]
     }
   ],
   "info": {

@@ -3,16 +3,6 @@
     {
       "idiom": "universal",
       "filename": "fungus-cap-scaly.svg"
-    },
-    {
-      "idiom": "universal",
-      "filename": "fungus-cap-scaly-dark.svg",
-      "appearances": [
-        {
-          "appearance": "luminosity",
-          "value": "dark"
-        }
-      ]
     }
   ],
   "info": {

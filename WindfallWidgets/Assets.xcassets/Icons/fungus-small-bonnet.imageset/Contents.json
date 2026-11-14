@@ -3,16 +3,6 @@
     {
       "idiom": "universal",
       "filename": "fungus-small-bonnet.svg"
-    },
-    {
-      "idiom": "universal",
-      "filename": "fungus-small-bonnet-dark.svg",
-      "appearances": [
-        {
-          "appearance": "luminosity",
-          "value": "dark"
-        }
-      ]
     }
   ],
   "info": {

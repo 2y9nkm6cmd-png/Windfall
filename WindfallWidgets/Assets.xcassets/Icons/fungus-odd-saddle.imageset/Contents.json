@@ -3,16 +3,6 @@
     {
       "idiom": "universal",
       "filename": "fungus-odd-saddle.svg"
-    },
-    {
-      "idiom": "universal",
-      "filename": "fungus-odd-saddle-dark.svg",
-      "appearances": [
-        {
-          "appearance": "luminosity",
-          "value": "dark"
-        }
-      ]
     }
   ],
   "info": {

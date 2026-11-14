@@ -3,16 +3,6 @@
     {
       "idiom": "universal",
       "filename": "fungus-form-spines.svg"
-    },
-    {
-      "idiom": "universal",
-      "filename": "fungus-form-spines-dark.svg",
-      "appearances": [
-        {
-          "appearance": "luminosity",
-          "value": "dark"
-        }
-      ]
     }
   ],
   "info": {

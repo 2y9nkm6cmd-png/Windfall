@@ -3,16 +3,6 @@
     {
       "idiom": "universal",
       "filename": "fungus-stem-volva.svg"
-    },
-    {
-      "idiom": "universal",
-      "filename": "fungus-stem-volva-dark.svg",
-      "appearances": [
-        {
-          "appearance": "luminosity",
-          "value": "dark"
-        }
-      ]
     }
   ],
   "info": {

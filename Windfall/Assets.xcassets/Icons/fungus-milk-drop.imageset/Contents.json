@@ -3,16 +3,6 @@
     {
       "idiom": "universal",
       "filename": "fungus-milk-drop.svg"
-    },
-    {
-      "idiom": "universal",
-      "filename": "fungus-milk-drop-dark.svg",
-      "appearances": [
-        {
-          "appearance": "luminosity",
-          "value": "dark"
-        }
-      ]
     }
   ],
   "info": {

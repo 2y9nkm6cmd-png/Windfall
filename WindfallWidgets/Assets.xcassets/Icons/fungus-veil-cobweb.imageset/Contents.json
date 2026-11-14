@@ -3,16 +3,6 @@
     {
       "idiom": "universal",
       "filename": "fungus-veil-cobweb.svg"
-    },
-    {
-      "idiom": "universal",
-      "filename": "fungus-veil-cobweb-dark.svg",
-      "appearances": [
-        {
-          "appearance": "luminosity",
-          "value": "dark"
-        }
-      ]
     }
   ],
   "info": {

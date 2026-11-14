@@ -41,7 +41,7 @@ Icons are drawn on a 24 by 24 grid with a line 1.6 wide and rounded ends.
 The 53 files named `fungus-<name>.svg` in `Icons/` are the diagrams beside the choices in the fungus key (Wildlife, Fungus key). They are colour drawings on a 100 by 100 grid, in the bold manner of the flower shapes: a heavy outline, flat colour and one darker tone for shade.
 
 - **Do not edit them by hand.** They are written by `Tools/design/fungus_diagrams.py`, which uses `Tools/design/fungus_kit.py`. Change a drawing there, then run `python3 Tools/design/fungus_diagrams.py Design/Icons` and the build script above.
-- The outline is `#06472A`, which the build script swaps for pale green in the dark-mode copy. Shade is a brown that is not swapped, so it stays shade in both.
+- **They are the same in light and dark mode**, dark green outline and all. William saw them both ways on a dark background on 14 November 2026 and chose this. The build script makes no dark-mode copy of a drawing whose name starts with `fungus-` (`SAME_IN_DARK` in the script). Each part's shade is a deeper tone of its own colour.
 - Each drawing's name is the `picture` a choice gives in `Windfall/FungusKey.json`. A test fails if the key names a drawing that is not here.
 - They are Claude's own diagrams of each feature. None is taken from a photograph or a book.
 - `fungus-key.svg` is different: it is the outline icon on the Wildlife page's tile.

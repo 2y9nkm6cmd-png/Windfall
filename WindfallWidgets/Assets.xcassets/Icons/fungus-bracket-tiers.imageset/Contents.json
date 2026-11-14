@@ -3,16 +3,6 @@
     {
       "idiom": "universal",
       "filename": "fungus-bracket-tiers.svg"
-    },
-    {
-      "idiom": "universal",
-      "filename": "fungus-bracket-tiers-dark.svg",
-      "appearances": [
-        {
-          "appearance": "luminosity",
-          "value": "dark"
-        }
-      ]
     }
   ],
   "info": {

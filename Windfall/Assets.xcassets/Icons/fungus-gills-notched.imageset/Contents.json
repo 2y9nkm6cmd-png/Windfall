@@ -3,16 +3,6 @@
     {
       "idiom": "universal",
       "filename": "fungus-gills-notched.svg"
-    },
-    {
-      "idiom": "universal",
-      "filename": "fungus-gills-notched-dark.svg",
-      "appearances": [
-        {
-          "appearance": "luminosity",
-          "value": "dark"
-        }
-      ]
     }
   ],
   "info": {

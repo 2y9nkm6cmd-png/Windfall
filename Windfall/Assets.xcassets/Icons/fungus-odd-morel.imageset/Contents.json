@@ -3,16 +3,6 @@
     {
       "idiom": "universal",
       "filename": "fungus-odd-morel.svg"
-    },
-    {
-      "idiom": "universal",
-      "filename": "fungus-odd-morel-dark.svg",
-      "appearances": [
-        {
-          "appearance": "luminosity",
-          "value": "dark"
-        }
-      ]
     }
   ],
   "info": {

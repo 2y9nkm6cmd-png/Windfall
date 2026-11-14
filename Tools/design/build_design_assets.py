@@ -36,6 +36,11 @@ CATALOGUE = os.path.join(ROOT, "Windfall", "Assets.xcassets")
 WIDGET_CATALOGUE = os.path.join(ROOT, "WindfallWidgets", "Assets.xcassets")
 OUTLINE_LIGHT = "#06472A"
 OUTLINE_DARK = "#D9E8C4"
+# Colour drawings whose names start like this are shown exactly as drawn
+# in dark mode too, dark green outline and all, so no second copy is made
+# for them. William, 14 November 2026, on seeing the fungus diagrams both
+# ways on a dark background: "Yes, that's better."
+SAME_IN_DARK = ("fungus-",)
 INFO = {"author": "xcode", "version": 1}
 
 
@@ -112,11 +117,14 @@ def build_icons(catalogue=CATALOGUE):
             outline += 1
         else:
             colour += 1
-            dark_name = name + "-dark.svg"
-            with open(os.path.join(image_set, dark_name), "w", encoding="utf-8") as f:
-                f.write(re.sub(OUTLINE_LIGHT, OUTLINE_DARK, svg, flags=re.I))
-            images.append({"idiom": "universal", "filename": dark_name,
-                           "appearances": [{"appearance": "luminosity", "value": "dark"}]})
+            # `startswith` with a list of beginnings is true if the name
+            # starts with any one of them.
+            if not name.startswith(SAME_IN_DARK):
+                dark_name = name + "-dark.svg"
+                with open(os.path.join(image_set, dark_name), "w", encoding="utf-8") as f:
+                    f.write(re.sub(OUTLINE_LIGHT, OUTLINE_DARK, svg, flags=re.I))
+                images.append({"idiom": "universal", "filename": dark_name,
+                               "appearances": [{"appearance": "luminosity", "value": "dark"}]})
         write_json(os.path.join(image_set, "Contents.json"), {
             "images": images, "info": INFO,
             "properties": {

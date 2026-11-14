@@ -3,16 +3,6 @@
     {
       "idiom": "universal",
       "filename": "fungus-gills-free.svg"
-    },
-    {
-      "idiom": "universal",
-      "filename": "fungus-gills-free-dark.svg",
-      "appearances": [
-        {
-          "appearance": "luminosity",
-          "value": "dark"
-        }
-      ]
     }
   ],
   "info": {

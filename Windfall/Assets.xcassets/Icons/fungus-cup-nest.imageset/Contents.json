@@ -3,16 +3,6 @@
     {
       "idiom": "universal",
       "filename": "fungus-cup-nest.svg"
-    },
-    {
-      "idiom": "universal",
-      "filename": "fungus-cup-nest-dark.svg",
-      "appearances": [
-        {
-          "appearance": "luminosity",
-          "value": "dark"
-        }
-      ]
     }
   ],
   "info": {
