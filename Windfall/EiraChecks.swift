@@ -287,10 +287,14 @@ enum EiraChecks {
 
     /// The lines put in front of a question when corrections bear on it.
     /// Only the model sees them.
+    ///
+    /// The wording about "you told me" is there because Apple's model,
+    /// using a correction on 14 November 2026, said "the garden record
+    /// confirms" it. The records did not hold it. William had told her.
     static func handOver(_ corrections: [EiraCorrection]) -> String {
         let lines = corrections.map { "- " + $0.promptLine }.joined(separator: "\n")
         return """
-        The gardener has put you right on this before. What they told you is right, even where a lookup finds nothing or disagrees. When you use it, say it is what the gardener told you, not what the records show:
+        The gardener you are talking to has put you right on this before. What they told you is right, even where a lookup finds nothing or disagrees. When you use it, say "you told me". Do not say the records show it, unless a lookup shows it too:
         \(lines)
         """
     }
