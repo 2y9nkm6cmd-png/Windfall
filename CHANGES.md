@@ -70,7 +70,7 @@ The limits, all in `CornerScene.swift` and all Claude's choices for William to c
 
 ### The preview in Settings
 
-Settings has a new row, "Corner drawing", under a heading "Today". It opens `CornerPreviewView`: one large drawing with a month menu, a day slider, wind and weather switches and "Open it again", then all twelve months moving in a grid. Tapping a month in the grid shows it large. Nothing chosen there changes Today. Things happen sooner there than on Today so there is something to watch.
+The page the sidebar's Settings opens ("Settings and tools", `MoreTab` in `MainTabView.swift`) has a new row, "Corner drawing". It opens `CornerPreviewView`: one large drawing with a month menu, a day slider, wind and weather switches and "Open it again", then all twelve months moving in a grid. Tapping a month in the grid shows it large. Nothing chosen there changes Today. Things happen sooner there than on Today so there is something to watch.
 
 ### Smaller things
 
