@@ -3,16 +3,6 @@
     {
       "idiom": "universal",
       "filename": "shape-zygomorphic-three-part.svg"
-    },
-    {
-      "idiom": "universal",
-      "filename": "shape-zygomorphic-three-part-dark.svg",
-      "appearances": [
-        {
-          "appearance": "luminosity",
-          "value": "dark"
-        }
-      ]
     }
   ],
   "info": {

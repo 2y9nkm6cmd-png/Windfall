@@ -3,16 +3,6 @@
     {
       "idiom": "universal",
       "filename": "shape-funnel-form.svg"
-    },
-    {
-      "idiom": "universal",
-      "filename": "shape-funnel-form-dark.svg",
-      "appearances": [
-        {
-          "appearance": "luminosity",
-          "value": "dark"
-        }
-      ]
     }
   ],
   "info": {

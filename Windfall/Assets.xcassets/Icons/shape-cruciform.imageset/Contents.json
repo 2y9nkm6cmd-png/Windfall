@@ -3,16 +3,6 @@
     {
       "idiom": "universal",
       "filename": "shape-cruciform.svg"
-    },
-    {
-      "idiom": "universal",
-      "filename": "shape-cruciform-dark.svg",
-      "appearances": [
-        {
-          "appearance": "luminosity",
-          "value": "dark"
-        }
-      ]
     }
   ],
   "info": {

@@ -48,7 +48,7 @@ Twenty of the files in `Icons/` have names that start `shape-`, one for each sha
   python3 Tools/design/build_design_assets.py
   ```
 
-- **They are colour icons**, like the bee and the butterfly: flat petal colours, a darker tone for shade and the dark green outline (`#06472A`), drawn back to front so that one petal can sit over another. The script above makes each a dark-mode copy with a pale outline. They were one-colour outlines for an hour on 14 November 2026, until William asked for them to be more realistic.
+- **They are colour icons**, like the bee and the butterfly: flat petal colours, a darker tone for shade and the dark green outline (`#06472A`), drawn back to front so that one petal can sit over another. **They are the same drawing in light and dark mode.** Other colour icons get a dark-mode copy with a pale outline, but William preferred these left as they are on the dark background, so the script skips any icon whose name starts `shape-` (`SAME_IN_DARK` in `build_design_assets.py`). The cost, which he saw: bare stalks and the spokes of the umbel, drawn only in the outline colour, are faint in dark mode. They were one-colour outlines for an hour on 14 November 2026, until William asked for them to be more realistic.
 - **The shade is its own colour**, `#0A2E1C`, laid thinly over what is beneath. It must not be the outline colour: that one turns pale in dark mode, and the shade would then lighten instead of darken.
 - The botany is Claude's own and has not been checked against a book. Project doc 57 lists what was simplified.
 

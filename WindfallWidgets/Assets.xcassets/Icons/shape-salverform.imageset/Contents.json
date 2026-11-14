@@ -3,16 +3,6 @@
     {
       "idiom": "universal",
       "filename": "shape-salverform.svg"
-    },
-    {
-      "idiom": "universal",
-      "filename": "shape-salverform-dark.svg",
-      "appearances": [
-        {
-          "appearance": "luminosity",
-          "value": "dark"
-        }
-      ]
     }
   ],
   "info": {

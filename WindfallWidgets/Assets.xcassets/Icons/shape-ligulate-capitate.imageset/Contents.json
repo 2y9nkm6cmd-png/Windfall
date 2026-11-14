@@ -3,16 +3,6 @@
     {
       "idiom": "universal",
       "filename": "shape-ligulate-capitate.svg"
-    },
-    {
-      "idiom": "universal",
-      "filename": "shape-ligulate-capitate-dark.svg",
-      "appearances": [
-        {
-          "appearance": "luminosity",
-          "value": "dark"
-        }
-      ]
     }
   ],
   "info": {

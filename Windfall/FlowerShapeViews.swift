@@ -21,8 +21,9 @@
 //  evening William asked for them to be "more realistic, but still
 //  graphicky", with shading, so they are now in colour: flat petal
 //  colours, a darker tone for shade, and the app's dark green outline.
-//  A coloured drawing is shown as drawn, like the bee and the butterfly,
-//  and has a second copy for dark mode in which the outline is pale.
+//  A coloured drawing is shown as drawn, like the bee and the butterfly.
+//  Unlike those, it is the same drawing in light and dark mode: William
+//  preferred the dark green outline left as it is on the dark background.
 //
 //  WHERE THE SUMS ARE
 //  Which drawing goes with a shape, and which plants have a shape, are

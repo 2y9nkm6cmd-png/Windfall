@@ -3,16 +3,6 @@
     {
       "idiom": "universal",
       "filename": "shape-urceolate-umbellate.svg"
-    },
-    {
-      "idiom": "universal",
-      "filename": "shape-urceolate-umbellate-dark.svg",
-      "appearances": [
-        {
-          "appearance": "luminosity",
-          "value": "dark"
-        }
-      ]
     }
   ],
   "info": {

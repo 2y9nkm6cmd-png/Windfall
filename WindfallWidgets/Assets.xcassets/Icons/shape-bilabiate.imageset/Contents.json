@@ -3,16 +3,6 @@
     {
       "idiom": "universal",
       "filename": "shape-bilabiate.svg"
-    },
-    {
-      "idiom": "universal",
-      "filename": "shape-bilabiate-dark.svg",
-      "appearances": [
-        {
-          "appearance": "luminosity",
-          "value": "dark"
-        }
-      ]
     }
   ],
   "info": {

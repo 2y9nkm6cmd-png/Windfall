@@ -3,16 +3,6 @@
     {
       "idiom": "universal",
       "filename": "shape-calceolate.svg"
-    },
-    {
-      "idiom": "universal",
-      "filename": "shape-calceolate-dark.svg",
-      "appearances": [
-        {
-          "appearance": "luminosity",
-          "value": "dark"
-        }
-      ]
     }
   ],
   "info": {

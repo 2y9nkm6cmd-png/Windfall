@@ -1,3 +1,15 @@
+# 14 November 2026, 21:20: the flower shape drawings keep their dark outline in dark mode
+
+**By the flower shape chat.** William was sent the light-mode drawings unchanged on the dark background, beside the dark-mode copies with a pale outline that the app had been given. He chose the first: "Yeah, that's better. Leave them unchanged."
+
+| File | What and why |
+|---|---|
+| `Tools/design/build_design_assets.py` | New `SAME_IN_DARK`: a colour icon whose name starts `shape-` gets no dark-mode copy, so its one drawing is shown in both modes. Every other colour icon is treated as before |
+| Both asset catalogues | Rebuilt: the twenty `shape-*-dark.svg` copies are gone, and each `Contents.json` lists one picture |
+| `Windfall/FlowerShapeViews.swift`, `Design/README.md` | Comments and notes only |
+
+No Swift code changed. **Not built**: only pictures and their lists changed. The cost William saw and accepted: bare stalks and the umbel's spokes, drawn only in the outline colour, are faint on the dark background.
+
 # 14 November 2026, 20:57: the Mac gets the app icon
 
 **By the "Mac icon" chat, on the branch `mac-app-icon`.** William, 20:52, with a picture of his Dock showing two blank tiles for Windfall: "None of the apps have the icon on the app icon."
