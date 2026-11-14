@@ -41,6 +41,12 @@ struct SpeciesEntry: Codable, Equatable {
     /// True when its row was nudged by real photographs. False when
     /// there were too few, so its row comes from its name alone.
     var taught: Bool
+    /// Where the name came from, such as "William's plant database" or
+    /// "pot label in William's photos, to check". Optional, so a list
+    /// made before 14 November 2026, without it, still reads. It has a
+    /// starting value so that code which builds an entry by hand need
+    /// not give one.
+    var source: String? = nil
 
     /// "Buff-tailed Bumblebee (Bombus terrestris)", or the scientific
     /// name alone where there is no English one.
@@ -106,7 +112,9 @@ struct SpeciesGuess: Equatable {
 struct SpeciesTable {
 
     let species: [SpeciesEntry]
-    /// How many numbers are in each row. 768 for BioCLIP 2.
+    /// How many numbers are in each row: 768 for BioCLIP 2 and 1,024
+    /// for BioCLIP 2.5 Huge. It is read from the list, so a table made
+    /// for either model works with no change here.
     let width: Int
     /// How sharply the model separates a good match from a poor one.
     /// It comes from BioCLIP 2 itself and is not ours to choose.

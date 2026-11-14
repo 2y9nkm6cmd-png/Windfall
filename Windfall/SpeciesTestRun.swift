@@ -18,6 +18,9 @@
 //    -speciesTestOut <file>      where to write the results
 //    -speciesTestKey <file>      optional: the right answers, as a JSON
 //                                file of "photo name": "Scientific name"
+//    -speciesEyeFolder <folder>  optional: which installed image model to
+//                                use, by its folder's name in Models.
+//                                Without it, the one Eira uses.
 //
 //  Every dashed word must be followed by a value. EiraTestRun.swift
 //  says why.
@@ -72,14 +75,15 @@ enum SpeciesTestRun {
                 if tried > 0 { seconds += took }
                 tried += 1
 
-                let names = guess.candidates.map { "\($0.entry.scientific) \($0.percent)" }
+                let names = guess.candidates.prefix(3).map { "\($0.entry.scientific) \($0.percent)" }
                     .joined(separator: "; ")
                 var line = "- \(photo.lastPathComponent): \(guess.isSure ? "NAMED" : "not sure"). \(names)"
 
                 if let right = answers[photo.lastPathComponent] {
                     marked += 1
                     let isFirst = guess.likeliest?.entry.scientific == right
-                    let isInThree = guess.candidates.contains { $0.entry.scientific == right }
+                    // Eira is handed five names. The score is still of the first three.
+                    let isInThree = guess.candidates.prefix(3).contains { $0.entry.scientific == right }
                     if isFirst { firstRight += 1 }
                     if isInThree { inThree += 1 }
                     if guess.isSure { named += 1; if isFirst { namedRight += 1 } }
@@ -99,6 +103,9 @@ enum SpeciesTestRun {
 
         note("\n## Totals\n")
         note("- Photos tried: \(tried)")
+        if let eye = SpeciesEye.shared.loaded {
+            note("- Image model: \(eye.name), in the folder \(eye.folder)")
+        }
         if let table = SpeciesEye.shared.table {
             note("- Species in the table: \(table.species.count). Not-sure level: \(table.notSureFloor.map { String(format: "%.2f", $0) } ?? "none"). Made: \(table.made ?? "not said")")
         }

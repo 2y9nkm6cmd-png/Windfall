@@ -262,9 +262,15 @@ enum EiraModelLibrary {
         modelsFolder(fileManager: fileManager).appendingPathComponent(name, isDirectory: true)
     }
 
-    /// Names of the folders inside "Models" that hold a Core AI model.
+    /// Names of the folders inside "Models" that hold a Core AI model
+    /// Eira can talk with.
     /// A folder counts if it contains something ending in .aimodel or
     /// .aimodelc, at the top level or one level down.
+    ///
+    /// An image model's folder is left out. It also holds an .aimodel,
+    /// so until 14 November 2026 "bioclip2" was offered as a model to
+    /// chat with, which it cannot do. Its list of species is what
+    /// tells it apart (SpeciesEye.swift).
     static func coreAIModelNames(fileManager: FileManager = .default) -> [String] {
         let root = modelsFolder(fileManager: fileManager)
         let folders = (try? fileManager.contentsOfDirectory(
@@ -272,6 +278,7 @@ enum EiraModelLibrary {
 
         return folders
             .filter { containsModel($0, depth: 2, fileManager: fileManager) }
+            .filter { !fileManager.fileExists(atPath: $0.appendingPathComponent("uk_species.json").path) }
             .map(\.lastPathComponent)
             .sorted()
     }

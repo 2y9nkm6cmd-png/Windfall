@@ -13,12 +13,23 @@
 //      on a real iPhone or iPad from version 27, and is missing from
 //      the iOS Simulator)
 //
-//  Three files have to be in Windfall's Models folder, in a folder
-//  called "bioclip2":
+//  An image model is a folder inside Windfall's Models folder. Any name
+//  will do for the folder. It must hold three things:
 //
-//    bioclip2_image_f16.aimodel   the model, 580MB
+//    something ending .aimodel    the model: 580MB for BioCLIP 2,
+//                                 1.2GB for BioCLIP 2.5 Huge
 //    uk_species.json              the list of species
-//    uk_species_rows_f16.bin      one row of numbers for each
+//    uk_species_rows_f16.bin      one row of numbers for each, made
+//                                 for that model and no other
+//
+//  and may hold a fourth, eye.json, which gives it a name to show:
+//
+//    { "name": "BioCLIP 2.5 Huge", "note": "…", "order": 1 }
+//
+//  More than one can be installed. Eira uses the one chosen on the
+//  "Test the image models" page, or the first in order if none has
+//  been chosen. (Until 14 November 2026 there could be only one, in a
+//  folder that had to be called "bioclip2".)
 //
 //  Nothing is sent anywhere. The photo never leaves the device.
 //
@@ -37,21 +48,43 @@ import CoreAI
 // MARK: - Where the pieces are
 
 enum SpeciesEyeFiles {
-    nonisolated static let folderName = "bioclip2"
-    nonisolated static let modelName = "bioclip2_image_f16.aimodel"
     nonisolated static let listName = "uk_species.json"
     nonisolated static let rowsName = "uk_species_rows_f16.bin"
+    nonisolated static let labelName = "eye.json"
+    /// The setting that remembers which model Eira uses. Starting the
+    /// app with `-speciesEyeFolder <folder>` chooses one for that run
+    /// only, which is how the test run compares them.
+    nonisolated static let choiceKey = "speciesEyeFolder"
 
-    nonisolated static func folder() -> URL {
+    static func folder(of eye: EyeModel) -> URL {
         EiraModelLibrary.modelsFolderPath()
-            .appendingPathComponent(folderName, isDirectory: true)
+            .appendingPathComponent(eye.folder, isDirectory: true)
     }
 
-    /// The names of any of the three pieces that are not there yet.
-    nonisolated static func missing(fileManager: FileManager = .default) -> [String] {
-        [modelName, listName, rowsName].filter {
-            !fileManager.fileExists(atPath: folder().appendingPathComponent($0).path)
+    /// Every image model in the Models folder, in order.
+    ///
+    /// A folder counts if it holds a model, a list and its rows. The
+    /// list and rows are what tell an image model's folder from a text
+    /// model's, which has neither.
+    static func installed(fileManager: FileManager = .default) -> [EyeModel] {
+        let root = EiraModelLibrary.modelsFolderPath(fileManager: fileManager)
+        let folders = (try? fileManager.contentsOfDirectory(
+            at: root, includingPropertiesForKeys: [.isDirectoryKey])) ?? []
+
+        var found: [EyeModel] = []
+        for folder in folders {
+            let inside = ((try? fileManager.contentsOfDirectory(atPath: folder.path)) ?? []).sorted()
+            guard let model = inside.first(where: { $0.hasSuffix(".aimodel") }),
+                  inside.contains(listName), inside.contains(rowsName) else { continue }
+            let label = fileManager.contents(atPath: folder.appendingPathComponent(labelName).path)
+            found.append(EyeModel.describing(folder: folder.lastPathComponent, modelFile: model, label: label))
         }
+        return EyeModel.sorted(found)
+    }
+
+    /// The model Eira uses, or nil if none is installed.
+    static func chosen(defaults: UserDefaults = .standard) -> EyeModel? {
+        EyeModel.pick(from: installed(), saved: defaults.string(forKey: choiceKey))
     }
 }
 
@@ -64,7 +97,7 @@ enum SpeciesEyeError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .notInstalled(let names):
-            return "Photo identification is not set up on this device yet. Missing from the Models folder: \(names.joined(separator: ", ")). You can still save the photo as a sighting and identify it yourself."
+            return "Photo identification is not set up on this device yet. The Models folder needs a folder holding: \(names.joined(separator: ", ")). You can still save the photo as a sighting and identify it yourself."
         case .needsNewerSystem:
             return "Photo identification needs iOS 27, iPadOS 27 or macOS 27 on one of Apple's own chips. It cannot run in the iOS Simulator."
         case .photoUnreadable:
@@ -79,20 +112,37 @@ enum SpeciesEyeError: LocalizedError {
 
 /// Looks at a photo and says which species it most resembles.
 ///
-/// One shared copy, so the model is loaded once and kept. `unload()`
-/// lets go of it when memory is wanted for something else.
+/// `SpeciesEye.shared` is Eira's own: it uses whichever model is
+/// chosen, loads it once and keeps it. `SpeciesEye(using:)` makes one
+/// tied to a particular model, which is how the test page runs two
+/// side by side. `unload()` lets go of a model when memory is wanted
+/// for something else.
 @MainActor
 final class SpeciesEye {
 
     static let shared = SpeciesEye()
 
+    /// The model this eye is tied to. Nil means "whichever is chosen".
+    private let fixed: EyeModel?
+
     private(set) var table: SpeciesTable?
-    /// Turns a prepared photo into the model's 768 numbers. It is made
-    /// when the model is first loaded, by whichever code knows how.
+    /// The model that is loaded now, if one is.
+    private(set) var loaded: EyeModel?
+    /// Turns a prepared photo into the model's numbers (768 of them for
+    /// BioCLIP 2, 1,024 for BioCLIP 2.5 Huge). It is made when the model
+    /// is first loaded, by whichever code knows how.
     private var describe: (([Float]) async throws -> [Float])?
 
+    init(using eye: EyeModel? = nil) {
+        fixed = eye
+    }
+
     /// The whole job: photo in, guess out.
-    func guess(forPhoto data: Data) async throws -> SpeciesGuess {
+    ///
+    /// `count` is how many of the closest names to hand back. Eira asks
+    /// for more than she shows: see EiraIdentify.candidatesWanted.
+    func guess(forPhoto data: Data,
+               keeping count: Int = EiraIdentify.candidatesWanted) async throws -> SpeciesGuess {
         guard let picture = SpeciesEye.picture(from: data),
               let prepared = SpeciesEye.prepared(picture) else {
             throw SpeciesEyeError.photoUnreadable
@@ -100,30 +150,36 @@ final class SpeciesEye {
         try await loadIfNeeded()
         guard let describe, let table else { throw SpeciesEyeError.needsNewerSystem }
         let photoNumbers = try await describe(prepared)
-        return table.guess(for: photoNumbers)
+        return table.guess(for: photoNumbers, keeping: count)
     }
 
     /// Frees the memory the model and the table are using.
     func unload() {
         describe = nil
         table = nil
+        loaded = nil
     }
 
     private func loadIfNeeded() async throws {
-        if describe != nil, table != nil { return }
+        guard let wanted = fixed ?? SpeciesEyeFiles.chosen() else {
+            throw SpeciesEyeError.notInstalled(
+                ["a model ending .aimodel", SpeciesEyeFiles.listName, SpeciesEyeFiles.rowsName])
+        }
+        if describe != nil, table != nil, loaded == wanted { return }
+        // A different model was chosen since the last photo.
+        unload()
 
-        let absent = SpeciesEyeFiles.missing()
-        guard absent.isEmpty else { throw SpeciesEyeError.notInstalled(absent) }
-
-        let folder = SpeciesEyeFiles.folder()
+        let folder = SpeciesEyeFiles.folder(of: wanted)
         let listing = try Data(contentsOf: folder.appendingPathComponent(SpeciesEyeFiles.listName))
         let rowBytes = try Data(contentsOf: folder.appendingPathComponent(SpeciesEyeFiles.rowsName))
-        table = try SpeciesTable(listing: listing, rowBytes: rowBytes)
+        let read = try SpeciesTable(listing: listing, rowBytes: rowBytes)
 
         #if canImport(CoreAI) && arch(arm64)
         if #available(iOS 27.0, macOS 27.0, *) {
             describe = try await SpeciesEye.loadModel(
-                at: folder.appendingPathComponent(SpeciesEyeFiles.modelName))
+                at: folder.appendingPathComponent(wanted.modelFile))
+            table = read
+            loaded = wanted
             return
         }
         #endif
@@ -186,7 +242,7 @@ final class SpeciesEye {
     /// A converted model holds one or more "functions". BioCLIP 2's
     /// image half has one, called "main": it takes an array called
     /// "image" (1 photo, 3 colours, 224 by 224) and gives back one
-    /// called "embedding" (768 numbers).
+    /// called "embedding" (768 numbers, or 1,024 from BioCLIP 2.5 Huge).
     @available(iOS 27.0, macOS 27.0, *)
     private static func loadModel(at url: URL) async throws -> (([Float]) async throws -> [Float]) {
         let model = try await AIModel(contentsOf: url)

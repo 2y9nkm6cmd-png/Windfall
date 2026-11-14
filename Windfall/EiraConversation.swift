@@ -103,6 +103,26 @@ final class EiraConversation {
     /// that describes itself, and then nothing changes. See EiraScreen.
     var screenNote: String?
 
+    /// Photos given to Eira in this conversation, each filed under the
+    /// id of the message it came with. They are kept only while the
+    /// chat is open: a photo is saved when you start a sighting from
+    /// it, and not before.
+    private(set) var photos: [UUID: Data] = [:]
+    /// What she made of each photo, filed under the id of her reply.
+    /// The chat screen draws a reply that has one as a card.
+    private(set) var identifications: [UUID: EiraIdentification] = [:]
+    /// Which photo each of those replies was about: the reply's id,
+    /// then the id of the message the photo came with.
+    private(set) var photoBehind: [UUID: UUID] = [:]
+    /// True from a photo being given until her answer to it.
+    private(set) var isLooking = false
+
+    /// What your message says when you give her a photo.
+    static let photoQuestion = "What is this? (A photo.)"
+    /// The label kept with her answer to a photo, so a saved
+    /// conversation shows where that answer came from.
+    static let photoAnswerLabel = "identify_photo"
+
     private var engine: EiraEngine?
     private var hub: EiraToolHub?
     private var store: EiraChatStore?
@@ -144,7 +164,7 @@ final class EiraConversation {
     /// unreliable at deciding when to look something up.
     func send(_ text: String, forcedTool: ToolDefinition? = nil) {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard engine != nil, !trimmed.isEmpty, !isGenerating else { return }
+        guard engine != nil, !trimmed.isEmpty, !isGenerating, !isLooking else { return }
 
         // The reply before this message, if there is one. Read now,
         // before the message itself joins the list.
@@ -189,6 +209,65 @@ final class EiraConversation {
         replyTask = Task { [weak self] in
             await self?.generate(for: trimmed, forcedTool: lookup)
         }
+    }
+
+    // MARK: Photos
+
+    /// Takes a photo into the conversation as a message of yours.
+    ///
+    /// Returns that message's id, which is handed back with the answer
+    /// so the two stay together. Returns nil, and does nothing, if she
+    /// is busy with a reply or with another photo.
+    ///
+    /// Naming a photo does not need Eira's text model. The image model
+    /// does the matching and fixed rules do the judging (EiraIdentify),
+    /// so this works even when no text model can run on the device.
+    /// The screen runs the image model between this call and the next,
+    /// because that part needs Apple's frameworks and this file is
+    /// tested without them.
+    @discardableResult
+    func givePhoto(_ data: Data) -> UUID? {
+        guard !isGenerating, !isLooking else { return nil }
+        let words = EiraConversation.photoQuestion
+        let photoMessage = ChatMessage(role: .user, content: words)
+        record(photoMessage)
+        offeredCorrection = nil
+        photos[photoMessage.id] = data
+        isLooking = true
+        lastError = nil
+        return photoMessage.id
+    }
+
+    /// Her answer to a photo. It joins the conversation in words, so
+    /// the text model has it in front of it when you ask a follow-up,
+    /// and the screen draws it as a card.
+    func answerPhoto(_ photoID: UUID, with identification: EiraIdentification) {
+        let label = EiraConversation.photoAnswerLabel
+        let photoReply = ChatMessage(role: .assistant, content: identification.spoken, toolName: label)
+        identifications[photoReply.id] = identification
+        photoBehind[photoReply.id] = photoID
+        record(photoReply)
+        isLooking = false
+        lastMetrics = nil
+        // The model did not see this exchange, so it is handed the
+        // conversation afresh before its next reply.
+        needsRestart = true
+    }
+
+    /// Says why a photo could not be looked at.
+    func photoFailed(_ words: String) {
+        record(ChatMessage(role: .assistant, content: words))
+        isLooking = false
+        lastMetrics = nil
+        needsRestart = true
+    }
+
+    /// Forgets the photos, at the start of another conversation.
+    private func forgetPhotos() {
+        photos = [:]
+        identifications = [:]
+        photoBehind = [:]
+        isLooking = false
     }
 
     /// Replies with wording fixed in the app. The model is not asked.
@@ -334,6 +413,7 @@ final class EiraConversation {
         lastMetrics = nil
         lastError = nil
         offeredCorrection = nil
+        forgetPhotos()
         chat = store?.newChat(modelName: modelName)
         needsRestart = true
     }
@@ -348,6 +428,7 @@ final class EiraConversation {
         lastMetrics = nil
         lastError = nil
         offeredCorrection = nil
+        forgetPhotos()
         needsRestart = true
     }
 

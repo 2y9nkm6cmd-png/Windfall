@@ -1099,6 +1099,102 @@ struct LogicTests {
         }
         check(PhotoArithmetic.planar(fromRGBA: [1, 2, 3], side: 2) == nil && PhotoArithmetic.side == 224, "bytes that are not a whole square are refused")
 
+        // Eira's judgement about a photo: names, records, the month, look-alikes and dangers.
+        check(SpeciesName.key("Lavandula angustifolia 'Hidcote'") == "lavandula angustifolia" && SpeciesName.key("  Bombus   terrestris (Linnaeus, 1758)") == "bombus terrestris" && SpeciesName.key("Mentha × piperita") == "mentha piperita" && SpeciesName.key("Bombus sp.") == "bombus" && SpeciesName.key(nil) == "" && SpeciesName.genus("Bombus terrestris") == "Bombus", "scientific names are cut to genus and species before they are compared")
+        func entry(_ scientific: String, _ common: String?, _ group: String = "Insecta", source: String? = nil) -> SpeciesEntry {
+            SpeciesEntry(scientific: scientific, common: common, group: group, taught: false, source: source)
+        }
+        func guessOf(_ shares: [(SpeciesEntry, Double)], sure: Bool) -> SpeciesGuess {
+            SpeciesGuess(candidates: shares.map { SpeciesCandidate(entry: $0.0, share: $0.1) }, isSure: sure)
+        }
+        let buff = entry("Bombus terrestris", "Buff-tailed Bumblebee"), white = entry("Bombus lucorum", "White-tailed Bumblebee"), garden = entry("Bombus hortorum", "Garden Bumblebee")
+        let lavender = entry("Lavandula angustifolia", "English Lavender", "Plantae"), iris = entry("Iris pseudacorus", "Yellow Iris", "Plantae"), dropwort = entry("Oenanthe crocata", "Hemlock Water-dropwort", "Plantae"), cowParsley = entry("Anthriscus sylvestris", "Cow Parsley", "Plantae")
+        let midday = { (day: Int) -> Date in Calendar(identifier: .gregorian).date(from: DateComponents(timeZone: TimeZone(identifier: "Europe/London"), year: 2026, month: 11, day: day, hour: 12))! }
+        var knows = IdentifyKnowledge(month: 6)
+        knows.plants = [KnownPlant(name: "Lavender, Hidcote", latin: "Lavandula angustifolia 'Hidcote'"), KnownPlant(name: "Lavender, Munstead", latin: "Lavandula angustifolia")]
+        knows.wildlife = [KnownWildlife(common: "Buff-tailed bumblebee", scientific: "Bombus terrestris", flightMonths: [3, 4, 5, 6, 7, 8, 9, 10], flightText: "Mar to Oct", favouredPlants: "Comfrey, lavender")]
+        knows.sightings = [PastSighting(names: ["Bombus terrestris"], date: midday(2), isConfirmed: true), PastSighting(names: ["buff-tailed bumblebee"], date: midday(12), isConfirmed: false), PastSighting(names: ["Apis mellifera"], date: midday(13), isConfirmed: true)]
+        let plain = EiraIdentify.judge(guessOf([(buff, 0.93), (white, 0.05), (garden, 0.01)], sure: true), knowing: knows, listSize: 776, modelName: "BioCLIP 2.5 Huge")
+        check(plain.verdict == .named && plain.headline == "Buff-tailed Bumblebee" && plain.subheading == "Bombus terrestris" && plain.provisionalName == "Bombus terrestris" && plain.confidence == .probable && plain.cautions.isEmpty && plain.isNameable, "a strong match with nothing against it is named as probable")
+        check(plain.records.count == 2 && plain.records[0] == "It is in your wildlife list as Buff-tailed bumblebee. Flight period: Mar to Oct. Favoured plants: Comfrey, lavender." && plain.records[1] == "You have recorded it 2 times, last on 12 November 2026, 1 of them confirmed.", "the wildlife list and past sightings are looked up, by scientific or English name: \(plain.records)")
+        check(plain.spoken.hasPrefix("This looks like Buff-tailed Bumblebee (Bombus terrestris). The image model puts it at 93%.") && plain.spoken.contains("Nothing has been saved.") && plain.spoken.contains("the 776 UK species") && plain.sightingNote.hasPrefix("Suggested by Eira from a photograph by BioCLIP 2.5 Huge (") && plain.sightingNote.hasSuffix("Needs confirming."), "the answer is worded for the chat and for a sighting's note")
+        let ofPlant = EiraIdentify.judge(guessOf([(lavender, 0.97)], sure: true), knowing: knows)
+        check(ofPlant.records == ["It is in your plant list: Lavender, Hidcote; Lavender, Munstead."] && ofPlant.confidence == .probable, "a plant is found in the plant list under each of its varieties: \(ofPlant.records)")
+        let unknownPlant = EiraIdentify.judge(guessOf([(iris, 0.9)], sure: true), knowing: knows)
+        check(unknownPlant.records == ["It is not in your plant list, and you have no earlier sighting of it."], "a named plant that is in no record says so")
+        knows.lookalikes = Lookalikes(groups: [LookalikeGroup(names: ["Bombus terrestris", "Bombus lucorum"], why: "Workers cannot reliably be separated by eye.")])
+        let alike = EiraIdentify.judge(guessOf([(buff, 0.93), (white, 0.05)], sure: true), knowing: knows)
+        check(alike.verdict == .oneOfSeveral(["Bombus terrestris", "Bombus lucorum"]) && alike.headline == "Buff-tailed Bumblebee or a look-alike" && alike.subheading == "Bombus terrestris / Bombus lucorum" && alike.confidence == .possible && alike.cautions == [.init(weight: .doubt, words: "Workers cannot reliably be separated by eye.", isUnchecked: true)] && alike.provisionalName == "Bombus terrestris", "a species in a look-alike group is given as one of several, and the unchecked list is marked")
+        check(alike.spoken.contains("or a species that cannot be told from it in a photo: Bombus lucorum") && alike.spoken.contains("(From a list that has not been checked yet.)") && alike.sightingNote.contains("which of these it is: Bombus terrestris, Bombus lucorum"), "the look-alikes are named in the chat and in the sighting's note")
+        check(Lookalikes(groups: knows.lookalikes!.groups, isChecked: true).group(holding: "bombus lucorum")?.names.count == 2 && knows.lookalikes!.group(holding: "Apis mellifera") == nil, "a look-alike group is found by any of its names")
+        let pooled = EiraIdentify.judge(guessOf([(buff, 0.5), (white, 0.3), (garden, 0.1), (lavender, 0.02)], sure: false), knowing: knows)
+        check(pooled.verdict == .genusOnly("Bombus") && pooled.headline == "A bumblebee (Bombus), species not certain" && pooled.provisionalName == "Bombus" && pooled.confidence == .possible && pooled.subheading == "Bombus terrestris / Bombus lucorum / Bombus hortorum", "three bumblebees that share 90% between them are given as a bumblebee: \(pooled.headline)")
+        check(pooled.records.contains("You have recorded Buff-tailed Bumblebee (Bombus terrestris) 2 times, last on 12 November 2026, 1 of them confirmed.") && pooled.records.contains { $0.hasPrefix("Buff-tailed Bumblebee (Bombus terrestris) is in your wildlife list.") }, "with several names in play each record line says which it is about")
+        let torn2 = EiraIdentify.judge(guessOf([(buff, 0.4), (lavender, 0.35), (iris, 0.2)], sure: false), knowing: knows)
+        check(torn2.verdict == .notSure && torn2.headline == "Eira is not sure" && torn2.provisionalName == nil && torn2.confidence == nil && !torn2.isNameable && torn2.spoken.hasPrefix("I am not sure what this is.") && torn2.sightingNote.hasPrefix("Eira was not sure from the photograph."), "a weak match across different genera is not named at all")
+        check(EiraIdentify.pooledGenus(of: [SpeciesCandidate(entry: buff, share: 0.6), SpeciesCandidate(entry: white, share: 0.2)]) == nil && EiraIdentify.pooledGenus(of: [SpeciesCandidate(entry: buff, share: 0.9)]) == nil && EiraIdentify.article(for: "ant") == "An" && EiraIdentify.article(for: "bumblebee") == "A", "a genus is only given when two or more of it reach the level together")
+        let empty = EiraIdentify.judge(SpeciesGuess(candidates: [], isSure: false), knowing: knows)
+        check(empty.verdict == .nothing && empty.spoken == "There is nothing to compare the photo with." && empty.sightingNote == "Photo saved without an identification.", "no candidates gives no answer and no claim")
+        // The month.
+        knows.lookalikes = nil
+        knows.seasons = SpeciesSeasons(counts: ["Bombus terrestris": [10, 30, 500, 2000, 3000, 4000, 4000, 3000, 2000, 700, 300, 60], "Iris pseudacorus": [1, 1, 1, 5, 40, 60, 30, 5, 2, 1, 1, 1], "Apis mellifera": [1, 2, 3]])
+        knows.month = 1
+        let inJanuary = EiraIdentify.judge(guessOf([(buff, 0.93)], sure: true), knowing: knows)
+        check(inJanuary.confidence == .possible && inJanuary.cautions.contains(.init(weight: .doubt, words: "It is rarely recorded in the UK in January: 10 of 19600 records on iNaturalist.")) && inJanuary.cautions.contains { $0.words == "Your wildlife list gives its flight period as Mar to Oct, and this is January." } && inJanuary.spoken.hasPrefix("This may be Buff-tailed Bumblebee"), "a summer insect in January is doubted twice over: \(inJanuary.cautions.map(\.words))")
+        knows.month = 3
+        let inMarch = EiraIdentify.judge(guessOf([(buff, 0.93)], sure: true), knowing: knows)
+        check(inMarch.confidence == .probable && inMarch.cautions.isEmpty, "the same insect in March is not doubted")
+        knows.month = 11
+        let inNovember = EiraIdentify.judge(guessOf([(buff, 0.93)], sure: true), knowing: knows)
+        check(inNovember.cautions.contains(.init(weight: .note, words: "It is not often recorded in the UK in November: 300 of 19600 records on iNaturalist.")) && inNovember.confidence == .possible, "scarce in the month is a note, and outside your own list's flight period is a doubt")
+        check(knows.seasons?.standing(of: "Iris pseudacorus", month: 6) == nil && knows.seasons?.standing(of: "Apis mellifera", month: 6) == nil && knows.seasons?.standing(of: "bombus terrestris", month: 6) == .usual && knows.seasons?.standing(of: "Bombus terrestris", month: 13) == nil, "too few records, a list that is not twelve months and a month that does not exist give no judgement")
+        check(SpeciesSeasons(data: Data(#"{"about":"x","source":"iNaturalist, UK","months":{"Aglais io":[1,2,3,4,5,6,7,8,9,10,11,12]}}"#.utf8))?.counts["aglais io"]?.count == 12 && SpeciesSeasons(data: Data("[]".utf8)) == nil && Lookalikes(data: Data(#"{"about":"x","groups":[{"names":["A b","A c"],"why":"alike"}]}"#.utf8))?.isChecked == false && Lookalikes(data: Data(#"{"checked":true,"groups":[]}"#.utf8))?.isChecked == true && Lookalikes(data: Data("{}".utf8)) == nil, "the months file and the look-alikes file are read, and a look-alikes file is unchecked until it says otherwise")
+        // Dangers.
+        let deadlySecond = EiraIdentify.judge(guessOf([(iris, 0.87), (dropwort, 0.08), (lavender, 0.01)], sure: true), knowing: IdentifyKnowledge(month: 6))
+        check(deadlySecond.verdict == .named && deadlySecond.cautions.first?.weight == .danger && deadlySecond.cautions.first?.words.hasPrefix("Hemlock Water-dropwort (Oenanthe crocata) is among the possibilities. Hemlock water-dropwort is deadly poisonous") == true && deadlySecond.cautions.first?.isUnchecked == true, "a deadly plant in second place is warned of, whatever was named first")
+        let deadlyFaint = EiraIdentify.judge(guessOf([(iris, 0.97), (dropwort, 0.01)], sure: true), knowing: IdentifyKnowledge(month: 6))
+        check(deadlyFaint.cautions.isEmpty, "a deadly plant at under 2% is not mentioned")
+        let umbel = EiraIdentify.judge(guessOf([(cowParsley, 0.47), (iris, 0.3)], sure: false), knowing: IdentifyKnowledge(month: 6))
+        check(umbel.cautions.count == 1 && umbel.cautions[0].weight == .danger && umbel.cautions[0].words.contains("carrot family") && umbel.verdict == .notSure, "any of the carrot family at the top brings the hemlock warning, sure or not")
+        check(PlantDangers.danger(of: "Conium maculatum L.") != nil && PlantDangers.danger(of: "Lavandula angustifolia") == nil && PlantDangers.isUmbellifer("Daucus carota") && !PlantDangers.isUmbellifer("Iris pseudacorus") && EiraIdentify.dangers(in: [SpeciesCandidate(entry: entry("Conium maculatum", "Hemlock", "Plantae"), share: 0.9)]).count == 1, "hemlock is warned of once, as itself and not again as one of its family")
+        let potLabel = EiraIdentify.judge(guessOf([(entry("Stachys byzantina", "Lamb's-ear", "Plantae", source: "pot label in William's photos, to check"), 0.95)], sure: true), knowing: IdentifyKnowledge(month: 6))
+        check(potLabel.cautions.count == 1 && potLabel.cautions[0].weight == .note && potLabel.cautions[0].words.contains("pot label") && potLabel.confidence == .probable, "a name that came from a pot label says so")
+        check((try? JSONDecoder().decode(SpeciesEntry.self, from: Data(#"{"scientific":"A b","common":null,"group":"Plantae","taught":false,"source":"William's plant database"}"#.utf8)))?.source == "William's plant database" && (try? JSONDecoder().decode(SpeciesEntry.self, from: Data(#"{"scientific":"A b","common":null,"group":"Plantae","taught":false}"#.utf8)))?.source == nil, "a species list reads with or without each name's source")
+        // More than one image model.
+        let huge = EyeModel.describing(folder: "bioclip2", modelFile: "bioclip2_image_f16.aimodel", label: Data(#"{"name":"BioCLIP 2.5 Huge","note":"1.2GB","order":1}"#.utf8))
+        let small = EyeModel.describing(folder: "bioclip2-original", modelFile: "m.aimodel", label: Data(#"{"name":"BioCLIP 2","order":2}"#.utf8))
+        let bare = EyeModel.describing(folder: "another", modelFile: "m.aimodel", label: nil)
+        check(huge.name == "BioCLIP 2.5 Huge" && huge.note == "1.2GB" && huge.order == 1 && bare.name == "another" && bare.order == 100 && EyeModel.describing(folder: "x", modelFile: "m", label: Data("oops".utf8)).name == "x", "an image model is named by its label file, or by its folder without one")
+        check(EyeModel.pick(from: [bare, small, huge], saved: nil) == huge && EyeModel.pick(from: [bare, small, huge], saved: "bioclip2-original") == small && EyeModel.pick(from: [bare, small, huge], saved: "gone") == huge && EyeModel.pick(from: [], saved: "bioclip2") == nil && EyeModel.sorted([bare, small, huge]).map(\.folder) == ["bioclip2", "bioclip2-original", "another"], "Eira's image model is the saved choice if it is still there, and otherwise the first in order")
+        // Marking a test of the image models.
+        let rightNamed = EyeTestAnswer(guess: guessOf([(buff, 0.93), (white, 0.05)], sure: true), seconds: 0.4, truth: .species("Bombus terrestris"))
+        let secondRight = EyeTestAnswer(guess: guessOf([(buff, 0.5), (white, 0.4)], sure: false), seconds: 0.2, truth: .species("bombus lucorum"))
+        let wrongNamed = EyeTestAnswer(guess: guessOf([(lavender, 0.97)], sure: true), seconds: 0.3, truth: .notOnList)
+        let rightlyUnsure = EyeTestAnswer(guess: guessOf([(iris, 0.3)], sure: false), seconds: 0.3, truth: .notOnList)
+        let unmarked = EyeTestAnswer(guess: guessOf([(iris, 0.9)], sure: true), seconds: 0.3, truth: nil)
+        let tally = EyeTestTally.counting([rightNamed, secondRight, wrongNamed, rightlyUnsure, unmarked])
+        check(tally.tried == 5 && tally.marked == 4 && tally.onList == 2 && tally.firstRight == 1 && tally.inThree == 2 && tally.named == 2 && tally.namedRight == 1 && tally.offList == 2 && tally.offListNamed == 1 && abs(tally.seconds - 1.5) < 0.0001, "a test is counted: first answers, the top three, what was named and what was named though off the list")
+        check(tally.lines == ["Photos tried: 5", "Seconds a photo: 0.30", "Marked by you: 4", "First answer right: 1 of 2 (50%)", "Right answer among the three: 2 of 2 (100%)", "Named outright and right: 1 of 2 (50%)", "Not on its list, yet named anyway: 1 of 2 (50%)"] && EyeTestTally.counting([unmarked]).lines.last == "None marked yet" && EyeTestTally.share(0, of: 0) == "none", "the score is worded in lines: \(tally.lines)")
+        // A photo given to Eira in her chat.
+        let showing = EiraConversation()
+        let givenID = showing.givePhoto(Data([1, 2, 3]))
+        check(givenID != nil && showing.isLooking && showing.messages.count == 1 && showing.messages[0].content == EiraConversation.photoQuestion && showing.photos[givenID!] == Data([1, 2, 3]) && showing.givePhoto(Data([4])) == nil && showing.messages.count == 1, "a photo joins the chat as your message, and a second waits its turn")
+        showing.answerPhoto(givenID!, with: plain)
+        let photoReply = showing.messages.last
+        check(!showing.isLooking && showing.messages.count == 2 && photoReply?.role == .assistant && photoReply?.content == plain.spoken && photoReply?.toolName == EiraConversation.photoAnswerLabel && showing.identifications[photoReply!.id] == plain && showing.photoBehind[photoReply!.id] == givenID, "her answer joins the chat in words and is kept beside it for the card")
+        let failedID = showing.givePhoto(Data([9]))
+        showing.photoFailed("That photo could not be read.")
+        check(failedID != nil && !showing.isLooking && showing.messages.last?.content == "That photo could not be read." && showing.identifications.count == 1, "a photo that cannot be read says so and leaves her free")
+        showing.clear()
+        check(showing.photos.isEmpty && showing.identifications.isEmpty && showing.photoBehind.isEmpty && showing.messages.isEmpty, "a new conversation forgets the photos")
+        let photoEngine = FakeEngine()
+        let asking = EiraConversation()
+        asking.configure(engine: photoEngine, hub: EiraToolHub(context: ModelContext()), store: EiraChatStore(context: ModelContext()))
+        if let askedID = asking.givePhoto(Data([1])) { asking.answerPhoto(askedID, with: plain) }
+        asking.send("What does it feed on?")
+        await waitUntilIdle(asking)
+        check(photoEngine.starts.last?.history.contains { $0.role == .assistant && $0.content.contains("This looks like Buff-tailed Bumblebee") } == true && asking.messages.last?.role == .assistant, "the text model is handed her answer to the photo before a follow-up question")
+
         print("   logic tests: \(passes) passed, \(failures) failed")
         exit(failures == 0 ? 0 : 1)
     }
