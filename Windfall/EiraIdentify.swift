@@ -433,10 +433,15 @@ enum EiraIdentify {
             subjects = [top.entry]
 
             // Rule 2: one of a group nobody can split from a photo.
-            if let group = knowledge.lookalikes?.group(holding: top.entry.scientific), group.names.count > 1 {
-                verdict = .oneOfSeveral(group.names)
-                headline += " or a look-alike"
-                subheading = group.names.joined(separator: " / ")
+            // A group of one is a species whose look-alikes are not
+            // on the list by name ("most hoverflies of this genus"):
+            // it keeps its name and still gets the doubt.
+            if let group = knowledge.lookalikes?.group(holding: top.entry.scientific) {
+                if group.names.count > 1 {
+                    verdict = .oneOfSeveral(group.names)
+                    headline += " or a look-alike"
+                    subheading = group.names.joined(separator: " / ")
+                }
                 confidence = .possible
                 cautions.append(.init(weight: .doubt, words: group.why,
                                       isUnchecked: !(knowledge.lookalikes?.isChecked ?? false)))
