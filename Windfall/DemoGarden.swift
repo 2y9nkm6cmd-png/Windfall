@@ -114,6 +114,8 @@ enum DemoGarden {
     /// `eira-photo` opens her chat on an example answer to a photo.
     /// `eira-lookups` opens it on an example reply that made lookups,
     /// with its closed bubble and a card for the plant found.
+    /// `eira-lookups-open` is the same with the bubble and its first
+    /// lookup open.
     ///
     /// `plantSowing` and `plantPlanting`, with `-demoPlant Achillea`,
     /// open the sowing form from that plant's page: the first on seed,

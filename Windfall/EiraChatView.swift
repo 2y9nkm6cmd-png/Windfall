@@ -206,8 +206,9 @@ struct EiraChatView: View {
                 conversation.showExamplePhoto(answeredBy: EiraIdentify.example(in: context))
             }
             // `eira-lookups` shows a reply that made lookups, with its
-            // closed bubble and a plant card.
-            if DemoGarden.opens == "eira-lookups" {
+            // closed bubble and a plant card. `eira-lookups-open` is the
+            // same with the bubble open.
+            if DemoGarden.opens == "eira-lookups" || DemoGarden.opens == "eira-lookups-open" {
                 conversation.showExampleLookups()
             }
             if DemoGarden.opens == "eira" || DemoGarden.opens == "corrections" {

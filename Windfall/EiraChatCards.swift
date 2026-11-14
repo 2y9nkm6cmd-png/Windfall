@@ -38,8 +38,10 @@ struct ThinkingBubble: View {
 
     // `@State` is a value the view keeps for itself between redraws.
     // `private` means nothing outside this view can change it.
-    /// Whether the bubble is open.
-    @State private var isOpen = false
+    /// Whether the bubble is open. It starts closed. The one exception
+    /// is a checking aid, `-demoOpen eira-lookups-open`, which starts it
+    /// open, because a script cannot tap it for a still picture.
+    @State private var isOpen = DemoGarden.opens == "eira-lookups-open"
     /// Which lookups inside it are open, by id.
     @State private var openLookups: Set<UUID> = []
 
@@ -113,6 +115,13 @@ struct ThinkingBubble: View {
         .background(Theme.card.opacity(0.55), in: .rect(cornerRadius: 14))
         .overlay {
             RoundedRectangle(cornerRadius: 14).strokeBorder(Theme.hairline, lineWidth: 1)
+        }
+        // The same checking aid also opens the first lookup, so the
+        // picture shows what a lookup brought back.
+        .onAppear {
+            if DemoGarden.opens == "eira-lookups-open", let first = lookups.first {
+                openLookups.insert(first.id)
+            }
         }
     }
 
