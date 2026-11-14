@@ -53,7 +53,8 @@ Every Photos chooser is also given `preferredItemEncoding: .current`, which asks
 
 - The repository's checks, Swift 6.3.1 for Linux in the chat's cloud workspace: 112 files valid, type check passed, 30 record types and 30 in the schema, **756 logic tests pass** (749 before, 7 new).
 - `Photo.lastPathComponent` is a new false alarm in the name-guessing check, in `SpeciesTestRun.swift`, where `photo` is a file's address. It is in `known-false-alarms.txt`.
-- **Built for the Mac with no errors** (`ps1-mac.log`, 21:21, in the chat's own copy `~/Developer/windfall-photospeed` and its own build folder `DerivedData/Windfall-photospeed`).
+- **Built for the Mac with no errors**, twice: the first version (`ps1-mac.log`, 21:21) and the branch as it now stands, `ff77c82` (`ps2-mac.log`, 21:54). In the chat's own copy `~/Developer/windfall-photospeed` and its own build folder `DerivedData/Windfall-photospeed`.
+- **Built signed for the iPhone with no errors** (`ps3-iphone.log`, 21:48), as the branch `photos-faster-phone-mix`: this branch with `eira-put-away` merged in, because that is what the phone held at the time. **That branch is for the phone only and is not to be merged into `main`.** Not installed.
 - **`PhotoShrink.jpeg` run on the Mac by itself against the old way**, on four test pictures made for the purpose (`/tmp/photospeed-test`, 21:26, while three other builds were running, so the times are long and only their ratio means anything):
 
 | Picture | Tile, old | Tile, new | Eira's copy, old | Eira's copy, new |
