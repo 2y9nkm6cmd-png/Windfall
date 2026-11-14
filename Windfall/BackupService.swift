@@ -27,9 +27,11 @@ import UniformTypeIdentifiers
 /// stays stable even when the SwiftData schema changes. Restoring an old
 /// backup into a newer app should still work.
 private struct Backup: Codable {
-    /// 2 added gardens, features and the measurements of each bed. The new
-    /// parts are optional, so a version 1 file still restores.
-    var version = 2
+    /// 2 added gardens, features and the measurements of each bed. 3 (14
+    /// November 2026) keeps every fact of a plant, where before it kept
+    /// eight. The new parts are optional, so an older file still
+    /// restores.
+    var version = 3
     var created = Date.now
     var gardens: [GardenDTO]?
     var features: [FeatureDTO]?
@@ -77,6 +79,24 @@ private struct PlantDTO: Codable {
     var latinName: String?, variety: String?, group: String?
     var sowIndoors: String?, sowOutdoors: String?, harvest: String?
     var notes: String?
+
+    // Added in version 3. Before it a backup kept only the eight facts
+    // above, which did not matter while a plant's facts could only come
+    // from the spreadsheet file. Now they can be typed in the app, and
+    // the backup is the only other copy of what was typed.
+
+    /// Every filled-in fact, by its key in PlantFacts.swift. The eight
+    /// above are in here too. They stay where they are so that an older
+    /// version of the app can still read a newer file.
+    var facts: [String: String]?
+    /// Growing, wanted or previously owned.
+    var status: String?
+    /// Which garden's list or lists it came from.
+    var sites: [String]?
+    /// The facts changed in the app by hand.
+    var changedByHand: [String]?
+    /// The name the spreadsheet file knows it by, if it was renamed.
+    var importedAs: String?
 }
 
 private struct PlantingDTO: Codable {
@@ -190,7 +210,12 @@ final class BackupService {
                      sowIndoors: plant.sowIndoorsMonthsText,
                      sowOutdoors: plant.sowOutdoorsMonthsText,
                      harvest: plant.harvestMonthsText,
-                     notes: plant.notes)
+                     notes: plant.notes,
+                     facts: PlantFacts.record(of: plant),
+                     status: plant.statusRaw,
+                     sites: plant.sourceSites,
+                     changedByHand: plant.changedByHand,
+                     importedAs: plant.importedAs)
         }
 
         backup.plantings = (try context.fetch(FetchDescriptor<Planting>())).map { planting in
@@ -309,9 +334,36 @@ final class BackupService {
         // Plants first — plantings point at them.
         let existingPlants = Set((try context.fetch(FetchDescriptor<Plant>())).map(\.id))
         var plantsByID: [UUID: Plant] = [:]
-        for plant in try context.fetch(FetchDescriptor<Plant>()) { plantsByID[plant.id] = plant }
+        // The library by name and variety as well. A fresh copy of the
+        // app loads its own starter library, with ids of its own, so the
+        // same plant is there under another id.
+        var plantsByName: [String: Plant] = [:]
+        for plant in try context.fetch(FetchDescriptor<Plant>()) {
+            plantsByID[plant.id] = plant
+            if let oldName = plant.importedAs, plantsByName[oldName] == nil { plantsByName[oldName] = plant }
+            plantsByName[PlantFacts.libraryKey(name: plant.commonName, variety: plant.variety)] = plant
+        }
+        // A backup's id for a plant, and the id of the plant already
+        // here that it turned out to be. Crosses name their parents by
+        // id, so they are pointed at the plant that is here.
+        var sameAs: [String: String] = [:]
 
         for dto in backup.plants where !existingPlants.contains(dto.id) {
+            // Already here under another id? Then no second copy is
+            // made. The sowings below are joined to the one that is
+            // here, and only what was typed in the app is carried over.
+            // Until 14 November 2026 this made a second, nearly empty
+            // copy of every plant in the library.
+            let names = [PlantFacts.libraryKey(name: dto.commonName, variety: dto.variety), dto.importedAs]
+            if let twin = names.compactMap({ $0 }).compactMap({ plantsByName[$0] }).first {
+                plantsByID[dto.id] = twin
+                sameAs[dto.id.uuidString] = twin.id.uuidString
+                let written = PlantFacts.restoreHandChanges(dto.changedByHand ?? [], from: dto.facts ?? [:],
+                                                            importedAs: dto.importedAs, to: twin)
+                if written > 0 { restored += 1 }
+                continue
+            }
+
             let plant = Plant(commonName: dto.commonName)
             plant.id = dto.id
             plant.latinName = dto.latinName
@@ -321,8 +373,16 @@ final class BackupService {
             plant.sowOutdoorsMonthsText = dto.sowOutdoors
             plant.harvestMonthsText = dto.harvest
             plant.notes = dto.notes
+            // Everything else, from a version 3 file. An older file has
+            // only the eight facts above.
+            PlantFacts.fill(plant, from: dto.facts ?? [:])
+            if let status = dto.status { plant.statusRaw = status }
+            plant.sourceSites = dto.sites ?? []
+            plant.changedByHand = dto.changedByHand ?? []
+            plant.importedAs = dto.importedAs
             context.insert(plant)
             plantsByID[dto.id] = plant
+            plantsByName[PlantFacts.libraryKey(name: plant.commonName, variety: plant.variety)] = plant
             restored += 1
         }
 
@@ -424,9 +484,11 @@ final class BackupService {
             crossing.id = dto.id
             crossing.createdAt = dto.created
             crossing.date = dto.date
-            crossing.seedParentKey = dto.seedParentKey
+            // A parent is named by its plant's id. Where that plant was
+            // found here under another id, the id here is the one kept.
+            crossing.seedParentKey = dto.seedParentKey.map { sameAs[$0] ?? $0 }
             crossing.seedParentName = dto.seedParentName
-            crossing.pollenParentKey = dto.pollenParentKey
+            crossing.pollenParentKey = dto.pollenParentKey.map { sameAs[$0] ?? $0 }
             crossing.pollenParentName = dto.pollenParentName
             crossing.wasByHand = dto.byHand
             crossing.wasBagged = dto.bagged

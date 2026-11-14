@@ -438,6 +438,11 @@ struct PlantDetailView: View {
     /// Which of the two forms is open. Nil when neither is.
     @State private var adding: AddingToGarden?
 
+    /// The card the editing sheet is open at. Nil when the sheet is
+    /// closed. Every Edit button on the page sets this and nothing else,
+    /// in the same way as `adding` above.
+    @State private var editing: PlantFacts.Group?
+
     var body: some View {
         // Worked out once for this redraw.
         let cards = PlantPage.cards(for: plant)
@@ -457,24 +462,40 @@ struct PlantDetailView: View {
                     // buttons, so it should not sit below a screen of
                     // facts.
                     if isWide {
-                        let headStart = PlantPage.plantingsCardWeight(lines: plant.plantings?.count ?? 0)
-                        let sides = PlantPage.twoColumns(cards, rightHeadStart: headStart)
+                        // What else each column holds, so that the fact
+                        // cards are shared out to leave the two level.
+                        let rightStart = PlantPage.plantingsCardWeight(lines: plant.plantings?.count ?? 0)
+                        let pestCount = CompanionPests.named(in: plant.knownPests ?? "").count
+                        let leftStart = PlantPage.footCardsWeight(pests: pestCount)
+                        let sides = PlantPage.twoColumns(cards, leftHeadStart: leftStart, rightHeadStart: rightStart)
+                        // "Add information" goes at the foot of whichever
+                        // column came out shorter.
+                        let addGoesRight = sides.rightWeight < sides.leftWeight
                         HStack(alignment: .top, spacing: 14) {
                             VStack(spacing: 14) {
-                                ForEach(sides.left) { PlantFactCardView(factCard: $0) }
+                                ForEach(sides.left) { factCard in
+                                    PlantFactCardView(factCard: factCard) { editing = factCard.group }
+                                }
                                 companionsLink
                                 pestsCard
+                                if !addGoesRight { moreToAddCard }
                             }
                             VStack(spacing: 14) {
                                 plantingsCard
-                                ForEach(sides.right) { PlantFactCardView(factCard: $0) }
+                                ForEach(sides.right) { factCard in
+                                    PlantFactCardView(factCard: factCard) { editing = factCard.group }
+                                }
+                                if addGoesRight { moreToAddCard }
                             }
                         }
                     } else {
                         plantingsCard
-                        ForEach(cards) { PlantFactCardView(factCard: $0) }
+                        ForEach(cards) { factCard in
+                            PlantFactCardView(factCard: factCard) { editing = factCard.group }
+                        }
                         companionsLink
                         pestsCard
+                        moreToAddCard
                     }
                 }
                 .padding(.horizontal, 16)
@@ -501,12 +522,21 @@ struct PlantDetailView: View {
         .sheet(item: $adding) { which in
             NewPlantingView(plant: plant, asPlanting: which == .planting)
         }
+        // The sheet that changes the plant's facts, opened at the card
+        // whose Edit button was pressed. See PlantEditView.swift.
+        .sheet(item: $editing) { factGroup in
+            PlantEditView(plant: plant, openingAt: factGroup)
+        }
         // A checking aid: `-demoOpen plantSowing` and `-demoOpen
         // plantPlanting` open the form at once, so a still picture can
-        // be taken of it. See DemoGarden.opens.
+        // be taken of it. `plantEdit` opens the editing sheet at the
+        // top and `plantEditSowing` at its sowing card. See
+        // DemoGarden.opens.
         .onAppear {
             if DemoGarden.opens == "plantSowing" { adding = .sowing }
             if DemoGarden.opens == "plantPlanting" { adding = .planting }
+            if DemoGarden.opens == "plantEdit" { editing = .naming }
+            if DemoGarden.opens == "plantEditSowing" { editing = .sowing }
         }
     }
 
@@ -514,25 +544,32 @@ struct PlantDetailView: View {
 
     private var header: some View {
         let summary = PlantPage.summary(for: plant)
-        return VStack(alignment: .leading, spacing: 4) {
-            if !summary.isEmpty {
-                // "softneck · Alliums · Perennial"
-                Text(summary.map(\.value).joined(separator: " · "))
-                    .font(.subheadline)
-                    .foregroundStyle(Theme.inkSoft)
+        return HStack(alignment: .top, spacing: 12) {
+            VStack(alignment: .leading, spacing: 4) {
+                if !summary.isEmpty {
+                    // "softneck · Alliums · Perennial"
+                    Text(summary.map(\.value).joined(separator: " · "))
+                        .font(.subheadline)
+                        .foregroundStyle(Theme.inkSoft)
+                }
+                Text(plant.commonName)
+                    .font(.screenTitle)
+                    .foregroundStyle(Theme.ink)
+                    .accessibilityAddTraits(.isHeader)
+                if let latin = plant.latinName, !latin.isEmpty {
+                    Text(latin)
+                        .font(.title3)
+                        .italic()
+                        .foregroundStyle(Theme.inkSoft)
+                }
             }
-            Text(plant.commonName)
-                .font(.screenTitle)
-                .foregroundStyle(Theme.ink)
-                .accessibilityAddTraits(.isHeader)
-            if let latin = plant.latinName, !latin.isEmpty {
-                Text(latin)
-                    .font(.title3)
-                    .italic()
-                    .foregroundStyle(Theme.inkSoft)
-            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+            // Opens the editing sheet at its first card: the names, the
+            // variety and the other facts on the line above the name.
+            Button("Edit") { editing = .naming }
+                .buttonStyle(QuietGlassButton())
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     // MARK: The two cards that are not from the spreadsheet
@@ -583,6 +620,47 @@ struct PlantDetailView: View {
                             HStack(spacing: 6) {
                                 Text(pest)
                                 WIconView(.arrowRight, size: 12)
+                            }
+                            .font(.subheadline)
+                            .foregroundStyle(Theme.ink)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 7)
+                            .background(Theme.leafFill, in: .capsule)
+                            .contentShape(.capsule)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .glassCard()
+        }
+    }
+
+    /// The cards the page has left out because nothing is recorded
+    /// under them, each as a button that opens the editing sheet at
+    /// that card. Left out itself when every card has something.
+    @ViewBuilder
+    private var moreToAddCard: some View {
+        let missing = PlantPage.emptyGroups(for: plant)
+        if !missing.isEmpty {
+            VStack(alignment: .leading, spacing: 10) {
+                Text("Add information")
+                    .font(.headline)
+                    .foregroundStyle(Theme.ink)
+                Text("Nothing is recorded yet under these headings.")
+                    .font(.subheadline)
+                    .foregroundStyle(Theme.inkSoft)
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 170), spacing: 8, alignment: .leading)],
+                          alignment: .leading, spacing: 8) {
+                    ForEach(missing) { factGroup in
+                        Button {
+                            editing = factGroup
+                        } label: {
+                            HStack(spacing: 6) {
+                                WIconView(.add, size: 12)
+                                Text(factGroup.title)
+                                    .multilineTextAlignment(.leading)
                             }
                             .font(.subheadline)
                             .foregroundStyle(Theme.ink)
@@ -697,6 +775,13 @@ struct DemoPlantPage: View {
 private struct PlantFactCardView: View {
 
     let factCard: PlantPage.FactCard
+    /// What the card's pencil does. The page hands this in, because the
+    /// page is what owns the editing sheet.
+    ///
+    /// `() -> Void` is the type of "a piece of code that takes nothing
+    /// and gives nothing back". Writing the braces straight after
+    /// `PlantFactCardView(factCard: ...)` is how one is handed over.
+    let onEdit: () -> Void
 
     /// How wide the names beside the rows of months are.
     private let nameWidth: CGFloat = 92
@@ -706,9 +791,25 @@ private struct PlantFactCardView: View {
         let longFacts = factCard.facts.filter(\.isLong)
 
         VStack(alignment: .leading, spacing: 12) {
-            Text(factCard.title)
-                .font(.headline)
-                .foregroundStyle(Theme.ink)
+            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                Text(factCard.title)
+                    .font(.headline)
+                    .foregroundStyle(Theme.ink)
+                Spacer(minLength: 8)
+                Button {
+                    onEdit()
+                } label: {
+                    Image(systemName: "pencil")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(Theme.leaf)
+                        // A larger area to press than the pencil itself.
+                        .frame(width: 30, height: 26)
+                        .contentShape(.rect)
+                }
+                .buttonStyle(.plain)
+                .help("Edit \(factCard.title)")
+                .accessibilityLabel("Edit \(factCard.title)")
+            }
 
             if !factCard.monthRows.isEmpty {
                 monthTable
@@ -789,7 +890,7 @@ private struct PlantFactCardView: View {
                         .font(.caption)
                         .foregroundStyle(Theme.inkSoft)
                         .frame(width: nameWidth, alignment: .leading)
-                    MonthStrip(months: monthRow.months, fill: tint(for: monthRow.kind))
+                    MonthStrip(months: monthRow.months, fill: monthRow.kind.tint)
                 }
                 // VoiceOver reads the months out by name.
                 .accessibilityElement(children: .ignore)
@@ -798,9 +899,16 @@ private struct PlantFactCardView: View {
         }
     }
 
-    /// The same colours as the Year page uses for the same things.
-    private func tint(for kind: PlantPage.MonthKind) -> Color {
-        switch kind {
+}
+
+extension PlantPage.MonthKind {
+    /// The colour for a row of months: the same colours as the Year
+    /// page uses for the same things. Shared by a plant's page and the
+    /// sheet that edits it. It lives here and not in PlantPage.swift
+    /// because that file has no screen code, and a colour is screen
+    /// code.
+    var tint: Color {
+        switch self {
         case .flowering: return Theme.flowering
         case .growth: return Theme.leaf
         case .fruiting, .harvest: return Theme.harvest

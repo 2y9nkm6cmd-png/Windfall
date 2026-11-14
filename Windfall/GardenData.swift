@@ -339,6 +339,9 @@ final class GardenDataImporter {
     struct Summary: Equatable {
         var plantsAdded = 0
         var plantsUpdated = 0
+        /// Facts the file would have changed that were left as they
+        /// are, because they had been changed in the app by hand.
+        var handChangesKept = 0
         var fauna = 0
         var links = 0
         var flowerShapes = 0
@@ -350,6 +353,10 @@ final class GardenDataImporter {
             var parts: [String] = []
             if plantsAdded > 0 { parts.append("\(plantsAdded) plants added") }
             if plantsUpdated > 0 { parts.append("\(plantsUpdated) plants updated") }
+            if handChangesKept > 0 {
+                parts.append(handChangesKept == 1 ? "1 fact you changed in the app was kept"
+                                                  : "\(handChangesKept) facts you changed in the app were kept")
+            }
             if fauna > 0 { parts.append("\(fauna) wildlife species") }
             if links > 0 { parts.append("\(links) plant and wildlife links") }
             if flowerShapes > 0 { parts.append("\(flowerShapes) flower shapes") }
@@ -382,6 +389,7 @@ final class GardenDataImporter {
                 let counts = try importPlants(plantTables, into: context)
                 summary.plantsAdded = counts.added
                 summary.plantsUpdated = counts.updated
+                summary.handChangesKept = counts.kept
                 summary.tablesRead += plantTables.count
             }
 
@@ -428,14 +436,21 @@ final class GardenDataImporter {
     /// Matching is on common name plus variety. A plant on two sheets,
     /// such as garlic, becomes ONE record listing both gardens, which is
     /// the whole point of keeping Plant separate from Planting.
+    ///
+    /// A fact that was changed in the app by hand is not replaced by the
+    /// file's. `kept` counts those. See PlantFacts.keepingHandChanges.
     private func importPlants(_ tables: [(GardenTableKind, GardenTable)],
-                              into context: ModelContext) throws -> (added: Int, updated: Int) {
+                              into context: ModelContext) throws -> (added: Int, updated: Int, kept: Int) {
         var index: [String: Plant] = [:]
         for plant in try context.fetch(FetchDescriptor<Plant>()) {
+            // A plant renamed in the app is still found by the name the
+            // file knows it by. The name it has now wins if both exist.
+            if let oldName = plant.importedAs, index[oldName] == nil { index[oldName] = plant }
             index[Self.key(plant.commonName, plant.variety)] = plant
         }
 
         var added = 0
+        var kept = 0
         var alreadyThere = Set<String>()
         for key in index.keys { alreadyThere.insert(key) }
         var touched = Set<String>()
@@ -456,13 +471,17 @@ final class GardenDataImporter {
                     added += 1
                 }
                 touched.insert(key)
-                apply(row, to: plant, kind: kind)
+                // The row is copied on to the record, and then anything
+                // that had been changed by hand is put back as it was.
+                kept += PlantFacts.keepingHandChanges(in: plant) {
+                    apply(row, to: plant, kind: kind)
+                }
             }
         }
         // "Updated" counts plants that were in the library before this
         // import and appear in the file, each counted once.
         let updated = touched.intersection(alreadyThere).count
-        return (added, updated)
+        return (added, updated, kept)
     }
 
     /// Copies one row onto a Plant.
@@ -470,6 +489,9 @@ final class GardenDataImporter {
     /// A value in the file replaces what is there. A blank in the file
     /// leaves the existing value alone, so the fuller permaculture record
     /// is not wiped by the sparser allotment one.
+    ///
+    /// This is not the last word: `importPlants` puts back any fact that
+    /// was changed in the app by hand.
     private func apply(_ row: DataRow, to plant: Plant, kind: GardenTableKind) {
 
         func fill(_ current: String?, _ new: String?) -> String? {
@@ -572,8 +594,10 @@ final class GardenDataImporter {
         plant.lastSyncedAt = .now
     }
 
+    /// The name a plant is matched by. Kept in PlantFacts.swift, because
+    /// the backup and the sheet that edits a plant need the same one.
     private static func key(_ name: String, _ variety: String?) -> String {
-        (name + "|" + (variety ?? "")).lowercased()
+        PlantFacts.libraryKey(name: name, variety: variety)
     }
 
     // MARK: Reference tables

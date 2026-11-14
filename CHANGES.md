@@ -7,6 +7,74 @@ run without the Mac (every file reads as valid Swift, 323 logic tests
 pass). Those do not build the screens. Expect things to put right when
 it is first built, and treat how everything here looks as untried.
 
+## 14 November 2026, 13:35: a plant's facts can be added and changed in the app
+
+**On the branch `plant-facts-edit`, made from `main` and merged back into it.** Built for the Mac and the iOS Simulator with no errors (`r41-mac.log`, `r41-sim.log`). 558 logic tests pass. Looked at running with the example garden on an iPad Air, a 13-inch iPad Pro and an iPhone, light and dark. The database check passed (`migrate-side.sh origin/main origin/plant-facts-edit m4`, 13:33: the version before made a database holding the full library in the iPad mini simulator, and this version opened it and listed its 376 plants).
+
+**Why.** William, on a plant's page: "It doesn't seem to show any way to add information about the plants either". He was right. Until now a plant's facts could only come in from the spreadsheet file. Nothing in the app could add one or put one right.
+
+**What you see.**
+
+1. **An Edit button** beside the plant's name, and **a pencil on every card**. Either opens the editing sheet. The pencil opens it at that card.
+2. **"Add information"**, a new card at the foot of the page. It lists the headings that have nothing under them yet (for the achillea: Growth Patterns, Human Management and Ecological Interactions), each a button that opens the sheet at that heading. Before, an empty heading was simply left off the page, so there was nowhere to start one.
+3. **The sheet** has one card for each heading, laid out like the page. Months are twelve buttons to switch on and off. A measurement has its unit beside the box, so only the figure is typed. The yes-or-no facts are boxes to tick. The grey words in an empty box begin "e.g." and are only examples.
+4. **Nothing is saved until Save.** The line under the title counts what has been changed. Cancel throws the changes away. Save is grey until something has changed.
+5. **The page now shows every fact that is filled in.** It used to show 49 of the 66 a record can hold. Now on the page where a plant has them: rootstock, pollination group, ploidy, root spread, time to full height, leaf size, colour and description, foliage pattern, flower and fruit size, fruit type, sowing temperature, sowing preference, whether it needs a propagator, maintenance propagation, and the type (Seeds, Plant, Scion) on the line above the name. A lone "*" or "?", which the spreadsheet uses as a marker, is not shown.
+
+**How it is built.**
+
+*One list of facts* (`PlantFacts.swift`, new). Four parts of the app go through a plant's facts one by one: the page, the sheet, the import and the backup. Each used to spell them out for itself, and they did not agree. Now the list is written once and all four use it. Two lines of it:
+
+```swift
+words("spacingM", "Spacing", .habits, \.spacingM, .measure("m"), hint: "0.35"),
+yesNo("isPollinator", "Pollinator plant", .permaculture, \.isPollinator),
+```
+
+Reading the first from left to right: the word the fact is filed under, what the page calls it, which card it is on, where it lives in the record, what kind of thing it is, and an example for the empty box.
+
+- `\.spacingM` is a **key path**: a way of naming a place in a record without reading it yet, like the label on a drawer. The helper `words` is handed the label and makes the two small pieces of code that open that drawer, one to read and one to write. That is what lets 66 facts be listed in 66 lines.
+- `.measure("m")` is one case of an `enum` that carries a value with it: this fact is a measurement, and its unit is "m".
+- A test reads the record's own list of stored values and fails if any is missing from this list, so a fact cannot be added to the record and forgotten here.
+
+*The sheet works on a copy* (`PlantEditView.swift`, new).
+
+```swift
+@State private var values: [String: String]
+...
+_values = State(initialValue: PlantFacts.values(of: plant))
+```
+
+- `[String: String]` is a **dictionary**: a set of pairs, here a fact's key and the text typed for it, such as "spacingM" and "0.4".
+- The copy is taken once, as the sheet opens. Every box reads and writes the copy, never the record.
+- A box needs a `Binding`, which is a pair of small pieces of code: one fetches the text, one stores what was typed. `typed("spacingM")` makes the pair for one fact.
+- Save calls `PlantFacts.save`, which compares the copy with the record, writes only what differs, and notes each fact it wrote as changed by hand.
+
+*The page is drawn from the same list* (`PlantPage.swift`). `cards(for:)` used to name each fact itself. It now walks the list, card by card, and puts each filled-in fact in the part of the card that suits its kind. The tests of the old page pass unchanged against the new one.
+
+**Keeping what you type safe.** This is most of the work, and none of it shows.
+
+- **Loading the spreadsheet file again does not undo your changes.** The import used to replace whatever was there with the file's value. Now a fact changed in the app is left as it is, and the import says so: "1 plant updated, 3 facts you changed in the app were kept." Facts you have not touched still come in from the file as before. (`Plant.changedByHand`, `PlantFacts.keepingHandChanges`.)
+- **A renamed plant is not added twice.** The file finds a plant by its name and variety. Change either here and the record keeps the old ones, so the file still finds it. (`Plant.importedAs`.)
+- **The backup now keeps every fact of a plant.** It kept eight: the names, group, three of the month rows and the notes. That did not matter while the rest could be loaded again from the spreadsheet. It matters now, because the backup is the only other copy of what you type. Backup files are now version 3, and older ones still restore.
+- **Restoring on a fresh copy of the app no longer doubles the library.** A fresh copy loads its own starter library, with ids of its own. The old restore did not recognise those plants as the backup's and added a second, nearly empty copy of each, with the sowings joined to the empty ones. It now matches by name and variety, joins sowings and crosses to the plant that is there, and carries over what was typed in the app.
+- **Two new values on a plant's record**, `changedByHand` and `importedAs`. The database check, run in the build chat's own copy of the code with the new script `migrate-side.sh`, confirmed that a database made by the version before opens in this one.
+
+**Found on the way and not fixed. ⚠️ CHECK, and say which you want.**
+
+- **The backup still leaves out four kinds of record you make in the app**: seed packets, flowering and fruiting dates, pest and disease records, and the corrections Eira keeps. Its heading says "a complete copy of everything", and it is not.
+- **Three columns of the spreadsheet are not read at all**: "Garden Area" (167 plants), "Date Planted/Grafted" (52 plants) and "Moisture" (7). The first two say where a plant is and when it went in, which is what a planting is. They could become plantings.
+- **There is still no way to add a plant that is not in the library, or to remove one.**
+- **Status** (growing, to buy, previously owned) is not in the sheet yet.
+
+**To check.**
+
+- The names Claude chose for facts the page did not show before: "Time to full height", "Maintenance propagation", "Needs a propagator", "Type".
+- Rootstock is on the "Sowing from Seed" card, beside Propagation, which is where the record keeps it. Say if it belongs elsewhere.
+- The line above the name now ends with the type: "Summer berries · Wildflower · Hardy perennial · Seeds".
+- **The Mac itself has not been looked at by Claude.** The two-column page was seen on a 13-inch iPad, which lays out the same way. The pencils, the Edit button and the size of the sheet on the Mac are untried.
+- Saving was seen working in the running app: five example changes typed into the sheet, saved, and shown on the page. Typing by hand and pressing the month buttons have not been tried by anyone.
+
+**Checking aids.** `-demoPlant Achillea -demoOpen plantEdit` opens the sheet, and `plantEditSowing` opens it at the sowing card. `-demoEdit "spacingM=0.4|notes=Cut back in March"` types changes into it, and `-demoEditSave YES` saves them, so a still can show the page afterwards.
 ## 14 November 2026, 13:33: one way of giving Eira a photo
 
 **On the branch `eira-photo-join`, made from `main` (`4bd75fc`). It joins `photo-drop` to `main`.** In its own copy of the code, `~/Developer/windfall-photojoin`. Builds for the Mac and the simulator with no errors (`pj1-mac.log`, `pj1-sim.log`). 551 logic tests pass, 2 of them new.
