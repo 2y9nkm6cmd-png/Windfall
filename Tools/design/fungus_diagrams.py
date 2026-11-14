@@ -74,7 +74,7 @@ def shelf(a, x, y, L, T, fill="tan", under="cream", zones=(), lobes=0):
     for zf, col in zones:
         zl = [(x, y + T * 0.5 * zf), (x + L * 0.36 * 1, y - T * 0.2 + T * 0.76 * zf), (x + L * (0.66 + 0.2 * zf), y + T * (0.0 + 0.46 * zf))]
         a.curve(zl, stroke=col, sw=1.5, so=0.8)
-    a.shade([(x + L * 0.55, y + T * 0.66), (x + L, y + T * 0.42), (x + L * 0.7, y + T * 0.86), (x + L * 0.35, y + T * 1.0), (x, y + T * 0.95), (x, y + T * 0.78)], 0.12)
+    a.shade([(x + L * 0.5, y + T * 0.7), (x + L * 0.96, y + T * 0.47), (x + L * 0.7, y + T * 0.84), (x + L * 0.35, y + T * 0.97), (x + 1.5, y + T * 0.92), (x + 1.5, y + T * 0.8)], 0.12, of=under)
 
 
 a = new("form-bracket"); a.trunk(6, 26)
@@ -383,7 +383,7 @@ def fan(name, kind):
         for pts in ([(26, 34), (40, 40), (60, 40), (74, 34)], [(32, 52), (44, 57), (58, 57), (68, 52)], [(40, 68), (50, 71), (60, 68)]):
             a.curve(pts, stroke=SHADE, sw=1.0, so=0.3)
         a.shine([(22, 30), (28, 44), (38, 58)], 0.35, 2)
-    a.shade([(64, 26), (88, 30), (80, 58), (62, 80), (52, 86), (62, 66), (68, 44)], 0.1)
+    a.shade(ellipse_pts(50, 22, 39.5, 62.5, 0, 16, 2, 78) + ellipse_pts(50, 22, 31, 54, 0, 16, 2, 78)[::-1], 0.12, of={"pores": "#F4E8C4", "gills": "cream", "smooth": "#E9B46A"}[kind])
 
 fan("under-pores", "pores"); fan("under-gills", "gills"); fan("under-smooth", "smooth")
 
@@ -433,7 +433,7 @@ for i in range(3):
     band = [(24, 22 + 52 * t), (24 + 22 * t + 6, 26 + 50 * t), (24 + 44 * t + 4, 40 + 36 * t + 2), (24 + 46 * t + 4, 74)]
     a.curve(band[:3] + [(band[3][0] + 1, 73)], sw=0.7)
 a.path("M24,74 L70,74 L66,80 L24,80 Z", "buff", sw=1.3)
-a.shade([(48, 34), (56, 42), (66, 58), (70, 74), (60, 74), (56, 56)], 0.14)
+a.shade([(48, 34), (56, 42), (66, 58), (70, 74), (60, 74), (56, 56)], 0.14, of="grey")
 
 # ====================================================== balls
 

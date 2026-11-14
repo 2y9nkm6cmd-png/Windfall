@@ -14,7 +14,7 @@ import math
 LINE = "#06472A"     # outline: swapped for pale green in dark mode by the build script
 SHADE = "#3A2A1E"    # shading, always used at low strength
 LW = 1.5        # the usual outline, before BOLD
-BOLD = 2.1      # every outline is drawn this many times heavier: the bold look of the flower shapes
+BOLD = 2.5      # every outline is drawn this many times heavier: the bold look of the flower shapes
 TINT = 1.7      # the same for coloured detail lines
 
 C = {
@@ -27,6 +27,15 @@ C = {
     "pore": "#E9D36A", "paper": "#FBF8F1", "paperdark": "#1E1C1B", "pinkprint": "#E08E8A", "rust": "#A9602C",
     "amber": "#E9A93A", "apricot": "#F0CFA0", "buff": "#E6CFA0", "coral": "#F0DFA6", "deepred": "#8E2B22", "jelly": "#F0B429", "ear": "#A8674A", "purple": "#5B3F63", "flesh": "#FBF4E2",
 }
+
+
+def darker(colour, by=0.13):
+    """The same colour, a tone deeper: what a shaded side is painted in."""
+    h = C.get(colour, colour).lstrip("#")
+    r, g, b = (int(h[i:i + 2], 16) for i in (0, 2, 4))
+    k = 1 - by * 1.25
+    # Blue is taken down a little more than red, which keeps the tone warm.
+    return "#%02X%02X%02X" % (round(r * k), round(g * (k - 0.01)), round(b * (k - 0.04)))
 
 
 def f(n):
@@ -81,9 +90,12 @@ SHAPES = {
 class Art:
     def __init__(s):
         s.o = []
+        s.last = None   # the colour of the last solid shape, so its shade can be a deeper tone of it
 
     # ----- basic marks -----
     def path(s, d, fill=None, stroke=LINE, sw=LW, so=1, fo=1):
+        if fill and fo == 1 and fill != SHADE:
+            s.last = fill
         a = f'<path d="{d}" fill="{C.get(fill, fill) if fill else "none"}"'
         if fill and fo != 1: a += f' fill-opacity="{fo}"'
         if stroke and sw:
@@ -114,8 +126,14 @@ class Art:
         if fo != 1: a += f' fill-opacity="{fo}"'
         s.o.append(a + "/>"); return s
 
-    def shade(s, pts, strength=0.16):
-        return s.path(pts_d(pts), SHADE, stroke=None, fo=min(0.42, strength * 1.75))
+    def shade(s, pts, strength=0.16, of=None):
+        """A shaded side, painted a deeper tone of the shape it lies on."""
+        base = of or s.last
+        if base is None:
+            return s.path(pts_d(pts), SHADE, stroke=None, fo=min(0.42, strength * 1.75))
+        keep = s.last
+        s.o.append(f'<path d="{pts_d(pts)}" fill="{darker(base, 0.1 + strength * 0.45)}" stroke="none"/>')
+        s.last = keep; return s
 
     def shine(s, pts, strength=0.55, sw=1.6):
         return s.path(smooth_d(pts), None, stroke="#FFFFFF", sw=sw * 1.15, so=min(0.85, strength + 0.2))
