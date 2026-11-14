@@ -7,6 +7,53 @@ run without the Mac (every file reads as valid Swift, 323 logic tests
 pass). Those do not build the screens. Expect things to put right when
 it is first built, and treat how everything here looks as untried.
 
+## 14 November 2026, midday: Eira identifies from a photo, and a page for testing the image models
+
+**On the branch `eira-identify`, made from `main`.** RESULTS_LINE
+
+**Why.** William asked: "Could you build the identification part of Eira now for integration in to the app and so I can test the models". Until now the Identify screen showed the image model's three closest names and nothing more, Eira's chat could not be given a photo at all, and only one image model could be installed at a time, so two could not be compared inside the app.
+
+**The idea in one line.** The image model only matches a photo to a list of names. Eira's judgement about that match is now a separate step, done by fixed rules with no model, so it behaves the same whichever image model is underneath.
+
+**What changed.**
+
+1. **Eira's judgement about a photo** (`EiraIdentify.swift`, new). `EiraIdentify.judge` takes the image model's answer and what Windfall knows, and hands back an `EiraIdentification`: a verdict, a headline, warnings, what the records say and the wording for the chat. Five rules:
+   - *A genus when the species is unclear.* If she cannot name a species but the closest names are two or more of one genus sharing 85% between them, she gives the genus: "A bumblebee (Bombus), species not certain". The everyday word comes from the English names where they all end the same way.
+   - *Look-alikes.* If the name is in a group that cannot be told apart from a photo (`SpeciesLookalikes.json`), she says "Buff-tailed Bumblebee or a look-alike", names the group and gives the reason. ⚠️ CHECK: that file was written by Claude from memory on 13 November. Every warning from it is marked "to check" on screen until the file's own `"checked": false` is changed to `true`.
+   - *The month.* The name is checked against UK records month by month (`SpeciesMonths.json`: iNaturalist's counts for 609 species, fetched on 13 November, real figures) and against the flight period in William's own wildlife list. Rarely recorded in that month, or outside his list's flight period, turns "probable" into "possible". **The month is the one the photo was taken in**, read from the photo's own date where it has one, and otherwise this month. ⚠️ CHECK: the levels are Claude's: under 2% of a species' records in the month is "not often", under 0.5% is "rarely".
+   - *The records.* Each name is looked up in the plant list, the wildlife list and past sightings: "It is in your plant list: Lavender, Hidcote", "You have recorded it 3 times, last on 12 November 2026, 2 of them confirmed". Names are compared by genus and species only, so a variety or an author's name does not stop a match.
+   - *Dangers.* A plant on a list of 19 dangerous ones (`PlantDangers`) brings a red warning if it is the first name or holds 2% or more of the model's belief, whatever was named first. Any of the carrot family as the first name brings the hemlock warning. This answers the photo of hemlock water-dropwort that was named as yellow iris at 87%. ⚠️ CHECK: the list is Claude's, from general knowledge. It is not a list of every poisonous plant.
+
+   None of it needs the screen or Apple's AI frameworks, so all of it is tested without a Mac: 40 new logic tests.
+
+2. **One card for the answer, used in two places** (`IdentifyCards.swift`, new). `IdentificationCard` draws the verdict, the warnings, the model's three closest names as bars and the lines from the records. The Identify screen uses it, and so does Eira's chat. The same file gathers what the rules need from the database (`IdentifyKnowledge.gathered`), runs the whole job (`EiraIdentify.identify`) and starts a sighting (`EiraIdentify.startSighting`).
+
+3. **A photo can be given to Eira in her chat** (`EiraChatView.swift`, `EiraConversation.swift`). A camera button beside the text box takes one from Photos or from a file. The photo joins the conversation as a message, and her answer is the card, with two buttons:
+   - *Add a sighting.* Starts an unconfirmed sighting with the photo. The name goes in as a suggestion (`provisionalID`), never as confirmed. When she was not sure, no name is written in at all. **This is the only thing here that saves, and only when the button is pressed.**
+   - *Ask Eira about it.* Sends "Tell me about …" to her text model with the species lookup run first. `send` gained a third setting, `about:`, so the lookup is given the scientific name and not the whole sentence.
+
+   Naming a photo does not use the text model, so it works where no text model can run. Her answer is also kept in the conversation as words, so the text model has it in front of it for a follow-up question. The photo itself is held only while the chat is open. It is saved when a sighting is started from it.
+
+4. **More than one image model can be installed** (`SpeciesEye.swift`). An image model is now any folder in the Models folder that holds a model, `uk_species.json` and `uk_species_rows_f16.bin`. An optional `eye.json` gives it a name to show and an order. Eira uses the one chosen on the test page, or the first in order. `SpeciesEye.shared` follows that choice, and `SpeciesEye(using:)` makes one tied to a particular model. Until now the folder had to be called `bioclip2` and the model file had one fixed name.
+   - Image models no longer appear in the list of text models Eira can talk with (`EiraModelLibrary.coreAIModelNames`). `bioclip2` had been offered there.
+   - A species in the list can carry where its name came from (`SpeciesEntry.source`). A name that came from a pot label says so on the card.
+
+5. **A page for testing the image models side by side** (`EyeTestView.swift`, new). Wildlife, Identify from a photo, "Test the image models". Choose up to 60 photos, run them through every installed model, then mark each photo with what it really is: one of the names given, a name typed in, or "not on the list". For each model it counts first answers right, right among the three, named outright and right, **named although not on its list**, and seconds a photo. "Use for Eira" chooses a model. "Copy the results" puts the whole test on the clipboard. "Keep my answers" saves each marked photo and its true name beside the Models folder, in `Photo answers`, where they can later be used to teach or test a model. Nothing is taught by the page itself.
+
+6. **The test run measures Eira's judgement too** (`SpeciesTestRun.swift`). After the model's own totals it now reports what she would have said for each photo and whether that was right, and lists every photo where the model's first answer was wrong and she still gave an answer. `-speciesEyeFolder <folder>` picks the model.
+
+**On the Mac.** `Models/bioclip2` holds BioCLIP 2.5 Huge (doc 30) and now has an `eye.json` naming it, order 1. A new folder, `Models/bioclip2-original`, holds BioCLIP 2 with the table made for it, order 2. The model there is a clone and takes no extra room.
+
+**Checking aids.** `-demoOpen identify -demoMatch YES` shows the Identify sheet on an example answer, as before, now judged against the example garden's real records. `-demoOpen eira-photo` opens Eira's chat on the same example.
+
+**Not done.**
+- "Add to the count": offering to add the insect to a FIT count that is under way.
+- Opening the plant's page or the species' page from the card.
+- A photo in a saved conversation. Reopened later, her answer shows as words without the photo or the card.
+- Dropping a photo on to the chat. Another chat is building drops for the journal (`photo-drop`), and its `PhotoFacts` reads a photo's date and place more fully than the month read here. The two should be joined when both are in `main`.
+- The rest of the chat screen is still in the old look.
+- An image model still cannot be added from inside the app, and the species list is still made on the Mac.
+
 ## 14 November 2026, late morning: telling Eira she is wrong
 
 **On the branch `eira-corrections`, made from `main`.** Built for the Mac and the simulator as r23, with no errors. 457 logic tests pass. Seen in the simulator in light and dark (`shots/corr-*.png` on the Mac). **Not yet tried by hand with a real model.**
