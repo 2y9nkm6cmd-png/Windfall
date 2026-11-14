@@ -832,6 +832,9 @@ struct SettingsView: View {
     /// The chosen folder's name. Kept here so the page redraws when it
     /// changes. PhotoStore holds the real setting.
     @State private var photoFolderName = PhotoStore.folderName
+    /// A checking aid: `-startSection more -demoCorner YES` opens the
+    /// corner drawing's preview at once, so a picture can be taken of it.
+    @State private var showsCornerPreview = UserDefaults.standard.bool(forKey: "demoCorner")
 
     var body: some View {
         Form {
@@ -887,6 +890,18 @@ struct SettingsView: View {
             }
 
             Section {
+                NavigationLink {
+                    CornerPreviewView()
+                } label: {
+                    Label("Corner drawing", systemImage: "leaf")
+                }
+            } header: {
+                Text("Today")
+            } footer: {
+                Text("The drawing at the top of Today changes with the month, the day and your garden's weather, and the bee from the app's icon comes to feed. Tap the drawing to call the bee. Open this to see every month and try the wind and the weather.")
+            }
+
+            Section {
                 Toggle("Plain background", isOn: $plainBackground)
                 Toggle("Plain fade between places", isOn: $plainTransitions)
             } header: {
@@ -901,6 +916,7 @@ struct SettingsView: View {
         }
         .navigationTitle("Settings")
         .paperScreen()
+        .navigationDestination(isPresented: $showsCornerPreview) { CornerPreviewView() }
         // Choosing the folder yourself is what gives the app permission
         // to write in it. See PhotoStore.swift.
         .fileImporter(isPresented: $isChoosingPhotoFolder, allowedContentTypes: [.folder]) { result in

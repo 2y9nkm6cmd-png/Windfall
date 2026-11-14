@@ -485,10 +485,25 @@ struct TodayView: View {
                     .foregroundStyle(Theme.ink)
             }
             Spacer()
-            BotanicalCorner()
+            // The living drawing: this month's plant, moving with the
+            // garden's own weather. Nothing needs setting up: with no
+            // weather yet it shows a light breeze on a fine day.
+            LivingCorner(cornerScene: cornerScene)
                 .frame(width: 150, height: 96)
                 .padding(.top, -6)
         }
+    }
+
+    /// What the corner drawing shows now: the month and the day from the
+    /// calendar, and the wind, rain and cold from the last weather
+    /// reading, if there is one. See CornerScene.swift.
+    private var cornerScene: CornerScene {
+        CornerScene.make(date: .now, calendar: .current,
+                         temperatureC: weather.current?.temperatureC,
+                         precipitationMM: weather.current?.precipitationMM,
+                         windSpeedKMH: weather.current?.windSpeedKMH,
+                         isNight: isNight)
+            .withCheckingAids()
     }
 
     // MARK: Conditions
