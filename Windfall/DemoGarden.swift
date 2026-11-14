@@ -57,7 +57,7 @@ enum DemoGarden {
 
     /// A checking aid: `-demoOpen sowing` opens the sowing form as soon
     /// as Today appears, so a still picture can be taken of it. Also
-    /// `harvest`, `worms`, `fit`, `sighting`, `identify` and `journal`.
+    /// `harvest`, `worms`, `fit`, `sighting`, `identify`, `photo` and `journal`.
     /// With `journal`, `-demoDraft "some words"` starts the box off with
     /// those words.
     ///
@@ -66,6 +66,17 @@ enum DemoGarden {
     /// `corrections` does the same and then opens the list of them.
     static var opens: String? {
         isRequested ? UserDefaults.standard.string(forKey: "demoOpen") : nil
+    }
+
+    /// A checking aid: `-demoPhoto /path/to/a/photo.jpg` hands that
+    /// photo to whatever `-demoOpen` opens: with `journal` it waits in
+    /// the conversation's box, with `identify` Eira looks at it, and
+    /// with `photo` the card that asks what to do with a photo opens.
+    /// It lets the photo's own date be checked in a still picture.
+    static var photos: [Data] {
+        guard isRequested, let path = UserDefaults.standard.string(forKey: "demoPhoto"),
+              let data = FileManager.default.contents(atPath: path) else { return [] }
+        return [data]
     }
 
     /// A checking aid: `-demoMatch YES` makes the Identify screen show a

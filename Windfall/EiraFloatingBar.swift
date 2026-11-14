@@ -18,9 +18,22 @@
 //  If "Reduce Motion" is switched on in the device's accessibility
 //  settings, it does none of this and simply opens.
 //
+//  Photos (14 November 2026). Eira can be given a photo: with the "+"
+//  beside her snowdrop, or by dragging one on to the bar. On the Journal
+//  page the photo starts a journal entry. Anywhere else a card asks what
+//  to do with it: say what it is, write about it or record a sighting
+//  (PhotoOffer.swift).
+//
+//  On the Journal page the bar is also where the journal is written. It
+//  stays open there, its grey words read "Tell Eira what happened in the
+//  garden", and a book button at its right-hand end opens the journal's
+//  conversation. Until 14 November the Journal page had a second bar of
+//  its own at the top for this, so Eira appeared twice on one page.
+//
 
 import SwiftUI
 import SwiftData
+import PhotosUI
 
 struct EiraFloatingBar: View {
 
@@ -50,6 +63,18 @@ struct EiraFloatingBar: View {
     /// Set when what was typed reads as something for the journal.
     @State private var journalRequest: BarRequest?
 
+    /// Set when a photo is given to Eira anywhere but the Journal page.
+    /// It opens the card that asks what to do with it.
+    @State private var photoRequest: BarRequest?
+    // The two ways of choosing a photo from the "+" button.
+    @State private var isChoosingFromPhotos = false
+    @State private var isChoosingFile = false
+    /// What was chosen in the Photos chooser. It hands over opaque
+    /// items, and the pictures are loaded from them a moment later.
+    @State private var pickedItems: [PhotosPickerItem] = []
+    /// True while photos are being held over the bar.
+    @State private var isDropTarget = false
+
     // @FocusState says whether the text box has the keyboard.
     @FocusState private var fieldHasFocus: Bool
 
@@ -57,11 +82,23 @@ struct EiraFloatingBar: View {
     private let rim: CGFloat = 5
     private var closedSize: CGFloat { symbolSize + rim * 2 }
 
-    private var expanded: Bool { isOpen || staysOpen }
+    /// True on the Journal page, where the bar is for telling Eira what
+    /// happened. See `EiraSight.isJournal`.
+    private var onJournal: Bool { screen?.current?.isJournal == true }
+
+    /// On the Journal page the bar is always open.
+    private var expanded: Bool { isOpen || staysOpen || onJournal }
 
     /// The grey words in the empty text box. When a plant, a bed or
     /// another single thing is open, they name it.
-    private var hint: String {
+    ///
+    /// - `isNarrow`: true on an iPhone, where the long words would be
+    ///   cut short, so shorter ones are used.
+    private func hint(isNarrow: Bool) -> String {
+        if isDropTarget {
+            return onJournal ? "Drop photos to start an entry" : "Drop a photo for Eira"
+        }
+        if onJournal { return isNarrow ? "Tell Eira" : "Tell Eira what happened in the garden" }
         if let short = screen?.current?.short {
             return "Ask Eira about \(short)"
         }
@@ -80,7 +117,9 @@ struct EiraFloatingBar: View {
                 symbolButton(travel: barWidth - closedSize)
 
                 if expanded {
-                    TextField(hint, text: $question)
+                    photoButton
+
+                    TextField(hint(isNarrow: barWidth < 430), text: $question)
                         .textFieldStyle(.plain)
                         .foregroundStyle(Theme.ink)
                         .focused($fieldHasFocus)
@@ -91,8 +130,16 @@ struct EiraFloatingBar: View {
                         }
                         .transition(.opacity)
 
-                    barButton(.search, label: "Search everything") { search() }
+                    // On the Journal page of an iPhone there is not room
+                    // for every button and the words as well, so search
+                    // gives way. Return still searches or asks.
+                    if !(onJournal && barWidth < 430) {
+                        barButton(.search, label: "Search everything") { search() }
+                    }
                     barButton(.microphone, label: "Open Eira to talk or type") { openEira(with: nil) }
+                    if onJournal {
+                        barButton(.journalEntry, label: "Write in the journal") { openJournal() }
+                    }
                 }
             }
             .padding(.leading, rim)
@@ -103,9 +150,58 @@ struct EiraFloatingBar: View {
             .frame(width: expanded ? max(barWidth - rebound, closedSize) : closedSize,
                    height: closedSize, alignment: .leading)
             .glassEffect(.regular.interactive(), in: .capsule)
+            // While photos are held over the bar, a dashed line round it
+            // shows that it will take them.
+            .overlay {
+                if isDropTarget {
+                    Capsule()
+                        .strokeBorder(Theme.leaf, style: StrokeStyle(lineWidth: 2.5, dash: [8, 6]))
+                        .allowsHitTesting(false)
+                }
+            }
+            // Photos dragged on to the bar. The bar itself is the target,
+            // not the empty strip beside it, which has to go on letting
+            // taps through to the page underneath.
+            .onDrop(of: PhotoDrop.kinds, isTargeted: $isDropTarget) { providers in
+                guard PhotoDrop.mayHold(providers) else { return false }
+                Task { takePhotos(await PhotoDrop.pictures(from: providers)) }
+                return true
+            }
             .frame(maxWidth: .infinity, alignment: .trailing)
         }
         .frame(height: closedSize)
+        // The two choosers behind the "+" button.
+        .photosPicker(isPresented: $isChoosingFromPhotos, selection: $pickedItems,
+                      maxSelectionCount: 10, matching: .images)
+        .onChange(of: pickedItems) { _, items in
+            guard !items.isEmpty else { return }
+            Task {
+                var pictures: [Data] = []
+                for item in items {
+                    if let data = try? await item.loadTransferable(type: Data.self) { pictures.append(data) }
+                }
+                pickedItems = []
+                takePhotos(pictures)
+            }
+        }
+        .fileImporter(isPresented: $isChoosingFile, allowedContentTypes: [.image],
+                      allowsMultipleSelection: true) { result in
+            guard case .success(let urls) = result else { return }
+            var pictures: [Data] = []
+            for url in urls {
+                // Leave to read a file chosen in a file window lasts
+                // only between these two calls.
+                let hasLeave = url.startAccessingSecurityScopedResource()
+                if let data = try? Data(contentsOf: url) { pictures.append(data) }
+                if hasLeave { url.stopAccessingSecurityScopedResource() }
+            }
+            takePhotos(pictures)
+        }
+        // A photo given to Eira away from the Journal page: she asks
+        // what to do with it.
+        .sheet(item: $photoRequest) { request in
+            PhotoOfferSheet(photos: request.photos)
+        }
         .sheet(item: $eiraRequest) { request in
             NavigationStack {
                 EiraChatView(openingQuestion: request.text.isEmpty ? nil : request.text,
@@ -121,7 +217,10 @@ struct EiraFloatingBar: View {
         // Something told to Eira, and not asked of her, goes to the
         // journal's conversation with the words ready to send.
         .sheet(item: $journalRequest) { request in
-            JournalChatView(draft: request.text, cameFromEirasBar: true) { asked in
+            // Eira only says "that reads like one for the journal" when
+            // words were typed and no photos came with them.
+            JournalChatView(draft: request.text, photos: request.photos,
+                            cameFromEirasBar: !request.text.isEmpty && request.photos.isEmpty) { asked in
                 // "Ask Eira instead": hand the same words to her chat.
                 // One sheet has to be gone before the next can open, so
                 // her chat follows a moment after the journal closes.
@@ -185,6 +284,39 @@ struct EiraFloatingBar: View {
         }
     }
 
+    /// The "+" beside the snowdrop: give Eira a photo.
+    ///
+    /// A `Menu` is a button that opens a short list of choices. Here
+    /// there are two, because photos live in two places: the Photos
+    /// library, and ordinary files, which on a Mac is often where they
+    /// are.
+    private var photoButton: some View {
+        Menu {
+            Button {
+                isChoosingFromPhotos = true
+            } label: {
+                Label("From Photos", systemImage: "photo.on.rectangle")
+            }
+            Button {
+                isChoosingFile = true
+            } label: {
+                Label("From a file", systemImage: "folder")
+            }
+        } label: {
+            WIconView(.add, size: 20)
+                .foregroundStyle(Theme.leaf)
+                .frame(width: 30, height: 44)
+                .contentShape(.rect)
+        }
+        .buttonStyle(.plain)
+        // No little arrow beside it. The plus says enough.
+        .menuIndicator(.hidden)
+        .fixedSize()
+        .accessibilityLabel(onJournal ? "Add photos to the journal" : "Give Eira a photo")
+        .help(onJournal ? "Add photos to the journal" : "Give Eira a photo")
+        .transition(.opacity)
+    }
+
     private func barButton(_ icon: WIcon, label: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             WIconView(icon, size: 22)
@@ -201,9 +333,10 @@ struct EiraFloatingBar: View {
     // MARK: Opening and closing
 
     private func toggle(travel: CGFloat) {
-        if staysOpen {
-            // The bar is pinned open, so the snowdrop just hands the
-            // keyboard to the text box.
+        if staysOpen || onJournal {
+            // The bar is pinned open, or is on the Journal page where it
+            // is always open, so the snowdrop just hands the keyboard to
+            // the text box.
             fieldHasFocus = true
             return
         }
@@ -309,7 +442,12 @@ struct EiraFloatingBar: View {
         // put the sowing on record. The rule is in JournalChat.swift.
         // (Until 13 November 2026 it went to her ordinary chat, which
         // looked for a record of it and found none.)
-        if JournalChat.readsAsTelling(text) {
+        //
+        // On the Journal page the doubt runs the other way. The bar says
+        // "Tell Eira what happened", so whatever is typed is an entry
+        // unless it plainly asks something.
+        let isForJournal = onJournal ? !JournalChat.readsAsAsking(text) : JournalChat.readsAsTelling(text)
+        if isForJournal {
             journalRequest = BarRequest(text: text, lookingAt: screen?.current?.full)
             question = ""
             return
@@ -331,6 +469,28 @@ struct EiraFloatingBar: View {
         searchRequest = BarRequest(text: question.trimmingCharacters(in: .whitespacesAndNewlines))
         question = ""
     }
+
+    /// The book button on the Journal page: opens the journal's
+    /// conversation, with whatever has been typed so far in its box.
+    private func openJournal() {
+        journalRequest = BarRequest(text: question.trimmingCharacters(in: .whitespacesAndNewlines),
+                                    lookingAt: screen?.current?.full)
+        question = ""
+    }
+
+    /// Photos have been given to Eira: chosen with the "+" or dropped on
+    /// the bar. Every way in ends here, so they all behave alike.
+    private func takePhotos(_ pictures: [Data]) {
+        guard !pictures.isEmpty else { return }
+        if onJournal {
+            // Straight into an entry, with any words already typed.
+            journalRequest = BarRequest(text: question.trimmingCharacters(in: .whitespacesAndNewlines),
+                                        lookingAt: screen?.current?.full, photos: pictures)
+            question = ""
+        } else {
+            photoRequest = BarRequest(text: "", photos: pictures)
+        }
+    }
 }
 
 /// What was typed into the bar, handed to the sheet that opens.
@@ -341,6 +501,8 @@ struct BarRequest: Identifiable {
     /// What was open on screen when the words were sent. Only Eira's chat
     /// uses it. See EiraScreen.
     var lookingAt: String? = nil
+    /// Photos given with the words, each as its file's own bytes.
+    var photos: [Data] = []
 }
 
 // MARK: - Telling Eira what is on screen
@@ -352,8 +514,11 @@ extension View {
     /// `full` is the phrase she is given: "the plant Apple, Spartan".
     /// `short`, when there is one, also goes in the hint in her bar:
     /// "Ask Eira about Apple, Spartan".
-    func eiraLooksAt(_ full: String, short: String? = nil) -> some View {
-        modifier(EiraLooksAt(sight: EiraSight(short: short, full: full)))
+    ///
+    /// `isJournal` is true only for the Journal page, where the bar is
+    /// for telling Eira what happened.
+    func eiraLooksAt(_ full: String, short: String? = nil, isJournal: Bool = false) -> some View {
+        modifier(EiraLooksAt(sight: EiraSight(short: short, full: full, isJournal: isJournal)))
     }
 }
 

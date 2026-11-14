@@ -35,6 +35,13 @@ import AppKit
 
 // MARK: - Timeline
 
+/// Photos dropped on the Journal page, on their way to the journal's
+/// conversation. `Identifiable` lets SwiftUI tell one drop from the next.
+private struct JournalStart: Identifiable {
+    let id = UUID()
+    let photos: [Data]
+}
+
 /// The Journal page: every day that has anything in it, newest first,
 /// each as a card. A day's card holds what was written that day and
 /// what was recorded: sowings, harvests, sightings and counts.
@@ -60,8 +67,11 @@ struct JournalTimelineView: View {
     private var weatherDays: [WeatherDay]
 
     @State private var kinds: Set<TimelineKind> = Set(TimelineKind.allCases)
-    /// True while the conversation for writing in the journal is open.
-    @State private var isWriting = false
+    /// Set when photos are dropped on the page. It opens the journal's
+    /// conversation with those photos in its box.
+    @State private var droppedStart: JournalStart?
+    /// True while photos are being held over the page.
+    @State private var isDropTarget = false
 
     /// Everything of every kind, whatever the filter says. The counts
     /// beside each kind are made from this.
@@ -83,7 +93,6 @@ struct JournalTimelineView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
                     ScreenHeader(title: "Journal", detail: summary(of: everything))
-                    writeBar
 
                     if isWide {
                         // Days on the left, what to show on the right.
@@ -109,9 +118,28 @@ struct JournalTimelineView: View {
         // The page has its own title, as Today does.
         .toolbar(.hidden, for: .navigationBar)
         #endif
+        // Photos dragged on to the page start an entry. `isTargeted`
+        // is switched on by SwiftUI while something is held over the
+        // page, which is when the dashed outline is drawn.
+        .onDrop(of: PhotoDrop.kinds, isTargeted: $isDropTarget) { providers in
+            guard PhotoDrop.mayHold(providers) else { return false }
+            Task {
+                let pictures = await PhotoDrop.pictures(from: providers)
+                if !pictures.isEmpty { droppedStart = JournalStart(photos: pictures) }
+            }
+            return true
+        }
+        .overlay {
+            if isDropTarget {
+                PhotoDropOutline(words: "Drop to start a journal entry")
+            }
+        }
         // Writing is a conversation with Eira (JournalChatView.swift).
-        .sheet(isPresented: $isWriting) {
-            JournalChatView()
+        // It is opened from her bar at the foot of the page, which on
+        // this page reads "Tell Eira what happened in the garden", or
+        // by dropping photos here.
+        .sheet(item: $droppedStart) { start in
+            JournalChatView(photos: start.photos)
         }
     }
 
@@ -124,34 +152,6 @@ struct JournalTimelineView: View {
         let entries = thisYear.filter { $0.kind == .diary }.count
         let records = thisYear.count - entries
         return "\(entries) \(entries == 1 ? "entry" : "entries") and \(records) \(records == 1 ? "record" : "records") this year"
-    }
-
-    // MARK: Writing
-
-    /// A bar that looks like Eira's and opens the journal's conversation.
-    /// It is a button, not a box to type in: the typing happens in the
-    /// conversation, where the time and the weather are noted with it.
-    private var writeBar: some View {
-        Button {
-            isWriting = true
-        } label: {
-            HStack(spacing: 12) {
-                EiraSymbol(size: 34)
-                Text("Tell Eira what happened in the garden")
-                    .font(.subheadline)
-                    .foregroundStyle(Theme.inkSoft)
-                Spacer(minLength: 8)
-                WIconView(.journalEntry, size: 22)
-                    .foregroundStyle(Theme.leaf)
-            }
-            .padding(.leading, 8)
-            .padding(.trailing, 16)
-            .frame(height: 50)
-            .contentShape(.capsule)
-        }
-        .buttonStyle(.plain)
-        .glassEffect(.regular.interactive(), in: .capsule)
-        .accessibilityLabel("Write in the journal")
     }
 
     // MARK: Choosing what is shown
@@ -244,7 +244,7 @@ struct JournalTimelineView: View {
         VStack(alignment: .leading, spacing: 14) {
             if months.isEmpty {
                 Text(isEmpty
-                     ? "Nothing recorded yet. Entries, sowings, harvests and sightings all appear here together, a day to a card."
+                     ? "Nothing recorded yet. Tell Eira what happened in the bar below, or drop photos on this page. Entries, sowings, harvests and sightings all appear here together, a day to a card."
                      : "Nothing of the kinds chosen. Tick more under Show.")
                     .font(.subheadline)
                     .foregroundStyle(Theme.inkSoft)

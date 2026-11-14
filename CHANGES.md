@@ -7,6 +7,60 @@ run without the Mac (every file reads as valid Swift, 323 logic tests
 pass). Those do not build the screens. Expect things to put right when
 it is first built, and treat how everything here looks as untried.
 
+## 14 November 2026, midday: giving Eira a photo
+
+**On the branch `photo-drop`, made from `main` (`98fd66c`), in its own copy of the code at `~/Developer/windfall-photo-drop`,** because another chat was working in the main copy. Built for the Mac and the simulator as `pd4`, with no errors. 471 logic tests pass (14 new). Seen in the simulator as still pictures (`shots/pd-*.png`). **Nothing has been dragged by hand.** A drag cannot be made from a script, so the drop itself, the "+" menu and the photo folder are William's to try.
+
+**Why.** William, with a picture of three photos held over the Journal page: "the journal part of windfall doesn't let you just drag photos over to it to start an entry. Also on the journal page Eira appears twice". Then: "eira has a photo button on it so that you can start with uploading a photo", and "Store the photos on icloud for now until we get cloudkit up and running."
+
+**What changed.**
+
+1. **A photo's own date and place are read** (new file `PhotoFacts.swift`).
+   - A camera writes notes into each photo's file (EXIF): when the shutter was pressed and, on a phone, where. `PhotoFacts.read(from:)` opens the file with ImageIO, Apple's reader for picture files, and pulls those out. The picture itself is not decoded, so it is quick.
+   - The camera writes a date as "2026:11:11 14:02:33", with its distance from Greenwich beside it ("+01:00") on a phone. `PhotoFacts.date(written:offset:zone:)` turns that into a date. A date before 1990 is refused: it is what a camera whose clock was never set writes.
+   - A position is kept only whole, and nought north, nought east is refused as an unset GPS.
+   - A screenshot or a picture saved from the web has no such notes. Nothing is guessed for it.
+   - The first half of the file needs nothing from Apple, so it is in `logic-files.txt` and tested.
+
+2. **Eira asks which day an entry with photos is about** (`JournalChat.photoCheck`, and the card in `JournalChatView.swift`).
+   - *The rule.* Photos from the last hour ask nothing. Otherwise each day with photos is offered, newest first, at the time of that day's last photo, then "Now". A photo dated in the future is ignored. No more than four days.
+   - *The card is the time check's card.* `checkCard` used to be drawn from the words' question only. It is now drawn from a question and a list of choices (`CheckChoice`), so the photos' question and the "this morning" question look and work alike. The photos' question is put first where both arise: it is the firmer evidence.
+   - *The photo keeps its own time* (`Photo.capturedAt`) whichever time the entry is stamped with. Its place goes into `Photo.latitude` and `longitude`, which were there and unused.
+
+3. **Photos can be dragged in at three places**, all read by one function (new file `PhotoDrop.swift`).
+   - The Journal page: a dashed outline says "Drop to start a journal entry" and the journal's conversation opens with the photos in its box.
+   - Eira's bar, on any page.
+   - The Identify screen: Eira looks at the photo at once.
+   - *How a drop arrives.* SwiftUI hands over an "item provider" for each thing dropped, a promise to supply it a moment later. A photo dragged from Finder arrives as the file's address, one from Photos as the picture. `PhotoDrop.pictures(from:)` tries the file first, which gives the photo exactly as the camera saved it, notes and all. The journal's own sheet took drops before, but only as pictures, so a file from Finder may not have worked there. It now uses the same reader.
+
+4. **Eira's bar has a "+" beside her snowdrop** (`EiraFloatingBar.swift`): "From Photos" or "From a file". **Taking a photo with the camera is not built**: the app has no camera code or permission yet.
+
+5. **The Journal page has one Eira, not two.** Its own "Tell Eira what happened in the garden" bar at the top is gone. On that page Eira's bar at the foot is always open, carries those words (on an iPhone, where there is room for two words, "Tell Eira"), and has a book button at its right-hand end that opens the journal's conversation. A screen says it is the journal with `eiraLooksAt(..., isJournal: true)`.
+   - *What is typed there is an entry unless it plainly asks* (`JournalChat.readsAsAsking`, tested): a question mark, an asking word ("when", "show", "wonder") or one word alone goes to Eira or to search. Everywhere else the old, cautious rule stands (`readsAsTelling`).
+   - On an iPhone's Journal page the search button gives way to make room. Return still searches or asks.
+
+6. **Away from the Journal page, Eira asks what to do with a photo** (new file `PhotoOffer.swift`): **What is this?** (the Identify screen, which looks at once), **Journal entry** or **Sighting** (a new sighting with the photos attached, dated when the earliest was taken). The card and the three things it leads to share one sheet. Nothing is saved by choosing.
+
+7. **A sighting started from the Identify screen is dated when its photo was taken**, and the screen says so under the photo.
+
+8. **Originals can be kept in a folder in iCloud Drive** (new file `PhotoStore.swift`, and a "Photos" section in Settings).
+   - Choose a folder in Settings. From then on the original of each new photo is written there as a file, in a folder for each year, named with the time it was taken and the first eight characters of its record's label: `2026/2026-11-11 14.02.33 3F2A9C1E.heic`. The app keeps a copy no more than 2048 points on its longer side, and the small one for lists.
+   - *Why a folder you choose.* Choosing it yourself is what gives the app permission to write there, on a Mac, an iPad or an iPhone, with no paid Apple developer membership. The app remembers it with a "bookmark".
+   - *Nothing new is stored in a photo's record.* The file is found again from the record's own time and label. So the database is unchanged, and `migrate-test.sh` was not needed.
+   - With no folder chosen, everything is as before. Nothing is written while the example garden is showing.
+   - **Not done:** moving photos already in the app out to the folder, showing an original at full size, and fetching one that iCloud has not downloaded.
+
+**Every place that keeps a new photo now goes through `Photo.record(of:)`** (in `PhotoDrop.swift`): the journal's conversation, the Identify screen and the new sighting offer. Two older places still make a photo by hand and do not read its date or use the folder: the old diary form (`JournalViews.swift`) and the sighting form's own photo button (`ObservationViews.swift`).
+
+**Checking aids** (with `-demoGarden`): `-demoPhoto /path/to/photo.jpg` hands that photo to whatever `-demoOpen` opens. `-demoOpen journal` shows it waiting in the conversation with the day question, `-demoOpen identify` on the Identify screen, and the new `-demoOpen photo` opens the card of three offers. Two test photos with dates written in are in `windfall-build-logs/photo-drop-test`.
+
+**To check by hand.** ⚠️ CHECK each of these on the Mac:
+- Dragging photos from Finder and from Photos on to the Journal page, Eira's bar and the Identify screen.
+- That a HEIC photo from an iPhone gives its date (the reader was tried on JPEG test photos).
+- The "+" menu's look on the Mac. It has only been seen on an iPad.
+- The Photos section in Settings and choosing a folder. It builds and has not been seen.
+- Whether photos chosen "From Photos" keep their date. Apple's chooser may hand over a copy without the camera's notes.
+
 ## 14 November 2026, late morning: telling Eira she is wrong
 
 **On the branch `eira-corrections`, made from `main`.** Built for the Mac and the simulator as r23, with no errors. 457 logic tests pass. Seen in the simulator in light and dark (`shots/corr-*.png` on the Mac). **Not yet tried by hand with a real model.**

@@ -164,6 +164,7 @@ struct TodayView: View {
         case "fit": startSurvey(.fitCount)
         case "sighting": startSighting()
         case "identify": sheet = .identify
+        case "photo": sheet = .photoOffer
         case "journal": startNote(draft: UserDefaults.standard.string(forKey: "demoDraft") ?? "")
         default: break
         }
@@ -701,6 +702,10 @@ struct TodayView: View {
         sheet = .journal(draft)
     }
 
+    /// A photo handed in by a checking aid, `-demoPhoto`. Empty in
+    /// ordinary use. See `DemoGarden.photos`.
+    private var checkingPhotos: [Data] { DemoGarden.photos }
+
     @ViewBuilder
     private func captureForm(for sheet: CaptureSheet) -> some View {
         switch sheet {
@@ -712,7 +717,9 @@ struct TodayView: View {
             HarvestPicker()
         case .identify:
             // Built from SheetPage, which sets its own size on a Mac.
-            IdentifyView(inSheet: true)
+            IdentifyView(inSheet: true, startingPhoto: checkingPhotos.first)
+        case .photoOffer:
+            PhotoOfferSheet(photos: checkingPhotos)
         case .newSighting(let observation):
             // The form brings its own title and buttons (SheetPage).
             ObservationEditor(observation: observation, isNew: true)
@@ -721,7 +728,7 @@ struct TodayView: View {
         case .survey(let survey):
             RunSurveyView(survey: survey)
         case .journal(let draft):
-            JournalChatView(draft: draft)
+            JournalChatView(draft: draft, photos: checkingPhotos)
         }
     }
 
@@ -1362,6 +1369,9 @@ private struct DragLabel: View {
 /// one from the next when it shows them as sheets.
 enum CaptureSheet: Identifiable {
     case sowing, harvest, identify
+    /// The card that asks what to do with a photo. Only opened from
+    /// here by a checking aid. See `DemoGarden.photos`.
+    case photoOffer
     case newSighting(WildlifeObservation)
     case sighting(WildlifeObservation)
     case survey(Survey)
@@ -1373,6 +1383,7 @@ enum CaptureSheet: Identifiable {
         case .sowing: return "sowing"
         case .harvest: return "harvest"
         case .identify: return "identify"
+        case .photoOffer: return "photo-offer"
         case .newSighting(let observation): return "new-sighting-\(observation.id)"
         case .sighting(let observation): return "sighting-\(observation.id)"
         case .survey(let survey): return "survey-\(survey.id)"

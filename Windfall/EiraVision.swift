@@ -73,6 +73,13 @@ struct IdentifyView: View {
     /// True when it is shown as a sheet, from Today. False when it is a
     /// page pushed on from the Wildlife page, which has its own way back.
     var inSheet = false
+    /// A photo to begin with, as its file's own bytes: one given to Eira
+    /// with her "+" button or dropped on her bar. She looks at it as
+    /// soon as the screen opens.
+    var startingPhoto: Data? = nil
+    /// How many more photos came with it. She looks at one at a time,
+    /// and says so.
+    var photosLeftOut = 0
 
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
@@ -80,6 +87,16 @@ struct IdentifyView: View {
     @State private var pickerItem: PhotosPickerItem?
     @State private var isChoosingFile = false
     @State private var imageData: Data?
+    /// The photo as it came, before it was made smaller. Kept so that
+    /// the original can go to the photo folder if a sighting is started.
+    @State private var originalData: Data?
+    /// When and where the photo was taken, read from its file before it
+    /// is made smaller. Making it smaller loses the camera's notes.
+    @State private var facts = PhotoFacts()
+    /// True once the starting photo has been taken in, so it happens once.
+    @State private var hasTakenStartingPhoto = false
+    /// True while a photo is being held over the screen.
+    @State private var isDropTarget = false
     /// What the model made of the photo.
     @State private var guess: SpeciesGuess?
     @State private var isWorking = false
@@ -153,7 +170,27 @@ struct IdentifyView: View {
             defer { if hasLeave { url.stopAccessingSecurityScopedResource() } }
             if let data = try? Data(contentsOf: url) { take(data) }
         }
+        // A photo dragged on to the screen is looked at straight away.
+        .onDrop(of: PhotoDrop.kinds, isTargeted: $isDropTarget) { providers in
+            guard PhotoDrop.mayHold(providers) else { return false }
+            Task {
+                guard let first = await PhotoDrop.pictures(from: providers).first else { return }
+                take(first)
+                await identify()
+            }
+            return true
+        }
+        .overlay {
+            if isDropTarget {
+                PhotoDropOutline(words: "Drop a photo to ask what it is")
+            }
+        }
         .task {
+            if let startingPhoto, !hasTakenStartingPhoto {
+                hasTakenStartingPhoto = true
+                take(startingPhoto)
+                if !DemoGarden.showsExampleMatch { await identify() }
+            }
             // A checking aid: an example answer, so the cards can be
             // looked at where the model cannot run. See DemoGarden.
             if DemoGarden.showsExampleMatch { guess = IdentifyView.exampleMatch }
@@ -171,6 +208,18 @@ struct IdentifyView: View {
                     .scaledToFit()
                     .frame(maxWidth: .infinity, maxHeight: 280)
                     .clipShape(RoundedRectangle(cornerRadius: 14))
+            }
+            // The photo's own date, where it has one and it was not
+            // taken just now.
+            if facts.wasTakenEarlier(than: .now), let taken = facts.taken {
+                Text("Taken \(taken.formatted(.dateTime.weekday(.wide).day().month(.wide).hour().minute())). A sighting started from this is dated then.")
+                    .font(.caption)
+                    .foregroundStyle(Theme.inkSoft)
+            }
+            if photosLeftOut > 0 {
+                Text("This is the first of \(photosLeftOut + 1) photos. Eira looks at one at a time.")
+                    .font(.caption)
+                    .foregroundStyle(Theme.inkSoft)
             }
             HStack(spacing: 10) {
                 PhotosPicker(selection: $pickerItem, matching: .images) {
@@ -248,6 +297,9 @@ struct IdentifyView: View {
     /// side. That is plenty to identify from and to keep with a
     /// sighting, and a fraction of the size of the original.
     private func take(_ data: Data) {
+        // Read the date and place first, from the photo as it came.
+        facts = PhotoFacts.read(from: data)
+        originalData = data
         imageData = DiaryEntryEditor.thumbnail(from: data, maxDimension: 1024) ?? data
         guess = nil
         error = nil
@@ -280,6 +332,11 @@ struct IdentifyView: View {
     private func createObservation() {
         let observation = WildlifeObservation()
         observation.recorderName = UserDefaults.standard.string(forKey: "recorderName")
+        // It was seen when the photo was taken, not when the photo was
+        // brought in here.
+        if facts.wasTakenEarlier(than: .now), let taken = facts.taken {
+            observation.observedAt = taken
+        }
         if let guess, let top = guess.likeliest {
             let closest = guess.candidates
                 .map { "\($0.entry.title), \($0.percent)" }
@@ -300,9 +357,13 @@ struct IdentifyView: View {
         }
 
         if let imageData {
-            let photo = Photo()
-            photo.imageData = imageData
-            photo.thumbnailData = DiaryEntryEditor.thumbnail(from: imageData)
+            // `imageData` is the smaller copy, which has lost the
+            // camera's notes, so the facts read earlier are handed in.
+            // The original goes to the photo folder if there is one.
+            // If there is not, the smaller copy is what is kept, as
+            // before.
+            let photo = Photo.record(of: originalData ?? imageData, facts: facts, smallerCopy: imageData,
+                                     otherwiseAt: observation.observedAt)
             photo.observation = observation
             observation.photos = [photo]
         }

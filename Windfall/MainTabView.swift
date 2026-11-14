@@ -13,6 +13,7 @@
 //
 
 import SwiftUI
+import UniformTypeIdentifiers
 import SwiftData
 #if os(macOS)
 import AppKit
@@ -184,7 +185,7 @@ struct MainTabView: View {
             // a screen push another on top and offer a way back.
             NavigationStack {
                 screen(for: selection)
-                    .eiraLooksAt(selection.eiraPhrase)
+                    .eiraLooksAt(selection.eiraPhrase, isJournal: selection == .journal)
             }
             // A new identity for each place gives it a fresh stack, so
             // the "back" trail from one never leaks into another.
@@ -244,7 +245,7 @@ struct MainTabView: View {
                 Tab(section.title, image: "Icons/\(section.icon.rawValue)", value: section) {
                     NavigationStack {
                         screen(for: section)
-                            .eiraLooksAt(section.eiraPhrase)
+                            .eiraLooksAt(section.eiraPhrase, isJournal: section == .journal)
                     }
                     .safeAreaInset(edge: .bottom, spacing: 0) {
                         EiraFloatingBar()
@@ -820,6 +821,12 @@ struct SettingsView: View {
     /// whole window. Remembered between visits.
     @AppStorage("sidebarIsHidden") private var sidebarIsHidden = false
 
+    /// True while the window for choosing the photo folder is open.
+    @State private var isChoosingPhotoFolder = false
+    /// The chosen folder's name. Kept here so the page redraws when it
+    /// changes. PhotoStore holds the real setting.
+    @State private var photoFolderName = PhotoStore.folderName
+
     var body: some View {
         Form {
             Section {
@@ -857,6 +864,23 @@ struct SettingsView: View {
             }
 
             Section {
+                LabeledContent("Photo folder", value: photoFolderName ?? "Not chosen")
+                Button(photoFolderName == nil ? "Choose a folder…" : "Choose another folder…") {
+                    isChoosingPhotoFolder = true
+                }
+                if photoFolderName != nil {
+                    Button("Stop using this folder", role: .destructive) {
+                        PhotoStore.forget()
+                        photoFolderName = nil
+                    }
+                }
+            } header: {
+                Text("Photos")
+            } footer: {
+                Text("Choose a folder in iCloud Drive and the original of every photo you add is kept there as a file, in a folder for each year, where your other devices can reach it. The app keeps a smaller copy to show. With no folder chosen, originals are kept inside the app on this device only. Photos added before a folder was chosen stay where they are.")
+            }
+
+            Section {
                 Toggle("Plain background", isOn: $plainBackground)
                 Toggle("Plain fade between places", isOn: $plainTransitions)
             } header: {
@@ -871,5 +895,11 @@ struct SettingsView: View {
         }
         .navigationTitle("Settings")
         .paperScreen()
+        // Choosing the folder yourself is what gives the app permission
+        // to write in it. See PhotoStore.swift.
+        .fileImporter(isPresented: $isChoosingPhotoFolder, allowedContentTypes: [.folder]) { result in
+            guard case .success(let url) = result else { return }
+            if PhotoStore.choose(url) { photoFolderName = PhotoStore.folderName }
+        }
     }
 }
