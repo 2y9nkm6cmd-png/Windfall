@@ -60,15 +60,14 @@ William, 22:03: "I'd like it saved into photos as well. you should be able to tu
 
 ## To check on a device
 
-6. The first photo asks to add to Photos, and the photo then appears in the Photos app with its place on the map.
-7. With the Settings switch off, no copy appears in Photos.
-8. A photo taken within a second or two of opening the camera: does it have a position?
-
 1. The first "Take a photo" asks for the camera, with Windfall's sentence.
 2. A portrait photo and a landscape photo both arrive the right way up.
 3. On the Journal page the photo starts an entry and no "which day" card appears, since it was taken a moment ago.
 4. On the iPad the camera covers the whole screen.
 5. The menu's order by the "+". iOS turns a menu over when it opens upwards.
+6. The first photo asks to add to Photos, and the photo then appears in the Photos app with its place on the map.
+7. With the Settings switch off, no copy appears in Photos.
+8. A photo taken within a second or two of opening the camera: does it have a position?
 
 # 14 November 2026, 21:35: a fungus key to step through, with a diagram for each choice
 
