@@ -7,6 +7,25 @@ run without the Mac (every file reads as valid Swift, 323 logic tests
 pass). Those do not build the screens. Expect things to put right when
 it is first built, and treat how everything here looks as untried.
 
+## 14 November 2026, 16:26: the sidebar's lens follows the fingers again
+
+**On the branch `sidebar-scroll-follows-fingers`, made from `main`.** One line in `MainTabView.swift`, in `lensScrolled(by:)`.
+
+**Why.** William, 16:22, with a picture of the sidebar: "Can you return the scrolling of this bar to the previous way it was, it's not working as is right now." The sidebar's scrolling has been changed once since it was written: at 22:31 on 13 November the lens was made to move as a list scrolls (fingers pushed up went down the list). This puts back the way before that: two fingers moving down carry the lens down, like a drag.
+
+```swift
+let fingers = scroll.isDirectionInvertedFromDevice ? scroll.scrollingDeltaY : -scroll.scrollingDeltaY
+```
+
+- `scroll.scrollingDeltaY` is how far the Mac says this piece of the scroll went, up or down.
+- `isDirectionInvertedFromDevice` is true when "natural scrolling" is on in System Settings. It is on for William's Mac (the setting has never been changed from Apple's default).
+- `a ? b : c` reads "if a, then b, otherwise c". With natural scrolling on the number is used as it is. With it off the Mac reports the opposite sign, so the minus turns it back. Either way fingers down means lens down.
+- A mouse wheel goes through the same line, so its direction is turned too.
+
+Nothing else about the sidebar is changed: the gearing (0.6), settling on the nearest row and one row for each click of a wheel are as they were.
+
+**Not tried by hand.** A script cannot make a two-finger scroll.
+
 ## 14 November 2026, 16:27: a page grows out of the tile that was tapped
 
 **On the branch `tile-grow`, made from `main` at `c89c037`. NOT BUILT.** Written in a chat started from William's iPhone, which could not reach the Mac. It passes the checks that run without a Mac (all 91 files read as valid Swift, 590 logic tests pass). Those do not build screens, so nobody has seen this move. **Build it for the iPhone before it goes into `main`.**
