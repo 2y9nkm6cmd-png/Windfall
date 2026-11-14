@@ -311,6 +311,8 @@ struct ExportView: View {
 
     private var pendingFITCounts: Int { ExportWaiting.fitCounts(surveys) }
 
+    private var pendingWormCounts: Int { ExportWaiting.wormCounts(surveys) }
+
     var body: some View {
         Form {
             Section {
@@ -327,7 +329,7 @@ struct ExportView: View {
                 }
 
                 exportRow("Earthworm counts",
-                          count: ExportWaiting.wormCounts(surveys),
+                          count: pendingWormCounts,
                           systemImage: "chart.bar.doc.horizontal") {
                     try service.exportEarthwormCounts(surveys)
                 }
