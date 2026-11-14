@@ -296,6 +296,19 @@ enum PlantFacts {
         return toWrite.map(\.key)
     }
 
+    /// Writes one fact and notes it as changed by hand. For anything
+    /// that writes a single box of a plant's record from outside the
+    /// editing sheet, such as a fact kept from a web page: going through
+    /// here is what stops a later load of the spreadsheet file from
+    /// replacing it. Returns false, and writes nothing, if the key is
+    /// not one in the list.
+    @discardableResult
+    static func write(_ newText: String, forKey key: String, to plant: Plant) -> Bool {
+        guard named(key) != nil else { return false }
+        save([key: newText], to: plant)
+        return true
+    }
+
     // MARK: - Months
 
     /// Months as the spreadsheet writes them: "jan feb mar".
