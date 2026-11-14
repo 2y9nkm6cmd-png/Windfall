@@ -149,6 +149,7 @@ The Mac build is pointed at this icon by one line in the project's settings, `"A
 | `2026-11-14 screenshot-year-page-month-heading-mac.png` | The top of the Year page on the Mac, dark, with every job showing, sent with "when you click or tap the month at the top of this page, you can see the month bigger and see what needs to be planted that month" |
 | `2026-11-14 screenshot-iphone-settings-back-swipe.heic` | An iPhone's Settings part-way through a swipe back, the page before in view underneath, sent with "When you swipe back to the previous screen can you make it so that the screen swipes over like in this screenshot" |
 | `2026-11-14 screenshot-journal-sheet-over-eira-bar-mac.png` | The Journal page on the Mac, dark, with the journal's conversation open as a sheet over it and Eira's bar idle underneath, sent with "Can we make it so that chat expands from the Eira bar, rather than opening up a new window?" |
+| `2026-11-14 screenshot-mac-settings-and-tools-plain-list.png` | The Settings and tools page on the Mac, dark, as a plain list of nine names, sent with "Can you make this settings page better?" |
 
 ## What is in Archive
 

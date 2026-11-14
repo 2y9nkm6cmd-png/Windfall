@@ -1,3 +1,86 @@
+# 14 November 2026, 20:35: Settings and tools redrawn as tiles
+
+**By the settings chat.** William, 20:29, with a picture of the page on his Mac: "Can you make this settings page better?" The page was a plain list of nine names in a thin line of text at the top of an empty window, while Gardens and Wildlife beside it were drawn with a serif title and glass tiles. Project doc 70.
+
+**What you see now.** A serif title, "Settings and tools", and nine glass tiles under three headings. Each tile has an icon, its name and one line about what is behind it:
+
+| Heading | Tiles |
+|---|---|
+| Set up | Settings, Reminders, Voice, Corner drawing |
+| Find and look back | Search everything, Charts, Knowledge base |
+| Your records | Backup, Export records |
+
+Five of the lines are read from the app as it stands, so a tile can tell you something without being opened: Settings says "Recording as William" once a name is set, Reminders says On or Off, Voice says whether Eira reads her replies aloud, Knowledge base counts its documents and Export records counts what is waiting to be sent.
+
+**The nine pages the tiles lead to are not changed.** They are still plain forms and lists.
+
+## The code, and what it means
+
+| File | What changed |
+|---|---|
+| `Windfall/HubScreens.swift` | The page, `MoreTab`, now lives here with Gardens and Wildlife, and is drawn from the same pieces they use |
+| `Windfall/MainTabView.swift` | The old `MoreTab` taken out. A comment says where it went |
+| `Windfall/ExportService.swift` | `ExportWaiting`, new: the one rule for what is waiting to be sent |
+
+**Why it moved file.** `HubScreens.swift` already holds the pieces a page like this is made from: `ScreenHeader` (the line of text over a serif title), `HubSectionTitle` (a heading), `HubTile` (the icon, name and line) and `hubTileGlass()` (the glass behind a tile). Two of the things it needs, the page widths and the little function that writes "1 bed" or "3 beds", are marked `private`, which means only code in the same file may use them. Putting the page in that file lets it use them as they are.
+
+**Two small functions do the repeating.** A tile was going to be written out nine times and a grid three times, so each is written once:
+
+```swift
+private func tile<Page: View>(_ icon: HubIcon, _ title: String, _ detail: String,
+                              @ViewBuilder page: () -> Page) -> some View {
+    GrowingLink(destination: page) {
+        HubTile(icon: icon, title: title, detail: detail)
+    }
+    .hubTileGlass()
+}
+```
+
+- `private func tile` makes a function that only this page can use.
+- `<Page: View>` says "this works for any kind of page". It is a placeholder: the nine tiles each lead to a different kind, and Swift fills the placeholder in for each.
+- The underscores (`_ icon`) mean the caller does not write the name, so a tile reads as `tile(.symbol("bell"), "Reminders", remindersLine) { NotificationSettingsView() }`.
+- `page: () -> Page` is a piece of code handed in, to be run to make the page. The curly brackets after the call are that piece of code.
+- `GrowingLink` is the link from doc 49: on an iPhone or iPad the page grows out of the tile.
+
+**How a tile knows the state of things.** Three kinds of line at the top of the page each read something and redraw the page when it changes:
+
+```swift
+@Query private var documents: [KnowledgeDocument]
+@AppStorage("recorderName") private var recorderName = ""
+@State private var remindersAreOn: Bool?
+```
+
+- `@Query` asks the database for every record of a kind. Here they are only counted.
+- `@AppStorage("recorderName")` reads one saved setting by its name. The Settings page writes it and this page reads it.
+- `@State` is the page's own memory. The `?` after `Bool` means "true, false or not known yet". Whether reminders are allowed has to be asked of the system, which takes a moment, so the tile says only what reminders are for until the answer is in. That way it never says "Off" and then changes its mind.
+
+**One rule for "waiting to be sent".** The Export page already worked out how many sightings and counts were ready. The new tile needed the same sums. Writing them out a second time would let the two drift apart, so the sums moved into `ExportWaiting` and both now ask it. The Export page gives the same numbers as before.
+
+## Checked
+
+| Check | Result |
+|---|---|
+| Logic checks, Swift 6.3.1 for Linux, in this chat's cloud workspace | 110 files valid, type check passed, cross-file checks clean, **749 logic tests pass, 0 fail** |
+| The Mac, unsigned | `set1-mac.log`, 20:54: BUILD SUCCEEDED, no warnings in the three files |
+| The simulator | `set1-sim.log`, 21:08: BUILD SUCCEEDED |
+| **Looked at on the Mac**, in a test copy with the example garden, in dark mode | The page is as described. All nine tiles are the same height and every line fits on one line. A click on Charts opened Charts |
+
+The cross-file check tripped twice on the first try, on names only. A function called `total` was taken for another file's `total`, and `count: ExportWaiting.wormCounts(...)` was read as "count is an ExportWaiting". The function is now `altogether`, and the Export page's worm count has a name of its own, `pendingWormCounts`.
+
+## Not checked
+
+- **Light mode, an iPhone and an iPad.** The simulators would not start: the Mac was very busy with other chats' builds and the simulator service stopped answering. Two simulators made for this chat, "Windfall settings iPad" and "Windfall settings iPhone", are left for the next try (`windfall-build-logs/settings-shots.sh`).
+- **On an iPhone the tiles are two across**, so some of the lines will run to two lines and tiles in one row may differ a little in height. Gardens has the same.
+- **With William's own records.** The test copy used the example garden.
+- Reminders reading "On". The test copy had never been allowed to send any, so it read "Off".
+
+## ⚠️ CHECK: choices that are Claude's
+
+1. The three headings and which tile sits under which. Settings is first because "Settings" is what the sidebar calls the page.
+2. The words of every line on a tile, and the line over the title.
+3. The icons that are Apple's symbols until drawings are made: the bell, the chart, the books, the drive and the arrow out of a box. Settings, Voice, Search and Corner drawing use Windfall's own.
+4. "Knowledge base" has books for its icon in place of the brain.
+
 # 14 November 2026, 21:44: the Mac's icon follows light and dark mode
 
 **By the "Mac icon" chat, on the branch `mac-icon-dark`.** William, 21:32, once the cream icon was showing in the Dock: "The mac icon should also respond to the light and dark mode".
