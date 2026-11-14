@@ -336,3 +336,56 @@ enum WeekJobs {
         }
     }
 }
+
+// MARK: - Folding a card of jobs
+
+/// How much of a to-do card is showing. On Today, "This week" and "This
+/// month" each start folded, showing a few rows. A tap on the heading
+/// opens the card out to every job. These are the sums behind that, kept
+/// here and away from the screen so that they can be tested.
+enum JobFold {
+
+    /// Rows a folded card shows.
+    static let weekRows = 6
+    static let monthRows = 5
+    /// The most sowings and harvests the folded "This month" lists, so
+    /// that one kind of job cannot crowd out the rest.
+    static let sowingsFolded = 4
+    static let harvestsFolded = 3
+
+    /// How many rows to draw: all of them when open, and no more than
+    /// `folded` otherwise.
+    static func rowsShown(of count: Int, folded: Int, isOpen: Bool) -> Int {
+        isOpen ? count : min(count, folded)
+    }
+
+    /// The jobs the folded "This month" card lists, picked from the whole
+    /// month's by their identifiers and kept in the same order: at most
+    /// four sowings and three harvests, everything else, and then the
+    /// first five of what is left.
+    ///
+    /// A sowing's identifier begins "sow-" and a harvest's "harvest-".
+    /// TodayView.swift gives them those names.
+    static func monthPick(from ids: [String]) -> [String] {
+        var sowings = 0, harvests = 0
+        var kept: [String] = []
+        for id in ids {
+            if id.hasPrefix("sow-") {
+                sowings += 1
+                if sowings > sowingsFolded { continue }
+            } else if id.hasPrefix("harvest-") {
+                harvests += 1
+                if harvests > harvestsFolded { continue }
+            }
+            kept.append(id)
+        }
+        return Array(kept.prefix(monthRows))
+    }
+
+    /// The words beside a card's heading: "12 more" while folded, "Show
+    /// fewer" once open, and nothing when the card already shows it all.
+    static func headingWords(hidden: Int, isOpen: Bool) -> String? {
+        guard hidden > 0 else { return nil }
+        return isOpen ? "Show fewer" : "\(hidden) more"
+    }
+}
