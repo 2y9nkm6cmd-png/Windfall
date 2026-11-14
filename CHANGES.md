@@ -1,4 +1,4 @@
-# 14 November 2026, 21:00: the Mac gets the app icon
+# 14 November 2026, 20:57: the Mac gets the app icon
 
 **By the "Mac icon" chat, on the branch `mac-app-icon`.** William, 20:52, with a picture of his Dock showing two blank tiles for Windfall: "None of the apps have the icon on the app icon."
 
