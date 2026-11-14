@@ -192,6 +192,16 @@ enum DemoGarden {
         isRequested && UserDefaults.standard.bool(forKey: "demoPests")
     }
 
+    /// A checking aid: `-demoFlowerShapes YES` opens the Flower shapes
+    /// page in place of the Gardens page, and `-demoFlowerShape Bilabiate`
+    /// opens that one shape's page, so still pictures can be taken.
+    static var opensFlowerShapes: Bool {
+        isRequested && UserDefaults.standard.bool(forKey: "demoFlowerShapes")
+    }
+    static var opensFlowerShape: String? {
+        isRequested ? UserDefaults.standard.string(forKey: "demoFlowerShape") : nil
+    }
+
     /// A checking aid: `-demoOpen sighting -demoPlantLetter M` opens the
     /// sighting form, then its list of plants, already jumped to M, so a
     /// still picture can show the row of letters and where a jump lands.

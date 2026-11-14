@@ -372,3 +372,22 @@ struct FlowerShapeDetailView: View {
         .glassCard(padding: 16)
     }
 }
+
+// MARK: - A checking aid
+
+/// One shape's page by name, for `-demoFlowerShape Bilabiate`. It lets a
+/// still picture be taken of the page without tapping through to it.
+struct DemoFlowerShapePage: View {
+
+    let shapeTitle: String
+
+    @Query private var shapes: [FlowerShape]
+
+    var body: some View {
+        if let found = shapes.first(where: { $0.name.lowercased() == shapeTitle.lowercased() }) {
+            FlowerShapeDetailView(shape: found)
+        } else {
+            Text("No flower shape called \(shapeTitle).")
+        }
+    }
+}
