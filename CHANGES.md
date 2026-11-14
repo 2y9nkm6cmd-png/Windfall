@@ -28,7 +28,7 @@ it is first built, and treat how everything here looks as untried.
 
 ### 2. The carrot-family warning (`SpeciesTable.swift`)
 
-**Why.** The image model's list on the phone was widened the same afternoon from 778 names to 6,421 (project doc 47). The warning works from `carrotFamilyGenera`, a list of 31 genera. iNaturalist has confirmed UK records for carrot-family plants in 50 genera. Without the other 19, a hemlock look-alike could have been named as one of them with no warning.
+**Why.** The image model's list on the phone was widened the same afternoon from 778 names to 6,421 (project doc 50). The warning works from `carrotFamilyGenera`, a list of 31 genera. iNaturalist has confirmed UK records for carrot-family plants in 50 genera. Without the other 19, a hemlock look-alike could have been named as one of them with no warning.
 
 **What changed.** The 19 are added: Astrantia, Beruladium, Bunium, Bupleurum, Eryngium, Falcaria, Ferula, Libanotis, Ligusticum, Meum, Orlaya, Peucedanum, Physospermum, Sanicula, Selinum, Tordylium, Trinia, Trocdaris and Visnaga. Some look nothing like hemlock (sea holly, great masterwort) and get the warning all the same: it is better given too often than too seldom. **CHECK: the genera and their common names are iNaturalist's, fetched on 14 November 2026, and have not been checked against a flora.**
 
