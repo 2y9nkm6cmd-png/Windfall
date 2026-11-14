@@ -72,6 +72,11 @@ enum AppSection: String, CaseIterable, Identifiable {
 struct MainTabView: View {
 
     @Environment(\.modelContext) private var context
+    /// Finds where the device is, when no garden has a place on the map.
+    @Environment(LocationManager.self) private var locationManager
+    /// Every garden, watched so the weather can be fetched again the
+    /// moment one is given a place or moved. See `gardenPlaces` below.
+    @Query private var gardensForWeather: [Garden]
     // The size class says whether the screen is wide (a Mac, an iPad) or
     // narrow (an iPhone, or an iPad sharing its screen with another app).
     @Environment(\.horizontalSizeClass) private var sizeClass
@@ -144,20 +149,55 @@ struct MainTabView: View {
                 // exist as records. It only adds what is missing.
                 GardenPlan.ensureStartingGardens(in: context)
             }
+            // The weather for now, for whichever page is showing, the
+            // corner drawing and the widgets. Done after the gardens
+            // exist, because it needs to know where they are. If no
+            // garden has a place yet this is where Apple's location
+            // question appears, once. See WeatherNow.swift.
+            await WeatherNow.refresh(context: context, locationManager: locationManager, mayAsk: true)
             // Fill in any days of weather missed since the app was last
-            // open. Done after the gardens exist, because it needs to
-            // know where they are.
+            // open.
             await weatherDiary.bringUpToDate(in: context)
         }
         // And again each time the app comes back to the front, which on
-        // an iPhone is far more often than it is opened afresh. The
-        // service is asked at most once an hour, so this is cheap.
+        // an iPhone is far more often than it is opened afresh. Both
+        // services keep what they fetched for a while (a quarter of an
+        // hour and an hour), so this is cheap.
         .onChange(of: scenePhase) { _, phase in
             if phase == .active {
-                Task { await weatherDiary.bringUpToDate(in: context) }
+                Task {
+                    await WeatherNow.refresh(context: context, locationManager: locationManager, mayAsk: false)
+                    await weatherDiary.bringUpToDate(in: context)
+                }
+            }
+        }
+        // And every quarter of an hour for as long as the app is open,
+        // so a window left open on a Mac follows the weather. `.task`
+        // starts this when the view appears and stops it when the view
+        // goes. `Task.sleep` waits without using the processor.
+        .task {
+            while !Task.isCancelled {
+                try? await Task.sleep(for: WeatherNow.lookEvery)
+                // Not while the app is put away: iOS pauses it then anyway.
+                if !Task.isCancelled, scenePhase != .background {
+                    await WeatherNow.refresh(context: context, locationManager: locationManager, mayAsk: false)
+                }
+            }
+        }
+        // And when a garden is given a place on the map, or moved: the
+        // weather is fetched for the new place and its diary is started,
+        // without waiting for the next opening.
+        .onChange(of: gardenPlaces) {
+            Task {
+                await WeatherNow.refresh(context: context, locationManager: locationManager, mayAsk: false)
+                await weatherDiary.bringUpToDate(in: context, force: true)
             }
         }
     }
+
+    /// A line of text that changes whenever any garden's place does.
+    /// `onChange` above watches it. See `WeatherPlace.fingerprint`.
+    private var gardenPlaces: String { WeatherPlace.fingerprint(of: gardensForWeather) }
 
     // MARK: Mac and iPad
 

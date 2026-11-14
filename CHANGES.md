@@ -723,6 +723,87 @@ withAnimation(.smooth(duration: 0.3)) {
 2. **The Mac has no icon yet.** The list has slots for iPhone and iPad only. A Mac icon is drawn differently, with rounded corners and a margin, so it needs its own picture and William's eye.
 3. The icon's dark green (`#06421B`) is still not the interface's (doc 47).
 
+## 14 November 2026, 17:50: the weather is fetched by itself
+
+**On the branch `weather-by-itself`, made from `main` at `fb7ce30`, with `main` merged in at `71d95d4` (18:50).** The logic tests pass, 15 of them new, and 14 more for the widgets' sums were run outside the usual checks. **See the knowledge base, doc 61, for whether it has been built and what has been seen.** This entry sits below the 17:36 entry, out of time order, so that it does not clash with entries the open branches add at the top.
+
+**Why.** William, 17:35: "The weather isn't being automatically retrieved." He was looking at a widget or the drawing in Today's corner, on the iPhone and the Mac. Asked how a device with no garden on the map should find out where it is, he chose: "Ask once on opening".
+
+**What was wrong.** Three things, all in how the weather was asked for.
+
+1. *Only the Today page asked.* It fetched the conditions once, in the `.task` that runs when the page is drawn. The widgets and the corner drawing do not fetch anything. They read what Today fetched. So a window left open, or an app brought back from the background, went on showing the weather from when it was opened.
+2. *With no garden on the map, nothing asked at all.* A new copy of the app (the iPhone's, or a signed copy on the Mac, each with its own empty database) makes its two gardens with no place. The code only used the device's own position after "Check now" had been tapped, so no reading was ever taken and the widgets' file never had a forecast in it.
+3. *The first tap on "Check now" did nothing.* `LocationManager.currentLocation()` asked Apple's location question and returned nothing straight away, without waiting for the answer.
+
+**Now.**
+
+- The app fetches the weather itself: when it opens, each time it comes back to the front, every quarter of an hour while it is open, and the moment a garden is given a place or moved.
+- With no garden on the map it uses where the device is. The first time, Apple's location question appears as the app opens. It is asked once. After a No the card on Today says what to do instead.
+- When the weather shown is for where the device is, Today's card says so and offers "I am in my garden", which saves that spot as a garden's place. That is what starts the garden's weather diary.
+- A widget fetches the forecast for itself when the one it holds is more than three hours old, so "Frost and weather" keeps up without the app being opened.
+
+**How it is built.**
+
+*One place that asks* (`WeatherNow.swift`, new). `WeatherNow.refresh` finds where to ask about, fetches, and then brings the widgets' file up to date:
+
+```swift
+await WeatherService.shared.refresh(
+    gardenAt: WeatherPlace.garden(among: gardens),
+    deviceLocation: { await locationManager.currentLocation(mayAsk: mayAskHere)?.coordinate },
+    force: force)
+WidgetShare.refresh(context: context)
+```
+
+- `gardenAt` is the first garden in use that has a latitude and longitude, or nil.
+- `deviceLocation` is a closure: a piece of code handed over to be run later, and only if it is needed. `refresh` runs it only when `gardenAt` is nil, so the GPS is never woken when a garden is on the map.
+- `mayAskHere` is false for the example garden, so a test run with nobody watching is never left waiting on a question.
+
+*When it is called* (`MainTabView.swift`). Four moments, each one modifier on the app's main view:
+
+```swift
+.task { ... await WeatherNow.refresh(..., mayAsk: true) ... }      // on opening
+.onChange(of: scenePhase) { ... if phase == .active { ... } }      // back to the front
+.task { while !Task.isCancelled { try? await Task.sleep(for: WeatherNow.lookEvery) ... } }   // every 15 minutes
+.onChange(of: gardenPlaces) { ... }                                // a garden placed or moved
+```
+
+- `.task` starts a piece of work when a view appears and stops it when the view goes. The third one is a loop that sleeps for a quarter of an hour and looks again. `Task.sleep` waits without using the processor.
+- `scenePhase` is SwiftUI's word for whether the app is at the front (`.active`), behind something (`.inactive`) or put away (`.background`).
+- `gardenPlaces` is a line of text made from every garden's place (`WeatherPlace.fingerprint`). `onChange` runs its code whenever that text changes. A `@Query` of the gardens keeps it live.
+
+*The sums, where they can be tested* (`WeatherService.swift`). `refresh` and the new `WeatherPlace` hold every decision: which place, whether a reading is still fresh, whether two spots are near enough to share one. A reading is now kept for a quarter of an hour *for its place*. Before, a reading taken anywhere was reused for anywhere, so a garden given its place just after a reading from the device would have gone on showing the old one. `WeatherService` also waits if a fetch is already under way, and its fetching is a value that the tests swap for a canned reply (`download`).
+
+*Waiting for the answer* (`LocationManager.swift`).
+
+```swift
+if authorisationStatus == .notDetermined {
+    guard mayAsk else { return nil }
+    requestPermission()
+    await waitForAnswer()
+}
+guard isAuthorised else { return nil }
+```
+
+`waitForAnswer` parks the code with `withCheckedContinuation`, which hands back a `continuation`: a ticket for carrying on later. The ticket is kept in a list. When CoreLocation reports that the question has been answered (`locationManagerDidChangeAuthorization`), every ticket in the list is used, and the code carries on from where it stopped. This also mends "Use where I am now" in the garden editor and the grid reference button, which had the same wasted first tap.
+
+*Today* (`TodayView.swift`). The page no longer fetches when it is drawn. It reads the shared service, as before. `weatherPlace`, used to tell day from night, is now read from the service. "Check now" calls `WeatherNow.refresh` with `force: true`. The new menu, `savePlaceMenu`, shows when `weather.isFromDevice` is true and no garden has a place.
+
+*The widgets* (`WindfallShared/WidgetForecast.swift`, new, and `WindfallWidgets.swift`). The summary file gains two optional fields: `place` (rounded to three decimal places, the same as is sent to the service) and `forecastFetched`. They are optional so that a file written before today still reads. A widget's `timeline` now begins with:
+
+```swift
+let summary = await WidgetForecast.refreshIfDue()
+```
+
+which reads the file, and if the forecast is more than three hours old fetches a new one, puts only the forecast into the file and leaves the rest as found. The timeline then asks to be looked at again three hours after the forecast was fetched (`.after(nextLook)`), where before it waited until its last card had been shown (`.atEnd`), seven days on. The app, for its part, keeps whichever forecast is newer, its own or a widget's (`WidgetShare.refresh`).
+
+*One build setting* (`Windfall.xcodeproj`). `ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES` for the widget program. On a Mac a widget is fenced in (sandboxed) and may not reach the internet without it. It makes no difference on an iPhone or iPad.
+
+**What a widget still cannot do.** It never finds the device's location itself, and it does not work out the frost and wind jobs on "This week", which need the records. Those jobs are still written by the app, for eight days ahead. So Windfall must have been opened once, with the weather fetched, before a widget can keep itself up to date.
+
+**Sent to the weather service.** Nothing new in kind: a place rounded to about a hundred metres, as Settings says. It is now also sent by the widget program, a few times a day, and for a device with no garden placed the place is where the device is.
+
+**Claude's choices, for William to confirm.** Every quarter of an hour while open. Three hours for a widget's forecast, and an hour before trying again after a failure. A kilometre as "the same spot". The words on Today's card and on the button. That the offer takes the place of "Start count" on the card until a garden is placed. That a place saved from the card goes to whichever garden is chosen from the menu, with no confirmation.
+
 ## 14 November 2026, 16:50: a conversation grows out of Eira's bar
 
 **On the branch `eira-bar-expand`, made from `main` (`c89c037`), with `main` (`0ba7173`) merged in.** Built for the Mac and the iOS Simulator with no errors (`eb4-mac.log`, `eb4-sim.log`, in `DerivedData/Windfall-eirabar`). 598 logic tests pass, 2 of them new. Seen as still pictures with the example garden on an 11-inch iPad Pro: the journal's conversation and Eira's chat each standing in the panel, in light and dark, and the bar at rest on Today and on Journal (`shots/eb2-*` and `eb3-*`). **Not seen: an iPhone, and the Mac's own window.** The Mac was too busy with other chats' builds for a second simulator to start. **Nothing has been pressed by hand, and Claude cannot see the panel move.** William judges the growing and the sinking back.
