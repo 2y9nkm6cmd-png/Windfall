@@ -1,0 +1,2006 @@
+{
+ "about": "Windfall's own key to the commoner groups of larger fungi in Britain. WRITTEN BY CLAUDE FROM MEMORY on 14 November 2026, not taken from any book or website. CHECK every line against a field guide before relying on it. It leads to a group or genus for a wildlife record. It never says whether anything can be eaten.",
+ "checked": false,
+ "version": 2,
+ "start": "start",
+ "noneOfThese": "r-not-in-key",
+ "footer": "A key takes you to a group. Confirm it with a field guide or your county fungus group before sending a record. Nothing here is a reason to eat a fungus.",
+ "steps": [
+  {
+   "id": "start",
+   "title": "Fungus key",
+   "question": "Which of these is it most like?",
+   "help": "Look underneath first. Lift the whole stem base out with a knife, do not pull it. Note what it grows on, and which trees are near.",
+   "choices": [
+    {
+     "text": "Cap and stem, with gills underneath",
+     "to": "gill-print",
+     "picture": "form-gills",
+     "detail": "Thin blades, like the pages of a book"
+    },
+    {
+     "text": "Cap and stem, with a sponge of pores underneath",
+     "to": "bolete",
+     "picture": "form-pores",
+     "detail": "Tiny holes, the mouths of tubes. Growing on the ground"
+    },
+    {
+     "text": "Spines or teeth underneath",
+     "to": "r-tooth",
+     "picture": "form-spines"
+    },
+    {
+     "text": "Funnel or trumpet, with blunt wrinkles underneath or none",
+     "to": "r-chanterelle",
+     "picture": "form-ridges",
+     "detail": "Ridges like veins, not thin blades"
+    },
+    {
+     "text": "Shelf or bracket on wood",
+     "to": "bracket",
+     "picture": "form-bracket",
+     "detail": "No stem, or a short one at the side"
+    },
+    {
+     "text": "Ball, pear or star",
+     "to": "ball",
+     "picture": "form-ball"
+    },
+    {
+     "text": "Cup, disc or ear",
+     "to": "cup",
+     "picture": "form-cup"
+    },
+    {
+     "text": "Club, spindle, coral or antler",
+     "to": "club",
+     "picture": "form-club"
+    },
+    {
+     "text": "Jelly: soft, rubbery or folded like a brain",
+     "to": "jelly",
+     "picture": "form-jelly"
+    },
+    {
+     "text": "Something odder",
+     "to": "other",
+     "picture": "form-other",
+     "detail": "Stinkhorn, cage, honeycomb, saddle, crust or slime"
+    }
+   ]
+  },
+  {
+   "id": "gill-print",
+   "title": "Spore print",
+   "question": "What colour is the spore print?",
+   "help": "Cut off the cap and lay it gills down, half on white paper and half on dark, under a glass. Leave it for a few hours or overnight. Judge a thick part of the print in daylight. Do not go by the colour of the gills: young gills are often paler than the spores.",
+   "choices": [
+    {
+     "text": "White, cream or pale yellow",
+     "to": "white-stem",
+     "picture": "spore-white"
+    },
+    {
+     "text": "Pink, from salmon to pinkish buff",
+     "to": "pink",
+     "picture": "spore-pink"
+    },
+    {
+     "text": "Rusty, ochre, cinnamon or clay brown",
+     "to": "brown",
+     "picture": "spore-brown"
+    },
+    {
+     "text": "Chocolate, purple-brown or black",
+     "to": "dark",
+     "picture": "spore-black"
+    },
+    {
+     "text": "I have no print yet",
+     "to": "r-take-print"
+    }
+   ]
+  },
+  {
+   "id": "white-stem",
+   "title": "White spores",
+   "question": "Look at the stem, right down to its base. What is there?",
+   "help": "A ring is a skirt or band of skin round the stem. A bag (the volva) is a cup, a sack or rows of warts round a swollen base, and is often below ground.",
+   "choices": [
+    {
+     "text": "A bag or a swollen bulb at the base",
+     "to": "r-amanita",
+     "picture": "stem-volva",
+     "detail": "With or without a ring higher up. Gills white and free of the stem"
+    },
+    {
+     "text": "A ring on the stem, and no bag at the base",
+     "to": "white-ring",
+     "picture": "stem-ring"
+    },
+    {
+     "text": "No ring and no bag",
+     "to": "white-plain",
+     "picture": "stem-plain"
+    },
+    {
+     "text": "No stem, or a short one at the side. On wood",
+     "to": "bracket-gills",
+     "picture": "stem-side"
+    }
+   ]
+  },
+  {
+   "id": "white-ring",
+   "title": "White spores, with a ring",
+   "question": "Which fits best?",
+   "choices": [
+    {
+     "text": "Large and tall, with a scaly cap and a thick ring that slides on the stem",
+     "to": "r-parasol",
+     "picture": "cap-scaly",
+     "detail": "Cap usually over 10cm across"
+    },
+    {
+     "text": "Small, with a scaly or patterned cap. The ring is slight or soon lost",
+     "to": "r-dapperling",
+     "detail": "Cap usually under 7cm across"
+    },
+    {
+     "text": "In clumps on or around trees, stumps or roots. Honey to brown cap, finely scaly at the centre",
+     "to": "r-honey",
+     "picture": "tuft-wood"
+    },
+    {
+     "text": "Slimy, glassy white cap. On beech wood",
+     "to": "r-porcelain"
+    }
+   ]
+  },
+  {
+   "id": "white-plain",
+   "title": "White spores, no ring, no bag",
+   "question": "Snap the stem. How does it break?",
+   "choices": [
+    {
+     "text": "Cleanly, like a stick of chalk. The flesh crumbles and has no strings",
+     "to": "white-brittle",
+     "picture": "flesh-snap"
+    },
+    {
+     "text": "It bends, tears or splits into fibres",
+     "to": "white-fibrous",
+     "picture": "flesh-fibrous"
+    }
+   ]
+  },
+  {
+   "id": "white-brittle",
+   "title": "Brittle flesh",
+   "question": "Cut the gills. Does a milky juice come out?",
+   "help": "Old or dry ones may give very little. Try a young one, at the place where the gills meet the stem.",
+   "choices": [
+    {
+     "text": "Yes: drops of white, coloured or watery milk",
+     "to": "r-milkcap",
+     "picture": "milk-drop"
+    },
+    {
+     "text": "No",
+     "to": "r-brittlegill"
+    }
+   ]
+  },
+  {
+   "id": "white-fibrous",
+   "title": "Fibrous flesh",
+   "question": "Which fits best?",
+   "choices": [
+    {
+     "text": "Thick, waxy, well-spaced gills. Cap often bright, and greasy or slimy",
+     "to": "r-waxcap",
+     "picture": "gills-waxy",
+     "detail": "Mostly in old unfertilised grass and mossy lawns"
+    },
+    {
+     "text": "Gills run down the stem. Cap flat, dished or a funnel",
+     "to": "r-funnel",
+     "picture": "gills-decurrent"
+    },
+    {
+     "text": "Stout and fleshy. Gills notched just before they reach the stem",
+     "to": "r-knight",
+     "picture": "gills-notched",
+     "detail": "On the ground near trees"
+    },
+    {
+     "text": "Pinkish brown or violet all over. Thick, well-spaced gills and a tough, stringy stem",
+     "to": "r-deceiver"
+    },
+    {
+     "text": "Tight clumps on wood in the cold months. Sticky orange-brown cap, stem dark and velvety lower down",
+     "to": "r-velvet-shank",
+     "picture": "tuft-wood"
+    },
+    {
+     "text": "Small and delicate. Bell or cone cap on a thin, hollow, fragile stem",
+     "to": "r-bonnet",
+     "picture": "small-bonnet"
+    },
+    {
+     "text": "Small, with a thin tough stem. The cap shrivels when dry and comes back when wet",
+     "to": "r-parachute",
+     "detail": "In grass, often in rings, or on fallen leaves and twigs"
+    },
+    {
+     "text": "Medium-sized, with a tough bendy stem and crowded gills. In troops in leaf litter",
+     "to": "r-toughshank"
+    }
+   ]
+  },
+  {
+   "id": "pink",
+   "title": "Pink spores",
+   "question": "Which fits best?",
+   "choices": [
+    {
+     "text": "A bag at the base of the stem and no ring",
+     "to": "r-rosegill",
+     "picture": "stem-volva",
+     "detail": "Gills free of the stem, turning pink"
+    },
+    {
+     "text": "On wood, sawdust or woodchip. Gills free and crowded, white then pink",
+     "to": "r-shield",
+     "picture": "gills-free",
+     "detail": "No ring and no bag"
+    },
+    {
+     "text": "On the ground. Gills joined to the stem, turning dull pink",
+     "to": "r-pinkgill",
+     "picture": "gills-attached"
+    },
+    {
+     "text": "Lilac or violet on the stem, gills or cap. Thick-set. Late autumn and winter",
+     "to": "r-blewit"
+    },
+    {
+     "text": "Gills run down the stem. Pale cap like kid leather. Smells strongly of raw pastry",
+     "to": "r-miller",
+     "picture": "gills-decurrent"
+    }
+   ]
+  },
+  {
+   "id": "brown",
+   "title": "Brown spores",
+   "question": "Look at the stem. What is there?",
+   "choices": [
+    {
+     "text": "A ring on the stem",
+     "to": "brown-ring",
+     "picture": "stem-ring"
+    },
+    {
+     "text": "A cobweb of fine threads from cap edge to stem when young",
+     "to": "r-webcap",
+     "picture": "veil-cobweb",
+     "detail": "Later a rusty band of threads on the stem"
+    },
+    {
+     "text": "No ring and no cobweb",
+     "to": "brown-plain",
+     "picture": "stem-plain"
+    },
+    {
+     "text": "No stem. Small, soft, kidney-shaped caps on wood",
+     "to": "r-oysterling",
+     "picture": "stem-side"
+    }
+   ]
+  },
+  {
+   "id": "brown-ring",
+   "title": "Brown spores, with a ring",
+   "question": "Which fits best?",
+   "choices": [
+    {
+     "text": "Small, on dead wood. Smooth honey-brown cap that dries paler from the centre",
+     "to": "r-funeral-bell"
+    },
+    {
+     "text": "Cap and stem covered in upturned scales. In clumps at the foot of trees or on wood",
+     "to": "r-scalycap"
+    },
+    {
+     "text": "Large and golden orange, in clumps at the foot of trees and stumps. A big ring",
+     "to": "r-spectacular"
+    },
+    {
+     "text": "Smooth pale cap. On woodchip, soil or grass, mostly in spring and early summer",
+     "to": "r-fieldcap"
+    }
+   ]
+  },
+  {
+   "id": "brown-plain",
+   "title": "Brown spores, no ring",
+   "question": "Which fits best?",
+   "choices": [
+    {
+     "text": "Cap a cone or flat with a bump, silky or split into fibres that run to the edge",
+     "to": "r-fibrecap"
+    },
+    {
+     "text": "Pale buff to tan cap, sticky when wet. Clay-brown gills. Smells of radish",
+     "to": "r-poisonpie"
+    },
+    {
+     "text": "Brown cap with a woolly edge rolled tightly under. Soft gills run down the stem and bruise dark brown",
+     "to": "r-rollrim",
+     "picture": "gills-decurrent"
+    },
+    {
+     "text": "Orange to rusty cap and yellow gills that spot rusty. On conifer wood or woodchip",
+     "to": "r-rustgill"
+    },
+    {
+     "text": "Small and fragile on a thin stem. In lawns, moss or rich soil",
+     "to": "r-conecap",
+     "picture": "small-bonnet"
+    },
+    {
+     "text": "Bright yellow, slimy, egg-shaped cap that soon flattens and fades. On dung, straw or rich grass",
+     "to": "r-yellow-fieldcap"
+    }
+   ]
+  },
+  {
+   "id": "dark",
+   "title": "Dark spores",
+   "question": "Which fits best?",
+   "choices": [
+    {
+     "text": "The cap turns to black ink from the edge inwards, or is thin, pleated and gone in a day",
+     "to": "r-inkcap",
+     "picture": "cap-inky"
+    },
+    {
+     "text": "Gills free, pink or grey at first, then chocolate brown. A ring. Cap white to brown",
+     "to": "r-agaricus",
+     "picture": "gills-free"
+    },
+    {
+     "text": "Dense clumps on stumps and dead wood. Yellow to brick-red caps. Gills greenish yellow, then dark",
+     "to": "r-sulphur-tuft",
+     "picture": "tuft-wood"
+    },
+    {
+     "text": "Slimy or sticky cap, blue-green, or brick red on woodchip. A ring or ring zone",
+     "to": "r-roundhead"
+    },
+    {
+     "text": "Fragile. A thin whitish stem that snaps. Brown cap that dries much paler",
+     "to": "r-brittlestem"
+    },
+    {
+     "text": "Bell cap on a long thin stem, on dung or in lawns. Gills mottled grey and black",
+     "to": "r-mottlegill"
+    }
+   ]
+  },
+  {
+   "id": "bolete",
+   "title": "Pores",
+   "question": "A cap and stem with a sponge of tubes. Which fits best?",
+   "help": "Press the pores and cut the flesh. Note any change of colour and how fast it comes.",
+   "choices": [
+    {
+     "text": "Slimy or sticky cap, under pine, larch or another conifer. Often a ring",
+     "to": "r-suillus",
+     "picture": "cap-slimy"
+    },
+    {
+     "text": "Tall stem covered in small rough flecks, dark or orange. Under birch, aspen or poplar",
+     "to": "r-leccinum",
+     "picture": "stem-scabers"
+    },
+    {
+     "text": "Stout, with a swollen stem that carries a raised net or fine dots",
+     "to": "r-boletus",
+     "picture": "stem-net"
+    },
+    {
+     "text": "Smaller, with a dry velvety cap that often cracks, and a slim stem",
+     "to": "r-xerocomus"
+    }
+   ]
+  },
+  {
+   "id": "bracket",
+   "title": "On wood",
+   "question": "Look underneath. What is there?",
+   "help": "Note the tree it is on, whether the wood is alive or dead and how high up it is.",
+   "choices": [
+    {
+     "text": "Pores: tiny round or slot-like holes",
+     "to": "bracket-pores",
+     "picture": "under-pores"
+    },
+    {
+     "text": "Gills, or thick plates like gills",
+     "to": "bracket-gills",
+     "picture": "under-gills"
+    },
+    {
+     "text": "Smooth or wrinkled, with no pores or gills",
+     "to": "r-crust-bracket",
+     "picture": "under-smooth"
+    }
+   ]
+  },
+  {
+   "id": "bracket-pores",
+   "title": "Brackets with pores",
+   "question": "Which fits best?",
+   "choices": [
+    {
+     "text": "Soft, thick, sulphur-yellow and orange shelves in tiers",
+     "to": "r-chicken",
+     "picture": "bracket-tiers"
+    },
+    {
+     "text": "Like a tongue or a slab of liver, red and moist. On oak or sweet chestnut",
+     "to": "r-beefsteak"
+    },
+    {
+     "text": "A fan with brown feathery scales on a cream top, and a short dark-footed stem",
+     "to": "r-dryad",
+     "picture": "bracket-scaly"
+    },
+    {
+     "text": "Smooth, pale and rounded like a cushion. Only on birch",
+     "to": "r-birch-polypore"
+    },
+    {
+     "text": "A big rosette of many overlapping fronds at the foot of a tree",
+     "to": "r-rosette",
+     "picture": "bracket-rosette"
+    },
+    {
+     "text": "Thin and leathery, in rows. The top velvety and ringed in bands of colour",
+     "to": "r-turkeytail",
+     "picture": "bracket-zoned"
+    },
+    {
+     "text": "Hard and woody. A hoof or thick shelf that lasts for years",
+     "to": "r-woody",
+     "picture": "bracket-hoof"
+    }
+   ]
+  },
+  {
+   "id": "bracket-gills",
+   "title": "Brackets with gills",
+   "question": "Which fits best?",
+   "choices": [
+    {
+     "text": "Fleshy and shell-shaped, in overlapping tiers. Gills run down to the base",
+     "to": "r-oyster",
+     "picture": "stem-side",
+     "detail": "Spore print white to pale lilac"
+    },
+    {
+     "text": "Small, soft and kidney-shaped, with no stem. Spore print brown",
+     "to": "r-oysterling"
+    },
+    {
+     "text": "Small grey-white hairy fans. Each gill looks split along its edge",
+     "to": "r-splitgill"
+    },
+    {
+     "text": "Tough and leathery or corky, with thick plates or a maze underneath",
+     "to": "r-mazegill"
+    }
+   ]
+  },
+  {
+   "id": "ball",
+   "title": "Balls and stars",
+   "question": "Which fits best?",
+   "help": "Cut it in half from top to bottom and look inside.",
+   "choices": [
+    {
+     "text": "A soft ball or pear, white at first. Inside white and even when young, later brown powder",
+     "to": "r-puffball",
+     "picture": "ball-puff"
+    },
+    {
+     "text": "Hard like a potato, with a thick yellowish warty skin. Purple-black inside from early on",
+     "to": "r-earthball",
+     "picture": "ball-earth"
+    },
+    {
+     "text": "A ball sitting on a star of rays",
+     "to": "r-earthstar",
+     "picture": "ball-star"
+    },
+    {
+     "text": "A soft white egg in the soil, with jelly inside and a cord at the base",
+     "to": "r-egg"
+    },
+    {
+     "text": "Hard black or dark brown lumps on dead wood",
+     "to": "r-cramp-ball"
+    }
+   ]
+  },
+  {
+   "id": "cup",
+   "title": "Cups, discs and ears",
+   "question": "Which fits best?",
+   "choices": [
+    {
+     "text": "Scarlet cups on mossy dead sticks, in winter and early spring",
+     "to": "r-elfcup",
+     "picture": "form-cup"
+    },
+    {
+     "text": "Thin, bright orange, wavy cups on bare soil and paths",
+     "to": "r-orange-peel"
+    },
+    {
+     "text": "Brown, tan or buff cups on soil, woodchip, compost or old mortar",
+     "to": "r-peziza"
+    },
+    {
+     "text": "Brown, rubbery and ear-shaped. On elder or other wood",
+     "to": "r-jelly-ear",
+     "picture": "cup-ear"
+    },
+    {
+     "text": "Tiny cups holding 'eggs'. On woodchip, twigs or bare soil",
+     "to": "r-birds-nest",
+     "picture": "cup-nest"
+    },
+    {
+     "text": "Discs a few millimetres across, on dead wood",
+     "to": "r-discs"
+    }
+   ]
+  },
+  {
+   "id": "club",
+   "title": "Clubs and corals",
+   "question": "Which fits best?",
+   "choices": [
+    {
+     "text": "Black and tough on dead wood: flat antlers with white powdery tips, or swollen black fingers",
+     "to": "r-xylaria",
+     "picture": "club-antler"
+    },
+    {
+     "text": "Yellow to orange, rubbery and forked like antlers. On conifer stumps",
+     "to": "r-stagshorn"
+    },
+    {
+     "text": "Simple clubs or spindles with no branches. Yellow, white or orange, in grass or moss",
+     "to": "r-spindles",
+     "picture": "club-simple"
+    },
+    {
+     "text": "Many branches, like coral. On the ground or on wood",
+     "to": "r-coral",
+     "picture": "form-club"
+    },
+    {
+     "text": "A pale, crisp mass like a cauliflower, at the foot of a conifer",
+     "to": "r-cauliflower"
+    },
+    {
+     "text": "A small orange club with a pimpled head, in grass or moss, rising from a buried pupa",
+     "to": "r-caterpillarclub"
+    }
+   ]
+  },
+  {
+   "id": "jelly",
+   "title": "Jelly fungi",
+   "question": "Which fits best?",
+   "choices": [
+    {
+     "text": "Brown and ear-shaped",
+     "to": "r-jelly-ear",
+     "picture": "cup-ear"
+    },
+    {
+     "text": "Yellow or orange: folded like a brain, or small blobs",
+     "to": "r-yellow-brain",
+     "picture": "form-jelly"
+    },
+    {
+     "text": "Black: shiny buttons, or a tarry folded mass",
+     "to": "r-black-jelly"
+    },
+    {
+     "text": "Pinkish purple lumps or discs on dead wood",
+     "to": "r-purple-jelly"
+    },
+    {
+     "text": "Yellow rubbery antlers",
+     "to": "r-stagshorn"
+    }
+   ]
+  },
+  {
+   "id": "other",
+   "title": "Odder shapes",
+   "question": "Which fits best?",
+   "choices": [
+    {
+     "text": "A spongy white stalk with a slimy, stinking dark head that draws flies",
+     "to": "r-stinkhorn",
+     "picture": "odd-stinkhorn"
+    },
+    {
+     "text": "A red cage, or red arms like a starfish. Stinking, from an egg",
+     "to": "r-cage",
+     "picture": "odd-cage"
+    },
+    {
+     "text": "A cap of honeycomb pits on a pale hollow stem. Spring",
+     "to": "r-morel",
+     "picture": "odd-morel"
+    },
+    {
+     "text": "A saddle or folded lobes on a ribbed or furrowed stem",
+     "to": "r-saddle",
+     "picture": "odd-saddle"
+    },
+    {
+     "text": "A flat crust or skin on wood, or pinhead cushions on twigs. No cap",
+     "to": "r-crust"
+    },
+    {
+     "text": "Bright yellow or white foam, slime or a crusty cushion on mulch, grass or wood",
+     "to": "r-slime-mould"
+    }
+   ]
+  }
+ ],
+ "results": [
+  {
+   "id": "r-take-print",
+   "name": "Take a spore print first",
+   "latin": "",
+   "rank": "How to",
+   "confirm": [
+    "Choose a cap that has opened but is not old. Cut the stem off level with the gills.",
+    "Lay it gills down, half on white paper and half on black, so that a pale or a dark print will both show.",
+    "Cover it with a glass or bowl to keep the air still and damp.",
+    "Leave it for two hours to overnight, then lift the cap straight up.",
+    "Judge the colour where the print is thick, in daylight. Photograph it for the record."
+   ],
+   "notes": "No print after a night means the cap was too young, too old or too dry. A drop of water on the cap can help. Out of doors, look for a dusting of spores on leaves, grass or lower caps beneath an open cap."
+  },
+  {
+   "id": "r-not-in-key",
+   "name": "Not in this key",
+   "latin": "",
+   "rank": "No answer",
+   "confirm": [
+    "Photograph the top, the underside and the whole stem with its base.",
+    "Note the spore print colour, the smell, any colour change where it is cut or bruised and what it grew on or under.",
+    "Record it as a fungus, not identified, and ask your county fungus group or iRecord's verifiers."
+   ],
+   "notes": "This key holds the commoner groups only. Britain has thousands of larger fungi and many cannot be named without a microscope."
+  },
+  {
+   "id": "r-amanita",
+   "name": "Amanitas",
+   "latin": "Amanita",
+   "rank": "Genus",
+   "confirm": [
+    "White spore print.",
+    "Gills white or cream and free: they stop short of the stem.",
+    "A bag, a rim or rings of warts round a swollen stem base. Dig it up whole.",
+    "Often a hanging ring, and loose warts or patches on the cap that rain can wash off."
+   ],
+   "examples": [
+    "Fly agaric (Amanita muscaria)",
+    "Blusher (Amanita rubescens)",
+    "Death cap (Amanita phalloides)",
+    "Tawny grisette (Amanita fulva)"
+   ],
+   "notes": "Always with trees, among them beech, oak, birch and pine. Grisettes are amanitas with a bag, a grooved cap edge and no ring.",
+   "danger": "This genus holds the deadliest fungi in Britain: the death cap (Amanita phalloides) and the destroying angel (Amanita virosa). The panther cap and fly agaric are also poisonous. The death cap has killed people who took it for a field mushroom or a puffball."
+  },
+  {
+   "id": "r-parasol",
+   "name": "Parasols",
+   "latin": "Macrolepiota, Chlorophyllum",
+   "rank": "Group",
+   "confirm": [
+    "White spore print.",
+    "Gills free, soft and crowded.",
+    "A thick double-edged ring that can be slid up and down the stem.",
+    "A bulb at the stem base, with no bag.",
+    "Parasol: a tall stem banded like snakeskin. Shaggy parasol: a smooth stem, and flesh that turns orange-red where cut."
+   ],
+   "examples": [
+    "Parasol (Macrolepiota procera)",
+    "Shaggy parasol (Chlorophyllum rhacodes)"
+   ],
+   "notes": "Parasols grow in grassland and at wood edges. Shaggy parasols are common in gardens, under hedges and conifers and by compost heaps.",
+   "danger": "Small scaly-capped look-alikes include deadly species: see Dapperlings. Size is the safeguard and it is not a strong one."
+  },
+  {
+   "id": "r-dapperling",
+   "name": "Dapperlings",
+   "latin": "Lepiota and allies (Leucoagaricus, Leucocoprinus, Cystolepiota, Echinoderma)",
+   "rank": "Group",
+   "confirm": [
+    "White spore print.",
+    "Gills free and white.",
+    "A small pale cap with brown or pinkish scales, darker in the centre.",
+    "A ring that is slight, ragged or soon gone."
+   ],
+   "examples": [
+    "Stinking dapperling (Lepiota cristata)",
+    "Plantpot dapperling (Leucocoprinus birnbaumii)"
+   ],
+   "notes": "In woodland soil, hedge bottoms, compost and gardens. The yellow plantpot dapperling comes up in houseplant pots.",
+   "danger": "Several small dapperlings hold the same poison as the death cap and have killed, among them the deadly dapperling (Lepiota brunneoincarnata), which turns up in gardens."
+  },
+  {
+   "id": "r-honey",
+   "name": "Honey fungus",
+   "latin": "Armillaria",
+   "rank": "Genus",
+   "confirm": [
+    "White spore print. Lower caps in a clump are often dusted white.",
+    "In clumps on or around trees, stumps and roots.",
+    "Honey to brown cap with fine dark scales at the centre.",
+    "A cottony or cobwebby ring.",
+    "Black strands like bootlaces under the bark or in the soil, and a white sheet of fungus under the bark that smells of mushrooms."
+   ],
+   "examples": [
+    "Honey fungus (Armillaria mellea)",
+    "Bulbous honey fungus (Armillaria gallica)"
+   ],
+   "danger": "Easily confused with the deadly funeral bell, which has a brown print, and with sulphur tuft, which has a dark print. The spore print separates them.",
+   "garden": "The fungus gardeners fear most. Some kinds kill trees and shrubs, apple, pear and privet among them, and spread through the soil by their bootlaces. Bulbous honey fungus mostly lives on wood that is already dead. Record the host tree and look for the white sheet under the bark before deciding which you have."
+  },
+  {
+   "id": "r-porcelain",
+   "name": "Porcelain fungus",
+   "latin": "Mucidula mucida (older books: Oudemansiella mucida)",
+   "rank": "Species",
+   "confirm": [
+    "White spore print.",
+    "On beech, on trunks and fallen branches, often high up.",
+    "A thin, slimy, see-through white cap.",
+    "A ring on a thin tough stem."
+   ],
+   "notes": "Late summer and autumn."
+  },
+  {
+   "id": "r-milkcap",
+   "name": "Milkcaps",
+   "latin": "Lactarius, Lactifluus",
+   "rank": "Group",
+   "confirm": [
+    "White to pale ochre spore print.",
+    "Brittle flesh that snaps like chalk.",
+    "Drops of milk where the gills are cut.",
+    "Gills that often run a little way down the stem."
+   ],
+   "examples": [
+    "Oakbug milkcap (Lactarius quietus), under oak",
+    "Ugly milkcap (Lactarius turpis), under birch",
+    "Woolly milkcap (Lactarius torminosus), under birch"
+   ],
+   "notes": "Each lives with particular trees, so note the nearest ones. Note the colour of the milk and whether it changes on a white tissue over a few minutes.",
+   "danger": "Several cause sickness."
+  },
+  {
+   "id": "r-brittlegill",
+   "name": "Brittlegills",
+   "latin": "Russula",
+   "rank": "Genus",
+   "confirm": [
+    "White to ochre-yellow spore print.",
+    "Flesh and stem snap like chalk. No milk.",
+    "Gills brittle: they flake when a finger is run across them.",
+    "A plain white or tinted stem with no ring and no bag.",
+    "Cap often brightly coloured: red, purple, yellow or green."
+   ],
+   "examples": [
+    "Ochre brittlegill (Russula ochroleuca)",
+    "Charcoal burner (Russula cyanoxantha)",
+    "Purple brittlegill (Russula atropurpurea)"
+   ],
+   "notes": "Always with trees. There are well over a hundred British kinds and naming most of them is specialist work.",
+   "danger": "Some cause sickness, among them the sickener (Russula emetica). The death cap can be taken for a green brittlegill: a brittlegill never has a ring or a bag at the base."
+  },
+  {
+   "id": "r-waxcap",
+   "name": "Waxcaps",
+   "latin": "Hygrocybe and allies (Cuphophyllus, Gliophorus, Porpolomopsis). In woods: Hygrophorus",
+   "rank": "Group",
+   "confirm": [
+    "White spore print.",
+    "Thick, waxy, well-spaced gills.",
+    "Cap greasy or slimy, often red, orange, yellow, green or white.",
+    "In short, old, unfertilised grass and mossy lawns. Woodwaxes (Hygrophorus) grow with trees."
+   ],
+   "examples": [
+    "Blackening waxcap (Hygrocybe conica)",
+    "Snowy waxcap (Cuphophyllus virgineus)",
+    "Parrot waxcap (Gliophorus psittacinus)",
+    "Meadow waxcap (Cuphophyllus pratensis)"
+   ],
+   "garden": "A lawn or meadow with several kinds of waxcap is old unfertilised grassland, which is rare. Do not feed it, lime it or dig it. Keep mowing or grazing and take the cuttings away. Records are wanted: count how many kinds there are."
+  },
+  {
+   "id": "r-funnel",
+   "name": "Funnels",
+   "latin": "Clitocybe and allies (Infundibulicybe, Paralepista, Hygrophoropsis)",
+   "rank": "Group",
+   "confirm": [
+    "White to cream spore print.",
+    "Thin crowded gills that run down the stem.",
+    "A flat, dished or funnel-shaped cap.",
+    "A fibrous stem with no ring."
+   ],
+   "examples": [
+    "Clouded funnel (Clitocybe nebularis)",
+    "Trooping funnel (Infundibulicybe geotropa)",
+    "Common funnel (Infundibulicybe gibba)",
+    "False chanterelle (Hygrophoropsis aurantiaca)"
+   ],
+   "danger": "Small white funnels in lawns and pasture include the fool's funnel (Clitocybe rivulosa), which is seriously poisonous. It grows in the same rings as the fairy ring champignon."
+  },
+  {
+   "id": "r-knight",
+   "name": "Knights",
+   "latin": "Tricholoma. In spring grass: St George's mushroom, Calocybe gambosa",
+   "rank": "Group",
+   "confirm": [
+    "White spore print.",
+    "Gills notched just before they meet the stem.",
+    "Stout and fleshy, with no ring.",
+    "On the ground with trees. Note the smell: meal, soap or coal gas."
+   ],
+   "examples": [
+    "Sulphur knight (Tricholoma sulphureum), smells of coal gas",
+    "Birch knight (Tricholoma fulvum)",
+    "Grey knight (Tricholoma terreum)"
+   ],
+   "danger": "Several are poisonous."
+  },
+  {
+   "id": "r-deceiver",
+   "name": "Deceivers",
+   "latin": "Laccaria",
+   "rank": "Genus",
+   "confirm": [
+    "White spore print, which dusts the gills.",
+    "Thick, well-spaced gills, pinkish or violet.",
+    "A tough, stringy, often twisted stem.",
+    "A cap that dries much paler, which is how it deceives."
+   ],
+   "examples": [
+    "Deceiver (Laccaria laccata)",
+    "Amethyst deceiver (Laccaria amethystina)"
+   ],
+   "notes": "With trees. Among the commonest woodland fungi.",
+   "danger": "The lilac fibrecap is poisonous and is also small and lilac. It has a brown print and a cap with a pointed bump."
+  },
+  {
+   "id": "r-velvet-shank",
+   "name": "Velvet shank",
+   "latin": "Flammulina velutipes",
+   "rank": "Species",
+   "confirm": [
+    "White spore print.",
+    "In clumps on dead wood of broadleaved trees, from late autumn through winter. It survives frost.",
+    "A sticky orange-brown cap.",
+    "A stem that is yellow at the top and dark brown and velvety below. No ring."
+   ],
+   "danger": "The deadly funeral bell grows the same way on wood. It has a ring and a brown print."
+  },
+  {
+   "id": "r-bonnet",
+   "name": "Bonnets",
+   "latin": "Mycena",
+   "rank": "Genus",
+   "confirm": [
+    "White spore print.",
+    "A small bell or cone cap, often lined at the edge.",
+    "A thin, hollow, fragile stem.",
+    "On wood, leaf litter, moss or cones."
+   ],
+   "examples": [
+    "Common bonnet (Mycena galericulata), in clumps on stumps",
+    "Lilac bonnet (Mycena pura)",
+    "Burgundydrop bonnet (Mycena haematopus), bleeds dark red"
+   ],
+   "notes": "Over a hundred British kinds. Note the smell (bleach or radish in some), any juice from a broken stem and what it grows on.",
+   "danger": "The lilac bonnet is poisonous."
+  },
+  {
+   "id": "r-parachute",
+   "name": "Parachutes",
+   "latin": "Marasmius and allies",
+   "rank": "Group",
+   "confirm": [
+    "White spore print.",
+    "A thin, tough, wiry stem.",
+    "A cap that shrivels in dry weather and revives in rain.",
+    "Well-spaced gills."
+   ],
+   "examples": [
+    "Fairy ring champignon (Marasmius oreades), in rings in lawns",
+    "Collared parachute (Marasmius rotula), tiny and white on twigs"
+   ],
+   "danger": "The fool's funnel grows in the same rings in lawns and is seriously poisonous.",
+   "garden": "Fairy rings: a ring of darker, lusher grass in a lawn, sometimes with a band of dead grass inside it. The fungus is spreading outwards through the soil year by year."
+  },
+  {
+   "id": "r-toughshank",
+   "name": "Toughshanks",
+   "latin": "Gymnopus, Rhodocollybia",
+   "rank": "Group",
+   "confirm": [
+    "White to pale cream spore print.",
+    "A tough stem that bends and does not snap.",
+    "Crowded gills.",
+    "In troops in leaf litter, or at the foot of trees."
+   ],
+   "examples": [
+    "Butter cap (Rhodocollybia butyracea), greasy cap",
+    "Spotted toughshank (Rhodocollybia maculata), white with rusty spots",
+    "Russet toughshank (Gymnopus dryophilus)",
+    "Spindle toughshank (Gymnopus fusipes), at the foot of oaks"
+   ]
+  },
+  {
+   "id": "r-rosegill",
+   "name": "Rosegills",
+   "latin": "Volvariella, Volvopluteus",
+   "rank": "Group",
+   "confirm": [
+    "Pink spore print.",
+    "Gills free of the stem, white then pink.",
+    "A bag at the base of the stem.",
+    "No ring."
+   ],
+   "examples": [
+    "Stubble rosegill (Volvopluteus gloiocephalus), on compost, woodchip and rich soil"
+   ],
+   "danger": "A bag at the base is also the mark of the deadly amanitas, whose print is white. Judge the print where it is thick."
+  },
+  {
+   "id": "r-shield",
+   "name": "Shields",
+   "latin": "Pluteus",
+   "rank": "Genus",
+   "confirm": [
+    "Pink spore print.",
+    "Gills free and crowded, white then pink.",
+    "No ring and no bag.",
+    "On wood, buried wood, sawdust or woodchip."
+   ],
+   "examples": [
+    "Deer shield (Pluteus cervinus), brown, smells faintly of radish"
+   ],
+   "garden": "A normal part of a woodchip mulch or an old stump rotting down. It does no harm to plants."
+  },
+  {
+   "id": "r-pinkgill",
+   "name": "Pinkgills",
+   "latin": "Entoloma",
+   "rank": "Genus",
+   "confirm": [
+    "Dull pink spore print.",
+    "Gills joined to the stem, pale at first and turning pink.",
+    "On the ground, in grass or woods. No ring."
+   ],
+   "examples": [
+    "Shield pinkgill (Entoloma clypeatum), in spring under hawthorn and fruit trees",
+    "Star pinkgill (Entoloma conferendum), in lawns"
+   ],
+   "notes": "A very large genus and most need a microscope. Small blue-black pinkgills in old grass go with waxcaps as a mark of old grassland.",
+   "danger": "Many are poisonous, among them the livid pinkgill (Entoloma sinuatum).",
+   "garden": "The shield pinkgill lives with the roots of the rose family: hawthorn, plum, apple and pear. It comes up under them in spring."
+  },
+  {
+   "id": "r-blewit",
+   "name": "Blewits",
+   "latin": "Lepista (names in this group are being revised)",
+   "rank": "Genus",
+   "confirm": [
+    "Pale pink spore print.",
+    "Lilac or violet colours: all over when young in the wood blewit, on the stem only in the field blewit.",
+    "Crowded gills notched at the stem. No ring and no cobweb.",
+    "Late autumn into winter, in leaf litter, compost heaps and grass."
+   ],
+   "examples": [
+    "Wood blewit (Lepista nuda)",
+    "Field blewit (Lepista personata)"
+   ],
+   "danger": "Violet webcaps look alike when young and some are poisonous. They have a cobweb veil and a rusty brown print.",
+   "garden": "Wood blewits often come up on compost heaps and piles of rotting leaves."
+  },
+  {
+   "id": "r-miller",
+   "name": "The miller",
+   "latin": "Clitopilus prunulus",
+   "rank": "Species",
+   "confirm": [
+    "Pink spore print.",
+    "Gills run down the stem, white then pink.",
+    "A white to pale grey cap that feels like kid leather.",
+    "A strong smell of raw pastry or meal."
+   ],
+   "danger": "The fool's funnel and other white funnels look much the same and are seriously poisonous. Their print is white."
+  },
+  {
+   "id": "r-webcap",
+   "name": "Webcaps",
+   "latin": "Cortinarius",
+   "rank": "Genus",
+   "confirm": [
+    "Rusty brown spore print.",
+    "A cobweb veil from cap edge to stem in young ones.",
+    "Rusty threads left on the stem, coloured by fallen spores.",
+    "On the ground with trees."
+   ],
+   "notes": "The largest genus of gilled fungi, with hundreds of British kinds. Most cannot be named in the field.",
+   "danger": "The deadly webcap (Cortinarius rubellus) and fool's webcap (Cortinarius orellanus) destroy the kidneys, and the illness can take days to show. Treat every webcap as dangerous."
+  },
+  {
+   "id": "r-oysterling",
+   "name": "Oysterlings",
+   "latin": "Crepidotus",
+   "rank": "Genus",
+   "confirm": [
+    "Brown spore print, clay to pinkish brown.",
+    "Small, soft, kidney-shaped caps with no stem.",
+    "On twigs, dead stems and wood.",
+    "Gills white at first, then brownish."
+   ],
+   "examples": [
+    "Variable oysterling (Crepidotus variabilis)",
+    "Peeling oysterling (Crepidotus mollis)"
+   ]
+  },
+  {
+   "id": "r-funeral-bell",
+   "name": "Funeral bell or sheathed woodtuft",
+   "latin": "Galerina marginata, Kuehneromyces mutabilis",
+   "rank": "Two look-alikes",
+   "confirm": [
+    "Rusty to cinnamon brown spore print.",
+    "A small ring on the stem.",
+    "On stumps, logs and dead wood.",
+    "A honey-brown cap that dries paler from the centre, so it is often two-toned.",
+    "Funeral bell: stem silky and streaked below the ring. Sheathed woodtuft: stem covered in small upturned scales below the ring, in large clumps."
+   ],
+   "danger": "The funeral bell holds the death cap's poison and has killed. The two are not safe to separate without experience."
+  },
+  {
+   "id": "r-scalycap",
+   "name": "Scalycaps",
+   "latin": "Pholiota",
+   "rank": "Genus",
+   "confirm": [
+    "Rusty brown spore print.",
+    "Scales on the cap and on the stem below the ring.",
+    "In clumps on wood or at the foot of trees."
+   ],
+   "examples": [
+    "Shaggy scalycap (Pholiota squarrosa), dry, at the foot of living trees",
+    "Golden scalycap (Pholiota aurivella), slimy, higher up on beech"
+   ],
+   "danger": "Can be confused with honey fungus, which has a white print.",
+   "garden": "Shaggy scalycap at the foot of a living tree is a sign of decay in the roots or the base of the trunk. On an old apple, ash or rowan it is worth an opinion from someone who knows trees."
+  },
+  {
+   "id": "r-spectacular",
+   "name": "Spectacular rustgill",
+   "latin": "Gymnopilus junonius",
+   "rank": "Species",
+   "confirm": [
+    "Rusty orange spore print.",
+    "Large: cap often over 10cm, golden orange and streaked with fibres.",
+    "A big ring that catches the rusty spores.",
+    "In clumps at the foot of broadleaved trees and on stumps."
+   ],
+   "danger": "Poisonous."
+  },
+  {
+   "id": "r-fieldcap",
+   "name": "Fieldcaps",
+   "latin": "Agrocybe, Cyclocybe",
+   "rank": "Group",
+   "confirm": [
+    "Dull tobacco-brown spore print.",
+    "A smooth cream to tan cap that often cracks when dry.",
+    "A ring that may be slight or lost.",
+    "A smell of meal."
+   ],
+   "examples": [
+    "Spring fieldcap (Agrocybe praecox), on woodchip and grass",
+    "Poplar fieldcap (Cyclocybe cylindracea), in clumps on poplar and willow"
+   ],
+   "garden": "Spring fieldcap is one of the commonest fungi on woodchip mulch and bark paths in spring and early summer. It does no harm to plants."
+  },
+  {
+   "id": "r-fibrecap",
+   "name": "Fibrecaps",
+   "latin": "Inocybe and allies (Inosperma, Pseudosperma)",
+   "rank": "Group",
+   "confirm": [
+    "Dull clay-brown spore print.",
+    "A cone-shaped cap, or flat with a pointed bump.",
+    "Silky fibres running from centre to edge, often splitting.",
+    "On the ground with trees, often by paths. No ring. Often an odd, sickly smell."
+   ],
+   "examples": [
+    "White fibrecap (Inocybe geophylla)",
+    "Split fibrecap (Pseudosperma rimosum)"
+   ],
+   "danger": "Most are poisonous. The deadly fibrecap (Inosperma erubescens), which reddens with age, has killed."
+  },
+  {
+   "id": "r-poisonpie",
+   "name": "Poisonpies",
+   "latin": "Hebeloma",
+   "rank": "Genus",
+   "confirm": [
+    "Clay-brown spore print.",
+    "A pale buff to tan cap, sticky when wet, often paler at the edge.",
+    "Clay-brown gills, sometimes beaded with droplets that dry as dark spots.",
+    "A smell of radish. With trees."
+   ],
+   "examples": [
+    "Poisonpie (Hebeloma crustuliniforme)"
+   ],
+   "danger": "They cause sickness."
+  },
+  {
+   "id": "r-rollrim",
+   "name": "Brown rollrim",
+   "latin": "Paxillus involutus",
+   "rank": "Species",
+   "confirm": [
+    "Brown spore print.",
+    "A brown cap with a downy edge rolled tightly under.",
+    "Soft crowded gills that run down the stem, bruise dark brown and peel away from the cap.",
+    "With birch and other trees, in woods, parks and gardens."
+   ],
+   "danger": "Deadly. It has killed people who had eaten it for years without harm, through a reaction that destroys the red blood cells."
+  },
+  {
+   "id": "r-rustgill",
+   "name": "Rustgills",
+   "latin": "Gymnopilus",
+   "rank": "Genus",
+   "confirm": [
+    "Rusty orange spore print.",
+    "An orange to tawny cap.",
+    "Yellow gills that spot rusty.",
+    "On conifer stumps, sawdust and woodchip. No proper ring."
+   ],
+   "examples": [
+    "Common rustgill (Gymnopilus penetrans)"
+   ],
+   "garden": "Common on bark and woodchip mulch. It does no harm to plants."
+  },
+  {
+   "id": "r-conecap",
+   "name": "Conecaps and bells",
+   "latin": "Conocybe, Pholiotina, Galerina",
+   "rank": "Group",
+   "confirm": [
+    "Rusty to ochre-brown spore print.",
+    "A small cone or bell cap, 1 to 3cm, lined when damp and paler when dry.",
+    "A thin fragile stem.",
+    "Conecaps in lawns and rich soil. Bells (Galerina) in moss."
+   ],
+   "examples": [
+    "Milky conecap (Conocybe apala), pale, in lawns, gone by midday"
+   ],
+   "danger": "Some hold the death cap's poison, among them the fool's conecap (Pholiotina rugosa) and several moss bells. They come up in lawns and on mulch where children and dogs can reach them."
+  },
+  {
+   "id": "r-yellow-fieldcap",
+   "name": "Yellow fieldcap",
+   "latin": "Bolbitius titubans",
+   "rank": "Species",
+   "confirm": [
+    "Rusty ochre spore print.",
+    "An egg-yolk yellow, slimy, egg-shaped cap.",
+    "It soon flattens and fades to grey-buff with a lined edge, and lasts about a day.",
+    "On dung, manured grass, rotting straw and woodchip."
+   ],
+   "garden": "A sign of rich, nitrogen-heavy ground: a well-manured bed or a straw mulch."
+  },
+  {
+   "id": "r-inkcap",
+   "name": "Inkcaps",
+   "latin": "Coprinus, Coprinopsis, Coprinellus, Parasola",
+   "rank": "Group",
+   "confirm": [
+    "Black spore print.",
+    "Crowded gills: white, then pink or grey, then black.",
+    "In most, the cap dissolves into black ink from the edge."
+   ],
+   "examples": [
+    "Shaggy inkcap (Coprinus comatus), tall, white and shaggy",
+    "Common inkcap (Coprinopsis atramentaria), grey, in clumps from buried wood",
+    "Glistening inkcap (Coprinellus micaceus), tan, in dense clumps on stumps",
+    "Pleated inkcap (Parasola plicatilis), in lawns for one morning"
+   ],
+   "danger": "The common inkcap causes a violent reaction with alcohol taken within a few days either side.",
+   "garden": "Inkcaps mean buried wood, old roots or rich disturbed soil. They do no harm."
+  },
+  {
+   "id": "r-agaricus",
+   "name": "True mushrooms",
+   "latin": "Agaricus",
+   "rank": "Genus",
+   "confirm": [
+    "Chocolate-brown spore print.",
+    "Gills free, pink or grey at first and chocolate brown when ripe. Never white when ripe.",
+    "A ring on the stem and no bag at the base.",
+    "Cap white to brown, smooth or scaly."
+   ],
+   "examples": [
+    "Field mushroom (Agaricus campestris)",
+    "Horse mushroom (Agaricus arvensis)",
+    "Yellow stainer (Agaricus xanthodermus)",
+    "Wood mushroom (Agaricus sylvicola)"
+   ],
+   "notes": "Note the smell (aniseed, or ink) and any colour that comes when the very base of the stem is cut.",
+   "danger": "The yellow stainer (Agaricus xanthodermus) is a common cause of mushroom poisoning in Britain. It turns bright chrome yellow at once where the stem base is cut and smells of ink. Deadly amanitas have been taken for mushrooms: they have white gills, a white print and a bag at the base."
+  },
+  {
+   "id": "r-sulphur-tuft",
+   "name": "Sulphur tuft and brick tuft",
+   "latin": "Hypholoma",
+   "rank": "Genus",
+   "confirm": [
+    "Purple-brown spore print.",
+    "Dense clumps on stumps, roots and dead wood.",
+    "Sulphur-yellow cap with a tawny centre. Brick tuft is larger and brick red.",
+    "Gills yellow, then greenish, then dark."
+   ],
+   "examples": [
+    "Sulphur tuft (Hypholoma fasciculare)",
+    "Brick tuft (Hypholoma lateritium)"
+   ],
+   "danger": "Poisonous. Often taken for honey fungus or velvet shank, which both have a white print.",
+   "garden": "It rots dead stumps and roots and does not attack living plants. It can be found in any month."
+  },
+  {
+   "id": "r-roundhead",
+   "name": "Roundheads",
+   "latin": "Stropharia, Leratiomyces, Protostropharia",
+   "rank": "Group",
+   "confirm": [
+    "Purple-brown to dark brown spore print.",
+    "A slimy or sticky cap.",
+    "A ring or a ring zone on the stem.",
+    "Gills clay-coloured, then purple-brown."
+   ],
+   "examples": [
+    "Blue roundhead (Stropharia caerulea), among nettles and on mulch",
+    "Redlead roundhead (Leratiomyces ceres), orange-red, on woodchip",
+    "Dung roundhead (Protostropharia semiglobata)"
+   ],
+   "garden": "The redlead roundhead has spread with woodchip mulch and is now common on it. It does no harm to plants."
+  },
+  {
+   "id": "r-brittlestem",
+   "name": "Brittlestems",
+   "latin": "Psathyrella and allies (Candolleomyces, Lacrymaria)",
+   "rank": "Group",
+   "confirm": [
+    "Dark brown to black spore print.",
+    "Fragile, with a white hollow stem that snaps.",
+    "A cap that is brown when damp and dries pale buff.",
+    "Often white shreds of veil on the cap edge when young."
+   ],
+   "examples": [
+    "Pale brittlestem (Candolleomyces candolleanus)",
+    "Common stump brittlestem (Psathyrella piluliformis)",
+    "Weeping widow (Lacrymaria lacrymabunda)"
+   ],
+   "notes": "Near buried wood and stumps, in lawns and on disturbed ground."
+  },
+  {
+   "id": "r-mottlegill",
+   "name": "Mottlegills",
+   "latin": "Panaeolus, Panaeolina",
+   "rank": "Group",
+   "confirm": [
+    "Black or very dark brown spore print.",
+    "A bell-shaped or rounded cap on a long thin stem.",
+    "Gills mottled grey and black, because the spores ripen in patches. They do not turn to ink.",
+    "On dung, manured soil and lawns."
+   ],
+   "examples": [
+    "Brown mottlegill (Panaeolina foenisecii), the common small brown fungus of mown lawns",
+    "Egghead mottlegill (Panaeolus semiovatus), on dung"
+   ]
+  },
+  {
+   "id": "r-suillus",
+   "name": "Slippery boletes",
+   "latin": "Suillus",
+   "rank": "Genus",
+   "confirm": [
+    "Yellow pores under the cap.",
+    "A slimy or sticky cap.",
+    "Only with conifers, and each kind with its own tree."
+   ],
+   "examples": [
+    "Larch bolete (Suillus grevillei), under larch, with a ring",
+    "Slippery jack (Suillus luteus), under pine, with a large ring",
+    "Bovine bolete (Suillus bovinus), under pine, no ring"
+   ]
+  },
+  {
+   "id": "r-leccinum",
+   "name": "Rough-stalked boletes",
+   "latin": "Leccinum",
+   "rank": "Genus",
+   "confirm": [
+    "A tall stem covered in small rough flecks, dark or orange.",
+    "Pores white, grey or buff.",
+    "A dry cap.",
+    "With birch, aspen, poplar or oak."
+   ],
+   "examples": [
+    "Brown birch bolete (Leccinum scabrum)",
+    "Orange birch bolete (Leccinum versipelle), flesh blackens where cut"
+   ]
+  },
+  {
+   "id": "r-boletus",
+   "name": "Boletes",
+   "latin": "Boletus and allies (Neoboletus, Suillellus, Rubroboletus, Caloboletus, Tylopilus)",
+   "rank": "Group",
+   "confirm": [
+    "Stout, with a swollen stem.",
+    "A raised net or fine coloured dots on the stem.",
+    "Note the pore colour: white, yellow, olive, orange, red or pink.",
+    "Note whether the pores or flesh turn blue when pressed or cut, and how fast."
+   ],
+   "examples": [
+    "Penny bun (Boletus edulis), white net, no blueing",
+    "Scarletina bolete (Neoboletus luridiformis), red pores, turns blue at once",
+    "Bitter bolete (Tylopilus felleus), pink pores, dark net"
+   ],
+   "danger": "Boletes with red or orange pores include poisonous kinds, among them the devil's bolete (Rubroboletus satanas), which is rare and grows on chalk and limestone."
+  },
+  {
+   "id": "r-xerocomus",
+   "name": "Soft-capped boletes",
+   "latin": "Xerocomellus, Xerocomus, Imleria, Hortiboletus",
+   "rank": "Group",
+   "confirm": [
+    "Small to medium, with a dry velvety cap.",
+    "A slim stem with no net.",
+    "Yellow, angular pores that often bruise blue-green."
+   ],
+   "examples": [
+    "Red cracking bolete (Xerocomellus chrysenteron)",
+    "Bay bolete (Imleria badia)",
+    "Ruby bolete (Hortiboletus rubellus), in gardens and parks"
+   ],
+   "notes": "Often smothered by a white then golden mould, the bolete mould (Hypomyces chrysospermus), which is a fungus worth a record of its own."
+  },
+  {
+   "id": "r-tooth",
+   "name": "Hedgehogs and tooth fungi",
+   "latin": "Hydnum and others",
+   "rank": "Group",
+   "confirm": [
+    "Soft spines hanging under the cap, which rub off under a finger.",
+    "Hedgehogs: a cream to pale apricot cap on an off-centre stem, on the ground with trees.",
+    "On a fallen pine cone, tiny and brown with a stem at the side: the earpick fungus."
+   ],
+   "examples": [
+    "Wood hedgehog (Hydnum repandum)",
+    "Terracotta hedgehog (Hydnum rufescens)",
+    "Earpick fungus (Auriscalpium vulgare)"
+   ],
+   "notes": "Tough, corky tooth fungi on the ground under pine and oak (Hydnellum, Phellodon, Sarcodon) are rare and declining. A record with photographs is valuable."
+  },
+  {
+   "id": "r-chanterelle",
+   "name": "Chanterelles",
+   "latin": "Cantharellus, Craterellus",
+   "rank": "Group",
+   "confirm": [
+    "Underneath: blunt, shallow, forking ridges like veins, running down the stem. Not thin separate blades.",
+    "The ridges are the colour of the cap.",
+    "On the ground with trees, often on mossy banks."
+   ],
+   "examples": [
+    "Chanterelle (Cantharellus cibarius), egg yellow",
+    "Trumpet chanterelle (Craterellus tubaeformis), brown cap, yellow hollow stem",
+    "Horn of plenty (Craterellus cornucopioides), black"
+   ],
+   "danger": "The false chanterelle (Hygrophoropsis aurantiaca) has true gills: thin, crowded, forking and more orange. The jack o'lantern (Omphalotus), poisonous and very rare in Britain, grows in clumps from wood."
+  },
+  {
+   "id": "r-chicken",
+   "name": "Chicken of the woods",
+   "latin": "Laetiporus sulphureus",
+   "rank": "Species",
+   "confirm": [
+    "Sulphur-yellow pores underneath.",
+    "Thick soft shelves, orange and yellow, in tiers.",
+    "It fades to chalky white and crumbles with age.",
+    "On oak, sweet chestnut, cherry, willow and yew, from late spring to autumn."
+   ],
+   "garden": "It causes a brown rot of the heartwood. The tree can stand for years while the trunk hollows. On a cherry or another fruit tree it is worth watching."
+  },
+  {
+   "id": "r-beefsteak",
+   "name": "Beefsteak fungus",
+   "latin": "Fistulina hepatica",
+   "rank": "Species",
+   "confirm": [
+    "On oak or sweet chestnut, low on the trunk or on stumps.",
+    "A red-brown tongue, sticky on top.",
+    "Underneath: cream to pink tubes that stand apart like the bristles of a brush.",
+    "It oozes a red juice when cut."
+   ],
+   "garden": "A slow brown rot of the heartwood. The stained timber is the 'brown oak' that cabinet makers prize."
+  },
+  {
+   "id": "r-dryad",
+   "name": "Dryad's saddle",
+   "latin": "Cerioporus squamosus (older books: Polyporus squamosus)",
+   "rank": "Species",
+   "confirm": [
+    "Spring and summer.",
+    "A fan up to 50cm across, cream to ochre, with rings of flat dark brown scales.",
+    "Large angular pores that run down on to the stem.",
+    "A short stout stem, black at the foot.",
+    "On trunks and stumps of broadleaved trees."
+   ],
+   "garden": "A white rot of the heartwood. It marks decay in that part of the tree."
+  },
+  {
+   "id": "r-birch-polypore",
+   "name": "Birch polypore",
+   "latin": "Fomitopsis betulina (older books: Piptoporus betulinus)",
+   "rank": "Species",
+   "confirm": [
+    "Only on birch.",
+    "A smooth, pale brown to grey skin on top, with a rounded rim.",
+    "White underneath, with very small pores.",
+    "Rubbery, then corky. It can be found all year."
+   ],
+   "notes": "Also called the razorstrop fungus. It kills weakened birches and then rots them."
+  },
+  {
+   "id": "r-rosette",
+   "name": "Hen of the woods or giant polypore",
+   "latin": "Grifola frondosa, Meripilus giganteus",
+   "rank": "Two look-alikes",
+   "confirm": [
+    "A rosette of many fronds from one base, at the foot of a tree.",
+    "Hen of the woods: at the foot of oak. Many small, grey-brown, spoon-shaped fronds. Does not blacken.",
+    "Giant polypore: at the foot of beech. Large tan fans, 30cm or more. The pores turn black within minutes where touched."
+   ],
+   "garden": "Giant polypore rots the roots of beech, and the tree can fall while the crown still looks healthy. On a tree near a path, road or building, get a tree surgeon's opinion."
+  },
+  {
+   "id": "r-turkeytail",
+   "name": "Turkeytail and other thin brackets",
+   "latin": "Trametes, Bjerkandera, Daedaleopsis",
+   "rank": "Group",
+   "confirm": [
+    "Thin and leathery, in rows, tiers or rosettes on dead wood.",
+    "Turkeytail: a velvety top in bands of brown, grey, blue and black with a pale edge. White beneath, with tiny pores.",
+    "Smoky bracket: grey pores.",
+    "Blushing bracket: thicker, on willow and birch, with slot-like pores that bruise pink."
+   ],
+   "examples": [
+    "Turkeytail (Trametes versicolor)",
+    "Smoky bracket (Bjerkandera adusta)",
+    "Blushing bracket (Daedaleopsis confragosa)",
+    "Lumpy bracket (Trametes gibbosa)"
+   ],
+   "garden": "These rot dead wood and are a good sign on a log pile."
+  },
+  {
+   "id": "r-woody",
+   "name": "Woody brackets",
+   "latin": "Ganoderma, Fomes, Phellinus, Inonotus",
+   "rank": "Group",
+   "confirm": [
+    "Hard and woody, adding a layer each year.",
+    "Southern or artist's bracket (Ganoderma): a brown knobbly crust on top, white pores that mark brown when scratched and cocoa-brown spore dust on everything nearby.",
+    "Hoof fungus (Fomes fomentarius): a grey hoof on birch or beech.",
+    "Cushion bracket (Phellinus pomaceus): small, grey-brown and hard, on plum and blackthorn.",
+    "Shaggy bracket (Inonotus hispidus): large, furry and rust-brown, turning black. On apple, ash and walnut. Soft, and lasts one season."
+   ],
+   "garden": "A bracket on a living tree means decay inside the trunk or limb where it sits. In an orchard look for cushion bracket on plum and shaggy bracket on apple. A limb carrying one may fail."
+  },
+  {
+   "id": "r-oyster",
+   "name": "Oyster mushrooms",
+   "latin": "Pleurotus",
+   "rank": "Genus",
+   "confirm": [
+    "White to pale lilac spore print.",
+    "Fleshy shell-shaped caps in overlapping tiers on wood.",
+    "White to cream gills running down to a short stem at the side, or to none.",
+    "Cap grey, blue-grey, brown or cream."
+   ],
+   "examples": [
+    "Oyster mushroom (Pleurotus ostreatus)",
+    "Pale oyster (Pleurotus pulmonarius), in summer",
+    "Branching oyster (Pleurotus cornucopiae)"
+   ],
+   "danger": "Angel's wings (Pleurocybella porrigens), thin and pure white on conifer wood in the north, has caused deaths."
+  },
+  {
+   "id": "r-splitgill",
+   "name": "Splitgill",
+   "latin": "Schizophyllum commune",
+   "rank": "Species",
+   "confirm": [
+    "A small tough fan, 1 to 4cm.",
+    "White to grey and hairy on top.",
+    "Underneath: pinkish grey folds like gills, each split along its edge.",
+    "On dead wood, and on plastic-wrapped hay and silage bales."
+   ],
+   "notes": "It curls up when dry and opens again in the wet."
+  },
+  {
+   "id": "r-mazegill",
+   "name": "Mazegills",
+   "latin": "Daedalea, Lenzites, Gloeophyllum",
+   "rank": "Group",
+   "confirm": [
+    "Tough brackets with plates or a maze beneath, not true soft gills.",
+    "Oak mazegill: thick and corky on oak stumps, with a wide maze of thick walls.",
+    "Birch mazegill: like a turkeytail from above, with gill-like plates beneath.",
+    "Conifer mazegill: rusty brown, on conifer wood and old fences."
+   ],
+   "examples": [
+    "Oak mazegill (Daedalea quercina)",
+    "Birch mazegill (Lenzites betulinus)",
+    "Conifer mazegill (Gloeophyllum sepiarium)"
+   ]
+  },
+  {
+   "id": "r-crust-bracket",
+   "name": "Curtain crusts and silverleaf",
+   "latin": "Stereum, Chondrostereum",
+   "rank": "Group",
+   "confirm": [
+    "Thin and leathery, lying flat on the wood with the top edge turned out as small wavy shelves.",
+    "Smooth underneath: no pores and no gills.",
+    "Hairy curtain crust: hairy and banded on top, bright yellow-orange beneath.",
+    "Silverleaf fungus: lilac to purple beneath when fresh, whitish and woolly on top."
+   ],
+   "examples": [
+    "Hairy curtain crust (Stereum hirsutum)",
+    "Bleeding broadleaf crust (Stereum rugosum)",
+    "Silverleaf fungus (Chondrostereum purpureum)"
+   ],
+   "garden": "Silverleaf matters in an orchard. It infects plum, cherry, apple and their relatives through fresh wounds and turns the leaves silvery. It is the reason plums and cherries are pruned in summer, when its spores are few and cuts heal fast, and not in winter."
+  },
+  {
+   "id": "r-puffball",
+   "name": "Puffballs",
+   "latin": "Lycoperdon, Bovista, Calvatia",
+   "rank": "Group",
+   "confirm": [
+    "Inside: pure white and even all through when young, like marshmallow. Later yellow-olive, then brown powder.",
+    "A thin skin.",
+    "Common puffball: pear-shaped, with small cone-shaped warts that rub off. Opens by a hole at the top.",
+    "Giant puffball: smooth, white, the size of a football. In field edges, hedges, nettle beds and gardens."
+   ],
+   "examples": [
+    "Common puffball (Lycoperdon perlatum)",
+    "Stump puffball (Apioperdon pyriforme), in clumps on rotten wood",
+    "Giant puffball (Calvatia gigantea)"
+   ],
+   "danger": "A young death cap, still in its egg, looks like a small puffball. Cut it in half from top to bottom: an amanita shows the outline of a cap, gills and stem inside. Earthballs are poisonous, and are hard and dark inside."
+  },
+  {
+   "id": "r-earthball",
+   "name": "Earthballs",
+   "latin": "Scleroderma",
+   "rank": "Genus",
+   "confirm": [
+    "Hard, with a thick tough skin, yellowish to ochre-brown, scaly or cracked.",
+    "No proper stem.",
+    "Inside: firm and purple-black from early on, marbled with white, then powdery.",
+    "With trees, on banks, paths and bare soil."
+   ],
+   "examples": [
+    "Common earthball (Scleroderma citrinum)"
+   ],
+   "notes": "A small bolete, the parasitic bolete (Pseudoboletus parasiticus), sometimes grows out of it.",
+   "danger": "Poisonous."
+  },
+  {
+   "id": "r-earthstar",
+   "name": "Earthstars",
+   "latin": "Geastrum",
+   "rank": "Genus",
+   "confirm": [
+    "A bud like an onion splits into 4 to 10 rays, which fold back and lift a papery ball.",
+    "The ball has a hole at the top and puffs spores when a raindrop hits it.",
+    "In leaf litter under trees and hedges, often under conifers and in gardens."
+   ],
+   "examples": [
+    "Collared earthstar (Geastrum triplex), the commonest, with a saucer round the ball"
+   ],
+   "notes": "Several kinds are rare. A photograph of the hole at the top helps to name them."
+  },
+  {
+   "id": "r-egg",
+   "name": "Stinkhorn egg",
+   "latin": "Phallus, Mutinus, Clathrus",
+   "rank": "Group",
+   "confirm": [
+    "A soft white or pinkish egg, 3 to 6cm, half buried.",
+    "A white cord like a root at the base.",
+    "Cut in half: a layer of clear jelly round a dark olive core and a white column."
+   ],
+   "notes": "The stinkhorn will rise from it within days. See Stinkhorns.",
+   "danger": "An amanita egg has no jelly layer, and shows a cap and gills inside. That may be a death cap."
+  },
+  {
+   "id": "r-cramp-ball",
+   "name": "King Alfred's cakes and woodwarts",
+   "latin": "Daldinia concentrica, Hypoxylon",
+   "rank": "Group",
+   "confirm": [
+    "King Alfred's cakes: hard round lumps, 2 to 7cm, red-brown then shiny black, mostly on dead ash.",
+    "Cut through: rings of silver-grey and black, like the rings of a tree.",
+    "Beech woodwart: pea-sized, salmon pink to brick red, then black, crowded on beech bark."
+   ],
+   "examples": [
+    "King Alfred's cakes (Daldinia concentrica)",
+    "Beech woodwart (Hypoxylon fragiforme)"
+   ],
+   "notes": "Also called cramp balls. They leave black spore dust on the bark around them."
+  },
+  {
+   "id": "r-elfcup",
+   "name": "Scarlet elfcup",
+   "latin": "Sarcoscypha austriaca. Also ruby elfcup, Sarcoscypha coccinea",
+   "rank": "Two look-alikes",
+   "confirm": [
+    "Winter to early spring.",
+    "Bright scarlet and smooth inside, whitish and felted outside.",
+    "A short stem.",
+    "On moss-covered dead sticks in damp woods and hedges."
+   ],
+   "notes": "The two kinds can only be separated with a microscope."
+  },
+  {
+   "id": "r-orange-peel",
+   "name": "Orange peel fungus",
+   "latin": "Aleuria aurantia",
+   "rank": "Species",
+   "confirm": [
+    "Bright orange inside, paler and downy outside.",
+    "Thin and brittle, with no stem, becoming wavy and split.",
+    "In groups on bare, disturbed or gravelly soil, paths and new lawns. Autumn."
+   ]
+  },
+  {
+   "id": "r-peziza",
+   "name": "Cup fungi",
+   "latin": "Peziza and allies",
+   "rank": "Group",
+   "confirm": [
+    "Brittle tan to brown cups, 2 to 10cm, with no stem or almost none.",
+    "Smooth inside and scurfy outside.",
+    "Blistered cup: pale buff, in clusters, on manure, compost, straw and rich mulch.",
+    "Bay cup: dark brown, on bare soil and paths."
+   ],
+   "examples": [
+    "Blistered cup (Peziza vesiculosa)",
+    "Bay cup (Peziza badia)",
+    "Cellar cup (Peziza cerea), on damp mortar"
+   ],
+   "notes": "Tap a ripe cup or breathe on it and it puffs a cloud of spores.",
+   "garden": "Blistered cup is common on manure heaps, compost and straw mulch. It does no harm."
+  },
+  {
+   "id": "r-jelly-ear",
+   "name": "Jelly ear",
+   "latin": "Auricularia auricula-judae",
+   "rank": "Species",
+   "confirm": [
+    "Ear-shaped, 3 to 10cm, tan to purplish brown.",
+    "Velvety outside, smooth and veined inside.",
+    "Rubbery. It dries hard and black and swells again in rain.",
+    "Mostly on elder, also on beech, sycamore and ash. All year."
+   ]
+  },
+  {
+   "id": "r-birds-nest",
+   "name": "Bird's nest fungi",
+   "latin": "Cyathus, Crucibulum",
+   "rank": "Group",
+   "confirm": [
+    "Cups 5 to 15mm across, holding lentil-shaped 'eggs'.",
+    "Young cups are closed by a lid.",
+    "Raindrops splash the eggs out."
+   ],
+   "examples": [
+    "Common bird's nest (Crucibulum laeve)",
+    "Fluted bird's nest (Cyathus striatus)",
+    "Field bird's nest (Cyathus olla)"
+   ],
+   "garden": "Very common on woodchip mulch, in plant pots and on old twigs. They do no harm."
+  },
+  {
+   "id": "r-discs",
+   "name": "Small discs on wood",
+   "latin": "Calycina, Chlorociboria, Scutellinia and others",
+   "rank": "Group",
+   "confirm": [
+    "Lemon disco: bright yellow discs 1 to 3mm across, in swarms on bare dead wood.",
+    "Green elfcup: small blue-green cups. More often seen as dead wood stained green right through.",
+    "Eyelash fungus: orange-red discs up to 1cm, with dark lashes round the rim, on wet rotten wood."
+   ],
+   "examples": [
+    "Lemon disco (Calycina citrina)",
+    "Green elfcup (Chlorociboria aeruginascens)",
+    "Common eyelash (Scutellinia scutellata)"
+   ]
+  },
+  {
+   "id": "r-xylaria",
+   "name": "Candlesnuff and dead man's fingers",
+   "latin": "Xylaria",
+   "rank": "Genus",
+   "confirm": [
+    "Candlesnuff: 2 to 6cm, flat and forked like antlers, black and hairy below with white powdery tips.",
+    "Dead man's fingers: swollen black clubs 3 to 8cm, rough outside and white inside, in clusters at the foot of beech stumps.",
+    "On stumps and dead wood, all year."
+   ],
+   "examples": [
+    "Candlesnuff fungus (Xylaria hypoxylon)",
+    "Dead man's fingers (Xylaria polymorpha)"
+   ]
+  },
+  {
+   "id": "r-stagshorn",
+   "name": "Yellow stagshorn",
+   "latin": "Calocera viscosa",
+   "rank": "Species",
+   "confirm": [
+    "Bright yellow to orange, 3 to 10cm, forked like antlers.",
+    "Greasy and rubbery: it bends and does not snap.",
+    "Rooted in conifer stumps and roots."
+   ],
+   "notes": "Small stagshorn (Calocera cornea) is a tiny unbranched yellow spike on the wood of broadleaved trees. Yellow coral fungi are brittle and grow from soil."
+  },
+  {
+   "id": "r-spindles",
+   "name": "Clubs and spindles",
+   "latin": "Clavaria, Clavulinopsis",
+   "rank": "Group",
+   "confirm": [
+    "Simple clubs or spindles, not branched or hardly so.",
+    "Brittle. Growing from the soil in grass and moss.",
+    "Golden spindles: dense tufts of pointed yellow spindles.",
+    "White spindles: fragile white tufts."
+   ],
+   "examples": [
+    "Golden spindles (Clavulinopsis fusiformis)",
+    "White spindles (Clavaria fragilis)",
+    "Meadow coral (Clavulinopsis corniculata)"
+   ],
+   "garden": "Like waxcaps, these mark old unfertilised grass. Several kinds together on a lawn make it worth recording and looking after."
+  },
+  {
+   "id": "r-coral",
+   "name": "Coral fungi",
+   "latin": "Ramaria, Clavulina",
+   "rank": "Group",
+   "confirm": [
+    "Many branches from one base, brittle.",
+    "Crested coral: white, with fringed tips, on woodland soil.",
+    "Upright coral: ochre to pinkish, with straight branches side by side. On buried wood and woodchip. Bruises wine-brown."
+   ],
+   "examples": [
+    "Crested coral (Clavulina coralloides)",
+    "Grey coral (Clavulina cinerea)",
+    "Upright coral (Ramaria stricta)"
+   ],
+   "danger": "Some cause sickness.",
+   "garden": "Upright coral is common on woodchip mulch. It does no harm to plants."
+  },
+  {
+   "id": "r-cauliflower",
+   "name": "Wood cauliflower",
+   "latin": "Sparassis crispa",
+   "rank": "Species",
+   "confirm": [
+    "A rounded cream to pale ochre mass, 10 to 40cm across.",
+    "Made of flat, wavy, crisp lobes, like a sea sponge.",
+    "At the foot of pine and other conifers, growing from the roots.",
+    "Late summer and autumn."
+   ],
+   "notes": "It causes a brown rot in the roots and base of the tree."
+  },
+  {
+   "id": "r-caterpillarclub",
+   "name": "Scarlet caterpillarclub",
+   "latin": "Cordyceps militaris",
+   "rank": "Species",
+   "confirm": [
+    "An orange-red club 2 to 5cm tall, with a finely pimpled head.",
+    "In short grass or moss, in autumn.",
+    "Follow the stem down with a knife: it is joined to a buried moth pupa or caterpillar."
+   ],
+   "notes": "A fungus that grows inside a living insect. The record is worth more if the host can be photographed too."
+  },
+  {
+   "id": "r-yellow-brain",
+   "name": "Yellow brain and jellyspots",
+   "latin": "Tremella mesenterica, Dacrymyces",
+   "rank": "Group",
+   "confirm": [
+    "Yellow brain: a golden, lobed, jelly mass 2 to 8cm across, on dead branches still on the tree, often gorse, oak, hazel and ash.",
+    "It shrivels to an orange crust when dry.",
+    "Jellyspot: orange-yellow blobs 1 to 5mm across, in swarms on wet rotten wood."
+   ],
+   "examples": [
+    "Yellow brain (Tremella mesenterica)",
+    "Common jellyspot (Dacrymyces stillatus)"
+   ],
+   "notes": "Yellow brain feeds on another fungus, a crust inside the wood.",
+   "garden": "Jellyspot on a fence rail, shed or raised bed shows that the timber is staying wet and has begun to rot."
+  },
+  {
+   "id": "r-black-jelly",
+   "name": "Witches' butter and black bulgar",
+   "latin": "Exidia, Bulgaria inquinans",
+   "rank": "Group",
+   "confirm": [
+    "Witches' butter: black, shiny, separate buttons with tiny warts, on dead oak branches.",
+    "Warlock's butter: a black folded mass that runs together, on many kinds of wood.",
+    "Black bulgar: firm rubbery black buttons 1 to 4cm, brown and scurfy outside, in rows from the bark of newly fallen oak and beech."
+   ],
+   "examples": [
+    "Witches' butter (Exidia glandulosa)",
+    "Warlock's butter (Exidia nigricans)",
+    "Black bulgar (Bulgaria inquinans)"
+   ],
+   "notes": "Black bulgar leaves black spore marks on the fingers."
+  },
+  {
+   "id": "r-purple-jelly",
+   "name": "Purple jellydisc",
+   "latin": "Ascocoryne sarcoides",
+   "rank": "Species",
+   "confirm": [
+    "Pinkish purple and jelly-like.",
+    "First lumps folded like a brain, then top-shaped discs up to 1.5cm.",
+    "Clustered on dead beech stumps and logs, in autumn and winter."
+   ],
+   "notes": "A second kind, Ascocoryne cylichnium, can only be told apart with a microscope."
+  },
+  {
+   "id": "r-stinkhorn",
+   "name": "Stinkhorns",
+   "latin": "Phallus impudicus, Mutinus caninus",
+   "rank": "Group",
+   "confirm": [
+    "Usually found by the smell of carrion, from some metres away.",
+    "Stinkhorn: a white, spongy, hollow stalk 10 to 20cm tall. A bell-shaped head covered in olive slime, which flies carry off to leave a white honeycomb.",
+    "Dog stinkhorn: smaller and slender, with an orange tip under the slime, and less smell.",
+    "Each rises from an egg in the soil."
+   ],
+   "examples": [
+    "Stinkhorn (Phallus impudicus)",
+    "Dog stinkhorn (Mutinus caninus)"
+   ],
+   "notes": "Flies eat the slime and carry the spores away.",
+   "garden": "Common in woodchip mulch and round old stumps. It does no harm, and goes in a few days."
+  },
+  {
+   "id": "r-cage",
+   "name": "Red cage and devil's fingers",
+   "latin": "Clathrus ruber, Clathrus archeri",
+   "rank": "Two species",
+   "confirm": [
+    "Red cage: a hollow coral-red lattice ball up to 10cm, with dark stinking slime inside.",
+    "Devil's fingers: 4 to 7 red arms spread like a starfish, with dark slime along them.",
+    "Each rises from an egg. In gardens, mulch, compost and grassland, mostly in southern England."
+   ],
+   "notes": "Both are uncommon. Devil's fingers came from Australia or New Zealand. A record with a photograph is valuable."
+  },
+  {
+   "id": "r-morel",
+   "name": "Morels",
+   "latin": "Morchella",
+   "rank": "Genus",
+   "confirm": [
+    "Spring: March to May.",
+    "A cap of pits and ridges like honeycomb.",
+    "Cut lengthwise: one hollow chamber through cap and stem.",
+    "On chalky soil, at wood edges and hedges, in old orchards, on burnt ground and on bark mulch."
+   ],
+   "danger": "The false morel (Gyromitra esculenta) has a lobed, wrinkled cap like a brain, with no pits, and is divided into chambers inside. It is deadly. It grows under conifers on sandy soil in spring.",
+   "garden": "Morels turn up in old orchards and, for a year or two, on new bark mulch."
+  },
+  {
+   "id": "r-saddle",
+   "name": "Saddles",
+   "latin": "Helvella",
+   "rank": "Genus",
+   "confirm": [
+    "White saddle: a creamy, lobed, saddle-shaped cap on a white stem that is deeply ribbed and full of holes.",
+    "Elfin saddle: the same build in grey and black.",
+    "By paths in broadleaved woods, late summer and autumn."
+   ],
+   "examples": [
+    "White saddle (Helvella crispa)",
+    "Elfin saddle (Helvella lacunosa)"
+   ],
+   "danger": "Poisonous."
+  },
+  {
+   "id": "r-crust",
+   "name": "Crust fungi and coral spot",
+   "latin": "Many genera",
+   "rank": "Group",
+   "confirm": [
+    "A flat patch on wood with no cap. Note the colour, the surface (smooth, warty, toothed, wrinkled or pored) and the tree.",
+    "Wrinkled crust: orange-pink, with wrinkles running out from the centre.",
+    "Elder whitewash: like a splash of white paint on elder.",
+    "Coral spot: pinhead cushions, pink to orange, on dead twigs."
+   ],
+   "examples": [
+    "Wrinkled crust (Phlebia radiata)",
+    "Cobalt crust (Terana caerulea), vivid blue",
+    "Elder whitewash (Hyphodontia sambuci)",
+    "Coral spot (Nectria cinnabarina)"
+   ],
+   "notes": "Most crusts need a microscope.",
+   "garden": "Coral spot lives on dead twigs and pea sticks but can move into living branches through wounds and snags, on currants, gooseberries, figs, magnolias and maples. Cut back to sound wood and do not leave stubs."
+  },
+  {
+   "id": "r-slime-mould",
+   "name": "Slime mould",
+   "latin": "Fuligo septica and others. Not a fungus",
+   "rank": "Not a fungus",
+   "confirm": [
+    "Dog's vomit slime mould: a bright yellow foamy mass 3 to 20cm across that appears overnight on woodchip, grass or stumps.",
+    "Within days it hardens to a pale crust full of dark brown dust.",
+    "Wolf's milk: pink to grey balls the size of a pea on rotten wood, with pink paste inside when young.",
+    "On lawns: white or grey crusts and beads on the grass blades."
+   ],
+   "examples": [
+    "Dog's vomit slime mould (Fuligo septica)",
+    "Wolf's milk (Lycogala terrestre)",
+    "Dog sick slime mould (Mucilago crustacea)"
+   ],
+   "notes": "Slime moulds are not fungi, but fungus recorders take records of them.",
+   "garden": "Harmless. It feeds on bacteria and other microbes in the mulch, not on plants, and it goes in a few days. Nothing needs doing."
+  }
+ ]
+}
