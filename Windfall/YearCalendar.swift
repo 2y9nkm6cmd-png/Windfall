@@ -136,6 +136,41 @@ enum YearCalendar {
     /// The month before, going round from January to December.
     static func monthBefore(_ month: Int) -> Int { month <= 1 ? 12 : month - 1 }
 
+    // MARK: Months as pages
+
+    /// A month's page lays the months out side by side, like the pages
+    /// of a calendar, so a finger can swipe from one to the next. To let
+    /// December lead on to January the twelve are repeated: this many
+    /// pages in all, which is twenty years. The page opens in the middle,
+    /// ten years of swiping from either end.
+    static let monthPageCount = 240
+
+    /// The month a page shows, 1 to 12. Page 0 is January, page 11 is
+    /// December and page 12 is January again. `%` is the remainder after
+    /// dividing, which is what makes the months go round.
+    static func month(atPage page: Int) -> Int {
+        ((page % 12) + 12) % 12 + 1
+    }
+
+    /// The page to open on for a month: the one in the middle year.
+    static func middlePage(for month: Int) -> Int {
+        monthPageCount / 2 + min(max(month, 1), 12) - 1
+    }
+
+    /// The page showing a month that is the shortest way from the page
+    /// now showing. From November, January is two pages on, not ten
+    /// pages back.
+    static func page(for month: Int, nearest page: Int) -> Int {
+        var steps = (month - self.month(atPage: page)) % 12
+        if steps > 6 { steps -= 12 }
+        if steps < -5 { steps += 12 }
+        var found = page + steps
+        // Never off either end of the pages.
+        if found < 0 { found += 12 }
+        if found >= monthPageCount { found -= 12 }
+        return found
+    }
+
     /// Where a month falls in a job's months, or nil when the job cannot
     /// be done that month.
     ///

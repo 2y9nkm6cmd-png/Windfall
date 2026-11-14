@@ -92,6 +92,7 @@ Icons are drawn on a 24 by 24 grid with a line 1.6 wide and rounded ends.
 | `2026-11-13 evening screenshot-sowing-form-apple.png` | The sowing form with an apple chosen: no way back, and an apple does not come true from seed |
 | `2026-11-14 screenshot-plant-page-achillea-mac.png` | Achillea's page on the Mac, dark, sent with "Could you make it so that you can add a planting of plants in the plant page?" |
 | `2026-11-14 screenshot-year-page-month-heading-mac.png` | The top of the Year page on the Mac, dark, with every job showing, sent with "when you click or tap the month at the top of this page, you can see the month bigger and see what needs to be planted that month" |
+| `2026-11-14 screenshot-iphone-settings-back-swipe.heic` | An iPhone's Settings part-way through a swipe back, the page before in view underneath, sent with "When you swipe back to the previous screen can you make it so that the screen swipes over like in this screenshot" |
 
 ## What is in Archive
 

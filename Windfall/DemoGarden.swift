@@ -52,6 +52,28 @@ enum DemoGarden {
         return (1...12).contains(month) ? month : nil
     }
 
+    /// Checking aids for a month's page, used with `-demoMonth`. A
+    /// moment after the page appears, `-demoMonthStep on` presses its
+    /// forward arrow once and `-demoMonthStep back` its back arrow, and
+    /// `-demoMonthThen 9` chooses September from the list under the
+    /// month's name. A still picture then shows whether the page turned.
+    /// (Words, not 1 and -1: a launch argument that starts with a minus
+    /// sign is taken for the name of the next setting, not a value.)
+    static var stepsMonth: Int {
+        guard isRequested else { return 0 }
+        switch UserDefaults.standard.string(forKey: "demoMonthStep") {
+        case "on": return 1
+        case "back": return -1
+        default: return 0
+        }
+    }
+
+    static var thenMonth: Int? {
+        guard isRequested else { return nil }
+        let month = UserDefaults.standard.integer(forKey: "demoMonthThen")
+        return (1...12).contains(month) ? month : nil
+    }
+
     /// True when the app was also started with `-demoWeather`, which opens
     /// the Weather page in place of the Gardens page, for checking it.
     static var opensWeather: Bool {

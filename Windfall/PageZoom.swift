@@ -7,6 +7,8 @@
 //    Command and plus or minus   make everything on the page larger or
 //                                smaller. Command and 0 puts it back.
 //    Two fingers, swiped right   go back to the page before, as in Safari.
+//                                The page follows the fingers and slides
+//                                away to the right.
 //
 //  WHY THE PAGE IS ZOOMED, NOT THE TEXT
 //  An iPhone or iPad has a text size setting that every app follows.
@@ -118,14 +120,30 @@ struct TextSizeCommands: Commands {
 /// A page that was pushed on (a plant's page, say) is given a `dismiss`
 /// action by SwiftUI: calling it goes back. Only the page itself can get
 /// hold of it. So each page hands its own to this list when it appears
-/// and takes it away when it goes (see `BackSwipeMarker`, which
+/// and takes it away when it goes (see `BackSwipeSlide`, which
 /// `paperScreen()` puts on every page).
+///
+/// THE PAGE FOLLOWS THE FINGERS (asked for by William on 14 November
+/// 2026, with a picture of an iPhone's Settings part-way through a
+/// swipe back). Until then the page went back all at once when the
+/// fingers had travelled 90 points. Now `pull` says how far the fingers
+/// have dragged the page on top, and that page draws itself that far to
+/// the right. Lifting the fingers past `needed` sends it off the edge
+/// and goes back. Lifting sooner lets it spring home.
+///
+/// `@Observable` means any view that reads `pull` is redrawn whenever
+/// it changes, which is what makes the page move.
 @Observable
 final class BackSwipe {
 
     static let shared = BackSwipe()
 
     private var leaving: [(id: UUID, leave: () -> Void)] = []
+
+    /// How far the page on top has been dragged to the right, in points.
+    private(set) var pull: CGFloat = 0
+    /// The page being dragged. Nil when none is.
+    private(set) var pulledPage: UUID?
 
     func add(id: UUID, leave: @escaping () -> Void) {
         leaving.removeAll { $0.id == id }
@@ -134,6 +152,12 @@ final class BackSwipe {
 
     func remove(id: UUID) {
         leaving.removeAll { $0.id == id }
+        // The page that was dragged away has gone: forget the drag, so
+        // the next page starts where it should.
+        if pulledPage == id {
+            pulledPage = nil
+            pull = 0
+        }
     }
 
     /// Goes back from the page on top. Returns false if there is no
@@ -150,10 +174,16 @@ final class BackSwipe {
     private var watcher: Any?
     private var travel: CGFloat = 0
     private var rise: CGFloat = 0
-    private var hasFired = false
+    /// Whether this swipe is a swipe back. Nil until the fingers have
+    /// moved far enough to tell.
+    private var isBackSwipe: Bool?
+    /// How wide the window is, which is how far a page slides to be
+    /// clear of it.
+    private var windowWidth: CGFloat = 1200
 
-    /// How far two fingers must travel to the right, in points.
-    private let needed: CGFloat = 90
+    /// How far the page must be dragged for lifting the fingers to go
+    /// back, in points.
+    private let needed: CGFloat = 110
 
     /// Starts watching the trackpad. Safe to call more than once.
     func watchTrackpad() {
@@ -173,31 +203,91 @@ final class BackSwipe {
         if scroll.phase.contains(.began) || scroll.phase.contains(.mayBegin) {
             travel = 0
             rise = 0
-            hasFired = false
+            isBackSwipe = nil
+            // A drag left over from a swipe that never finished.
+            if pulledPage != nil { settle(goingBack: false) }
         }
-        guard !hasFired else { return }
+
+        // The fingers have lifted, or the swipe was called off.
+        if scroll.phase.contains(.ended) || scroll.phase.contains(.cancelled) {
+            if isBackSwipe == true {
+                settle(goingBack: scroll.phase.contains(.ended) && pull > needed)
+            }
+            isBackSwipe = false
+            return
+        }
+
+        guard isBackSwipe != false else { return }
         // A sliding switch under the pointer owns a sideways swipe. So
-        // does a sheet, which has its own Cancel or Done.
-        guard !PointerClaims.isOverSwitch,
-              let window = scroll.window, window.attachedSheet == nil, window.sheetParent == nil else { return }
+        // does a sheet, which has its own Cancel or Done. And so does a
+        // month's page, where a sideways swipe turns the month.
+        guard !PointerClaims.isOverSwitch, !PointerClaims.monthPageIsOpen,
+              let window = scroll.window, window.attachedSheet == nil, window.sheetParent == nil else {
+            isBackSwipe = false
+            return
+        }
 
         // Fingers moving right count up. See GlassSwitch for why the
         // sign is turned when "natural scrolling" is off.
         travel += scroll.isDirectionInvertedFromDevice ? scroll.scrollingDeltaX : -scroll.scrollingDeltaX
         rise += abs(scroll.scrollingDeltaY)
 
-        // Far enough to the right, and clearly more across than up or down.
-        if travel > needed && travel > rise * 2.5 {
-            hasFired = true
-            goBack()
+        if isBackSwipe == nil {
+            // Wait until the fingers have moved a little, then decide
+            // once: to the right, and clearly more across than up or
+            // down, with a page to go back from. Anything else is
+            // ordinary scrolling and is left alone until the next swipe.
+            guard abs(travel) + rise > 14 else { return }
+            guard travel > 0, travel > rise * 2, let top = leaving.last else {
+                isBackSwipe = false
+                return
+            }
+            isBackSwipe = true
+            pulledPage = top.id
+            windowWidth = window.frame.width
+        }
+
+        // The page follows the fingers. It cannot be dragged left of
+        // where it started.
+        pull = max(0, travel)
+    }
+
+    /// Finishes a drag: off to the right and back a page, or home again.
+    private func settle(goingBack: Bool) {
+        guard let dragged = pulledPage else { return }
+        if goingBack, let top = leaving.last, top.id == dragged {
+            // Slide the rest of the way off, then go back with no
+            // animation of the Mac's own on top of ours.
+            withAnimation(.easeOut(duration: 0.18)) { pull = windowWidth }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.18) { [weak self] in
+                var quiet = Transaction()
+                quiet.disablesAnimations = true
+                withTransaction(quiet) { top.leave() }
+                // `remove` forgets the drag when the page has gone. This
+                // is a safety net in case it never does.
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                    guard let self, self.pulledPage == dragged else { return }
+                    self.pulledPage = nil
+                    self.pull = 0
+                }
+            }
+        } else {
+            withAnimation(.smooth(duration: 0.25)) { pull = 0 }
+            pulledPage = nil
         }
     }
     #endif
 }
 
-/// Put on every page by `paperScreen()`. If the page was opened on top
-/// of another, it tells `BackSwipe` how to leave it.
-struct BackSwipeMarker: View {
+/// Put on every page by `paperScreen()`, on a Mac. If the page was
+/// opened on top of another, it tells `BackSwipe` how to leave it, and
+/// while two fingers drag it to the right it draws itself that far
+/// across, with a soft shadow down its left edge like a sheet of paper
+/// being slid off the one beneath.
+///
+/// A `ViewModifier` is a reusable change that can be put on any view.
+/// `content` is the page it was put on.
+struct BackSwipeSlide: ViewModifier {
 
     /// True for a page that was pushed on or presented, false for the
     /// first page of a place.
@@ -205,10 +295,26 @@ struct BackSwipeMarker: View {
     @Environment(\.dismiss) private var dismiss
     @State private var id = UUID()
 
-    var body: some View {
-        Color.clear
-            .frame(width: 0, height: 0)
-            .accessibilityHidden(true)
+    func body(content: Content) -> some View {
+        // Zero for every page but the one being dragged.
+        let across = BackSwipe.shared.pulledPage == id ? BackSwipe.shared.pull : 0
+
+        content
+            .overlay(alignment: .leading) {
+                // The shadow, drawn just outside the page's left edge.
+                // Clear when the page is at rest.
+                LinearGradient(colors: [.clear, .black.opacity(0.22)],
+                               startPoint: .leading, endPoint: .trailing)
+                    .frame(width: 18)
+                    .offset(x: -18)
+                    .ignoresSafeArea()
+                    .opacity(across > 0 ? 1 : 0)
+                    .allowsHitTesting(false)
+                    .accessibilityHidden(true)
+            }
+            // `offset` draws the page somewhere else without moving
+            // anything around it.
+            .offset(x: across)
             .onAppear {
                 guard isPresented else { return }
                 BackSwipe.shared.add(id: id) { dismiss() }

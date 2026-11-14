@@ -473,6 +473,10 @@ enum PointerClaims {
     /// True while the pointer is over a sliding switch, which then owns
     /// any sideways swipe. The swipe that goes back a page stands aside.
     static var isOverSwitch = false
+    /// True while a month's page (YearMonthView) is the page showing.
+    /// A sideways swipe there turns to the next or the last month, so
+    /// the swipe that goes back a page stands aside.
+    static var monthPageIsOpen = false
 }
 
 // MARK: - The bend

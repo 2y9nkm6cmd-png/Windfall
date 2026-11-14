@@ -16,8 +16,19 @@
 //    "Starts now"        this is the first month of its stretch
 //    "to March"          it can wait: the stretch runs on until then
 //
-//  The pressing ones come first in each card. The arrows by the month's
-//  name step to the month before and after.
+//  The pressing ones come first in each card.
+//
+//  Moving between months (asked for by William on 14 November 2026,
+//  15:31):
+//    - swipe sideways, like turning the pages of a calendar
+//    - press the arrows by the month's name
+//    - press the month's name for a list of the twelve months
+//
+//  How the swiping works: the months are laid side by side in a row that
+//  scrolls sideways and stops on a whole page each time. Each page is a
+//  month, with its own name and cards, and scrolls up and down by
+//  itself. The row holds the twelve months many times over, so December
+//  leads on to January (see `YearCalendar.monthPageCount`).
 //
 //  Asked for by William on 14 November 2026: "when you click or tap the
 //  month at the top of this page, you can see the month bigger and see
@@ -36,9 +47,11 @@ struct YearMonthView: View {
     // when a record changes.
     @Query(sort: [SortDescriptor(\Plant.commonName)]) private var plants: [Plant]
 
-    /// The month being shown, 1 for January to 12 for December. `@State`
-    /// because the arrows change it while the page stays open.
-    @State private var shownMonth: Int
+    /// Which page of the row of months is showing. `@State` because
+    /// swiping, the arrows and the list of months all change it while
+    /// this screen stays open. The `?` is there because the scrolling
+    /// row wants a value that may be empty. It never is in practice.
+    @State private var shownPage: Int?
     /// The kind of plant the Year page was filtered to when this page
     /// was opened, such as vegetables. Nil means every kind.
     let plantKind: PlantKind?
@@ -48,15 +61,25 @@ struct YearMonthView: View {
     /// How many plants a card lists before it offers "Show all".
     private let shortList = 10
 
+    #if os(macOS)
+    /// Watches the Mac's trackpad for two fingers swiped sideways. See
+    /// `MonthSwipes` at the foot of this file.
+    @State private var trackpadSwipes = MonthSwipes()
+    #endif
+
     init(month: Int, plantKind: PlantKind? = nil) {
-        // `_shownMonth` with the underscore is the store behind the
+        // `_shownPage` with the underscore is the store behind the
         // @State value. This is how a @State is given its first value
         // from outside.
-        _shownMonth = State(initialValue: min(max(month, 1), 12))
+        _shownPage = State(initialValue: YearCalendar.middlePage(for: month))
         self.plantKind = plantKind
     }
 
     private var thisMonth: Int { Calendar.current.component(.month, from: .now) }
+    /// The page showing, as a plain number.
+    private var pageNow: Int { shownPage ?? YearCalendar.middlePage(for: thisMonth) }
+    /// The month showing, 1 for January to 12 for December.
+    private var shownMonth: Int { YearCalendar.month(atPage: pageNow) }
     private var monthTitle: String { PlantFilter.monthName(shownMonth) }
 
     /// The plants this page chooses from: the same ones the Year page
@@ -69,13 +92,12 @@ struct YearMonthView: View {
         }
     }
 
-    /// Each job's plants for the month being shown. A dictionary is a
-    /// look-up table: hand it a job and it hands back that job's list.
-    private var monthLists: [YearActivity: [MonthEntry]] {
-        let chosenFrom = growing
+    /// Each job's plants for one month. A dictionary is a look-up
+    /// table: hand it a job and it hands back that job's list.
+    private func monthLists(for month: Int, from chosenFrom: [Plant]) -> [YearActivity: [MonthEntry]] {
         var lists: [YearActivity: [MonthEntry]] = [:]
         for job in YearActivity.allCases {
-            lists[job] = YearCalendar.entries(for: job, in: shownMonth, from: chosenFrom)
+            lists[job] = YearCalendar.entries(for: job, in: month, from: chosenFrom)
         }
         return lists
     }
@@ -83,41 +105,41 @@ struct YearMonthView: View {
     // MARK: The screen
 
     var body: some View {
-        // Worked out once for this redraw.
-        let lists = monthLists
+        // Worked out once for this redraw, and shared by every page.
+        let chosenFrom = growing
 
-        // GeometryReader says how wide the page is.
+        // GeometryReader says how big the screen's space is. Each page
+        // is made exactly that wide, so one page fills it.
         GeometryReader { geometry in
             let isWide = geometry.size.width >= 720
 
-            ScrollView {
-                VStack(alignment: .leading, spacing: 16) {
-                    header
-                    summary(lists)
-
-                    if isWide {
-                        // Two columns, each as tall as its own cards.
-                        HStack(alignment: .top, spacing: 16) {
-                            VStack(spacing: 16) {
-                                jobCard(.sowIndoors, lists)
-                                jobCard(.sowOutdoors, lists)
-                                jobCard(.plantOut, lists)
-                            }
-                            VStack(spacing: 16) {
-                                jobCard(.harvest, lists)
-                                jobCard(.flowering, lists)
-                            }
-                        }
-                    } else {
-                        ForEach(YearActivity.allCases) { job in
-                            jobCard(job, lists)
-                        }
+            // The row of months. It scrolls sideways.
+            ScrollView(.horizontal) {
+                // "Lazy" means a page is only built when it is about to
+                // slide into view, so 240 pages cost no more than three.
+                LazyHStack(alignment: .top, spacing: 0) {
+                    ForEach(0..<YearCalendar.monthPageCount, id: \.self) { page in
+                        monthPage(YearCalendar.month(atPage: page), from: chosenFrom, isWide: isWide)
+                            .frame(width: geometry.size.width, height: geometry.size.height)
                     }
                 }
-                .padding(.horizontal, 16)
-                .padding(.top, 12)
-                .padding(.bottom, 20)
+                // Marks each page as a place the scrolling can stop.
+                .scrollTargetLayout()
             }
+            // Stops on a whole page, never between two.
+            .scrollTargetBehavior(.paging)
+            // Ties the row to `shownPage` both ways: a swipe changes the
+            // number, and changing the number scrolls the row.
+            .scrollPosition(id: $shownPage)
+            .scrollIndicators(.hidden)
+            #if os(macOS)
+            // On a Mac the row is moved only by `shownPage`. Two fingers
+            // on the trackpad are read by `MonthSwipes`, which turns one
+            // page for each swipe. Left to itself the Mac would send the
+            // sideways scroll to the page under the pointer, which only
+            // scrolls up and down, and nothing would turn.
+            .scrollDisabled(true)
+            #endif
         }
         .paperScreen()
         .navigationTitle(monthTitle)
@@ -130,29 +152,170 @@ struct YearMonthView: View {
         // Tells Eira which month is open. See EiraScreen.
         .eiraLooksAt("the month of \(monthTitle) on the Year page, which lists what can be sown, planted out and harvested then and what is in flower",
                      short: monthTitle)
+        // A new month starts with short lists again.
+        .onChange(of: shownPage) { opened = [] }
+        #if os(macOS)
+        .onAppear {
+            // While this page is showing, a sideways swipe turns the
+            // month, and the swipe that goes back a page stands aside.
+            PointerClaims.monthPageIsOpen = true
+            trackpadSwipes.start { steps in turnPages(by: steps) }
+        }
+        .onDisappear {
+            PointerClaims.monthPageIsOpen = false
+            trackpadSwipes.stop()
+        }
+        #endif
+        // Checking aids: see DemoGarden.stepsMonth and thenMonth.
+        .task {
+            let steps = DemoGarden.stepsMonth
+            let then = DemoGarden.thenMonth
+            guard steps != 0 || then != nil else { return }
+            try? await Task.sleep(for: .seconds(1.5))
+            if steps != 0 { turnPages(by: steps) }
+            if let then { showMonth(then) }
+        }
+    }
+
+    /// One month: its name, its count and its cards, scrolling up and
+    /// down.
+    private func monthPage(_ month: Int, from chosenFrom: [Plant], isWide: Bool) -> some View {
+        let lists = monthLists(for: month, from: chosenFrom)
+
+        return ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                header(for: month)
+                summary(lists)
+
+                if isWide {
+                    // Two columns, each as tall as its own cards.
+                    HStack(alignment: .top, spacing: 16) {
+                        VStack(spacing: 16) {
+                            jobCard(.sowIndoors, lists, month: month)
+                            jobCard(.sowOutdoors, lists, month: month)
+                            jobCard(.plantOut, lists, month: month)
+                        }
+                        VStack(spacing: 16) {
+                            jobCard(.harvest, lists, month: month)
+                            jobCard(.flowering, lists, month: month)
+                        }
+                    }
+                } else {
+                    ForEach(YearActivity.allCases) { job in
+                        jobCard(job, lists, month: month)
+                    }
+                }
+            }
+            .padding(.horizontal, 16)
+            .padding(.top, 12)
+            .padding(.bottom, 20)
+        }
+    }
+
+    // MARK: Moving between months
+
+    /// Turns the pages forward (1) or back (-1), sliding.
+    private func turnPages(by steps: Int) {
+        let target = pageNow + steps
+        guard (0..<YearCalendar.monthPageCount).contains(target) else {
+            // Off the end of the pages, after ten years of turning one
+            // way. Start again from the middle, on the right month.
+            showMonth(YearCalendar.month(atPage: target))
+            return
+        }
+        withAnimation(.smooth(duration: 0.35)) { shownPage = target }
+    }
+
+    /// Goes straight to a month, by the shortest way round, with no
+    /// sliding: a slide across five months would have to build every
+    /// page it passed.
+    private func showMonth(_ month: Int) {
+        let target: Int
+        if (0..<YearCalendar.monthPageCount).contains(pageNow) {
+            target = YearCalendar.page(for: month, nearest: pageNow)
+        } else {
+            target = YearCalendar.middlePage(for: month)
+        }
+        // A Transaction carries how a change should be shown. This one
+        // says: with no animation.
+        var quiet = Transaction()
+        quiet.disablesAnimations = true
+        withTransaction(quiet) { shownPage = target }
     }
 
     // MARK: The top of the page
 
     /// The month's name in the large serif letters, with an arrow each
-    /// side to step through the year.
-    private var header: some View {
+    /// side to step through the year. The name itself is a button that
+    /// brings up a list of the twelve months.
+    private func header(for month: Int) -> some View {
         HStack(alignment: .bottom, spacing: 10) {
-            ScreenHeader(title: monthTitle, detail: headerDetail)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(headerDetail(for: month))
+                    .font(.subheadline)
+                    .foregroundStyle(Theme.inkSoft)
+                monthMenu(for: month)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+
             stepButton(monthsOn: -1, symbol: "chevron.left")
             stepButton(monthsOn: 1, symbol: "chevron.right")
         }
     }
 
+    /// The month's name as a button. Pressing it lists the twelve
+    /// months, with a tick by the one showing. Choosing one goes there.
+    private func monthMenu(for month: Int) -> some View {
+        // A Binding is a two-way link to a value. This one reads the
+        // month showing, and when the list is used it goes to the month
+        // chosen.
+        let monthChoice = Binding<Int>(
+            get: { shownMonth },
+            set: { showMonth($0) }
+        )
+        return Menu {
+            // A Picker inside a Menu gives a list with a tick beside
+            // the chosen one. `tag` says which month each line stands for.
+            Picker("Month", selection: monthChoice) {
+                ForEach(1...12, id: \.self) { listed in
+                    Text(listed == thisMonth
+                         ? "\(PlantFilter.monthName(listed)) (this month)"
+                         : PlantFilter.monthName(listed))
+                        .tag(listed)
+                }
+            }
+            .pickerStyle(.inline)
+        } label: {
+            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                Text(PlantFilter.monthName(month))
+                    .font(.screenTitle)
+                    .foregroundStyle(Theme.ink)
+                // A small arrow, to show the name can be pressed.
+                Image(systemName: "chevron.down")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(Theme.inkSoft)
+            }
+            .contentShape(.rect)
+        }
+        .menuStyle(.button)
+        .buttonStyle(.plain)
+        .menuIndicator(.hidden)
+        // The Mac would otherwise stretch the button across the page.
+        .fixedSize()
+        .accessibilityLabel(PlantFilter.monthName(month))
+        .accessibilityHint("Lists the months to choose from")
+        .accessibilityAddTraits(.isHeader)
+    }
+
     /// The small line above the name: how the month stands to today, and
     /// the kind of plant if the Year page was filtered.
-    private var headerDetail: String {
+    private func headerDetail(for month: Int) -> String {
         var words: String
-        if shownMonth == thisMonth {
+        if month == thisMonth {
             words = "This month"
-        } else if shownMonth == YearCalendar.monthAfter(thisMonth) {
+        } else if month == YearCalendar.monthAfter(thisMonth) {
             words = "Next month"
-        } else if shownMonth == YearCalendar.monthBefore(thisMonth) {
+        } else if month == YearCalendar.monthBefore(thisMonth) {
             words = "Last month"
         } else {
             words = "Year"
@@ -161,16 +324,11 @@ struct YearMonthView: View {
         return words
     }
 
-    /// A round glass button that moves to the month before (`monthsOn`
+    /// A round glass button that turns to the month before (`monthsOn`
     /// of -1) or the month after (1).
     private func stepButton(monthsOn: Int, symbol: String) -> some View {
-        let target = monthsOn < 0 ? YearCalendar.monthBefore(shownMonth) : YearCalendar.monthAfter(shownMonth)
-        return Button {
-            withAnimation(.smooth(duration: 0.25)) {
-                shownMonth = target
-                // A new month starts with short lists again.
-                opened = []
-            }
+        Button {
+            turnPages(by: monthsOn)
         } label: {
             Image(systemName: symbol)
                 .font(.body.weight(.semibold))
@@ -180,7 +338,7 @@ struct YearMonthView: View {
         }
         .buttonStyle(.plain)
         .glassEffect(.regular.tint(Theme.card.opacity(0.4)).interactive(), in: .circle)
-        .accessibilityLabel(PlantFilter.monthName(target))
+        .accessibilityLabel(monthsOn < 0 ? "The month before" : "The month after")
     }
 
     /// One line under the name that counts the month up.
@@ -205,9 +363,11 @@ struct YearMonthView: View {
     // MARK: The cards
 
     /// One job's card: its name, how many plants, and the plants.
-    private func jobCard(_ job: YearActivity, _ lists: [YearActivity: [MonthEntry]]) -> some View {
+    private func jobCard(_ job: YearActivity, _ lists: [YearActivity: [MonthEntry]], month: Int) -> some View {
         let found = lists[job] ?? []
-        let showsAll = opened.contains(job) || found.count <= shortList
+        // "Show all" belongs to the month showing. The pages either
+        // side, part-seen during a swipe, keep their short lists.
+        let showsAll = (month == shownMonth && opened.contains(job)) || found.count <= shortList
         let shown = showsAll ? found : Array(found.prefix(shortList))
 
         return VStack(alignment: .leading, spacing: 10) {
@@ -228,7 +388,7 @@ struct YearMonthView: View {
             .accessibilityAddTraits(.isHeader)
 
             if found.isEmpty {
-                Text("\(Self.nothingWords(for: job)) in \(monthTitle).")
+                Text("\(Self.nothingWords(for: job)) in \(PlantFilter.monthName(month)).")
                     .font(.subheadline)
                     .foregroundStyle(Theme.inkSoft)
             } else {
@@ -327,3 +487,80 @@ struct YearMonthView: View {
         }
     }
 }
+
+
+#if os(macOS)
+import AppKit
+
+// MARK: - Two fingers on a Mac's trackpad
+
+/// Watches the Mac's trackpad while a month's page is open, and says
+/// when two fingers have been swiped sideways.
+///
+/// It works the way `BackSwipe` does in PageZoom.swift: the Mac passes
+/// every scroll in the app through here first. Nothing is used up, so
+/// the page under the pointer still scrolls up and down.
+///
+/// It is a `class`, not a `struct`, because the Mac holds on to it
+/// between one piece of a scroll and the next, and it has to remember
+/// how far the fingers have gone.
+final class MonthSwipes {
+
+    private var watcher: Any?
+    private var travel: CGFloat = 0
+    private var rise: CGFloat = 0
+    private var hasFired = false
+    private var whenSwiped: ((Int) -> Void)?
+
+    /// How far two fingers must travel sideways, in points.
+    private let needed: CGFloat = 60
+
+    /// Starts watching. `whenSwiped` is handed 1 for fingers moving
+    /// left (on to the next month) and -1 for fingers moving right.
+    func start(_ whenSwiped: @escaping (Int) -> Void) {
+        self.whenSwiped = whenSwiped
+        guard watcher == nil else { return }
+        watcher = NSEvent.addLocalMonitorForEvents(matching: .scrollWheel) { [weak self] scroll in
+            self?.scrolled(scroll)
+            return scroll
+        }
+    }
+
+    func stop() {
+        if let watcher { NSEvent.removeMonitor(watcher) }
+        watcher = nil
+        whenSwiped = nil
+    }
+
+    private func scrolled(_ scroll: NSEvent) {
+        // Only a trackpad's two-finger scroll has a beginning and an
+        // end. A mouse wheel, and the glide after the fingers lift, are
+        // not swipes.
+        guard scroll.momentumPhase.isEmpty, !scroll.phase.isEmpty else { return }
+        if scroll.phase.contains(.began) || scroll.phase.contains(.mayBegin) {
+            travel = 0
+            rise = 0
+            hasFired = false
+        }
+        // One page for each swipe, however far the fingers go.
+        guard !hasFired else { return }
+        // A sliding switch under the pointer owns a sideways swipe. So
+        // does a sheet, such as Eira's chat.
+        guard !PointerClaims.isOverSwitch,
+              let window = scroll.window, window.attachedSheet == nil, window.sheetParent == nil else { return }
+
+        // Fingers moving right count up. See GlassSwitch for why the
+        // sign is turned when "natural scrolling" is off.
+        travel += scroll.isDirectionInvertedFromDevice ? scroll.scrollingDeltaX : -scroll.scrollingDeltaX
+        rise += abs(scroll.scrollingDeltaY)
+
+        // Far enough sideways, and clearly more across than up or down.
+        if abs(travel) > needed && abs(travel) > rise * 2.5 {
+            hasFired = true
+            // Fingers to the left pull the next month in from the
+            // right, as a finger does on an iPad.
+            whenSwiped?(travel < 0 ? 1 : -1)
+        }
+    }
+}
+#endif

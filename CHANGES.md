@@ -7,6 +7,90 @@ run without the Mac (every file reads as valid Swift, 323 logic tests
 pass). Those do not build the screens. Expect things to put right when
 it is first built, and treat how everything here looks as untried.
 
+## 14 November 2026, 15:50: swiping between months, a list of months, and a back swipe that follows the fingers
+
+**On the branch `year-month-swipe`, made from `main`.** Built for the Mac and the iOS Simulator with no errors (`mv5-mac.log`, `mv5-sim.log`, in `DerivedData/Windfall-month`). 590 logic tests pass. Seen as still pictures with the example garden: a month's page opening on the right month, the forward and back arrows turning it (December on to January, January back to December) and a month chosen from the list, on a 13-inch iPad Pro and an iPhone. **Not tried by hand, and a still picture cannot show them: a swipe with a finger, the list of months open, and everything on the Mac's trackpad.** The Mac build was started hidden with the example garden and did not crash. Nobody has yet seen the Mac's back swipe move.
+
+**Why.** William, 15:31: "when you're in the month view, you can swipe between the months and tap the month name to bring up a list of the months so that they can be tapped to quickly move to another month." And at 15:33, with a picture of an iPhone's Settings part-way through a swipe back: "When you swipe back to the previous screen can you make it so that the screen swipes over like in this screenshot".
+
+### 1. Swiping between months (`YearMonthView.swift`)
+
+**What you see.** On a month's page, a finger swiped sideways turns to the next or the last month, and the whole page slides, like a calendar. December leads on to January. On a Mac, two fingers swiped sideways on the trackpad do the same, one month for each swipe.
+
+**How.** The months are laid side by side in a row that scrolls sideways:
+
+```swift
+ScrollView(.horizontal) {
+    LazyHStack(alignment: .top, spacing: 0) {
+        ForEach(0..<YearCalendar.monthPageCount, id: \.self) { page in
+            monthPage(YearCalendar.month(atPage: page), from: chosenFrom, isWide: isWide)
+                .frame(width: geometry.size.width, height: geometry.size.height)
+        }
+    }
+    .scrollTargetLayout()
+}
+.scrollTargetBehavior(.paging)
+.scrollPosition(id: $shownPage)
+```
+
+- `ScrollView(.horizontal)` is a strip that scrolls sideways. `LazyHStack` lays its contents in a row and only builds a page when it is about to slide into view.
+- `ForEach` makes one page for each number from 0 up to `monthPageCount`, which is 240: the twelve months twenty times over. That is what lets December lead on to January. `YearCalendar.month(atPage:)` turns a page's number into its month with a remainder: page 12 is January again.
+- `.frame(width:height:)` makes each page exactly as big as the screen's space, so one page fills it.
+- `.scrollTargetBehavior(.paging)` makes the strip stop on a whole page, never between two.
+- `.scrollPosition(id: $shownPage)` ties the strip to the value `shownPage` both ways. A swipe changes the number. Changing the number scrolls the strip. The arrows and the list of months work by changing it.
+- Each page is its own up-and-down `ScrollView`, with its own name and cards.
+
+**On a Mac** the strip is told not to scroll by itself (`.scrollDisabled(true)`), and a small watcher, `MonthSwipes`, reads the trackpad the way `BackSwipe` does and turns one page for each sideways swipe of 60 points or more. Left to itself, the Mac sends a sideways scroll to the page under the pointer, which only scrolls up and down.
+
+**The clash, and William's answer.** On a Mac a two-finger swipe to the right already means "go back". William was asked which it should do on a month's page and chose: **turn the month**. So while a month's page is showing, the back swipe stands aside (`PointerClaims.monthPageIsOpen`), and the back button at the top left goes back to Year.
+
+### 2. The month's name is a list of months
+
+The name is now a button with a small arrow beside it. Pressing it lists the twelve months with a tick by the one showing and "(this month)" beside today's. Choosing one goes straight there, by the shortest way round, with no slide. It is a `Menu` holding a `Picker`, the same pair the "Fruit, veg…" button uses.
+
+### 3. On a Mac, the page follows the fingers when you swipe back (`PageZoom.swift`, `Theme.swift`)
+
+**Before.** Two fingers swiped right went back all at once when they had travelled 90 points.
+
+**Now.** The page on top moves with the fingers, with a soft shadow down its left edge. Lift the fingers after 110 points or more and it slides off to the right and the page before appears. Lift sooner and it springs home.
+
+**How.** `BackSwipe` already listened to the trackpad. It now keeps a number, `pull`, for how far the fingers have dragged the page:
+
+```swift
+pull = max(0, travel)
+```
+
+and every page carries a new modifier, `BackSwipeSlide`, which draws the page that far across:
+
+```swift
+let across = BackSwipe.shared.pulledPage == id ? BackSwipe.shared.pull : 0
+content
+    .offset(x: across)
+```
+
+- `BackSwipe` is marked `@Observable`, so any view that reads `pull` is drawn again each time it changes. That is the whole of the movement.
+- `.offset(x:)` draws a view somewhere else without moving anything around it.
+- Only the page being dragged moves: every other page reads 0.
+- The swipe is decided once, after the fingers have moved 14 points: to the right and at least twice as far across as up or down. Otherwise it is ordinary scrolling and is left alone.
+- `paperScreen()` now puts the modifier on after the paper background, so the paper moves with the page.
+
+**⚠️ What it does not do.** In William's picture the screen before is in view underneath as the top one slides. **Here there is blank paper underneath, and the page before appears when the top one has gone.** On a Mac, SwiftUI takes the page before off the screen altogether while another is on top, so there is nothing there to show. Showing it would mean keeping a picture of each page as it is left. Not built: it needs William trying it on the trackpad between attempts.
+
+An iPhone and iPad already do the full thing by themselves and are unchanged.
+
+### Also
+
+- Checking aids: with `-demoMonth 4`, `-demoMonthStep on` or `back` presses an arrow, and `-demoMonthThen 9` chooses September from the list.
+- William's picture is in `Design/Reference`.
+- Tests: 4 new, 590 in all, for the pages: the months going round, opening in the middle, the shortest way to a month and never running off either end.
+
+**Choices that are Claude's.** ⚠️ CHECK each.
+
+- A sideways swipe of 60 points turns a month on the Mac, and one swipe turns one month however far the fingers go.
+- Choosing from the list jumps with no slide.
+- 110 points to go back, where it was 90, and only when the fingers lift.
+- The shadow on the sliding page, and no rounded corner on it.
+
 ## 14 November 2026, 15:24: a month of the Year page, opened up
 
 **On the branch `year-month-view`, made from `main`.** Built for the Mac and the iOS Simulator with no errors (`mv1-mac.log`, `mv1-sim.log`, into a build folder of its own, `DerivedData/Windfall-month`). 586 logic tests pass. Looked at running with the example garden as still pictures: April on a 13-inch iPad Pro, dark (two columns), November on an iPhone, light (one column), and the Year page itself (`shots/mv1-*`). **Not tried by hand: pressing a month's name, the two arrows, "Show all", and the Mac's own window.** The pictures were made with the checking aid below, which opens the month's page the same way a press does.
