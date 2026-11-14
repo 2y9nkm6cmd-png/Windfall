@@ -66,8 +66,12 @@ extension IdentifyKnowledge {
     ///
     /// Only the few facts the rules use are copied out of each record,
     /// so the rules never hold a live database record.
-    static func gathered(from context: ModelContext, on date: Date = .now) -> IdentifyKnowledge {
-        var knowledge = IdentifyKnowledge(month: Calendar.current.component(.month, from: date))
+    ///
+    /// `taken` is the month the photo was taken, 1 to 12, where the
+    /// photo says. Without it the photo is judged for this month.
+    static func gathered(from context: ModelContext, taken: Int? = nil) -> IdentifyKnowledge {
+        var knowledge = IdentifyKnowledge(month: taken ?? Calendar.current.component(.month, from: .now))
+        knowledge.monthIsFromPhoto = taken != nil
 
         let plants = (try? context.fetch(FetchDescriptor<Plant>())) ?? []
         knowledge.plants = plants.compactMap { plant in
@@ -114,16 +118,19 @@ extension EiraIdentify {
     /// first step waits for the model and can fail: the model may be
     /// missing, or the photo unreadable.
     ///
-    /// `eye` is which image model to use. Left out, it is Eira's own.
+    /// `taken` is the month the photo was taken, if it is known (see
+    /// SpeciesEye.monthTaken). `eye` is which image model to use. Left
+    /// out, it is Eira's own.
     static func identify(photo data: Data,
+                         taken: Int? = nil,
                          context: ModelContext,
                          eye chosen: SpeciesEye? = nil) async throws -> EiraIdentification {
-        let eye = chosen ?? SpeciesEye.shared
-        let guess = try await eye.guess(forPhoto: data)
+        let looker = chosen ?? SpeciesEye.shared
+        let guess = try await looker.guess(forPhoto: data)
         return judge(guess,
-                     knowing: .gathered(from: context),
-                     listSize: eye.table?.species.count,
-                     modelName: eye.loaded?.name)
+                     knowing: .gathered(from: context, taken: taken),
+                     listSize: looker.table?.species.count,
+                     modelName: looker.loaded?.name)
     }
 
     /// Starts an unconfirmed sighting, with the photo attached.

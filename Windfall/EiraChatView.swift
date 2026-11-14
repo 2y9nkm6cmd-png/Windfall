@@ -506,10 +506,12 @@ struct EiraChatView: View {
     /// side, as on the Identify screen: plenty to name from and to keep
     /// with a sighting.
     private func look(at data: Data) async {
+        // The month it was taken is read first: shrinking loses it.
+        let taken = SpeciesEye.monthTaken(of: data)
         let photo = DiaryEntryEditor.thumbnail(from: data, maxDimension: 1024) ?? data
         guard let photoID = conversation.givePhoto(photo) else { return }
         do {
-            let identification = try await EiraIdentify.identify(photo: photo, context: context)
+            let identification = try await EiraIdentify.identify(photo: photo, taken: taken, context: context)
             conversation.answerPhoto(photoID, with: identification)
         } catch let problem {
             conversation.photoFailed(problem.localizedDescription)

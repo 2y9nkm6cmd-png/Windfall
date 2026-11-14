@@ -64,6 +64,16 @@ enum SpeciesTestRun {
         var tried = 0, named = 0, namedRight = 0, firstRight = 0, inThree = 0, marked = 0
         var seconds: TimeInterval = 0
 
+        // Eira's judgement on top of the model's answer (EiraIdentify),
+        // counted by the kind of answer she gave. The test photos carry
+        // no records and their dates are not known, so only the rules
+        // that need neither are measured: look-alikes, a genus when the
+        // species is unclear, and dangers. Month 0 means "not known".
+        let knowledge = IdentifyKnowledge(month: 0, lookalikes: SpeciesNotes.lookalikes)
+        var judged: [String: (given: Int, right: Int)] = [:]
+        var warnedOfDanger = 0
+        var changed: [String] = []
+
         for photo in photos {
             guard let data = try? Data(contentsOf: photo) else { continue }
             let began = Date.now
@@ -88,6 +98,26 @@ enum SpeciesTestRun {
                     if isInThree { inThree += 1 }
                     if guess.isSure { named += 1; if isFirst { namedRight += 1 } }
                     line += "  [really \(right): \(isFirst ? "right" : (isInThree ? "in the three" : "WRONG"))]"
+
+                    // What Eira would say, and whether that is right.
+                    let answer = EiraIdentify.judge(guess, knowing: knowledge)
+                    let kind: String
+                    switch answer.verdict {
+                    case .named:        kind = "Named a species"
+                    case .oneOfSeveral: kind = "Said one of several look-alikes"
+                    case .genusOnly:    kind = "Gave the genus only"
+                    case .notSure:      kind = "Said she was not sure"
+                    case .nothing:      kind = "Gave no answer"
+                    }
+                    let standing = answer.mark(against: right)
+                    judged[kind, default: (0, 0)].given += 1
+                    if standing == .right { judged[kind, default: (0, 0)].right += 1 }
+                    if answer.cautions.contains(where: { $0.weight == .danger }) { warnedOfDanger += 1 }
+                    // Worth reading one by one: where the rules made a
+                    // wrong first answer right, or kept a wrong one.
+                    if !isFirst, standing != .declined {
+                        changed.append("- \(photo.lastPathComponent): really \(right). The model's first answer was \(guess.likeliest?.entry.scientific ?? "nothing"). Eira: \(answer.headline) [\(standing == .right ? "right" : "WRONG")]")
+                    }
                 } else if guess.isSure {
                     named += 1
                 }
@@ -119,6 +149,20 @@ enum SpeciesTestRun {
             note("- Named outright: \(named) (\(percent(named, of: marked))). Of those, right: \(namedRight) (\(percent(namedRight, of: named)))")
         } else {
             note("- Named outright: \(named)")
+        }
+        if !judged.isEmpty {
+            note("\n## Eira's judgement on top\n")
+            note("The rules in EiraIdentify, without records or the month. \"Right\" for a group of look-alikes means the true species is one of the group, and for a genus that the genus is the true one.\n")
+            for kind in judged.keys.sorted() {
+                let count = judged[kind] ?? (0, 0)
+                let rightWords = kind.hasPrefix("Said she was not sure") || kind.hasPrefix("Gave no") ? "" : ", right: \(count.right) (\(percent(count.right, of: count.given)))"
+                note("- \(kind): \(count.given)\(rightWords)")
+            }
+            note("- Photos that brought a danger warning: \(warnedOfDanger)")
+            if !changed.isEmpty {
+                note("\n### Where the model's first answer was wrong and Eira still gave an answer\n")
+                changed.forEach { note($0) }
+            }
         }
         note("\nDONE")
         EiraTestRun.close()

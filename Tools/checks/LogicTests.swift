@@ -1149,6 +1149,15 @@ struct LogicTests {
         knows.month = 11
         let inNovember = EiraIdentify.judge(guessOf([(buff, 0.93)], sure: true), knowing: knows)
         check(inNovember.cautions.contains(.init(weight: .note, words: "It is not often recorded in the UK in November: 300 of 19600 records on iNaturalist.")) && inNovember.confidence == .possible, "scarce in the month is a note, and outside your own list's flight period is a doubt")
+        var fromPhoto = knows
+        fromPhoto.month = 1
+        fromPhoto.monthIsFromPhoto = true
+        let datedPhoto = EiraIdentify.judge(guessOf([(buff, 0.93)], sure: true), knowing: fromPhoto)
+        check(datedPhoto.cautions.contains { $0.words.hasPrefix("It is rarely recorded in the UK in January, when the photo was taken:") } && datedPhoto.cautions.contains { $0.words.hasSuffix("and the photo was taken in January.") }, "a photo that says when it was taken is judged for that month, and the words say so")
+        var noMonth = knows
+        noMonth.month = 0
+        check(EiraIdentify.judge(guessOf([(buff, 0.93)], sure: true), knowing: noMonth).cautions.isEmpty, "with the month not known, the month is not checked")
+        check(plain.mark(against: "Bombus terrestris") == .right && plain.mark(against: "Bombus lucorum") == .wrong && alike.mark(against: "bombus lucorum") == .right && alike.mark(against: "Apis mellifera") == .wrong && pooled.mark(against: "Bombus pratorum") == .right && pooled.mark(against: "Apis mellifera") == .wrong && torn2.mark(against: "Bombus terrestris") == .declined, "an answer is marked against the truth: a group is right if the truth is in it, a genus if it is the true genus")
         check(knows.seasons?.standing(of: "Iris pseudacorus", month: 6) == nil && knows.seasons?.standing(of: "Apis mellifera", month: 6) == nil && knows.seasons?.standing(of: "bombus terrestris", month: 6) == .usual && knows.seasons?.standing(of: "Bombus terrestris", month: 13) == nil, "too few records, a list that is not twelve months and a month that does not exist give no judgement")
         check(SpeciesSeasons(data: Data(#"{"about":"x","source":"iNaturalist, UK","months":{"Aglais io":[1,2,3,4,5,6,7,8,9,10,11,12]}}"#.utf8))?.counts["aglais io"]?.count == 12 && SpeciesSeasons(data: Data("[]".utf8)) == nil && Lookalikes(data: Data(#"{"about":"x","groups":[{"names":["A b","A c"],"why":"alike"}]}"#.utf8))?.isChecked == false && Lookalikes(data: Data(#"{"checked":true,"groups":[]}"#.utf8))?.isChecked == true && Lookalikes(data: Data("{}".utf8)) == nil, "the months file and the look-alikes file are read, and a look-alikes file is unchecked until it says otherwise")
         // The two reference files that travel inside the app, as they really are.

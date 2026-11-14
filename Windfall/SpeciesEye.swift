@@ -205,6 +205,26 @@ final class SpeciesEye {
         return CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary)
     }
 
+    /// The month a photo was taken, 1 to 12, if the photo says.
+    ///
+    /// A camera writes the date and time into the photo's file, in a
+    /// part called EXIF, as "2026:06:14 15:02:11". Only the month is
+    /// wanted here, for checking a species against its season, so it
+    /// is cut straight out of that text. A photo that has been edited,
+    /// shrunk or sent through a message has often lost its date, and
+    /// then this is nil. It must be asked of the photo's original
+    /// bytes, before Windfall shrinks them.
+    nonisolated static func monthTaken(of data: Data) -> Int? {
+        guard let source = CGImageSourceCreateWithData(data as CFData, nil),
+              let facts = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any],
+              let exif = facts[kCGImagePropertyExifDictionary] as? [CFString: Any],
+              let written = exif[kCGImagePropertyExifDateTimeOriginal] as? String else { return nil }
+        // "2026:06:14 15:02:11": the month is the second piece.
+        let pieces = written.split(separator: ":")
+        guard pieces.count >= 2, let month = Int(pieces[1]), (1...12).contains(month) else { return nil }
+        return month
+    }
+
     /// Cuts out the middle square, draws it at 224 by 224 and hands the
     /// pixels to PhotoArithmetic to be laid out for the model.
     nonisolated static func prepared(_ picture: CGImage) -> [Float]? {

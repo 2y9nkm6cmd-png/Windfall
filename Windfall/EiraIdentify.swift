@@ -245,8 +245,12 @@ enum PlantDangers {
 /// gathers it from the records (IdentifyCards.swift) and hands it over,
 /// so the rules below never touch the database themselves.
 struct IdentifyKnowledge {
-    /// The month the photo is judged in, 1 to 12.
+    /// The month the photo is judged in, 1 to 12: the month it was
+    /// taken where the photo says, and otherwise this month. Any other
+    /// number means "not known", and then the month is not checked.
     var month: Int
+    /// True when `month` was read from the photo itself.
+    var monthIsFromPhoto = false
     var plants: [KnownPlant] = []
     var wildlife: [KnownWildlife] = []
     var sightings: [PastSighting] = []
@@ -463,19 +467,24 @@ enum EiraIdentify {
         // Rule 3: the month. Only worth saying of a name she is giving.
         if guess.isSure {
             let month = IdentifyKnowledge.monthName(knowledge.month)
+            // A photo taken in June and looked at in November is
+            // judged for June, and the words say which month is meant.
+            let when = knowledge.monthIsFromPhoto ? "\(month), when the photo was taken" : month
             switch knowledge.seasons?.standing(of: top.entry.scientific, month: knowledge.month) {
             case .rare(let inMonth, let inYear):
-                cautions.append(.init(weight: .doubt, words: "It is rarely recorded in the UK in \(month): \(inMonth) of \(inYear) records on \(knowledge.seasons?.source ?? "iNaturalist")."))
+                cautions.append(.init(weight: .doubt, words: "It is rarely recorded in the UK in \(when): \(inMonth) of \(inYear) records on \(knowledge.seasons?.source ?? "iNaturalist")."))
                 confidence = .possible
             case .scarce(let inMonth, let inYear):
-                cautions.append(.init(weight: .note, words: "It is not often recorded in the UK in \(month): \(inMonth) of \(inYear) records on \(knowledge.seasons?.source ?? "iNaturalist")."))
+                cautions.append(.init(weight: .note, words: "It is not often recorded in the UK in \(when): \(inMonth) of \(inYear) records on \(knowledge.seasons?.source ?? "iNaturalist")."))
             case .usual, .none:
                 break
             }
-            if let listed = wildlife(matching: top.entry, in: knowledge.wildlife),
+            if (1...12).contains(knowledge.month),
+               let listed = wildlife(matching: top.entry, in: knowledge.wildlife),
                !listed.flightMonths.isEmpty, !listed.flightMonths.contains(knowledge.month) {
                 let period = listed.flightText.map { " as \($0)" } ?? ""
-                cautions.append(.init(weight: .doubt, words: "Your wildlife list gives its flight period\(period), and this is \(month)."))
+                let photoWas = knowledge.monthIsFromPhoto ? "the photo was taken in \(month)" : "this is \(month)"
+                cautions.append(.init(weight: .doubt, words: "Your wildlife list gives its flight period\(period), and \(photoWas)."))
                 confidence = .possible
             }
             if let source = top.entry.source, source.lowercased().contains("to check") {
@@ -628,6 +637,36 @@ enum EiraIdentify {
         formatter.locale = Locale(identifier: "en_GB")
         formatter.dateFormat = "d MMMM yyyy"
         return formatter.string(from: date)
+    }
+}
+
+// MARK: - Was the judgement right?
+
+extension EiraIdentification {
+
+    /// How an answer stands against the truth, for the test run.
+    enum Mark: Equatable {
+        /// She gave a name, a group or a genus and the truth is it, or in it.
+        case right
+        /// She gave one and the truth is something else.
+        case wrong
+        /// She gave nothing.
+        case declined
+    }
+
+    /// Marks this answer against a photo's true scientific name.
+    func mark(against truth: String) -> Mark {
+        let wanted = SpeciesName.key(truth)
+        switch verdict {
+        case .named:
+            return candidates.first.map { SpeciesName.key($0.entry.scientific) == wanted } == true ? .right : .wrong
+        case .oneOfSeveral(let names):
+            return names.contains { SpeciesName.key($0) == wanted } ? .right : .wrong
+        case .genusOnly(let genus):
+            return SpeciesName.genus(truth).lowercased() == genus.lowercased() ? .right : .wrong
+        case .notSure, .nothing:
+            return .declined
+        }
     }
 }
 

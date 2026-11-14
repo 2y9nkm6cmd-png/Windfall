@@ -96,6 +96,8 @@ struct IdentifyView: View {
     @State private var error: String?
     /// The image model in use, for saying which under the photo.
     @State private var eyeName: String?
+    /// The month the photo was taken, 1 to 12, if the photo says.
+    @State private var monthTaken: Int?
 
     private let heading = "Identify from a photo"
     /// What the button under an answer says.
@@ -265,6 +267,8 @@ struct IdentifyView: View {
     /// side. That is plenty to identify from and to keep with a
     /// sighting, and a fraction of the size of the original.
     private func take(_ data: Data) {
+        // The date is read first: shrinking the photo loses it.
+        monthTaken = SpeciesEye.monthTaken(of: data)
         imageData = DiaryEntryEditor.thumbnail(from: data, maxDimension: 1024) ?? data
         identification = nil
         error = nil
@@ -285,7 +289,7 @@ struct IdentifyView: View {
         defer { isWorking = false }
 
         do {
-            identification = try await EiraIdentify.identify(photo: imageData, context: context)
+            identification = try await EiraIdentify.identify(photo: imageData, taken: monthTaken, context: context)
             eyeName = SpeciesEye.shared.loaded?.name ?? eyeName
         } catch let problem {
             // The error's own words say what is missing and what can
