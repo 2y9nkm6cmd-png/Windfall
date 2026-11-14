@@ -453,6 +453,13 @@ enum EiraIdentify {
             subjects = pooled.members
         }
 
+        // A carrot-family plant is never better than "possible": this
+        // is the family where the image model has been sure and wrong
+        // (hemlock named as cow parsley at over 99%, 14 November 2026).
+        if guess.isSure, DangerousLookAlikes.isCarrotFamily(top.entry) {
+            confidence = .possible
+        }
+
         // Rule 3: the month. Only worth saying of a name she is giving.
         if guess.isSure {
             let month = IdentifyKnowledge.monthName(knowledge.month)
