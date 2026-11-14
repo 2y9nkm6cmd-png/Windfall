@@ -1,4 +1,4 @@
-# 14 November 2026, 23:05: on an iPhone or iPad, pressing send in the journal puts the keyboard away
+# 14 November 2026, 22:58: on an iPhone or iPad, pressing send in the journal puts the keyboard away
 
 **By the "iPad" chat, on the branch `journal-send-keyboard`, made from `journal-send-closes` (the entry below), so it holds that work too. Not in `main`.** Project doc 73.
 
