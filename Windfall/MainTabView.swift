@@ -651,13 +651,19 @@ struct SidebarView: View {
         // dies away. The lens has already settled, so that is ignored.
         guard scroll.momentumPhase.isEmpty else { return }
 
-        // How far down the list to go, in points. The Mac has already
-        // turned the scroll the way System Settings says, so the lens
-        // moves as a list would scroll. With natural scrolling (the
-        // Mac's default) fingers pushed up go down the list.
-        // (Until 13 November 2026 the lens followed the fingers like a
-        // drag instead, which William found backwards.)
-        let fingers = -scroll.scrollingDeltaY
+        // Which way the fingers went, as points down the screen. The
+        // lens follows the fingers, as if they were dragging it:
+        // fingers moving down carry the lens down.
+        //
+        // The Mac reports a scroll already turned the way System
+        // Settings says. With "natural scrolling" on (the Mac's
+        // default) fingers moving down give a positive number. With it
+        // off they give a negative one, so that is turned back here.
+        //
+        // (For a day, from the evening of 13 November 2026, the lens
+        // moved as a list scrolls instead: fingers pushed up went down
+        // the list. William asked for this way back on 14 November.)
+        let fingers = scroll.isDirectionInvertedFromDevice ? scroll.scrollingDeltaY : -scroll.scrollingDeltaY
 
         // A mouse wheel has no beginning or end, only clicks. Each
         // click moves one row.
