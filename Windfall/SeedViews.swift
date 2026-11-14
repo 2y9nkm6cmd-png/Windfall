@@ -87,17 +87,17 @@ private struct SeedRow: View {
         VStack(alignment: .leading, spacing: 3) {
             HStack {
                 Text(packet.plant?.displayName ?? "Unknown")
-                    .font(.headline)
+                    .font(.title3.weight(.semibold))
                 Spacer()
                 if let year = packet.packetYear {
                     Text(String(year))
-                        .font(.caption)
+                        .font(.footnote)
                         .foregroundStyle(.secondary)
                 }
             }
 
             if let supplier = packet.supplier {
-                Text(supplier).font(.caption).foregroundStyle(.secondary)
+                Text(supplier).font(.footnote).foregroundStyle(.secondary)
             }
 
             HStack(spacing: 8) {
@@ -116,7 +116,7 @@ private struct SeedRow: View {
                     Label("\(remaining) left", systemImage: "number")
                 }
             }
-            .font(.caption2)
+            .font(.caption)
         }
         .padding(.vertical, 2)
     }
@@ -154,7 +154,7 @@ struct NewSeedPacketView: View {
                         HStack {
                             Text(selectedPlant.displayName)
                             Spacer()
-                            Button("Change") { self.selectedPlant = nil }.font(.caption)
+                            Button("Change") { self.selectedPlant = nil }.font(.footnote)
                         }
                     } else {
                         TextField("Search plants", text: $search)
@@ -267,14 +267,14 @@ struct SeedDetailView: View {
                         if let multiplier = packet.suggestedSowingMultiplier(), multiplier > 1.2 {
                             Label("Sow about \(String(format: "%.1f", multiplier))× as thickly to allow for it",
                                   systemImage: "arrow.up.circle")
-                                .font(.callout)
+                                .font(.body)
                                 .foregroundStyle(.orange)
                         }
                     }
                 } else if let rate = packet.viabilityRate {
                     LabeledContent("Inferred viability", value: "\(Int(rate * 100))%")
                     Text("From how your actual sowings performed, rather than a deliberate test.")
-                        .font(.caption)
+                        .font(.footnote)
                         .foregroundStyle(.secondary)
                 } else {
                     Text("No test recorded.")

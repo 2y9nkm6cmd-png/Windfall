@@ -131,11 +131,11 @@ struct SheetPage<Content: View>: View {
         HStack(alignment: .top, spacing: 10) {
             VStack(alignment: .leading, spacing: 3) {
                 Text(title)
-                    .font(.system(.title2, design: .serif, weight: .medium))
+                    .font(.system(.title, design: .serif, weight: .medium))
                     .foregroundStyle(Theme.ink)
                 if let detail {
                     Text(detail)
-                        .font(.subheadline)
+                        .font(.body)
                         .foregroundStyle(Theme.inkSoft)
                 }
             }
@@ -197,7 +197,7 @@ struct SheetPage<Content: View>: View {
 struct QuietGlassButton: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(.subheadline.weight(.medium))
+            .font(.body.weight(.medium))
             .foregroundStyle(Theme.ink)
             .padding(.horizontal, 14)
             .padding(.vertical, 7)
@@ -266,7 +266,7 @@ struct SheetCard<Content: View>: View {
         VStack(alignment: .leading, spacing: 12) {
             if let title {
                 Text(title)
-                    .font(.headline)
+                    .font(.title3.weight(.semibold))
                     .foregroundStyle(Theme.ink)
             }
             content()
@@ -373,11 +373,11 @@ struct ProblemsCard: View {
                     Text(problem)
                         .foregroundStyle(Theme.ink)
                 }
-                .font(.callout)
+                .font(.body)
             }
             if let footnote {
                 Text(footnote)
-                    .font(.caption)
+                    .font(.footnote)
                     .foregroundStyle(Theme.inkSoft)
             }
         }

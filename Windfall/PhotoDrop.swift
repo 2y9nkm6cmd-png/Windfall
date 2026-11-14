@@ -109,7 +109,7 @@ struct PhotoDropOutline: View {
             HStack(spacing: 8) {
                 WIconView(.photo, size: 22)
                 Text(words)
-                    .font(.headline)
+                    .font(.title3.weight(.semibold))
             }
             .foregroundStyle(Theme.ink)
             .padding(.horizontal, 18)

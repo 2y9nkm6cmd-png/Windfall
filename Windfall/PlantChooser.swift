@@ -108,7 +108,7 @@ struct PlantChooserList: View {
             VStack(alignment: .leading, spacing: 12) {
                 HStack {
                     Text("Which plant")
-                        .font(.headline)
+                        .font(.title3.weight(.semibold))
                         .foregroundStyle(Theme.ink)
                     Spacer()
                     Button("Cancel") { dismiss() }
@@ -128,7 +128,7 @@ struct PlantChooserList: View {
 
                         ForEach(groups) { group in
                             Text(group.letter)
-                                .font(.caption.weight(.semibold))
+                                .font(.footnote.weight(.semibold))
                                 .foregroundStyle(Theme.inkSoft)
                                 .padding(.horizontal, 12)
                                 .padding(.top, 12)
@@ -182,7 +182,7 @@ struct PlantChooserList: View {
                     }
                 } label: {
                     Text(letter)
-                        .font(.subheadline.weight(.semibold))
+                        .font(.body.weight(.semibold))
                         .foregroundStyle(isInUse ? Theme.ink : Theme.inkSoft.opacity(0.45))
                         .frame(maxWidth: .infinity, minHeight: 30)
                         .background(isInUse ? Theme.leafFill.opacity(0.55) : .clear, in: .rect(cornerRadius: 8))
@@ -202,13 +202,13 @@ struct PlantChooserList: View {
         Button(action: action) {
             HStack(spacing: 8) {
                 Image(systemName: "checkmark")
-                    .font(.caption.weight(.bold))
+                    .font(.footnote.weight(.bold))
                     .foregroundStyle(Theme.leaf)
                     // Always there and only shown when chosen, so every
                     // name starts at the same place.
                     .opacity(isChosen ? 1 : 0)
                 Text(words)
-                    .font(.subheadline)
+                    .font(.body)
                     .foregroundStyle(Theme.ink)
                     .multilineTextAlignment(.leading)
                 Spacer(minLength: 0)

@@ -528,7 +528,7 @@ struct TodayView: View {
         HStack(alignment: .top) {
             VStack(alignment: .leading, spacing: 2) {
                 Text(Date.now, format: .dateTime.weekday(.wide).day().month(.wide).year())
-                    .font(.subheadline)
+                    .font(.body)
                     .foregroundStyle(Theme.inkSoft)
                 Text("Today")
                     .font(.screenTitle)
@@ -588,10 +588,10 @@ struct TodayView: View {
                 .frame(width: 40, height: 40)
             VStack(alignment: .leading, spacing: 3) {
                 Text(conditionsHeadline)
-                    .font(.headline)
+                    .font(.title3.weight(.semibold))
                     .foregroundStyle(Theme.ink)
                 Text(conditionsDetail)
-                    .font(.subheadline)
+                    .font(.body)
                     .foregroundStyle(Theme.inkSoft)
             }
         }
@@ -729,7 +729,7 @@ struct TodayView: View {
                             WIconView(button.icon, size: 28)
                                 .foregroundStyle(Theme.leaf)
                             Text(button.title)
-                                .font(.subheadline)
+                                .font(.body)
                                 .foregroundStyle(Theme.ink)
                         }
                         .frame(maxWidth: .infinity)
@@ -827,7 +827,7 @@ struct TodayView: View {
         return VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Text("This week")
-                    .font(.headline)
+                    .font(.title3.weight(.semibold))
                     .foregroundStyle(Theme.ink)
                 Spacer()
                 if rows.count > 6 {
@@ -838,7 +838,7 @@ struct TodayView: View {
                             Text("View all")
                             WIconView(.arrowRight, size: 13)
                         }
-                        .font(.subheadline)
+                        .font(.body)
                         .foregroundStyle(Theme.leaf)
                     }
                     .buttonStyle(.plain)
@@ -847,7 +847,7 @@ struct TodayView: View {
 
             if rows.isEmpty {
                 Text("Nothing urgent.")
-                    .font(.subheadline)
+                    .font(.body)
                     .foregroundStyle(Theme.ink)
             }
             ForEach(rows.prefix(6)) { job in
@@ -859,7 +859,7 @@ struct TodayView: View {
             Text(weather.outlook.isEmpty
                  ? "The urgent few, from your sowing months and records. No forecast yet, so no weather warnings."
                  : "The urgent few, from your sowing months, your records and the week's forecast.")
-                .font(.caption)
+                .font(.footnote)
                 .foregroundStyle(Theme.inkSoft)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -927,7 +927,7 @@ struct TodayView: View {
         return VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Text("This month")
-                    .font(.headline)
+                    .font(.title3.weight(.semibold))
                     .foregroundStyle(Theme.ink)
                 Spacer()
                 if jobs.count > 5 {
@@ -938,7 +938,7 @@ struct TodayView: View {
                             Text("View all")
                             WIconView(.arrowRight, size: 13)
                         }
-                        .font(.subheadline)
+                        .font(.body)
                         .foregroundStyle(Theme.leaf)
                     }
                     .buttonStyle(.plain)
@@ -947,7 +947,7 @@ struct TodayView: View {
 
             if jobs.isEmpty {
                 Text("Nothing pressing. Jobs appear here from your sowing months and records.")
-                    .font(.subheadline)
+                    .font(.body)
                     .foregroundStyle(Theme.inkSoft)
             }
             ForEach(jobs.prefix(5)) { job in
@@ -964,7 +964,7 @@ struct TodayView: View {
     private func gardenCards(oneAtATime: Bool) -> some View {
         if activeGardens.isEmpty {
             Text("No gardens yet.")
-                .font(.subheadline)
+                .font(.body)
                 .foregroundStyle(Theme.inkSoft)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .glassCard()
@@ -1036,12 +1036,12 @@ struct TodayView: View {
         let recent = self.recent
         return VStack(alignment: .leading, spacing: 12) {
             Text("Recent records")
-                .font(.headline)
+                .font(.title3.weight(.semibold))
                 .foregroundStyle(Theme.ink)
 
             if recent.isEmpty {
                 Text("Nothing recorded yet. Use the buttons above to log a sowing, a harvest or a sighting.")
-                    .font(.subheadline)
+                    .font(.body)
                     .foregroundStyle(Theme.inkSoft)
             }
             ForEach(recent) { record in
@@ -1051,14 +1051,14 @@ struct TodayView: View {
 
                     VStack(alignment: .leading, spacing: 3) {
                         Text(record.title)
-                            .font(.subheadline.weight(.medium))
+                            .font(.body.weight(.medium))
                             .foregroundStyle(Theme.ink)
                         Text("\(record.kind) · \(record.dateText)")
-                            .font(.caption)
+                            .font(.footnote)
                             .foregroundStyle(Theme.inkSoft)
                         if let detail = record.detail {
                             Text(detail)
-                                .font(.caption)
+                                .font(.footnote)
                                 .foregroundStyle(Theme.inkSoft)
                         }
                         // Only sightings carry a tag. A sowing or a
@@ -1070,7 +1070,7 @@ struct TodayView: View {
                                 } else {
                                     StatusTag(text: "Provisional", fill: Theme.amber)
                                     Button("Confirm") { sheet = .sighting(sighting) }
-                                        .font(.caption.weight(.semibold))
+                                        .font(.footnote.weight(.semibold))
                                         .buttonStyle(QuietGlassButton())
                                         .tint(Theme.leaf)
                                 }
@@ -1126,10 +1126,10 @@ struct TodayView: View {
     private var journalPlaceholder: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text("Journal offer")
-                .font(.headline)
+                .font(.title3.weight(.semibold))
                 .foregroundStyle(Theme.ink)
             Text("Appears here on days when you have logged something and not yet written an entry.")
-                .font(.subheadline)
+                .font(.body)
                 .foregroundStyle(Theme.inkSoft)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -1153,7 +1153,7 @@ struct TodayView: View {
                         Text("You logged \(logged.count) \(logged.count == 1 ? "thing" : "things") today.")
                         Text("Write a journal entry?")
                     }
-                    .font(.subheadline)
+                    .font(.body)
                     .foregroundStyle(Theme.ink)
                     Spacer()
                     WIconView(.arrowRight, size: 18)
@@ -1319,7 +1319,7 @@ struct JobRow: View {
     private var words: some View {
         VStack(alignment: .leading, spacing: 1) {
             Text(job.title)
-                .font(.subheadline)
+                .font(.body)
                 .strikethrough(isTicked)
                 .foregroundStyle(isTicked ? Theme.inkSoft : Theme.ink)
                 // Lets a long line run on to the next. In a narrow
@@ -1327,7 +1327,7 @@ struct JobRow: View {
                 .fixedSize(horizontal: false, vertical: true)
             if let detail = job.detail {
                 Text(detail)
-                    .font(.caption)
+                    .font(.footnote)
                     .foregroundStyle(Theme.inkSoft)
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -1416,7 +1416,7 @@ struct HarvestPicker: View {
                     if growing.isEmpty {
                         SheetCard("Nothing growing yet") {
                             Text("A harvest is recorded against a sowing. Record the sowing first.")
-                                .font(.subheadline)
+                                .font(.body)
                                 .foregroundStyle(Theme.inkSoft)
                         }
                     }
@@ -1432,7 +1432,7 @@ struct HarvestPicker: View {
                                         .foregroundStyle(Theme.ink)
                                     if !planting.bedNames.isEmpty {
                                         Text(planting.bedNames)
-                                            .font(.caption)
+                                            .font(.footnote)
                                             .foregroundStyle(Theme.inkSoft)
                                     }
                                 }

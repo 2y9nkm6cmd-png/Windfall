@@ -232,7 +232,7 @@ struct NotificationSettingsView: View {
                 Label("Monthly list of what's sowable", systemImage: "leaf")
                 Label("Frost warning the afternoon before", systemImage: "snowflake")
             }
-            .font(.callout)
+            .font(.body)
         }
         .navigationTitle("Reminders")
         .paperScreen()

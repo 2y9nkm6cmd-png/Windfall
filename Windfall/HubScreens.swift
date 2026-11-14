@@ -24,7 +24,7 @@ struct ScreenHeader: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(detail)
-                .font(.subheadline)
+                .font(.body)
                 .foregroundStyle(Theme.inkSoft)
             Text(title)
                 .font(.screenTitle)
@@ -58,11 +58,11 @@ struct HubTile: View {
             Spacer(minLength: 0)
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
-                    .font(.subheadline.weight(.medium))
+                    .font(.body.weight(.medium))
                     .foregroundStyle(Theme.ink)
                 if let detail {
                     Text(detail)
-                        .font(.caption)
+                        .font(.footnote)
                         .foregroundStyle(Theme.inkSoft)
                         .lineLimit(2)
                 }
@@ -105,7 +105,7 @@ struct HubSectionTitle: View {
 
     var body: some View {
         Text(text)
-            .font(.headline)
+            .font(.title3.weight(.semibold))
             .foregroundStyle(Theme.ink)
             .padding(.top, 4)
             .accessibilityAddTraits(.isHeader)
@@ -128,7 +128,7 @@ struct ViewAllLink<Destination: View>: View {
                 Text("View all")
                 WIconView(.arrowRight, size: 13)
             }
-            .font(.subheadline)
+            .font(.body)
             .foregroundStyle(Theme.leaf)
         }
         .buttonStyle(.plain)
@@ -242,7 +242,7 @@ struct GardenTab: View {
     private func plans(_ layout: PageWidth) -> some View {
         if activeGardens.isEmpty {
             Text("No gardens yet.")
-                .font(.subheadline)
+                .font(.body)
                 .foregroundStyle(Theme.inkSoft)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .glassCard()
@@ -468,7 +468,7 @@ struct WildlifeTab: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Text("Latest sightings")
-                    .font(.headline)
+                    .font(.title3.weight(.semibold))
                     .foregroundStyle(Theme.ink)
                 Spacer()
                 if sightings.count > 5 {
@@ -478,7 +478,7 @@ struct WildlifeTab: View {
 
             if sightings.isEmpty {
                 Text("Nothing seen yet. Record a sighting from Today, or from Sightings above.")
-                    .font(.subheadline)
+                    .font(.body)
                     .foregroundStyle(Theme.inkSoft)
             }
             ForEach(sightings.prefix(5)) { sighting in
@@ -506,10 +506,10 @@ struct WildlifeTab: View {
                 .foregroundStyle(Theme.leaf)
             VStack(alignment: .leading, spacing: 3) {
                 Text(record.title)
-                    .font(.subheadline.weight(.medium))
+                    .font(.body.weight(.medium))
                     .foregroundStyle(Theme.ink)
                 Text([record.dateText, record.detail].compactMap { $0 }.joined(separator: " · "))
-                    .font(.caption)
+                    .font(.footnote)
                     .foregroundStyle(Theme.inkSoft)
             }
             Spacer(minLength: 8)
@@ -528,7 +528,7 @@ struct WildlifeTab: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Text("Latest surveys")
-                    .font(.headline)
+                    .font(.title3.weight(.semibold))
                     .foregroundStyle(Theme.ink)
                 Spacer()
                 if surveys.count > 3 {
@@ -538,7 +538,7 @@ struct WildlifeTab: View {
 
             if surveys.isEmpty {
                 Text("No counts yet. A FIT Count can be started from Today.")
-                    .font(.subheadline)
+                    .font(.body)
                     .foregroundStyle(Theme.inkSoft)
             }
             ForEach(surveys.prefix(3)) { survey in
@@ -550,10 +550,10 @@ struct WildlifeTab: View {
                             .foregroundStyle(Theme.leaf)
                         VStack(alignment: .leading, spacing: 3) {
                             Text(survey.scheme.displayName)
-                                .font(.subheadline.weight(.medium))
+                                .font(.body.weight(.medium))
                                 .foregroundStyle(Theme.ink)
                             Text("\(survey.startedAt.formatted(.dateTime.day().month(.wide).year())) · \(survey.totalCount) counted")
-                                .font(.caption)
+                                .font(.footnote)
                                 .foregroundStyle(Theme.inkSoft)
                         }
                         Spacer(minLength: 0)

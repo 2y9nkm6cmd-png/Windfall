@@ -147,22 +147,22 @@ struct PlantCardView: View {
                 VStack(alignment: .leading, spacing: 3) {
                     if let kind = PlantCards.kindLine(plant) {
                         Text(kind)
-                            .font(.caption2)
+                            .font(.caption)
                             .textCase(.uppercase)
                             .tracking(0.6)
                             .foregroundStyle(Theme.leaf)
                     }
                     Text(plant.commonName)
-                        .font(.headline.weight(.medium))
+                        .font(.title3.weight(.medium))
                         .foregroundStyle(Theme.ink)
                     if let variety = plant.variety, !variety.isEmpty {
                         Text(variety)
-                            .font(.subheadline)
+                            .font(.body)
                             .foregroundStyle(Theme.ink)
                     }
                     if let latin = plant.latinName, !latin.isEmpty {
                         Text(latin)
-                            .font(.caption)
+                            .font(.footnote)
                             .italic()
                             .foregroundStyle(Theme.inkSoft)
                     }
@@ -176,7 +176,7 @@ struct PlantCardView: View {
 
             if let season = PlantCards.seasonLine(plant) {
                 Text(season)
-                    .font(.caption)
+                    .font(.footnote)
                     .foregroundStyle(Theme.inkSoft)
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -185,7 +185,7 @@ struct PlantCardView: View {
                 ChipFlow(spacing: 5) {
                     ForEach(chips) { chip in
                         Text(chip.text)
-                            .font(.caption2)
+                            .font(.caption)
                             .foregroundStyle(Theme.ink)
                             .padding(.horizontal, 8)
                             .padding(.vertical, 3)

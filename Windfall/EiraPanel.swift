@@ -137,11 +137,11 @@ struct PanelPage<Accessory: View, Content: View>: View {
         HStack(alignment: .top, spacing: 10) {
             VStack(alignment: .leading, spacing: 3) {
                 Text(title)
-                    .font(.system(.title2, design: .serif, weight: .medium))
+                    .font(.system(.title, design: .serif, weight: .medium))
                     .foregroundStyle(Theme.ink)
                 if let detail {
                     Text(detail)
-                        .font(.subheadline)
+                        .font(.body)
                         .foregroundStyle(Theme.inkSoft)
                 }
             }

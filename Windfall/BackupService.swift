@@ -693,7 +693,7 @@ struct BackupView: View {
             Section {
                 Label("Sync copies mistakes as faithfully as it copies data. A dated file kept elsewhere is the only thing that protects against deleting a year of records by accident.",
                       systemImage: "info.circle")
-                    .font(.caption)
+                    .font(.footnote)
                     .foregroundStyle(.secondary)
             }
         }

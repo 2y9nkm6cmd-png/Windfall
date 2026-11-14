@@ -253,7 +253,7 @@ struct EiraChatView: View {
                 } label: {
                     // Drawn to match the panel's other buttons.
                     Image(systemName: "ellipsis")
-                        .font(.subheadline.weight(.medium))
+                        .font(.body.weight(.medium))
                         .foregroundStyle(Theme.ink)
                         .frame(minHeight: 18)
                         .padding(.horizontal, 14)
@@ -392,7 +392,7 @@ struct EiraChatView: View {
                             HStack(spacing: 6) {
                                 ProgressView().controlSize(.small)
                                 Text("Looking at the photo…")
-                                    .font(.callout)
+                                    .font(.body)
                                     .foregroundStyle(Theme.inkSoft)
                             }
                         }
@@ -402,13 +402,13 @@ struct EiraChatView: View {
                            !metrics.summary.isEmpty {
                             Text([conversation.modelName, metrics.summary]
                                 .compactMap { $0 }.joined(separator: " · "))
-                                .font(.caption2.monospacedDigit())
+                                .font(.caption.monospacedDigit())
                                 .foregroundStyle(.tertiary)
                         }
 
                         if let error = conversation.lastError {
                             Label(error, systemImage: "exclamationmark.triangle")
-                                .font(.callout)
+                                .font(.body)
                                 .foregroundStyle(.orange)
                         }
 
@@ -460,13 +460,13 @@ struct EiraChatView: View {
             if let note = conversation.screenNote {
                 HStack(spacing: 8) {
                     Text("Eira knows you were looking at \(note).")
-                        .font(.caption)
+                        .font(.footnote)
                         .foregroundStyle(Theme.inkSoft)
                     Spacer(minLength: 0)
                     Button("Don't use this") {
                         conversation.screenNote = nil
                     }
-                    .font(.caption)
+                    .font(.footnote)
                     .buttonStyle(.plain)
                     .foregroundStyle(Theme.leaf)
                 }
@@ -501,12 +501,12 @@ struct EiraChatView: View {
     private var welcome: some View {
         VStack(alignment: .leading, spacing: 10) {
             Text("Ask about your garden")
-                .font(.headline)
+                .font(.title3.weight(.semibold))
 
             if isLoadingModel {
                 HStack(spacing: 6) {
                     ProgressView().controlSize(.small)
-                    Text("Getting Eira ready…").font(.caption).foregroundStyle(.secondary)
+                    Text("Getting Eira ready…").font(.footnote).foregroundStyle(.secondary)
                 }
             }
 
@@ -520,7 +520,7 @@ struct EiraChatView: View {
                     input = suggestion
                 } label: {
                     Text(suggestion)
-                        .font(.callout)
+                        .font(.body)
                         .padding(.horizontal, 10)
                         .padding(.vertical, 6)
                         .background(.thinMaterial, in: Capsule())
@@ -535,10 +535,10 @@ struct EiraChatView: View {
         HStack(alignment: .top) {
             Image(systemName: "exclamationmark.circle")
             Text(problem)
-                .font(.caption)
+                .font(.footnote)
             Spacer()
             Button("Settings") { showingSettings = true }
-                .font(.caption)
+                .font(.footnote)
         }
         .padding(8)
         .background(.orange.opacity(0.15))
@@ -715,7 +715,7 @@ struct EiraChatView: View {
             conversation.send(text, forcedTool: tool)
         } label: {
             Text(title)
-                .font(.caption)
+                .font(.footnote)
                 .padding(.horizontal, 8)
                 .padding(.vertical, 4)
                 .background(.thinMaterial, in: Capsule())
@@ -779,7 +779,7 @@ private struct MessageView: View {
                         onCorrect()
                     } label: {
                         Label("Correct this", systemImage: "pencil.and.outline")
-                            .font(.caption)
+                            .font(.footnote)
                     }
                     .buttonStyle(.plain)
                     .foregroundStyle(Theme.inkSoft)
@@ -878,7 +878,7 @@ struct EiraSettingsView: View {
                               ? "A downloaded model needs at least \(DeviceCapability.minimumMemoryGB)GB. On this device Eira uses Apple's built-in model."
                               : "A downloaded model needs at least \(DeviceCapability.minimumMemoryGB)GB, and Apple's built-in model is not available on this device. The rest of Windfall works as normal.",
                               systemImage: "exclamationmark.circle")
-                            .font(.callout)
+                            .font(.body)
                             .foregroundStyle(.orange)
                     }
                 } header: {
@@ -895,12 +895,12 @@ struct EiraSettingsView: View {
                     switch kind {
                     case .appleBuiltIn:
                         Text("The model Apple includes with the system. Nothing to download.")
-                            .font(.callout).foregroundStyle(.secondary)
+                            .font(.body).foregroundStyle(.secondary)
 
                     case .coreAI:
                         if coreAIModels.isEmpty {
                             Text("No Core AI models found yet.")
-                                .font(.callout).foregroundStyle(.secondary)
+                                .font(.body).foregroundStyle(.secondary)
                         } else {
                             Picker("Model", selection: $coreAIName) {
                                 ForEach(coreAIModels, id: \.self) { name in
@@ -921,7 +921,7 @@ struct EiraSettingsView: View {
                         .disabled(isCopying)
                         if let importProblem {
                             Label(importProblem, systemImage: "exclamationmark.triangle")
-                                .font(.callout)
+                                .font(.body)
                                 .foregroundStyle(.orange)
                         }
 
@@ -934,7 +934,7 @@ struct EiraSettingsView: View {
 
                     case .online:
                         Text("Not set up yet. Everything Eira does stays on this device.")
-                            .font(.callout).foregroundStyle(.secondary)
+                            .font(.body).foregroundStyle(.secondary)
                     }
                 } header: {
                     Text("Model")
@@ -1048,10 +1048,10 @@ struct EiraHistoryView: View {
                     } label: {
                         VStack(alignment: .leading, spacing: 2) {
                             Text(chat.title.isEmpty ? "Conversation" : chat.title)
-                                .font(.subheadline)
+                                .font(.body)
                                 .foregroundStyle(.primary)
                             Text(chat.updatedAt.formatted(date: .abbreviated, time: .shortened))
-                                .font(.caption)
+                                .font(.footnote)
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -1108,7 +1108,7 @@ struct EiraCorrectionView: View {
             SheetScroll {
                 SheetCard("Eira said") {
                     Text(message.content)
-                        .font(.callout)
+                        .font(.body)
                         .foregroundStyle(Theme.inkSoft)
                         // No more than eight lines of a long reply.
                         .lineLimit(8)
@@ -1190,7 +1190,7 @@ private struct CorrectionOfferCard: View {
                         .lineLimit(1...5)
                 }
                 Text("Eira would be told this at the start of every conversation. Nothing is kept unless you press Keep it.")
-                    .font(.caption)
+                    .font(.footnote)
                     .foregroundStyle(Theme.inkSoft)
             }
         }
@@ -1210,7 +1210,7 @@ private struct CorrectionOfferCard: View {
                 .foregroundStyle(Theme.inkSoft)
                 .underline()
         }
-        .font(.caption)
+        .font(.footnote)
     }
 }
 
@@ -1246,7 +1246,7 @@ struct EiraCorrectionsView: View {
                 if corrections.isEmpty {
                     SheetCard {
                         Text("Nothing yet. When Eira gets something wrong, press \"Correct this\" under her reply, or simply tell her: \"No, that's wrong. It's a Bramley.\"")
-                            .font(.callout)
+                            .font(.body)
                             .foregroundStyle(Theme.inkSoft)
                     }
                 }
@@ -1269,7 +1269,7 @@ struct EiraCorrectionsView: View {
                         HStack {
                             Text(correction.createdAt.formatted(date: .abbreviated, time: .shortened)
                                  + (place >= EiraChatStore.correctionsRead ? " · only when a question touches on it" : ""))
-                                .font(.caption)
+                                .font(.footnote)
                                 .foregroundStyle(Theme.inkSoft)
                             Spacer()
                             Button("Remove") { onRemove(correction) }

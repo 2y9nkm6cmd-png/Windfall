@@ -62,9 +62,9 @@ struct FaunaListView: View {
                 ForEach(filtered) { animal in
                     NavigationLink(value: animal) {
                         VStack(alignment: .leading, spacing: 2) {
-                            Text(animal.commonName).font(.subheadline.weight(.medium))
+                            Text(animal.commonName).font(.body.weight(.medium))
                             if let latin = animal.scientificName {
-                                Text(latin).font(.caption).italic().foregroundStyle(.secondary)
+                                Text(latin).font(.footnote).italic().foregroundStyle(.secondary)
                             }
                             HStack(spacing: 6) {
                                 if let group = animal.recordingGroup { Text(group) }
@@ -72,7 +72,7 @@ struct FaunaListView: View {
                                     Text("· \(tongue) tongue")
                                 }
                             }
-                            .font(.caption2)
+                            .font(.caption)
                             .foregroundStyle(.secondary)
                         }
                     }
@@ -133,10 +133,10 @@ struct FaunaDetailView: View {
                     ForEach(associations) { link in
                         VStack(alignment: .leading, spacing: 3) {
                             HStack {
-                                Text(link.plantName).font(.subheadline)
+                                Text(link.plantName).font(.body)
                                 Spacer()
                                 Text(link.relationship.displayName)
-                                    .font(.caption)
+                                    .font(.footnote)
                                     .padding(.horizontal, 6)
                                     .padding(.vertical, 2)
                                     .background(
@@ -145,10 +145,10 @@ struct FaunaDetailView: View {
                                         in: Capsule())
                             }
                             if let shape = link.flowerShape {
-                                Text(shape).font(.caption2).foregroundStyle(.secondary)
+                                Text(shape).font(.caption).foregroundStyle(.secondary)
                             }
                             if let notes = link.notes, !notes.isEmpty {
-                                Text(notes).font(.caption2).foregroundStyle(.secondary)
+                                Text(notes).font(.caption).foregroundStyle(.secondary)
                             }
                         }
                         .padding(.vertical, 2)
@@ -225,20 +225,20 @@ struct FlowerShapeCoverageView: View {
     private func shapeRow(_ shape: FlowerShape, present: Bool) -> some View {
         VStack(alignment: .leading, spacing: 3) {
             HStack {
-                Text(shape.name).font(.subheadline.weight(.medium))
+                Text(shape.name).font(.body.weight(.medium))
                 Spacer()
                 Image(systemName: present ? "checkmark.circle.fill" : "circle.dashed")
                     .foregroundStyle(present ? .green : .secondary)
             }
             if let description = shape.shapeDescription {
-                Text(description).font(.caption).foregroundStyle(.secondary)
+                Text(description).font(.footnote).foregroundStyle(.secondary)
             }
             if let insects = shape.insectsServed {
-                Text(insects).font(.caption2).foregroundStyle(.tertiary)
+                Text(insects).font(.caption).foregroundStyle(.tertiary)
             }
             if !present, let examples = shape.examplePlants {
                 Text("Try: \(examples)")
-                    .font(.caption2)
+                    .font(.caption)
                     .foregroundStyle(.blue)
             }
         }
@@ -257,25 +257,25 @@ struct CascadeListView: View {
             ForEach(cascades) { cascade in
                 VStack(alignment: .leading, spacing: 6) {
                     Text(cascade.cascadeType)
-                        .font(.caption.weight(.medium))
+                        .font(.footnote.weight(.medium))
                         .foregroundStyle(.secondary)
 
                     HStack(alignment: .top, spacing: 4) {
                         step(cascade.plantStep, colour: .green)
                         if cascade.herbivoreStep != nil {
                             Image(systemName: "arrow.right")
-                                .font(.caption2).foregroundStyle(.tertiary)
+                                .font(.caption).foregroundStyle(.tertiary)
                             step(cascade.herbivoreStep, colour: .orange)
                         }
                         if cascade.predatorStep != nil {
                             Image(systemName: "arrow.right")
-                                .font(.caption2).foregroundStyle(.tertiary)
+                                .font(.caption).foregroundStyle(.tertiary)
                             step(cascade.predatorStep, colour: .purple)
                         }
                     }
 
                     if let notes = cascade.notes, !notes.isEmpty {
-                        Text(notes).font(.caption).foregroundStyle(.secondary)
+                        Text(notes).font(.footnote).foregroundStyle(.secondary)
                     }
                 }
                 .padding(.vertical, 4)
@@ -289,7 +289,7 @@ struct CascadeListView: View {
     private func step(_ text: String?, colour: Color) -> some View {
         if let text {
             Text(text)
-                .font(.caption)
+                .font(.footnote)
                 .padding(.horizontal, 6)
                 .padding(.vertical, 3)
                 .background(colour.opacity(0.15), in: RoundedRectangle(cornerRadius: 5))

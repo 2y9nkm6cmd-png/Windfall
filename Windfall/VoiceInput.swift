@@ -219,7 +219,7 @@ struct PushToTalkButton: View {
                         .frame(height: 28)
 
                     Text(voice.transcript.isEmpty ? "Listening…" : voice.transcript)
-                        .font(.callout)
+                        .font(.body)
                         .foregroundStyle(voice.transcript.isEmpty ? .secondary : .primary)
                         .multilineTextAlignment(.center)
                         .frame(maxWidth: .infinity)
@@ -258,7 +258,7 @@ struct PushToTalkButton: View {
 
             if !voice.isListening {
                 Text("Hold to speak")
-                    .font(.caption2)
+                    .font(.caption)
                     .foregroundStyle(.secondary)
             }
         }

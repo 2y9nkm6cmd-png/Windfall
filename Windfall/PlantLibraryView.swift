@@ -140,7 +140,7 @@ struct PlantLibraryView: View {
             ForEach(PlantCards.byLetter(shown)) { group in
                 VStack(alignment: .leading, spacing: 10) {
                     Text(group.letter)
-                        .font(.system(.title3, design: .serif, weight: .medium))
+                        .font(.system(.title2, design: .serif, weight: .medium))
                         .foregroundStyle(Theme.inkSoft)
                         .padding(.leading, 4)
                         .accessibilityAddTraits(.isHeader)
@@ -358,7 +358,7 @@ struct PlantLibraryView: View {
             HStack(spacing: 6) {
                 WIconView(.close, size: 12)
                 Text("Clear")
-                    .font(.subheadline)
+                    .font(.body)
             }
             .foregroundStyle(Theme.ink)
             .padding(.horizontal, 14)
@@ -389,10 +389,10 @@ private struct FilterButtonLabel: View {
     var body: some View {
         HStack(spacing: 6) {
             Text(title)
-                .font(.subheadline)
+                .font(.body)
                 .lineLimit(1)
             Image(systemName: "chevron.down")
-                .font(.caption2.weight(.semibold))
+                .font(.caption.weight(.semibold))
                 .accessibilityHidden(true)
         }
         .foregroundStyle(Theme.ink)
@@ -560,7 +560,7 @@ struct PlantDetailView: View {
                 if !summary.isEmpty {
                     // "softneck · Alliums · Perennial"
                     Text(summary.map(\.value).joined(separator: " · "))
-                        .font(.subheadline)
+                        .font(.body)
                         .foregroundStyle(Theme.inkSoft)
                 }
                 Text(plant.commonName)
@@ -593,10 +593,10 @@ struct PlantDetailView: View {
             HStack(spacing: 10) {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Companion planting")
-                        .font(.headline)
+                        .font(.title3.weight(.semibold))
                         .foregroundStyle(Theme.ink)
                     Text("What it grows well with, and what to keep apart from it.")
-                        .font(.subheadline)
+                        .font(.body)
                         .foregroundStyle(Theme.inkSoft)
                         .multilineTextAlignment(.leading)
                 }
@@ -620,7 +620,7 @@ struct PlantDetailView: View {
         if !pests.isEmpty {
             VStack(alignment: .leading, spacing: 10) {
                 Text("Plants that help with its pests")
-                    .font(.headline)
+                    .font(.title3.weight(.semibold))
                     .foregroundStyle(Theme.ink)
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 140), spacing: 8, alignment: .leading)],
                           alignment: .leading, spacing: 8) {
@@ -632,7 +632,7 @@ struct PlantDetailView: View {
                                 Text(pest)
                                 WIconView(.arrowRight, size: 12)
                             }
-                            .font(.subheadline)
+                            .font(.body)
                             .foregroundStyle(Theme.ink)
                             .padding(.horizontal, 12)
                             .padding(.vertical, 7)
@@ -657,10 +657,10 @@ struct PlantDetailView: View {
         if !missing.isEmpty {
             VStack(alignment: .leading, spacing: 10) {
                 Text("Add information")
-                    .font(.headline)
+                    .font(.title3.weight(.semibold))
                     .foregroundStyle(Theme.ink)
                 Text("Nothing is recorded yet under these headings.")
-                    .font(.subheadline)
+                    .font(.body)
                     .foregroundStyle(Theme.inkSoft)
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 170), spacing: 8, alignment: .leading)],
                           alignment: .leading, spacing: 8) {
@@ -673,7 +673,7 @@ struct PlantDetailView: View {
                                 Text(factGroup.title)
                                     .multilineTextAlignment(.leading)
                             }
-                            .font(.subheadline)
+                            .font(.body)
                             .foregroundStyle(Theme.ink)
                             .padding(.horizontal, 12)
                             .padding(.vertical, 7)
@@ -704,12 +704,12 @@ struct PlantDetailView: View {
 
         return VStack(alignment: .leading, spacing: 10) {
             Text("Sowings and plantings")
-                .font(.headline)
+                .font(.title3.weight(.semibold))
                 .foregroundStyle(Theme.ink)
 
             if lines.isEmpty {
                 Text("Nothing recorded for this plant yet.")
-                    .font(.subheadline)
+                    .font(.body)
                     .foregroundStyle(Theme.inkSoft)
             }
 
@@ -725,16 +725,16 @@ struct PlantDetailView: View {
                                 // "Planted 24 Oct 2026", or just "On
                                 // record" where there is no date.
                                 Text(line.date.map { "\(line.verb) \($0.formatted(.dateTime.day().month().year()))" } ?? line.verb)
-                                    .font(.subheadline.weight(.medium))
+                                    .font(.body.weight(.medium))
                                     .foregroundStyle(Theme.ink)
                                 Text(line.detail)
-                                    .font(.caption)
+                                    .font(.footnote)
                                     .foregroundStyle(Theme.inkSoft)
                                     .multilineTextAlignment(.leading)
                             }
                             Spacer(minLength: 8)
                             Text(line.status)
-                                .font(.caption)
+                                .font(.footnote)
                                 .foregroundStyle(Theme.inkSoft)
                             WIconView(.arrowRight, size: 12)
                                 .foregroundStyle(Theme.leaf)
@@ -804,14 +804,14 @@ private struct PlantFactCardView: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(alignment: .firstTextBaseline, spacing: 8) {
                 Text(factCard.title)
-                    .font(.headline)
+                    .font(.title3.weight(.semibold))
                     .foregroundStyle(Theme.ink)
                 Spacer(minLength: 8)
                 Button {
                     onEdit()
                 } label: {
                     Image(systemName: "pencil")
-                        .font(.subheadline.weight(.semibold))
+                        .font(.body.weight(.semibold))
                         .foregroundStyle(Theme.leaf)
                         // A larger area to press than the pencil itself.
                         .frame(width: 30, height: 26)
@@ -847,7 +847,7 @@ private struct PlantFactCardView: View {
                           alignment: .leading, spacing: 8) {
                     ForEach(factCard.tags, id: \.self) { tag in
                         Text(tag)
-                            .font(.subheadline)
+                            .font(.body)
                             .foregroundStyle(Theme.ink)
                             .padding(.horizontal, 12)
                             .padding(.vertical, 6)
@@ -864,10 +864,10 @@ private struct PlantFactCardView: View {
     private func factView(_ fact: PlantPage.Fact) -> some View {
         VStack(alignment: .leading, spacing: 1) {
             Text(fact.label)
-                .font(.caption)
+                .font(.footnote)
                 .foregroundStyle(Theme.inkSoft)
             Text(fact.value)
-                .font(.subheadline)
+                .font(.body)
                 .foregroundStyle(Theme.ink)
                 // Lets a long value run on to more lines.
                 .fixedSize(horizontal: false, vertical: true)
@@ -887,7 +887,7 @@ private struct PlantFactCardView: View {
                 HStack(spacing: 3) {
                     ForEach(Array("JFMAMJJASOND".enumerated()), id: \.offset) { _, letter in
                         Text(String(letter))
-                            .font(.caption2)
+                            .font(.caption)
                             .foregroundStyle(Theme.inkSoft)
                             .frame(maxWidth: .infinity)
                     }
@@ -898,7 +898,7 @@ private struct PlantFactCardView: View {
             ForEach(factCard.monthRows) { monthRow in
                 HStack(spacing: 8) {
                     Text(monthRow.label)
-                        .font(.caption)
+                        .font(.footnote)
                         .foregroundStyle(Theme.inkSoft)
                         .frame(width: nameWidth, alignment: .leading)
                     MonthStrip(months: monthRow.months, fill: monthRow.kind.tint)

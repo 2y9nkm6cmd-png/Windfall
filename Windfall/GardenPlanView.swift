@@ -117,7 +117,7 @@ struct GardenPlanView: View {
                 return place(PlanPoint(x: x, y: y))
             }
             func label(_ text: String, at point: CGPoint, soft: Bool = false) {
-                context.draw(Text(text).font(.caption2).foregroundStyle(soft ? Theme.inkSoft : Theme.ink), at: point)
+                context.draw(Text(text).font(.caption).foregroundStyle(soft ? Theme.inkSoft : Theme.ink), at: point)
             }
 
             // 1. The edge of the plot.
@@ -245,7 +245,7 @@ struct GardenPlanView: View {
         // The number sits on a patch of paper so the line does not run
         // through it.
         let centre = CGPoint(x: (from.x + to.x) / 2, y: (from.y + to.y) / 2)
-        let resolved = context.resolve(Text(text).font(.caption2).foregroundStyle(Theme.inkSoft))
+        let resolved = context.resolve(Text(text).font(.caption).foregroundStyle(Theme.inkSoft))
         let textSize = resolved.measure(in: CGSize(width: 200, height: 40))
         let patch = CGRect(x: centre.x - textSize.width / 2 - 3, y: centre.y - textSize.height / 2,
                            width: textSize.width + 6, height: textSize.height)
@@ -309,10 +309,10 @@ struct GardenPlanCard: View {
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(garden.name)
-                        .font(.headline)
+                        .font(.title3.weight(.semibold))
                         .foregroundStyle(Theme.ink)
                     Text(sizeLine)
-                        .font(.subheadline)
+                        .font(.body)
                         .foregroundStyle(Theme.inkSoft)
                 }
                 Spacer()
@@ -325,7 +325,7 @@ struct GardenPlanCard: View {
             HStack {
                 if GardenPlanView.hasUnplacedBeds(beds) {
                     Text("Beds not placed yet")
-                        .font(.caption)
+                        .font(.footnote)
                         .foregroundStyle(Theme.inkSoft)
                 }
                 Spacer()
@@ -336,7 +336,7 @@ struct GardenPlanCard: View {
                         Text(garden.widthMetres == nil ? "Draw this garden" : "Edit layout")
                         WIconView(.arrowRight, size: 14)
                     }
-                    .font(.subheadline)
+                    .font(.body)
                     .foregroundStyle(Theme.leaf)
                 }
                 .buttonStyle(.plain)

@@ -39,7 +39,7 @@ struct CrossListView: View {
                             fresh = crossing
                         } label: {
                             Label("New cross", systemImage: "plus")
-                                .font(.subheadline.weight(.semibold))
+                                .font(.body.weight(.semibold))
                         }
                         .buttonStyle(.glassProminent)
                         .tint(Theme.leaf)
@@ -48,7 +48,7 @@ struct CrossListView: View {
 
                     if crosses.isEmpty {
                         Text("Write a cross down on the day you make it: which plant carried the seed and whose pollen it had. When you sow the seed next year, the sowing form offers it, so the seedling's parents are on record.")
-                            .font(.subheadline)
+                            .font(.body)
                             .foregroundStyle(Theme.inkSoft)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .glassCard()
@@ -98,15 +98,15 @@ struct CrossListView: View {
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(crossing.title)
-                    .font(.subheadline.weight(.medium))
+                    .font(.body.weight(.medium))
                     .foregroundStyle(Theme.ink)
                     .fixedSize(horizontal: false, vertical: true)
                 Text(crossing.date, format: .dateTime.day().month(.wide).year())
-                    .font(.caption)
+                    .font(.footnote)
                     .foregroundStyle(Theme.inkSoft)
                 Text(CrossBook.facts(byHand: crossing.wasByHand, bagged: crossing.wasBagged,
                                      flowers: crossing.flowersPollinated, seeds: crossing.seedsCollected))
-                    .font(.caption)
+                    .font(.footnote)
                     .foregroundStyle(Theme.inkSoft)
                 if sown > 0 {
                     StatusTag(text: sown == 1 ? "1 sowing of its seed" : "\(sown) sowings of its seed",
@@ -176,7 +176,7 @@ struct CrossEditor: View {
     private var cards: some View {
         SheetCard("Seed parent") {
             Text("The plant that carried the flower, and so the fruit and the seed.")
-                .font(.caption)
+                .font(.footnote)
                 .foregroundStyle(Theme.inkSoft)
             ParentPicker(plants: plants, alikeTo: nil, key: $crossing.seedParentKey,
                          name: $crossing.seedParentName)
@@ -184,7 +184,7 @@ struct CrossEditor: View {
 
         SheetCard("Pollen parent") {
             Text("The plant the pollen came from. Leave it empty if the bees did the work and you do not know.")
-                .font(.caption)
+                .font(.footnote)
                 .foregroundStyle(Theme.inkSoft)
             ParentPicker(plants: plants, alikeTo: crossing.seedParentName,
                          key: $crossing.pollenParentKey,
@@ -208,7 +208,7 @@ struct CrossEditor: View {
 
         SheetCard("The seed") {
             Text("Fill this in when the fruit is ripe.")
-                .font(.caption)
+                .font(.footnote)
                 .foregroundStyle(Theme.inkSoft)
             SettingRow("Seeds gathered") {
                 NumberStepper(value: Binding(get: { crossing.seedsCollected ?? 0 },
@@ -246,7 +246,7 @@ struct CrossEditor: View {
             HStack(alignment: .top, spacing: 10) {
                 TickBox(isOn: isOn.wrappedValue)
                 Text(words)
-                    .font(.subheadline)
+                    .font(.body)
                     .foregroundStyle(Theme.ink)
                     .multilineTextAlignment(.leading)
                 Spacer(minLength: 0)
@@ -297,7 +297,7 @@ struct ParentPicker: View {
         if !name.isEmpty {
             HStack {
                 Text(name)
-                    .font(.subheadline.weight(.medium))
+                    .font(.body.weight(.medium))
                     .foregroundStyle(Theme.ink)
                 Spacer(minLength: 8)
                 Button("Choose another") {
@@ -316,7 +316,7 @@ struct ParentPicker: View {
                     search = ""
                 } label: {
                     Text(plant.displayName)
-                        .font(.subheadline)
+                        .font(.body)
                         .foregroundStyle(Theme.ink)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.horizontal, 12)
