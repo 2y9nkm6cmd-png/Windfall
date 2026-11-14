@@ -7,6 +7,80 @@ run without the Mac (every file reads as valid Swift, 323 logic tests
 pass). Those do not build the screens. Expect things to put right when
 it is first built, and treat how everything here looks as untried.
 
+## 14 November 2026, 17:55: an iPhone's conversations grow out of Eira's bar too
+
+**On the branch `eira-panel-iphone`, made from `main` (`0c4857f`), with `main` (`ece03c9`) merged in.** Built for the Mac and the iOS Simulator with no errors (`eb6-mac.log`, `eb6-sim.log`, in `DerivedData/Windfall-eirabar`). 612 logic tests pass. Seen as still pictures with the example garden on an iPhone 17 Pro in the simulator (`shots/eb5-phone-*`): the journal's conversation in the panel, Eira's chat in the panel, and the Journal page with the bar at rest above the tabs. Not seen: Today on an iPhone with the snowdrop closed. **Nothing has been pressed by hand, and nobody has yet seen it with an iPhone's keyboard up.**
+
+**Why.** William, 17:23: "Does the chat change width on window resize on a mac? I want it to behave the same way on iphone as well." The entry of 16:50 below gave the panel to the Mac and the iPad and left the iPhone with its sheets, which was Claude's choice and not his.
+
+**The answer to his question.** Yes, up to a point. The panel is as wide as Eira's bar, and the bar is as wide as the page, so the panel narrows and widens as the window is dragged. It stops at 760 points, because a line of writing much wider than that is tiring to read. The button with two arrows lifts that limit.
+
+### 1. What you see on an iPhone
+
+Exactly what a Mac and an iPad do: send something from Eira's bar, or press its microphone or book button, and the bar grows upwards into the panel with the conversation in it. Done sinks it back. Two things differ, both because of the size of the screen:
+
+- **The panel is always as tall as the page.** On a Mac it stops at 620 points unless made larger. An iPhone has no height to spare.
+- **There is no button for a larger size**, because there is no larger size to go to.
+
+The row of tabs along the bottom stays where it is, under the panel's foot.
+
+### 2. How (`MainTabView.swift`)
+
+The iPhone layout now places the bar the way the other layout does. Before:
+
+```swift
+.safeAreaInset(edge: .bottom, spacing: 0) {
+    EiraFloatingBar()
+        .padding(.horizontal, 16)
+        .padding(.bottom, 8)
+}
+```
+
+After:
+
+```swift
+.safeAreaInset(edge: .bottom, spacing: 0) {
+    Color.clear.frame(height: EiraFloatingBar.restingHeight + 8)
+}
+.overlay(alignment: .bottom) {
+    EiraFloatingBar(growsInPlace: true, takesPagePhotos: section == .journal)
+        .padding(.horizontal, 16)
+        .padding(.bottom, 8)
+}
+```
+
+- `safeAreaInset` still keeps a strip clear at the foot of each page, so a long list can be scrolled out from under the bar. The strip now holds nothing (`Color.clear`) and is as tall as the bar plus the 8 points beneath it.
+- `.overlay` is a layer on top of the page with the page's whole space. The bar sits at its foot and has the rest to grow into. In the strip it had 60 points and nowhere to go.
+- `growsInPlace: true` asks for the panel in place of the sheets.
+
+### 3. One bar for each tab (`EiraFloatingBar.swift`)
+
+An iPhone has five tabs and each has a bar of its own. Photos dropped on the Journal page are handed to "Eira's bar" through the tracker (the entry of 16:50, part 6), and with five bars listening, the wrong one could have taken them and opened its panel on a tab nobody was looking at. `takesPagePhotos` is true only for the Journal tab's bar (`section == .journal`), and a bar where it is false leaves the photos alone.
+
+### 4. The panel on a narrow bar (`EiraPanel.swift`, `EiraFloatingBar.swift`)
+
+```swift
+panel(for: open, room: geometry.size.height, isPhoneWide: barWidth < EiraPanel.phoneWidth)
+```
+
+A bar narrower than 500 points is on an iPhone, or on an iPad that is sharing its screen with another app. `isPhoneWide` then does two things: the panel is drawn at its fullest (`let isFull = panelIsLarge || isPhoneWide`), and `EiraPanelControls` is given `offersLargerSize: false`, which is what leaves the button out of the heading.
+
+### 5. Photos dropped on the Journal page (`JournalViews.swift`)
+
+They now go to the bar on every device. The page's own sheet is kept only for a Journal page shown with no bar at all.
+
+### ⚠️ CHECK: choices that are Claude's
+
+1. The panel on an iPhone is as tall as the page, with no smaller size.
+2. The tabs stay showing under the panel.
+3. Nothing but Done closes it. A swipe down on the panel does not.
+
+### Not built
+
+- A swipe down to put the panel away, as a sheet has on an iPhone.
+- An iPhone held sideways. The panel is not fitted to a screen that wide and that short.
+- `growsInPlace` is now true in every layout, so the two sheets in `EiraFloatingBar.swift` are never shown. They are kept so that going back is one word. If the panel stays, they can be taken out.
+
 ## 14 November 2026, 17:12: on a Mac, a month's page follows two fingers as it turns
 
 **On the branch `month-drag-mac`, made from `main`.** Built for the Mac and the iOS Simulator with no errors (`mv7-mac.log`, `mv7-sim.log`, in `DerivedData/Windfall-month`). 596 logic tests pass. **A simulator has no trackpad, so the Mac's row was given to a 13-inch iPad with a checking aid and looked at there**, with the example garden: the row held 300 points to the right shows April sliding off and March coming in beside it, cut off cleanly at the sidebar (`shots/mv7-drag.png`); the forward arrow slides December on to January and the back arrow April back to March (`mv7-on.png`, `mv7-back.png`). **Not tried by anyone: two fingers on a real trackpad.**
