@@ -1,3 +1,62 @@
+# 14 November 2026, 22:39: snow and great heat in the corner drawing (branch `bee-asleep-at-night`)
+
+**By the "bee asleep" chat.** William, 22:31, of the preview page's Weather switch (Fine, Rain, Frost, Night): "There isn't a snow option in it or an extreme heat option." Both are now kinds of weather the corner draws, on Today from the real weather and in the preview by choice.
+
+| | Snow | Great heat |
+|---|---|---|
+| When, on Today | The weather service says snow is falling | 30°C or more, by day and dry |
+| What is drawn | Flakes falling steadily right across the frame, carried by the wind | The whole plant hangs over, each leaf droops, it hardly sways, and five faint wavy lines of haze rise |
+| The bee | Stays away by day. Still asleep in its flower at night | Does not fly |
+
+| File | What and why |
+|---|---|
+| `Windfall/WeatherService.swift` | `CurrentConditions` keeps the service's `weatherCode`, which was already being asked for and then dropped. New `isSnowing` |
+| `Windfall/CornerScene.swift` | `CornerWeather` gains `.snow` and `.heat`. `heatFromC`. `weather(...)` and `make(...)` take `isSnowing`. `isBeeWeather` rules both out. New `isWilting` |
+| `Windfall/CornerSprigs.swift` | `isLeaf`, so the engine knows which parts droop |
+| `Windfall/LivingCorner.swift` | The steady snowfall, the wilt, the haze and two new lines about the bee in the preview |
+| `Windfall/TodayView.swift` | Passes `isSnowing` to the scene |
+| `Tools/checks/LogicTests.swift` | Seven new tests |
+
+**How the app knows it is snowing.** The weather service sends a number for the kind of weather with every reading, a WMO weather code. The app asked for it and threw it away. It is now kept:
+
+```swift
+var weatherCode: Int? = nil
+static let snowCodes: Set<Int> = [71, 73, 75, 77, 85, 86]
+var isSnowing: Bool { weatherCode.map { CurrentConditions.snowCodes.contains($0) } ?? false }
+```
+
+- `Int?` is "a whole number, or nothing". `= nil` starts it as nothing, so the two other places that make a reading did not have to change.
+- `snowCodes` is the set of numbers that mean snow, snow grains and snow showers.
+- `isSnowing`: if there is a code, is it one of those? `?? false` is "and if there is no code, the answer is no".
+
+**Which weather wins.** The corner draws one kind at a time:
+
+```swift
+if isSnowing { return .snow }
+if let precipitationMM, precipitationMM >= rainFromMM { return .rain }
+if let temperatureC, temperatureC <= frostAtOrBelowC { return .frost }
+if isNight { return .night }
+if let temperatureC, temperatureC >= heatFromC { return .heat }
+return .fine
+```
+
+The lines are tried from the top and the first that fits is the answer. `if let temperatureC` means "if there is a temperature reading at all".
+
+**The wilt.** Two parts. The whole plant leans a steady 5 degrees more, added to the wind's lean. And each leaf turns part of the way to pointing straight down:
+
+```swift
+var toDown = 90 - degrees
+while toDown > 180 { toDown -= 360 }
+while toDown < -180 { toDown += 360 }
+degrees += toDown * CornerEngine.leafDroopShare
+```
+
+`degrees` is the way the leaf points, and 90 is straight down. `toDown` is how far it has to turn to get there. The two `while` lines pick the short way round. The last line turns it 22% of that.
+
+**⚠️ CHECK, Claude's choices:** 30°C for great heat. That the bee does not fly in great heat (from general knowledge: bumblebees overheat and stop foraging in very hot weather). 5 degrees of lean and 22% of droop. The haze drawn in the autumn-leaf amber. January's and December's own flurries are still there on any day that is not wet or hot, as before.
+
+**Not done:** with Reduce Motion on, snow is not drawn (rain is not either). The wilt is.
+
 # 14 November 2026, 21:51: at night the bee is asleep in its flower (branch `bee-asleep-at-night`)
 
 **By the "bee asleep" chat.** William, 21:28: "The bee doesn't seem to be flying in in the corner drawing." It was night, and the corner was following its rules. Then, 21:33: "At night, can the bee be sleeping in the flower".

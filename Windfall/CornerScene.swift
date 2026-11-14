@@ -30,16 +30,19 @@ enum CornerWind: String, CaseIterable, Hashable {
     }
 }
 
-/// The weather, as far as the drawing cares. Only one at a time: rain
-/// wins over frost, and frost over night.
+/// The weather, as far as the drawing cares. Only one at a time: snow
+/// wins over rain, rain over frost, frost over night, and night over
+/// great heat.
 enum CornerWeather: String, CaseIterable, Hashable {
-    case fine, rain, frost, night
+    case fine, rain, snow, frost, heat, night
 
     var label: String {
         switch self {
         case .fine: return "Fine"
         case .rain: return "Rain"
+        case .snow: return "Snow"
         case .frost: return "Frost"
+        case .heat: return "Heat"
         case .night: return "Night"
         }
     }
@@ -72,6 +75,9 @@ struct CornerScene: Equatable {
     static let beeMinimumC = 5.0
     /// At or below this the drawing sparkles with frost.
     static let frostAtOrBelowC = 0.0
+    /// At or above this, by day, it is great heat: the plant wilts and
+    /// the air shimmers.
+    static let heatFromC = 30.0
     /// Rain lighter than this is not drawn. The same line as
     /// CurrentConditions.isDry.
     static let rainFromMM = 0.1
@@ -125,10 +131,15 @@ struct CornerScene: Equatable {
     }
 
     /// The one kind of weather to draw. With no reading it is fine.
-    static func weather(temperatureC: Double?, precipitationMM: Double?, isNight: Bool) -> CornerWeather {
+    /// `isSnowing` comes from the weather service's own word for the
+    /// weather. Left out, it is false.
+    static func weather(temperatureC: Double?, precipitationMM: Double?, isNight: Bool, isSnowing: Bool = false) -> CornerWeather {
+        if isSnowing { return .snow }
         if let precipitationMM, precipitationMM >= rainFromMM { return .rain }
         if let temperatureC, temperatureC <= frostAtOrBelowC { return .frost }
-        return isNight ? .night : .fine
+        if isNight { return .night }
+        if let temperatureC, temperatureC >= heatFromC { return .heat }
+        return .fine
     }
 
     /// The scene for a moment in time, from whatever weather is known.
@@ -136,13 +147,13 @@ struct CornerScene: Equatable {
     /// with no garden placed, the scene is a light breeze on a fine day.
     static func make(date: Date, calendar: Calendar,
                      temperatureC: Double?, precipitationMM: Double?, windSpeedKMH: Double?,
-                     isNight: Bool) -> CornerScene {
+                     isSnowing: Bool = false, isNight: Bool) -> CornerScene {
         let parts = calendar.dateComponents([.month, .day], from: date)
         let daysInMonth = calendar.range(of: .day, in: .month, for: date)?.count ?? 30
         return CornerScene(monthNumber: parts.month ?? 1,
                            monthProgress: progress(day: parts.day ?? 15, daysInMonth: daysInMonth),
                            breeze: wind(forKMH: windSpeedKMH),
-                           cornerSky: weather(temperatureC: temperatureC, precipitationMM: precipitationMM, isNight: isNight),
+                           cornerSky: weather(temperatureC: temperatureC, precipitationMM: precipitationMM, isNight: isNight, isSnowing: isSnowing),
                            isWarmEnoughForBee: temperatureC.map { $0 >= beeMinimumC } ?? true,
                            isNight: isNight)
     }
@@ -155,10 +166,14 @@ struct CornerScene: Equatable {
     var isAfterDark: Bool { isNight || cornerSky == .night }
 
     /// True when the weather would let a bumblebee fly: not raining,
-    /// frosty, gusty or too cold.
+    /// snowing, frosty, gusty, too cold or too hot.
     var isBeeWeather: Bool {
-        cornerSky != .rain && cornerSky != .frost && breeze != .gusty && isWarmEnoughForBee
+        cornerSky != .rain && cornerSky != .snow && cornerSky != .frost && cornerSky != .heat
+            && breeze != .gusty && isWarmEnoughForBee
     }
+
+    /// True in great heat, when the plant hangs over and its leaves droop.
+    var isWilting: Bool { cornerSky == .heat }
 
     /// True when the bee is in the picture: out and about by day in bee
     /// weather, or asleep in its flower at night.

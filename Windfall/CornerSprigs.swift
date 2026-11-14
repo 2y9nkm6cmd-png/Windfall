@@ -263,6 +263,14 @@ struct CornerPart {
         return 0
     }
 
+    /// True for a leaf, which droops in great heat.
+    var isLeaf: Bool {
+        switch cornerShape {
+        case .leaf, .ivyLeaf: return true
+        default: return false
+        }
+    }
+
     /// False for a flower still in bud, which the bee does not visit.
     var isOpenEnoughForBee: Bool {
         if case .flower(_, _, _, _, _, let open) = cornerShape { return open >= 0.3 }

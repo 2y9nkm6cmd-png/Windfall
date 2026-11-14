@@ -571,6 +571,7 @@ struct TodayView: View {
                          temperatureC: weather.current?.temperatureC,
                          precipitationMM: weather.current?.precipitationMM,
                          windSpeedKMH: weather.current?.windSpeedKMH,
+                         isSnowing: weather.current?.isSnowing ?? false,
                          isNight: isNight)
             .withCheckingAids()
     }

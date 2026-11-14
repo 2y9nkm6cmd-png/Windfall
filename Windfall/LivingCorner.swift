@@ -68,6 +68,7 @@ final class CornerEngine {
     private var drifts: [CornerDrift] = []
     private var rainDrops: [(startsAt: Double, x: Double)] = []
     private var rainOwed = 0.0
+    private var snowOwed = 0.0
     private var fallAt: Double?
     private var hasFallen = false
     private var gustAt = -99.0
@@ -91,6 +92,10 @@ final class CornerEngine {
     /// For this many seconds after the drawing opens it counts as
     /// "just opened": a bee that is asleep is there from the start.
     private static let openingSeconds = 3.0
+    /// In great heat the whole plant hangs over by this many degrees.
+    private static let wiltDegrees = 5.0
+    /// And each leaf turns this share of the way to hanging straight down.
+    private static let leafDroopShare = 0.22
 
     private func random(_ low: Double, _ high: Double) -> Double { Double.random(in: low...high) }
 
@@ -135,7 +140,9 @@ final class CornerEngine {
         // that dies away.
         let sinceTap = time - nudgeAt
         let push = sinceTap > 0 && sinceTap < 4 ? nudgeSize * exp(-1.7 * sinceTap) * sin(7.2 * sinceTap) : 0
-        return strength * wave * gusts + (showing.breeze == .gusty ? 1.2 : 0) + push
+        // In great heat the air is heavy and the plant hardly stirs.
+        let stillness = showing.isWilting ? 0.45 : 1.0
+        return strength * wave * gusts * stillness + (showing.breeze == .gusty ? 1.2 : 0) + push
     }
 
     /// Tapping the drawing. `across` is where the finger landed: 0 at
@@ -185,7 +192,11 @@ final class CornerEngine {
         let fit = min(canvasSize.width / CornerEngine.gridWidth, canvasSize.height / CornerEngine.gridHeight)
         context.scaleBy(x: fit, y: fit)
         let grown = still ? 99 : time - (bornAt ?? time)
-        let lean = sway(time)
+        // The wind's lean, and in great heat a steady droop on top of
+        // it. The droop is added here and not inside sway(), so that it
+        // is there with Reduce Motion on, and so that hanging fruit,
+        // which uses sway() to swing, still hangs straight down.
+        let lean = sway(time) + (cornerScene.isWilting ? CornerEngine.wiltDegrees : 0)
 
         /// Where a point moves to when the wind bends the plant about
         /// its foot, and by how much it turned. Points further from the
@@ -227,7 +238,7 @@ final class CornerEngine {
             if grownSize <= 0.001 { placings[index].isShown = false; continue }
 
             let flutter = sway(time - 0.25 - sprigPart.along * 0.3) * 1.3 * sprigPart.flutter
-            let degrees: Double
+            var degrees: Double
             if sprigPart.hangs {
                 degrees = 90 + sprigPart.fan - sway(time - 0.45) * 1.7 * sprigPart.swing
             } else if sprigPart.turnsWithTip {
@@ -236,6 +247,15 @@ final class CornerEngine {
                 degrees = CornerMath.heading(line.start, line.bend, line.end, sprigPart.along) / CornerMath.degree + relativeAngle + flutter
             } else {
                 degrees = sprigPart.angle + bent(base, about: stem.foot).turn / CornerMath.degree + flutter
+            }
+            if cornerScene.isWilting && sprigPart.isLeaf {
+                // A wilting leaf turns part of the way to pointing straight
+                // down, which is 90 degrees here. The two loops find the
+                // short way round, so it never swings over the top.
+                var toDown = 90 - degrees
+                while toDown > 180 { toDown -= 360 }
+                while toDown < -180 { toDown += 360 }
+                degrees += toDown * CornerEngine.leafDroopShare
             }
             placings[index] = CornerPlacing(x: base.x, y: base.y, turn: degrees * CornerMath.degree, scaleNow: grownSize, isShown: true)
             if sprigPart.sheds { shedders.append(index) }
@@ -329,7 +349,10 @@ final class CornerEngine {
                                               phase: random(0, 6), fill: leafInk))
                     if isQuick { hasFallen = false }
                 }
-            case .snow where showing.cornerSky != .rain:
+            // January's and December's flurry. Not in rain or great
+            // heat, and not when it is really snowing, which has a
+            // steady fall of its own below.
+            case .snow where showing.cornerSky != .rain && showing.cornerSky != .snow && showing.cornerSky != .heat:
                 for number in 0..<4 {
                     drifts.append(CornerDrift(kind: .snow, startsAt: time + Double(number) * 0.7, x: random(20, 145), y: -3,
                                               phase: random(0, 6), fill: \.frost))
@@ -340,6 +363,18 @@ final class CornerEngine {
             }
             if showing.breeze != .calm && Double.random(in: 0...1) < 0.4 { gustAt = time + 0.4 }
             nextMomentAt = time + wait
+        }
+
+        if showing.cornerSky == .snow {
+            // Real snow: about four new flakes a second, right across
+            // the frame, however fast the screen is being redrawn. They
+            // start a little to the left because the wind carries them
+            // to the right as they fall.
+            snowOwed += frameGap * 4
+            while snowOwed >= 1 {
+                snowOwed -= 1
+                drifts.append(CornerDrift(kind: .snow, startsAt: time, x: random(-35, 150), y: -3, phase: random(0, 6), fill: \.frost))
+            }
         }
 
         let carried: Double
@@ -368,6 +403,27 @@ final class CornerEngine {
                 } else {
                     CornerDraw.paint(CornerPaths.leaf(9, 0.3), in: &g, inks, fill: inks[keyPath: drift.fill], lineOpacity: 0.6, lineWidth: 0.8)
                 }
+            }
+        }
+
+        if showing.cornerSky == .heat {
+            // Heat haze: five short wavy lines that rise slowly and fade.
+            // Nothing is remembered from frame to frame. Where each line
+            // is comes straight from the clock.
+            for number in 0..<5 {
+                let numbered = Double(number)
+                /// 0 as a line starts at the foot of the frame, 1 as it ends.
+                let risen = (time / 6 + numbered / 5).truncatingRemainder(dividingBy: 1)
+                let x = 18 + numbered * 29 + sin(numbered * 2.4) * 6
+                let y = 88 - risen * 62
+                var haze = Path()
+                for step in 0...6 {
+                    let stepped = Double(step)
+                    let point = CGPoint(x: x + sin(stepped * 1.05 + time * 1.8 + numbered) * 1.7, y: y - stepped * 2.6)
+                    if step == 0 { haze.move(to: point) } else { haze.addLine(to: point) }
+                }
+                context.stroke(haze, with: .color(inks.amber.color(0.4 * sin(.pi * risen))),
+                               style: StrokeStyle(lineWidth: 0.8, lineCap: .round, lineJoin: .round))
             }
         }
 
@@ -685,7 +741,9 @@ struct CornerPreviewView: View {
         if !showing.hasBee { return monthNumber == 10 ? "No bee this month. The falling apple is October's moment." : "The bee is asleep underground." }
         if showing.beeSleeps { return "At night the bee sleeps in its flower, whatever the weather. A tap does not wake it." }
         if cornerSky == .rain { return "It is raining, so the bee stays away." }
+        if cornerSky == .snow { return "It is snowing, so the bee stays away." }
         if cornerSky == .frost { return "It is frosty, so the bee stays away." }
+        if cornerSky == .heat { return "It is too hot for the bee to fly. The plant wilts." }
         if breeze == .gusty { return "It is too windy for the bee to fly." }
         return "The bee comes in from the left and leaves to the right. Tap the drawing to call it."
     }

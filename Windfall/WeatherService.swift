@@ -55,6 +55,18 @@ struct CurrentConditions {
     let cloudCoverPercent: Double
     let precipitationMM: Double
     let windSpeedKMH: Double
+    /// The weather service's own number for the kind of weather (a WMO
+    /// weather code), when it sent one. It is what tells snow from rain.
+    /// It has a starting value of nil ("none"), so code that makes a
+    /// reading without one still works unchanged.
+    var weatherCode: Int? = nil
+
+    /// The codes that mean snow is falling: snow, snow grains and snow
+    /// showers. The same numbers WeatherDiary.swift names as snow.
+    static let snowCodes: Set<Int> = [71, 73, 75, 77, 85, 86]
+
+    /// True when the weather service says snow is falling now.
+    var isSnowing: Bool { weatherCode.map { CurrentConditions.snowCodes.contains($0) } ?? false }
 
     /// Mapped onto the PoMS sky categories, which is what the FIT Count
     /// protocol actually asks for.
@@ -221,7 +233,8 @@ final class WeatherService {
                 temperatureC: temperature,
                 cloudCoverPercent: c.cloud_cover ?? 50,
                 precipitationMM: c.precipitation ?? 0,
-                windSpeedKMH: c.wind_speed_10m ?? 0
+                windSpeedKMH: c.wind_speed_10m ?? 0,
+                weatherCode: c.weather_code
             )
 
             current = conditions
