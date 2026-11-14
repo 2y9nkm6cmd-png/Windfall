@@ -1462,6 +1462,17 @@ struct LogicTests {
         await waitUntilIdle(asking)
         check(photoEngine.starts.last?.history.contains { $0.role == .assistant && $0.content.contains("This looks like Buff-tailed Bumblebee") } == true && asking.messages.last?.role == .assistant, "the text model is handed her answer to the photo before a follow-up question")
 
+        // The row of letters in the plant chooser.
+        check(PlantLetters.alphabet.count == 26 && PlantLetters.alphabet.first == "A" && PlantLetters.alphabet.last == "Z", "the alphabet runs from A to Z")
+        check(PlantLetters.letter(for: "marjoram") == "M" && PlantLetters.letter(for: "  Yarrow") == "Y" && PlantLetters.letter(for: "'Autumn Bliss'") == "A" && PlantLetters.letter(for: "Échalote") == "E", "a name is filed under its first letter, whatever its case, accent or opening mark")
+        check(PlantLetters.letter(for: "3 Sisters") == PlantLetters.other && PlantLetters.letter(for: "") == PlantLetters.other && PlantLetters.letter(for: "—") == PlantLetters.other, "a name with no first letter is filed under #")
+        let lettered = PlantLetters.groups(["Basil", "apple|Spartan", "Apple (Cider)|Fiona", "Apple|Pendragon", "Yarrow", "7 Up", "Apple", "Alfalfa", "apple (Cider)|Camelot"],
+                                           name: { String($0.split(separator: "|")[0]) },
+                                           detail: { $0.contains("|") ? String($0.split(separator: "|")[1]) : nil })
+        check(lettered.map(\.letter) == ["A", "B", "Y", "#"], "letters come out A to Z with # last, and empty ones are left out: \(lettered.map(\.letter))")
+        check(lettered.first?.items == ["Alfalfa", "Apple", "Apple|Pendragon", "apple|Spartan", "apple (Cider)|Camelot", "Apple (Cider)|Fiona"], "within a letter the order is by name and then by variety: \(lettered.first?.items ?? [])")
+        check(PlantLetters.groups([String](), name: { $0 }).isEmpty && PlantLetters.groups(["Sage", "sage"], name: { $0 }).first?.items == ["Sage", "sage"], "an empty list gives no letters, and two names alike keep the order they came in")
+
         print("   logic tests: \(passes) passed, \(failures) failed")
         exit(failures == 0 ? 0 : 1)
     }

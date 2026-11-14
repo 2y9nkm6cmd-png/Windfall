@@ -62,6 +62,80 @@ Plants and Sightings open their pages a different way (the card hands over a rec
 2. **The swipe back looks different.** The page shrinks towards its tile as it follows the finger. It does not slide off to the right as it did. Apple also lets a page opened this way be pulled down from its top to go back. Neither can be switched off separately.
 3. **The glass.** A plant's card is glass and is itself the source. A tile's glass is behind the source. Either may look wrong for a moment as the page grows.
 4. A plant's page reached some other way from inside Plants would grow from the middle of the screen, there being no card to grow from.
+## 14 November 2026, 16:25: the sighting form's plant list has a row of letters to jump by
+
+**On the branch `plant-letter-jump`, made from `main`.** Built for the Mac and the iOS Simulator with no errors (`pl1-mac.log`, `pl1-sim.log`, in `DerivedData/Windfall-plantjump`). 596 logic tests pass, 6 of them new. Seen as still pictures with the example garden: the list open and jumped to M on an iPhone 17 (light) and an 11-inch iPad Air, and jumped to S on the iPhone in dark (`shots/pl1-*`). **Not tried by hand: pressing a letter, choosing a plant, and the Mac's own window.** The pictures were made with the checking aid below, which jumps the same way a press on a letter does but without the glide.
+
+**Why.** William, 15:50, with a picture of the sighting form's "Which plant" menu open: "could you make it so that you can select letters of the alphabet for the first letter so that you can jump to those plants first." The menu held every plant in the library, 376 of them, in one list that always opened at the top.
+
+### 1. What you see
+
+"Which plant" on the sighting form is still a box showing the chosen plant. Pressing it now opens a panel in place of the menu:
+
+- **A row of letters**, A to Z. Press one and the list glides to the plants that begin with it. A letter with no plants (Q and X in the library today) is greyed out and cannot be pressed.
+- **The list**, with "None" first and then a small heading for each letter. The chosen plant has a tick and a green band. Press a plant and the panel closes with it chosen.
+- It opens at the letter of the plant already chosen, so the tick is in view.
+- On an iPad or a Mac the panel is a popover pointing at the box. On an iPhone it slides up as a sheet.
+
+**The order has changed a little.** The menu was in the order of the plants' names alone, so varieties of one plant came in no order (Apple: Spartan, Pigs Snout, Pendragon). The list is in order of name and then variety, so they now run Jonagold, Pendragon, Pigs Nose III, Pigs Snout.
+
+### 2. The workings (`PlantFilter.swift`)
+
+A new piece, `PlantLetters`, with nothing in it that draws, so it can be tested without a screen.
+
+```swift
+static func letter(for name: String) -> String {
+    guard let first = name.first(where: { $0.isLetter || $0.isNumber }) else { return other }
+    let plain = key(String(first)).uppercased()
+    return alphabet.contains(plain) ? plain : other
+}
+```
+
+- `name.first(where:)` finds the first character that is a letter or a number, skipping anything in front, such as a quotation mark.
+- `guard ... else { return other }` is the way out when there is none: the name goes under "#".
+- `key(...)` drops an accent and `uppercased()` makes a capital, so "é" becomes "E".
+- The last line asks whether that is one of A to Z. A number is not, so "3 Sisters" goes under "#" too.
+
+`PlantLetters.groups` puts the whole list in order and returns one `LetterGroup` for each letter in use, each holding its plants. It is handed two small functions, one that gives an item's name and one its variety, so the app can give it plants and the tests plain text.
+
+### 3. The panel (`PlantChooser.swift`, new)
+
+Two views. `PlantChooser` is the box on the form. `PlantChooserList` is the panel.
+
+```swift
+ScrollViewReader { scroller in
+    ...
+    Button {
+        withAnimation(.smooth(duration: 0.25)) {
+            scroller.scrollTo(letter, anchor: .top)
+        }
+    } label: { Text(letter) }
+    ...
+    Text(group.letter)
+        .id(group.letter)
+}
+```
+
+- A `ScrollViewReader` wraps a scrolling list and hands over `scroller`, which can move the list to any view inside it that has been named.
+- `.id(group.letter)` is the naming: each letter's heading is named by its letter.
+- `scroller.scrollTo(letter, anchor: .top)` moves the list until that heading is at its top. `withAnimation` makes it glide.
+- The list is an ordinary stack, not a "lazy" one. A lazy stack builds a row only as it comes into view, and has to guess how far down an unbuilt row is, so a jump can land short. With every row built the jump is exact, and a few hundred rows of text cost little.
+- The letters sit in a `LazyVGrid` with "adaptive" columns: as many 30-point letters to a line as fit, the rest on the next line.
+
+### 4. One look for both kinds of box (`ObservationViews.swift`)
+
+The look of the box (the words, the small arrows, the hairline) was written inside `ChoiceMenu`. It is now a view of its own, `ChoiceLabel`, which `ChoiceMenu` and `PlantChooser` both draw, so "Which plant" still matches "Life stage" and "Group" above it and cannot drift from them.
+
+### Checking aid
+
+`-demoOpen sighting -demoPlantLetter M` opens the sighting form, then the list of plants a moment later, already at M (`DemoGarden.jumpsToPlantLetter`). Example garden only.
+
+### Not done, and for William to say
+
+- **The row of letters is not a `GlassSwitch`.** The rule is that every bar of choices is one. Claude's reading: this is a row of buttons to jump by, not a choice that stays made, and 26 pieces would not fit a sliding switch. William to confirm or change.
+- **No search box in the panel.** Not asked for. It would be a small addition.
+- **Choosing "None" does not clear a plant's name that was filled in from "Known from your reference data" without a plant record behind it.** The old menu behaved the same way. Left alone.
+- The sowing form and the other forms that pick a plant were not looked at. Only the sighting form's menu was changed.
 
 ## 14 November 2026, 15:50: swiping between months, a list of months, and a back swipe that follows the fingers
 

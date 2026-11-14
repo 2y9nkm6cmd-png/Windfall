@@ -469,14 +469,11 @@ struct ObservationEditor: View {
     private var associationCard: some View {
         SheetCard("On a plant?") {
             SettingRow("Which plant") {
-                ChoiceMenu(shown: observation.associatedPlant?.displayName ?? observation.associatedPlantName ?? "None") {
-                    Picker("Which plant", selection: $observation.associatedPlant) {
-                        Text("None").tag(Plant?.none)
-                        ForEach(plants) { plant in
-                            Text(plant.displayName).tag(Plant?.some(plant))
-                        }
-                    }
-                }
+                // A list with a row of letters to jump by, in place of a
+                // menu of every plant (PlantChooser.swift).
+                PlantChooser(plants: plants,
+                             selection: $observation.associatedPlant,
+                             shown: observation.associatedPlant?.displayName ?? observation.associatedPlantName ?? "None")
             }
             .onChange(of: observation.associatedPlant) { _, plant in
                 observation.associatedPlantName = plant?.commonName
@@ -622,25 +619,37 @@ struct ChoiceMenu<Choices: View>: View {
                 .pickerStyle(.inline)
                 .labelsHidden()
         } label: {
-            HStack(spacing: 6) {
-                Text(shown)
-                    .lineLimit(1)
-                Image(systemName: "chevron.up.chevron.down")
-                    .font(.caption2.weight(.semibold))
-                    .foregroundStyle(Theme.inkSoft)
-            }
-            .font(.subheadline)
-            .foregroundStyle(Theme.ink)
-            .padding(.horizontal, 12)
-            .padding(.vertical, 8)
-            .background(Theme.card.opacity(0.7), in: .rect(cornerRadius: 12))
-            .overlay {
-                RoundedRectangle(cornerRadius: 12)
-                    .strokeBorder(Theme.hairline)
-            }
-            .contentShape(.rect)
+            ChoiceLabel(shown: shown)
         }
         .menuStyle(.button)
         .buttonStyle(.plain)
+    }
+}
+
+/// The look of a box that opens a list of choices: the chosen value and
+/// a small arrow. Shared by `ChoiceMenu` above and by the plant chooser
+/// (PlantChooser.swift), so the two cannot drift apart.
+struct ChoiceLabel: View {
+
+    let shown: String
+
+    var body: some View {
+        HStack(spacing: 6) {
+            Text(shown)
+                .lineLimit(1)
+            Image(systemName: "chevron.up.chevron.down")
+                .font(.caption2.weight(.semibold))
+                .foregroundStyle(Theme.inkSoft)
+        }
+        .font(.subheadline)
+        .foregroundStyle(Theme.ink)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
+        .background(Theme.card.opacity(0.7), in: .rect(cornerRadius: 12))
+        .overlay {
+            RoundedRectangle(cornerRadius: 12)
+                .strokeBorder(Theme.hairline)
+        }
+        .contentShape(.rect)
     }
 }
