@@ -54,6 +54,12 @@ enum PlantPage {
         /// A long value is given the full width of its card. A short one
         /// sits beside others.
         var isLong: Bool { value.count > 26 }
+
+        /// Roughly how many rows a long value takes: one for its name
+        /// and one for each sixty letters or so. A page of sowing notes
+        /// is many times taller than one line about pests, and the
+        /// sharing-out between two columns needs to know that.
+        var rows: Int { 1 + max(1, (value.count + 59) / 60) }
     }
 
     /// One card of the page.
@@ -75,12 +81,13 @@ enum PlantPage {
         /// Roughly how tall the card will be, in rows. Used to share the
         /// cards between two columns.
         var weight: Int {
-            let longFacts = facts.filter(\.isLong).count
-            let shortFacts = facts.count - longFacts
+            let longFacts = facts.filter(\.isLong)
+            let shortFacts = facts.count - longFacts.count
             // Short facts sit two or three to a line. Month rows share
-            // one extra line for the letters above them.
-            return 2 + (monthRows.isEmpty ? 0 : monthRows.count + 1) + longFacts * 2 + (shortFacts + 1) / 2
-                + (tags.isEmpty ? 0 : (tags.count + 1) / 2)
+            // one extra line for the letters above them. A long fact
+            // counts for as many rows as it has words to fill.
+            return 2 + (monthRows.isEmpty ? 0 : monthRows.count + 1) + longFacts.map(\.rows).reduce(0, +)
+                + (shortFacts + 1) / 2 + (tags.isEmpty ? 0 : (tags.count + 1) / 2)
         }
     }
 
@@ -157,8 +164,12 @@ enum PlantPage {
     /// top of the right-hand one, and the companions, pests and "Add
     /// information" cards at the foot of the left-hand one. The
     /// sharing-out counts them as already there.
+    ///
+    /// The two weights handed back are how tall each column came out,
+    /// head start included. The page puts its "Add information" card at
+    /// the foot of whichever is shorter.
     static func twoColumns(_ cards: [FactCard], leftHeadStart: Int = 0, rightHeadStart: Int = 0)
-        -> (left: [FactCard], right: [FactCard]) {
+        -> (left: [FactCard], right: [FactCard], leftWeight: Int, rightWeight: Int) {
         var left: [FactCard] = []
         var right: [FactCard] = []
         var leftWeight = leftHeadStart
@@ -172,7 +183,7 @@ enum PlantPage {
                 rightWeight += factCard.weight
             }
         }
-        return (left, right)
+        return (left, right, leftWeight, rightWeight)
     }
 
     // MARK: - The plant in the garden
@@ -226,11 +237,10 @@ enum PlantPage {
     }
 
     /// Roughly how tall the cards at the foot of the left-hand column
-    /// are, in rows: the link to companions, the pests card if the
-    /// plant has any (`pests` is how many) and the "Add information"
-    /// card if any group is empty (`emptyGroups` is how many).
-    static func footCardsWeight(pests: Int, emptyGroups: Int) -> Int {
-        3 + (pests == 0 ? 0 : 2 + (pests + 1) / 2) + (emptyGroups == 0 ? 0 : 3 + (emptyGroups + 1) / 2)
+    /// are, in rows: the link to companions, and the pests card if the
+    /// plant has any (`pests` is how many).
+    static func footCardsWeight(pests: Int) -> Int {
+        3 + (pests == 0 ? 0 : 2 + (pests + 1) / 2)
     }
 
     /// A planting's stage in a word or two.

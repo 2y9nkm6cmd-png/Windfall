@@ -9,8 +9,8 @@
 //  (PlantEditView.swift), the import that must not undo a change made
 //  by hand (GardenData.swift) and the backup (BackupService.swift).
 //  Before 14 November 2026 each spelt the facts out for itself and they
-//  did not agree: the page showed 35 of them, the backup kept 8, and
-//  nothing in the app could change any.
+//  did not agree: of the 66 facts the page showed 49, the backup kept
+//  8, and nothing in the app could change any.
 //
 //  So the list is written once, here. Each line of it names one fact:
 //  the word it is stored under, what the page calls it, which card it
@@ -100,7 +100,7 @@ enum PlantFacts {
     // record without reading it yet, like the label on a drawer. The
     // helper is handed the label and makes the two small pieces of code
     // that open that drawer, one to read and one to write. That is what
-    // lets sixty-odd facts be listed in sixty-odd lines.
+    // lets 66 facts be listed in 66 lines.
 
     /// A fact held as text.
     private static func words(_ key: String, _ label: String, _ factGroup: Group,

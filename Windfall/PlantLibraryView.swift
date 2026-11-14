@@ -466,9 +466,11 @@ struct PlantDetailView: View {
                         // cards are shared out to leave the two level.
                         let rightStart = PlantPage.plantingsCardWeight(lines: plant.plantings?.count ?? 0)
                         let pestCount = CompanionPests.named(in: plant.knownPests ?? "").count
-                        let leftStart = PlantPage.footCardsWeight(
-                            pests: pestCount, emptyGroups: PlantPage.emptyGroups(for: plant).count)
+                        let leftStart = PlantPage.footCardsWeight(pests: pestCount)
                         let sides = PlantPage.twoColumns(cards, leftHeadStart: leftStart, rightHeadStart: rightStart)
+                        // "Add information" goes at the foot of whichever
+                        // column came out shorter.
+                        let addGoesRight = sides.rightWeight < sides.leftWeight
                         HStack(alignment: .top, spacing: 14) {
                             VStack(spacing: 14) {
                                 ForEach(sides.left) { factCard in
@@ -476,13 +478,14 @@ struct PlantDetailView: View {
                                 }
                                 companionsLink
                                 pestsCard
-                                moreToAddCard
+                                if !addGoesRight { moreToAddCard }
                             }
                             VStack(spacing: 14) {
                                 plantingsCard
                                 ForEach(sides.right) { factCard in
                                     PlantFactCardView(factCard: factCard) { editing = factCard.group }
                                 }
+                                if addGoesRight { moreToAddCard }
                             }
                         }
                     } else {
