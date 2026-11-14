@@ -29,6 +29,10 @@ struct PlantLibraryView: View {
     @State private var filter = PlantFilter.fromLaunchArguments()
     @State private var showingImport = false
 
+    /// Ties each plant's card to the page it opens, so the page grows
+    /// out of the card. See GrowFromTile.swift.
+    @Namespace private var cardSpace
+
     /// This month, 1 to 12.
     private var today: Int { Calendar.current.component(.month, from: .now) }
 
@@ -76,7 +80,12 @@ struct PlantLibraryView: View {
         .toolbar(removing: .title)
         #endif
         .paperScreen()
-        .navigationDestination(for: Plant.self) { PlantDetailView(plant: $0) }
+        .navigationDestination(for: Plant.self) { plant in
+            // The same id and namespace as the card, which is how the
+            // page knows which card to grow from.
+            PlantDetailView(plant: plant)
+                .growsFrom(plant.id, in: cardSpace)
+        }
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button {
@@ -142,6 +151,8 @@ struct PlantLibraryView: View {
                         ForEach(group.plants) { plant in
                             NavigationLink(value: plant) {
                                 PlantCardView(plant: plant, month: today)
+                                    // The card is where its page grows from.
+                                    .growSource(plant.id, in: cardSpace)
                             }
                             .buttonStyle(.plain)
                         }

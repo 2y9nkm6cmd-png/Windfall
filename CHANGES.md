@@ -576,6 +576,61 @@ Nothing else about the sidebar is changed: the gearing (0.6), settling on the ne
 
 **Not tried by hand.** A script cannot make a two-finger scroll.
 
+## 14 November 2026, 16:27: a page grows out of the tile that was tapped
+
+**On the branch `tile-grow`. Built for William's iPhone (signed, `tg1-iphone.log`, 16:48) and for the Mac (`tg3-mac.log`, 17:11) with no errors, at the first attempt.** 596 logic tests pass. Written from William's iPhone without the Mac, then built once he moved the chat to the Mac. **On his iPhone since 17:08**, mixed with the iPhone chat's `iphone-first-fixes` at his word (the branch `tile-grow-phone-mix`, for the phone only). **Nobody has yet said what it looks like moving: it waits on William before it goes into `main`.** His recording is `Design/Reference/2026-11-14 recording-iphone-gardens-tiles-slide-in.mp4`.
+
+**Why.** William, 16:21, with a recording of the Gardens page on his iPhone (tapping "Garden map", swiping back, tapping "Weather"): "I'd like these tiles and any time you tap a tile like this that leads to more information for it to grow from the tile. Still swipe back though as previously agreed."
+
+**What you should see, on an iPhone or iPad.** Tap a tile and its page grows out of that tile to fill the screen. Go back with the back button or a swipe from the left edge and the page shrinks back into the tile.
+
+**Where.**
+
+| Tapped | Opens |
+|---|---|
+| The nine tiles on Gardens | Plants, Year, Sowings, Beds, Garden map, Seed, Crosses, Scan a seed packet, Weather |
+| The four tiles on Wildlife | Sightings, Surveys, Species, Identify from a photo |
+| A plant's card on Plants | That plant's page |
+| A sighting's card on Sightings | That sighting |
+| A cross's card on Crosses | That cross |
+
+Rows in a list and the small "View all" links still slide in from the right. That was Claude's choice of where to stop.
+
+**How (`GrowFromTile.swift`, new).** Apple calls this a "zoom" transition. It needs two lines that point at each other:
+
+```swift
+tile.matchedTransitionSource(id: "tile", in: space)             // on the thing tapped
+page.navigationTransition(.zoom(sourceID: "tile", in: space))   // on the page it opens
+```
+
+- `matchedTransitionSource` marks a view as the place a page grows from.
+- `navigationTransition(.zoom(...))` tells a page to grow from the view with the same `id`, in place of sliding in.
+- `space` is a `Namespace`: a private box of names. The same `id` in two boxes is two different things. Each tile makes its own box with `@Namespace`, so every tile can use the name "tile".
+
+The file wraps those two lines as `growSource` and `growsFrom`, and adds `GrowingLink`, which is a `NavigationLink` that does both for you. So a tile changed from this:
+
+```swift
+NavigationLink { WeatherDiaryView() } label: { HubTile(...) }
+```
+
+to this:
+
+```swift
+GrowingLink { WeatherDiaryView() } label: { HubTile(...) }
+```
+
+Plants and Sightings open their pages a different way (the card hands over a record and the page is named once, in `navigationDestination`), so there the two halves are written out, with the record's own `id` as the name.
+
+**A Mac is unchanged.** Both halves are fenced with `#if os(iOS)`. The Mac keeps its slide and its two-finger back swipe.
+
+**To put the old slide back without a rebuild:** start the app with `-tilesSlide YES`.
+
+**To watch for on the phone.**
+
+1. **A tile that vanishes after a swipe back.** Other developers report this as a fault in iOS 26 itself with this transition: after swiping back, the thing that was tapped is not drawn again, though it still works if tapped (Apple's developer forums, threads 796805, 802908 and 807715, reported up to iOS 26.4). The back button does not cause it. Not known: whether William's iPhone has it. If it does, the choices are a known workaround that makes the tile flash, or going back to the slide.
+2. **The swipe back looks different.** The page shrinks towards its tile as it follows the finger. It does not slide off to the right as it did. Apple also lets a page opened this way be pulled down from its top to go back. Neither can be switched off separately.
+3. **The glass.** A plant's card is glass and is itself the source. A tile's glass is behind the source. Either may look wrong for a moment as the page grows.
+4. A plant's page reached some other way from inside Plants would grow from the middle of the screen, there being no card to grow from.
 ## 14 November 2026, 16:25: the sighting form's plant list has a row of letters to jump by
 
 **On the branch `plant-letter-jump`, made from `main`.** Built for the Mac and the iOS Simulator with no errors (`pl1-mac.log`, `pl1-sim.log`, in `DerivedData/Windfall-plantjump`). 596 logic tests pass, 6 of them new. Seen as still pictures with the example garden: the list open and jumped to M on an iPhone 17 (light) and an 11-inch iPad Air, and jumped to S on the iPhone in dark (`shots/pl1-*`). **Not tried by hand: pressing a letter, choosing a plant, and the Mac's own window.** The pictures were made with the checking aid below, which jumps the same way a press on a letter does but without the glide.

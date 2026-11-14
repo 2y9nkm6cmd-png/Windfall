@@ -27,6 +27,10 @@ struct ObservationListView: View {
     @State private var search = ""
     @State private var groupFilter: TaxonGroup?
 
+    /// Ties each sighting's card to the page it opens, so the page grows
+    /// out of the card. See GrowFromTile.swift.
+    @Namespace private var cardSpace
+
     private var filtered: [WildlifeObservation] {
         observations.filter { observation in
             if let groupFilter, observation.taxonGroup != groupFilter { return false }
@@ -76,6 +80,7 @@ struct ObservationListView: View {
                         ForEach(filtered) { observation in
                             NavigationLink(value: observation) {
                                 ObservationRow(observation: observation)
+                                    .growSource(observation.id, in: cardSpace)
                             }
                             .buttonStyle(.plain)
                             .contextMenu {
@@ -93,8 +98,9 @@ struct ObservationListView: View {
         .searchable(text: $search, prompt: "Search sightings")
         .navigationTitle("Sightings")
         .paperScreen()
-        .navigationDestination(for: WildlifeObservation.self) {
-            ObservationEditor(observation: $0)
+        .navigationDestination(for: WildlifeObservation.self) { observation in
+            ObservationEditor(observation: observation)
+                .growsFrom(observation.id, in: cardSpace)
         }
         // The form brings its own title and buttons (SheetPage).
         .sheet(item: $newObservation) { observation in

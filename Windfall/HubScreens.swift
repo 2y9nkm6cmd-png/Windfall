@@ -279,34 +279,34 @@ struct GardenTab: View {
         GlassEffectContainer(spacing: 10) {
             LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: columns),
                       spacing: 10) {
-                NavigationLink { PlantLibraryView() } label: {
+                GrowingLink { PlantLibraryView() } label: {
                     HubTile(icon: .drawn(.plants), title: "Plants", detail: plantsLine)
                 }
                 .hubTileGlass()
 
-                NavigationLink { YearView() } label: {
+                GrowingLink { YearView() } label: {
                     HubTile(icon: .drawn(.year), title: "Year", detail: yearLine)
                 }
                 .hubTileGlass()
 
-                NavigationLink { PlantingListView() } label: {
+                GrowingLink { PlantingListView() } label: {
                     HubTile(icon: .drawn(.sowing), title: "Sowings",
                             detail: onTheGo == 0 ? "None on the go" : "\(onTheGo) on the go")
                 }
                 .hubTileGlass()
 
-                NavigationLink { BedListView() } label: {
+                GrowingLink { BedListView() } label: {
                     HubTile(icon: .symbol("square.grid.3x3"), title: "Beds",
                             detail: counted(beds.count, "bed"))
                 }
                 .hubTileGlass()
 
-                NavigationLink { GardenMapView() } label: {
+                GrowingLink { GardenMapView() } label: {
                     HubTile(icon: .drawn(.plans), title: "Garden map", detail: "Beds and features")
                 }
                 .hubTileGlass()
 
-                NavigationLink { SeedListView() } label: {
+                GrowingLink { SeedListView() } label: {
                     HubTile(icon: .symbol("bag"), title: "Seed", detail: seedLine)
                 }
                 .hubTileGlass()
@@ -314,19 +314,19 @@ struct GardenTab: View {
                 // Crosses made between plants, written down on the day
                 // so that next year's seedlings have their parents on
                 // record. See Crosses.swift.
-                NavigationLink { CrossListView() } label: {
+                GrowingLink { CrossListView() } label: {
                     HubTile(icon: .symbol("arrow.triangle.merge"), title: "Crosses",
                             detail: crosses.isEmpty ? "None recorded" : (crosses.count == 1 ? "1 cross" : "\(crosses.count) crosses"))
                 }
                 .hubTileGlass()
 
-                NavigationLink { SeedPacketScanView() } label: {
+                GrowingLink { SeedPacketScanView() } label: {
                     HubTile(icon: .symbol("text.viewfinder"), title: "Scan a seed packet",
                             detail: "Read one with the camera")
                 }
                 .hubTileGlass()
 
-                NavigationLink { WeatherDiaryView() } label: {
+                GrowingLink { WeatherDiaryView() } label: {
                     HubTile(icon: .drawn(.temperature), title: "Weather", detail: weatherLine)
                 }
                 .hubTileGlass()
@@ -435,25 +435,25 @@ struct WildlifeTab: View {
         GlassEffectContainer(spacing: 10) {
             LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: columns),
                       spacing: 10) {
-                NavigationLink { ObservationListView() } label: {
+                GrowingLink { ObservationListView() } label: {
                     HubTile(icon: .drawn(.sighting), title: "Sightings",
                             detail: "\(sightings.count) recorded")
                 }
                 .hubTileGlass()
 
-                NavigationLink { SurveyListView() } label: {
+                GrowingLink { SurveyListView() } label: {
                     HubTile(icon: .drawn(.fitCount), title: "Surveys",
                             detail: surveys.isEmpty ? "None yet" : counted(surveys.count, "count"))
                 }
                 .hubTileGlass()
 
-                NavigationLink { FaunaListView() } label: {
+                GrowingLink { FaunaListView() } label: {
                     HubTile(icon: .drawn(.butterfly), title: "Species",
                             detail: "\(species.count) in the reference")
                 }
                 .hubTileGlass()
 
-                NavigationLink { IdentifyView() } label: {
+                GrowingLink { IdentifyView() } label: {
                     HubTile(icon: .drawn(.photo), title: "Identify from a photo",
                             detail: "Ask what you have seen")
                 }
