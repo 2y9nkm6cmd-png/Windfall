@@ -16,7 +16,7 @@
     {
       "layers": [
         {
-          "glass": false,
+          "glass": true,
           "image-name-specializations": [
             {
               "value": "snowdrop-light.svg"
@@ -29,15 +29,26 @@
           "name": "snowdrop"
         }
       ],
-      "shadow": {
-        "kind": "none",
-        "opacity": 0
-      },
-      "specular": false,
+      "specular": true,
       "translucency": {
         "enabled": false,
         "value": 0.5
-      }
+      },
+      "shadow-specializations": [
+        {
+          "value": {
+            "kind": "neutral",
+            "opacity": 0.5
+          }
+        },
+        {
+          "appearance": "dark",
+          "value": {
+            "kind": "neutral",
+            "opacity": 1.0
+          }
+        }
+      ]
     }
   ],
   "supported-platforms": {

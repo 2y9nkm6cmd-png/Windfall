@@ -87,6 +87,8 @@ A Mac's icon is kept apart, in `Windfall/AppIconMac.icon`. It is Apple's newer k
 
 After changing a drawing in `AppIcon/`, copy it into `AppIconMac.icon/Assets` under the name above and delete its background line, the one that reads `<rect width="1024" height="1024" fill="..."/>`. To change a background colour, change it in `icon.json`.
 
+The drawing has Apple's shine and a shadow under it: `"glass"` and `"specular"` are `true` in `icon.json`, and `"shadow-specializations"` gives the shadow's strength, 0.5 in light mode and 1.0 (the most there is) in dark mode. Set the first two to `false` and the shadow's `kind` to `none` for a flat icon.
+
 To see what the Mac will make of it, without building the app (a picture for each mode: `Default`, `Dark`, `TintedLight`, `TintedDark`, `ClearLight`, `ClearDark`):
 
 ```
