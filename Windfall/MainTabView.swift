@@ -368,6 +368,8 @@ struct MainTabView: View {
                 DemoFlowerShapePage(shapeTitle: shapeTitle)
             } else if DemoGarden.opensFlowerShapes {
                 FlowerShapeCoverageView()
+            } else if let place = DemoGarden.opensFungusKey {
+                FungusKeyView(openingAt: place)
             } else {
                 GardenTab()
             }

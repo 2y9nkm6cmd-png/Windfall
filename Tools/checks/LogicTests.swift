@@ -1951,6 +1951,44 @@ struct LogicTests {
             check(shapeTitles.count == 20 && undrawn.isEmpty, "each of the guide's \(shapeTitles.count) flower shapes has a drawing (missing: \(undrawn))")
         }
 
+        // The fungus key: the file is read, a walk is remembered and stepped back, and the real key is sound.
+        let smallKey = FungusKey(data: Data(#"{"start":"a","noneOfThese":"r-none","footer":"f","steps":[{"id":"a","title":"A","question":"Which?","choices":[{"text":"gills","to":"b","picture":"form-gills"},{"text":"a ball","to":"r-ball"}]},{"id":"b","title":"B","question":"Print?","help":"h","choices":[{"text":"white","to":"r-x","detail":"d"},{"text":"none yet","to":"r-how"}]}],"results":[{"id":"r-x","name":"Xs","latin":"Xus","rank":"Genus","confirm":["c"],"danger":"Deadly."},{"id":"r-ball","name":"Slime","latin":"","rank":"Not a fungus","confirm":["c"]},{"id":"r-how","name":"Take a print","latin":"","rank":"How to","confirm":["c"]},{"id":"r-none","name":"Not in this key","latin":"","rank":"No answer","confirm":["c"]}]}"#.utf8))
+        check(smallKey != nil && smallKey?.faults() == [] && smallKey?.isChecked == false && smallKey?.pictures == ["form-gills"] && FungusKey(data: Data("{}".utf8)) == nil && FungusKey(data: Data(#"{"checked":true,"start":"a","noneOfThese":"r","footer":"","steps":[],"results":[]}"#.utf8))?.isChecked == true, "a fungus key is read from its file, and is unchecked until the file says otherwise")
+        if let smallKey, let first = smallKey.step("a"), let second = smallKey.step("b"), let xs = smallKey.answer("r-x") {
+            var walk = FungusWalk(start: smallKey.start)
+            check(walk.isAtStart && walk.here == "a", "a walk begins at the key's first step")
+            walk.choose(first.choices[0], at: first.id)
+            walk.choose(second.choices[0], at: second.id)
+            check(walk.here == "r-x" && walk.taken.map(\.choice) == ["gills", "white"] && smallKey.step(walk.here) == nil && smallKey.answer(walk.here) == xs, "choices are remembered in order and lead to an answer")
+            check(walk.note(reaching: xs) == "Windfall's fungus key led to: Xs (Xus).\nSteps: gills › white\nA key gives a group, not a certain name. Not checked by anyone who knows fungi.", "the walk is written out for a sighting's notes")
+            walk.back()
+            check(walk.here == "b" && walk.taken.count == 1, "Back goes one step back")
+            walk.noneFit(at: "b", in: smallKey)
+            check(walk.here == "r-none" && walk.taken.last?.choice == "None of these fit", "None of these fit leads to the key's own answer for that")
+            walk.back(to: 0)
+            check(walk.isAtStart && walk.here == "a", "going back to the first choice forgets all that came after it")
+            walk.back(); walk.back(to: 7)
+            check(walk.isAtStart && walk.here == "a", "going back from the start, or to a step never taken, changes nothing")
+            walk.choose(first.choices[1], at: first.id); walk.startAgain()
+            check(walk == FungusWalk(start: "a"), "Start again is a fresh walk")
+            var opened = FungusWalk(start: "a", openingAt: "r-x")
+            check(opened.here == "r-x" && opened.isAtStart, "a walk opened part-way in, for a picture, has no trail")
+            opened.startAgain()
+            check(opened.here == "a", "and Start again takes it to the first step")
+            check(smallKey.sightingName(for: xs) == "Xs" && smallKey.taxonGroup(for: xs) == .fungus && smallKey.answer("r-ball").map(smallKey.taxonGroup(for:)) == .other && smallKey.answer("r-how").flatMap(smallKey.sightingName(for:)) == nil && smallKey.answer("r-none").flatMap(smallKey.sightingName(for:)) == "Fungus, not identified", "a sighting takes the answer's name, a slime mould is not filed as a fungus, and a how-to is not a sighting")
+        }
+        let brokenKey = FungusKey(data: Data(#"{"start":"a","noneOfThese":"r-none","footer":"","steps":[{"id":"a","title":"A","question":"Q","choices":[{"text":"an edible one","to":"nowhere"}]}],"results":[{"id":"r-lost","name":"L","latin":"","rank":"Genus","confirm":[]}]}"#.utf8))
+        check(brokenKey?.faults() == ["r-none is not an answer", "a has fewer than two choices", "a leads to nowhere, which does not exist", "nothing leads to r-lost", "r-lost has nothing to check", "the word \"edible\" is in the key"], "a key with faults says what they are: \(brokenKey?.faults() ?? [])")
+        check(IDSource(rawValue: "key") == .key && IDSource.allCases.count == 6, "a name reached by a key is its own kind of source")
+        if let starterPath = ProcessInfo.processInfo.environment["WINDFALL_STARTER"] {
+            let sourceFolder = URL(fileURLWithPath: starterPath).deletingLastPathComponent()
+            let realKey = (try? Data(contentsOf: sourceFolder.appendingPathComponent("FungusKey.json"))).flatMap { FungusKey(data: $0) }
+            check(realKey?.faults() == [] && realKey?.steps.count == 21 && (realKey?.results.count ?? 0) >= 80 && realKey?.isChecked == false, "the real fungus key reads, is sound and is still marked unchecked: \(realKey?.faults() ?? ["not read"])")
+            let icons = sourceFolder.deletingLastPathComponent().appendingPathComponent("Design/Icons")
+            let undrawn = (realKey?.pictures ?? []).filter { !FileManager.default.fileExists(atPath: icons.appendingPathComponent("fungus-\($0).svg").path) }.sorted()
+            check(undrawn.isEmpty && (realKey?.pictures.count ?? 0) >= 50, "every diagram the real fungus key names has a drawing in Design/Icons: \(undrawn)")
+        }
+
         print("   logic tests: \(passes) passed, \(failures) failed")
         exit(failures == 0 ? 0 : 1)
     }

@@ -54,6 +54,95 @@ Each gains one `@State` value (`isTakingPhoto`), one button and one `.cameraPhot
 4. On the iPad the camera covers the whole screen.
 5. The menu's order by the "+". iOS turns a menu over when it opens upwards.
 
+# 14 November 2026, 21:35: a fungus key to step through, with a diagram for each choice
+
+**By the mushroom key chat.** William, 18:21: "I want to step through the key in app." At 18:39, choosing a key of Windfall's own over showing someone else's: "B. And ill check the text." At 20:09: "Connect to my mac to attach changes to the main file. Can you make the diagrams a lot better please." At 20:17, with a picture of the new flower shape drawings: "more what we're after".
+
+**What it is.** Wildlife has a new tile, **Fungus key**. It asks one question at a time, each choice with a drawing beside it, and ends at a group or genus: 21 steps, 106 choices and 83 answers. An answer says what to check, names a few common kinds, carries a warning where the group holds deadly or poisonous fungi, and says what it means in a garden. "Add a sighting" starts an unconfirmed sighting with the steps taken written into its notes.
+
+**What it is not.** It never says whether anything can be eaten, and a test fails if the word "edible" appears in it. It is fixed words with no model in it. Eira is unchanged and still refuses to name a fungus (`EiraSafety.fungiReply`).
+
+**⚠️ Every word of the key was written by Claude from memory and none has been checked.** `FungusKey.json` says `"checked": false` and the page says "To check" until that is changed to `true`. It is not copied from John Wright's key, which William sent as the model: that is his copyright. Project doc 58.
+
+| File | What it is |
+|---|---|
+| `Windfall/FungusKey.json` | The key itself. **Correct the words here.** The app follows |
+| `Windfall/FungusKey.swift` | The rules: reading the file, remembering a walk and stepping back, what a sighting made from an answer holds, and `faults()`, which lists anything wrong with the file |
+| `Windfall/FungusKeyView.swift` (new) | The page: the trail of choices as buttons that go back, the question, a card for each choice, the answer card |
+| `Windfall/HubScreens.swift` | The tile, after "Identify from a photo" |
+| `Windfall/WildlifeModels.swift` | `IDSource` gains `key`: a name reached by stepping through a key. It is kept as a word, so older records still open |
+| `Windfall/Theme.swift` | `WIcon.fungusKey`, the tile's icon |
+| `Design/Icons/fungus-*.svg` (53) | The diagrams, in colour on a 100 by 100 grid, in the bold manner of the flower shapes. **The same in light and dark mode**: William saw them with a pale outline and with the dark green kept, on a dark background, and at 21:22 said of the second "Yes, that's better." |
+| `Tools/design/build_design_assets.py` | `fungus-` joins `shape-` in `SAME_IN_DARK`, the list of drawings that get no dark-mode copy (the flower shape chat added that list the same evening) |
+| `Design/Icons/fungus-key.svg` | The tile's icon, an outline like the others |
+| `Tools/design/fungus_kit.py`, `fungus_diagrams.py` | The code that draws the diagrams. `python3 Tools/design/fungus_diagrams.py Design/Icons`, then the build script |
+| `Windfall/DemoGarden.swift`, `MainTabView.swift` | A checking aid: `-demoGarden YES -startSection gardens -demoFungus r-honey` opens the key at that step or answer, for a still picture |
+| `Tools/checks/` | 16 new tests, and `FungusKey.swift` added to the files that are type-checked |
+
+**Why the walk is its own small type.** `FungusWalk` holds the choices taken and where they led, with no screen code in it, so the tests can take a walk, step back and start again without building a screen. The page keeps one in `@State` and draws whatever it has reached.
+
+**Checked:** the project's checks with Swift 6.3.1 in a cloud workspace: 112 files parse, the type check passes, 765 logic tests pass. The tests read the real key and fail if a choice leads nowhere, an answer cannot be reached, or a diagram it names has no drawing.
+# 14 November 2026, 21:44: the Mac's icon follows light and dark mode
+
+**By the "Mac icon" chat, on the branch `mac-icon-dark`.** William, 21:32, once the cream icon was showing in the Dock: "The mac icon should also respond to the light and dark mode".
+
+**Why the icon of 20:57 could not do it.** That icon was a set of plain pictures in the Mac's slots of `AppIcon.appiconset`. A Mac slot holds one picture. Only the iPhone's and iPad's slots have a second, dark one.
+
+**What a Mac wants instead** is Apple's newer kind of icon, a folder whose name ends in `.icon` (the kind its Icon Composer app makes). It holds the drawing and the background apart, so the Mac can change either with the mode. The Mac now has one, `Windfall/AppIconMac.icon`:
+
+| File | What it is |
+|---|---|
+| `AppIconMac.icon/Assets/snowdrop-light.svg` | The light drawing from `Design/AppIcon`, with its cream background rectangle taken out |
+| `AppIconMac.icon/Assets/snowdrop-dark.svg` | The dark drawing (the thin cream outline), with its green background rectangle taken out |
+| `AppIconMac.icon/icon.json` | The instructions: which drawing and which background colour for which mode |
+
+**What `icon.json` says, a piece at a time:**
+
+```
+"fill-specializations": [
+  { "value": { "solid": "srgb:0.98039,0.93333,0.87843,1.00000" } },
+  { "appearance": "dark", "value": { "solid": "srgb:0.02353,0.25882,0.10588,1.00000" } }
+]
+```
+
+The background. `fill` is the colour behind the drawing. A "specialization" is a value for one mode. The first line names no mode, so it is the ordinary one: cream. The second is for `dark`: the icon's dark green. A colour is written as red, green, blue and solidness, each from 0 to 1. Cream `#FAEEE0` is 250, 238 and 224 out of 255, which is 0.98, 0.93 and 0.88.
+
+```
+"image-name-specializations": [
+  { "value": "snowdrop-light.svg" },
+  { "appearance": "dark", "value": "snowdrop-dark.svg" }
+]
+```
+
+The drawing, in the same pattern: the light drawing ordinarily and the dark one in dark mode.
+
+```
+"glass": false     "specular": false     "shadow": { "kind": "none" }     "translucency": { "enabled": false }
+```
+
+Apple's glass look, switched off. Left on, the Mac lays a shine and a shadow over the drawing as if it were a pane of glass. Off, the icon is the flat drawing William approved.
+
+```
+"supported-platforms": { "squares": ["macOS"] }
+```
+
+This icon is for the Mac only.
+
+**How the Mac build is told to use it.** One line, twice, in `Windfall.xcodeproj/project.pbxproj` (once for the Debug build and once for Release):
+
+```
+ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+"ASSETCATALOG_COMPILER_APPICON_NAME[sdk=macosx*]" = AppIconMac;
+```
+
+The first line was there already: the app's icon is the one called `AppIcon`. The second is new. The square brackets are a condition: "when building for a Mac, the name is `AppIconMac`". So an iPhone or iPad build is untouched and still uses the pictures in `AppIcon.appiconset`.
+
+**No Swift changed.** The app's folder is one that Xcode reads whole, so a file put into `Windfall/` is in the app with nothing more to do.
+
+**Taken out again**, because nothing uses them now: the ten Mac slots in `AppIcon.appiconset/Contents.json`, the seven `windfall-app-icon-mac-...png` pictures and `Tools/design/make_mac_app_icon.swift`. They are in the repository's history at `e7cb8be`.
+
+**Two modes come free.** macOS also has a tinted and a clear icon style. The Mac makes both from the same drawing by itself.
+
 # 14 November 2026, 19:20: the to-do cards on Today open out where they are
 
 **Joined to `main` at 21:32 on 14 November 2026** by the night join chat, in its own copy (`~/Developer/windfall-night`, branch `join-14nov-night`). It merged cleanly with the weather work in `TodayView.swift`. Built for the Mac (`nt3-mac.log`) and the simulator (`nt4-sim.log`) together with Eira's more solid bar and the flower shapes: both succeeded. 761 logic tests pass. **It has still not been seen running or tried by hand.**

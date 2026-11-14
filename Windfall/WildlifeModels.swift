@@ -127,6 +127,10 @@ enum IDConfidence: String, Codable, CaseIterable, Identifiable {
 /// silently promoted to a confirmed record.
 enum IDSource: String, Codable, CaseIterable, Identifiable {
     case onDeviceModel, desktopModel, iNaturalistCV, speciesLookup, human
+    /// Worked out by stepping through a key in the app, such as the
+    /// fungus key (FungusKey.swift). It is kept in the database as the
+    /// word "key", so records made before this case existed still open.
+    case key
 
     var id: String { rawValue }
 }
