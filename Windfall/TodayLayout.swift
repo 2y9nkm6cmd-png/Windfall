@@ -24,6 +24,12 @@
 //
 
 import Foundation
+// CGRect and CGPoint, the rectangle and point used for the board's sums,
+// come with CoreGraphics on Apple's systems. Elsewhere (the checks run on
+// Linux) Foundation has its own.
+#if canImport(CoreGraphics)
+import CoreGraphics
+#endif
 
 // MARK: - The panels
 
