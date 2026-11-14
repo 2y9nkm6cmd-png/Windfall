@@ -1059,12 +1059,10 @@ struct JournalChatView: View {
         Task {
             let small = await PhotoWorkshop.shared.jpeg(from: data, longestSide: PhotoShrink.tileSide)
             guard let slot = waitingPhotos.firstIndex(where: { $0.id == id }) else { return }
-            if let small {
-                waitingPhotos[slot].thumbnail = small
-            } else {
-                // Not a picture after all.
-                waitingPhotos.remove(at: slot)
-            }
+            // `??` means "or, if there is none". An empty `Data` marks
+            // "tried, and no small copy could be made", so the spinner
+            // stops. The photo itself is kept either way.
+            waitingPhotos[slot].thumbnail = small ?? Data()
         }
     }
 
@@ -1232,7 +1230,7 @@ struct JournalChatView: View {
             guard let data = waiting.data else { continue }
             // The photo keeps the time it was taken, whichever time the
             // entry is stamped with.
-            let photo = Photo.record(of: data, facts: waiting.facts, thumbnail: waiting.thumbnail,
+            let photo = Photo.record(of: data, facts: waiting.facts, thumbnail: waiting.thumbnailToKeep,
                                      otherwiseAt: entry.date)
             photo.diaryEntry = entry
             entry.photos?.append(photo)

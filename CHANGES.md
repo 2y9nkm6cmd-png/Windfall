@@ -53,7 +53,19 @@ Every Photos chooser is also given `preferredItemEncoding: .current`, which asks
 
 - The repository's checks, Swift 6.3.1 for Linux in the chat's cloud workspace: 112 files valid, type check passed, 30 record types and 30 in the schema, **756 logic tests pass** (749 before, 7 new).
 - `Photo.lastPathComponent` is a new false alarm in the name-guessing check, in `SpeciesTestRun.swift`, where `photo` is a file's address. It is in `known-false-alarms.txt`.
-- **The Mac build is in the entry's last line.**
+- **Built for the Mac with no errors** (`ps1-mac.log`, 21:21, in the chat's own copy `~/Developer/windfall-photospeed` and its own build folder `DerivedData/Windfall-photospeed`).
+- **`PhotoShrink.jpeg` run on the Mac by itself against the old way**, on four test pictures made for the purpose (`/tmp/photospeed-test`, 21:26, while three other builds were running, so the times are long and only their ratio means anything):
+
+| Picture | Tile, old | Tile, new | Eira's copy, old | Eira's copy, new |
+|---|---|---|---|---|
+| 12 million dots, JPEG | 1.69 s | 0.38 s | 6.80 s | 1.63 s |
+| 24 million dots, HEIC | 4.03 s | 0.73 s | 8.61 s | 1.96 s |
+| 48 million dots, HEIC | 8.01 s | 0.92 s | 7.05 s | 0.48 s |
+| 1,200 by 900, JPEG | 0.09 s | 0.005 s | 1.10 s | 0.10 s |
+
+  Each copy came out the right size, and three bytes that are not a picture gave nothing back, as they should. The last row shows the old way making a small picture larger: 1,200 dots wide became 2,048.
+- **Not done: nobody has pressed anything.** No screen has been looked at, on a Mac or a phone, and nothing has been timed on the phone.
+- A photo that no small copy can be made of is kept, with a plain photo symbol on its tile. (The first version of this branch dropped it.)
 
 # 14 November 2026, 20:10: plant drawings added to the Design folder
 
