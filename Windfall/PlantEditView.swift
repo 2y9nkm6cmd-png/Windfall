@@ -64,8 +64,9 @@ struct PlantEditView: View {
 
         // Built from the pieces in SheetParts.swift, like the sowing form.
         SheetPage("Edit \(plant.commonName)",
-                  detail: changeCount == 0 ? "What you change here is kept when the spreadsheet file is loaded again."
-                        : changeCount == 1 ? "1 fact changed" : "\(changeCount) facts changed",
+                  // The line under the title counts the changes. It is
+                  // left out until there is one.
+                  detail: changeCount == 0 ? nil : changeCount == 1 ? "1 fact changed" : "\(changeCount) facts changed",
                   confirmTitle: "Save",
                   canConfirm: changeCount > 0 && !nameIsBlank,
                   onConfirm: save) {
@@ -73,6 +74,12 @@ struct PlantEditView: View {
             // to any view that has been given an `id`.
             ScrollViewReader { scroller in
                 SheetScroll {
+                    Text("What you change here is kept when the spreadsheet file is loaded again.")
+                        .font(.caption)
+                        .foregroundStyle(Theme.inkSoft)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .padding(.horizontal, 4)
+
                     ForEach(PlantFacts.Group.allCases) { factGroup in
                         card(for: factGroup)
                             .id(factGroup)
