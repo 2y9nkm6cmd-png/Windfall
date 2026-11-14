@@ -210,11 +210,29 @@ enum GardenJobs {
         "check how", "see if", "see whether", "see how", "see what"
     ]
 
-    /// Left hanging at the end of a title once the day and the garden
-    /// have been lifted out of it.
-    private static let hanging: Set<String> = [
-        "and", "then", "the", "at", "on", "in", "by", "for", "to", "up", "down", "over", "my", "our", "sometime",
-        "please", "thanks", "eira"
+    /// Tidied off the end of a title wherever they fall: "Net the
+    /// brassicas please".
+    private static let closers: Set<String> = ["and", "then", "sometime", "please", "thanks", "eira"]
+
+    /// Words that lead up to a day or a garden. One of these is only
+    /// left hanging if what it led up to has been lifted out: the "by"
+    /// of "by tomorrow", the "for" of "for this weekend".
+    private static let links: Set<String> = [
+        "the", "my", "our", "at", "by", "for", "to", "before", "until", "till", "during"
+    ]
+
+    /// Words that are as often part of the job itself: "put the cables
+    /// in", "dig the potatoes up", "turn the heater on". These stay.
+    /// The one exception is "in the" or "on the" before a day ("in the
+    /// next week"), where "the" shows the word was leading up to it.
+    private static let particles: Set<String> = ["in", "on", "up", "down"]
+
+    /// "Over" goes either way: "turn the compost over this weekend"
+    /// keeps it, "mulch the beds over this weekend" does not. It is kept
+    /// when the job begins with a word that takes it.
+    /// ⚠️ CHECK: this list is Claude's.
+    private static let overVerbs: Set<String> = [
+        "turn", "fork", "dig", "rake", "hoe", "go", "look", "check", "tip", "flip", "roll", "knock"
     ]
 
     // MARK: Reading a sentence
@@ -349,8 +367,38 @@ enum GardenJobs {
         }
 
         // The title: the job's own words, less the day and the garden.
-        var kept = body.filter { !leftOut.contains($0) }.map { said[$0] }
-        while let last = kept.last, hanging.contains(last.plain) || last.plain.isEmpty { kept.removeLast() }
+        // `keptAt` holds the place of each word in the sentence, not the
+        // word, so that the next step can ask what came after it.
+        var keptAt = body.filter { !leftOut.contains($0) }
+
+        // Tidy the end. A small word is only taken off if what it led up
+        // to has gone, so "put the cables in this month" keeps its "in"
+        // and "fix the gate by tomorrow" loses its "by". `gone` is every
+        // place lifted or tidied away so far.
+        var gone = leftOut
+        var tookArticle = false
+        let verb = keptAt.first.map { plain[$0] } ?? ""
+        while let last = keptAt.last {
+            let word = plain[last]
+            let nextIsGone = gone.contains(last + 1)
+            let isHanging: Bool
+            if word.isEmpty || closers.contains(word) {
+                isHanging = true
+            } else if links.contains(word) {
+                isHanging = nextIsGone
+            } else if particles.contains(word) {
+                isHanging = nextIsGone && tookArticle
+            } else if word == "over" {
+                isHanging = nextIsGone && !overVerbs.contains(verb)
+            } else {
+                isHanging = false
+            }
+            guard isHanging else { break }
+            tookArticle = word == "the"
+            gone.insert(last)
+            keptAt.removeLast()
+        }
+        var kept = keptAt.map { said[$0] }
         while let first = kept.first, first.plain.isEmpty || first.plain == "to" || first.plain == "that" { kept.removeFirst() }
         var title = kept.map(\.shown).joined(separator: " ")
             .trimmingCharacters(in: CharacterSet(charactersIn: " .,;:!-"))

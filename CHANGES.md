@@ -1,3 +1,61 @@
+# 14 November 2026, 21:55: a job's name keeps a small word that belongs to it
+
+**By the job-wording chat, from William's iPhone. Branch `job-title-keeps-in`, made from `main` at `4b28986`. Not in `main`. Written in Claude's cloud workspace: the Mac was not connected, so it has not been built or seen running.** Only `GardenJobs.swift` changed, which has no screen code, and it is type-checked and tested here. 763 logic tests pass, 2 of them new.
+
+William, 21:43, with a picture of the card from his phone: "This nearly worked but the actual task was worded wrong". He typed "I need to put the raspberry cables in this month." The card said "Put the raspberry cables". It should say "Put the raspberry cables in".
+
+## Why it happened
+
+The reader lifts the day out of the sentence ("this month") and then tidies the end of what is left. The tidying took off any small word found there: "in", "on", "up", "down", "over", "by", "for" and others. That was written for "fix the gate by tomorrow", where "by" belongs to the day. But in "put the cables in" the "in" belongs to the job. The old rule could not tell the two apart. It even cut "I need to dig the potatoes up" to "Dig the potatoes", with no day in the sentence at all.
+
+## Now
+
+- **"in", "on", "up" and "down" stay**: "Put the raspberry cables in", "Dig the potatoes up", "Turn the heater on".
+- **"by", "for", "at", "before", "until", "during", "to" and "the" come off only if the day or garden they led up to was lifted out.** "Fix the gate by tomorrow" is still "Fix the gate". "Find something to tie the beans to" keeps its "to".
+- "In the" or "on the" before a day still goes: "Sow the beans in the next week" is "Sow the beans".
+- **"Over" depends on the job's first word.** "Turn the compost over this weekend" keeps it. "Mulch the beds over this weekend" drops it. ⚠️ CHECK: the words that keep it are Claude's list: turn, fork, dig, rake, hoe, go, look, check, tip, flip, roll, knock.
+
+## The code, explained
+
+`hanging`, one set of words, is now three sets: `closers` (always tidied off: "please", "and"), `links` (tidied off only when what followed has gone) and `particles` (kept).
+
+```swift
+var keptAt = body.filter { !leftOut.contains($0) }
+```
+
+Before, this line held the words themselves. Now it holds each word's place in the sentence, a number, because the next step has to ask what came straight after a word.
+
+```swift
+var gone = leftOut
+while let last = keptAt.last {
+    let word = plain[last]
+    let nextIsGone = gone.contains(last + 1)
+```
+
+`gone` is a set of places: every word lifted out as the day or the garden. `while let last = keptAt.last` reads "for as long as there is a last word, call its place `last`". `gone.contains(last + 1)` asks whether the word after it was lifted. In William's sentence "in" is word 7 and "this" is word 8, which is in `gone`.
+
+```swift
+    } else if links.contains(word) {
+        isHanging = nextIsGone
+    } else if particles.contains(word) {
+        isHanging = nextIsGone && tookArticle
+```
+
+A link word hangs if what it led to has gone. A particle hangs only if a "the" was taken off just after it as well: `tookArticle` remembers that from the turn of the loop before. `&&` is "and".
+
+```swift
+    guard isHanging else { break }
+    gone.insert(last)
+    keptAt.removeLast()
+```
+
+`break` leaves the loop at the first word worth keeping. Otherwise the word's place joins `gone`, so the word before it is judged the same way.
+
+## Not changed, and seen while here
+
+- "Sometime tomorrow" is read as no date, because "sometime" comes first and the earliest wins. "Tomorrow" then stays in the job's name.
+- "By next week" and "by tomorrow" lose the "by" from the name but are not read as "from today until then".
+
 # 14 November 2026, 19:20: the to-do cards on Today open out where they are
 
 **Joined to `main` at 21:32 on 14 November 2026** by the night join chat, in its own copy (`~/Developer/windfall-night`, branch `join-14nov-night`). It merged cleanly with the weather work in `TodayView.swift`. Built for the Mac (`nt3-mac.log`) and the simulator (`nt4-sim.log`) together with Eira's more solid bar and the flower shapes: both succeeded. 761 logic tests pass. **It has still not been seen running or tried by hand.**
