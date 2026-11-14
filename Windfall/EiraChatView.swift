@@ -96,6 +96,8 @@ struct EiraChatView: View {
     @State private var isChoosingPhoto = false
     /// True while a file window is open to choose one.
     @State private var isChoosingPhotoFile = false
+    /// True while the camera is open, on an iPhone or iPad.
+    @State private var isTakingPhoto = false
     /// The photo chosen in the Photos library, until it has been read.
     @State private var pickedPhoto: PhotosPickerItem?
     /// True while a photo is being held over the chat.
@@ -181,6 +183,11 @@ struct EiraChatView: View {
             if let data = try? Data(contentsOf: url) {
                 Task { await look(at: data) }
             }
+        }
+        // Or one taken now with the camera, on an iPhone or iPad. See
+        // CameraPhoto.swift.
+        .cameraPhoto(isPresented: $isTakingPhoto) { photo in
+            Task { await look(at: photo) }
         }
         // Or one dragged on to the chat, from Finder or from Photos.
         // Several are looked at one after another, each with its own
@@ -639,6 +646,13 @@ struct EiraChatView: View {
                 // Give her a photo to name. A Menu is a button that
                 // opens a short list of choices.
                 Menu {
+                    if CameraPhoto.isAvailable {
+                        Button {
+                            isTakingPhoto = true
+                        } label: {
+                            Label("Take a photo", systemImage: "camera")
+                        }
+                    }
                     Button {
                         isChoosingPhoto = true
                     } label: {

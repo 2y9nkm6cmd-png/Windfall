@@ -13,6 +13,8 @@
 			</array>
 		</dict>
 	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>Windfall opens the camera when you choose Take a photo, to add the picture to your journal or ask Eira what it shows.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
 	<string>Windfall turns what you say into text so you can talk to Eira and dictate records.</string>
 	<key>NSMicrophoneUsageDescription</key>

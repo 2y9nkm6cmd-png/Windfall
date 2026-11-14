@@ -1,3 +1,59 @@
+# 14 November 2026, 21:50: "Take a photo" on an iPhone and iPad
+
+**By the camera chat, from William's iPhone. Branch `camera-option`, made from `main` at `4b28986`. Not in `main`. Written in Claude's cloud workspace: the Mac was not connected, so it has not been built or seen running.** The repository's own checks pass there: every file parses, 761 logic tests pass and no platform problems are found. Those checks cannot compile a screen, and none of this code is covered by a logic test, because it all needs Apple's camera and picture libraries.
+
+William, 21:44, with a picture of the "+" menu on the Journal page showing "From a file" and "From Photos": "I want an open camera option on phone and ipad".
+
+## What changed, and why
+
+**Before.** A photo could be chosen from Photos, chosen as a file or dragged in. To photograph something in the garden he had to leave Windfall, take it in the Camera app and come back to choose it. The app had no camera code and no leave to use the camera (doc 33 listed it as not built).
+
+**Now.** "Take a photo" is a third choice in three places, on an iPhone or iPad only:
+
+- the "+" on Eira's bar, on every page. On the Journal page the photo starts an entry. Elsewhere it brings up the card of three offers, as any other photo does.
+- the camera button in Eira's chat. She says what the photo shows.
+- the Identify screen, as a button beside "From Photos" and "From a file". The three buttons now wrap on to a second row on a narrow screen.
+
+A Mac shows no such choice. So does the simulator, which has no camera.
+
+## The code, explained
+
+### `CameraPhoto.swift` (new)
+
+Apple's camera screen is an older, UIKit screen called `UIImagePickerController`. Windfall's screens are SwiftUI. Most of the file is the bridge.
+
+- `CameraPhoto.isAvailable` asks the device whether it has a camera. Each place draws "Take a photo" only if the answer is yes.
+- `.cameraPhoto(isPresented:onTaken:)` is a modifier any screen can add. `isPresented` is a `Binding`: a two-way link to a true-or-false value. The screen sets it true to open the camera and the camera sets it false when it closes. `onTaken` is the code to run with the photo.
+- `CameraScreen` is a `UIViewControllerRepresentable`: SwiftUI's wrapper for a UIKit screen. Its `Coordinator` is a small helper object, because UIKit reports "Use Photo" and "Cancel" by calling functions on an object, and a SwiftUI view is not one.
+- **The photo is handed over only once the camera has slid away** (`onDismiss`). What receives it usually opens a sheet, and iOS will not open one sheet while another is closing.
+- `CameraFile.jpeg` puts the picture and the camera's notes back together as one JPEG file. The camera hands them over apart. The rest of Windfall reads a photo's date out of the file (`PhotoFacts.swift`), so without this a photo from the camera would have no date of its own. It also writes which way up the phone was held, or a portrait photo would lie on its side.
+
+Everything that touches UIKit is inside `#if os(iOS)`, so the Mac build does not see it.
+
+### `Info.plist`
+
+`NSCameraUsageDescription`: the sentence iOS shows the first time, beside Allow and Don't Allow. Without it iOS closes an app the moment it asks for the camera.
+
+### `EiraFloatingBar.swift`, `EiraChatView.swift`, `EiraVision.swift`
+
+Each gains one `@State` value (`isTakingPhoto`), one button and one `.cameraPhoto` line. Each hands the photo to the function it already had for a chosen photo (`takePhotos`, `look(at:)`, `take`), so a photo from the camera is treated exactly like any other.
+
+## Not done
+
+- **The photo is not saved to the Photos library.** It goes to Windfall, and its original to the photo folder if one is chosen in Settings. Saving to Photos as well needs one more permission.
+- **No position.** Apple's camera screen does not write where the photo was taken into its notes.
+- **One photo at a time.** The camera closes after "Use Photo".
+- Not added to the seed packet scanner, the sighting form, the old diary form, the journal conversation's own photo button or "Add a photo" on the pin-down card. Each is one button and one line now that `CameraPhoto.swift` exists.
+- If camera access is refused, Apple's screen opens black. Windfall does not yet say why or point to Settings.
+
+## To check on a device
+
+1. The first "Take a photo" asks for the camera, with Windfall's sentence.
+2. A portrait photo and a landscape photo both arrive the right way up.
+3. On the Journal page the photo starts an entry and no "which day" card appears, since it was taken a moment ago.
+4. On the iPad the camera covers the whole screen.
+5. The menu's order by the "+". iOS turns a menu over when it opens upwards.
+
 # 14 November 2026, 19:20: the to-do cards on Today open out where they are
 
 **Joined to `main` at 21:32 on 14 November 2026** by the night join chat, in its own copy (`~/Developer/windfall-night`, branch `join-14nov-night`). It merged cleanly with the weather work in `TodayView.swift`. Built for the Mac (`nt3-mac.log`) and the simulator (`nt4-sim.log`) together with Eira's more solid bar and the flower shapes: both succeeded. 761 logic tests pass. **It has still not been seen running or tried by hand.**
