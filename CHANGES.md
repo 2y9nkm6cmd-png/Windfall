@@ -26,6 +26,66 @@
 **Why the walk is its own small type.** `FungusWalk` holds the choices taken and where they led, with no screen code in it, so the tests can take a walk, step back and start again without building a screen. The page keeps one in `@State` and draws whatever it has reached.
 
 **Checked:** the project's checks with Swift 6.3.1 in a cloud workspace: 112 files parse, the type check passes, 765 logic tests pass. The tests read the real key and fail if a choice leads nowhere, an answer cannot be reached, or a diagram it names has no drawing.
+# 14 November 2026, 21:44: the Mac's icon follows light and dark mode
+
+**By the "Mac icon" chat, on the branch `mac-icon-dark`.** William, 21:32, once the cream icon was showing in the Dock: "The mac icon should also respond to the light and dark mode".
+
+**Why the icon of 20:57 could not do it.** That icon was a set of plain pictures in the Mac's slots of `AppIcon.appiconset`. A Mac slot holds one picture. Only the iPhone's and iPad's slots have a second, dark one.
+
+**What a Mac wants instead** is Apple's newer kind of icon, a folder whose name ends in `.icon` (the kind its Icon Composer app makes). It holds the drawing and the background apart, so the Mac can change either with the mode. The Mac now has one, `Windfall/AppIconMac.icon`:
+
+| File | What it is |
+|---|---|
+| `AppIconMac.icon/Assets/snowdrop-light.svg` | The light drawing from `Design/AppIcon`, with its cream background rectangle taken out |
+| `AppIconMac.icon/Assets/snowdrop-dark.svg` | The dark drawing (the thin cream outline), with its green background rectangle taken out |
+| `AppIconMac.icon/icon.json` | The instructions: which drawing and which background colour for which mode |
+
+**What `icon.json` says, a piece at a time:**
+
+```
+"fill-specializations": [
+  { "value": { "solid": "srgb:0.98039,0.93333,0.87843,1.00000" } },
+  { "appearance": "dark", "value": { "solid": "srgb:0.02353,0.25882,0.10588,1.00000" } }
+]
+```
+
+The background. `fill` is the colour behind the drawing. A "specialization" is a value for one mode. The first line names no mode, so it is the ordinary one: cream. The second is for `dark`: the icon's dark green. A colour is written as red, green, blue and solidness, each from 0 to 1. Cream `#FAEEE0` is 250, 238 and 224 out of 255, which is 0.98, 0.93 and 0.88.
+
+```
+"image-name-specializations": [
+  { "value": "snowdrop-light.svg" },
+  { "appearance": "dark", "value": "snowdrop-dark.svg" }
+]
+```
+
+The drawing, in the same pattern: the light drawing ordinarily and the dark one in dark mode.
+
+```
+"glass": false     "specular": false     "shadow": { "kind": "none" }     "translucency": { "enabled": false }
+```
+
+Apple's glass look, switched off. Left on, the Mac lays a shine and a shadow over the drawing as if it were a pane of glass. Off, the icon is the flat drawing William approved.
+
+```
+"supported-platforms": { "squares": ["macOS"] }
+```
+
+This icon is for the Mac only.
+
+**How the Mac build is told to use it.** One line, twice, in `Windfall.xcodeproj/project.pbxproj` (once for the Debug build and once for Release):
+
+```
+ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+"ASSETCATALOG_COMPILER_APPICON_NAME[sdk=macosx*]" = AppIconMac;
+```
+
+The first line was there already: the app's icon is the one called `AppIcon`. The second is new. The square brackets are a condition: "when building for a Mac, the name is `AppIconMac`". So an iPhone or iPad build is untouched and still uses the pictures in `AppIcon.appiconset`.
+
+**No Swift changed.** The app's folder is one that Xcode reads whole, so a file put into `Windfall/` is in the app with nothing more to do.
+
+**Taken out again**, because nothing uses them now: the ten Mac slots in `AppIcon.appiconset/Contents.json`, the seven `windfall-app-icon-mac-...png` pictures and `Tools/design/make_mac_app_icon.swift`. They are in the repository's history at `e7cb8be`.
+
+**Two modes come free.** macOS also has a tinted and a clear icon style. The Mac makes both from the same drawing by itself.
 
 # 14 November 2026, 19:20: the to-do cards on Today open out where they are
 

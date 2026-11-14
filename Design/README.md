@@ -78,15 +78,26 @@ done
 
 ### The Mac's icon
 
-A Mac does not round an icon's corners as an iPhone does, so it needs pictures of its own: the same drawing cut to a rounded square with clear space round it, at seven sizes. They are made from the light picture by a script, and are the files named `windfall-app-icon-mac-...png` in the same folder. After making the light picture again, make the Mac's again too (this needs only Xcode, which the Mac has):
+A Mac's icon is kept apart, in `Windfall/AppIconMac.icon`. It is Apple's newer kind of icon (the kind its Icon Composer app makes), which holds the drawing and the background separately, so the Mac can show the cream icon in light mode and the green one in dark mode.
+
+| In `AppIconMac.icon` | What it is |
+|---|---|
+| `Assets/snowdrop-light.svg`, `Assets/snowdrop-dark.svg` | The two drawings from `AppIcon/`, each with its one background rectangle taken out |
+| `icon.json` | Which drawing and which background colour go with which mode |
+
+After changing a drawing in `AppIcon/`, copy it into `AppIconMac.icon/Assets` under the name above and delete its background line, the one that reads `<rect width="1024" height="1024" fill="..."/>`. To change a background colour, change it in `icon.json`.
+
+To see what the Mac will make of it, without building the app (a picture for each mode: `Default`, `Dark`, `TintedLight`, `TintedDark`, `ClearLight`, `ClearDark`):
 
 ```
-swift Tools/design/make_mac_app_icon.swift \
-  Windfall/Assets.xcassets/AppIcon.appiconset/windfall-app-icon-light-1024.png \
-  Windfall/Assets.xcassets/AppIcon.appiconset
+"/Applications/Xcode.app/Contents/Applications/Icon Composer.app/Contents/Executables/ictool" \
+  Windfall/AppIconMac.icon --export-image --output-file /tmp/icon-dark.png \
+  --platform macOS --rendition Dark --width 512 --height 512 --scale 1
 ```
 
-The Mac shows this one cream icon in light and dark mode. `Contents.json` in that folder lists which picture fills which slot: the slots marked `"platform" : "ios"` are the iPhone's and iPad's, and those marked `"idiom" : "mac"` are the Mac's.
+The same tool says what is wrong if `icon.json` has a mistake in it. The file can also be opened in Icon Composer (Xcode's menu, Open Developer Tool).
+
+The Mac build is pointed at this icon by one line in the project's settings, `"ASSETCATALOG_COMPILER_APPICON_NAME[sdk=macosx*]" = AppIconMac;`. iPhone and iPad builds do not use it.
 
 ## What is in Reference
 
