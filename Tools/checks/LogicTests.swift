@@ -945,6 +945,17 @@ struct LogicTests {
         check(EiraChecks.uncheckedNames(in: "The **red mason bee** (*Osmia bicornis*) is a solitary bee.", against: ["Wikipedia article \"Osmia bicornis\": Osmia bicornis is a species of mason bee"]).isEmpty && EiraChecks.uncheckedNames(in: "You grow **Lavandula angustifolia** (English Lavender) and *Limonium britannicum* (Rock Sea Lavender).", against: ["Lavender — English; (Lavandula angustifolia) Rock Sea Lavender; (Limonium britannicum)"]).isEmpty, "a name the lookup supplied is not flagged, in italics, bold or brackets")
         check(EiraChecks.uncheckedNames(in: "Try (Sweet pea), (Large blue), (French beans), (Common sense), (Bed three), *Note this*, *Bombus* and (the Megachilidae family). Use `recent_records` with `kind=sowings`.", against: []).isEmpty && EiraChecks.uncheckedNames(in: "Dutch lavender (Lavandula x intermedia) and *Aglais io*.", against: []) == ["Aglais io", "Lavandula intermedia"], "ordinary English in brackets or italics is not taken for a name, and a hybrid and a two-letter name are")
         check(EiraChecks.sentences(in: "One. Two? Three! Four") == ["One.", "Two?", "Three!", "Four"] && EiraChecks.sentences(in: "It is 2.5 m wide.") == ["It is 2.5 m wide."], "a line is split into sentences at a stop followed by a space")
+        // The list of models for Eira's chat leaves the photo model's folders out.
+        let modelShelf = FileManager.default.temporaryDirectory.appendingPathComponent("windfall-models-\(UUID().uuidString)")
+        for (folder, metadata) in [("qwen_text", "{\"kind\": \"llm\", \"name\": \"qwen_text\"}"), ("older_text", "{\"name\": \"older_text\"}"), ("bioclip2", ""), ("an_embedder", "{\"kind\": \"embedding\"}"), ("no_model_here", "{\"kind\": \"llm\"}")] {
+            let made = modelShelf.appendingPathComponent(folder)
+            // Every folder but the last holds something ending in .aimodel.
+            let inner = folder == "no_model_here" ? made : made.appendingPathComponent("model.aimodel")
+            try? FileManager.default.createDirectory(at: inner, withIntermediateDirectories: true)
+            if !metadata.isEmpty { try? Data(metadata.utf8).write(to: made.appendingPathComponent("metadata.json")) }
+        }
+        check(EiraModelLibrary.coreAIModelNames(in: modelShelf) == ["older_text", "qwen_text"], "only folders holding a text model are offered for Eira's chat: \(EiraModelLibrary.coreAIModelNames(in: modelShelf))")
+        try? FileManager.default.removeItem(at: modelShelf)
         // Corrections that bear on a question are handed over with it.
         func savedCorrection(_ topic: String, _ words: String) -> EiraCorrection { let made = EiraCorrection(); made.topic = topic; made.correction = words; return made }
         let bramleyNote = savedCorrection("Which fruit trees do I have?", "There is also a Bramley apple by the shed.")

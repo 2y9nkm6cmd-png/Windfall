@@ -263,24 +263,43 @@ enum EiraModelLibrary {
     }
 
     /// Names of the folders inside "Models" that hold a Core AI model
-    /// Eira can talk with.
-    /// A folder counts if it contains something ending in .aimodel or
-    /// .aimodelc, at the top level or one level down.
+    /// Eira can talk through.
     ///
-    /// An image model's folder is left out. It also holds an .aimodel,
-    /// so until 14 November 2026 "bioclip2" was offered as a model to
-    /// chat with, which it cannot do. Its list of species is what
-    /// tells it apart (SpeciesEye.swift).
-    static func coreAIModelNames(fileManager: FileManager = .default) -> [String] {
-        let root = modelsFolder(fileManager: fileManager)
+    /// A folder counts if it contains something ending in .aimodel or
+    /// .aimodelc, at the top level or one level down, and if it is a
+    /// text model. The second test was added on 14 November 2026: the
+    /// photo model's folders (`bioclip2`, `bioclip2-original`) hold an
+    /// .aimodel too, and were being offered as models for Eira's chat.
+    ///
+    /// - `root`: the folder to look in. Left out, it is Windfall's own
+    ///   Models folder. The tests hand it a folder of their own.
+    static func coreAIModelNames(in root: URL? = nil, fileManager: FileManager = .default) -> [String] {
+        let root = root ?? modelsFolder(fileManager: fileManager)
         let folders = (try? fileManager.contentsOfDirectory(
             at: root, includingPropertiesForKeys: [.isDirectoryKey])) ?? []
 
         return folders
             .filter { containsModel($0, depth: 2, fileManager: fileManager) }
-            .filter { !fileManager.fileExists(atPath: $0.appendingPathComponent("uk_species.json").path) }
+            .filter { holdsTextModel($0, fileManager: fileManager) }
             .map(\.lastPathComponent)
             .sorted()
+    }
+
+    /// True for a folder Apple's exporter made for a text model.
+    ///
+    /// The exporter writes a small file, metadata.json, into the folder
+    /// of every model it converts, and in it a line saying what kind of
+    /// model it is: "llm" for a text model. ("LLM" is short for large
+    /// language model.) A folder with no such file was not made by the
+    /// exporter for Eira, and one that names another kind is not hers.
+    static func holdsTextModel(_ folder: URL, fileManager: FileManager = .default) -> Bool {
+        let itsLabel = folder.appendingPathComponent("metadata.json")
+        guard let data = fileManager.contents(atPath: itsLabel.path) else { return false }
+        // `Decodable` lets Swift read just the one line wanted from the
+        // file and ignore the rest.
+        struct Kind: Decodable { var kind: String? }
+        let kind = (try? JSONDecoder().decode(Kind.self, from: data))?.kind
+        return kind == nil || kind == "llm"
     }
 
     /// Copies a converted model's folder into Windfall's Models folder

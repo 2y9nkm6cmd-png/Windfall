@@ -9,7 +9,19 @@ it is first built, and treat how everything here looks as untried.
 
 ## 14 November 2026, midday: Eira identifies from a photo, and a page for testing the image models
 
-**On the branch `eira-identify`, made from `main`.** RESULTS_LINE
+**On the branch `eira-identify`, made from `main` and merged back into it.** Built for the Mac and the iOS Simulator with no errors (`identify-7-mac.log`, `identify-7-sim.log`). 520 logic tests pass. Both image models were run through the app on the same 300 UK photos and scored as they did before (the table below). The answer card was seen in the simulator, in the Identify sheet and in Eira's chat, on example answers. **Not yet tried by hand: giving Eira a real photo in the chat, "Add a sighting", "Ask Eira about it" and the whole of the test page.** The test page has only been compiled. William is the first to run it.
+
+| 300 unseen UK photos, 776 names | BioCLIP 2.5 Huge | BioCLIP 2 |
+|---|---|---|
+| The model alone: first answer right | 293 (98%) | 289 (96%) |
+| The model alone: named outright, and of those right | 294, 290 | 272, 271 |
+| Eira: named a species, and right | 251, 247 | 234, 233 |
+| Eira: said one of several look-alikes, and the true one among them | 43, 43 | 38, 38 |
+| Eira: gave the genus only, and the right genus | 3, 3 | 10, 9 |
+| Eira: said she was not sure | 3 | 18 |
+| Seconds a photo, both in one run with the chip free | 0.22 | 0.15 |
+
+So with BioCLIP 2.5 Huge she answers 297 of 300 and is wrong on 4, the same 4 the model is wrong on. What the rules change is how the other 293 are put: 43 are given as "one of these" where a species cannot honestly be named from a photo, and 3 that the model would not name are given, rightly, as a genus. The four wrong ones are a common lizard named as a wall lizard, hemlock named as cow parsley (which carries the carrot-family warning), common comfrey named as Russian comfrey and a buff ermine named as a muslin moth. `identify-species-both.md` on the Mac has every photo. The month and the records were not part of this test: the photos carry no dates and the example garden has no sightings of them.
 
 **Why.** William asked: "Could you build the identification part of Eira now for integration in to the app and so I can test the models". Until now the Identify screen showed the image model's three closest names and nothing more, Eira's chat could not be given a photo at all, and only one image model could be installed at a time, so two could not be compared inside the app.
 
@@ -35,7 +47,7 @@ it is first built, and treat how everything here looks as untried.
    Naming a photo does not use the text model, so it works where no text model can run. Her answer is also kept in the conversation as words, so the text model has it in front of it for a follow-up question. The photo itself is held only while the chat is open. It is saved when a sighting is started from it.
 
 4. **More than one image model can be installed** (`SpeciesEye.swift`). An image model is now any folder in the Models folder that holds a model, `uk_species.json` and `uk_species_rows_f16.bin`. An optional `eye.json` gives it a name to show and an order. Eira uses the one chosen on the test page, or the first in order. `SpeciesEye.shared` follows that choice, and `SpeciesEye(using:)` makes one tied to a particular model. Until now the folder had to be called `bioclip2` and the model file had one fixed name.
-   - Image models no longer appear in the list of text models Eira can talk with (`EiraModelLibrary.coreAIModelNames`). `bioclip2` had been offered there.
+   - Image models no longer appear in the list of text models Eira can talk with. Another chat put this right the same half hour, after the new `bioclip2-original` folder turned up in that list (the entry below). Its fix is the one kept.
    - A species in the list can carry where its name came from (`SpeciesEntry.source`). A name that came from a pot label says so on the card.
 
 5. **A page for testing the image models side by side** (`EyeTestView.swift`, new). Wildlife, Identify from a photo, "Test the image models". Choose up to 60 photos, run them through every installed model, then mark each photo with what it really is: one of the names given, a name typed in, or "not on the list". For each model it counts first answers right, right among the three, named outright and right, **named although not on its list**, and seconds a photo. "Use for Eira" chooses a model. "Copy the results" puts the whole test on the clipboard. "Keep my answers" saves each marked photo and its true name beside the Models folder, in `Photo answers`, where they can later be used to teach or test a model. Nothing is taught by the page itself.
@@ -53,6 +65,13 @@ it is first built, and treat how everything here looks as untried.
 - Dropping a photo on to the chat. Another chat is building drops for the journal (`photo-drop`), and its `PhotoFacts` reads a photo's date and place more fully than the month read here. The two should be joined when both are in `main`.
 - The rest of the chat screen is still in the old look.
 - An image model still cannot be added from inside the app, and the species list is still made on the Mac.
+
+## 14 November 2026, 12:20: the photo model is no longer offered as a model for Eira's chat
+
+**Why.** Eira's settings list every folder in Windfall's Models folder that holds a file ending in `.aimodel`. The photo model's folders (`bioclip2`, and `bioclip2-original` since another chat added it) hold one too, so they were listed beside the two Qwens. Choosing one would only give an error, because a photo model cannot hold a conversation.
+
+**What changed** (`EiraModelLibrary.coreAIModelNames` and `holdsTextModel` in `EiraEngine.swift`). Apple's exporter writes a small file, `metadata.json`, into every model folder it makes, with a line saying what kind of model it is: `"kind": "llm"` for a text model. A folder is now listed only if it has that file and the file does not name another kind. The photo model's folders have no such file, so they drop out. One test builds five pretend folders and checks that the right two are listed.
+
 ## 14 November 2026, midday: three things the trained Qwen's test turned up
 
 **In `main` since 12:00**, by way of the branch `carrot-family-warning`, with the warning below. Built for the Mac and the simulator as r26 (`36b0bcd`), no errors. 474 logic tests pass.
