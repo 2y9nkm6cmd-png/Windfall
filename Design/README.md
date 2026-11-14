@@ -48,7 +48,8 @@ Twenty of the files in `Icons/` have names that start `shape-`, one for each sha
   python3 Tools/design/build_design_assets.py
   ```
 
-- They are outline icons like the rest, on the same 24 by 24 grid, but with a finer line (0.85, with 0.5 for veins and stamens) because they are shown two to eight times the size of a navigation icon.
+- **They are colour icons**, like the bee and the butterfly: flat petal colours, a darker tone for shade and the dark green outline (`#06472A`), drawn back to front so that one petal can sit over another. The script above makes each a dark-mode copy with a pale outline. They were one-colour outlines for an hour on 14 November 2026, until William asked for them to be more realistic.
+- **The shade is its own colour**, `#0A2E1C`, laid thinly over what is beneath. It must not be the outline colour: that one turns pale in dark mode, and the shade would then lighten instead of darken.
 - The botany is Claude's own and has not been checked against a book. Project doc 57 lists what was simplified.
 
 ## The app icon

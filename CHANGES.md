@@ -1,3 +1,18 @@
+# 14 November 2026, 20:25: the flower shape drawings redrawn in colour, with shading (branch `flower-shape-drawings`)
+
+**By the flower shape chat.** William, of the one-colour outlines: "Go back through the files and make them more realistic, but still graphicky. they might need shading." Of a sample of four: "They're much better".
+
+| File | What and why |
+|---|---|
+| `Tools/design/flower_shapes.py` | Rewritten. Each drawing is now built back to front from filled pieces, like cut paper, so a petal can sit in front of another. Shade is a darker tone or a thin dark wash on the side away from the light |
+| `Design/Icons/shape-*.svg` (20) | Redrawn by that script, in colour. Same names, so nothing that looks a drawing up by name changes |
+| The two asset catalogues | Rebuilt by `build_design_assets.py`: the twenty are now "colour icons", each with a dark-mode copy whose outline is pale |
+| `Windfall/FlowerShapeViews.swift` | `FlowerShapePicture` no longer tints the drawing. It has `faded`, which the list uses for a gap: most of the colour washed out, and thinner. A shape's own page always shows it in full colour |
+| `Windfall/DemoGarden.swift`, `MainTabView.swift` | Checking aids: `-demoFlowerShapes YES` opens the list and `-demoFlowerShape Bilabiate` one shape's page |
+| `Design/README.md` | Brought up to date |
+
+The colours are those of the plant each drawing is taken from: blue borage, a pink dog rose, a yellow flag iris, a lilac sage. ⚠️ CHECK: the botany and the colours are Claude's own and have not been checked against a book.
+
 # 14 November 2026, 19:35: flower shapes get drawings and a page each (branch `flower-shape-drawings`, not built)
 
 **By the flower shape chat, from a cloud workspace. Nothing here has been built in Xcode or seen on a screen.** The branch was made from `main` at `71d95d4`.

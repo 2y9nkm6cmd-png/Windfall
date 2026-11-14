@@ -3,6 +3,16 @@
     {
       "idiom": "universal",
       "filename": "shape-salverform.svg"
+    },
+    {
+      "idiom": "universal",
+      "filename": "shape-salverform-dark.svg",
+      "appearances": [
+        {
+          "appearance": "luminosity",
+          "value": "dark"
+        }
+      ]
     }
   ],
   "info": {
@@ -11,6 +21,6 @@
   },
   "properties": {
     "preserves-vector-representation": true,
-    "template-rendering-intent": "template"
+    "template-rendering-intent": "original"
   }
 }

@@ -15,8 +15,14 @@
 //  WHERE THE DRAWINGS COME FROM
 //  There are twenty, one for each shape, kept as small SVG files in
 //  `Design/Icons` with names that start `shape-`. They are drawn by
-//  `Tools/design/flower_shapes.py`. Each is black only, so the app can
-//  paint it any colour: green for a shape the garden has, grey for a gap.
+//  `Tools/design/flower_shapes.py`.
+//
+//  They began as one-colour outlines that the app tinted. On the same
+//  evening William asked for them to be "more realistic, but still
+//  graphicky", with shading, so they are now in colour: flat petal
+//  colours, a darker tone for shade, and the app's dark green outline.
+//  A coloured drawing is shown as drawn, like the bee and the butterfly,
+//  and has a second copy for dark mode in which the outline is pale.
 //
 //  WHERE THE SUMS ARE
 //  Which drawing goes with a shape, and which plants have a shape, are
@@ -34,12 +40,14 @@ import SwiftData
 
 /// One flower shape's drawing, at a size.
 ///
-/// The drawing is a "template": the file's own black is ignored and the
-/// shape is painted in whatever colour `foregroundStyle` asks for.
+/// The drawing is in colour and is shown as drawn. `faded` washes most
+/// of the colour out and thins it, which the list uses for a shape the
+/// garden does not have yet.
 struct FlowerShapePicture: View {
     /// The shape's name as the guide writes it, such as "Rotate, umbellate".
     let shapeTitle: String
     var size: CGFloat = 52
+    var faded: Bool = false
 
     var body: some View {
         Image(FlowerShapeGuide.pictureName(forShape: shapeTitle))
@@ -48,6 +56,10 @@ struct FlowerShapePicture: View {
             .resizable()
             .scaledToFit()
             .frame(width: size, height: size)
+            // `saturation` is how strong the colours are: 1 is as drawn
+            // and 0 is grey. `opacity` is how solid the picture is.
+            .saturation(faded ? 0.15 : 1)
+            .opacity(faded ? 0.6 : 1)
             // The picture is decoration. The words beside it say what it
             // is, so VoiceOver skips it.
             .accessibilityHidden(true)
@@ -143,7 +155,7 @@ struct FlowerShapeCoverageView: View {
 }
 
 /// One shape in the list: its drawing, then its name and two lines about
-/// it, then a tick if the garden has it.
+/// it, then a tick if the garden has it. A gap's drawing is faded.
 struct FlowerShapeTile: View {
     let shape: FlowerShape
     let present: Bool
@@ -151,8 +163,7 @@ struct FlowerShapeTile: View {
     var body: some View {
         // `HStack` sets things side by side: the drawing, the words, the mark.
         HStack(alignment: .top, spacing: 14) {
-            FlowerShapePicture(shapeTitle: shape.name, size: 56)
-                .foregroundStyle(present ? Theme.leaf : Theme.inkSoft)
+            FlowerShapePicture(shapeTitle: shape.name, size: 56, faded: !present)
 
             VStack(alignment: .leading, spacing: 3) {
                 Text(shape.name)
@@ -205,7 +216,7 @@ struct FlowerShapeDetailView: View {
 
         ScrollView {
             VStack(alignment: .leading, spacing: 14) {
-                picture(present: !growing.isEmpty)
+                picture
                 heading(present: !growing.isEmpty)
                 aboutCard
                 feedsCard(visitors: visitors)
@@ -229,10 +240,10 @@ struct FlowerShapeDetailView: View {
 
     // MARK: The pieces
 
-    /// The drawing, large, on a card of its own.
-    private func picture(present: Bool) -> some View {
+    /// The drawing, large, on a card of its own. Always in full colour:
+    /// this is the page to learn the shape from, grown or not.
+    private var picture: some View {
         FlowerShapePicture(shapeTitle: shape.name, size: 200)
-            .foregroundStyle(present ? Theme.leaf : Theme.inkSoft)
             .frame(maxWidth: .infinity)
             .glassCard(padding: 20)
     }
