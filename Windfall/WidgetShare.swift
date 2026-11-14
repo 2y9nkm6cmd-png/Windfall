@@ -134,11 +134,28 @@ enum WidgetShare {
         // only just been opened, or there is no signal. The last one
         // written to the file is used then, so a frost warning does not
         // vanish from the widgets just because the app was opened.
+        //
+        // A widget can now fetch a forecast for itself (see
+        // WindfallShared/WidgetForecast.swift), so the file's may be the
+        // newer of the two. Whichever is newer is used, and the file
+        // notes when it was fetched so a widget knows how fresh it is.
         var outlook = WeatherService.shared.outlook
-        if outlook.isEmpty {
+        let appFetched = WeatherService.shared.lastFetched ?? .distantPast
+        let fileFetched = sharedFile.forecastFetched ?? .distantPast
+        if outlook.isEmpty || fileFetched > appFetched {
             outlook = sharedFile.nights.map {
                 OutlookDay(dayKey: $0.dayKey, minTemperatureC: $0.lowC, rainMM: $0.rainMM, gustKMH: $0.gustKMH)
             }
+        } else {
+            sharedFile.forecastFetched = appFetched
+        }
+        // Where the weather is asked about, so a widget can fetch the
+        // forecast for itself between openings: a garden's place, or
+        // failing that wherever the last reading was taken. Kept as it
+        // was if neither is known. See WindfallShared/WidgetForecast.swift.
+        let gardens = (try? context.fetch(FetchDescriptor<Garden>())) ?? []
+        if let askAbout = WeatherPlace.garden(among: gardens) ?? WeatherService.shared.readingPlace {
+            sharedFile.place = WidgetPlace(latitude: askAbout.latitude, longitude: askAbout.longitude)
         }
         sharedFile.nights = outlook.map {
             WidgetNight(dayKey: $0.dayKey, lowC: $0.minTemperatureC, rainMM: $0.rainMM, gustKMH: $0.gustKMH)
