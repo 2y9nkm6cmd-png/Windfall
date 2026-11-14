@@ -52,6 +52,12 @@ final class KeptFact {
     var plantName: String = ""
     /// Which box of the plant's record it went into. See PlantField.
     var fieldRaw: String = PlantField.notes.rawValue
+    /// The box by its key in PlantFacts.swift, such as "maxHeightM",
+    /// when the fact was kept by filling in a plant's gaps
+    /// (PlantFillIn.swift). That can reach every box of the record,
+    /// where `fieldRaw` knows only the 21 a sentence fits. Nil for a
+    /// fact kept from Eira's chat or by hand, which use `fieldRaw`.
+    var factKey: String?
 
     /// The fact in your words, as it stood on the card.
     var words: String = ""
@@ -73,6 +79,22 @@ final class KeptFact {
     init() {}
 
     var field: PlantField { PlantField(rawValue: fieldRaw) ?? .notes }
+
+    /// The box this fact sits in, by its key in PlantFacts.swift,
+    /// however it was kept.
+    var boxKey: String { factKey ?? field.factKey }
+    /// The box's name as a plant's page shows it: "Max height".
+    var boxLabel: String { PlantFacts.named(boxKey)?.label ?? field.label }
+    /// True when the fact can be changed with the form for kept facts,
+    /// which offers only the 21 boxes. Any other is changed with the
+    /// plant's own Edit sheet.
+    var canChangeInForm: Bool { factKey == nil }
+    /// What the fact's box holds now, or nil if it is empty.
+    func presentValue(in plant: Plant) -> String? {
+        guard let box = PlantFacts.named(boxKey) else { return nil }
+        let held = PlantFacts.value(of: box, in: plant)
+        return held.isEmpty ? nil : held
+    }
     var trust: SourceTrust { SourceTrust(rawValue: trustRaw) ?? .unknown }
 }
 
@@ -630,8 +652,9 @@ struct KeptFactStore {
         var putBack = false
         let plants = (try? context.fetch(FetchDescriptor<Plant>())) ?? []
         if let plant = plants.first(where: { $0.id == fact.plantID }),
-           fact.field.value(in: plant) == fact.valueAfter {
-            fact.field.set(fact.valueBefore, in: plant)
+           fact.presentValue(in: plant) == fact.valueAfter {
+            // Through PlantFacts, which knows every box by its key.
+            PlantFacts.write(fact.valueBefore ?? "", forKey: fact.boxKey, to: plant)
             putBack = true
         }
         context.delete(fact)
@@ -671,8 +694,8 @@ struct KeptFactStore {
     func sourceLabels(for plant: Plant) -> [String: String] {
         var labels: [String: String] = [:]
         // Oldest first, so the newest fact for a box is the one shown.
-        for fact in facts(for: plant).reversed() where fact.field.value(in: plant) == fact.valueAfter {
-            labels[fact.field.label] = KeptFacts.sourceLabel(for: fact)
+        for fact in facts(for: plant).reversed() where fact.presentValue(in: plant) == fact.valueAfter {
+            labels[fact.boxLabel] = KeptFacts.sourceLabel(for: fact)
         }
         return labels
     }

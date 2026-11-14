@@ -388,7 +388,7 @@ struct KeptFactRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(alignment: .firstTextBaseline, spacing: 8) {
-                Text(showsPlant ? "\(fact.plantName) · \(fact.field.label)" : fact.field.label)
+                Text(showsPlant ? "\(fact.plantName) · \(fact.boxLabel)" : fact.boxLabel)
                     .font(.subheadline.weight(.medium))
                     .foregroundStyle(Theme.ink)
                 if isDue {
@@ -428,8 +428,13 @@ struct KeptFactRow: View {
                     Button("Still right") { KeptFactStore(context: context).markChecked(fact) }
                         .buttonStyle(QuietGlassButton())
                 }
-                Button("Change it") { onChange() }
-                    .buttonStyle(QuietGlassButton())
+                // A fact kept by filling in a plant's gaps can sit in a
+                // box this form does not offer. Those are changed with
+                // the plant's own Edit sheet.
+                if fact.canChangeInForm {
+                    Button("Change it") { onChange() }
+                        .buttonStyle(QuietGlassButton())
+                }
                 Button("Remove") { KeptFactStore(context: context).remove(fact) }
                     .buttonStyle(QuietGlassButton())
             }

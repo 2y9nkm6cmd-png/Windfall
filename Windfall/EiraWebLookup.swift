@@ -233,6 +233,11 @@ struct WebPageReader {
         /// Where the page really was, which can differ from the address
         /// asked for when the site sends the reader on elsewhere.
         let address: String
+        /// The page as the site sent it, tags and all. The plain text
+        /// above loses two things a plant's record can use: which
+        /// months are coloured in on the RHS's calendar, and where its
+        /// links lead. RHSPage (PlantFillIn.swift) reads those from here.
+        var html: String = ""
     }
 
     var session: URLSession = .shared
@@ -273,7 +278,8 @@ struct WebPageReader {
         return Page(title: pageTitle,
                     text: readable,
                     host: response.url?.host ?? host,
-                    address: response.url?.absoluteString ?? url.absoluteString)
+                    address: response.url?.absoluteString ?? url.absoluteString,
+                    html: html)
     }
 
     func read(_ address: String, limit: Int = 4000) async throws -> (title: String?, text: String, host: String) {

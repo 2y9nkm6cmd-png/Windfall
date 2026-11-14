@@ -647,40 +647,11 @@ struct ToolRunner {
         return result
     }
 
-    /// The RHS's growing guide for a plant, or nil.
-    ///
-    /// The address that worked last time is used if there is one.
-    /// Otherwise the likely addresses are tried in turn, stopping at
-    /// the first whose title names the plant, and that one is
-    /// remembered. A plant with no page is remembered too, and is not
-    /// tried again for a month.
+    /// The RHS's growing guide for a plant, or nil. The finding is
+    /// done by RHSFinder.page (EiraSources.swift), which filling in a
+    /// plant's gaps shares.
     private func rhsPage(for name: String, kind: PlantKind) async -> WebPageReader.Page? {
-        let pagesFound = PageMemory()
-        let reader = WebPageReader()
-        if case .found(let address) = pagesFound.remembered(source: "RHS", plant: name),
-           let page = try? await reader.fetch(address), RHSFinder.isAbout(name, title: page.title) {
-            return page
-        }
-        guard pagesFound.shouldTry(source: "RHS", plant: name) else { return nil }
-        // True if the internet could not be reached at all. Then
-        // nothing is remembered: a train tunnel is not a missing page.
-        var wasOffline = false
-        for address in RHSFinder.candidates(for: name, kind: kind) {
-            do {
-                let page = try await reader.fetch(address)
-                if RHSFinder.isAbout(name, title: page.title) {
-                    pagesFound.remember(page.address, source: "RHS", plant: name)
-                    return page
-                }
-            } catch is WebPageReader.ReadError {
-                continue   // no such page: try the next shape
-            } catch {
-                wasOffline = true
-                break
-            }
-        }
-        if !wasOffline { pagesFound.remember(nil, source: "RHS", plant: name) }
-        return nil
+        await RHSFinder.page(for: name, kind: kind)
     }
 
     private func recentRecords(kind: String, days: Int) -> ToolResult {

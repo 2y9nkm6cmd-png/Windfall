@@ -53,6 +53,13 @@ enum SourceTrust: String, CaseIterable, Identifiable {
     /// Something you read yourself and typed in: a book, a seed
     /// packet, a neighbour's advice.
     case ownReading
+    /// Copied from another record of your own: what the library
+    /// already says about another variety of the same plant. Added
+    /// with filling in a plant's gaps (PlantFillIn.swift).
+    case ownRecords
+    /// Not read anywhere. Worked out by a fixed rule from something
+    /// else in the record, such as the plant's family.
+    case workedOut
 
     var id: String { rawValue }
 
@@ -64,6 +71,8 @@ enum SourceTrust: String, CaseIterable, Identifiable {
         case .general: return "a general reference, not a checked source"
         case .unknown: return "a web page that has not been checked"
         case .ownReading: return "typed in by the gardener from their own reading"
+        case .ownRecords: return "copied from the gardener's own records of the same plant"
+        case .workedOut: return "worked out by rule and not read anywhere, so not a checked source"
         }
     }
 
@@ -75,6 +84,8 @@ enum SourceTrust: String, CaseIterable, Identifiable {
         case .general: return "General reference"
         case .unknown: return "Not a known source"
         case .ownReading: return "Your own reading"
+        case .ownRecords: return "Your own records"
+        case .workedOut: return "Worked out, not read"
         }
     }
 }
@@ -207,6 +218,46 @@ enum RHSFinder {
         let words = EiraSafety.tidied(KeptFacts.withoutBrackets(name)).split(separator: " ").map(String.init)
         guard !words.isEmpty else { return false }
         return words.allSatisfy { title.contains(stem($0)) }
+    }
+
+    /// The RHS's growing guide for a plant, or nil.
+    ///
+    /// The address that worked last time is used if there is one.
+    /// Otherwise the likely addresses are tried in turn, stopping at
+    /// the first whose title names the plant, and that one is
+    /// remembered. A plant with no page is remembered too, and is not
+    /// tried again for a month.
+    ///
+    /// Until 14 November 2026 this was inside Eira's `plant_care`
+    /// lookup (EiraTools.swift). It was moved here unchanged when
+    /// filling in a plant's gaps needed the same page.
+    static func page(for name: String, kind: PlantKind,
+                     reader: WebPageReader = WebPageReader(),
+                     pagesFound: PageMemory = PageMemory()) async -> WebPageReader.Page? {
+        if case .found(let address) = pagesFound.remembered(source: "RHS", plant: name),
+           let page = try? await reader.fetch(address), isAbout(name, title: page.title) {
+            return page
+        }
+        guard pagesFound.shouldTry(source: "RHS", plant: name) else { return nil }
+        // True if the internet could not be reached at all. Then
+        // nothing is remembered: a train tunnel is not a missing page.
+        var wasOffline = false
+        for address in candidates(for: name, kind: kind) {
+            do {
+                let page = try await reader.fetch(address)
+                if isAbout(name, title: page.title) {
+                    pagesFound.remember(page.address, source: "RHS", plant: name)
+                    return page
+                }
+            } catch is WebPageReader.ReadError {
+                continue   // no such page: try the next shape
+            } catch {
+                wasOffline = true
+                break
+            }
+        }
+        if !wasOffline { pagesFound.remember(nil, source: "RHS", plant: name) }
+        return nil
     }
 
     /// A word without its plural ending.
