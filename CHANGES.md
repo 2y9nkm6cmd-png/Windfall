@@ -1,3 +1,30 @@
+# 14 November 2026, 20:28: a fungus key to step through, with a diagram for each choice
+
+**By the mushroom key chat.** William, 18:21: "I want to step through the key in app." At 18:39, choosing a key of Windfall's own over showing someone else's: "B. And ill check the text." At 20:09: "Connect to my mac to attach changes to the main file. Can you make the diagrams a lot better please." At 20:17, with a picture of the new flower shape drawings: "more what we're after".
+
+**What it is.** Wildlife has a new tile, **Fungus key**. It asks one question at a time, each choice with a drawing beside it, and ends at a group or genus: 21 steps, 106 choices and 83 answers. An answer says what to check, names a few common kinds, carries a warning where the group holds deadly or poisonous fungi, and says what it means in a garden. "Add a sighting" starts an unconfirmed sighting with the steps taken written into its notes.
+
+**What it is not.** It never says whether anything can be eaten, and a test fails if the word "edible" appears in it. It is fixed words with no model in it. Eira is unchanged and still refuses to name a fungus (`EiraSafety.fungiReply`).
+
+**⚠️ Every word of the key was written by Claude from memory and none has been checked.** `FungusKey.json` says `"checked": false` and the page says "To check" until that is changed to `true`. It is not copied from John Wright's key, which William sent as the model: that is his copyright. Project doc 58.
+
+| File | What it is |
+|---|---|
+| `Windfall/FungusKey.json` | The key itself. **Correct the words here.** The app follows |
+| `Windfall/FungusKey.swift` | The rules: reading the file, remembering a walk and stepping back, what a sighting made from an answer holds, and `faults()`, which lists anything wrong with the file |
+| `Windfall/FungusKeyView.swift` (new) | The page: the trail of choices as buttons that go back, the question, a card for each choice, the answer card |
+| `Windfall/HubScreens.swift` | The tile, after "Identify from a photo" |
+| `Windfall/WildlifeModels.swift` | `IDSource` gains `key`: a name reached by stepping through a key. It is kept as a word, so older records still open |
+| `Windfall/Theme.swift` | `WIcon.fungusKey`, the tile's icon |
+| `Design/Icons/fungus-*.svg` (53) | The diagrams, in colour on a 100 by 100 grid, in the bold manner of the flower shapes. Each gets a dark-mode copy from the build script, which swaps the outline for pale green |
+| `Design/Icons/fungus-key.svg` | The tile's icon, an outline like the others |
+| `Tools/design/fungus_kit.py`, `fungus_diagrams.py` | The code that draws the diagrams. `python3 Tools/design/fungus_diagrams.py Design/Icons`, then the build script |
+| `Tools/checks/` | 14 new tests, and `FungusKey.swift` added to the files that are type-checked |
+
+**Why the walk is its own small type.** `FungusWalk` holds the choices taken and where they led, with no screen code in it, so the tests can take a walk, step back and start again without building a screen. The page keeps one in `@State` and draws whatever it has reached.
+
+**Checked:** the project's checks with Swift 6.3.1 in a cloud workspace: 112 files parse, the type check passes, 763 logic tests pass. The tests read the real key and fail if a choice leads nowhere, an answer cannot be reached, or a diagram it names has no drawing.
+
 # 14 November 2026, 20:10: plant drawings added to the Design folder
 
 **By the plant graphics chat.** William, 18:15: "Could you create graphics for all the plants I'm growing and have seeds for. Create a graphic for each phase of their life that are relevant." At 19:06: "Make them a bit more detailed and do them all". At 20:06: "Connect to my mac to attach changes to the main file".

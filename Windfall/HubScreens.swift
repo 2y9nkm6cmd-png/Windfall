@@ -458,6 +458,14 @@ struct WildlifeTab: View {
                             detail: "Ask what you have seen")
                 }
                 .hubTileGlass()
+
+                // The image model knows no fungi, so they have a key
+                // of their own to step through (FungusKeyView.swift).
+                GrowingLink { FungusKeyView() } label: {
+                    HubTile(icon: .drawn(.fungusKey), title: "Fungus key",
+                            detail: "Step to a group for a record")
+                }
+                .hubTileGlass()
             }
         }
     }
