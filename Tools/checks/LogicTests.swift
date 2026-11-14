@@ -1914,6 +1914,43 @@ struct LogicTests {
         await waitUntilIdle(jobChat)
         check(jobChat.offeredJob == nil && jobChat.messages.last?.content != GardenJobs.offerReply, "a question about a job is still a question")
 
+        // Folding and opening the to-do cards on Today.
+        check(JobFold.rowsShown(of: 9, folded: JobFold.weekRows, isOpen: false) == 6 && JobFold.rowsShown(of: 9, folded: JobFold.weekRows, isOpen: true) == 9 && JobFold.rowsShown(of: 4, folded: JobFold.weekRows, isOpen: false) == 4 && JobFold.rowsShown(of: 0, folded: JobFold.weekRows, isOpen: true) == 0, "a folded card shows six rows at most and an open one shows them all")
+        let foldMonth = ["own-potatoes"] + (1...9).map { "sow-\($0)" } + (1...5).map { "harvest-\($0)" } + ["seed-a", "worms"]
+        check(JobFold.monthPick(from: foldMonth) == ["own-potatoes", "sow-1", "sow-2", "sow-3", "sow-4"], "the folded month keeps its order and stops at five rows")
+        check(JobFold.monthPick(from: ["sow-1", "sow-2", "sow-3", "sow-4", "sow-5", "harvest-1", "worms"]) == ["sow-1", "sow-2", "sow-3", "sow-4", "harvest-1"] && JobFold.monthPick(from: ["harvest-1", "harvest-2", "harvest-3", "harvest-4", "worms"]) == ["harvest-1", "harvest-2", "harvest-3", "worms"], "four sowings and three harvests at most, so other jobs are not crowded out")
+        check(JobFold.monthPick(from: ["worms", "seed-a"]) == ["worms", "seed-a"] && JobFold.monthPick(from: []).isEmpty, "a short month is shown whole")
+        check(JobFold.headingWords(hidden: 12, isOpen: false) == "12 more" && JobFold.headingWords(hidden: 12, isOpen: true) == "Show fewer" && JobFold.headingWords(hidden: 0, isOpen: false) == nil && JobFold.headingWords(hidden: 0, isOpen: true) == nil, "the heading says how many more there are, and nothing when there are none")
+        // Flower shapes: the drawing that goes with each, and the plants that have one.
+        check(FlowerShapeGuide.pictureName(forShape: "Rotate, umbellate") == "Icons/shape-rotate-umbellate" && FlowerShapeGuide.pictureName(forShape: " Funnel form ") == "Icons/shape-funnel-form" && FlowerShapeGuide.pictureName(forShape: "Zygomorphic three-part") == "Icons/shape-zygomorphic-three-part", "a flower shape's name gives the name of its drawing")
+        check(FlowerShapeGuide.shapeKey(in: "Bilabiate: Shallow tubular") == "bilabiate" && FlowerShapeGuide.shapeKey(in: " Stellate ") == "stellate" && FlowerShapeGuide.shapeKey(in: "Rotate, umbellate: Open plate umbel") == "rotate, umbellate" && FlowerShapeGuide.shapeKey(in: nil) == nil && FlowerShapeGuide.shapeKey(in: "  ") == nil, "the shape is read from the front of the text, in small letters")
+        let shapeLavender = Plant(commonName: "Lavender")
+        let shapeBorage = Plant(commonName: "Borage"); shapeBorage.flowerForm = "Stellate"
+        let shapeCatmint = Plant(commonName: "Catmint"); shapeCatmint.status = .wanted
+        let shapeLeek = Plant(commonName: "Leek")
+        let shapeLibrary = [shapeLeek, shapeCatmint, shapeBorage, shapeLavender]
+        func shapeLink(_ plantWord: String, _ animalWord: String, _ shapeWord: String) -> PlantFaunaLink {
+            let made = PlantFaunaLink(); made.plantName = plantWord; made.faunaName = animalWord; made.flowerShape = shapeWord; return made
+        }
+        let shapeLinks = [shapeLink("lavender", "Garden bumblebee", "Bilabiate: Shallow tubular"), shapeLink("Catmint", "Wool carder bee", "Bilabiate: Shallow tubular"), shapeLink("Lavender", "Garden bumblebee", "bilabiate"), shapeLink("Hogweed", "Marmalade hoverfly", "Rotate, umbellate: Open plate umbel")]
+        check(FlowerShapeGuide.plantsHaving(shapeTitle: "Bilabiate", in: shapeLibrary, guideLinks: shapeLinks).map(\.commonName) == ["Lavender"] && FlowerShapeGuide.plantsHaving(shapeTitle: "Bilabiate", in: shapeLibrary, guideLinks: shapeLinks, keeping: .wanted).map(\.commonName) == ["Catmint"], "a plant has a shape when the links sheet says so, and growing plants are kept apart from plants to buy")
+        check(FlowerShapeGuide.plantsHaving(shapeTitle: "Stellate", in: shapeLibrary, guideLinks: shapeLinks).map(\.commonName) == ["Borage"] && FlowerShapeGuide.plantsHaving(shapeTitle: "Rotate, umbellate", in: shapeLibrary, guideLinks: shapeLinks).isEmpty && FlowerShapeGuide.plantsHaving(shapeTitle: "Rotate", in: shapeLibrary, guideLinks: shapeLinks).isEmpty, "a plant also has the shape its own Flower Form gives, a shape nobody grows has no plants, and Rotate is not mistaken for Rotate, umbellate")
+        check(FlowerShapeGuide.shapeKeysGrowing(in: shapeLibrary, guideLinks: shapeLinks) == ["bilabiate", "stellate"], "the garden's shapes are those of its growing plants: \(FlowerShapeGuide.shapeKeysGrowing(in: shapeLibrary, guideLinks: shapeLinks).sorted())")
+        check(FlowerShapeGuide.visitorNames(ofShape: "Bilabiate", guideLinks: shapeLinks) == ["Garden bumblebee", "Wool carder bee"] && FlowerShapeGuide.visitorNames(ofShape: "Galeate", guideLinks: shapeLinks).isEmpty, "the animals recorded on a shape are each named once")
+        // Every shape in the real guide has a drawing in Design/Icons, so no tile is left blank.
+        if let starterPath = ProcessInfo.processInfo.environment["WINDFALL_STARTER"],
+           let starterData = FileManager.default.contents(atPath: starterPath),
+           let starterFile = try? GardenDataFile.decode(starterData),
+           let shapeTable = starterFile.table(named: GardenTableKind.flowerShapes.tableName) {
+            let drawingsFolder = URL(fileURLWithPath: starterPath).deletingLastPathComponent().deletingLastPathComponent().appendingPathComponent("Design/Icons")
+            let shapeTitles = shapeTable.rows.compactMap { $0["Flower Shape"] }
+            let undrawn = shapeTitles.filter { title in
+                let file = FlowerShapeGuide.pictureName(forShape: title).replacingOccurrences(of: "Icons/", with: "") + ".svg"
+                return !FileManager.default.fileExists(atPath: drawingsFolder.appendingPathComponent(file).path)
+            }
+            check(shapeTitles.count == 20 && undrawn.isEmpty, "each of the guide's \(shapeTitles.count) flower shapes has a drawing (missing: \(undrawn))")
+        }
+
         print("   logic tests: \(passes) passed, \(failures) failed")
         exit(failures == 0 ? 0 : 1)
     }

@@ -5,7 +5,7 @@ Everything about how Windfall looks is kept here.
 | Folder or file | What it holds |
 |---|---|
 | `Reference/` | Pictures and files William has sent, each with the date it arrived. These are the originals and are never edited |
-| `Icons/` | One small SVG drawing for each icon in the app. These are the masters: edit one and the app follows |
+| `Icons/` | One small SVG drawing for each icon in the app. These are the masters: edit one and the app follows. The twenty that start `shape-` are the flower shapes: see below |
 | `AppIcon/` | The app's own icon, the snowdrop and bumblebee, as two SVG drawings: light and dark. These are the masters. See "The app icon" below |
 | `colours.json` | Every named colour, each with a light-mode and a dark-mode value |
 | `Archive/` | Anything that has been replaced or set aside, kept in case it is wanted again |
@@ -36,6 +36,22 @@ The script copies the colours and icons into `Windfall/Assets.xcassets`, which i
 
 Icons are drawn on a 24 by 24 grid with a line 1.6 wide and rounded ends.
 
+## The flower shape drawings
+
+Twenty of the files in `Icons/` have names that start `shape-`, one for each shape in the Flower Form Guide: `shape-bilabiate.svg`, `shape-rotate-umbellate.svg` and so on. The Flower shapes pages show them (`Windfall/FlowerShapeViews.swift`).
+
+- **The name is made from the shape's own name**: small letters, commas dropped, each space a hyphen. A new shape in the guide needs only a drawing with the matching name. A test fails if a shape in `StarterData.json` has no drawing.
+- **They are drawn by a script, not by hand**: `Tools/design/flower_shapes.py`. To change one, edit its block in that file and run, from the top of the repository:
+
+  ```
+  python3 Tools/design/flower_shapes.py Design/Icons
+  python3 Tools/design/build_design_assets.py
+  ```
+
+- **They are colour icons**, like the bee and the butterfly: flat petal colours, a darker tone for shade and the dark green outline (`#06472A`), drawn back to front so that one petal can sit over another. **They are the same drawing in light and dark mode.** Other colour icons get a dark-mode copy with a pale outline, but William preferred these left as they are on the dark background, so the script skips any icon whose name starts `shape-` (`SAME_IN_DARK` in `build_design_assets.py`). The cost, which he saw: bare stalks and the spokes of the umbel, drawn only in the outline colour, are faint in dark mode. They were one-colour outlines for an hour on 14 November 2026, until William asked for them to be more realistic.
+- **The shade is its own colour**, `#0A2E1C`, laid thinly over what is beneath. It must not be the outline colour: that one turns pale in dark mode, and the shade would then lighten instead of darken.
+- The botany is Claude's own and has not been checked against a book. Project doc 57 lists what was simplified.
+
 ## The app icon
 
 The icon William chose on 14 November 2026 is kept as two drawings in `AppIcon/`: `windfall-app-icon-light.svg` (on cream) and `windfall-app-icon-dark.svg` (on dark green). Project doc 47 says how it was drawn and how to change a wing or the cream outline by hand.
@@ -50,6 +66,29 @@ for look in light dark; do
   python3 -c "from PIL import Image; Image.open('/tmp/icon-$look.png').convert('RGB').save('Windfall/Assets.xcassets/AppIcon.appiconset/windfall-app-icon-$look-1024.png')"
 done
 ```
+
+### The Mac's icon
+
+A Mac's icon is kept apart, in `Windfall/AppIconMac.icon`. It is Apple's newer kind of icon (the kind its Icon Composer app makes), which holds the drawing and the background separately, so the Mac can show the cream icon in light mode and the green one in dark mode.
+
+| In `AppIconMac.icon` | What it is |
+|---|---|
+| `Assets/snowdrop-light.svg`, `Assets/snowdrop-dark.svg` | The two drawings from `AppIcon/`, each with its one background rectangle taken out |
+| `icon.json` | Which drawing and which background colour go with which mode |
+
+After changing a drawing in `AppIcon/`, copy it into `AppIconMac.icon/Assets` under the name above and delete its background line, the one that reads `<rect width="1024" height="1024" fill="..."/>`. To change a background colour, change it in `icon.json`.
+
+To see what the Mac will make of it, without building the app (a picture for each mode: `Default`, `Dark`, `TintedLight`, `TintedDark`, `ClearLight`, `ClearDark`):
+
+```
+"/Applications/Xcode.app/Contents/Applications/Icon Composer.app/Contents/Executables/ictool" \
+  Windfall/AppIconMac.icon --export-image --output-file /tmp/icon-dark.png \
+  --platform macOS --rendition Dark --width 512 --height 512 --scale 1
+```
+
+The same tool says what is wrong if `icon.json` has a mistake in it. The file can also be opened in Icon Composer (Xcode's menu, Open Developer Tool).
+
+The Mac build is pointed at this icon by one line in the project's settings, `"ASSETCATALOG_COMPILER_APPICON_NAME[sdk=macosx*]" = AppIconMac;`. iPhone and iPad builds do not use it.
 
 ## What is in Reference
 

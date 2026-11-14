@@ -1,3 +1,274 @@
+# 14 November 2026, 21:44: the Mac's icon follows light and dark mode
+
+**By the "Mac icon" chat, on the branch `mac-icon-dark`.** William, 21:32, once the cream icon was showing in the Dock: "The mac icon should also respond to the light and dark mode".
+
+**Why the icon of 20:57 could not do it.** That icon was a set of plain pictures in the Mac's slots of `AppIcon.appiconset`. A Mac slot holds one picture. Only the iPhone's and iPad's slots have a second, dark one.
+
+**What a Mac wants instead** is Apple's newer kind of icon, a folder whose name ends in `.icon` (the kind its Icon Composer app makes). It holds the drawing and the background apart, so the Mac can change either with the mode. The Mac now has one, `Windfall/AppIconMac.icon`:
+
+| File | What it is |
+|---|---|
+| `AppIconMac.icon/Assets/snowdrop-light.svg` | The light drawing from `Design/AppIcon`, with its cream background rectangle taken out |
+| `AppIconMac.icon/Assets/snowdrop-dark.svg` | The dark drawing (the thin cream outline), with its green background rectangle taken out |
+| `AppIconMac.icon/icon.json` | The instructions: which drawing and which background colour for which mode |
+
+**What `icon.json` says, a piece at a time:**
+
+```
+"fill-specializations": [
+  { "value": { "solid": "srgb:0.98039,0.93333,0.87843,1.00000" } },
+  { "appearance": "dark", "value": { "solid": "srgb:0.02353,0.25882,0.10588,1.00000" } }
+]
+```
+
+The background. `fill` is the colour behind the drawing. A "specialization" is a value for one mode. The first line names no mode, so it is the ordinary one: cream. The second is for `dark`: the icon's dark green. A colour is written as red, green, blue and solidness, each from 0 to 1. Cream `#FAEEE0` is 250, 238 and 224 out of 255, which is 0.98, 0.93 and 0.88.
+
+```
+"image-name-specializations": [
+  { "value": "snowdrop-light.svg" },
+  { "appearance": "dark", "value": "snowdrop-dark.svg" }
+]
+```
+
+The drawing, in the same pattern: the light drawing ordinarily and the dark one in dark mode.
+
+```
+"glass": false     "specular": false     "shadow": { "kind": "none" }     "translucency": { "enabled": false }
+```
+
+Apple's glass look, switched off. Left on, the Mac lays a shine and a shadow over the drawing as if it were a pane of glass. Off, the icon is the flat drawing William approved.
+
+```
+"supported-platforms": { "squares": ["macOS"] }
+```
+
+This icon is for the Mac only.
+
+**How the Mac build is told to use it.** One line, twice, in `Windfall.xcodeproj/project.pbxproj` (once for the Debug build and once for Release):
+
+```
+ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+"ASSETCATALOG_COMPILER_APPICON_NAME[sdk=macosx*]" = AppIconMac;
+```
+
+The first line was there already: the app's icon is the one called `AppIcon`. The second is new. The square brackets are a condition: "when building for a Mac, the name is `AppIconMac`". So an iPhone or iPad build is untouched and still uses the pictures in `AppIcon.appiconset`.
+
+**No Swift changed.** The app's folder is one that Xcode reads whole, so a file put into `Windfall/` is in the app with nothing more to do.
+
+**Taken out again**, because nothing uses them now: the ten Mac slots in `AppIcon.appiconset/Contents.json`, the seven `windfall-app-icon-mac-...png` pictures and `Tools/design/make_mac_app_icon.swift`. They are in the repository's history at `e7cb8be`.
+
+**Two modes come free.** macOS also has a tinted and a clear icon style. The Mac makes both from the same drawing by itself.
+
+# 14 November 2026, 19:20: the to-do cards on Today open out where they are
+
+**Joined to `main` at 21:32 on 14 November 2026** by the night join chat, in its own copy (`~/Developer/windfall-night`, branch `join-14nov-night`). It merged cleanly with the weather work in `TodayView.swift`. Built for the Mac (`nt3-mac.log`) and the simulator (`nt4-sim.log`) together with Eira's more solid bar and the flower shapes: both succeeded. 761 logic tests pass. **It has still not been seen running or tried by hand.**
+
+**By the to-do chat, from William's iPhone. Branch `todo-cards-open`, made from `main` at `71d95d4`. Not in `main`. Written in Claude's cloud workspace: the Mac was not connected, so it has not been built or seen running.**
+
+William, 19:00: "We need to make it so that when you tap to do they expand to give you the whole month". Asked what a tap should do, he chose: the card opens out where it is on Today and lists every job, and a second tap folds it.
+
+## What changed, and why
+
+**Before.** "This week" drew six jobs and "This month" drew five. If there were more, a small "View all" link slid in a separate page. And the month's list was cut short before it was ever drawn: four sowings and three harvests at most, so "View all" did not show the whole month either.
+
+**Now.**
+
+- The heading of each card is a button whenever the card holds more than it shows. Beside the title it says how many are tucked away, "12 more", with a down arrow. A tap opens the card and the cards beneath slide down. The words become "Show fewer" and the arrow turns over.
+- An opened card has "Show fewer" at its foot as well, so a long list can be folded without scrolling back up.
+- **"This month", opened, is the whole month**: every plant whose sowing months include this one and has not been sown this year, every crop due within a fortnight, every seed packet to check, and your own jobs. Folded, it is the same short pick as before.
+- A card stays as it was left, open or folded, after visiting a plant's page and after the app is closed.
+- With "Reduce Motion" on, a card opens at once with no sliding.
+- The "View all" page for jobs (`AllJobsView`) is gone. Nothing else used it.
+
+## The code, explained
+
+### `WeekJobs.swift`: `JobFold`, the sums
+
+Kept apart from the screen so the logic tests can run them.
+
+```swift
+static func rowsShown(of count: Int, folded: Int, isOpen: Bool) -> Int {
+    isOpen ? count : min(count, folded)
+}
+```
+
+`a ? b : c` reads "if a then b, otherwise c". Open: every row. Folded: the smaller of how many there are and how many a folded card holds.
+
+`monthPick(from:)` takes the identifiers of the whole month's jobs and gives back the folded card's short list. It walks the list once, counting sowings (identifiers beginning `sow-`) and harvests (`harvest-`). `continue` means "skip the rest of this turn of the loop", so the fifth sowing and the fourth harvest are passed over. `kept.prefix(monthRows)` then takes the first five.
+
+`headingWords(hidden:isOpen:)` gives "12 more", "Show fewer" or nothing. Its answer is `String?`: the question mark means "a String, or nothing at all". `guard hidden > 0 else { return nil }` reads "carry on only if something is hidden, otherwise hand back nothing".
+
+### `TodayView.swift`
+
+```swift
+@AppStorage("todayWeekIsOpen") private var weekIsOpen = false
+@AppStorage("todayMonthIsOpen") private var monthIsOpen = false
+```
+
+`@AppStorage` is a value SwiftUI saves on the device under the name in quotes and redraws the screen for whenever it changes. Plain `@State` would forget it when Today is rebuilt, which happens each time the page is returned to.
+
+`jobs` no longer has `.prefix(4)` and `.prefix(3)` on its two loops. It now works out the whole month, and the folded card asks `JobFold.monthPick` for its short list.
+
+```swift
+private func jobsHeading(_ title: String, hidden: Int, isOpen: Binding<Bool>) -> some View
+```
+
+One heading for both cards. A `Binding<Bool>` is not a copy of true or false but a handle on the value the screen keeps, so the function can change it. `$weekIsOpen`, with the dollar sign, is how that handle is passed. `isOpen.wrappedValue` is the value inside it.
+
+```swift
+withAnimation(reduceMotion ? nil : .snappy(duration: 0.3)) { isOpen.wrappedValue.toggle() }
+```
+
+`toggle()` flips true to false and back. `withAnimation` tells SwiftUI to move everything that changes because of it over 0.3 seconds. `nil` means no animation.
+
+`.contentShape(.rect)` makes the whole width of the heading answer a tap, not only the words. `.allowsHitTesting(hidden > 0)` switches the button off when there is nothing more to show.
+
+## ⚠️ CHECK: choices that are Claude's
+
+1. **"This week" opens to all of this week's jobs, not to the month.** "This month" is the card that gives the whole month.
+2. **The whole month can be long.** In a spring month with many plants marked as growing it could run to a hundred rows or more. Nothing limits it.
+3. A card stays open until it is folded, even across starting the app again.
+4. The heading is the button, not the whole card: each row is already a link to its plant, and its tick box is a button.
+5. The words "12 more" and "Show fewer".
+6. The folded month's caps are now applied after jobs already in "This week" are left out, where before they were applied first. A folded card can show a sowing it used to drop.
+
+## Checked
+
+| | |
+|---|---|
+| Every file reads as valid Swift (109 files) | Yes |
+| The rules type-check | Yes |
+| Logic tests | 739 pass, 5 of them new |
+| Builds for the Mac, iPhone and iPad | **No** |
+| Seen running | **No** |
+
+`TodayView.swift` is a screen, so here it has only been read as valid Swift. The first Mac build is its real test.
+
+## Not done
+
+- The widgets are unchanged. A widget cannot grow.
+- While the cards are being rearranged (jiggling), a heading does not answer a tap, as with everything else inside a card.
+# 14 November 2026, 21:20: the flower shape drawings keep their dark outline in dark mode
+
+**By the flower shape chat.** William was sent the light-mode drawings unchanged on the dark background, beside the dark-mode copies with a pale outline that the app had been given. He chose the first: "Yeah, that's better. Leave them unchanged."
+
+| File | What and why |
+|---|---|
+| `Tools/design/build_design_assets.py` | New `SAME_IN_DARK`: a colour icon whose name starts `shape-` gets no dark-mode copy, so its one drawing is shown in both modes. Every other colour icon is treated as before |
+| Both asset catalogues | Rebuilt: the twenty `shape-*-dark.svg` copies are gone, and each `Contents.json` lists one picture |
+| `Windfall/FlowerShapeViews.swift`, `Design/README.md` | Comments and notes only |
+
+No Swift code changed. **Not built**: only pictures and their lists changed. The cost William saw and accepted: bare stalks and the umbel's spokes, drawn only in the outline colour, are faint on the dark background.
+
+# 14 November 2026, 20:57: the Mac gets the app icon
+
+**By the "Mac icon" chat, on the branch `mac-app-icon`.** William, 20:52, with a picture of his Dock showing two blank tiles for Windfall: "None of the apps have the icon on the app icon."
+
+**Why the Dock was blank.** The icon went in at 17:36 for iPhone and iPad only. `AppIcon.appiconset/Contents.json` is the list of slots an icon has, and each slot says which kind of device it is for. Every slot in it said `"platform" : "ios"`. A Mac build looked for slots marked `"idiom" : "mac"`, found none, and so made no icon file at all: the built Mac app had no `AppIcon.icns` and no icon named in its `Info.plist`. macOS then draws its blank placeholder. iPhone builds made since 17:36 do carry the icon (`AppIcon60x60@2x.png` is inside them).
+
+**No Swift changed.** Three things were added:
+
+| Where | What |
+|---|---|
+| `Tools/design/make_mac_app_icon.swift` | A short script that makes the Mac's pictures from the iPhone's square one |
+| `AppIcon.appiconset/windfall-app-icon-mac-16.png`, `-32`, `-64`, `-128`, `-256`, `-512`, `-1024` | The Mac's pictures, made by that script from the light icon |
+| `AppIcon.appiconset/Contents.json` | Ten Mac slots added. The three iPhone and iPad slots are as they were |
+
+**Why the Mac needs different pictures.** An iPhone takes a plain square and rounds the corners itself. A Mac shows the picture as given, so it must arrive already cut to a rounded square with clear space round it: 824 dots across on a 1024 dot canvas, 100 dots clear each side, which are Apple's measurements. It also wants ten slots (16, 32, 128, 256 and 512 points, each at 1x and 2x) where an iPhone wants one. Seven pictures fill the ten slots, because 16 at 2x and 32 at 1x are the same 32 dots, and so on.
+
+**What a Mac slot looks like:**
+
+```
+{
+  "filename" : "windfall-app-icon-mac-32.png",
+  "idiom" : "mac",
+  "scale" : "2x",
+  "size" : "16x16"
+}
+```
+
+`idiom` is the kind of device. `size` is in points, the unit screens are measured in. `scale` is how many dots there are to a point: `2x` is a sharp (Retina) screen, so a 16 point icon at 2x is a picture 32 dots across.
+
+**Checked on the Mac (macOS 27.2.1, Xcode 27.2):** Xcode's asset step (`actool`) for the Mac, with no errors or warnings, now makes `AppIcon.icns` and names `AppIcon` as the icon. The same step for iPhone and iPad gives what it gave before. A stand-in app holding only that icon was made in `/tmp`, and macOS was asked how it would draw it: the cream tile, full size, with no grey box round it (macOS puts an icon of the wrong shape in a grey box). Twelve points of the Mac picture match the same points of the square one exactly, so nothing is flipped or shifted.
+
+**Not done:**
+
+- **A dark icon on the Mac.** These slots take one picture, so the Mac shows the cream icon in light and dark mode. A Mac icon that changes needs Apple's newer icon file, made in its Icon Composer app.
+- The tinted slot for iPhone and iPad is still empty.
+
+# 14 November 2026, 20:25: the flower shape drawings redrawn in colour, with shading (branch `flower-shape-drawings`)
+
+**By the flower shape chat.** William, of the one-colour outlines: "Go back through the files and make them more realistic, but still graphicky. they might need shading." Of a sample of four: "They're much better".
+
+| File | What and why |
+|---|---|
+| `Tools/design/flower_shapes.py` | Rewritten. Each drawing is now built back to front from filled pieces, like cut paper, so a petal can sit in front of another. Shade is a darker tone or a thin dark wash on the side away from the light |
+| `Design/Icons/shape-*.svg` (20) | Redrawn by that script, in colour. Same names, so nothing that looks a drawing up by name changes |
+| The two asset catalogues | Rebuilt by `build_design_assets.py`: the twenty are now "colour icons", each with a dark-mode copy whose outline is pale |
+| `Windfall/FlowerShapeViews.swift` | `FlowerShapePicture` no longer tints the drawing. It has `faded`, which the list uses for a gap: most of the colour washed out, and thinner. A shape's own page always shows it in full colour |
+| `Windfall/DemoGarden.swift`, `MainTabView.swift` | Checking aids: `-demoFlowerShapes YES` opens the list and `-demoFlowerShape Bilabiate` one shape's page |
+| `Design/README.md` | Brought up to date |
+
+The colours are those of the plant each drawing is taken from: blue borage, a pink dog rose, a yellow flag iris, a lilac sage. ⚠️ CHECK: the botany and the colours are Claude's own and have not been checked against a book.
+
+# 14 November 2026, 19:35: flower shapes get drawings and a page each (branch `flower-shape-drawings`, not built)
+
+**By the flower shape chat, from a cloud workspace. Nothing here has been built in Xcode or seen on a screen.** The branch was made from `main` at `71d95d4`.
+
+William, of the Flower shapes page on his iPhone: "We need graphics for these." Then, of the first drawings: "Make them a bit more detailed." Then: "Icons next to text and then when you tap them they can expand into a bigger tile page that has a bigger image and details and then examples of what we have that has these flowers."
+
+## What changed
+
+| File | What and why |
+|---|---|
+| `Design/Icons/shape-*.svg` (20 new) | One drawing for each shape in the Flower Form Guide, each of a real plant: a dead-nettle for bilabiate, borage for stellate, a knapweed for tubular capitate. Black only, so the app paints them green or grey |
+| `Tools/design/flower_shapes.py` (new) | Draws those twenty files. The drawings are kept as code so that a line can be moved by changing a number |
+| `Windfall/Assets.xcassets/Icons`, `WindfallWidgets/Assets.xcassets/Icons` | The same twenty, put there by `build_design_assets.py`. Not edited by hand |
+| `Windfall/FaunaModels.swift` | New `FlowerShapeGuide`: the name of a shape's drawing, which plants have a shape, which shapes the garden has, and which animals are recorded on a shape. Here, not in the screen, so it can be tested without a Mac |
+| `Windfall/FlowerShapeViews.swift` (new) | `FlowerShapeCoverageView`, moved from `FaunaViews.swift` and redrawn: a tile for each shape with its drawing beside the words. New `FlowerShapeDetailView`: the page a tile grows into |
+| `Windfall/FaunaViews.swift` | The old plain list taken out. A note says where it went |
+| `Tools/checks/LogicTests.swift` | Seven new tests, one of which fails if any shape in the real guide has no drawing |
+| `Design/README.md` | A section on the flower shape drawings |
+
+## The list page
+
+It was a standard list in the system's look. It is now drawn like Today (the rule in project doc 00): glass tiles on paper.
+
+- Each tile has the drawing at 56 points, then the name, the description and the insects, then the tick or the dashed circle as before.
+- **A tile grows into its page** when tapped, and the page shrinks back into it on the swipe back. That is `GrowingLink` from `GrowFromTile.swift`, the same piece the Gardens and Wildlife tiles use.
+- The shapes are now in name order. Before, they came in whatever order the database gave them.
+
+## The page for one shape
+
+- The drawing at 200 points on a card of its own.
+- The plain word for the shape, its name in the title serif, and a tag: "In your garden" or "A gap in your garden".
+- **The shape**: the guide's description and note.
+- **Who it feeds**: the guide's insects, then every animal the Plant-Fauna Links sheet records on a flower of this shape, as small labels.
+- **In your garden**: the growing plants that have the shape. Each opens that plant's page.
+- **On your list to buy**: the same for plants still to buy. Left out when there are none.
+- **Plants to try**, or **Other plants with this shape** when the garden already has one: the guide's own examples.
+
+## One change to the count
+
+A plant now also counts as having a shape when its own "Flower Form" names one. Before, only the links sheet counted. Four plants in the starter data carry "Stellate" there, so "Shapes present" may go up by one where none of them is in the links sheet. ⚠️ CHECK with William that a plant's own Flower Form should count.
+
+## Checked
+
+- `Tools/checks/run-checks.sh` with Swift 6.3.1: all 110 Swift files pass the syntax check, the logic files pass the type check, the cross-file checks are clean, and **741 tests pass** (734 before).
+- `build_design_assets.py` reports 50 outline icons, up from 30, and changed no existing file.
+
+## Not checked
+
+- **It has not been compiled.** `FlowerShapeViews.swift` is screen code, which these checks only read for syntax. The first build in Xcode may find mistakes.
+- How the drawings look when Xcode draws them, at 56 or at 200 points.
+- The tile growing into its page, on a real iPhone.
+- On a Mac the page slides in as every page does there: `GrowingLink` only grows on iPhone and iPad.
+
+## For the chat that builds it
+
+1. Merge `main` into `flower-shape-drawings` first, then build it for the Mac and the simulator.
+2. Look at Wildlife, Species, Flower shape coverage, and open a shape the garden has and a gap.
+3. Join it to `main` only once it builds and William has seen it.
 # 14 November 2026, 20:10: plant drawings added to the Design folder
 
 **By the plant graphics chat.** William, 18:15: "Could you create graphics for all the plants I'm growing and have seeds for. Create a graphic for each phase of their life that are relevant." At 19:06: "Make them a bit more detailed and do them all". At 20:06: "Connect to my mac to attach changes to the main file".
@@ -16,6 +287,21 @@
 **They are a first pass and William has not approved them.** Ten kinds are drawn by hand and 162 are built from templates with Claude's own settings for each plant, none yet checked. Project docs 58 and 59.
 
 **Not done:** showing a drawing on a plant's card or page. That is Swift work for a chat that builds.
+# 14 November 2026, 19:40: Eira's open bar is more solid
+
+**By the "bar opacity" chat, on the branch `eira-bar-opaque`. In `main` since 20:40. It builds for the simulator (`bo1-sim.log`, 20:31). Not yet seen on any device.**
+
+William, 19:34, with a picture of the Journal page on his iPhone: the day's entries and photos showed through the open bar and ran into "Tell Eira". "Could you make Eira's bar more opaque".
+
+**What changed.** One file, `EiraFloatingBar.swift`.
+
+- The open bar now has a layer of the paper's colour inside its glass:
+  `.background(Theme.paper.opacity(expanded ? Self.barFill : 0), in: .capsule)`.
+  `.background(..., in: .capsule)` paints a colour behind the bar's buttons and words, in the bar's own pill shape. `Theme.paper` is the page's colour, so it is cream in light mode and dark green in dark mode. `.opacity(...)` sets how solid it is. `expanded ? x : 0` means "x when the bar is open, otherwise 0", so the closed snowdrop keeps its clear glass.
+- `barFill` is a new named number, 0.85. 0 is clear glass and 1 is solid paper. It is the one number to change if the bar should be more or less solid.
+- The glass itself is untouched, so the bar keeps its rim and its shine when pressed.
+
+**⚠️ CHECK:** 0.85 is Claude's choice. It needs a build and a look in light and dark mode.
 
 # 14 November 2026, 18:40: seven branches joined into main
 
