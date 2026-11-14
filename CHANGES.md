@@ -9,7 +9,7 @@ it is first built, and treat how everything here looks as untried.
 
 ## 14 November 2026, 17:13: Eira's lookups in one closed bubble, and a card for the plant
 
-**On the branch `eira-thinking-bubble`, made from `main` (`0ba7173`), with `main` (`43e8a3a`, the panel that grows out of Eira's bar) merged into it at 17:15. Not built.** It was written in a cloud workspace with no Mac. Every file reads as valid Swift, the logic files pass the type check and 615 logic tests pass, 17 of them new. Those checks do not build screens, and three of the files changed are screens (`EiraChatView.swift`, `EiraChatCards.swift`, `EiraFloatingBar.swift`). **Expect things to put right at the first build in Xcode, and treat how it looks as untried.**
+**In `main` since 18:12.** Written on the branch `eira-thinking-bubble` in a cloud workspace with no Mac, then built on the Mac from 17:31 once William linked the chat to it and said, at 17:29, "add it into the next build". `main` was merged into the branch four times on the way (`43e8a3a`, `0c4857f`, `c8de15e`, `8341a3c`), because five other chats joined work to `main` in that hour. **It built for the Mac and the simulator with no errors at the first attempt** (`bb1`), and again after each later merge (`bb2`, `bb3`, in `DerivedData/Windfall-bubble`). 629 logic tests pass, 17 of them new. Seen as still pictures with the example garden (`shots/bb2-*`, `bb3-*`): the closed bubble and the plant card in the panel on an 11-inch iPad Pro and an iPhone 17 Pro, light and dark, and the bubble open with its first lookup open. **Not tried by hand: tapping the bubble, tapping a lookup, tapping the card and the plant's page that opens. Not seen: the Mac's own window, and the bubble while she is still replying.**
 
 **Why.** William, 17:02, with a picture of Eira's chat on his iPhone after asking "Find all information about comfrey": "Eira could work a bit better. The searches that it does to present me with an answer should be in a closed 'thinking' bubble, unless you tap it to see what it's doing. This kind of search should also present you to a link to the database information you have as a little card." The picture showed four grey rows (`search_garden`, `plant_visitors`, `search_notes`, `lookup_species`) between his question and her answer. It also showed two faults he did not mention: her answer began "I have no sowings recorded for last week.", and the bold and italic marks were on screen as asterisks.
 
@@ -69,11 +69,12 @@ Rule 8 of Eira's instructions gives an example of right wording: "I have no sowi
 
 ### 6. A checking aid
 
-`-demoOpen eira-lookups`, with the example garden, opens her chat on an example of William's question with three lookups, the closed bubble and the comfrey's card. No model is asked.
+`-demoOpen eira-lookups`, with the example garden, opens her chat on an example of William's question with three lookups, the closed bubble and the comfrey's card. No model is asked. `-demoOpen eira-lookups-open` is the same with the bubble and its first lookup open, because a script cannot tap.
 
 ### Not done
 
-- **Nothing here has been built or seen.**
+- **Nothing here has been pressed by hand.**
+- In the panel in light mode the plant's card has almost no edge, because it is glass lying on glass. It reads as a card in dark mode and in a sheet.
 - Drawings of each plant on the cards, which William raised in the same message as "a side note". Not started. The chat uses the Plants page's card, so a drawing added to that card will show in both places.
 - In the picture her answer also said nothing was recorded about pollinators visiting comfrey, straight after giving what `plant_visitors` had found. That is the model, and is not changed here.
 - Her spoken replies, if switched on, are still handed the reply with its asterisks.
