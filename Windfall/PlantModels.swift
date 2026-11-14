@@ -250,6 +250,22 @@ final class Planting {
         (harvests ?? []).reduce(0) { $0 + $1.weightInGrams }
     }
 
+    /// The succession round a new sowing of `plant` on `day` would be:
+    /// one more than its sowings already made that year. Nil for the
+    /// first sowing of the year, which needs no number.
+    ///
+    /// Only seed is counted. Plants going in are not a round of sowing,
+    /// so a planting neither has a round nor uses one up. Before 14
+    /// November 2026 plantings were counted too.
+    static func nextRound(for plant: Plant, on day: Date, calendar: Calendar = .current) -> Int? {
+        let year = calendar.component(.year, from: day)
+        let sownThatYear = (plant.plantings ?? []).filter { earlier in
+            guard earlier.startedFrom != .plant, let sown = earlier.dateSown else { return false }
+            return calendar.component(.year, from: sown) == year
+        }
+        return sownThatYear.isEmpty ? nil : sownThatYear.count + 1
+    }
+
     /// The number that tells you whether a seed packet is still worth sowing.
     var germinationRate: Double? {
         guard let sown = quantitySown, sown > 0,

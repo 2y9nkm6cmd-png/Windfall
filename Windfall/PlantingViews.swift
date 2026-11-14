@@ -257,16 +257,13 @@ struct NewPlantingView: View {
         }
     }
 
-    /// Next succession round for this plant this year — so carrots sown
-    /// every ten days number themselves.
+    /// Next succession round for this plant this year, so carrots sown
+    /// every ten days number themselves. Nil when plants are going in:
+    /// a round is a round of sowing. The counting is in
+    /// `Planting.nextRound`, where it is tested.
     private var suggestedRound: Int? {
-        guard let selectedPlant else { return nil }
-        let year = Calendar.current.component(.year, from: dateSown)
-        let thisYear = (selectedPlant.plantings ?? []).filter {
-            guard let sown = $0.dateSown else { return false }
-            return Calendar.current.component(.year, from: sown) == year
-        }
-        return thisYear.isEmpty ? nil : thisYear.count + 1
+        guard let selectedPlant, !isPlanting else { return nil }
+        return Planting.nextRound(for: selectedPlant, on: dateSown)
     }
 
     var body: some View {
