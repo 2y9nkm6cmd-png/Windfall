@@ -30,6 +30,15 @@
 //  itself. The row holds the twelve months many times over, so December
 //  leads on to January (see `YearCalendar.monthPageCount`).
 //
+//  On a Mac the row is moved by hand instead (William, 14 November
+//  2026, 16:49: the iPhone's swipe is "exactly as I want it... like
+//  you're dragging something. This is how I want it to work with two
+//  finger swipe on the mac"). Three pages are laid in a row, the month
+//  showing with its neighbours either side, and the row is drawn as far
+//  across as two fingers on the trackpad have moved. Lifting the fingers
+//  lets it slide on to the next month or settle back. See `handRow`,
+//  `MonthDrag` and `MonthSwipes`.
+//
 //  Asked for by William on 14 November 2026: "when you click or tap the
 //  month at the top of this page, you can see the month bigger and see
 //  what needs to be planted that month".
@@ -61,11 +70,27 @@ struct YearMonthView: View {
     /// How many plants a card lists before it offers "Show all".
     private let shortList = 10
 
+    /// How far the row of months has been dragged sideways, on a Mac.
+    /// See `MonthDrag` at the foot of this file.
+    @State private var monthDrag = MonthDrag()
+
     #if os(macOS)
-    /// Watches the Mac's trackpad for two fingers swiped sideways. See
+    /// Watches the Mac's trackpad for two fingers moving sideways. See
     /// `MonthSwipes` at the foot of this file.
     @State private var trackpadSwipes = MonthSwipes()
     #endif
+
+    /// True where the row of months is moved by hand: on a Mac, whose
+    /// trackpad does not scroll a row of pages the way a finger does on
+    /// an iPhone. (A checking aid, `-demoMonthMacRow YES`, gives the
+    /// Mac's row to an iPad in the simulator, where it can be looked at.)
+    private var movesRowByHand: Bool {
+        #if os(macOS)
+        return true
+        #else
+        return DemoGarden.usesMacMonthRow
+        #endif
+    }
 
     init(month: Int, plantKind: PlantKind? = nil) {
         // `_shownPage` with the underscore is the store behind the
@@ -113,33 +138,30 @@ struct YearMonthView: View {
         GeometryReader { geometry in
             let isWide = geometry.size.width >= 720
 
-            // The row of months. It scrolls sideways.
-            ScrollView(.horizontal) {
-                // "Lazy" means a page is only built when it is about to
-                // slide into view, so 240 pages cost no more than three.
-                LazyHStack(alignment: .top, spacing: 0) {
-                    ForEach(0..<YearCalendar.monthPageCount, id: \.self) { page in
-                        monthPage(YearCalendar.month(atPage: page), from: chosenFrom, isWide: isWide)
-                            .frame(width: geometry.size.width, height: geometry.size.height)
+            if movesRowByHand {
+                handRow(from: chosenFrom, isWide: isWide, space: geometry.size)
+            } else {
+                // The row of months. It scrolls sideways.
+                ScrollView(.horizontal) {
+                    // "Lazy" means a page is only built when it is about
+                    // to slide into view, so 240 pages cost no more than
+                    // three.
+                    LazyHStack(alignment: .top, spacing: 0) {
+                        ForEach(0..<YearCalendar.monthPageCount, id: \.self) { page in
+                            monthPage(YearCalendar.month(atPage: page), from: chosenFrom, isWide: isWide)
+                                .frame(width: geometry.size.width, height: geometry.size.height)
+                        }
                     }
+                    // Marks each page as a place the scrolling can stop.
+                    .scrollTargetLayout()
                 }
-                // Marks each page as a place the scrolling can stop.
-                .scrollTargetLayout()
+                // Stops on a whole page, never between two.
+                .scrollTargetBehavior(.paging)
+                // Ties the row to `shownPage` both ways: a swipe changes
+                // the number, and changing the number scrolls the row.
+                .scrollPosition(id: $shownPage)
+                .scrollIndicators(.hidden)
             }
-            // Stops on a whole page, never between two.
-            .scrollTargetBehavior(.paging)
-            // Ties the row to `shownPage` both ways: a swipe changes the
-            // number, and changing the number scrolls the row.
-            .scrollPosition(id: $shownPage)
-            .scrollIndicators(.hidden)
-            #if os(macOS)
-            // On a Mac the row is moved only by `shownPage`. Two fingers
-            // on the trackpad are read by `MonthSwipes`, which turns one
-            // page for each swipe. Left to itself the Mac would send the
-            // sideways scroll to the page under the pointer, which only
-            // scrolls up and down, and nothing would turn.
-            .scrollDisabled(true)
-            #endif
         }
         .paperScreen()
         .navigationTitle(monthTitle)
@@ -159,7 +181,17 @@ struct YearMonthView: View {
             // While this page is showing, a sideways swipe turns the
             // month, and the swipe that goes back a page stands aside.
             PointerClaims.monthPageIsOpen = true
-            trackpadSwipes.start { steps in turnPages(by: steps) }
+            trackpadSwipes.start(
+                // While the fingers move, the row goes with them, no
+                // further than one page either way.
+                whenDragged: { travel in
+                    guard !monthDrag.isSettling else { return }
+                    let most = monthDrag.pageWidth
+                    monthDrag.across = max(-most, min(most, travel))
+                },
+                // When they lift, it slides on or settles back.
+                whenLifted: { steps in settleRow(turning: steps) }
+            )
         }
         .onDisappear {
             PointerClaims.monthPageIsOpen = false
@@ -175,6 +207,46 @@ struct YearMonthView: View {
             if steps != 0 { turnPages(by: steps) }
             if let then { showMonth(then) }
         }
+        // A checking aid: holds the Mac's row part-way through a drag.
+        // See DemoGarden.dragsMonthRow.
+        .task {
+            guard let held = DemoGarden.dragsMonthRow else { return }
+            try? await Task.sleep(for: .seconds(1.5))
+            monthDrag.across = held
+        }
+    }
+
+    /// The row of months on a Mac: the month showing with the month
+    /// before on its left and the month after on its right. Only the
+    /// middle one is in view until the row is dragged.
+    private func handRow(from chosenFrom: [Plant], isWide: Bool, space: CGSize) -> some View {
+        let threePages = [pageNow - 1, pageNow, pageNow + 1]
+
+        // `MonthRowSlide` draws the row as far across as it has been
+        // dragged. It is a view of its own so that a drag redraws only
+        // the row's place, and not every card on the three pages.
+        return MonthRowSlide(monthDrag: monthDrag) {
+            HStack(alignment: .top, spacing: 0) {
+                ForEach(threePages, id: \.self) { page in
+                    monthPage(YearCalendar.month(atPage: page), from: chosenFrom, isWide: isWide)
+                        .frame(width: space.width, height: space.height)
+                        // The two at the sides are for looking at as
+                        // they slide past. They take no clicks, and
+                        // VoiceOver does not read them.
+                        .allowsHitTesting(page == pageNow)
+                        .accessibilityHidden(page != pageNow)
+                }
+            }
+        }
+        // The row is three pages wide. This frame is one page wide and
+        // holds the row by its middle, so the middle page fills it.
+        .frame(width: space.width, height: space.height)
+        // Hides whatever falls outside the frame: the pages either side.
+        .clipped()
+        // Keeps a note of the page's width, which is how far the row
+        // slides to turn a page. `initial: true` runs it once at the
+        // start as well as on every change.
+        .onChange(of: space.width, initial: true) { monthDrag.pageWidth = space.width }
     }
 
     /// One month: its name, its count and its cards, scrolling up and
@@ -216,6 +288,10 @@ struct YearMonthView: View {
 
     /// Turns the pages forward (1) or back (-1), sliding.
     private func turnPages(by steps: Int) {
+        if movesRowByHand {
+            settleRow(turning: steps)
+            return
+        }
         let target = pageNow + steps
         guard (0..<YearCalendar.monthPageCount).contains(target) else {
             // Off the end of the pages, after ten years of turning one
@@ -240,7 +316,46 @@ struct YearMonthView: View {
         // says: with no animation.
         var quiet = Transaction()
         quiet.disablesAnimations = true
-        withTransaction(quiet) { shownPage = target }
+        withTransaction(quiet) {
+            shownPage = target
+            monthDrag.across = 0
+        }
+    }
+
+    /// On a Mac: finishes a drag, or does the whole of a turn when an
+    /// arrow is pressed. With 1 the row slides left until the month
+    /// after fills the page, with -1 it slides right to the month
+    /// before, and with 0 it settles back where it was.
+    private func settleRow(turning steps: Int) {
+        // One turn at a time.
+        guard !monthDrag.isSettling else { return }
+        guard steps != 0 else {
+            withAnimation(.smooth(duration: 0.25)) { monthDrag.across = 0 }
+            return
+        }
+
+        monthDrag.isSettling = true
+        let landing = steps > 0 ? -monthDrag.pageWidth : monthDrag.pageWidth
+        var target = pageNow + steps
+        if !(0..<YearCalendar.monthPageCount).contains(target) {
+            target = YearCalendar.middlePage(for: YearCalendar.month(atPage: target))
+        }
+
+        // First the slide. `completion` is run when it has finished.
+        withAnimation(.smooth(duration: 0.3)) {
+            monthDrag.across = landing
+        } completion: {
+            // Then, in one go and with no animation: the month that slid
+            // into view becomes the month showing, and the row goes back
+            // to rest. The two cancel out, so nothing is seen to move.
+            var quiet = Transaction()
+            quiet.disablesAnimations = true
+            withTransaction(quiet) {
+                shownPage = target
+                monthDrag.across = 0
+            }
+            monthDrag.isSettling = false
+        }
     }
 
     // MARK: The top of the page
@@ -489,17 +604,54 @@ struct YearMonthView: View {
 }
 
 
+// MARK: - The row of months, moved by hand
+
+/// How far the row of months has been dragged, on a Mac.
+///
+/// It is a `class` marked `@Observable`, kept apart from the page, for
+/// one reason: speed. A drag changes `across` a hundred times a second.
+/// Only a view that reads `across` is redrawn when it changes, and the
+/// only one that does is `MonthRowSlide` below, which just draws the row
+/// in a new place. The pages and their cards are left alone.
+@Observable
+final class MonthDrag {
+    /// How far the row is drawn to the right of where it rests, in
+    /// points. Less than zero is to the left.
+    var across: CGFloat = 0
+    /// True while the row is sliding the rest of the way by itself.
+    var isSettling = false
+    /// How wide one page is.
+    var pageWidth: CGFloat = 800
+}
+
+/// Draws the row of months as far across as it has been dragged.
+///
+/// `Months` in angle brackets stands for "whatever kind of view the row
+/// turns out to be". `@ViewBuilder` lets the row be written between
+/// braces where this is used.
+struct MonthRowSlide<Months: View>: View {
+
+    let monthDrag: MonthDrag
+    @ViewBuilder let monthRow: Months
+
+    var body: some View {
+        // `offset` draws a view somewhere else without moving anything
+        // around it.
+        monthRow.offset(x: monthDrag.across)
+    }
+}
+
 #if os(macOS)
 import AppKit
 
 // MARK: - Two fingers on a Mac's trackpad
 
-/// Watches the Mac's trackpad while a month's page is open, and says
-/// when two fingers have been swiped sideways.
+/// Watches the Mac's trackpad while a month's page is open. It says how
+/// far two fingers have moved sideways, as they move, and which way to
+/// turn when they lift.
 ///
 /// It works the way `BackSwipe` does in PageZoom.swift: the Mac passes
-/// every scroll in the app through here first. Nothing is used up, so
-/// the page under the pointer still scrolls up and down.
+/// every scroll in the app through here first.
 ///
 /// It is a `class`, not a `struct`, because the Mac holds on to it
 /// between one piece of a scroll and the next, and it has to remember
@@ -509,58 +661,111 @@ final class MonthSwipes {
     private var watcher: Any?
     private var travel: CGFloat = 0
     private var rise: CGFloat = 0
-    private var hasFired = false
-    private var whenSwiped: ((Int) -> Void)?
+    /// Whether this swipe is a sideways one. Nil until the fingers have
+    /// moved far enough to tell.
+    private var isSideways: Bool?
+    /// True after a sideways swipe, while the Mac is still sending the
+    /// glide that follows the fingers lifting.
+    private var swallowsGlide = false
+    private var whenDragged: ((CGFloat) -> Void)?
+    private var whenLifted: ((Int) -> Void)?
 
-    /// How far two fingers must travel sideways, in points.
+    /// How far two fingers must have travelled, in points, for lifting
+    /// them to turn the month.
     private let needed: CGFloat = 60
 
-    /// Starts watching. `whenSwiped` is handed 1 for fingers moving
-    /// left (on to the next month) and -1 for fingers moving right.
-    func start(_ whenSwiped: @escaping (Int) -> Void) {
-        self.whenSwiped = whenSwiped
+    /// Starts watching.
+    /// - `whenDragged` is handed how far the fingers have moved so far:
+    ///   more than zero to the right, less to the left.
+    /// - `whenLifted` is handed 1 to go on to the next month (the fingers
+    ///   went left), -1 for the month before, or 0 to stay.
+    func start(whenDragged: @escaping (CGFloat) -> Void, whenLifted: @escaping (Int) -> Void) {
+        self.whenDragged = whenDragged
+        self.whenLifted = whenLifted
         guard watcher == nil else { return }
         watcher = NSEvent.addLocalMonitorForEvents(matching: .scrollWheel) { [weak self] scroll in
-            self?.scrolled(scroll)
-            return scroll
+            // Handing back nil uses the scroll up, so nothing else sees
+            // it. Handing the scroll back lets it carry on as usual.
+            (self?.usedUp(scroll) ?? false) ? nil : scroll
         }
     }
 
     func stop() {
         if let watcher { NSEvent.removeMonitor(watcher) }
         watcher = nil
-        whenSwiped = nil
+        whenDragged = nil
+        whenLifted = nil
     }
 
-    private func scrolled(_ scroll: NSEvent) {
-        // Only a trackpad's two-finger scroll has a beginning and an
-        // end. A mouse wheel, and the glide after the fingers lift, are
-        // not swipes.
-        guard scroll.momentumPhase.isEmpty, !scroll.phase.isEmpty else { return }
+    /// Looks at one piece of a scroll. Returns true if it was used up
+    /// here and should go no further.
+    private func usedUp(_ scroll: NSEvent) -> Bool {
+        // After the fingers lift, a trackpad keeps sending a glide that
+        // dies away. After a sideways swipe it is used up here, so the
+        // page under the pointer does not drift.
+        if !scroll.momentumPhase.isEmpty {
+            let wasSwallowing = swallowsGlide
+            if scroll.momentumPhase.contains(.ended) || scroll.momentumPhase.contains(.cancelled) {
+                swallowsGlide = false
+            }
+            return wasSwallowing
+        }
+        // A mouse wheel has no beginning or end. It is left to the page.
+        guard !scroll.phase.isEmpty else { return false }
+
         if scroll.phase.contains(.began) || scroll.phase.contains(.mayBegin) {
             travel = 0
             rise = 0
-            hasFired = false
+            isSideways = nil
+            swallowsGlide = false
         }
-        // One page for each swipe, however far the fingers go.
-        guard !hasFired else { return }
+
+        // The fingers have lifted, or the swipe was called off.
+        if scroll.phase.contains(.ended) || scroll.phase.contains(.cancelled) {
+            guard isSideways == true else {
+                isSideways = false
+                return false
+            }
+            isSideways = false
+            swallowsGlide = true
+            var steps = 0
+            if scroll.phase.contains(.ended), abs(travel) > needed {
+                // Fingers to the left pull the next month in from the
+                // right, as a finger does on an iPhone.
+                steps = travel < 0 ? 1 : -1
+            }
+            whenLifted?(steps)
+            // Handed on, so the page under the pointer also hears that
+            // the swipe is over.
+            return false
+        }
+
+        guard isSideways != false else { return false }
         // A sliding switch under the pointer owns a sideways swipe. So
         // does a sheet, such as Eira's chat.
         guard !PointerClaims.isOverSwitch,
-              let window = scroll.window, window.attachedSheet == nil, window.sheetParent == nil else { return }
+              let window = scroll.window, window.attachedSheet == nil, window.sheetParent == nil else {
+            isSideways = false
+            return false
+        }
 
         // Fingers moving right count up. See GlassSwitch for why the
         // sign is turned when "natural scrolling" is off.
         travel += scroll.isDirectionInvertedFromDevice ? scroll.scrollingDeltaX : -scroll.scrollingDeltaX
         rise += abs(scroll.scrollingDeltaY)
 
-        // Far enough sideways, and clearly more across than up or down.
-        if abs(travel) > needed && abs(travel) > rise * 2.5 {
-            hasFired = true
-            // Fingers to the left pull the next month in from the
-            // right, as a finger does on an iPad.
-            whenSwiped?(travel < 0 ? 1 : -1)
+        if isSideways == nil {
+            // Wait until the fingers have moved a little, then decide
+            // once: more across than up or down is a sideways swipe.
+            // Anything else is ordinary scrolling, left alone until the
+            // next swipe.
+            guard abs(travel) + rise > 10 else { return false }
+            isSideways = abs(travel) > rise * 1.5
+            guard isSideways == true else { return false }
         }
+
+        whenDragged?(travel)
+        return true
     }
 }
 #endif

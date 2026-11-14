@@ -77,6 +77,67 @@ Rule 8 of Eira's instructions gives an example of right wording: "I have no sowi
 - Drawings of each plant on the cards, which William raised in the same message as "a side note". Not started. The chat uses the Plants page's card, so a drawing added to that card will show in both places.
 - In the picture her answer also said nothing was recorded about pollinators visiting comfrey, straight after giving what `plant_visitors` had found. That is the model, and is not changed here.
 - Her spoken replies, if switched on, are still handed the reply with its asterisks.
+## 14 November 2026, 17:12: on a Mac, a month's page follows two fingers as it turns
+
+**On the branch `month-drag-mac`, made from `main`.** Built for the Mac and the iOS Simulator with no errors (`mv7-mac.log`, `mv7-sim.log`, in `DerivedData/Windfall-month`). 596 logic tests pass. **A simulator has no trackpad, so the Mac's row was given to a 13-inch iPad with a checking aid and looked at there**, with the example garden: the row held 300 points to the right shows April sliding off and March coming in beside it, cut off cleanly at the sidebar (`shots/mv7-drag.png`); the forward arrow slides December on to January and the back arrow April back to March (`mv7-on.png`, `mv7-back.png`). **Not tried by anyone: two fingers on a real trackpad.**
+
+**Why.** William, 16:49: "Currently the month swipe works on the iphone exactly as I want it. So that when you're touching the screen you can see the swiping happening like you're dragging something. This is how I want it to work with two finger swipe on the mac."
+
+**Before, on a Mac.** Two fingers swiped sideways did nothing you could see until they had gone 60 points. Then the month turned by itself.
+
+**Now.** The page moves with the fingers from the start, and the month before or after comes into view beside it. Lift the fingers after 60 points or more and the row slides on to that month. Lift sooner and it settles back. The arrows by the month's name slide the same way. **The iPhone and iPad are not changed.**
+
+**Why the Mac needs its own way.** On an iPhone the months are a row that scrolls sideways, and the system moves it under the finger. On a Mac a sideways scroll goes to whatever is under the pointer, which is a page that only scrolls up and down, so the row never heard it. That is why the first version read the trackpad itself and jumped. This version still reads the trackpad itself, and now moves the row with it.
+
+**How it is built** (`YearMonthView.swift`).
+
+*Three pages in a row.* On a Mac the page draws the month showing with its two neighbours, and shows only the middle one:
+
+```swift
+let threePages = [pageNow - 1, pageNow, pageNow + 1]
+
+MonthRowSlide(monthDrag: monthDrag) {
+    HStack(alignment: .top, spacing: 0) {
+        ForEach(threePages, id: \.self) { page in
+            monthPage(YearCalendar.month(atPage: page), from: chosenFrom, isWide: isWide)
+                .frame(width: space.width, height: space.height)
+        }
+    }
+}
+.frame(width: space.width, height: space.height)
+.clipped()
+```
+
+- `HStack` lays the three pages side by side. Each is made exactly one page wide.
+- The `.frame` after it is one page wide and holds the row by its middle, so the middle page fills it. `.clipped()` hides what falls outside: the pages either side.
+- `MonthRowSlide` draws the row somewhere else: `monthRow.offset(x: monthDrag.across)`. `offset` moves where a view is drawn without moving anything around it. As `across` grows, the row slides right and the month before comes into view.
+
+*The number that moves it.* `MonthDrag` is a small class marked `@Observable`, holding `across`: how far the row has been dragged. Only a view that reads `across` is redrawn when it changes, and only `MonthRowSlide` reads it. So a drag, which changes it about a hundred times a second, redraws the row's place and none of the cards.
+
+*The trackpad.* `MonthSwipes` already listened to the Mac's scrolling. It used to count up to 60 points and then say "turn". It now reports the distance all the way along (`whenDragged`), and which way to turn when the fingers lift (`whenLifted`).
+
+*Finishing the turn.*
+
+```swift
+withAnimation(.smooth(duration: 0.3)) {
+    monthDrag.across = landing
+} completion: {
+    shownPage = target
+    monthDrag.across = 0
+}
+```
+
+- `withAnimation` glides `across` to `landing`, which is one page's width to the left or right, so the neighbour ends up filling the page.
+- `completion` is run when the glide has finished. In one go, with no animation, the neighbour becomes the month showing and the row goes back to rest. The two cancel out, so nothing is seen to move. The row is then ready for the next swipe, with new neighbours.
+
+**Changed besides.** While the fingers are moving sideways, the scroll is used up by the row, so the page under the pointer does not creep up or down as well. The glide the Mac sends after the fingers lift is used up too.
+
+**Checking aids**, because a simulator has no trackpad: `-demoMonthMacRow YES` gives an iPad the Mac's row of three pages, and with it `-demoMonthDrag 300` holds the row 300 points to the right, as if part-way through a swipe.
+
+**Choices that are Claude's.** ⚠️ CHECK each.
+
+- Lifting after 60 points turns the month, however quick or slow the swipe. An iPhone also goes by how fast the finger was moving. This does not.
+- One swipe turns one month at most.
 
 ## 14 November 2026, 16:50: a conversation grows out of Eira's bar
 
@@ -167,6 +228,36 @@ The Journal page and the bar are separate views, so the page cannot open the bar
 - Today's Note button and the Journal offer on Today still open the journal's conversation as a sheet.
 - Dragging the panel's top edge to resize it.
 - The panel does not shrink to fit a short conversation.
+
+## 14 November 2026, 16:45: Eira's bar can be put away by touch on an iPhone, and the carrot-family warning knows 19 more genera
+
+**On the branch `iphone-first-fixes`, made from `main` (`db45898`).** Built and signed for William's iPhone 16 with no errors (`iphone-5.log`, in `DerivedData/Windfall-iphone`) and installed on it at 16:44. Every file reads as valid Swift. **The full logic tests were not run**: they need Linux with Swift, and one test was added. **Nothing here has been tried by hand.** The two touch gestures can only be judged on the phone.
+
+### 1. Putting Eira's bar away (`EiraFloatingBar.swift`)
+
+**Why.** William, 16:04, on first trying the app on his iPhone: once the bar is open "you can't tap out of the chat or swipe the chat down to get rid of it. Tapping the eira icon removes it though." On a Mac the Escape key closes the bar. An iPhone has no Escape key, so the snowdrop was the only way.
+
+**What changed, on an iPhone or iPad only:**
+
+- **A touch on the page closes the bar.** `touchAwayLayer` is an invisible layer that exists only while the bar is open. `Color.clear` draws nothing, and `contentShape(Rectangle())` makes that nothing count as somewhere a finger can land. It is 4,000 points square and lined up with the bottom of the bar, so it reaches up over the whole page. It sits behind the bar (`.background`), so the bar's own buttons get their taps first. A tap on it, or the start of a scroll, calls `close`.
+- **The first touch only closes the bar.** It is not passed on to the page, so nothing is opened by accident.
+- **A swipe down on the bar closes it.** `swipeDownPutsAway` watches for a drag with `simultaneousGesture`, which notices the drag without taking touches away from the text box and buttons. It counts when the finger went at least 30 points down, and further down than sideways.
+- `canBePutAway` is true only when the bar was opened by hand. It is false when the bar is pinned open and on the Journal page, where the bar is always open, so neither of those is changed.
+
+**A Mac is left alone**, with `#if os(iOS)`. A click that did nothing but close the bar would be a nuisance there, and a downward drag across a text box is how text is selected.
+
+**Joined to the panel, 17:15.** `main` gained "a conversation grows out of Eira's bar" (the entry above) while this was on its branch, and both had changed the same lines. The bar's new shape is `main`'s. The swipe and the touch layer were put back on the bar inside it, and `canBePutAway` now also stands down while a conversation is in the panel, because the page behind the panel is meant to go on working. William had tried the version before this join on his iPhone at 16:57 ("It seems to work"). The joined version was built and put on the phone afterwards.
+
+**To check on the phone:** that a tap above the open bar closes it, that a swipe down on the bar closes it, that the bar's own buttons still work, and that the page scrolls normally once the bar is closed.
+
+### 2. The carrot-family warning (`SpeciesTable.swift`)
+
+**Why.** The image model's list on the phone was widened the same afternoon from 778 names to 6,421 (project doc 50). The warning works from `carrotFamilyGenera`, a list of 31 genera. iNaturalist has confirmed UK records for carrot-family plants in 50 genera. Without the other 19, a hemlock look-alike could have been named as one of them with no warning.
+
+**What changed.** The 19 are added: Astrantia, Beruladium, Bunium, Bupleurum, Eryngium, Falcaria, Ferula, Libanotis, Ligusticum, Meum, Orlaya, Peucedanum, Physospermum, Sanicula, Selinum, Tordylium, Trinia, Trocdaris and Visnaga. Some look nothing like hemlock (sea holly, great masterwort) and get the warning all the same: it is better given too often than too seldom. **CHECK: the genera and their common names are iNaturalist's, fetched on 14 November 2026, and have not been checked against a flora.**
+
+One logic test added: the list holds five of the new genera and 50 in all.
+
 ## 14 November 2026, 16:26: the sidebar's lens follows the fingers again
 
 **On the branch `sidebar-scroll-follows-fingers`, made from `main`.** One line in `MainTabView.swift`, in `lensScrolled(by:)`.
