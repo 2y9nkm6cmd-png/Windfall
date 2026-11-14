@@ -1189,6 +1189,7 @@ struct LogicTests {
         check(SpeciesGuess(candidates: [yellowIris, dropwort], isSure: true).lookAlikeWarning != nil, "a carrot-family plant in second place is enough for the warning")
         check(SpeciesGuess(candidates: [yellowIris, wheatear], isSure: false).lookAlikeWarning == nil && SpeciesGuess(candidates: [], isSure: false).lookAlikeWarning == nil, "a bird that shares a plant's genus name brings no warning, and nor does an empty answer")
         check(DangerousLookAlikes.genus(of: "Conium maculatum") == "Conium" && DangerousLookAlikes.genus(of: "") == "" && DangerousLookAlikes.isCarrotFamily(dropwort.entry) && !DangerousLookAlikes.isCarrotFamily(wheatear.entry) && !DangerousLookAlikes.isCarrotFamily(yellowIris.entry), "the genus is the first word, and the group must be a plant")
+        check(["Selinum", "Peucedanum", "Bunium", "Ligusticum", "Eryngium"].allSatisfy { DangerousLookAlikes.carrotFamilyGenera.contains($0) } && DangerousLookAlikes.carrotFamilyGenera.count == 50, "the carrot-family list holds the 19 genera added for the wide list, 50 in all")
         check(["hemlock", "hemlock water-dropwort", "giant hogweed", "did not sow it yourself"].allSatisfy { DangerousLookAlikes.carrotFamilyWarning.contains($0) }, "the warning names the deadly plants and says what to do")
         // A correction typed as an ordinary message.
         let correctionsRead: [(typed: String, kept: String?)] = [
