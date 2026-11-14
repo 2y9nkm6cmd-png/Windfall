@@ -58,7 +58,9 @@ struct CrossListView: View {
                                              count: geometry.size.width >= 840 ? 2 : 1),
                               spacing: 12) {
                         ForEach(crosses) { crossing in
-                            NavigationLink {
+                            // The cross's page grows out of its card.
+                            // See GrowFromTile.swift.
+                            GrowingLink {
                                 CrossEditor(crossing: crossing)
                             } label: {
                                 card(for: crossing)
