@@ -348,6 +348,56 @@ struct LogicTests {
         await emptyService.bringUpToDate(in: ModelContext(), now: diaryNow, calendar: london)
         check(asked.count == 6 && emptyService.lastMessage == "No garden has a location yet.", "with no garden location nothing is fetched")
 
+        // The weather for now: where to ask about, and when to ask again
+        let retired = Garden(name: "Old plot", siteKey: "old"); retired.latitude = 50; retired.longitude = -1; retired.displayOrder = -1; retired.retiredAt = diaryNow
+        nextDoor.displayOrder = 2; farAway.displayOrder = 1; noPlace.displayOrder = -2
+        let firstPlace = WeatherPlace.garden(among: [nextDoor, farAway, noPlace, retired])
+        check(firstPlace?.latitude == 51.7 && firstPlace?.longitude == -2.4, "the weather is asked about the first garden that has a place and is still in use")
+        check(WeatherPlace.garden(among: [noPlace, retired]) == nil && WeatherPlace.garden(among: []) == nil, "with no garden placed there is nowhere to ask about")
+        check(WeatherPlace.isSameSpot(CLLocationCoordinate2D(latitude: 51.5, longitude: -2.55), CLLocationCoordinate2D(latitude: 51.5004, longitude: -2.5497)) && !WeatherPlace.isSameSpot(CLLocationCoordinate2D(latitude: 51.5, longitude: -2.55), CLLocationCoordinate2D(latitude: 51.52, longitude: -2.55)), "two spots under a kilometre apart share a reading, and two further apart do not")
+        let printBefore = WeatherPlace.fingerprint(of: [home, noPlace])
+        check(printBefore == "home:51.5000,-2.5500" && WeatherPlace.fingerprint(of: [noPlace, home, retired]) == printBefore, "a garden with no place, or one no longer in use, leaves no mark")
+        noPlace.latitude = 51.48; noPlace.longitude = -2.6
+        check(WeatherPlace.fingerprint(of: [home, noPlace]) != printBefore, "giving a garden its place changes the mark, which is what starts a fetch")
+        noPlace.latitude = nil; noPlace.longitude = nil
+        check(WeatherPlace.rounded(51.500174) == 51.5002 && WeatherPlace.rounded(-2.55774) == -2.5577, "a place is kept to four decimal places")
+
+        let nowReply = Data(#"{"current":{"temperature_2m":7.4,"relative_humidity_2m":80,"precipitation":0.0,"cloud_cover":20,"wind_speed_10m":12.0,"weather_code":1},"daily":{"time":["2026-11-14","2026-11-15"],"temperature_2m_min":[-0.2,3.7],"precipitation_sum":[0.0,1.9],"wind_gusts_10m_max":[23.8,32.4]}}"#.utf8)
+        var nowAsked: [String] = []
+        var deviceAsked = 0
+        let gardenSpot = CLLocationCoordinate2D(latitude: 51.5, longitude: -2.55)
+        let deviceSpot = CLLocationCoordinate2D(latitude: 52.2, longitude: -1.9)
+        let nowService = WeatherService()
+        nowService.download = { url in nowAsked.append(url.absoluteString); return nowReply }
+        var reading = await nowService.refresh(gardenAt: gardenSpot, deviceLocation: { deviceAsked += 1; return deviceSpot })
+        check(reading?.temperatureC == 7.4 && nowAsked.count == 1 && nowAsked[0].contains("latitude=51.500") && deviceAsked == 0 && !nowService.isFromDevice && nowService.outlook.count == 2, "with a garden placed, the weather is fetched for the garden and the device is not asked where it is")
+        reading = await nowService.refresh(gardenAt: gardenSpot, deviceLocation: { deviceAsked += 1; return deviceSpot })
+        check(reading?.temperatureC == 7.4 && nowAsked.count == 1, "a reading under a quarter of an hour old is used again")
+        reading = await nowService.refresh(gardenAt: gardenSpot, deviceLocation: { deviceAsked += 1; return deviceSpot }, force: true)
+        check(nowAsked.count == 2, "asking by hand fetches again")
+
+        let roaming = WeatherService()
+        roaming.download = { url in nowAsked.append(url.absoluteString); return nowReply }
+        nowAsked = []; deviceAsked = 0
+        reading = await roaming.refresh(gardenAt: nil, deviceLocation: { deviceAsked += 1; return nil })
+        check(reading == nil && nowAsked.isEmpty && deviceAsked == 1 && !roaming.isFromDevice, "with no garden placed and no position from the device, nothing is fetched")
+        reading = await roaming.refresh(gardenAt: nil, deviceLocation: { deviceAsked += 1; return deviceSpot })
+        check(reading?.temperatureC == 7.4 && nowAsked.count == 1 && nowAsked[0].contains("latitude=52.200") && roaming.isFromDevice && roaming.readingPlace?.latitude == 52.2, "with no garden placed, the weather is fetched for where the device is")
+        reading = await roaming.refresh(gardenAt: nil, deviceLocation: { deviceAsked += 1; return deviceSpot })
+        check(nowAsked.count == 1 && deviceAsked == 2, "while that reading is fresh the device is not asked where it is again")
+        reading = await roaming.refresh(gardenAt: gardenSpot, deviceLocation: { deviceAsked += 1; return deviceSpot })
+        check(nowAsked.count == 2 && nowAsked[1].contains("latitude=51.500") && !roaming.isFromDevice && deviceAsked == 2, "a garden given its place far from the device is fetched for at once, fresh reading or not")
+        let nearby = WeatherService()
+        nearby.download = { url in nowAsked.append(url.absoluteString); return nowReply }
+        nowAsked = []
+        _ = await nearby.refresh(gardenAt: nil, deviceLocation: { gardenSpot })
+        reading = await nearby.refresh(gardenAt: CLLocationCoordinate2D(latitude: 51.5002, longitude: -2.5503), deviceLocation: { gardenSpot })
+        check(nowAsked.count == 1 && reading != nil && !nearby.isFromDevice, "saving the spot the device is at as a garden's place keeps the reading and stops calling it the device's")
+        let offline = WeatherService()
+        offline.download = { _ in throw WeatherDiary.ReplyError(message: "offline") }
+        reading = await offline.refresh(gardenAt: gardenSpot, deviceLocation: { nil })
+        check(reading == nil && offline.lastError == "offline" && offline.current == nil, "with no signal there is no reading and the reason is kept")
+
         // Rearranging the Today screen
         check(TodayArrangement.columns(forWidth: 1200) == 3 && TodayArrangement.columns(forWidth: 840) == 3 && TodayArrangement.columns(forWidth: 700) == 2 && TodayArrangement.columns(forWidth: 390) == 1, "the number of columns follows the width, at the widths Today always changed at")
         let wideToday = TodayArrangement.standard(columns: 3), middleToday = TodayArrangement.standard(columns: 2), narrowToday = TodayArrangement.standard(columns: 1)

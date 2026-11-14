@@ -47,6 +47,9 @@ final class LocationManager: NSObject {
 
     private let manager = CLLocationManager()
     private var continuations: [CheckedContinuation<CLLocation?, Never>] = []
+    /// Anything waiting for the person to answer Apple's "may Windfall
+    /// use your location?" question. See `waitForAnswer()`.
+    private var answerWaiters: [CheckedContinuation<Void, Never>] = []
 
     override init() {
         super.init()
@@ -80,12 +83,20 @@ final class LocationManager: NSObject {
     /// Returns nil if permission is refused or nothing arrives. The caller
     /// decides what to do about that — this doesn't throw, because "no
     /// signal in a hedge" is an ordinary situation rather than an error.
+    ///
+    /// If the person has never been asked whether Windfall may use their
+    /// location, this asks, waits for the answer and then carries on.
+    /// (Until 14 November 2026 it asked and gave up at once, so the first
+    /// tap on any location button did nothing and a second was needed.)
+    /// Pass `mayAsk: false` to stay silent when they have not been asked.
     @discardableResult
-    func currentLocation() async -> CLLocation? {
-        guard isAuthorised else {
+    func currentLocation(mayAsk: Bool = true) async -> CLLocation? {
+        if authorisationStatus == .notDetermined {
+            guard mayAsk else { return nil }
             requestPermission()
-            return nil
+            await waitForAnswer()
         }
+        guard isAuthorised else { return nil }
 
         isRequesting = true
         errorMessage = nil
@@ -97,6 +108,16 @@ final class LocationManager: NSObject {
 
         isRequesting = false
         return fix
+    }
+
+    /// Pauses until the location question has been answered either way.
+    /// The answer arrives in `locationManagerDidChangeAuthorization`
+    /// below, which lets everything waiting here carry on.
+    private func waitForAnswer() async {
+        guard authorisationStatus == .notDetermined else { return }
+        await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+            answerWaiters.append(continuation)
+        }
     }
 
     /// Convenience: a grid reference at the precision you want, or nil.
@@ -152,6 +173,15 @@ extension LocationManager: CLLocationManagerDelegate {
             if status == .denied || status == .restricted {
                 self.errorMessage = "Location access is turned off for Windfall."
                 self.resume(with: nil)
+            }
+            // The question has an answer: let anything that was waiting
+            // for it carry on. CoreLocation also calls this when the app
+            // starts, before anyone has been asked, and that is not an
+            // answer.
+            if status != .notDetermined {
+                let waiting = self.answerWaiters
+                self.answerWaiters.removeAll()
+                for continuation in waiting { continuation.resume() }
             }
         }
     }

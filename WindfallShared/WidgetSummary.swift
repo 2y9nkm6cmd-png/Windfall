@@ -139,6 +139,13 @@ nonisolated struct WidgetSummary: Codable, Equatable {
     var months: [WidgetMonth] = []
     var nights: [WidgetNight] = []
     var answer: WidgetAnswer?
+    /// Where the app asks the weather about, so a widget can fetch the
+    /// forecast for itself. Nil until the app has fetched the weather
+    /// once. See WidgetForecast.swift. Both of these are optional so
+    /// that a file written before they existed can still be read.
+    var place: WidgetPlace?
+    /// When the forecast in `nights` was fetched, by the app or a widget.
+    var forecastFetched: Date?
 }
 
 // MARK: - Reading it for one day
