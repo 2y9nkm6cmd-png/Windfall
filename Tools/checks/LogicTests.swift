@@ -242,6 +242,24 @@ struct LogicTests {
         check(YearActivity.harvest.months(for: yearTree) == [9, 10], "a fruit tree's fruiting months show as its harvest on the Year page")
         yearTree.harvestMonthsText = "oct nov"
         check(YearActivity.harvest.months(for: yearTree) == [9, 10, 11], "harvest and fruiting months together are each counted once")
+        // The Year page: one month opened up
+        check(YearCalendar.place(of: 2, in: [2, 3, 4]) == .opening && YearCalendar.place(of: 3, in: [2, 3, 4]) == .during && YearCalendar.place(of: 4, in: [2, 3, 4]) == .lastChance, "a month is the opening, the middle or the last chance of its stretch")
+        check(YearCalendar.place(of: 9, in: [2, 3, 4, 9]) == .onlyMonth && YearCalendar.place(of: 5, in: [2, 3, 4, 9]) == nil, "a lone month is the only month, and a month outside has no place")
+        check(YearCalendar.place(of: 12, in: [10, 11, 12, 1, 2]) == .during && YearCalendar.place(of: 1, in: [10, 11, 12, 1, 2]) == .during && YearCalendar.place(of: 2, in: [10, 11, 12, 1, 2]) == .lastChance && YearCalendar.place(of: 10, in: [10, 11, 12, 1, 2]) == .opening, "December and January are neighbours, so a winter stretch is one stretch")
+        check(YearCalendar.place(of: 6, in: Array(1...12)) == .during && YearCalendar.place(of: 1, in: Array(1...12)) == .during, "a job that can be done all year never opens or closes")
+        check(YearCalendar.lastMonth(from: 3, in: [2, 3, 4, 9]) == 4 && YearCalendar.lastMonth(from: 9, in: [2, 3, 4, 9]) == 9 && YearCalendar.lastMonth(from: 11, in: [10, 11, 12, 1, 2]) == 2, "a stretch's last month is found, round the new year if need be")
+        check(YearCalendar.lastMonth(from: 5, in: [2, 3, 4]) == nil && YearCalendar.lastMonth(from: 5, in: Array(1...12)) == nil, "no last month outside the stretch, or when it is all year")
+        check(YearCalendar.monthAfter(12) == 1 && YearCalendar.monthBefore(1) == 12 && YearCalendar.monthAfter(5) == 6 && YearCalendar.monthBefore(5) == 4, "stepping a month goes round the end of the year")
+        let monthLeek = Plant(commonName: "Leek"); monthLeek.sowOutdoorsMonthsText = "mar apr"
+        let monthBean = Plant(commonName: "Broad bean"); monthBean.sowOutdoorsMonthsText = "feb mar apr may"
+        let monthCress = Plant(commonName: "Cress"); monthCress.sowOutdoorsMonthsText = "apr"
+        let monthPea = Plant(commonName: "Pea"); monthPea.sowOutdoorsMonthsText = "apr may jun"
+        let monthKale = Plant(commonName: "Kale"); monthKale.sowOutdoorsMonthsText = "jun jul"
+        let aprilSowings = YearCalendar.entries(for: .sowOutdoors, in: 4, from: [monthPea, monthKale, monthBean, monthLeek, monthCress])
+        check(aprilSowings.map(\.plant.commonName) == ["Cress", "Leek", "Pea", "Broad bean"], "a month lists only what can be done in it: this month only, then last chances, then what starts, then the rest")
+        check(aprilSowings.map(\.monthPlace) == [.onlyMonth, .lastChance, .opening, .during] && aprilSowings.map(\.lastMonth) == [4, 4, 6, 5], "each plant on a month's page knows where the month falls and when its stretch ends")
+        check(YearCalendar.entries(for: .harvest, in: 4, from: [monthPea, monthLeek]).isEmpty, "a job with no months for a plant leaves it off the month")
+        check(YearCalendar.tag(for: .lastChance, job: .sowOutdoors) == "Last chance" && YearCalendar.tag(for: .lastChance, job: .flowering) == "Last month" && YearCalendar.tag(for: .opening, job: .harvest) == "Starts now" && YearCalendar.tag(for: .onlyMonth, job: .plantOut) == "This month only" && YearCalendar.tag(for: .during, job: .harvest) == nil, "the words beside a plant: pressing ones only, and a flower has a last month, not a last chance")
 
         // The weather diary
         var london = Calendar(identifier: .gregorian); london.timeZone = TimeZone(identifier: "Europe/London")!

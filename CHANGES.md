@@ -7,6 +7,73 @@ run without the Mac (every file reads as valid Swift, 323 logic tests
 pass). Those do not build the screens. Expect things to put right when
 it is first built, and treat how everything here looks as untried.
 
+## 14 November 2026, 15:30: a month of the Year page, opened up
+
+**On the branch `year-month-view`, made from `main`.** Built for the Mac and the iOS Simulator with no errors (`mv1-mac.log`, `mv1-sim.log`, into a build folder of its own, `DerivedData/Windfall-month`). 586 logic tests pass. Looked at running with the example garden as still pictures: April on a 13-inch iPad Pro, dark (two columns), November on an iPhone, light (one column), and the Year page itself (`shots/mv1-*`). **Not tried by hand: pressing a month's name, the two arrows, "Show all", and the Mac's own window.** The pictures were made with the checking aid below, which opens the month's page the same way a press does.
+
+**Why.** William, with a picture of the Year page: "Can you make it so that when you click or tap the month at the top of this page, you can see the month bigger and see what needs to be planted that month".
+
+**What you see.**
+
+1. **Each month's name at the top of the Year page is now a button.** On a Mac, and on an iPad with a trackpad, the name lights up under the pointer. Pressing it opens that month on a page of its own.
+2. **The month's page** has the month's name in the large serif letters, a line that counts it up ("14 to sow or plant · 31 to harvest · 3 in flower") and **a card for each job**: Sow indoors, Sow outdoors, Plant out, Harvest and Flowering. Each card lists the plants that job can be done for in that month. From 720 points wide, sowing and planting are on the left and harvest and flowering on the right. Narrower, one column with sowing and planting first.
+3. **Beside each plant** is one of: "This month only", "Last chance" (the last month of its stretch), "Starts now" (the first), or how long it can wait, such as "to March". The pressing ones are at the top of each card. A flower has a "Last month", not a last chance.
+4. **The two round arrows** by the name step to the month before and the month after, round the end of the year.
+5. A card lists ten plants and then offers "Show all 31". Tapping a plant opens its page, as on the Year page.
+6. The page keeps to what the Year page lists: plants marked as growing, and the kind chosen on the "Fruit, veg…" button, which is then named above the month ("This month · Vegetables only").
+
+**How it is built.**
+
+*The sums* are in `YearCalendar.swift`, with no screen code, so they are tested. The one that decides the words beside a plant:
+
+```swift
+static func place(of month: Int, in months: [Int]) -> MonthPlace? {
+    let chosen = Set(months.filter { (1...12).contains($0) })
+    guard chosen.contains(month) else { return nil }
+    let hasBefore = chosen.contains(monthBefore(month))
+    let hasAfter = chosen.contains(monthAfter(month))
+    if !hasBefore && !hasAfter { return .onlyMonth }
+    if !hasAfter { return .lastChance }
+    if !hasBefore { return .opening }
+    return .during
+}
+```
+
+- It is handed a month and the months a job can be done in, and looks at the month's two neighbours. With February to April: February has nothing before it, so it is the opening. April has nothing after it, so it is the last chance.
+- `Set` is a bag in which each thing appears once and "is this in it?" is quick to ask.
+- `guard ... else { return nil }` is a way out at the top: if the month is not one of the job's months there is nothing to say, and `nil` means "no answer". The `?` after `MonthPlace` says the answer may be missing.
+- `monthBefore` and `monthAfter` go round the end of the year, so December and January are neighbours and October to February counts as one stretch.
+- `MonthPlace` is an `enum`, a short list of the only answers allowed. Each has a number, 0 to 3, and the page's list is sorted by it, which is what puts the pressing plants first.
+
+`YearCalendar.entries(for:in:from:)` uses it to make one job's list for one month, and `lastMonth(from:in:)` finds where a stretch ends, for "to March".
+
+*The page* is `YearMonthView.swift`, new. It is drawn like the other pages: `ScreenHeader` for the name, glass cards, the Year page's coloured dot for each job. It holds the month in a `@State` value, `shownMonth`, which is a value the page owns and may change. The arrows change it and SwiftUI redraws the cards.
+
+*Opening it* (`YearView.swift`). The Year page has a new `@State` value, `openMonth`, which is empty until a month's name is pressed:
+
+```swift
+.navigationDestination(item: $openMonth) { month in
+    YearMonthView(month: month, plantKind: plantKind)
+}
+```
+
+This says: whenever `openMonth` holds a month, slide in that month's page, and when the page is left, empty it again. The `$` hands SwiftUI the value itself to change, not a copy of it. Each name in the heading is a `YearMonthButton`, a small view of its own so that it can remember whether the pointer is over it.
+
+**Changed on the Year page itself.** The month names are 32 points tall where they were 28 (40 on an iPhone), to give a finger more to press. VoiceOver used to skip the heading. It now reads each month as a button.
+
+**Checking aid.** `-demoYear YES -demoMonth 4` opens April's page as soon as the Year page appears.
+
+**Tests.** 11 new, 586 in all: where a month falls in a stretch, round the new year and all year; the last month of a stretch; the order of a month's list; the words beside a plant.
+
+**Not done, and choices that are Claude's.** ⚠️ CHECK each.
+
+- The words "Last chance", "Starts now", "This month only" and "Last month".
+- Pressing plants first in each card, then A to Z. The Year page's own order (by family) is not used.
+- Harvest and Flowering are on the page as well as the three planting jobs. William asked for "what needs to be planted".
+- The page does not follow the Year page's search box or its job buttons. It always shows all five jobs.
+- It goes by the plant library's months only. It does not know what has already been sown this year, so a plant sown in March still shows under April. "This week" on Today does know.
+- No way to swipe from month to month, and the arrow keys do nothing.
+
 ## 14 November 2026, 13:35: a plant's facts can be added and changed in the app
 
 **On the branch `plant-facts-edit`, made from `main` and merged back into it.** Built for the Mac and the iOS Simulator with no errors (`r41-mac.log`, `r41-sim.log`). 558 logic tests pass. Looked at running with the example garden on an iPad Air, a 13-inch iPad Pro and an iPhone, light and dark. The database check passed (`migrate-side.sh origin/main origin/plant-facts-edit m4`, 13:33: the version before made a database holding the full library in the iPad mini simulator, and this version opened it and listed its 376 plants).

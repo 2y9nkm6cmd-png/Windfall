@@ -91,6 +91,7 @@ Icons are drawn on a 24 by 24 grid with a line 1.6 wide and rounded ends.
 | `2026-11-13 evening screenshot-fit-count-sheet-mac.png` | The count's sheet on the Mac, where William asked for windows that can be made bigger |
 | `2026-11-13 evening screenshot-sowing-form-apple.png` | The sowing form with an apple chosen: no way back, and an apple does not come true from seed |
 | `2026-11-14 screenshot-plant-page-achillea-mac.png` | Achillea's page on the Mac, dark, sent with "Could you make it so that you can add a planting of plants in the plant page?" |
+| `2026-11-14 screenshot-year-page-month-heading-mac.png` | The top of the Year page on the Mac, dark, with every job showing, sent with "when you click or tap the month at the top of this page, you can see the month bigger and see what needs to be planted that month" |
 
 ## What is in Archive
 

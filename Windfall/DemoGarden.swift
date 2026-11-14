@@ -43,6 +43,15 @@ enum DemoGarden {
         isRequested && ProcessInfo.processInfo.arguments.contains("-demoYear")
     }
 
+    /// A checking aid: `-demoMonth 4`, with `-demoYear` or on the Year
+    /// page, opens April's own page as soon as the Year page appears.
+    /// Nil when it was not asked for or is not a month.
+    static var opensMonth: Int? {
+        guard isRequested else { return nil }
+        let month = UserDefaults.standard.integer(forKey: "demoMonth")
+        return (1...12).contains(month) ? month : nil
+    }
+
     /// True when the app was also started with `-demoWeather`, which opens
     /// the Weather page in place of the Gardens page, for checking it.
     static var opensWeather: Bool {

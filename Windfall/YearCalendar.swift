@@ -44,6 +44,34 @@ enum YearActivity: String, CaseIterable, Identifiable {
     }
 }
 
+/// Where one month falls in the stretch of months a job can be done in.
+/// The month's own page uses it to say "Last chance" or "Starts now".
+///
+/// The numbers put the urgent ones first: a list sorted by them starts
+/// with what cannot wait.
+enum MonthPlace: Int, Equatable {
+    /// The job can be done in this month and in neither neighbour.
+    case onlyMonth = 0
+    /// The last month of a longer stretch.
+    case lastChance = 1
+    /// The first month of a longer stretch.
+    case opening = 2
+    /// In the middle of a stretch, or the job can be done all year.
+    case during = 3
+}
+
+/// One plant under one job on a month's page.
+struct MonthEntry: Identifiable {
+    let plant: Plant
+    /// Where the month falls in this job's stretch for this plant.
+    let monthPlace: MonthPlace
+    /// The last month of the stretch, 1 to 12. Nil when the job can be
+    /// done all year, which has no last month.
+    let lastMonth: Int?
+
+    var id: UUID { plant.id }
+}
+
 /// A stretch of months in a row.
 struct MonthRun: Equatable {
     /// The first and last month of the run, 1 to 12.
@@ -98,6 +126,77 @@ enum YearCalendar {
         }
         // Empty, or all twelve months.
         return chosen.isEmpty ? 13 : 1
+    }
+
+    // MARK: One month
+
+    /// The month after, going round from December to January.
+    static func monthAfter(_ month: Int) -> Int { month >= 12 ? 1 : month + 1 }
+
+    /// The month before, going round from January to December.
+    static func monthBefore(_ month: Int) -> Int { month <= 1 ? 12 : month - 1 }
+
+    /// Where a month falls in a job's months, or nil when the job cannot
+    /// be done that month.
+    ///
+    /// It looks at the two neighbours. With February to April: February
+    /// has nothing before it, so it is the opening. April has nothing
+    /// after it, so it is the last chance. March has both, so it is
+    /// "during". December and January count as neighbours, so October to
+    /// February is one stretch.
+    static func place(of month: Int, in months: [Int]) -> MonthPlace? {
+        let chosen = Set(months.filter { (1...12).contains($0) })
+        guard chosen.contains(month) else { return nil }
+        let hasBefore = chosen.contains(monthBefore(month))
+        let hasAfter = chosen.contains(monthAfter(month))
+        if !hasBefore && !hasAfter { return .onlyMonth }
+        if !hasAfter { return .lastChance }
+        if !hasBefore { return .opening }
+        return .during
+    }
+
+    /// The last month of the stretch a month is in: for March in
+    /// February to April, April. Nil when the month is not one of them,
+    /// or when all twelve are, which never ends.
+    static func lastMonth(from month: Int, in months: [Int]) -> Int? {
+        let chosen = Set(months.filter { (1...12).contains($0) })
+        guard chosen.contains(month), chosen.count < 12 else { return nil }
+        var end = month
+        // Step forward a month at a time until the next one is missing.
+        while chosen.contains(monthAfter(end)) { end = monthAfter(end) }
+        return end
+    }
+
+    /// The plants a job can be done for in one month, the urgent ones
+    /// first and A to Z within each kind.
+    static func entries(for job: YearActivity, in month: Int, from plants: [Plant]) -> [MonthEntry] {
+        var found: [MonthEntry] = []
+        for plant in plants {
+            let months = job.months(for: plant)
+            guard let falls = place(of: month, in: months) else { continue }
+            found.append(MonthEntry(plant: plant, monthPlace: falls,
+                                    lastMonth: lastMonth(from: month, in: months)))
+        }
+        func sortName(_ entry: MonthEntry) -> String {
+            (entry.plant.commonName + " " + (entry.plant.variety ?? "")).lowercased()
+        }
+        return found.sorted { a, b in
+            if a.monthPlace != b.monthPlace { return a.monthPlace.rawValue < b.monthPlace.rawValue }
+            return sortName(a) < sortName(b)
+        }
+    }
+
+    /// The few words shown beside a plant on a month's page, or nil when
+    /// the month is in the middle of the stretch and there is nothing
+    /// pressing to say. A flower is not a job, so it has no "last
+    /// chance": it is in its last month.
+    static func tag(for monthPlace: MonthPlace, job: YearActivity) -> String? {
+        switch monthPlace {
+        case .onlyMonth: return "This month only"
+        case .lastChance: return job == .flowering ? "Last month" : "Last chance"
+        case .opening: return "Starts now"
+        case .during: return nil
+        }
     }
 
     /// A key for putting plants of one family together.

@@ -19,6 +19,10 @@
 //  small dots of one, the bars of another, and the seed-packet view as a
 //  switch.
 //
+//  Tapping a month's name at the top opens that month on a page of its
+//  own, with what to sow, plant out and harvest in it. That page is in
+//  YearMonthView.swift.
+//
 //  The sums (which months join into a bar) are in YearCalendar.swift.
 //
 
@@ -62,6 +66,9 @@ struct YearView: View {
     /// Fruit, vegetables, herbs and so on. Nil shows every kind. The
     /// same sorting as the Plants page uses (PlantFilter.swift).
     @State private var plantKind: PlantKind?
+    /// The month whose own page is open, 1 to 12. Nil when none is.
+    /// Tapping a month's name at the top sets it.
+    @State private var openMonth: Int?
 
     /// The ways the plants can be put in order.
     enum Arrangement: String, CaseIterable, Identifiable {
@@ -204,6 +211,17 @@ struct YearView: View {
         .searchable(text: $search, prompt: "Filter plants")
         .navigationTitle("Year")
         .paperScreen()
+        // When `openMonth` is given a month, that month's page slides
+        // in. Going back sets it to nil again. The page keeps to the
+        // kind of plant chosen here.
+        .navigationDestination(item: $openMonth) { month in
+            YearMonthView(month: month, plantKind: plantKind)
+        }
+        // A checking aid: `-demoMonth 4` opens April's page at once, so
+        // a still picture can be taken of it. See DemoGarden.opensMonth.
+        .onAppear {
+            if let month = DemoGarden.opensMonth, openMonth == nil { openMonth = month }
+        }
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Menu {
@@ -356,23 +374,17 @@ struct YearView: View {
                 .frame(width: nameWidth, alignment: .leading)
 
             ForEach(1...12, id: \.self) { month in
-                Text(names[month - 1])
-                    .font(.caption)
-                    .fontWeight(month == thisMonth ? .bold : .regular)
-                    .foregroundStyle(month == thisMonth ? Theme.ink : Theme.inkSoft)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 28)
-                    .background {
-                        if month == thisMonth {
-                            // The top of the band that runs down the rows.
-                            UnevenRoundedRectangle(topLeadingRadius: 12, topTrailingRadius: 12)
-                                .fill(Theme.leaf.opacity(0.10))
-                        }
-                    }
+                // Each month's name is a button that opens the month's
+                // own page. (Asked for by William on 14 November 2026.)
+                YearMonthButton(name: names[month - 1],
+                                fullName: Calendar.current.monthSymbols[month - 1],
+                                isThisMonth: month == thisMonth,
+                                height: isNarrow ? 40 : 32) {
+                    openMonth = month
+                }
             }
         }
         .padding(.horizontal, sidePadding)
-        .accessibilityHidden(true)
     }
 
     /// The band behind the rows, one column wide.
@@ -459,6 +471,57 @@ struct YearView: View {
             .lineLimit(1)
             .padding(.trailing, 12)
         }
+    }
+}
+
+// MARK: - A month's name at the top
+
+/// One month's name in the heading. Tapping it opens the month's page.
+///
+/// It is a view of its own so that it can remember one thing by itself:
+/// whether the pointer is over it. On a Mac, and on an iPad with a
+/// trackpad, the name lights up under the pointer to show it can be
+/// pressed.
+struct YearMonthButton: View {
+
+    /// The name as written: "Nov", or "N" on an iPhone.
+    let name: String
+    /// The whole name, for VoiceOver and the Mac's pop-up hint.
+    let fullName: String
+    let isThisMonth: Bool
+    let height: CGFloat
+    /// What to do when it is pressed. `() -> Void` means a piece of code
+    /// that takes nothing and hands nothing back.
+    let onPress: () -> Void
+
+    @State private var isUnderPointer = false
+
+    var body: some View {
+        Button(action: onPress) {
+            Text(name)
+                .font(.caption)
+                .fontWeight(isThisMonth || isUnderPointer ? .bold : .regular)
+                .foregroundStyle(isThisMonth || isUnderPointer ? Theme.ink : Theme.inkSoft)
+                .frame(maxWidth: .infinity)
+                .frame(height: height)
+                .background {
+                    if isThisMonth {
+                        // The top of the band that runs down the rows.
+                        UnevenRoundedRectangle(topLeadingRadius: 12, topTrailingRadius: 12)
+                            .fill(Theme.leaf.opacity(isUnderPointer ? 0.22 : 0.10))
+                    } else if isUnderPointer {
+                        RoundedRectangle(cornerRadius: 10)
+                            .fill(Theme.leaf.opacity(0.14))
+                    }
+                }
+                // The whole box takes the press, not only the letters.
+                .contentShape(.rect)
+        }
+        .buttonStyle(.plain)
+        .onHover { isUnderPointer = $0 }
+        .help("See \(fullName)")
+        .accessibilityLabel(fullName)
+        .accessibilityHint("Shows what to sow, plant and harvest in \(fullName)")
     }
 }
 
