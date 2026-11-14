@@ -1155,6 +1155,25 @@ struct JournalChatView: View {
         let text = words.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty || !waitingPhotos.isEmpty else { return }
 
+        // On an iPhone or iPad, pressing send puts the keyboard away at
+        // once, whatever happens next. (William, 14 November 2026, on the
+        // iPad: "it could be resolved by when you press send the keyboard
+        // goes".) The keyboard covers the lower half of the screen there,
+        // and what send leads to is drawn exactly where it sits: the new
+        // entry, or the question below about when this was, which has to
+        // be seen to be answered.
+        //
+        // `boxHasFocus` is the @FocusState declared at the top of this
+        // view. Setting it to false takes the cursor out of the box, and
+        // iOS lowers the keyboard when no box has the cursor.
+        //
+        // `#if os(iOS)` means the lines are only compiled for an iPhone
+        // or iPad. A Mac has no keyboard on the screen, and there the
+        // cursor should stay in the box ready for the next entry.
+        #if os(iOS)
+        boxHasFocus = false
+        #endif
+
         // A question about when this was has to be answered first. Its
         // card turns amber.
         if photoCheck != nil || timeCheck != nil {

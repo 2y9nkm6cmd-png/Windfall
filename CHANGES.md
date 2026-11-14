@@ -1,3 +1,25 @@
+# 14 November 2026, 23:05: on an iPhone or iPad, pressing send in the journal puts the keyboard away
+
+**By the "iPad" chat, on the branch `journal-send-keyboard`, made from `journal-send-closes` (the entry below), so it holds that work too. Not in `main`.** Project doc 73.
+
+William, 22:56, with three pictures from his iPad: "it looks like a journal entry is hidden because of the keyboard. I think it could be resolved by when you press send the keyboard goes."
+
+**What the pictures showed.** After dark, with words in the journal's box and the keyboard up, the card "It is 22:53 and dark out. Was this about earlier today?" was pushed up the screen with its question out of sight. The branch below already lets go of the keyboard once an entry has gone. It did not when send was held back by that card, which is the moment the card most needs to be seen.
+
+One file changed, `Windfall/JournalChatView.swift`, in one place: near the top of `send()`, before the check for the question card.
+
+```
+#if os(iOS)
+boxHasFocus = false
+#endif
+```
+
+- `boxHasFocus` is a `@FocusState`: SwiftUI's record of whether the box to write in has the cursor. Setting it to false takes the cursor out, and iOS lowers the keyboard when no box has it.
+- `#if os(iOS)` ... `#endif` compiles the line only for an iPhone or iPad. On a Mac there is no keyboard on the screen, and the cursor stays in the box for the next entry.
+- It comes before the check for the question card, so the keyboard goes whether the entry is sent or held back for an answer.
+
+**The cost:** to write a second entry straight after the first, the box has to be tapped again.
+
 # 14 November 2026, 22:02: sending a journal entry puts the panel away
 
 **By the "send closes" chat, on the branch `journal-send-closes`, written from William's phone with no Mac linked. Not built and not tried: no Swift compiler was to hand. Not in `main`.**
