@@ -61,6 +61,22 @@ It is right more often and sure more often, and so it is also sure more often wh
 **For William to check.** ⚠️ CHECK: the genus list and the wording of the warning are Claude's, from general knowledge and not from a field guide. The warning reads: "Take care: this may be one of the carrot family. That family holds deadly plants, hemlock and hemlock water-dropwort among them, that look much like cow parsley, wild carrot, wild celery and parsley. A photo cannot tell them apart safely. If you did not sow it yourself, do not eat any part of it on the strength of this, and wear gloves to handle it: giant hogweed, of the same family, burns the skin." It will also show on photos of your own carrots, parsley, fennel and parsnips, which is why it says "if you did not sow it yourself".
 
 **Not done.** Other dangerous pairs: wild garlic with lords-and-ladies and lily of the valley, comfrey with foxglove. Each needs a checked list first. The "not sure" level (0.85) was set for the older model and should be set again for this one from William's own photos (doc 30).
+## 14 November 2026, midday: the Plants search rests as a magnifying glass
+
+**On the branch `search-collapse`, made from `main`.** Built for the Mac and the simulator with no errors (`search1-mac.log`, `search1-sim.log`). Tried in a test copy on the Mac with the example garden: the glass opens the box, typing "spartan" leaves 1 of 376 plants, the cross empties it and the glass closes it again. **Not tried by hand**: whether the cursor lands in the box when the glass is clicked, Command-F, Escape and clicking away. The logic tests were not run. They need the Linux checker, which this chat did not have.
+
+**Why.** William asked whether the wide search box at the top of the Plants window is needed now that Eira can search. It is: it narrows the list as each letter is typed, with no model, and it works on devices that cannot run Eira. But it does not need to take up the toolbar while it is not in use. William chose to have it rest as a magnifying glass.
+
+**What changed.**
+
+1. **A new piece, `CollapsingSearchField`, in a new file `CollapsingSearch.swift`.** Mac only. It is a magnifying glass button that opens into a box to type in.
+   - *Why not Apple's own.* SwiftUI's `.searchable` puts a wide box in a Mac toolbar for good. Apple's shrinking version, `.searchToolbarBehavior(.minimize)`, is marked as not available on a Mac in the macOS 27.2 kit (read from the kit's own list on the Mac, 14 November 2026).
+   - *How it behaves.* Click the glass, or press Command-F, and the box opens with the cursor in it. A cross appears once there are words, and empties the box. Escape empties and closes. Clicking away from an empty box closes it. A box with words in it stays open, so it is always plain why the list is short. The glass pressed again with nothing typed closes the box.
+   - *How the code holds it.* Two values: `open` (is the box showing) and `typing` (is the cursor in it). The words themselves are not kept here. They are a `@Binding` to the screen's own filter, exactly as with `.searchable`, so nothing about how plants are matched has changed.
+2. **`PlantLibraryView.swift`.** On a Mac the `.searchable` line is fenced off with `#if os(iOS)` and the new piece is added to the toolbar, after the Garden data button, with a `ToolbarSpacer(.fixed)` between so each has its own piece of glass. **The iPhone and iPad are unchanged.**
+3. **A checking aid.** `-plantsSearch apple` starts the Plants screen with "apple" already typed (`PlantFilter.fromLaunchArguments`). One logic test added for it.
+
+**Not done.** The Year page, Species, Seed and Sightings still have the wide box. The same piece would fit each of them in a line or two.
 
 ## 14 November 2026, late morning: telling Eira she is wrong
 

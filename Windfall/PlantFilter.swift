@@ -169,6 +169,8 @@ struct PlantFilter: Equatable {
         let month = defaults.integer(forKey: "plantsMonth")
         if (1...12).contains(month) { filter.seasonMonth = month }
         if let role = defaults.string(forKey: "plantsRole").flatMap(PlantRole.init(rawValue:)) { filter.roles = [role] }
+        // `-plantsSearch apple` opens the screen with "apple" already typed.
+        filter.search = defaults.string(forKey: "plantsSearch") ?? ""
         return filter
     }
 

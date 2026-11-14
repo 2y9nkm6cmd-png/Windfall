@@ -573,6 +573,8 @@ struct LogicTests {
         checkingDefaults.set("Vegetables", forKey: "plantsKind"); checkingDefaults.set("Brassicas", forKey: "plantsFamily"); checkingDefaults.set("Sowing", forKey: "plantsSeason"); checkingDefaults.set(4, forKey: "plantsMonth"); checkingDefaults.set("Pollinator", forKey: "plantsRole")
         let fromArguments = PlantFilter.fromLaunchArguments(checkingDefaults)
         check(fromArguments.kind == .vegetables && fromArguments.family == "brassica" && fromArguments.season == .sowing && fromArguments.seasonMonth == 4 && fromArguments.roles == [.pollinator], "the checking aid sets each filter from launch arguments")
+        checkingDefaults.set("apple", forKey: "plantsSearch")
+        check(PlantFilter.fromLaunchArguments(checkingDefaults).search == "apple", "the checking aid can fill in the search box")
         check(plantFilter.kindChoices(shelf, today: 11).map(\.count) == [1, 3, 1, 1] && plantFilter.kindChoices(shelf, today: 11).map(\.key) == ["Fruit", "Vegetables", "Green manure", "Not sorted"], "kind counts ignore the kind already chosen, so each says what it would show")
         // What is on screen is passed to the model, and only to the model
         conversation.screenNote = "the plant Apple, Spartan"

@@ -61,7 +61,11 @@ struct PlantLibraryView: View {
                 .padding(.bottom, 20)
             }
         }
+        #if os(iOS)
+        // On an iPhone and iPad the search is Apple's own. On a Mac it is
+        // the magnifying glass in the toolbar below.
         .searchable(text: $filter.search, prompt: "Search plants")
+        #endif
         .navigationTitle("Plants")
         #if os(iOS)
         // The big "Plants" on the page is the title. The bar stays, small,
@@ -81,6 +85,16 @@ struct PlantLibraryView: View {
                     Label("Garden data", systemImage: "tray.and.arrow.down")
                 }
             }
+            #if os(macOS)
+            // A gap, so the search has its own piece of glass and does
+            // not share one with the Garden data button.
+            ToolbarSpacer(.fixed)
+            // The search rests as a magnifying glass and opens when
+            // clicked, or with Command-F. See CollapsingSearch.swift.
+            ToolbarItem(placement: .primaryAction) {
+                CollapsingSearchField(text: $filter.search, prompt: "Search plants")
+            }
+            #endif
         }
         .sheet(isPresented: $showingImport) {
             NavigationStack {
