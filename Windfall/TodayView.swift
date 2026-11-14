@@ -766,7 +766,7 @@ struct TodayView: View {
     private var weekJobs: [WeekJob] {
         // The gathering is in WidgetShare.swift, so the widgets can ask
         // for the same list for the days ahead.
-        WeekFacts.jobs(today: .now, plants: plants, plantings: plantings,
+        WeekFacts.jobs(asOf: .now, plants: plants, plantings: plantings,
                        finishedWeather: finishedWeather, outlook: weather.outlook)
     }
 

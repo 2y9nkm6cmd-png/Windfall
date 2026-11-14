@@ -43,15 +43,15 @@ enum WeekFacts {
     /// It was part of TodayView until the widgets needed the same list
     /// for the days ahead. Having one copy means Today and a widget can
     /// never disagree.
-    static func jobs(today: Date, plants: [Plant], plantings: [Planting],
+    static func jobs(asOf: Date, plants: [Plant], plantings: [Planting],
                      finishedWeather: [WeatherDay], outlook: [OutlookDay]) -> [WeekJob] {
         let calendar = Calendar.current
-        let year = calendar.component(.year, from: today)
+        let year = calendar.component(.year, from: asOf)
 
         // Sowing and planting-out months can only be about to end in
         // the last week of a month. For the rest of the month the plant
         // library is not gone through at all.
-        let monthIsEnding = WeekJobs.daysLeftInMonth(today: today) <= WeekJobs.window
+        let monthIsEnding = WeekJobs.daysLeftInMonth(today: asOf) <= WeekJobs.window
 
         var shelf: [WeekPlant] = []
         if monthIsEnding {
@@ -67,7 +67,7 @@ enum WeekFacts {
 
         // Only sowings that could give a job are passed on: seedlings
         // waiting to go out, and crops due in the next few days.
-        let soon = today.addingTimeInterval(Double(WeekJobs.window + 1) * 86_400)
+        let soon = asOf.addingTimeInterval(Double(WeekJobs.window + 1) * 86_400)
         let growing: [WeekSowing] = plantings.compactMap { planting in
             let isUnderCover = planting.sowingLocation == .indoors || planting.sowingLocation == .undercover
             let isWaiting = monthIsEnding && isUnderCover && planting.datePlantedOut == nil
@@ -92,10 +92,10 @@ enum WeekFacts {
 
         // Last week's rain and water lost, from the weather diary: the
         // seven newest finished days for one garden. Left out if the
-        // diary's newest day is more than a few days before `today`.
+        // diary's newest day is more than a few days before `asOf`.
         var rain: Double?
         var lost: Double?
-        if let newest = finishedWeather.first, newest.date > today.addingTimeInterval(-3 * 86_400) {
+        if let newest = finishedWeather.first, newest.date > asOf.addingTimeInterval(-3 * 86_400) {
             let lastWeek = finishedWeather.filter { $0.siteRaw == newest.siteRaw }.prefix(7)
             if lastWeek.count == 7 {
                 rain = lastWeek.reduce(0) { $0 + ($1.rainfallMM ?? 0) }
@@ -103,7 +103,7 @@ enum WeekFacts {
             }
         }
 
-        return WeekJobs.list(today: today, plants: shelf, sowings: growing,
+        return WeekJobs.list(today: asOf, plants: shelf, sowings: growing,
                              outlook: outlook,
                              pastRainMM: rain, pastEvaporationMM: lost)
     }
@@ -124,7 +124,7 @@ enum WidgetShare {
         guard WindfallGroup.folder != nil, !DemoGarden.isRequested else { return }
         let calendar = Calendar.current
         let now = Date.now
-        var summary = WidgetSummaryStore.read() ?? WidgetSummary(written: now)
+        var sharedFile = WidgetSummaryStore.read() ?? WidgetSummary(written: now)
 
         let plants = (try? context.fetch(FetchDescriptor<Plant>(sortBy: [SortDescriptor(\.commonName)]))) ?? []
         let plantings = (try? context.fetch(FetchDescriptor<Planting>())) ?? []
@@ -136,18 +136,18 @@ enum WidgetShare {
         // vanish from the widgets just because the app was opened.
         var outlook = WeatherService.shared.outlook
         if outlook.isEmpty {
-            outlook = summary.nights.map {
+            outlook = sharedFile.nights.map {
                 OutlookDay(dayKey: $0.dayKey, minTemperatureC: $0.lowC, rainMM: $0.rainMM, gustKMH: $0.gustKMH)
             }
         }
-        summary.nights = outlook.map {
+        sharedFile.nights = outlook.map {
             WidgetNight(dayKey: $0.dayKey, lowC: $0.minTemperatureC, rainMM: $0.rainMM, gustKMH: $0.gustKMH)
         }
 
         // The urgent jobs for today and each of the next seven days.
-        summary.days = (0...7).compactMap { daysOn in
+        sharedFile.days = (0...7).compactMap { daysOn in
             guard let day = calendar.date(byAdding: .day, value: daysOn, to: now) else { return nil }
-            let jobs = WeekFacts.jobs(today: day, plants: plants, plantings: plantings,
+            let jobs = WeekFacts.jobs(asOf: day, plants: plants, plantings: plantings,
                                       finishedWeather: weather, outlook: outlook)
             return WidgetDay(dayKey: WidgetSummary.dayKey(for: day, calendar: calendar),
                              jobs: jobs.map { WidgetJob(id: $0.id, kind: $0.kind.rawValue, title: $0.title, detail: $0.detail) })
@@ -157,10 +157,10 @@ enum WidgetShare {
         // the month without the app being opened.
         let growing = plants.filter { $0.status == .growing }
         let thisMonth = calendar.component(.month, from: now)
-        summary.months = [thisMonth, YearCalendar.monthAfter(thisMonth)].map { monthCard($0, from: growing, calendar: calendar) }
+        sharedFile.months = [thisMonth, YearCalendar.monthAfter(thisMonth)].map { monthCard($0, from: growing, calendar: calendar) }
 
-        summary.written = now
-        WidgetSummaryStore.write(summary)
+        sharedFile.written = now
+        WidgetSummaryStore.write(sharedFile)
         reload()
     }
 
@@ -214,17 +214,17 @@ enum WidgetShare {
     /// someone always travels with the answer.
     static func noteAnswer(_ identification: EiraIdentification, photo: Data?) {
         guard WindfallGroup.folder != nil, !DemoGarden.isRequested, identification.verdict != .nothing else { return }
-        var summary = WidgetSummaryStore.read() ?? WidgetSummary(written: .now)
+        var sharedFile = WidgetSummaryStore.read() ?? WidgetSummary(written: .now)
         var hasPhoto = false
         if let photo, let url = WidgetSummaryStore.photoURL, let small = smallCopy(of: photo) {
             hasPhoto = (try? small.write(to: url, options: .atomic)) != nil
         }
-        summary.answer = WidgetAnswer(headline: identification.headline,
+        sharedFile.answer = WidgetAnswer(headline: identification.headline,
                                       subheading: identification.subheading,
                                       confidence: identification.confidence?.displayName,
                                       warning: identification.cautions.first { $0.weight == .danger }?.words,
                                       when: .now, hasPhoto: hasPhoto)
-        WidgetSummaryStore.write(summary)
+        WidgetSummaryStore.write(sharedFile)
         reload()
     }
 
@@ -292,9 +292,9 @@ struct WidgetGallery: View {
     private var palette: WidgetPalette { .of(look) }
 
     var body: some View {
-        let summary = WidgetSummary.example()
+        let sharedFile = WidgetSummary.example()
         let now = Date.now
-        let jobs = summary.jobs(on: now)
+        let jobs = sharedFile.jobs(on: now)
         let ticked: Set<String> = ["harvest-example"]
         let risky = WidgetAnswer(headline: "Cow parsley, or one that looks like it", subheading: nil, confidence: "Possible",
                                  warning: "Carrot family. Do not eat it or handle it on the strength of a photo.",
@@ -304,18 +304,18 @@ struct WidgetGallery: View {
                 switch page {
                 case 1:
                     HStack(spacing: 14) {
-                        small(MonthWidgetView(month: summary.month(on: now), size: .small, palette: palette))
-                        small(FrostWidgetView(tonightC: summary.tonight(on: now)?.lowC, nights: [], rain: nil, size: .small, palette: palette))
+                        small(MonthWidgetView(month: sharedFile.month(on: now), size: .small, palette: palette))
+                        small(FrostWidgetView(tonightC: sharedFile.tonight(on: now)?.lowC, nights: [], rain: nil, size: .small, palette: palette))
                     }
-                    medium(MonthWidgetView(month: summary.month(on: now), size: .medium, palette: palette))
-                    medium(FrostWidgetView(tonightC: summary.tonight(on: now)?.lowC, nights: summary.comingNights(from: now),
-                                           rain: summary.nextRain(from: now), size: .medium, palette: palette))
+                    medium(MonthWidgetView(month: sharedFile.month(on: now), size: .medium, palette: palette))
+                    medium(FrostWidgetView(tonightC: sharedFile.tonight(on: now)?.lowC, nights: sharedFile.comingNights(from: now),
+                                           rain: sharedFile.nextRain(from: now), size: .medium, palette: palette))
                     medium(CaptureWidgetView(palette: palette))
                 case 2:
-                    medium(IdentifyWidgetView(answer: summary.answer, photo: nil, style: .withAnswer, palette: palette))
+                    medium(IdentifyWidgetView(answer: sharedFile.answer, photo: nil, style: .withAnswer, palette: palette))
                     medium(IdentifyWidgetView(answer: risky, photo: nil, style: .withAnswer, palette: palette))
                     HStack(spacing: 14) {
-                        IdentifyWidgetView(answer: summary.answer, photo: nil, style: .answerOnly, palette: palette)
+                        IdentifyWidgetView(answer: sharedFile.answer, photo: nil, style: .answerOnly, palette: palette)
                             .frame(width: 170, height: 170)
                             .background(palette.ground)
                             .clipShape(.rect(cornerRadius: 24))
