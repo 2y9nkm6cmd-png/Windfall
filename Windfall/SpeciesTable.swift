@@ -9,11 +9,15 @@
 //    1. The photo is cut to its middle square, shrunk to 224 by 224
 //       pixels, and its colours turned into the numbers the model
 //       expects. (PhotoArithmetic, below, and SpeciesEye.swift.)
-//    2. BioCLIP 2, a model trained only on living things, turns those
-//       into 768 numbers that describe what the photo looks like.
+//    2. BioCLIP, a model trained only on living things, turns those
+//       into a list of numbers that describe what the photo looks like:
+//       768 of them from BioCLIP 2, or 1,024 from BioCLIP 2.5 Huge,
+//       which took its place on the Mac on 14 November 2026.
 //       (SpeciesEye.swift. This is the only step that needs Core AI.)
-//    3. Those 768 numbers are compared with one row of 768 numbers for
-//       each species. The closest rows are the likeliest species.
+//    3. Those numbers are compared with one row of as many numbers for
+//       each species. The closest rows are the likeliest species. The
+//       table says how many numbers its rows hold, so either model
+//       works as long as the table beside it was made for it.
 //       (SpeciesTable, below.)
 //
 //  The rows are made on the Mac from the names of UK species, nudged by
@@ -78,6 +82,10 @@ struct SpeciesGuess: Equatable {
 
     var likeliest: SpeciesCandidate? { candidates.first }
 
+    /// A warning to show above the candidates when a wrong name among
+    /// them could kill, or nil. See DangerousLookAlikes.
+    var lookAlikeWarning: String? { DangerousLookAlikes.warning(for: candidates) }
+
     /// The guess in sentences, for the screen.
     var summary: String {
         guard let first = candidates.first else {
@@ -99,6 +107,93 @@ struct SpeciesGuess: Equatable {
     }
 }
 
+// MARK: - Dangerous look-alikes
+
+/// Plants where a wrong name could kill.
+///
+/// Why this exists. On 14 November 2026 the same 300 UK photos were run
+/// through the app with two image models. The older one named a photo
+/// of hemlock water-dropwort as yellow iris, at 87%. The newer one
+/// (BioCLIP 2.5 Huge) named a photo of hemlock as cow parsley at over
+/// 99%, where the older had said "not sure". Both plants are deadly,
+/// both are in the carrot family, and in both cases a carrot-family
+/// plant was among the three candidates shown.
+///
+/// So when any of the three is a carrot-family plant, the screen says
+/// so in plain sight, above the names, however sure the model is. The
+/// line under every answer ("never eat anything on the strength of a
+/// match") still stands for everything else.
+///
+/// Only the carrot family is here. Other dangerous pairs (wild garlic
+/// and lords-and-ladies, comfrey and foxglove) each need a checked list
+/// before they are added.
+enum DangerousLookAlikes {
+
+    /// The genus (the first word of a scientific name) of each
+    /// carrot-family plant likely to be met in a UK garden or hedge.
+    /// The family's botanical name is Apiaceae. Its flowers are held in
+    /// flat-topped clusters shaped like an umbrella.
+    ///
+    /// A `Set` is a list with no order and no repeats, which makes
+    /// "is this name in it?" quick to answer.
+    static let carrotFamilyGenera: Set<String> = [
+        "Aegopodium",    // ground elder
+        "Aethusa",       // fool's parsley
+        "Ammi",          // bishop's flower
+        "Anethum",       // dill
+        "Angelica",      // angelica
+        "Anthriscus",    // cow parsley, chervil
+        "Apium",         // celery, celeriac, wild celery
+        "Berula",        // lesser water-parsnip
+        "Carum",         // caraway
+        "Chaerophyllum", // rough chervil
+        "Cicuta",        // cowbane
+        "Conium",        // hemlock
+        "Conopodium",    // pignut
+        "Coriandrum",    // coriander
+        "Crithmum",      // rock samphire
+        "Daucus",        // carrot, wild carrot
+        "Foeniculum",    // fennel
+        "Helosciadium",  // fool's watercress
+        "Heracleum",     // hogweed, giant hogweed
+        "Levisticum",    // lovage
+        "Myrrhis",       // sweet cicely
+        "Oenanthe",      // the water-dropworts
+        "Pastinaca",     // parsnip
+        "Petroselinum",  // parsley
+        "Pimpinella",    // burnet-saxifrage, anise
+        "Scandix",       // shepherd's needle
+        "Silaum",        // pepper-saxifrage
+        "Sison",         // stone parsley
+        "Sium",          // greater water-parsnip, skirret
+        "Smyrnium",      // alexanders
+        "Torilis"        // the hedge parsleys
+    ]
+
+    /// What the screen says when a carrot-family plant is among the
+    /// candidates.
+    static let carrotFamilyWarning = "Take care: this may be one of the carrot family. That family holds deadly plants, hemlock and hemlock water-dropwort among them, that look much like cow parsley, wild carrot, wild celery and parsley. A photo cannot tell them apart safely. If you did not sow it yourself, do not eat any part of it on the strength of this, and wear gloves to handle it: giant hogweed, of the same family, burns the skin."
+
+    /// "Conium" from "Conium maculatum".
+    static func genus(of scientific: String) -> String {
+        scientific.split(separator: " ").first.map(String.init) ?? ""
+    }
+
+    /// True for a plant whose genus is in the list.
+    ///
+    /// The group is checked as well as the name, because an animal can
+    /// share a plant's genus name: Oenanthe is the water-dropworts and
+    /// also the wheatears, which are birds.
+    static func isCarrotFamily(_ entry: SpeciesEntry) -> Bool {
+        entry.group.lowercased().hasPrefix("plant") && carrotFamilyGenera.contains(genus(of: entry.scientific))
+    }
+
+    /// The warning for a set of candidates, or nil if none calls for one.
+    static func warning(for candidates: [SpeciesCandidate]) -> String? {
+        candidates.contains { isCarrotFamily($0.entry) } ? carrotFamilyWarning : nil
+    }
+}
+
 // MARK: - The table
 
 /// The rows a photo is compared with, and the two settings that go
@@ -106,7 +201,8 @@ struct SpeciesGuess: Equatable {
 struct SpeciesTable {
 
     let species: [SpeciesEntry]
-    /// How many numbers are in each row. 768 for BioCLIP 2.
+    /// How many numbers are in each row. 768 for BioCLIP 2, 1,024 for
+    /// BioCLIP 2.5 Huge.
     let width: Int
     /// How sharply the model separates a good match from a poor one.
     /// It comes from BioCLIP 2 itself and is not ours to choose.
@@ -275,7 +371,8 @@ struct SpeciesTable {
     /// photos run through the app, one of hemlock water-dropwort, which
     /// is deadly, was named as yellow iris at 87%, and hemlock itself
     /// was read as cow parsley or chervil. A match must never be the
-    /// reason to eat a plant.
+    /// reason to eat a plant. For the carrot family there is a louder
+    /// warning as well: see DangerousLookAlikes.
     var caveat: String {
         "It can only choose among the \(species.count) UK species it was given, and it never names fungi. Never eat anything, or handle a plant that may be poisonous, on the strength of a match: it can mistake a deadly plant for a harmless one. Treat a match as a suggestion to check."
     }

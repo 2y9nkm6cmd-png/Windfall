@@ -156,7 +156,9 @@ struct IdentifyView: View {
         .task {
             // A checking aid: an example answer, so the cards can be
             // looked at where the model cannot run. See DemoGarden.
-            if DemoGarden.showsExampleMatch { guess = IdentifyView.exampleMatch }
+            if DemoGarden.showsExampleMatch {
+                guess = DemoGarden.showsCarrotFamilyMatch ? IdentifyView.exampleCarrotFamilyMatch : IdentifyView.exampleMatch
+            }
         }
     }
 
@@ -211,6 +213,26 @@ struct IdentifyView: View {
 
         if let guess {
             SheetCard(guess.isSure ? "Eira's match" : "Eira is not sure") {
+                // A carrot-family plant among the three gets a warning
+                // in plain sight, however sure the model is. See
+                // DangerousLookAlikes in SpeciesTable.swift.
+                if let warning = guess.lookAlikeWarning {
+                    Label {
+                        Text(warning)
+                            .font(.callout.weight(.medium))
+                            .foregroundStyle(Theme.ink)
+                    } icon: {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundStyle(.orange)
+                    }
+                    .padding(12)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Color.orange.opacity(0.14), in: .rect(cornerRadius: 12))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 12)
+                            .strokeBorder(Color.orange.opacity(0.55))
+                    }
+                }
                 if !guess.isSure {
                     Text("None of these is strong enough to name. A closer or sharper photo may help. It may also be something she was never shown.")
                         .font(.callout)
@@ -328,6 +350,17 @@ struct IdentifyView: View {
             SpeciesCandidate(entry: SpeciesEntry(scientific: "Bombus terrestris", common: "Buff-tailed Bumblebee", group: "Insecta", taught: true), share: 0.93),
             SpeciesCandidate(entry: SpeciesEntry(scientific: "Bombus lucorum", common: "White-tailed Bumblebee", group: "Insecta", taught: true), share: 0.05),
             SpeciesCandidate(entry: SpeciesEntry(scientific: "Bombus hortorum", common: "Garden Bumblebee", group: "Insecta", taught: true), share: 0.01)
+        ],
+        isSure: true)
+
+    /// A second made-up answer, with a carrot-family plant named, for
+    /// looking at the warning that brings up. It is the real mistake of
+    /// 14 November 2026: a photo of hemlock named as cow parsley.
+    static let exampleCarrotFamilyMatch = SpeciesGuess(
+        candidates: [
+            SpeciesCandidate(entry: SpeciesEntry(scientific: "Anthriscus sylvestris", common: "Cow Parsley", group: "Plantae", taught: false), share: 0.996),
+            SpeciesCandidate(entry: SpeciesEntry(scientific: "Conium maculatum", common: "Hemlock", group: "Plantae", taught: false), share: 0.003),
+            SpeciesCandidate(entry: SpeciesEntry(scientific: "Anthriscus cerefolium", common: "Chervil", group: "Plantae", taught: false), share: 0.001)
         ],
         isSure: true)
 }

@@ -72,7 +72,13 @@ enum DemoGarden {
     /// made-up answer, so its cards can be looked at in the simulator,
     /// where the identification model cannot run.
     static var showsExampleMatch: Bool {
-        isRequested && UserDefaults.standard.bool(forKey: "demoMatch")
+        isRequested && (UserDefaults.standard.bool(forKey: "demoMatch") || showsCarrotFamilyMatch)
+    }
+
+    /// `-demoMatch hemlock` makes that made-up answer one with a
+    /// carrot-family plant in it, to look at the warning it brings up.
+    static var showsCarrotFamilyMatch: Bool {
+        isRequested && UserDefaults.standard.string(forKey: "demoMatch") == "hemlock"
     }
 
     /// Checking aids that open one page in place of the Gardens page:

@@ -59,6 +59,10 @@ enum SpeciesTestRun {
         note("- Photos: \(photos.count)\n")
 
         var tried = 0, named = 0, namedRight = 0, firstRight = 0, inThree = 0, marked = 0
+        // The carrot-family warning: how often it showed, how often the
+        // photo really was of that family, and how often such a photo
+        // went without it.
+        var warned = 0, warnedRightly = 0, carrotFamilyPhotos = 0, carrotFamilyUnwarned = 0
         var seconds: TimeInterval = 0
 
         for photo in photos {
@@ -75,8 +79,19 @@ enum SpeciesTestRun {
                 let names = guess.candidates.map { "\($0.entry.scientific) \($0.percent)" }
                     .joined(separator: "; ")
                 var line = "- \(photo.lastPathComponent): \(guess.isSure ? "NAMED" : "not sure"). \(names)"
+                let isWarned = guess.lookAlikeWarning != nil
+                if isWarned { warned += 1; line += "  (carrot-family warning)" }
 
                 if let right = answers[photo.lastPathComponent] {
+                    // Every photo in these tests is of a plant or an
+                    // animal named by its key, so the group can be taken
+                    // from the table where the name is in it.
+                    let rightEntry = SpeciesEye.shared.table?.species.first { $0.scientific == right }
+                    let isCarrotFamily = rightEntry.map { DangerousLookAlikes.isCarrotFamily($0) } ?? false
+                    if isCarrotFamily {
+                        carrotFamilyPhotos += 1
+                        if isWarned { warnedRightly += 1 } else { carrotFamilyUnwarned += 1; line += "  (CARROT FAMILY, NO WARNING)" }
+                    }
                     marked += 1
                     let isFirst = guess.likeliest?.entry.scientific == right
                     let isInThree = guess.candidates.contains { $0.entry.scientific == right }
@@ -110,6 +125,7 @@ enum SpeciesTestRun {
             note("- First answer right: \(firstRight) (\(percent(firstRight, of: marked)))")
             note("- Right answer among the three: \(inThree) (\(percent(inThree, of: marked)))")
             note("- Named outright: \(named) (\(percent(named, of: marked))). Of those, right: \(namedRight) (\(percent(namedRight, of: named)))")
+            note("- Carrot-family warning shown: \(warned). Photos really of that family: \(carrotFamilyPhotos), of which warned: \(warnedRightly), not warned: \(carrotFamilyUnwarned). Warned though not of that family: \(warned - warnedRightly)")
         } else {
             note("- Named outright: \(named)")
         }
