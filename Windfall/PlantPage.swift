@@ -117,8 +117,8 @@ enum PlantPage {
                                  months("Sow outdoors", plant.sowOutdoorsMonthsText, .sowOutdoors),
                                  months("Plant out", plant.plantOutMonthsText, .plantOut),
                                  months("Harvest", plant.harvestMonthsText, .harvest)].compactMap { $0 },
-                     facts: [days("Germination", plant.germinationDaysText),
-                             days("Sow to crop", plant.sowToCropText),
+                     facts: [duration("Germination", plant.germinationDaysText),
+                             duration("Sow to crop", plant.sowToCropText),
                              fact("Sowing depth", plant.sowingDepthMM, unit: "mm"),
                              fact("Propagation", plant.propagation)].compactMap { $0 }),
             FactCard(title: "Growth Constraints",
@@ -249,9 +249,10 @@ enum PlantPage {
         return Fact(label: label, value: trimmed)
     }
 
-    /// A number of days, or a range of them: "14 days", "7 to 21 days".
-    private static func days(_ label: String, _ text: String?) -> Fact? {
-        RangeParser.range(in: text).map { Fact(label: label, value: "\($0.description) days") }
+    /// A length of time in the unit it was written in: "14 days",
+    /// "7–21 days", "20 weeks", "9–12 months". Days where none is named.
+    private static func duration(_ label: String, _ text: String?) -> Fact? {
+        DurationParser.describe(text).map { Fact(label: label, value: $0) }
     }
 
     private static func months(_ label: String, _ text: String?, _ kind: MonthKind) -> MonthRow? {
