@@ -617,13 +617,13 @@ struct CornerPreviewView: View {
                         .frame(maxWidth: 480)
                         .frame(maxWidth: .infinity)
                     Text("\(CornerPreviewView.monthNames[monthNumber - 1]): \(shownScene.plantName.lowercased())")
-                        .font(.headline)
+                        .font(.title3.weight(.semibold))
                         .foregroundStyle(Theme.ink)
                     Text(shownScene.plantNote)
-                        .font(.subheadline)
+                        .font(.body)
                         .foregroundStyle(Theme.inkSoft)
                     Text(beeLine)
-                        .font(.subheadline)
+                        .font(.body)
                         .foregroundStyle(Theme.inkSoft)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -665,7 +665,7 @@ struct CornerPreviewView: View {
                 .glassCard()
 
                 Text("All twelve")
-                    .font(.headline)
+                    .font(.title3.weight(.semibold))
                     .foregroundStyle(Theme.ink)
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 170), spacing: 12)], spacing: 12) {
                     ForEach(1...12, id: \.self) { number in
@@ -679,10 +679,10 @@ struct CornerPreviewView: View {
                                     // the drawing inside does not take it.
                                     .allowsHitTesting(false)
                                 Text(CornerPreviewView.monthNames[number - 1])
-                                    .font(.subheadline.weight(.semibold))
+                                    .font(.body.weight(.semibold))
                                     .foregroundStyle(Theme.ink)
                                 Text(CornerScene.plantNames[number - 1])
-                                    .font(.caption)
+                                    .font(.footnote)
                                     .foregroundStyle(Theme.inkSoft)
                             }
                             .frame(maxWidth: .infinity, alignment: .leading)
@@ -694,7 +694,7 @@ struct CornerPreviewView: View {
                 }
 
                 Text("This page is only for looking. On Today the drawing follows the real date and the weather for your garden, with nothing to set up. With no weather to go on it shows a light breeze on a fine day. Here things happen sooner than on Today, where the bee waits 10 to 20 seconds between visits.")
-                    .font(.caption)
+                    .font(.footnote)
                     .foregroundStyle(Theme.inkSoft)
             }
             .padding(.horizontal, 16)

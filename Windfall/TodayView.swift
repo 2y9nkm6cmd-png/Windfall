@@ -520,7 +520,7 @@ struct TodayView: View {
     /// VoiceOver.
     private var rearrangeButton: some View {
         Button("Rearrange this page") { beginArranging() }
-            .font(.subheadline)
+            .font(.body)
             .foregroundStyle(Theme.leaf)
             .buttonStyle(.plain)
             .frame(maxWidth: .infinity)
@@ -909,7 +909,7 @@ struct TodayView: View {
                 }
                 .buttonStyle(.plain)
             }
-            .font(.subheadline)
+            .font(.body)
             .foregroundStyle(Theme.leaf)
         }
         .frame(maxWidth: .infinity, alignment: .leading)

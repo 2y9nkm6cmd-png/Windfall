@@ -172,7 +172,7 @@ struct JobOfferCard: View {
                    onRefuse: onDismiss) {
             JobFields(title: $title, span: $span, siteKey: $siteKey, gardens: gardens, today: today)
             Text("It goes on Today's lists until you tick it. Nothing is added unless you press Add.")
-                .font(.caption)
+                .font(.footnote)
                 .foregroundStyle(Theme.inkSoft)
         }
     }
@@ -216,7 +216,7 @@ struct JobOfferSheet: View {
                     HStack(alignment: .top, spacing: 8) {
                         EiraSymbol(size: 28)
                         Text(addedLine)
-                            .font(.subheadline)
+                            .font(.body)
                             .foregroundStyle(Theme.ink)
                             .fixedSize(horizontal: false, vertical: true)
                     }
@@ -276,7 +276,7 @@ struct JobSheet: View {
                     SheetCard {
                         if let said = job.saidAs, !said.isEmpty {
                             Text("Read from: \u{201C}\(said)\u{201D}")
-                                .font(.caption)
+                                .font(.footnote)
                                 .foregroundStyle(Theme.inkSoft)
                                 .fixedSize(horizontal: false, vertical: true)
                         }
@@ -333,13 +333,13 @@ struct OwnJobRow: View {
             } label: {
                 VStack(alignment: .leading, spacing: 1) {
                     Text(job.title)
-                        .font(.subheadline)
+                        .font(.body)
                         .strikethrough(job.isDone)
                         .foregroundStyle(job.isDone ? Theme.inkSoft : Theme.ink)
                         .fixedSize(horizontal: false, vertical: true)
                     if let detail = GardenJobs.detail(for: job.facts(gardens: gardens), today: .now) {
                         Text(detail)
-                            .font(.caption)
+                            .font(.footnote)
                             .foregroundStyle(Theme.inkSoft)
                             .fixedSize(horizontal: false, vertical: true)
                     }
@@ -405,7 +405,7 @@ struct OwnJobsView: View {
 
                 if jobs.isEmpty {
                     Text("None yet. Tell Eira what needs doing, such as \u{201C}I need to build the wigwam at the weekend\u{201D}, or add one here.")
-                        .font(.subheadline)
+                        .font(.body)
                         .foregroundStyle(Theme.inkSoft)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .glassCard()
@@ -436,7 +436,7 @@ struct OwnJobsView: View {
         if !list.isEmpty {
             VStack(alignment: .leading, spacing: 10) {
                 Text(heading)
-                    .font(.headline)
+                    .font(.title3.weight(.semibold))
                     .foregroundStyle(Theme.ink)
                 ForEach(list) { job in
                     OwnJobRow(job: job, gardens: gardens)

@@ -950,7 +950,7 @@ private struct PlantFactCardView: View {
             // or from your own reading: "RHS, kept Nov 2026".
             if let source = fact.source {
                 Text(source)
-                    .font(.caption2)
+                    .font(.caption)
                     .foregroundStyle(Theme.leaf)
             }
         }

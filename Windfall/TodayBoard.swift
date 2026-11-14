@@ -539,7 +539,7 @@ struct EmptyZoneOutline: View {
 
     var body: some View {
         Text(words)
-            .font(.caption)
+            .font(.footnote)
             .foregroundStyle(Theme.inkSoft)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background {

@@ -67,22 +67,22 @@ struct ThinkingBubble: View {
                         ProgressView().controlSize(.small)
                     } else {
                         Image(systemName: "sparkle.magnifyingglass")
-                            .font(.caption)
+                            .font(.footnote)
                     }
                     Text(heading)
-                        .font(.caption.weight(.medium))
+                        .font(.footnote.weight(.medium))
                     // While she works, the newest lookup is named beside
                     // "Thinking…", so the bubble shows progress closed.
                     if isLive, !isOpen, let newest = lookups.last {
                         Text(EiraChatLayout.title(forLookup: newest.toolName))
-                            .font(.caption)
+                            .font(.footnote)
                             .lineLimit(1)
                     }
                     // Open, the bubble is as wide as the chat. Closed,
                     // it is only as wide as its words.
                     if isOpen { Spacer(minLength: 0) }
                     Image(systemName: "chevron.down")
-                        .font(.caption2)
+                        .font(.caption)
                         .rotationEffect(.degrees(isOpen ? 180 : 0))
                 }
                 .foregroundStyle(Theme.inkSoft)
@@ -100,10 +100,10 @@ struct ThinkingBubble: View {
                 if hasReasoning, let reasoning {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Her reasoning")
-                            .font(.caption.weight(.medium))
+                            .font(.footnote.weight(.medium))
                             .foregroundStyle(Theme.ink)
                         Text(reasoning)
-                            .font(.caption)
+                            .font(.footnote)
                             .foregroundStyle(Theme.inkSoft)
                             .textSelection(.enabled)
                     }
@@ -141,21 +141,21 @@ struct ThinkingBubble: View {
             } label: {
                 HStack(alignment: .firstTextBaseline, spacing: 8) {
                     Image(systemName: "magnifyingglass")
-                        .font(.caption2)
+                        .font(.caption)
                         .foregroundStyle(Theme.leaf)
                     VStack(alignment: .leading, spacing: 1) {
                         Text(EiraChatLayout.title(forLookup: lookup.toolName))
-                            .font(.caption)
+                            .font(.footnote)
                             .foregroundStyle(Theme.ink)
                         if let source = result.source {
                             Text(source)
-                                .font(.caption2)
+                                .font(.caption)
                                 .foregroundStyle(Theme.inkSoft)
                         }
                     }
                     Spacer(minLength: 0)
                     Image(systemName: "chevron.right")
-                        .font(.caption2)
+                        .font(.caption)
                         .foregroundStyle(Theme.inkSoft)
                         .rotationEffect(.degrees(showsResult ? 90 : 0))
                 }
@@ -168,7 +168,7 @@ struct ThinkingBubble: View {
                 // The lookup's code name is given last, for when a
                 // lookup needs chasing in the code.
                 Text(result.found + (lookup.toolName.map { "\n\n(\($0))" } ?? ""))
-                    .font(.caption.monospaced())
+                    .font(.footnote.monospaced())
                     .foregroundStyle(Theme.inkSoft)
                     .textSelection(.enabled)
                     .padding(.leading, 22)
@@ -219,7 +219,7 @@ struct ChatPlantLinks: View {
         if !found.isEmpty {
             VStack(alignment: .leading, spacing: 8) {
                 Text("In your plant library")
-                    .font(.caption)
+                    .font(.footnote)
                     .foregroundStyle(Theme.inkSoft)
 
                 ForEach(Array(found.prefix(mostCards))) { plant in
@@ -235,7 +235,7 @@ struct ChatPlantLinks: View {
 
                 if found.count > mostCards {
                     Text("and \(found.count - mostCards) more, on the Plants page")
-                        .font(.caption)
+                        .font(.footnote)
                         .foregroundStyle(Theme.inkSoft)
                 }
             }

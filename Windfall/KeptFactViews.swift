@@ -66,11 +66,11 @@ private struct FactPlacement: View {
             if found.isEmpty {
                 Label("\(field.label) holds months, and no month can be read from this. Choose another place, such as Notes.",
                       systemImage: "exclamationmark.triangle")
-                    .font(.caption)
+                    .font(.footnote)
                     .foregroundStyle(Theme.amber)
             } else {
                 Text("\(field.label) will hold: \(KeptFacts.monthsText(found))")
-                    .font(.caption)
+                    .font(.footnote)
                     .foregroundStyle(Theme.inkSoft)
             }
         }
@@ -78,7 +78,7 @@ private struct FactPlacement: View {
         if !presentValues.isEmpty {
             VStack(alignment: .leading, spacing: 6) {
                 Text("It holds now: \(presentValues.joined(separator: " / "))")
-                    .font(.caption)
+                    .font(.footnote)
                     .foregroundStyle(Theme.inkSoft)
                     .lineLimit(4)
                 GlassSwitch(choices: KeptFacts.How.allCases, selection: $how) { $0.title }
@@ -176,7 +176,7 @@ struct FindOfferCard: View {
                     .frame(maxWidth: 220)
                 }
                 Text(plantLine)
-                    .font(.caption)
+                    .font(.footnote)
                     .foregroundStyle(chosen.isEmpty ? Theme.amber : Theme.inkSoft)
 
                 FactPlacement(plants: chosen, words: words, field: $field, how: $how)
@@ -184,7 +184,7 @@ struct FindOfferCard: View {
                 sourceLine
 
                 Text("It would be written into the plant's own record, with where it came from. Nothing is kept unless you press Keep it.")
-                    .font(.caption)
+                    .font(.footnote)
                     .foregroundStyle(Theme.inkSoft)
             }
         }
@@ -196,17 +196,17 @@ struct FindOfferCard: View {
         VStack(alignment: .leading, spacing: 3) {
             HStack(spacing: 8) {
                 Text("From \(offer.onlineFind.sourceName) · \(offer.onlineFind.trust.label)")
-                    .font(.caption.weight(.medium))
+                    .font(.footnote.weight(.medium))
                     .foregroundStyle(Theme.ink)
                 if let url = URL(string: offer.onlineFind.address) {
                     Link("Open the page", destination: url)
-                        .font(.caption)
+                        .font(.footnote)
                         .foregroundStyle(Theme.leaf)
                 }
             }
             if let title = offer.onlineFind.title, !title.isEmpty {
                 Text("The page is called \u{201C}\(title)\u{201D}.")
-                    .font(.caption)
+                    .font(.footnote)
                     .foregroundStyle(Theme.inkSoft)
             }
         }
@@ -226,7 +226,7 @@ struct FindOfferCard: View {
                 .foregroundStyle(Theme.inkSoft)
                 .underline()
         }
-        .font(.caption)
+        .font(.footnote)
     }
 
     /// Writes the fact into the record of each plant chosen, and tells
@@ -389,11 +389,11 @@ struct KeptFactRow: View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(alignment: .firstTextBaseline, spacing: 8) {
                 Text(showsPlant ? "\(fact.plantName) · \(fact.boxLabel)" : fact.boxLabel)
-                    .font(.subheadline.weight(.medium))
+                    .font(.body.weight(.medium))
                     .foregroundStyle(Theme.ink)
                 if isDue {
                     Text("Due a check")
-                        .font(.caption.weight(.medium))
+                        .font(.footnote.weight(.medium))
                         .foregroundStyle(Theme.ink)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 2)
@@ -402,25 +402,25 @@ struct KeptFactRow: View {
             }
 
             Text(fact.words)
-                .font(.subheadline)
+                .font(.body)
                 .foregroundStyle(Theme.ink)
                 .fixedSize(horizontal: false, vertical: true)
                 .textSelection(.enabled)
 
             Text("\(KeptFacts.sourceLabel(for: fact)) · \(fact.trust.label)")
-                .font(.caption)
+                .font(.footnote)
                 .foregroundStyle(Theme.inkSoft)
 
             if isDue {
                 Text("Kept over two years ago. Advice changes, so it is worth a look at the source. Eira goes on using it meanwhile.")
-                    .font(.caption)
+                    .font(.footnote)
                     .foregroundStyle(Theme.inkSoft)
             }
 
             HStack(spacing: 8) {
                 if let address = fact.sourceAddress, let url = WebPageReader.webURL(from: address) {
                     Link("Open the source", destination: url)
-                        .font(.subheadline.weight(.medium))
+                        .font(.body.weight(.medium))
                         .foregroundStyle(Theme.leaf)
                 }
                 Spacer(minLength: 0)
@@ -462,12 +462,12 @@ struct KeptFactsCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Kept facts")
-                .font(.headline)
+                .font(.title3.weight(.semibold))
                 .foregroundStyle(Theme.ink)
 
             if facts.isEmpty {
                 Text("Something you have read about this plant can be kept in its record, with where you read it.")
-                    .font(.subheadline)
+                    .font(.body)
                     .foregroundStyle(Theme.inkSoft)
             }
 
@@ -516,7 +516,7 @@ struct KeptFactsView: View {
                 if facts.isEmpty {
                     SheetCard {
                         Text("Nothing yet. When Eira reads a web page for you, a card under her reply offers to keep what she found. Or open a plant's page and press \"Keep a fact\".")
-                            .font(.callout)
+                            .font(.body)
                             .foregroundStyle(Theme.inkSoft)
                     }
                 }

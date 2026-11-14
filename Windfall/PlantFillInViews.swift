@@ -102,7 +102,7 @@ struct NewPlantSheet: View {
                     }
                     if isAlreadyThere {
                         Text("Your plant library already has this plant. Open its page and use Fill the gaps there.")
-                            .font(.caption)
+                            .font(.footnote)
                             .foregroundStyle(Theme.amber)
                     }
                 }
@@ -131,7 +131,7 @@ struct NewPlantSheet: View {
                         }
                     }
                     Text("The group decides which filters and which crop rotation it falls under. It can be changed later.")
-                        .font(.caption)
+                        .font(.footnote)
                         .foregroundStyle(Theme.inkSoft)
                 }
             }
@@ -241,12 +241,12 @@ struct FillInSheet: View {
                             .foregroundStyle(Theme.ink)
                     }
                     Text("Nothing is written to the plant's record until you press Keep on it. Each suggestion shows where it came from and the words it was read from.")
-                        .font(.caption)
+                        .font(.footnote)
                         .foregroundStyle(Theme.inkSoft)
                         .fixedSize(horizontal: false, vertical: true)
                     ForEach(online.problems, id: \.self) { problem in
                         Text(problem)
-                            .font(.caption)
+                            .font(.footnote)
                             .foregroundStyle(Theme.amber)
                             .fixedSize(horizontal: false, vertical: true)
                     }
@@ -285,12 +285,12 @@ struct FillInSheet: View {
     private func pageLine(_ page: PageReading) -> some View {
         HStack(spacing: 8) {
             Text("Read: \(page.title ?? page.address) · \(page.sourceName), \(page.trust.label.lowercased())")
-                .font(.caption)
+                .font(.footnote)
                 .foregroundStyle(Theme.inkSoft)
                 .fixedSize(horizontal: false, vertical: true)
             if let url = WebPageReader.webURL(from: page.address) {
                 Link("Open", destination: url)
-                    .font(.caption)
+                    .font(.footnote)
                     .foregroundStyle(Theme.leaf)
             }
         }
@@ -309,7 +309,7 @@ struct FillInSheet: View {
                             .foregroundStyle(Theme.ink)
                         if let why = gap.why {
                             Text(why)
-                                .font(.caption)
+                                .font(.footnote)
                                 .foregroundStyle(Theme.inkSoft)
                         }
                     }
@@ -327,7 +327,7 @@ struct FillInSheet: View {
             }
 
             Text("Read a page for more. Paste the address of this plant's page on the RHS, a seed supplier or any other site, and the same rules read it.")
-                .font(.caption)
+                .font(.footnote)
                 .foregroundStyle(Theme.inkSoft)
                 .fixedSize(horizontal: false, vertical: true)
             HStack(spacing: 8) {
@@ -349,7 +349,7 @@ struct FillInSheet: View {
             }
             if let pastedProblem {
                 Text(pastedProblem)
-                    .font(.caption)
+                    .font(.footnote)
                     .foregroundStyle(Theme.amber)
             }
 
@@ -474,7 +474,7 @@ private struct SuggestionCard: View {
                     .foregroundStyle(Theme.inkSoft)
                     .underline()
             }
-            .font(.caption)
+            .font(.footnote)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 6)
         } else {
@@ -500,14 +500,14 @@ private struct SuggestionCard: View {
                 }
                 if let monthsInWords {
                     Text(monthsInWords)
-                        .font(.caption)
+                        .font(.footnote)
                         .foregroundStyle(Theme.inkSoft)
                 }
 
                 // The words it was read from, or the reason for it.
                 if !suggestion.evidence.isEmpty {
                     Text(suggestion.evidence)
-                        .font(.caption)
+                        .font(.footnote)
                         .italic()
                         .foregroundStyle(Theme.inkSoft)
                         .fixedSize(horizontal: false, vertical: true)
@@ -515,18 +515,18 @@ private struct SuggestionCard: View {
                 // Where another source says something different.
                 if let otherView = suggestion.otherView {
                     Text(otherView)
-                        .font(.caption)
+                        .font(.footnote)
                         .foregroundStyle(Theme.amber)
                         .fixedSize(horizontal: false, vertical: true)
                 }
 
                 HStack(spacing: 8) {
                     Text("\(suggestion.sourceName) · \(suggestion.trust.label)")
-                        .font(.caption.weight(.medium))
+                        .font(.footnote.weight(.medium))
                         .foregroundStyle(Theme.ink)
                     if let address = suggestion.address, let url = WebPageReader.webURL(from: address) {
                         Link("Open the page", destination: url)
-                            .font(.caption)
+                            .font(.footnote)
                             .foregroundStyle(Theme.leaf)
                     }
                 }
@@ -540,7 +540,7 @@ private struct SuggestionCard: View {
                             .foregroundStyle(Theme.inkSoft)
                             .underline()
                     }
-                    .font(.caption)
+                    .font(.footnote)
                 } else {
                     HStack(spacing: 8) {
                         Button("Keep") { onKeep() }
@@ -573,10 +573,10 @@ struct GapsCard: View {
             let fullness = PlantGaps.fullness(of: plant)
             VStack(alignment: .leading, spacing: 10) {
                 Text("Fill the gaps")
-                    .font(.headline)
+                    .font(.title3.weight(.semibold))
                     .foregroundStyle(Theme.ink)
                 Text("\(fullness.filled) of \(fullness.wanted) of the facts that matter are filled in. Missing: \(named(gaps)).")
-                    .font(.subheadline)
+                    .font(.body)
                     .foregroundStyle(Theme.inkSoft)
                     .fixedSize(horizontal: false, vertical: true)
                 Button("Look them up") { onFill() }

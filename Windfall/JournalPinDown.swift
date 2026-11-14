@@ -116,10 +116,10 @@ struct PinDownCard: View {
     private var offer: some View {
         VStack(alignment: .leading, spacing: 10) {
             Text("Want to pin it down?")
-                .font(.subheadline.weight(.semibold))
+                .font(.body.weight(.semibold))
                 .foregroundStyle(Theme.ink)
             Text("A photo or a few details now will make the \(word) easier to name later.")
-                .font(.subheadline)
+                .font(.body)
                 .foregroundStyle(Theme.ink)
 
             // Wraps on to a second row if the card is narrow.
@@ -163,13 +163,13 @@ struct PinDownCard: View {
 
         return VStack(alignment: .leading, spacing: 12) {
             Text("Tell me what you can. Skip anything you didn't see.")
-                .font(.subheadline.weight(.semibold))
+                .font(.body.weight(.semibold))
                 .foregroundStyle(Theme.ink)
 
             ForEach(questions) { question in
                 VStack(alignment: .leading, spacing: 6) {
                     Text(question.title + (question.allowsMany ? " (choose any)" : ""))
-                        .font(.caption.weight(.semibold))
+                        .font(.footnote.weight(.semibold))
                         .foregroundStyle(Theme.inkSoft)
                     ChipFlow(spacing: 6) {
                         ForEach(question.options, id: \.self) { option in
@@ -197,7 +197,7 @@ struct PinDownCard: View {
     private func answerChip(_ words: String, isOn: Bool, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Text(words)
-                .font(.caption)
+                .font(.footnote)
                 .fontWeight(isOn ? .semibold : .regular)
                 .foregroundStyle(Theme.ink)
                 .padding(.horizontal, 12)
@@ -238,7 +238,7 @@ struct PinDownCard: View {
         HStack(spacing: 10) {
             ProgressView()
             Text("Looking at the photo…")
-                .font(.subheadline)
+                .font(.body)
                 .foregroundStyle(Theme.ink)
         }
     }
@@ -264,7 +264,7 @@ struct PinDownCard: View {
     private func failed(_ reason: String) -> some View {
         VStack(alignment: .leading, spacing: 10) {
             Text("I couldn't look at that photo. \(reason)")
-                .font(.subheadline)
+                .font(.body)
                 .foregroundStyle(Theme.ink)
             HStack(spacing: 8) {
                 Button("Save the photo to identify later") { saveSighting(from: nil) }
