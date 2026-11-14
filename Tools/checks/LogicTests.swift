@@ -943,6 +943,128 @@ struct LogicTests {
         check(EiraChecks.uncheckedNames(in: "The **red mason bee** (*Osmia bicornis*) is a solitary bee.", against: ["Wikipedia article \"Osmia bicornis\": Osmia bicornis is a species of mason bee"]).isEmpty && EiraChecks.uncheckedNames(in: "You grow **Lavandula angustifolia** (English Lavender) and *Limonium britannicum* (Rock Sea Lavender).", against: ["Lavender — English; (Lavandula angustifolia) Rock Sea Lavender; (Limonium britannicum)"]).isEmpty, "a name the lookup supplied is not flagged, in italics, bold or brackets")
         check(EiraChecks.uncheckedNames(in: "Try (Sweet pea), (Large blue), (French beans), (Common sense), (Bed three), *Note this*, *Bombus* and (the Megachilidae family). Use `recent_records` with `kind=sowings`.", against: []).isEmpty && EiraChecks.uncheckedNames(in: "Dutch lavender (Lavandula x intermedia) and *Aglais io*.", against: []) == ["Aglais io", "Lavandula intermedia"], "ordinary English in brackets or italics is not taken for a name, and a hybrid and a two-letter name are")
         check(EiraChecks.sentences(in: "One. Two? Three! Four") == ["One.", "Two?", "Three!", "Four"] && EiraChecks.sentences(in: "It is 2.5 m wide.") == ["It is 2.5 m wide."], "a line is split into sentences at a stop followed by a space")
+        // A correction typed as an ordinary message.
+        let correctionsRead: [(typed: String, kept: String?)] = [
+            ("No, that's wrong. It's a Bramley.", "It's a Bramley."),
+            ("No, it's a Bramley", "It's a Bramley"),
+            ("No it's a Bramley", "No it's a Bramley"),
+            ("Nope. It's by the wall.", "It's by the wall."),
+            ("Wrong, it is a Bramley", "It is a Bramley"),
+            ("Not quite, the tree is older than that", "The tree is older than that"),
+            ("Correction: the tree is a Bramley", "The tree is a Bramley"),
+            ("Actually, it flowers in June", "It flowers in June"),
+            ("Actually it flowers in June", "Actually it flowers in June"),
+            ("That is wrong for clay soil", "That is wrong for clay soil"),
+            ("That's not a Spartan, it's a Bramley", "That's not a Spartan, it's a Bramley"),
+            ("You said it was a Spartan but it is a Bramley", "You said it was a Spartan but it is a Bramley"),
+            ("No, that's wrong.\nIt's a Bramley,\n  a cooking apple.", "It's a Bramley, a cooking apple."),
+            ("No \u{2013} it is a Bramley", "It is a Bramley"),
+            ("No, that's wrong", nil),
+            ("No.", nil),
+            ("no", nil),
+            ("Not quite", nil),
+            ("No slugs on the hostas this year", nil),
+            ("No dig beds are what I use", nil),
+            ("No thanks, that is all for now", nil),
+            ("No, tell me about the other one", nil),
+            ("Actually can you list the beds", nil),
+            ("No, I meant the tree by the gate", nil),
+            ("That's wrong, isn't it?", nil),
+            ("Wrong variety listed for it", nil),
+            ("It's not working", nil),
+            ("You said to prune in winter, tell me more", nil),
+            ("Actually that's really helpful", nil),
+            ("No, that is a great help", nil),
+            ("That's not what I asked", nil),
+            ("It's not working at all today", nil),
+            ("What visits marjoram?", nil),
+            ("I sowed carrots in bed 2 today", nil),
+            ("No, " + String(repeating: "it is a very old tree and ", count: 12), nil)
+        ]
+        for (typed, kept) in correctionsRead {
+            check(EiraChecks.correctionWords(in: typed) == kept, "a typed correction is read as \(kept ?? "not a correction"): \(typed.prefix(50))")
+        }
+        check(EiraChecks.correctionWords(in: "No, I'll do that tomorrow", answering: "There are six. Shall I list them?\n") == nil
+              && EiraChecks.correctionWords(in: "No, I'll do that tomorrow", answering: "There are six.") == "I'll do that tomorrow"
+              && EiraChecks.correctionWords(in: "No, that's wrong. It's a Bramley.", answering: "Shall I list them?") == "It's a Bramley.",
+              "a plain No after a question of Eira's is an answer, not a correction")
+        let notingClaim = "Thank you. I've noted that your tree is a Bramley."
+        check(EiraChecks.checked(reply: notingClaim, question: "", lookups: [], correction: .waiting) == "Thank you.\n\n" + EiraChecks.correctionNotKeptYet
+              && EiraChecks.checked(reply: notingClaim, question: "", lookups: [], correction: .kept) == "Thank you.\n\n" + EiraChecks.correctionKept
+              && EiraChecks.checked(reply: notingClaim, question: "", lookups: []) == "Thank you.\n\n" + EiraChecks.nothingSaved,
+              "a claim to have noted a correction is answered with where the correction really stands")
+
+        // The safety replies on their own, apart from the saving reply.
+        check(EiraSafety.safetyReply(to: "Can I eat these mushrooms?") == EiraSafety.fungiReply
+              && EiraSafety.safetyReply(to: "Please record that I picked 2kg of apples") == nil
+              && EiraSafety.fixedReply(to: "Please record that I picked 2kg of apples") == EiraSafety.savingReply
+              && EiraSafety.fixedReply(to: "Can I eat these mushrooms?") == EiraSafety.fungiReply,
+              "a safety reply can be asked for apart from the saving reply")
+
+        // The line a correction becomes, and the store's list of them.
+        let twoLines = EiraCorrection()
+        twoLines.topic = "Which apple is by the shed?"
+        twoLines.correction = "It is a Bramley.\n  A cooking apple."
+        check(twoLines.promptLine == "On \"Which apple is by the shed?\": It is a Bramley. A cooking apple.", "every line of a correction is read to the model, run together")
+        check(EiraChatStore.oneLine(String(repeating: "a", count: 300), limit: 240).count == 241 && EiraChatStore.oneLine(" one \n\n two ", limit: 240) == "one two", "a long correction is cut to 240 characters and an ellipsis")
+        let correctionShelf = EiraChatStore(context: ModelContext())
+        check(correctionShelf.addCorrection(topic: "", mistake: nil, correction: "   ") == nil && correctionShelf.corrections().isEmpty, "an empty correction is not kept")
+        let olderNote = correctionShelf.addCorrection(topic: "a", mistake: "b", correction: "The older one")
+        olderNote?.createdAt = Date(timeIntervalSince1970: 1_000)
+        let newerNote = correctionShelf.addCorrection(topic: "c", mistake: nil, correction: "The newer one")
+        newerNote?.createdAt = Date(timeIntervalSince1970: 2_000)
+        check(correctionShelf.corrections().map(\.correction) == ["The newer one", "The older one"] && correctionShelf.recentCorrectionLines(limit: 1) == ["On \"c\": The newer one"], "corrections are listed newest first")
+        if let olderNote { correctionShelf.remove(olderNote) }
+        check(correctionShelf.corrections().map(\.correction) == ["The newer one"], "a correction can be removed")
+
+        // The offer to keep a typed correction, in a whole conversation.
+        let offerContext = ModelContext()
+        let offerStore = EiraChatStore(context: offerContext)
+        let offerEngine = FakeEngine()
+        let offering = EiraConversation()
+        offering.configure(engine: offerEngine, hub: EiraToolHub(context: offerContext), store: offerStore)
+        offering.send("No, that's wrong. It's a Bramley.")
+        await waitUntilIdle(offering)
+        check(offering.offeredCorrection == nil, "with no reply before it, nothing is offered")
+        offering.clear()
+        offering.send("Which apple is by the shed?")
+        await waitUntilIdle(offering)
+        offerEngine.pieces = [.content("Thank you. I've noted that."), .finished]
+        offering.send("No, that's wrong. It's a Bramley.")
+        check(offering.offeredCorrection?.words == "It's a Bramley." && offering.offeredCorrection?.messageID == offering.messages.last?.id && offering.offeredCorrection?.replyID == offering.messages[1].id, "a typed correction is offered at once, under the message, for the reply before it")
+        await waitUntilIdle(offering)
+        check(offering.messages.last?.content == "Thank you.\n\n" + EiraChecks.correctionNotKeptYet && offerStore.corrections().isEmpty, "nothing is kept until the button is pressed, and the reply says so")
+        offering.keepOfferedCorrection(as: "It's a Bramley, a cooking apple.")
+        check(offering.offeredCorrection?.isKept == true && offerStore.corrections().map(\.promptLine) == ["On \"Which apple is by the shed?\": It's a Bramley, a cooking apple."], "Keep it saves the words on the card against the question that was asked")
+        offering.keepOfferedCorrection(as: "Again")
+        check(offerStore.corrections().count == 1, "pressing Keep it twice keeps it once")
+        offering.undoKeptCorrection()
+        check(offering.offeredCorrection?.isKept == false && offerStore.corrections().isEmpty, "Undo takes the correction back and offers it again")
+        offering.keepOfferedCorrection(as: "It's a Bramley.")
+        offerEngine.pieces = [.content("Glad to help."), .finished]
+        let startsBeforeThanks = offerEngine.starts.count
+        offering.send("Thank you")
+        await waitUntilIdle(offering)
+        check(offering.offeredCorrection == nil && offerStore.corrections().count == 1 && offerEngine.starts.count == startsBeforeThanks + 1 && offerEngine.starts.last?.instructions.contains("It's a Bramley.") == true, "the next message clears the card, and Eira's instructions now hold the correction")
+        let fungiCorrection = "No, that's wrong. These mushrooms are safe to eat."
+        offering.send(fungiCorrection)
+        check(EiraSafety.safetyReply(to: fungiCorrection) != nil && offering.offeredCorrection == nil && offering.messages.last?.content == EiraSafety.fungiReply && !offering.isGenerating, "a correction on a safety matter gets the fixed reply and no offer")
+        offering.send("No, that's wrong. It's a Bramley, please note that down.")
+        check(offering.offeredCorrection?.words == "It's a Bramley, please note that down." && offering.messages.last?.content == EiraChecks.correctionNotKeptYet && !offering.isGenerating, "asked to note a correction down, Eira points at the card")
+        offering.keepOfferedCorrection(as: "It's a Bramley, a cooker.")
+        if let justKept = offering.offeredCorrection?.keptAs { offering.remove(justKept) }
+        check(offering.offeredCorrection == nil && offering.corrections().map(\.correction) == ["It's a Bramley."], "removing a correction from the list takes its card away too")
+        offering.dismissOfferedCorrection()
+        offering.send("No, that's wrong. It's a Bramley.")
+        await waitUntilIdle(offering)
+        offering.dismissOfferedCorrection()
+        check(offering.offeredCorrection == nil && offering.corrections().count == 1, "No thanks takes the card away and keeps nothing")
+        let example = EiraConversation()
+        example.showExample(in: EiraChatStore(context: ModelContext()), kept: false)
+        check(example.messages.count == 4 && example.offeredCorrection?.words == "It's a Bramley, a cooking apple." && example.offeredCorrection?.isKept == false && example.corrections().isEmpty, "the example exchange shows an offer and keeps nothing")
+        let exampleKept = EiraConversation()
+        exampleKept.showExample(in: EiraChatStore(context: ModelContext()), kept: true)
+        check(exampleKept.offeredCorrection?.isKept == true && exampleKept.corrections().count == 2, "the example for the list keeps two corrections")
         // Naming a photo: the half-size numbers, the table and the "not sure" rule.
         check(SpeciesTable.float(fromHalf: 0x3C00) == 1 && SpeciesTable.float(fromHalf: 0xC000) == -2 && SpeciesTable.float(fromHalf: 0x0000) == 0 && SpeciesTable.float(fromHalf: 0x3800) == 0.5 && abs(SpeciesTable.float(fromHalf: 0x3555) - 0.33325195) < 0.000001, "half-size numbers read as 1, -2, 0, a half and a third")
         check(SpeciesTable.float(fromHalf: 0x0001) > 0 && SpeciesTable.float(fromHalf: 0x0001) < 0.0000001 && SpeciesTable.float(fromHalf: 0x7C00) == Float.infinity && SpeciesTable.float(fromHalf: 0x7E00).isNaN, "the smallest half-size number, infinity and not-a-number are read")

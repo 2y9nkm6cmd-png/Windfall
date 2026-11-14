@@ -96,17 +96,26 @@ enum EiraSafety {
 
     /// Returns fixed wording when a question must not go to the model, or
     /// nil when the model may answer as usual.
+    static func fixedReply(to question: String) -> String? {
+        if let safety = safetyReply(to: question) { return safety }
+        // Last, so that a safety reply always wins over this one.
+        if asksToSaveARecord(question) { return savingReply }
+        return nil
+    }
+
+    /// The fixed reply for one of the four safety matters, or nil if the
+    /// message is not about any of them. The chat asks for these
+    /// separately from the saving reply, because a correction about one
+    /// of them is never offered for keeping. See EiraConversation.send.
     ///
     /// The checks run in order and the first match wins. Pesticides come
     /// before medicine so that "how much soapy water for aphids" gets the
     /// pesticide reply, not the medicine one.
-    static func fixedReply(to question: String) -> String? {
+    static func safetyReply(to question: String) -> String? {
         if asksAboutEatingOrNamingFungi(question) { return fungiReply }
         if asksForPreservingDetails(question) { return preservingReply }
         if asksForPesticideAmounts(question) { return pesticideReply }
         if asksForMedicalAdvice(question) { return medicineReply }
-        // Last, so that a safety reply always wins over this one.
-        if asksToSaveARecord(question) { return savingReply }
         return nil
     }
 

@@ -46,8 +46,12 @@ struct EiraChatView: View {
     @State private var showingSettings = false
     @State private var showingHistory = false
     @State private var messageToCorrect: ChatMessage?
+    @State private var showingCorrections = false
     @State private var voice = VoiceInput()
     @AppStorage("eiraSpeaksReplies") private var speaksReplies = false
+
+    /// The name of the marker at the bottom of the conversation.
+    private let endOfChat = "end of chat"
 
     var body: some View {
         VStack(spacing: 0) {
@@ -67,6 +71,17 @@ struct EiraChatView: View {
                                 messageToCorrect = message
                             }
                             .id(message.id)
+
+                            // A message of yours that put Eira right is
+                            // followed by a card offering to keep it.
+                            if let offer = conversation.offeredCorrection, offer.messageID == message.id {
+                                CorrectionOfferCard(
+                                    offer: offer,
+                                    onKeep: { words in conversation.keepOfferedCorrection(as: words) },
+                                    onUndo: { conversation.undoKeptCorrection() },
+                                    onDismiss: { conversation.dismissOfferedCorrection() },
+                                    onShowAll: { showingCorrections = true })
+                            }
                         }
 
                         if conversation.isGenerating {
@@ -88,16 +103,27 @@ struct EiraChatView: View {
                                 .font(.callout)
                                 .foregroundStyle(.orange)
                         }
+
+                        // Nothing to see: a marker at the very end, for
+                        // the list to scroll to.
+                        Color.clear
+                            .frame(height: 1)
+                            .id(endOfChat)
                     }
                     .padding()
                 }
+                // Keep the newest thing in view: a message, the reply as
+                // it arrives, or a card offering to keep a correction.
+                // Each `onChange` runs its closure when the value it
+                // names changes. `proxy` is what can move the list.
                 .onChange(of: conversation.streamingContent) { _, _ in
-                    withAnimation { proxy.scrollTo("streaming", anchor: .bottom) }
+                    withAnimation { proxy.scrollTo(endOfChat, anchor: .bottom) }
                 }
                 .onChange(of: conversation.messages.count) { _, _ in
-                    if let last = conversation.messages.last {
-                        withAnimation { proxy.scrollTo(last.id, anchor: .bottom) }
-                    }
+                    withAnimation { proxy.scrollTo(endOfChat, anchor: .bottom) }
+                }
+                .onChange(of: conversation.offeredCorrection?.messageID) { _, _ in
+                    withAnimation { proxy.scrollTo(endOfChat, anchor: .bottom) }
                 }
             }
 
@@ -143,6 +169,11 @@ struct EiraChatView: View {
                         Label("Past conversations", systemImage: "clock.arrow.circlepath")
                     }
                     Button {
+                        showingCorrections = true
+                    } label: {
+                        Label("Corrections", systemImage: "pencil.and.outline")
+                    }
+                    Button {
                         showingSettings = true
                     } label: {
                         Label("Model and garden notes", systemImage: "gear")
@@ -170,7 +201,11 @@ struct EiraChatView: View {
             EiraCorrectionView(message: message) { correction in
                 conversation.correct(message, with: correction)
             }
-            .macSheetSize(width: 480, height: 420)
+        }
+        .sheet(isPresented: $showingCorrections) {
+            EiraCorrectionsView { correction in
+                conversation.remove(correction)
+            }
         }
         .task {
             // Before anything is sent, pass on what was open on screen.
@@ -180,6 +215,13 @@ struct EiraChatView: View {
                 conversation.screenNote = lookingAt
             }
             await loadEngine()
+            // A checking aid: an example exchange, so a still picture can
+            // be taken of the chat. See DemoGarden.opens.
+            if DemoGarden.opens == "eira" || DemoGarden.opens == "corrections" {
+                let listed = DemoGarden.opens == "corrections"
+                conversation.showExample(in: EiraChatStore(context: context), kept: listed)
+                showingCorrections = listed
+            }
             // Only look at what is already allowed. Opening Eira should
             // never put a permission box in front of you.
             voice.checkExistingPermission()
@@ -410,6 +452,21 @@ private struct MessageView: View {
                 }
                 Text(message.content)
                     .textSelection(.enabled)
+
+                // In plain sight under every reply. Until 14 November
+                // 2026 it was only in the menu that a press and hold (or
+                // a right-click) brings up, where nobody would find it.
+                if !message.content.isEmpty {
+                    Button {
+                        onCorrect()
+                    } label: {
+                        Label("Correct this", systemImage: "pencil.and.outline")
+                            .font(.caption)
+                    }
+                    .buttonStyle(.plain)
+                    .foregroundStyle(Theme.inkSoft)
+                    .help("Tell Eira what was wrong. She is told it at the start of every conversation.")
+                }
             }
             .contextMenu {
                 Button {
@@ -745,47 +802,203 @@ struct EiraHistoryView: View {
 
 /// Records what was wrong with a reply. Eira reads her recent corrections
 /// before every conversation, so the same mistake is not made twice.
+///
+/// Built from the pieces in SheetParts.swift, like the app's other
+/// sheets. It was a standard Form until 14 November 2026.
 struct EiraCorrectionView: View {
 
     let message: ChatMessage
     let onSave: (String) -> Void
 
+    /// How to close the sheet, handed down by SwiftUI.
     @Environment(\.dismiss) private var dismiss
     @State private var correction = ""
 
+    /// What was typed, without the spaces and blank lines around it.
+    private var trimmed: String {
+        correction.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
     var body: some View {
-        NavigationStack {
-            Form {
-                Section("Eira said") {
+        SheetPage("Correct this",
+                  detail: "Eira is told her \(EiraChatStore.correctionsRead) newest corrections at the start of every conversation.",
+                  confirmTitle: "Keep",
+                  canConfirm: !trimmed.isEmpty,
+                  onConfirm: {
+                      onSave(trimmed)
+                      dismiss()
+                  }) {
+            SheetScroll {
+                SheetCard("Eira said") {
                     Text(message.content)
                         .font(.callout)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Theme.inkSoft)
+                        // No more than eight lines of a long reply.
                         .lineLimit(8)
                 }
-                Section {
-                    TextEditor(text: $correction)
-                        .frame(minHeight: 100)
-                } header: {
-                    Text("What is right")
-                } footer: {
-                    Text("Write it as a plain fact, such as \"My lavender is English lavender, not Dutch.\" Eira will be told this from now on.")
+
+                SheetCard("What is right") {
+                    FieldBox {
+                        // `axis: .vertical` lets the box grow downwards as
+                        // you type, from three lines up to eight.
+                        TextField("My lavender is English lavender, not Dutch.",
+                                  text: $correction, axis: .vertical)
+                            .lineLimit(3...8)
+                    }
+                    Text("Write it as a plain fact. It is a note she is handed, not training: the model itself does not change.")
+                        .font(.footnote)
+                        .foregroundStyle(Theme.inkSoft)
+                    if trimmed.count > EiraChecks.correctionLimit {
+                        Text("Only the first \(EiraChecks.correctionLimit) characters are read to her. This is \(trimmed.count).")
+                            .font(.footnote)
+                            .foregroundStyle(.orange)
+                    }
                 }
             }
-            .navigationTitle("Correct this")
-            .paperScreen()
-            #if os(iOS)
-            .navigationBarTitleDisplayMode(.inline)
-            #endif
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
+        }
+    }
+}
+
+// MARK: - Offering to keep a correction
+
+/// "Keep this as a correction?" Shown under a message of yours that
+/// reads as putting Eira right. EiraChecks.correctionWords decides
+/// which messages those are.
+///
+/// Nothing is kept until "Keep it" is pressed, and the words can be
+/// changed first. Once kept, the card shrinks to a line that says so
+/// and offers to take it back.
+private struct CorrectionOfferCard: View {
+
+    private let offer: EiraConversation.OfferedCorrection
+    private let onKeep: (String) -> Void
+    private let onUndo: () -> Void
+    private let onDismiss: () -> Void
+    private let onShowAll: () -> Void
+
+    /// The fact as it stands on the card.
+    @State private var words: String
+
+    init(offer: EiraConversation.OfferedCorrection,
+         onKeep: @escaping (String) -> Void,
+         onUndo: @escaping () -> Void,
+         onDismiss: @escaping () -> Void,
+         onShowAll: @escaping () -> Void) {
+        self.offer = offer
+        self.onKeep = onKeep
+        self.onUndo = onUndo
+        self.onDismiss = onDismiss
+        self.onShowAll = onShowAll
+        // `_words` is the storage behind `@State var words`. This is how
+        // a starting value is handed to it.
+        _words = State(initialValue: offer.words)
+    }
+
+    private var trimmed: String {
+        words.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    var body: some View {
+        if offer.isKept {
+            keptLine
+        } else {
+            OfferFrame("Keep this as a correction?",
+                       addTitle: "Keep it",
+                       refuseTitle: "No thanks",
+                       canAdd: !trimmed.isEmpty,
+                       onAdd: { onKeep(trimmed) },
+                       onRefuse: onDismiss) {
+                FieldBox {
+                    TextField("What is right", text: $words, axis: .vertical)
+                        .lineLimit(1...5)
                 }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") {
-                        onSave(correction)
-                        dismiss()
+                Text("Eira would be told this at the start of every conversation. Nothing is kept unless you press Keep it.")
+                    .font(.caption)
+                    .foregroundStyle(Theme.inkSoft)
+            }
+        }
+    }
+
+    /// What the card becomes once the correction is kept.
+    private var keptLine: some View {
+        HStack(spacing: 10) {
+            Label("Kept as a correction", systemImage: "checkmark.circle.fill")
+                .foregroundStyle(Theme.leaf)
+            Button("Undo") { onUndo() }
+                .buttonStyle(.plain)
+                .foregroundStyle(Theme.inkSoft)
+                .underline()
+            Button("See all") { onShowAll() }
+                .buttonStyle(.plain)
+                .foregroundStyle(Theme.inkSoft)
+                .underline()
+        }
+        .font(.caption)
+    }
+}
+
+// MARK: - What Eira has been told
+
+/// Every correction kept so far, newest first, each with a button to
+/// remove it. Opened from the chat's Options menu.
+///
+/// A correction is handed to the model as right "even if you believe
+/// otherwise". So there must be somewhere to read them and to take a
+/// wrong one back, and until 14 November 2026 there was not.
+struct EiraCorrectionsView: View {
+
+    /// Called with a correction to remove.
+    let onRemove: (EiraCorrection) -> Void
+
+    // `@Query` reads these from the database and keeps the list up to
+    // date: when one is removed, its card goes without being told to.
+    @Query(sort: [SortDescriptor(\EiraCorrection.createdAt, order: .reverse)])
+    private var corrections: [EiraCorrection]
+
+    private var detail: String {
+        let read = EiraChatStore.correctionsRead
+        if corrections.count > read {
+            return "All \(corrections.count) are kept. Eira is told the newest \(read) at the start of every conversation."
+        }
+        return "Eira is told these at the start of every conversation."
+    }
+
+    var body: some View {
+        SheetPage("Corrections", detail: detail, dismissTitle: "Done") {
+            SheetScroll {
+                if corrections.isEmpty {
+                    SheetCard {
+                        Text("Nothing yet. When Eira gets something wrong, press \"Correct this\" under her reply, or simply tell her: \"No, that's wrong. It's a Bramley.\"")
+                            .font(.callout)
+                            .foregroundStyle(Theme.inkSoft)
                     }
-                    .disabled(correction.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                }
+
+                // `enumerated()` pairs each correction with its place in
+                // the list, counting from 0, so the eleventh onward can
+                // be marked as not being read to her.
+                ForEach(Array(corrections.enumerated()), id: \.element.id) { place, correction in
+                    SheetCard {
+                        Text(correction.correction)
+                            .foregroundStyle(Theme.ink)
+                            .textSelection(.enabled)
+
+                        if !correction.topic.isEmpty {
+                            Text("You had asked: \(EiraChatStore.title(from: correction.topic, limit: 80))")
+                                .font(.footnote)
+                                .foregroundStyle(Theme.inkSoft)
+                        }
+
+                        HStack {
+                            Text(correction.createdAt.formatted(date: .abbreviated, time: .shortened)
+                                 + (place >= EiraChatStore.correctionsRead ? " · not read to her now" : ""))
+                                .font(.caption)
+                                .foregroundStyle(Theme.inkSoft)
+                            Spacer()
+                            Button("Remove") { onRemove(correction) }
+                                .buttonStyle(QuietGlassButton())
+                        }
+                    }
                 }
             }
         }

@@ -91,9 +91,13 @@ final class EiraCorrection {
     init() {}
 
     /// One line for Eira's standing instructions.
+    ///
+    /// All of the correction is used, with its lines run together. Until
+    /// 14 November 2026 only its first line was, so a correction written
+    /// over two lines lost its second.
     var promptLine: String {
         let subject = topic.isEmpty ? "" : "On \"\(EiraChatStore.title(from: topic, limit: 80))\": "
-        return subject + EiraChatStore.title(from: correction, limit: 240)
+        return subject + EiraChatStore.oneLine(correction, limit: EiraChecks.correctionLimit)
     }
 }
 
@@ -155,22 +159,52 @@ struct EiraChatStore {
 
     // MARK: Corrections
 
-    func addCorrection(topic: String, mistake: String?, correction: String) {
+    /// How many corrections are read to Eira before each conversation:
+    /// the newest ten. All of them are kept, however many there are.
+    nonisolated static let correctionsRead = 10
+
+    /// Keeps a correction. Returns what was saved, or nil if there was
+    /// nothing to save. `@discardableResult` lets a caller ignore that.
+    @discardableResult
+    func addCorrection(topic: String, mistake: String?, correction: String) -> EiraCorrection? {
         let trimmed = correction.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else { return }
+        guard !trimmed.isEmpty else { return nil }
         let record = EiraCorrection()
         record.topic = topic
         record.mistake = mistake
         record.correction = trimmed
         context.insert(record)
         try? context.save()
+        return record
+    }
+
+    /// Every correction, newest first.
+    func corrections() -> [EiraCorrection] {
+        let all = (try? context.fetch(FetchDescriptor<EiraCorrection>())) ?? []
+        return all.sorted { $0.createdAt > $1.createdAt }
+    }
+
+    /// Takes a correction away for good.
+    func remove(_ correction: EiraCorrection) {
+        context.delete(correction)
+        try? context.save()
     }
 
     /// The most recent corrections, newest first, as lines for the prompt.
     /// Limited, because a small model can only hold so much.
-    func recentCorrectionLines(limit: Int = 10) -> [String] {
-        let all = (try? context.fetch(FetchDescriptor<EiraCorrection>())) ?? []
-        return all.sorted { $0.createdAt > $1.createdAt }.prefix(limit).map(\.promptLine)
+    func recentCorrectionLines(limit: Int = EiraChatStore.correctionsRead) -> [String] {
+        corrections().prefix(limit).map(\.promptLine)
+    }
+
+    /// Text as a single line: its lines run together with a space
+    /// between, and cut short with an ellipsis if longer than `limit`.
+    nonisolated static func oneLine(_ text: String, limit: Int) -> String {
+        let joined = text.split(whereSeparator: \.isNewline)
+            .map { $0.trimmingCharacters(in: .whitespaces) }
+            .filter { !$0.isEmpty }
+            .joined(separator: " ")
+        guard joined.count > limit else { return joined }
+        return String(joined.prefix(limit)).trimmingCharacters(in: .whitespaces) + "…"
     }
 
     /// A short title from the first line of a message.

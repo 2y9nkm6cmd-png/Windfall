@@ -18,24 +18,33 @@ import SwiftData
 
 // MARK: - The frame
 
-/// What both cards share: Eira's snowdrop beside a card with a heading,
-/// the card's own rows and two buttons.
-private struct OfferFrame<Content: View>: View {
+/// What every offer of Eira's shares: her snowdrop beside a card with a
+/// heading, the card's own rows and two buttons.
+///
+/// Not private to this file, because the chat uses it too, for its
+/// offer to keep a correction (EiraChatView.swift).
+struct OfferFrame<Content: View>: View {
 
     private let heading: String
+    private let addTitle: String
     private let refuseTitle: String
     private let canAdd: Bool
     private let onAdd: () -> Void
     private let onRefuse: () -> Void
     private let content: () -> Content
 
+    /// - `addTitle`: the filled button. "Add" unless told otherwise.
+    /// - `refuseTitle`: the plain button, which saves nothing.
+    /// - `canAdd`: false greys the filled button out.
     init(_ heading: String,
+         addTitle: String = "Add",
          refuseTitle: String,
          canAdd: Bool,
          onAdd: @escaping () -> Void,
          onRefuse: @escaping () -> Void,
          @ViewBuilder content: @escaping () -> Content) {
         self.heading = heading
+        self.addTitle = addTitle
         self.refuseTitle = refuseTitle
         self.canAdd = canAdd
         self.onAdd = onAdd
@@ -56,7 +65,7 @@ private struct OfferFrame<Content: View>: View {
                     .font(.subheadline)
 
                 HStack(spacing: 8) {
-                    Button("Add") { onAdd() }
+                    Button(addTitle) { onAdd() }
                         .buttonStyle(.glassProminent)
                         .tint(Theme.leaf)
                         .foregroundStyle(Theme.onLeaf)

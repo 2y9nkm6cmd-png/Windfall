@@ -144,7 +144,21 @@ struct EiraFloatingBar: View {
             }
             .macSheetSize(width: 580, height: 660)
         }
+        // A checking aid: `-demoOpen eira` and `-demoOpen corrections`
+        // open her chat as soon as the bar appears, once. See
+        // DemoGarden.opens.
+        .onAppear {
+            guard !Self.hasOpenedForChecking,
+                  DemoGarden.opens == "eira" || DemoGarden.opens == "corrections" else { return }
+            Self.hasOpenedForChecking = true
+            eiraRequest = BarRequest(text: "")
+        }
     }
+
+    /// True once the checking aid above has opened the chat. `static`
+    /// means one value shared by every copy of the bar, so that moving
+    /// to another page does not open the chat a second time.
+    private static var hasOpenedForChecking = false
 
     // MARK: The snowdrop
 

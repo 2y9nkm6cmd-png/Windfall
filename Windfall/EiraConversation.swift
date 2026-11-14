@@ -146,16 +146,34 @@ final class EiraConversation {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard engine != nil, !trimmed.isEmpty, !isGenerating else { return }
 
-        record(ChatMessage(role: .user, content: trimmed))
+        // The reply before this message, if there is one. Read now,
+        // before the message itself joins the list.
+        let replyBefore = messages.last { $0.role == .assistant }
+        let sent = ChatMessage(role: .user, content: trimmed)
+        record(sent)
+        // An offer from an earlier message that was never answered goes.
+        offeredCorrection = nil
 
         // Some questions are answered by fixed wording and never reach the
-        // model. See EiraSafety for why.
-        if let fixed = EiraSafety.fixedReply(to: trimmed) {
-            record(ChatMessage(role: .assistant, content: fixed))
-            lastMetrics = nil
-            // The model did not see this exchange, so it is handed the
-            // conversation afresh before its next reply.
-            needsRestart = true
+        // model. See EiraSafety for why. Nothing said on one of these
+        // subjects is offered for keeping as a correction.
+        if let safety = EiraSafety.safetyReply(to: trimmed) {
+            answerWithFixedWording(safety)
+            return
+        }
+
+        // If this message puts her last reply right, offer to keep it.
+        // The chat screen shows the offer as a card under the message.
+        // The message is still sent, so she answers it as well. See
+        // EiraChecks.correctionWords.
+        if let replyBefore, let fact = EiraChecks.correctionWords(in: trimmed, answering: replyBefore.content) {
+            offeredCorrection = OfferedCorrection(messageID: sent.id, replyID: replyBefore.id, words: fact)
+        }
+
+        // Asked to save something. The chat cannot change your records,
+        // but a correction it can keep, once you press the button.
+        if EiraSafety.asksToSaveARecord(trimmed) {
+            answerWithFixedWording(offeredCorrection == nil ? EiraSafety.savingReply : EiraChecks.correctionNotKeptYet)
             return
         }
 
@@ -171,6 +189,15 @@ final class EiraConversation {
         replyTask = Task { [weak self] in
             await self?.generate(for: trimmed, forcedTool: lookup)
         }
+    }
+
+    /// Replies with wording fixed in the app. The model is not asked.
+    private func answerWithFixedWording(_ wording: String) {
+        record(ChatMessage(role: .assistant, content: wording))
+        lastMetrics = nil
+        // The model did not see this exchange, so it is handed the
+        // conversation afresh before its next reply.
+        needsRestart = true
     }
 
     /// Stops the reply in progress. What has arrived so far is kept.
@@ -270,7 +297,13 @@ final class EiraConversation {
                 messages[(index + 1)...].filter { $0.role == .tool }.map(\.content)
             } ?? []
             let known = [EiraGardenNotes.load(), screenNote ?? ""] + (store?.recentCorrectionLines() ?? [])
-            content = EiraChecks.checked(reply: content, question: question, lookups: lookups, known: known)
+            // Was the question a correction, and has it been kept yet?
+            var standing = EiraChecks.CorrectionStanding.notACorrection
+            if let offer = offeredCorrection {
+                standing = offer.isKept ? .kept : .waiting
+            }
+            content = EiraChecks.checked(reply: content, question: question, lookups: lookups, known: known,
+                                         correction: standing)
         }
 
         record(ChatMessage(
@@ -300,6 +333,7 @@ final class EiraConversation {
         streamingReasoning = ""
         lastMetrics = nil
         lastError = nil
+        offeredCorrection = nil
         chat = store?.newChat(modelName: modelName)
         needsRestart = true
     }
@@ -313,20 +347,103 @@ final class EiraConversation {
         streamingReasoning = ""
         lastMetrics = nil
         lastError = nil
+        offeredCorrection = nil
         needsRestart = true
     }
 
     // MARK: Being put right
 
+    /// A correction typed as an ordinary message, waiting for the
+    /// gardener to say whether to keep it.
+    struct OfferedCorrection {
+        /// Your message. The card sits under it.
+        let messageID: ChatMessage.ID
+        /// The reply of Eira's that it puts right.
+        let replyID: ChatMessage.ID
+        /// The fact as it was read from your message.
+        let words: String
+        /// What it was saved as, once "Keep it" has been pressed.
+        var keptAs: EiraCorrection?
+
+        var isKept: Bool { keptAs != nil }
+    }
+
+    /// Set by `send` when a message reads as a correction. Nothing is
+    /// kept until `keepOfferedCorrection`.
+    private(set) var offeredCorrection: OfferedCorrection?
+
+    /// Keeps the offered correction, exactly as "Correct this" would.
+    /// `words` is the fact as it stands on the card, which you may have
+    /// reworded there.
+    func keepOfferedCorrection(as words: String) {
+        guard let offer = offeredCorrection, !offer.isKept,
+              let reply = messages.first(where: { $0.id == offer.replyID }) else { return }
+        offeredCorrection?.keptAs = correct(reply, with: words)
+    }
+
+    /// Takes back a correction kept from the card, and offers it again.
+    func undoKeptCorrection() {
+        guard let saved = offeredCorrection?.keptAs else { return }
+        store?.remove(saved)
+        offeredCorrection?.keptAs = nil
+        needsRestart = true
+    }
+
+    /// Takes the card away without keeping anything.
+    func dismissOfferedCorrection() {
+        offeredCorrection = nil
+    }
+
     /// Records that one of Eira's replies was wrong, and what is right.
     /// The correction is read at the start of every later conversation.
-    func correct(_ message: ChatMessage, with correction: String) {
-        guard let store else { return }
+    /// Returns what was saved, or nil if nothing was.
+    @discardableResult
+    func correct(_ message: ChatMessage, with correction: String) -> EiraCorrection? {
+        guard let store else { return nil }
         let question = messages
             .prefix { $0.id != message.id }
             .last { $0.role == .user }?.content ?? ""
-        store.addCorrection(topic: question, mistake: message.content, correction: correction)
+        let saved = store.addCorrection(topic: question, mistake: message.content, correction: correction)
         // So the correction applies from the very next message.
+        needsRestart = true
+        return saved
+    }
+
+    /// A checking aid: fills the conversation with an example exchange
+    /// in which Eira is put right, so a still picture can be taken of the
+    /// card that offers to keep the correction. No model is asked. With
+    /// `kept`, the correction is kept too, and an older one beside it,
+    /// for a picture of the list. Only ever called for the example
+    /// garden, whose records live in memory. See DemoGarden.opens.
+    func showExample(in store: EiraChatStore, kept: Bool) {
+        if self.store == nil { self.store = store }
+        let exampleQuestion = ChatMessage(role: .user, content: "Which apple is the tree by the shed?")
+        let exampleReply = ChatMessage(role: .assistant, content: "The apple by the shed is a Spartan, an eating apple that is picked in October.")
+        let puttingRight = ChatMessage(role: .user, content: "No, that's wrong. It's a Bramley, a cooking apple.")
+        let standing = kept ? EiraChecks.correctionKept : EiraChecks.correctionNotKeptYet
+        let exampleAnswer = ChatMessage(role: .assistant, content: "Thank you. A Bramley is a cooking apple and keeps well into the new year.\n\n" + standing)
+        messages = [exampleQuestion, exampleReply, puttingRight, exampleAnswer]
+        let fact = EiraChecks.correctionWords(in: puttingRight.content) ?? puttingRight.content
+        offeredCorrection = OfferedCorrection(messageID: puttingRight.id, replyID: exampleReply.id, words: fact)
+        if kept {
+            store.addCorrection(topic: "When should I prune the lavender?",
+                                mistake: nil, correction: "My lavender is English lavender, not Dutch.")
+            keepOfferedCorrection(as: offeredCorrection?.words ?? "")
+        }
+    }
+
+    /// Every correction kept so far, newest first. For the list in the
+    /// chat's Options menu.
+    func corrections() -> [EiraCorrection] {
+        store?.corrections() ?? []
+    }
+
+    /// Removes a correction for good, from the list of them.
+    func remove(_ correction: EiraCorrection) {
+        store?.remove(correction)
+        // If it was the one just kept from a card, the card goes too.
+        if offeredCorrection?.keptAs === correction { offeredCorrection = nil }
+        // Her instructions held it, so they are written afresh.
         needsRestart = true
     }
 }

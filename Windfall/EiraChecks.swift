@@ -24,6 +24,12 @@
 //  test sheet on 13 November 2026 (knowledge base, doc 27). The rules
 //  help whichever model Eira is using, Apple's included.
 //
+//    WHEN YOU PUT HER RIGHT   A message such as "No, that's wrong. It's
+//                        a Bramley." is spotted by rule, and a card
+//                        offers to keep the fact as a correction. Eira
+//                        is told her corrections at the start of every
+//                        conversation. (14 November 2026.)
+//
 //  Nothing here needs a model or Apple's AI frameworks, so all of it is
 //  covered by the logic tests.
 //
@@ -67,6 +73,163 @@ enum EiraChecks {
         return nil
     }
 
+    // MARK: - A correction typed as an ordinary message
+
+    /// What to keep from a message that puts Eira right, or nil if the
+    /// message is not a correction.
+    ///
+    /// Until 14 November 2026 a correction was kept only if it was made
+    /// with "Correct this" on one of her replies. Typing "No, that's
+    /// wrong, it's a Bramley" was answered and then forgotten. Now such
+    /// a message brings up a card offering to keep it, and this decides
+    /// whether a message is one.
+    ///
+    /// A correction opens by disagreeing and then states a fact:
+    ///
+    ///   "No, that's wrong. It's a Bramley."   keeps "It's a Bramley."
+    ///   "Actually it flowers in June"         keeps the whole message
+    ///   "That's not a Spartan, it's a Bramley"  keeps the whole message
+    ///   "No, that's wrong"                    nothing: no fact in it
+    ///   "No slugs on the hostas this year"    nothing: "no" is the subject
+    ///   "No, tell me about the other one"     nothing: a request, not a fact
+    ///   "That's wrong, isn't it?"             nothing: it is a question
+    ///   "Actually that's really helpful"      nothing: praise, not a fact
+    ///   "No, I'll do it tomorrow"             nothing, if she had just
+    ///                                         asked "Shall I list them?"
+    ///
+    /// The opening is taken off only where you set it apart with a comma
+    /// or a full stop. "That is wrong for clay soil" would otherwise be
+    /// kept as "for clay soil", which says nothing.
+    ///
+    /// Where the rule is unsure it offers nothing. "Correct this" is
+    /// under every reply for whatever it misses.
+    ///
+    /// - `eirasReply`: what she said just before, if anything. A plain
+    ///   "No" after a question of hers is an answer to it.
+    static func correctionWords(in whatWasTyped: String, answering eirasReply: String = "") -> String? {
+        // A question is asking, not telling.
+        if whatWasTyped.contains("?") { return nil }
+        // Several lines become one, because a correction is read to the
+        // model as a single line.
+        let typed = whatWasTyped.split(whereSeparator: \.isNewline)
+            .map { $0.trimmingCharacters(in: .whitespaces) }
+            .filter { !$0.isEmpty }
+            .joined(separator: " ")
+        let text = EiraSafety.tidied(typed)
+
+        // "No" that is manners, or the start of the subject.
+        let notDisagreeing = [" no thanks", " no thank you", " no problem", " no worries", " no idea ",
+                              " no need", " no rush", " no dig", " no till", " no mow"]
+        if notDisagreeing.contains(where: { text.hasPrefix($0) }) { return nil }
+
+        // Praise, or a grumble about the question or the app, is not a
+        // fact about the garden.
+        let notAFact = [" helpful", " thanks", " thank you", " perfect", " brilliant", " great ", " lovely",
+                        " makes sense", " good idea", " good point", " interesting",
+                        " what i asked", " what i meant", " what i said", " my question",
+                        " not working", " isnt working", " doesnt work"]
+        if notAFact.contains(where: { text.contains($0) }) { return nil }
+
+        // Openings that say she was wrong. Longest first, so that all of
+        // "no that is not right" is found and not only its "no".
+        let disagreeing = [
+            "no that is not right", "no thats not right", "no that isnt right", "no that is wrong",
+            "no thats wrong", "no thats incorrect", "no you are wrong", "no youre wrong",
+            "that is not right", "thats not right", "that isnt right", "that is not correct",
+            "thats not correct", "that isnt correct", "that is incorrect", "thats incorrect",
+            "that is wrong", "thats wrong", "that was wrong", "you are wrong", "youre wrong",
+            "you got that wrong", "you have that wrong", "youve got that wrong",
+            "not quite", "incorrect", "correction", "actually", "wrong", "nope", "no"
+        ]
+        // Openings that are part of the fact and are never taken off.
+        let statingTheMistake = [
+            "you said", "you told me", "that is not", "thats not", "that isnt", "that was not",
+            "that wasnt", "it is not", "its not", "it isnt", "they are not", "theyre not", "they arent"
+        ]
+
+        var kept = typed
+        if let opening = disagreeing.first(where: { text.hasPrefix(" " + $0 + " ") }) {
+            // Find where the opening ends in the message as it was typed,
+            // by counting its letters and digits. Spaces and punctuation
+            // do not count, so "No, that's wrong." matches "no thats wrong".
+            var toSkip = opening.filter { $0.isLetter || $0.isNumber }.count
+            var rest = Substring(typed)
+            while toSkip > 0, let first = rest.first {
+                if first.isLetter || first.isNumber { toSkip -= 1 }
+                rest = rest.dropFirst()
+            }
+            // What stands between the opening and the next word.
+            let gap = rest.prefix { !($0.isLetter || $0.isNumber) }
+            let setApart = gap.contains { ",.;:!\u{2013}\u{2014}".contains($0) } || gap.contains(" - ")
+            let after = EiraSafety.tidied(String(rest))
+
+            // A bare "no" or "wrong" is too common a word to trust alone.
+            // It counts when set apart ("No, ...") or when it runs on into
+            // a statement ("No it's a Bramley"), but not in "No slugs on
+            // the hostas".
+            // And "No" after a question of hers answers the question.
+            let sheAsked = eirasReply.trimmingCharacters(in: .whitespacesAndNewlines).hasSuffix("?")
+            if ["no", "nope"].contains(opening) && sheAsked { return nil }
+            if ["no", "nope", "wrong"].contains(opening) && !setApart {
+                let statementStarts = ["it", "its", "that", "thats", "the", "my", "i", "im", "ive", "you",
+                                       "youre", "they", "theyre", "this", "these", "those", "there", "we"]
+                guard let next = after.split(separator: " ").first,
+                      statementStarts.contains(String(next)) else { return nil }
+            }
+
+            // "No, tell me about the other one" asks for something else.
+            let requests = [" tell me", " show me", " give me", " list ", " can you", " could you", " would you",
+                            " will you", " please", " i want", " i would like", " id like", " i meant", " i mean ",
+                            " lets ", " let us ", " never mind", " nevermind", " forget ", " ignore ", " stop ",
+                            " try again", " what ", " how ", " why ", " when ", " where ", " which ", " who "]
+            if requests.contains(where: { after.hasPrefix($0) }) { return nil }
+
+            // The fact must be more than a word or two.
+            guard after.split(separator: " ").count >= 3 else { return nil }
+
+            if setApart {
+                kept = String(rest.dropFirst(gap.count))
+                kept = kept.prefix(1).uppercased() + kept.dropFirst()
+            }
+        } else if let opening = statingTheMistake.first(where: { text.hasPrefix(" " + $0 + " ") }) {
+            // "It's not working" is not about a fact. Four words at least.
+            guard text.split(separator: " ").count >= 4 else { return nil }
+            // "You said to prune in winter, tell me more" repeats her and
+            // moves on. It is a correction only if it goes on to disagree.
+            if opening.hasPrefix("you") {
+                let disagrees = [" but ", " not ", " wrong ", " actually ", " isnt ", " wasnt ", " arent ", " doesnt "]
+                guard disagrees.contains(where: { text.contains($0) }) else { return nil }
+            }
+        } else {
+            return nil
+        }
+
+        // Longer than this and the line read to the model would be cut
+        // off part way. "Correct this" is the place for a longer one.
+        guard kept.count <= correctionLimit else { return nil }
+        return kept
+    }
+
+    /// The most characters of a correction that are read to the model.
+    nonisolated static let correctionLimit = 240
+
+    /// Where a typed correction stands when Eira's reply to it is read.
+    enum CorrectionStanding {
+        /// The message was not a correction.
+        case notACorrection
+        /// The card to keep it is showing and has not been answered.
+        case waiting
+        /// "Keep it" has been pressed.
+        case kept
+    }
+
+    /// Said in place of a claim to have saved, while the card to keep a
+    /// correction is waiting for an answer.
+    static let correctionNotKeptYet = "I have not kept that yet. Press \"Keep it\" on the card above and I will be told it at the start of every conversation."
+
+    /// Said in place of a claim to have saved, once a correction is kept.
+    static let correctionKept = "Your correction is kept, and I will be told it at the start of every conversation. Your records themselves are unchanged."
+
     // MARK: - After: reading the reply by rule
 
     /// Said in place of any claim to have saved something.
@@ -81,12 +244,22 @@ enum EiraChecks {
     /// - `known`: other text the model was properly given, such as your
     ///   garden notes and corrections. A name found in the question, a
     ///   lookup or these counts as supplied, not remembered.
+    /// - `correction`: where a typed correction stands, if the question
+    ///   was one. A claim to have saved is then answered with the truth
+    ///   about the correction, not with the line about the journal.
     static func checked(reply: String, question: String,
-                        lookups: [String], known: [String] = []) -> String {
+                        lookups: [String], known: [String] = [],
+                        correction: CorrectionStanding = .notACorrection) -> String {
         let trimmed = reply.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return noAnswer }
 
-        var result = withoutSaveClaims(trimmed)
+        let truth: String
+        switch correction {
+        case .notACorrection: truth = nothingSaved
+        case .waiting: truth = correctionNotKeptYet
+        case .kept: truth = correctionKept
+        }
+        var result = withoutSaveClaims(trimmed, saying: truth)
 
         let names = uncheckedNames(in: result, against: [question] + lookups + known)
         if !names.isEmpty {
@@ -133,7 +306,7 @@ enum EiraChecks {
 
     /// The reply with every such sentence taken out, and the plain truth
     /// added once at the end if any was.
-    static func withoutSaveClaims(_ reply: String) -> String {
+    static func withoutSaveClaims(_ reply: String, saying truth: String = nothingSaved) -> String {
         var removedAny = false
         var keptLines: [String] = []
 
@@ -152,7 +325,7 @@ enum EiraChecks {
         guard removedAny else { return reply }
 
         let rest = keptLines.joined(separator: "\n").trimmingCharacters(in: .whitespacesAndNewlines)
-        return rest.isEmpty ? nothingSaved : rest + "\n\n" + nothingSaved
+        return rest.isEmpty ? truth : rest + "\n\n" + truth
     }
 
     /// Splits a line into sentences at a full stop, question mark or

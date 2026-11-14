@@ -60,6 +60,10 @@ enum DemoGarden {
     /// `harvest`, `worms`, `fit`, `sighting`, `identify` and `journal`.
     /// With `journal`, `-demoDraft "some words"` starts the box off with
     /// those words.
+    ///
+    /// `eira` opens her chat on an example exchange in which she is put
+    /// right, with the card that offers to keep the correction.
+    /// `corrections` does the same and then opens the list of them.
     static var opens: String? {
         isRequested ? UserDefaults.standard.string(forKey: "demoOpen") : nil
     }
