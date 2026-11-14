@@ -49,6 +49,8 @@ struct GlassSwitch<Value: Hashable>: View {
     // Some people ask their device for less see-through. For them the
     // lens stays solid green and is never clear.
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+    /// True while the card this switch sits on is painted flat.
+    @Environment(\.paintsGlassFlat) private var paintsFlat
 
     // The lens's left and right edges, counted in choices: 0 is the left
     // edge of the first choice, 1 the left edge of the second. They are
@@ -163,7 +165,9 @@ struct GlassSwitch<Value: Hashable>: View {
             )
         }
         .frame(height: height)
-        .glassEffect(.regular.tint(Theme.card.opacity(0.5)), in: .capsule)
+        // Through `cardGlass`, so the track is painted flat when the
+        // card the switch sits on is. See `CardGlass` in Theme.swift.
+        .cardGlass(Theme.card.opacity(0.5), in: .capsule)
         .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { trackWidth = $0 }
         // The choice can be changed from outside too, for example when
         // the weather is filled in. The lens follows whoever changed it.
@@ -214,7 +218,15 @@ struct GlassSwitch<Value: Hashable>: View {
             Color.clear
                 // `.identity` means "no glass", and is how glass is
                 // switched off without the view being rebuilt.
-                .glassEffect(bends ? .identity : .regular.tint(Theme.leafFill.opacity(0.9)), in: .capsule)
+                .glassEffect(bends || paintsFlat ? .identity : .regular.tint(Theme.leafFill.opacity(0.9)), in: .capsule)
+            // The lens painted flat, for when the switch is on a card
+            // that is being rearranged. Left as glass there, the switch
+            // was the one piece of glass on a painted, rocking card
+            // (William, 14 November 2026: "the allotment/permaculture
+            // bar looks strange").
+            Capsule()
+                .fill(Theme.leafFill.opacity(0.9))
+                .opacity(paintsFlat && !bends ? 1 : 0)
             ZStack {
                 // A soft dark edge underneath, standing in for a shadow.
                 Capsule()

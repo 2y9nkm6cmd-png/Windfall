@@ -1,3 +1,104 @@
+# 14 November 2026, midday: rearranging Today like a Home Screen
+
+**The `home-screen-rearrange` branch**, made from `main`. Built for the Mac
+(`rearrange-7-mac.log`) with no errors. The layout's 34 logic tests pass on
+the Mac. **Carrying a card was tried on the Mac by a script, which moves the
+pointer too fast to watch. The press and hold that starts the jiggling, and
+how a carried card looks in the hand, have been tried by nobody yet.** Not
+built for the iPhone or iPad.
+
+William, of the build of 13 November: "The wiggle's still wrong and the
+rearranging doesn't feel as natural as rearranging an ipad or iphone home
+screen, which is more the feel I was after."
+
+## What it does now
+
+- **Press and hold a card** and they all jiggle, and the card under the
+  pointer or finger lifts: it grows a touch and gets a shadow.
+- **Carry it** and it stays under the finger. The other cards step aside as
+  it passes, opening a space where it would go. A soft shape marks the space.
+- **Let go** and it settles into the space.
+- **Carried to the top or bottom edge of the window, the page scrolls.**
+- A card carried from a column to the full-width stack, or back, changes
+  shape in the hand to suit where it is going.
+- **Reset and Done float in the top right corner.** The bar that pushed the
+  page down has gone: it moved the cards out from under the finger that had
+  just pressed one.
+- **A click on the page between the cards, or Escape, is Done.**
+- An empty column or full-width strip shows a dashed outline while
+  rearranging, so there is somewhere to carry a card to.
+
+## What has gone
+
+- The label that followed the pointer, the "Drop here" spaces and the green
+  outline on the card underneath. They belonged to the system's drag and
+  drop, which this no longer uses.
+- **The two arrows on each card.** A Home Screen has none. VoiceOver still
+  has "Move earlier" and "Move later" on each card. ⚠️ CHECK with William
+  that he does not want the arrows back.
+
+## The jiggle
+
+- Four full rocks a second at a steady speed, with no slowing at the ends
+  of the swing, and a drift of about a point. These are the figures usually
+  quoted for the Home Screen (looked up 14 November 2026; Apple publishes
+  none). The versions of 13 November slowed at each end, which is how a
+  pendulum moves.
+- The ends of every card move about two points each way, so a wide card
+  turns through a smaller angle than a narrow one.
+- Each card starts at a different point in its rock, so no two keep time.
+- To try other figures without a rebuild: `-jiggleSeconds 0.3`,
+  `-jiggleTravel 3`, `-jiggleDrift 0`.
+
+## Glass or paint: measured on the Mac
+
+With `-jiggleMeter YES` the app writes how many times a second it draws to
+`windfall-jiggle-meter.txt` in its temporary folder. In a half-width window
+on William's Mac, 14 November:
+
+| | Frames a second |
+|---|---|
+| Cards painted flat while they jiggle | about 57 |
+| Cards left as glass (`-jiggleGlass YES`) | about 31 |
+
+So the cards stay painted while they jiggle. The garden switch, "Start
+count", "Done" and the quiet buttons were still glass and stood out
+(William: "the allotment/permaculture bar looks strange", "the start count
+doesn't look right either"). They are now painted too: `GlassSwitch` and
+`QuietGlassButton` go through `cardGlass`, and the filled green button is
+`.leafButton()` (Theme.swift). In dark mode the painted surface is a shade
+lighter with a fainter edge, nearer to how the glass looks.
+
+## How it is built
+
+- **`TodayBoard.swift`** (new): `ArrangeSession` (which card is in the hand
+  and where the finger is), `TodayBoardLayout` (one layout holding every
+  card, so a card moved between columns slides there and does not fade out
+  and in), `BoardCard` (the press, the lift, the jiggle) and `Jiggle`.
+- **`TodayLayout.swift`**: `TodayBoardPlan`, the sums for where every card
+  goes and which place is under the finger, and `move(_:toZone:place:)`.
+  `TodayDropTarget` has gone.
+- **`TodayView.swift`**: draws the board. `Wiggle`, `LiftToArrange`,
+  `DragSurface` and `DragLabel` have gone.
+- 15 new logic tests, among them one that tries every finger position on a
+  page of unequal cards and checks the cards come to rest.
+
+## On the Mac
+
+- Its own working copy, `/Users/Home/Developer/windfall-rearrange`, built by
+  `rearrange.sh` into `DerivedData/Windfall-rearrange`.
+- **Built under its own name, `com.54brookroad.Windfall.rearrange`**, so its
+  settings are kept apart from the real ones and a chat driving the screen
+  can tell it from another chat's copy.
+
+## To check
+
+- Press and hold on a card that is mostly buttons (the capture buttons):
+  does the button under the pointer fire when the press ends?
+- On an iPhone or iPad: does a held card stop the page scrolling under it,
+  and does a quick swipe over a jiggling card still scroll?
+- Three columns on a wide window. Only two columns were tried.
+
 # 13 November 2026, afternoon: This week, the sheets, the sliding switch and the sidebar
 
 **On the `today-rearrange` branch**, after the morning's work below.
