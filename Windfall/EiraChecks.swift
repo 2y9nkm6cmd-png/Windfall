@@ -18,7 +18,9 @@
 //                        because Eira cannot save from the chat. A
 //                        scientific name that no lookup supplied is
 //                        flagged as unchecked. An empty reply is said
-//                        to be empty.
+//                        to be empty. An example sentence from her own
+//                        instructions, said back where it does not
+//                        belong, is taken out.
 //
 //  Each rule here exists because a model got exactly that wrong on the
 //  test sheet on 13 November 2026 (knowledge base, doc 27). The rules
@@ -69,6 +71,48 @@ enum EiraChecks {
 
         if asksAboutSowing && nowWords.contains(where: { text.contains($0) }) {
             return EiraTools.sowingNow
+        }
+
+        // A second rule, 14 November 2026. A question about caring for
+        // a plant (pruning, feeding, cutting back and so on) is looked
+        // up in that plant's own record first, and on the RHS if the
+        // record has nothing. Asked whether to chop back the rhubarb
+        // after a frost, Apple's model searched the plant list, found
+        // no pruning advice and said "you may still leave the leaves".
+        //
+        // Whether a plant from the library is named is not known here,
+        // because this rule cannot see the database. The lookup itself
+        // checks, and hands nothing over if none is.
+        //
+        // A question about what you have done ("Have I sown the carrots
+        // this month?") asks for your records, not for advice, and is
+        // left to the model and its records lookup as before.
+        let asksForRecords = [" have i ", " did i ", " ive ", " i have ", " when did ", " my records ", " recorded "]
+        if CareTopic.find(in: question) != nil, !asksForRecords.contains(where: { text.contains($0) }) {
+            return EiraTools.plantCare
+        }
+        return nil
+    }
+
+    /// The web address in a message, if there is one.
+    ///
+    ///   "What does https://www.rhs.org.uk/fruit/apples say about scab?"
+    ///   "Read rhs.org.uk/vegetables/rhubarb/grow-your-own for me"
+    ///
+    /// When a message holds an address, the app reads that page before
+    /// the model answers, so the model does not have to decide to. An
+    /// address is a word that starts with "http://" or "https://", or
+    /// with "www.", or that has a dot and a slash in it and an ending
+    /// such as ".uk" before the slash. A full stop or bracket at its
+    /// end is taken off.
+    static func webAddress(in typed: String) -> String? {
+        for piece in typed.components(separatedBy: .whitespacesAndNewlines) {
+            var word = piece.trimmingCharacters(in: CharacterSet(charactersIn: "()[]<>\"'"))
+            while let last = word.last, ".,;:!?".contains(last) { word.removeLast() }
+            let lower = word.lowercased()
+            let looksLikeOne = lower.hasPrefix("http://") || lower.hasPrefix("https://") || lower.hasPrefix("www.")
+                || (lower.contains("/") && lower.range(of: "^[a-z0-9-]+(\\.[a-z0-9-]+)+/", options: .regularExpression) != nil)
+            if looksLikeOne, WebPageReader.webURL(from: word) != nil { return word }
         }
         return nil
     }
@@ -329,6 +373,7 @@ enum EiraChecks {
         case .kept: truth = correctionKept
         }
         var result = withoutSaveClaims(trimmed, saying: truth)
+        result = withoutEchoedExample(result, question: question, lookups: lookups)
 
         let names = uncheckedNames(in: result, against: [question] + lookups + known)
         if !names.isEmpty {
@@ -448,6 +493,56 @@ enum EiraChecks {
         let last = current.trimmingCharacters(in: .whitespaces)
         if !last.isEmpty { found.append(last) }
         return found
+    }
+
+    // MARK: An example from her instructions, said back
+
+    /// The reply without the example sentence from Eira's instructions,
+    /// where it has nothing to do with what was asked.
+    ///
+    /// Rule 8 of her instructions shows the right wording for when a
+    /// lookup finds nothing: "I have no sowings recorded for last week".
+    /// On 14 November 2026 Apple's model, asked to "Find all information
+    /// about comfrey", began its answer with that sentence word for
+    /// word. Nobody had asked about sowing and no lookup had looked for
+    /// any. A small model will sometimes say an example back like this.
+    ///
+    /// The sentence is left alone when it could be a real answer: the
+    /// question speaks of sowing, or a lookup reported on sowings.
+    ///
+    ///   asked about comfrey            the sentence is taken out
+    ///   "What did I sow last week?"    left: it answers the question
+    ///   a lookup said "No sowings in the last 7 days."   left
+    ///
+    /// Only that exact sentence is looked for. A reply that is nothing
+    /// but the sentence is left as it is, because an odd answer is
+    /// better than an empty one.
+    static func withoutEchoedExample(_ reply: String, question: String, lookups: [String] = []) -> String {
+        // " sow" finds sow, sown, sowed, sowing and sowings.
+        if EiraSafety.tidied(question).contains(" sow") { return reply }
+        if lookups.contains(where: { $0.lowercased().contains("sowings") }) { return reply }
+
+        // Compared after tidying, so capitals and the full stop do not
+        // matter.
+        let example = EiraSafety.tidied(EiraPrompt.nothingRecordedExample)
+        var removedAny = false
+        var keptLines: [String] = []
+
+        // Line by line, as in withoutSaveClaims, so paragraphs keep
+        // their shape.
+        for line in reply.components(separatedBy: "\n") {
+            let kept = sentences(in: line).filter { sentence in
+                let isEcho = EiraSafety.tidied(sentence) == example
+                if isEcho { removedAny = true }
+                return !isEcho
+            }
+            if kept.isEmpty && !line.trimmingCharacters(in: .whitespaces).isEmpty { continue }
+            keptLines.append(kept.joined(separator: " "))
+        }
+        guard removedAny else { return reply }
+
+        let rest = keptLines.joined(separator: "\n").trimmingCharacters(in: .whitespacesAndNewlines)
+        return rest.isEmpty ? reply : rest
     }
 
     // MARK: Scientific names nobody looked up

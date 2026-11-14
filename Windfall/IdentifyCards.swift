@@ -270,14 +270,14 @@ struct IdentificationCard: View {
         VStack(alignment: .leading, spacing: 12) {
             VStack(alignment: .leading, spacing: 2) {
                 Text(standing)
-                    .font(.caption.weight(.semibold))
+                    .font(.footnote.weight(.semibold))
                     .foregroundStyle(Theme.inkSoft)
                 Text(identification.headline)
-                    .font(.title3.weight(.semibold))
+                    .font(.title2.weight(.semibold))
                     .foregroundStyle(Theme.ink)
                 if let names = identification.subheading {
                     Text(names)
-                        .font(.callout)
+                        .font(.body)
                         .italic()
                         .foregroundStyle(Theme.inkSoft)
                 }
@@ -299,11 +299,11 @@ struct IdentificationCard: View {
             if !identification.records.isEmpty {
                 VStack(alignment: .leading, spacing: 6) {
                     Text("In your records")
-                        .font(.caption.weight(.semibold))
+                        .font(.footnote.weight(.semibold))
                         .foregroundStyle(Theme.inkSoft)
                     ForEach(identification.records, id: \.self) { line in
                         Text(line)
-                            .font(.callout)
+                            .font(.body)
                             .foregroundStyle(Theme.ink)
                     }
                 }
@@ -315,7 +315,7 @@ struct IdentificationCard: View {
                     Text("Image model: \(model).")
                 }
             }
-            .font(.caption)
+            .font(.footnote)
             .foregroundStyle(Theme.inkSoft)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -359,7 +359,7 @@ private struct CautionRow: View {
                 .foregroundStyle(colour)
             VStack(alignment: .leading, spacing: 2) {
                 Text(caution.words)
-                    .font(caution.weight == .danger ? .callout.weight(.medium) : .callout)
+                    .font(caution.weight == .danger ? .body.weight(.medium) : .body)
                     .foregroundStyle(Theme.ink)
                 // Anything Claude supplied that you have not checked
                 // says so, as everywhere else in the project. The
@@ -368,7 +368,7 @@ private struct CautionRow: View {
                 if caution.isUnchecked {
                     Label("To check: this comes from a list Claude wrote that you have not checked yet.",
                           systemImage: "exclamationmark.triangle")
-                        .font(.caption)
+                        .font(.footnote)
                         .foregroundStyle(Theme.inkSoft)
                 }
             }
@@ -410,14 +410,14 @@ struct CandidateRow: View {
                         .foregroundStyle(Theme.ink)
                     if possible.entry.common != nil {
                         Text(possible.entry.scientific)
-                            .font(.callout)
+                            .font(.body)
                             .italic()
                             .foregroundStyle(Theme.inkSoft)
                     }
                 }
                 Spacer(minLength: 8)
                 Text(possible.percent)
-                    .font(.callout.monospacedDigit())
+                    .font(.body.monospacedDigit())
                     .foregroundStyle(isNamed ? Theme.leaf : Theme.inkSoft)
             }
             // The share as a bar: a full-width track with a filled part.
@@ -497,7 +497,7 @@ struct ChatIdentification: View {
 
             if isAdded {
                 Label("Added to Sightings, unconfirmed. Confirm or correct the name there.", systemImage: "checkmark.circle")
-                    .font(.callout)
+                    .font(.body)
                     .foregroundStyle(Theme.leaf)
             } else if identification.verdict != .nothing {
                 HStack(spacing: 10) {
@@ -516,7 +516,7 @@ struct ChatIdentification: View {
                     }
                 }
                 Text("Nothing is saved until you press Add, and the name stays a suggestion until you confirm it.")
-                    .font(.caption)
+                    .font(.footnote)
                     .foregroundStyle(Theme.inkSoft)
             }
         }

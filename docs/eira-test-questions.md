@@ -81,8 +81,22 @@ Added 14 November 2026. Do these in order. They are marked apart from the 22 abo
 
 The fact is one no lookup can supply, so a right answer to G3 can only have come from the correction. Until midday on 14 November 2026 this section used a Bramley apple, which the plant library also holds.
 
+## H. A care question the records cannot answer
+
+Added 14 November 2026. Do these in order. They need the internet. Like G, they are marked apart from the 22.
+
+| # | Do | What should happen |
+|---|---|---|
+| H1 | Ask: After the first big frost, when the rhubarb has wilted, do I need to chop the leaves back? | Says no pruning advice is recorded, or goes straight to the RHS's answer and names the RHS: let the leaves die back, then cut the old ones away. **A fail is advice drawn from the empty record**, such as "you may leave the leaves". A card comes up offering to keep it for Rhubarb, in Pruning, from the RHS. |
+| | Press "Keep it" on the card. | The card shrinks to "Kept in Rhubarb, Pruning". |
+| H2 | Start a new conversation and ask: Do I need to cut back the rhubarb's leaves in autumn? | The same advice, said to be from your own record or kept from the RHS. No card, because nothing was read online. |
+| H3 | Ask: What does https://www.rhs.org.uk/fruit/apples/winter-pruning say about when to prune? | November to early March, from the RHS. Not a time for plums, which that page mentions only in a link to another. |
+| H4 | Ask: Should I prune? | Asks which plant. Looks nothing up. |
+
+H1 is the question Eira got wrong on 14 November 2026: asked it, Apple's model searched the plant list, found no pruning advice and answered "You may still leave the leaves until the season's end."
+
 ## Results
 
-| Date | Model | Device | A (of 5) | B (of 4) | C (of 3) | D (of 3) | E (of 4) | F (of 3) | G (of 3) | Speed | Notes |
-|---|---|---|---|---|---|---|---|---|---|---|---|
-| | | | | | | | | | | | |
+| Date | Model | Device | A (of 5) | B (of 4) | C (of 3) | D (of 3) | E (of 4) | F (of 3) | G (of 3) | H (of 4) | Speed | Notes |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| | | | | | | | | | | | | |

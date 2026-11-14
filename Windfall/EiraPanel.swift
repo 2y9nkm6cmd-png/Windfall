@@ -25,8 +25,10 @@
 //  The panel itself is drawn by EiraFloatingBar.swift, because it has
 //  to start from exactly where the bar is.
 //
-//  On an iPhone nothing has changed: a conversation still slides up as
-//  a sheet, which on a screen that size is nearly the same thing.
+//  An iPhone has the panel too, since the evening of the same day
+//  (William, 17:23: "I want it to behave the same way on iphone as
+//  well"). There it is as wide as the bar and as tall as the page, and
+//  has no button for a larger size.
 //
 
 import SwiftUI
@@ -41,6 +43,10 @@ struct EiraPanelControls {
     /// value that lives somewhere else (here, in the bar) and can be
     /// both read and changed from here.
     let isLarge: Binding<Bool>
+    /// False where there is no larger size to offer, which is on an
+    /// iPhone: the panel there is already as large as it can be. The
+    /// button with two arrows is then left out of the heading.
+    let offersLargerSize: Bool
     /// True if the conversation's box should take the keyboard as soon
     /// as the panel opens, so that typing carries straight on from the
     /// bar. Always true on a Mac. On an iPad it is true only if the
@@ -70,6 +76,9 @@ enum EiraPanel {
     static let gapAbove: CGFloat = 12
     /// The panel is never shorter than this, however small the window.
     static let leastHeight: CGFloat = 280
+    /// A bar narrower than this is on an iPhone, or on an iPad sharing
+    /// its screen. The panel then takes all the height there is.
+    static let phoneWidth: CGFloat = 500
 
     /// How tall the panel should be.
     ///
@@ -128,11 +137,11 @@ struct PanelPage<Accessory: View, Content: View>: View {
         HStack(alignment: .top, spacing: 10) {
             VStack(alignment: .leading, spacing: 3) {
                 Text(title)
-                    .font(.system(.title2, design: .serif, weight: .medium))
+                    .font(.system(.title, design: .serif, weight: .medium))
                     .foregroundStyle(Theme.ink)
                 if let detail {
                     Text(detail)
-                        .font(.subheadline)
+                        .font(.body)
                         .foregroundStyle(Theme.inkSoft)
                 }
             }
@@ -143,18 +152,20 @@ struct PanelPage<Accessory: View, Content: View>: View {
 
             accessory()
 
-            // `wrappedValue` is the true or false that the binding
-            // points at.
-            let isLarge = controls.isLarge.wrappedValue
-            Button {
-                withAnimation(.smooth(duration: 0.3)) { controls.isLarge.wrappedValue.toggle() }
-            } label: {
-                Image(systemName: isLarge ? "arrow.down.right.and.arrow.up.left"
-                                          : "arrow.up.left.and.arrow.down.right")
+            if controls.offersLargerSize {
+                // `wrappedValue` is the true or false that the binding
+                // points at.
+                let isLarge = controls.isLarge.wrappedValue
+                Button {
+                    withAnimation(.smooth(duration: 0.3)) { controls.isLarge.wrappedValue.toggle() }
+                } label: {
+                    Image(systemName: isLarge ? "arrow.down.right.and.arrow.up.left"
+                                              : "arrow.up.left.and.arrow.down.right")
+                }
+                .buttonStyle(QuietGlassButton())
+                .help(isLarge ? "Back to the usual size" : "Make this larger")
+                .accessibilityLabel(isLarge ? "Back to the usual size" : "Make this larger")
             }
-            .buttonStyle(QuietGlassButton())
-            .help(isLarge ? "Back to the usual size" : "Make this larger")
-            .accessibilityLabel(isLarge ? "Back to the usual size" : "Make this larger")
 
             Button("Done") { controls.close() }
                 .buttonStyle(QuietGlassButton())

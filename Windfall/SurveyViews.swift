@@ -101,16 +101,16 @@ private struct SurveyRow: View {
         VStack(alignment: .leading, spacing: 4) {
             HStack {
                 Text(survey.scheme.displayName)
-                    .font(.headline)
+                    .font(.title3.weight(.semibold))
                 Spacer()
                 Text(survey.startedAt, format: .dateTime.day().month().year())
-                    .font(.caption)
+                    .font(.footnote)
                     .foregroundStyle(.secondary)
             }
 
             if let plant = survey.targetPlantName {
                 Text(plant)
-                    .font(.subheadline)
+                    .font(.body)
             }
 
             HStack(spacing: 8) {
@@ -125,7 +125,7 @@ private struct SurveyRow: View {
                         .foregroundStyle(.orange)
                 }
             }
-            .font(.caption)
+            .font(.footnote)
             .foregroundStyle(.secondary)
         }
         .padding(.vertical, 2)
@@ -237,7 +237,7 @@ struct RunSurveyView: View {
                 .tint(Theme.leaf)
                 .foregroundStyle(Theme.ink)
             Text("Count the floral units in the patch before starting the timer.")
-                .font(.caption)
+                .font(.footnote)
                 .foregroundStyle(Theme.inkSoft)
         }
     }
@@ -285,7 +285,7 @@ struct RunSurveyView: View {
 
             if conditionsWereFilled {
                 Text("Filled in from the weather service for your garden. Change anything that is different where you are standing.")
-                    .font(.caption)
+                    .font(.footnote)
                     .foregroundStyle(Theme.inkSoft)
             }
         }
@@ -366,7 +366,7 @@ struct RunSurveyView: View {
                     .contentTransition(.numericText())
                     .foregroundStyle(Theme.ink)
                 Text("\(survey.totalCount) counted")
-                    .font(.subheadline)
+                    .font(.body)
                     .foregroundStyle(Theme.inkSoft)
             }
         }
@@ -391,7 +391,7 @@ struct RunSurveyView: View {
                             .font(.system(size: 42, weight: .semibold, design: .rounded))
                             .foregroundStyle(Theme.ink)
                         Text("counted in \(Int(elapsed) / 60) min \(Int(elapsed) % 60) s")
-                            .font(.subheadline)
+                            .font(.body)
                             .foregroundStyle(Theme.inkSoft)
                     }
 
@@ -408,7 +408,7 @@ struct RunSurveyView: View {
 
                     if survey.totalCount == 0 {
                         Text("A count of zero is a real result. Absence is data.")
-                            .font(.callout)
+                            .font(.body)
                             .foregroundStyle(Theme.inkSoft)
                     }
                 }
@@ -426,7 +426,7 @@ struct RunSurveyView: View {
                 if !survey.validationProblems.isEmpty {
                     VStack(alignment: .leading, spacing: 6) {
                         Text("Before submitting")
-                            .font(.headline)
+                            .font(.title3.weight(.semibold))
                             .foregroundStyle(Theme.ink)
                             .padding(.horizontal, 4)
                         ProblemsCard(problems: survey.validationProblems)
@@ -593,11 +593,11 @@ private struct TallyRow: View {
         HStack(spacing: 12) {
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
-                    .font(.headline)
+                    .font(.title3.weight(.semibold))
                     .foregroundStyle(Theme.ink)
                 if let hint {
                     Text(hint)
-                        .font(.caption)
+                        .font(.footnote)
                         .foregroundStyle(Theme.inkSoft)
                         // Lets the hint run on to a second line.
                         .fixedSize(horizontal: false, vertical: true)
@@ -699,7 +699,7 @@ struct SurveyDetailView: View {
                 Section("Not ready to submit") {
                     ForEach(survey.validationProblems, id: \.self) { problem in
                         Label(problem, systemImage: "exclamationmark.circle")
-                            .font(.callout)
+                            .font(.body)
                             .foregroundStyle(.orange)
                     }
                 }

@@ -45,6 +45,9 @@ private struct Backup: Codable {
     var observations: [ObservationDTO] = []
     var diary: [DiaryDTO] = []
     var frosts: [FrostDTO] = []
+    /// Jobs of your own, added 14 November 2026. May be missing from
+    /// older files.
+    var jobs: [JobDTO]?
 }
 
 private struct BedDTO: Codable {
@@ -115,6 +118,11 @@ private struct CrossDTO: Codable {
     var pollenParentKey: String?, pollenParentName: String?
     var byHand: Bool, bagged: Bool, flowers: Int?
     var seeds: Int?, seedCollectedOn: Date?, notes: String?
+}
+
+private struct JobDTO: Codable {
+    var id: UUID, created: Date, title: String
+    var from: Date?, by: Date?, site: String?, done: Date?, said: String?
 }
 
 private struct HarvestDTO: Codable {
@@ -230,6 +238,11 @@ final class BackupService {
                         startedFrom: planting.startedFromRaw, seedParent: planting.seedParentName,
                         pollenParent: planting.pollenParentName, handCrossed: planting.wasHandCrossed,
                         crossKey: planting.crossKey)
+        }
+
+        backup.jobs = (try context.fetch(FetchDescriptor<GardenJob>())).map { job in
+            JobDTO(id: job.id, created: job.createdAt, title: job.title,
+                   from: job.dueFrom, by: job.dueBy, site: job.siteKey, done: job.doneAt, said: job.saidAs)
         }
 
         backup.crosses = (try context.fetch(FetchDescriptor<PlantCross>())).map { crossing in
@@ -477,6 +490,21 @@ final class BackupService {
             restored += 1
         }
 
+        // Jobs of your own. Any already here are left alone.
+        let existingJobs = Set((try context.fetch(FetchDescriptor<GardenJob>())).map(\.id))
+        for dto in backup.jobs ?? [] where !existingJobs.contains(dto.id) {
+            let job = GardenJob(title: dto.title)
+            job.id = dto.id
+            job.createdAt = dto.created
+            job.dueFrom = dto.from
+            job.dueBy = dto.by
+            job.siteKey = dto.site
+            job.doneAt = dto.done
+            job.saidAs = dto.said
+            context.insert(job)
+            restored += 1
+        }
+
         // Crosses. Any already here are left alone, as with everything else.
         let existingCrosses = Set((try context.fetch(FetchDescriptor<PlantCross>())).map(\.id))
         for dto in backup.crosses ?? [] where !existingCrosses.contains(dto.id) {
@@ -693,7 +721,7 @@ struct BackupView: View {
             Section {
                 Label("Sync copies mistakes as faithfully as it copies data. A dated file kept elsewhere is the only thing that protects against deleting a year of records by accident.",
                       systemImage: "info.circle")
-                    .font(.caption)
+                    .font(.footnote)
                     .foregroundStyle(.secondary)
             }
         }

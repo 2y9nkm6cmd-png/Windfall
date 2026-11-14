@@ -112,6 +112,16 @@ enum DemoGarden {
     /// right, with the card that offers to keep the correction.
     /// `corrections` does the same and then opens the list of them.
     /// `eira-photo` opens her chat on an example answer to a photo.
+    /// `eira-lookups` opens it on an example reply that made lookups,
+    /// with its closed bubble and a card for the plant found.
+    /// `eira-lookups-open` is the same with the bubble and its first
+    /// lookup open.
+    /// `eira-find` opens her chat on an example answer built on the
+    /// RHS, with the card that offers to keep what she found, and
+    /// `kept-facts` opens the list of kept facts. `keepFact`, with
+    /// `-demoPlant Rhubarb`, opens the form for keeping a fact by hand,
+    /// and `keptFacts` shows that plant's page with two example facts
+    /// kept.
     ///
     /// `plantSowing` and `plantPlanting`, with `-demoPlant Achillea`,
     /// open the sowing form from that plant's page: the first on seed,
@@ -298,6 +308,17 @@ enum DemoGarden {
             bought.sections = Array((herbBed?.orderedSections ?? []).prefix(1))
             context.insert(bought)
         }
+
+        // Two jobs of your own, so that "This week" and "This month"
+        // each have one to show. The first is read from a sentence, the
+        // way Eira would read it. See GardenJobs.swift.
+        let said = "I need to build the bean wigwam in the allotment at the weekend"
+        let wigwam = GardenJob(title: "Build the bean wigwam")
+        wigwam.span = GardenJobs.offer(in: said, today: .now)?.span ?? .whenever
+        wigwam.siteKey = GardenSite.allotment.rawValue
+        wigwam.saidAs = said
+        context.insert(wigwam)
+        context.insert(GardenJob(title: "Order seed potatoes"))
 
         // Two sightings: one confirmed, one waiting to be confirmed.
         let butterfly = WildlifeObservation()

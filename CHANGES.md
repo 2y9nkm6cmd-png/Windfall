@@ -1,3 +1,182 @@
+# 14 November 2026, 18:40: seven branches joined into main
+
+**By the join chat.** William, 16:44: "When all the app builds have finished, I want to combine them and then issue an iphone, ipad and mac build to test further." The Mac went quiet at 18:17. The join was made in a copy of its own, `~/Developer/windfall-join`, on the branch `join-14nov-evening`, and `main` moved only once it built and passed its tests.
+
+**What came in**, in this order:
+
+| Branch | What it is | Had it been built before? |
+|---|---|---|
+| `home-screen-rearrange` | Carrying Today's cards, like a Home Screen | Yes, at midday |
+| `journal-follow-up` | "Want to pin it down?" in the journal | Yes, at 13:30 |
+| `tile-grow` | A page grows out of the tile that was tapped | Yes, and on the iPhone at 17:08 |
+| `larger-text` | Every text style one step larger | No |
+| `plant-fill-in`, which carries `eira-web-finds` | Kept facts. A new plant is looked up. A plant's gaps are filled | No |
+| `own-jobs` | Jobs of your own, added by telling Eira | No |
+
+`tile-grow-phone-mix` was left out, as its own note asks: it was for the phone only.
+
+**Every entry below that says "not in main", "not built" or "not yet merged" for one of these branches is out of date as of this entry.**
+
+## Where the branches met, and what was done
+
+A "clash" is a place where two branches changed the same lines, so git cannot choose for itself and marks both versions in the file for a person to settle.
+
+| File | The clash | Settled by |
+|---|---|---|
+| `CHANGES.md`, `Tools/checks/logic-files.txt`, the logic tests | Each branch added its own entries at the same spot | Keeping both, one after the other |
+| `JournalChat.swift` | Two branches each added a job to the list in the opening comment | Keeping both. The pin-down is now called the fifth job |
+| `EiraChatView.swift`, `TodayView.swift` (with `larger-text`) | `larger-text` changed a text style on lines that another branch had since rewritten or removed | Keeping the newer code, then moving its text styles up (below) |
+| `EiraChatView.swift` (with `plant-fill-in`) | The sheet for a plant's page and the sheet for kept facts were added at the same spot. So were two checking aids | Keeping both, each with its own closing brace |
+| `EiraConversation.swift` | An example reply with lookups and the whole kept-find section were added at the same spot. Three lines that clear a waiting offer each gained one more line | Keeping both |
+| `EiraFloatingBar.swift` | Both sides changed the list of names that open Eira's chat for a picture | One list holding every name |
+| `TodayView.swift` (with `own-jobs`) | `main` had moved the gathering of the week's jobs into `WidgetShare.swift` so the widgets could use it. `own-jobs` still had the old gathering, with your own jobs added at its end | `main`'s one call, then your own jobs added to its answer and the list put in order again |
+
+## Three things that did not build, and why
+
+A join with no clashes is not proof that it builds. The compiler found three places where code from one branch relied on something another branch had changed.
+
+1. **Eira's chat, three cards outside their message.** `main` now draws the chat turn by turn (`ForEach(turns)`), and a turn may have no message: lookups whose reply never came. The cards for a new plant, a kept find and a job were written when the chat was drawn message by message, so they used `message` where there might not be one. They now sit inside `if let message = turn.message { ... }`, which means "only when this turn has a message, and call it `message` in here".
+2. **The journal's pin-down** called `SpeciesEye.monthTaken(of:)`, which `main` replaced at 13:33 with one reader for a photo's own facts. It now calls `PhotoFacts.read(from: data).month()`.
+3. **The logic tests** had two values named `tall`, one from the Today board's tests and one from the photo tests. Swift does not allow the same name twice in one place. The Today board's is now `cardHeights`.
+
+## Larger text, for the lines the other branches brought
+
+`larger-text` moved 384 lines up one step. Lines written on other branches still had the old names. `windfall-build-logs/join-text-styles.py` found them: a line that is word for word in `larger-text`'s copy of the file has been moved up already, and any other line has not. 74 lines in 9 files were moved up by the same table:
+
+| Was | Now |
+|---|---|
+| `.caption2` | `.caption` |
+| `.caption` | `.footnote` |
+| `.subheadline`, `.callout` | `.body` |
+| `.headline` | `.title3.weight(.semibold)` |
+
+- `.caption` was moved only in the seven files that were wholly new (`EiraChatCards`, `JobViews`, `JournalPinDown`, `KeptFactViews`, `LivingCorner`, `PlantFillInViews`, `TodayBoard`), each of which also used an old name that settles which table it was written to.
+- **The widgets' own files are left at their old sizes**, as the fonts chat suggested: a widget has very little room.
+- **⚠️ CHECK: the larger titles were not carried over.** `larger-text` also moved sheet titles and serif headings up a step. On the new screens those were left alone, because which `.title3` is a heading and which is not cannot be told by rule. Look at the sheets for a job, a kept fact and "Fill the gaps".
+
+## Checked
+
+| Check | Result |
+|---|---|
+| Logic checks, Swift 6.3.1 on Linux (`Tools/checks/run-checks.sh`) | 109 files read as valid Swift. The logic files type-check. 30 record types and 30 in the schema. **734 logic tests pass** |
+| Built for the Mac | No errors, at the third attempt (`join3-mac.log`, 18:28) |
+| Built for the simulator, which also builds the widget program | No errors, at the first attempt (`join4-sim.log`, 18:29) |
+| A database made by `main` of 18:10 opens in this version | Yes. iPad mini simulator, a database of its own (`join-migrate.sh`, 18:32) |
+| This version's database still opens in `main` of 18:10 | Yes |
+| Crash reports | None |
+| Pictures, with the example garden, their words read by `read-picture.swift` | Today on an iPad mini and an iPhone: the wigwam job in "This week", "+ Add a job", "Your jobs (2)", "Order seed potatoes" in "This month". The list of kept facts. Eira's chat with one closed bubble and the card that offers to keep a find. Rhubarb's page. "Fill the gaps" on Rhubarb 'Victoria', which read the real RHS page and offered 3 suggestions. `shots/join-*.png` |
+
+The name-guessing check (`check_members.py`) raised 32 false alarms, because the joined branches brought new types whose usual variable names (`session`, `key`, `a`, `b`, `question`, `other`, `target`) are used for other things elsewhere. They are now listed in `known-false-alarms.txt`. The Mac build is the proof that they are false.
+
+## Not checked
+
+- **Nothing was tried by hand.** No press, drag or swipe. A script cannot make one.
+- **Nobody has looked at a picture.** The join chat could only read the words in them. Whether the larger text fits its chips, buttons and rows is for William's eye.
+- Carrying a card on Today now that the living corner, the widgets' card and your own jobs are on the same page.
+- The "Fill the gaps" card on a plant's page was not in the top screen of the picture. The sheet it opens was.
+- The new plant form (Plants, "+").
+
+# 14 November 2026, midday: rearranging Today like a Home Screen
+
+**The `home-screen-rearrange` branch**, made from `main`. Built for the Mac
+(`rearrange-7-mac.log`) with no errors. The layout's 34 logic tests pass on
+the Mac. **Carrying a card was tried on the Mac by a script, which moves the
+pointer too fast to watch. The press and hold that starts the jiggling, and
+how a carried card looks in the hand, have been tried by nobody yet.** Not
+built for the iPhone or iPad.
+
+William, of the build of 13 November: "The wiggle's still wrong and the
+rearranging doesn't feel as natural as rearranging an ipad or iphone home
+screen, which is more the feel I was after."
+
+## What it does now
+
+- **Press and hold a card** and they all jiggle, and the card under the
+  pointer or finger lifts: it grows a touch and gets a shadow.
+- **Carry it** and it stays under the finger. The other cards step aside as
+  it passes, opening a space where it would go. A soft shape marks the space.
+- **Let go** and it settles into the space.
+- **Carried to the top or bottom edge of the window, the page scrolls.**
+- A card carried from a column to the full-width stack, or back, changes
+  shape in the hand to suit where it is going.
+- **Reset and Done float in the top right corner.** The bar that pushed the
+  page down has gone: it moved the cards out from under the finger that had
+  just pressed one.
+- **A click on the page between the cards, or Escape, is Done.**
+- An empty column or full-width strip shows a dashed outline while
+  rearranging, so there is somewhere to carry a card to.
+
+## What has gone
+
+- The label that followed the pointer, the "Drop here" spaces and the green
+  outline on the card underneath. They belonged to the system's drag and
+  drop, which this no longer uses.
+- **The two arrows on each card.** A Home Screen has none. VoiceOver still
+  has "Move earlier" and "Move later" on each card. ⚠️ CHECK with William
+  that he does not want the arrows back.
+
+## The jiggle
+
+- Four full rocks a second at a steady speed, with no slowing at the ends
+  of the swing, and a drift of about a point. These are the figures usually
+  quoted for the Home Screen (looked up 14 November 2026; Apple publishes
+  none). The versions of 13 November slowed at each end, which is how a
+  pendulum moves.
+- The ends of every card move about two points each way, so a wide card
+  turns through a smaller angle than a narrow one.
+- Each card starts at a different point in its rock, so no two keep time.
+- To try other figures without a rebuild: `-jiggleSeconds 0.3`,
+  `-jiggleTravel 3`, `-jiggleDrift 0`.
+
+## Glass or paint: measured on the Mac
+
+With `-jiggleMeter YES` the app writes how many times a second it draws to
+`windfall-jiggle-meter.txt` in its temporary folder. In a half-width window
+on William's Mac, 14 November:
+
+| | Frames a second |
+|---|---|
+| Cards painted flat while they jiggle | about 57 |
+| Cards left as glass (`-jiggleGlass YES`) | about 31 |
+
+So the cards stay painted while they jiggle. The garden switch, "Start
+count", "Done" and the quiet buttons were still glass and stood out
+(William: "the allotment/permaculture bar looks strange", "the start count
+doesn't look right either"). They are now painted too: `GlassSwitch` and
+`QuietGlassButton` go through `cardGlass`, and the filled green button is
+`.leafButton()` (Theme.swift). In dark mode the painted surface is a shade
+lighter with a fainter edge, nearer to how the glass looks.
+
+## How it is built
+
+- **`TodayBoard.swift`** (new): `ArrangeSession` (which card is in the hand
+  and where the finger is), `TodayBoardLayout` (one layout holding every
+  card, so a card moved between columns slides there and does not fade out
+  and in), `BoardCard` (the press, the lift, the jiggle) and `Jiggle`.
+- **`TodayLayout.swift`**: `TodayBoardPlan`, the sums for where every card
+  goes and which place is under the finger, and `move(_:toZone:place:)`.
+  `TodayDropTarget` has gone.
+- **`TodayView.swift`**: draws the board. `Wiggle`, `LiftToArrange`,
+  `DragSurface` and `DragLabel` have gone.
+- 15 new logic tests, among them one that tries every finger position on a
+  page of unequal cards and checks the cards come to rest.
+
+## On the Mac
+
+- Its own working copy, `/Users/Home/Developer/windfall-rearrange`, built by
+  `rearrange.sh` into `DerivedData/Windfall-rearrange`.
+- **Built under its own name, `com.54brookroad.Windfall.rearrange`**, so its
+  settings are kept apart from the real ones and a chat driving the screen
+  can tell it from another chat's copy.
+
+## To check
+
+- Press and hold on a card that is mostly buttons (the capture buttons):
+  does the button under the pointer fire when the press ends?
+- On an iPhone or iPad: does a held card stop the page scrolling under it,
+  and does a quick swipe over a jiggling card still scroll?
+- Three columns on a wide window. Only two columns were tried.
+
 # 13 November 2026, afternoon: This week, the sheets, the sliding switch and the sidebar
 
 **On the `today-rearrange` branch**, after the morning's work below.
@@ -6,6 +185,342 @@ at school and the Mac could not be reached. It passes the checks that
 run without the Mac (every file reads as valid Swift, 323 logic tests
 pass). Those do not build the screens. Expect things to put right when
 it is first built, and treat how everything here looks as untried.
+
+## 14 November 2026, 17:13: Eira's lookups in one closed bubble, and a card for the plant
+
+**In `main` since 18:09.** Written on the branch `eira-thinking-bubble` in a cloud workspace with no Mac, then built on the Mac from 17:31 once William linked the chat to it and said, at 17:29, "add it into the next build". `main` was merged into the branch four times on the way (`43e8a3a`, `0c4857f`, `c8de15e`, `8341a3c`), because five other chats joined work to `main` in that hour. **It built for the Mac and the simulator with no errors at the first attempt** (`bb1`), and again after each later merge (`bb2`, `bb3`, in `DerivedData/Windfall-bubble`). 629 logic tests pass, 17 of them new. Seen as still pictures with the example garden (`shots/bb2-*`, `bb3-*`): the closed bubble and the plant card in the panel on an 11-inch iPad Pro and an iPhone 17 Pro, light and dark, and the bubble open with its first lookup open. **Not tried by hand: tapping the bubble, tapping a lookup, tapping the card and the plant's page that opens. Not seen: the Mac's own window, and the bubble while she is still replying.**
+
+**Why.** William, 17:02, with a picture of Eira's chat on his iPhone after asking "Find all information about comfrey": "Eira could work a bit better. The searches that it does to present me with an answer should be in a closed 'thinking' bubble, unless you tap it to see what it's doing. This kind of search should also present you to a link to the database information you have as a little card." The picture showed four grey rows (`search_garden`, `plant_visitors`, `search_notes`, `lookup_species`) between his question and her answer. It also showed two faults he did not mention: her answer began "I have no sowings recorded for last week.", and the bold and italic marks were on screen as asterisks.
+
+### 1. What you see
+
+- **One small bubble above each reply**, closed: "Looked in 4 places". Tap it and it opens to a line for each lookup in plain words ("Searched your plants") with where it looked. Tap a line to see what came back. The model's own reasoning, where a model gives any, is in the same bubble. While she is still replying the bubble has a spinner, says "Thinking…" and names the newest lookup.
+- **A card for each plant her lookups found in your library**, under the reply, headed "In your plant library". It is the same card as on the Plants page. Tap it and the plant's page opens as a sheet over the chat, with Done to come back. No more than three cards, then "and 2 more, on the Plants page".
+- **Bold and italic are shown as bold and italic.**
+- **The stray sentence is taken out** before the reply is shown.
+
+### 2. Folding the conversation into turns (`EiraChatLayout.swift`, new)
+
+The conversation is kept as a flat list: your message, each lookup, her reply. The screen used to draw that list as it stood. `EiraChatLayout.turns(from:)` now folds it first:
+
+```swift
+struct Turn: Identifiable {
+    let id: UUID
+    let lookups: [ChatMessage]
+    let message: ChatMessage?
+}
+```
+
+- A `struct` is a small bundle of values. This one is a message together with the lookups that led to it.
+- `[ChatMessage]` is a list of messages. `ChatMessage?` with the question mark means "a message, or nothing": lookups can exist before her reply has come.
+- `Identifiable` and `id` let SwiftUI tell the turns apart. The id is the message's own, so a photo or a correction card filed under a message still finds it.
+
+```swift
+case .tool:
+    waiting.append(message)
+case .assistant:
+    turns.append(Turn(id: message.id, lookups: waiting, message: message))
+    waiting = []
+```
+
+- The loop walks the list. A lookup (`.tool`) is put in `waiting`. When her reply (`.assistant`) arrives it takes everything waiting, and the waiting list is emptied.
+- Lookups followed by another message of yours, because the reply was stopped, keep a turn of their own and are never handed to the next reply.
+
+Nothing is changed in what is saved. A saved conversation opens with its bubbles and cards.
+
+### 3. Which plants get a card
+
+No new field is saved for this. A search of the plant library writes one line for each plant, starting with its name. `EiraChatLayout.plantNames(foundBy:among:)` reads those lines back and matches them to the names in the library. Where two names fit a line the longest wins, so the line for the cider apple Fiona is not taken for the plant called plain "Apple". A test runs the real search and reads its result back, so the two cannot drift apart unnoticed.
+
+Cards come from `search_garden` and from a `lookup_species` that found the species in the plant library. `plant_visitors`, `whats_growing` and the notes give none yet.
+
+### 4. Drawing it (`EiraChatCards.swift`, new, and `EiraChatView.swift`)
+
+- `ThinkingBubble` is the bubble. `@State private var isOpen = false` is a value the view keeps for itself between redraws: whether it is open. It starts closed.
+- `ChatPlantLinks` is the cards. Each is a button around the Plants page's own `PlantCardView`. Pressing one sets `plantToShow` on the chat screen, and `.sheet(item: $plantToShow)` there opens the plant's page. **Why a sheet and not a page pushed on to the chat:** since 17:04 the chat on a Mac or an iPad is drawn in the panel that grows out of Eira's bar, where there is no stack of pages to push on to. A sheet works there and on an iPhone alike.
+- `EiraChatText.styled` hands the reply to Apple's Markdown reader with `inlineOnlyPreservingWhitespace`, which reads bold, italic and links and leaves line breaks alone.
+- `ReasoningBox`, the blue box, is gone. Its job is inside the bubble. The live reasoning used to start open and now starts closed.
+- In `MessageView`, a lookup is no longer drawn as a row of its own.
+
+### 5. The stray sentence (`EiraChecks.swift`, `EiraTools.swift`)
+
+Rule 8 of Eira's instructions gives an example of right wording: "I have no sowings recorded for last week". Apple's model said it back word for word in an answer about comfrey. `EiraChecks.withoutEchoedExample` takes that exact sentence out, unless the question speaks of sowing or a lookup reported on sowings, when it may be a true answer. The sentence now has one home, `EiraPrompt.nothingRecordedExample`, read by both the instructions and the rule. **The instructions themselves read exactly as before**, so her marks on the test sheet should not move.
+
+### 6. A checking aid
+
+`-demoOpen eira-lookups`, with the example garden, opens her chat on an example of William's question with three lookups, the closed bubble and the comfrey's card. No model is asked. `-demoOpen eira-lookups-open` is the same with the bubble and its first lookup open, because a script cannot tap.
+
+### Not done
+
+- **Nothing here has been pressed by hand.**
+- In the panel in light mode the plant's card has almost no edge, because it is glass lying on glass. It reads as a card in dark mode and in a sheet.
+- Drawings of each plant on the cards, which William raised in the same message as "a side note". Not started. The chat uses the Plants page's card, so a drawing added to that card will show in both places.
+- In the picture her answer also said nothing was recorded about pollinators visiting comfrey, straight after giving what `plant_visitors` had found. That is the model, and is not changed here.
+- Her spoken replies, if switched on, are still handed the reply with its asterisks.
+## 14 November 2026, 17:55: an iPhone's conversations grow out of Eira's bar too
+
+**On the branch `eira-panel-iphone`, made from `main` (`0c4857f`), with `main` (`ece03c9`) merged in.** Built for the Mac and the iOS Simulator with no errors (`eb6-mac.log`, `eb6-sim.log`, in `DerivedData/Windfall-eirabar`). 612 logic tests pass. Seen as still pictures with the example garden on an iPhone 17 Pro in the simulator (`shots/eb5-phone-*`): the journal's conversation in the panel, Eira's chat in the panel, and the Journal page with the bar at rest above the tabs. Not seen: Today on an iPhone with the snowdrop closed. **Nothing has been pressed by hand, and nobody has yet seen it with an iPhone's keyboard up.**
+
+**Why.** William, 17:23: "Does the chat change width on window resize on a mac? I want it to behave the same way on iphone as well." The entry of 16:50 below gave the panel to the Mac and the iPad and left the iPhone with its sheets, which was Claude's choice and not his.
+
+**The answer to his question.** Yes, up to a point. The panel is as wide as Eira's bar, and the bar is as wide as the page, so the panel narrows and widens as the window is dragged. It stops at 760 points, because a line of writing much wider than that is tiring to read. The button with two arrows lifts that limit.
+
+### 1. What you see on an iPhone
+
+Exactly what a Mac and an iPad do: send something from Eira's bar, or press its microphone or book button, and the bar grows upwards into the panel with the conversation in it. Done sinks it back. Two things differ, both because of the size of the screen:
+
+- **The panel is always as tall as the page.** On a Mac it stops at 620 points unless made larger. An iPhone has no height to spare.
+- **There is no button for a larger size**, because there is no larger size to go to.
+
+The row of tabs along the bottom stays where it is, under the panel's foot.
+
+### 2. How (`MainTabView.swift`)
+
+The iPhone layout now places the bar the way the other layout does. Before:
+
+```swift
+.safeAreaInset(edge: .bottom, spacing: 0) {
+    EiraFloatingBar()
+        .padding(.horizontal, 16)
+        .padding(.bottom, 8)
+}
+```
+
+After:
+
+```swift
+.safeAreaInset(edge: .bottom, spacing: 0) {
+    Color.clear.frame(height: EiraFloatingBar.restingHeight + 8)
+}
+.overlay(alignment: .bottom) {
+    EiraFloatingBar(growsInPlace: true, takesPagePhotos: section == .journal)
+        .padding(.horizontal, 16)
+        .padding(.bottom, 8)
+}
+```
+
+- `safeAreaInset` still keeps a strip clear at the foot of each page, so a long list can be scrolled out from under the bar. The strip now holds nothing (`Color.clear`) and is as tall as the bar plus the 8 points beneath it.
+- `.overlay` is a layer on top of the page with the page's whole space. The bar sits at its foot and has the rest to grow into. In the strip it had 60 points and nowhere to go.
+- `growsInPlace: true` asks for the panel in place of the sheets.
+
+### 3. One bar for each tab (`EiraFloatingBar.swift`)
+
+An iPhone has five tabs and each has a bar of its own. Photos dropped on the Journal page are handed to "Eira's bar" through the tracker (the entry of 16:50, part 6), and with five bars listening, the wrong one could have taken them and opened its panel on a tab nobody was looking at. `takesPagePhotos` is true only for the Journal tab's bar (`section == .journal`), and a bar where it is false leaves the photos alone.
+
+### 4. The panel on a narrow bar (`EiraPanel.swift`, `EiraFloatingBar.swift`)
+
+```swift
+panel(for: open, room: geometry.size.height, isPhoneWide: barWidth < EiraPanel.phoneWidth)
+```
+
+A bar narrower than 500 points is on an iPhone, or on an iPad that is sharing its screen with another app. `isPhoneWide` then does two things: the panel is drawn at its fullest (`let isFull = panelIsLarge || isPhoneWide`), and `EiraPanelControls` is given `offersLargerSize: false`, which is what leaves the button out of the heading.
+
+### 5. Photos dropped on the Journal page (`JournalViews.swift`)
+
+They now go to the bar on every device. The page's own sheet is kept only for a Journal page shown with no bar at all.
+
+### ⚠️ CHECK: choices that are Claude's
+
+1. The panel on an iPhone is as tall as the page, with no smaller size.
+2. The tabs stay showing under the panel.
+3. Nothing but Done closes it. A swipe down on the panel does not.
+
+### Not built
+
+- A swipe down to put the panel away, as a sheet has on an iPhone.
+- An iPhone held sideways. The panel is not fitted to a screen that wide and that short.
+- `growsInPlace` is now true in every layout, so the two sheets in `EiraFloatingBar.swift` are never shown. They are kept so that going back is one word. If the panel stays, they can be taken out.
+## 14 November 2026, 17:35: the text is one step larger everywhere
+
+**On the branch `larger-text`, made from `main` (`0c4857f`).** **Not built and not seen running**: it was written in Claude's cloud workspace, which cannot build the app. It passes the checks that run without the Mac (92 files read as valid Swift, 599 logic tests pass). Those do not draw a screen. **It needs a build on the Mac and a look at each page before it joins `main`.**
+
+**Why.** William, 17:24: "Use the bigger text in the next build". Most of the app's words were 12 or 15 points and Apple's own reading size, 17, was used five times. He saw the larger sizes drawn beside the present ones on the "Windfall fonts" canvas (column A2) first. No font is changed here, only sizes.
+
+**What a text style is.** The app never names a size in points. It asks for one of Apple's named styles:
+
+```swift
+Text(job.title)
+    .font(.subheadline)
+```
+
+`.font(...)` says how the words above it are drawn. `.subheadline` is a name. The device turns the name into points (15 on an iPhone at the standard setting), and into more if the owner has asked for larger text in Settings. So the change is a change of names, and the words still follow that setting.
+
+**The rule: every job uses the style one step larger.**
+
+| Job | Was | Now |
+|---|---|---|
+| Labels: a card's kind line, chips | `.caption2`, 11 | `.caption`, 12 |
+| Details: dates, places, Latin names, tags | `.caption`, 12 | `.footnote`, 13 |
+| List text, buttons, what was written | `.subheadline`, 15 | `.body`, 17 |
+| The few `.callout` lines | 16 | `.body`, 17 |
+| Card headings, names in a list | `.headline`, 17 semibold | `.title3.weight(.semibold)`, 20 |
+| A plant's name on its card | `.headline.weight(.medium)` | `.title3.weight(.medium)`, 20 |
+| Letter headings on Plants, the weather card's figure | `.title3` in the serif, 20 | `.title2` in the serif, 22 |
+| Sheet titles and Eira's panel title | `.title2` in the serif, 22 | `.title` in the serif, 28 |
+| The headline of an identification | `.title3`, 20 | `.title2`, 22 |
+| Screen titles, the count's numbers | 34 and 42 | Unchanged |
+
+`.headline` came with its own semibold. `.title3` does not, so the weight is now written out: `.title3.weight(.semibold)`.
+
+**What changed.** 384 lines in 42 files, each a swap of one name for another, plus a table in `Theme.swift` saying which style goes with which job. **New screens should follow that table.** `.caption2`, `.subheadline`, `.callout` and `.headline` are no longer used anywhere.
+
+**Not changed.**
+
+- The 23 places that give a size in points (`.font(.system(size: 14, ...))`). All but the count's numbers size a symbol, such as the arrow on a button, not words.
+- The symbols drawn with `.font(.title2)`: the send, stop and microphone buttons.
+- Words drawn on a garden plan went from 11 to 12 with everything else. They are placed by sum, so look for labels that now touch.
+
+**What to look for when it is built.** Anything with little room: chips and tags, the capture buttons on Today, the sidebar, the month page's rows, the stepper in a sheet, a plan's labels. The new sizes are close to what the old code drew with the device's text size set one notch larger, so a layout that copes with that setting should cope with this. ⚠️ CHECK: that comparison is from Claude's memory of Apple's size tables.
+
+**On a Mac the gain is smaller.** macOS draws the same named styles smaller than an iPhone does, so Command and plus (13 November) is still the main way to enlarge a page there. ⚠️ CHECK: not looked at on the Mac.
+
+**Joining it to another branch.** A branch written before this one still uses the old names. Where the two touch the same line, keep the other branch's line and move its style up by the table. Lines the other branch added also need moving up: search them for `.caption2`, `.subheadline`, `.callout` and `.headline`. **Do not search for `.caption`**, which is now a right answer.
+
+## 14 November 2026, 17:48: a new plant is looked up, and a plant's gaps are filled in
+
+**On the branch `plant-fill-in`, made from `main` at `0c4857f` with `eira-web-finds` joined to it. Written without the Mac, so NOT BUILT.** Every file reads as valid Swift and 664 logic tests pass, 29 of them new. The rules were also run from this branch's own code against the live RHS site for seven plants. **The screens have never been compiled or seen.** Expect things to put right at the first build.
+
+**Why.** William, 17:06: "when you add a new plant to the app or tell Eira youve planted a new plant, it will run a search and fill in as much information about the plant as it can find and you just have to approve each thing. I'd also like a smart way to fill in the gaps."
+
+**What was found first.** The app had no way to add one plant by hand: a plant could only arrive from the spreadsheet file or a seed packet. And the library is mostly gaps: of 437 rows, 19 have a hardiness, 24 have pruning advice and 14 have pests.
+
+**What it does now.**
+
+- **Plants has a "+" button.** It asks for a name, and optionally a variety, a Latin name and a group, adds the plant and opens the look-up at once.
+- **A plant's page has a "Fill the gaps" card**: how many of the facts that matter are filled in, and "Look them up".
+- **In Eira's chat and the journal's conversation**, saying you have planted, sown or bought a plant the library does not have ("I planted a medlar by the pond") brings a card: "Medlar is not in your plant library yet. Add it and look it up".
+- **The look-up shows one card for each empty box it found something for.** Each has the value (which can be changed), the words it was read from, the source and how far it is trusted, and Keep and Skip. **Nothing is written until Keep is pressed on that card.** A kept value gets a KeptFact beside it, so the plant's page shows "RHS, kept Nov 2026" and it is due a check after two years, exactly as a fact kept from Eira's chat.
+- **Under the cards, what is still empty**, with three ways on: Ask Eira (for the boxes she has a care lookup for), paste any web address to have the same rules read that page, or type the facts in.
+
+**Where the suggestions come from, best first.**
+
+1. **Your own library** (`LibraryFill`). If the other rhubarbs say "Hardy perennial", a new rhubarb is offered that. A box that can differ by variety, such as the harvest months, needs two other varieties that agree. No internet needed.
+2. **The RHS** (`PlantFillIn.lookUp`). The growing guide is found from the plant's name, as Eira already does. Its month-by-month calendar gives the months to sow, plant and harvest. The guide links to the RHS's own page for the species and often the variety, and those hold height, spread, hardiness, sun, soil, pH, foliage, pests, diseases, pruning and propagation. At most three pages for one plant.
+3. **Worked out from the family** (`FamilyRules`). The carrot family are umbellifers, most of the pea family fix nitrogen, and a vegetable in the cabbage family is a brassica. The family comes from the RHS's page, or from GBIF if only the Latin name is known. Marked "Worked out, not read".
+
+**Facts are read by fixed rules, not by the AI model** (`PageFacts`). A rule reads the same page the same way each time and cannot make up a figure that is not on the page. Each rule gives nothing when it is not sure. What rules cannot do is read loose prose, which is what "Ask Eira" is for.
+
+**How the code is laid out.**
+
+- `PlantFillIn.swift` (new, no screens, in the logic tests): `PlantGaps` decides which empty boxes matter and to which plants (an apple tree is not asked when to sow it). `LibraryFill`, `RHSPage`, `PageFacts` and `FamilyRules` are the three sources. `PlantFillIn.suggestions` chooses one suggestion for each empty box and notes where two sources disagree. `NewPlantMention` hears a new plant in a sentence.
+- `PlantFillInViews.swift` (new, screens): `NewPlantSheet`, `FillInSheet`, `GapsCard`, `NewPlantOfferCard`.
+- `KeptFacts.swift`: a `KeptFact` gains `factKey`, so a kept value can sit in any of the record's 66 boxes and not only the 21 a sentence fits. Removing one and the source labels go through `PlantFacts`.
+- `EiraSources.swift`: two more kinds of source, "Your own records" and "Worked out, not read". The RHS page finder moved here from `EiraTools.swift`, unchanged, so both can use it.
+- `EiraWebLookup.swift`: a page that has been fetched keeps the page as the site sent it (`html`), because the calendar's coloured months and the links are lost in plain text.
+- `EiraScreen.swift` and `EiraFloatingBar.swift`: a page can hand Eira's bar a question (`ask`), which is how "Ask Eira" works.
+- `PlantLibraryView.swift`, `EiraChatView.swift`, `JournalChatView.swift`: the button and the cards.
+
+**The join with `eira-web-finds`.** Seven files clashed and both sides were kept in each (`b5017dc`). One thing was put right on the way: a kept fact is now noted as changed by hand, so loading the spreadsheet file again no longer replaces it.
+
+**Tried against the live RHS site** from this branch's code, on Linux: rhubarb 'Timperley Early' came back with 17 facts from the variety's own page and the guide. Leek with 10, including Alliums worked out through GBIF. Broad bean with 10, including "Nitrogen fixer". Apple, medlar and lavender with 3 to 5 each: their guides give no Latin name, so the species page is not found.
+
+**Known weak points.**
+
+- The RHS's calendar has one row for sowing and does not say indoors or outdoors. The page's wording decides, and the card says to check.
+- The older style of RHS guide (`/fruit/rhubarb/`) has no calendar.
+- Pruning, propagation, pests and diseases from a plant page are the RHS's own words, cut to a sentence or two, for William to shorten on the card.
+- Flowering from a plant page is by season, so to the nearest three months.
+- **Site terms are still open** (doc 36). This reads up to three RHS pages for one plant, when asked, saying it is Windfall.
+- There is no list across the whole library yet of which plants have most to gain. `PlantGaps.mostToGain` is written and tested, with no screen.
+## 14 November 2026, 17:47: jobs of your own, added by telling Eira
+
+**On the branch `own-jobs`, made from `main` (`0c4857f`).** **Not built on the Mac and not seen running.** Written in Claude's cloud workspace from William's phone. It passes the checks that run without the Mac: all 94 files read as valid Swift, the rules type-check, and 624 logic tests pass, 25 of them new. Those do not build the screens. Expect things to put right when it is first built, and treat how the card, the sheet and the page look as untried.
+
+**Why.** William, 17:19: "Sometimes the jobs that need doing in the garden aren't dictated by season or month and they're just jobs that need doing. It would be good to be able to add these in by telling eira... something like 'I need to build the wigwam in the allotment at the weekend' then eira adds that into the task list."
+
+**Before.** "This week" and "This month" on Today were worked out from the plant library, the records and the forecast. Nothing could be added to them. Typed into Eira's bar, William's sentence went to her chat as a question, where a model would look for a record of a wigwam and find none.
+
+**Now.**
+
+- **Tell Eira.** Type or say something to do into her bar, on any page: "I need to build the wigwam in the allotment at the weekend". A card comes up, "Add a job?", with what she understood filled in: *Build the wigwam*, *This weekend*, *Allotment*. Anything can be changed. **Add** saves it. **Not a job** saves nothing and hands the words to her chat as an ordinary message.
+- **In her chat** the same sentence gets the same card, under the message.
+- **On Today** the job is listed in "This week" if its day is within seven days or has gone by, and in "This month" if it has no date or is for later in the month. Ticking it marks it done. It stays struck through for the rest of that day and is then gone from the lists. Tapping its words opens it to change or delete.
+- **By hand.** "This week" has two new links at its foot: **Add a job**, which opens an empty form, and **Your jobs**, a page of every job: with a day, whenever and done in the last month.
+- **No model is used.** Fixed rules read the sentence, as they do for the journal's harvest and sowing offers. So it works on an iPhone that cannot run Eira's model, it is instant, and the same words always give the same card.
+- **Nothing is saved until Add is pressed**, which is the standing rule for everything Eira offers.
+
+**What counts as a job.** "I need to", "we must", "I have to", "I've got to", "remind me to", "remember to", "don't forget to", "add a job to", "Job:" and "Need to" or "Must" at the start. Also something that needs doing: "The fence needs fixing by Friday". **Not jobs:** anything with a question mark, anything opening with an asking word ("do I need to water"), finding out ("I need to know when to prune"), and things already done ("I planted the garlic").
+
+**What days it reads.** Today, tonight, tomorrow, at the weekend, next weekend, this week, next week, this month, next month, a day of the week ("on Saturday", "by Friday", "next Monday"), a date ("on 21 November", "on the 21st"), a month ("in March"), a season ("in winter", "before winter"), "in a fortnight", "in two weeks". "Soon" and "sometime" give no date. ⚠️ CHECK, Claude's choices: "next weekend" is the weekend after the coming one, "next Friday" is the Friday of next week, "at the weekend" said on a Sunday means that Sunday, and the seasons are the Met Office's (winter is December to February). The card shows the days it chose, so a wrong guess can be put right before adding.
+
+**How it is built.**
+
+| File | What it holds |
+|---|---|
+| `GardenJobs.swift` (new) | The record, the rules that read a sentence, the wording of a job's days and the rules for which list a job is in. No screen code, so it is tested without the Mac |
+| `JobViews.swift` (new) | The "Add a job?" card, the sheet for adding or changing one by hand and the "Your jobs" page |
+| `EiraConversation.swift` | `send` offers a job before the model is asked. `offeredJob` holds the offer for the chat screen |
+| `EiraChatView.swift` | Draws the card under the message |
+| `EiraFloatingBar.swift` | `ask()` checks for a job first and opens the card in a sheet |
+| `TodayView.swift` | Jobs of your own in both lists, their ticks, and the two links |
+| `WeekJobs.swift` | A new kind, `own`, and the sorting pulled out into `inOrder` so both kinds of job are sorted by one rule |
+| `WindfallApp.swift`, `BackupService.swift` | The new record is in the database's list and in backups |
+| `DemoGarden.swift` | Two example jobs |
+
+*The record.* A new kind of record needs a class marked `@Model`, which asks SwiftData to store it:
+
+```swift
+@Model
+final class GardenJob {
+    var id: UUID = UUID()
+    var title: String = ""
+    var dueFrom: Date?
+    var dueBy: Date?
+    var siteKey: String?
+    var doneAt: Date?
+    ...
+}
+```
+
+`Date?` with a question mark is an *optional*: a date or nothing. A job has a first day and a last day, so "the weekend" is Saturday to Sunday and "by Friday" is today to Friday. Both empty means whenever. `doneAt` is empty until the job is ticked. Every property has a starting value or is optional because iCloud sync needs that.
+
+*Reading a sentence.* `GardenJobs.offer(in:today:places:)` takes the words and hands back a `JobOffer`, or `nil` if it is not a job. It works in four steps: split the text into words, find an opening such as "I need to", find the day and the garden anywhere in the sentence, and keep what is left as the title.
+
+```swift
+if !notAJob, offeredCorrection == nil, GardenJobs.offer(in: trimmed, today: .now) != nil {
+    offeredJob = OfferedJob(messageID: sent.id, said: trimmed, at: .now)
+    answerWithFixedWording(GardenJobs.offerReply)
+    return
+}
+```
+
+This is the new part of `send` in Eira's conversation. `!= nil` asks "did the reader find a job?". If so the offer is noted for the screen to draw, Eira answers in fixed words and `return` stops there, so the model never sees the message and cannot claim to have saved something.
+
+*A job's days are worded fresh each time.* `whenLine` turns the two dates into words using today's date: "Tomorrow" on Friday is "Today" on Saturday, and a job whose day has gone reads "Was for Saturday 14 November". The words that were said are not kept for this, only the dates.
+
+*Two kinds of tick.* A worked-out job's tick is kept in one line of text for the month, as before. A job of your own keeps its tick on its own record (`doneAt`), so it outlasts the month and will sync once iCloud is on. `JobRow` asks which kind it has been given:
+
+```swift
+if case .own(let own)? = job.link {
+    own.doneAt = own.isDone ? nil : .now
+} else {
+    tickedStore = TickedJobs.toggling(job.id, in: tickedStore)
+}
+```
+
+`if case .own(let own)? = job.link` reads "if this job's link is one of your own jobs, call it `own`". The line after it sets the tick time to now, or clears it if it was already ticked.
+
+**The database.** `GardenJob` is a new record type, the 29th. Adding a type is the kind of change SwiftData makes by itself when an older database is opened. **It has not been tried: run `migrate-test.sh` on the Mac before this goes into `main`.**
+
+**To check when it is built.**
+
+1. The card in a sheet from Eira's bar, on the Mac, iPad and iPhone, light and dark. The When menu and the calendar are the system's own controls and may not sit well on the card.
+2. The card under a message in Eira's chat, in the panel and in the sheet.
+3. "Not a job" from the bar's card: her chat should open a moment later with the same words and no second card.
+4. Today with `-demoGarden YES`: "Build the bean wigwam" in This week and "Order seed potatoes" in This month. Tick each, untick each, tap each to open it.
+5. The two links at the foot of "This week" in a narrow column, where they may crowd.
+6. A sheet opened from a row that is itself on the "Your jobs" page.
+7. `migrate-test.sh`.
+
+**Not done.**
+
+- The journal's conversation does not offer a job. "Mulched the raspberries. Need to net the brassicas at the weekend" typed there is saved as an entry and no card is shown. The reader already finds the job in it.
+- Eira cannot read your jobs back ("what have I got on this week?"). She needs a tool that reads the same lists.
+- Jobs do not appear on the Year page's months or in the widgets (which are not in `main`).
+- No reminder is sent for a job.
+- A job cannot repeat ("every Sunday").
+- One job a message. "I need to build the wigwam and net the brassicas" gives one job with both in its title.
+- A done job cannot be turned into a journal entry.
 
 ## 14 November 2026, 17:12: on a Mac, a month's page follows two fingers as it turns
 
@@ -319,6 +834,78 @@ The Journal page and the bar are separate views, so the page cannot open the bar
 **What changed.** The 19 are added: Astrantia, Beruladium, Bunium, Bupleurum, Eryngium, Falcaria, Ferula, Libanotis, Ligusticum, Meum, Orlaya, Peucedanum, Physospermum, Sanicula, Selinum, Tordylium, Trinia, Trocdaris and Visnaga. Some look nothing like hemlock (sea holly, great masterwort) and get the warning all the same: it is better given too often than too seldom. **CHECK: the genera and their common names are iNaturalist's, fetched on 14 November 2026, and have not been checked against a flora.**
 
 One logic test added: the list holds five of the new genera and 50 in all.
+## 14 November 2026, 16:55: the drawing in Today's corner comes alive
+
+**On the branch `living-corner`, made from `main` (`0ba7173`).** Knowledge base doc 49 has the design and William's decisions. The design was worked out first on a canvas ("Windfall living corner" in William's artifacts), and the drawing code there is the project file `design/living-corner.js`. This is that design carried into Swift.
+
+**Why.** William, 16:02, of the fixed drawing: "it was going to be a live animation linked to the month or season." 16:10: "I wonder if we play on the bee from the app icon." 16:30: "I don't want this to be a thing that people have to set up, just a fun thing that happens." 16:38: "add it in to the next build of the app (add an option in settings for me to see all the different animations and change the weather as an in settings preview)".
+
+**What it does.** A drawing for each month. It grows in when Today opens, sways as hard as the wind is blowing, and changes a little every day. The bee from the app icon flies in from the left, feeds from flower to flower and leaves to the right, then comes back after a random wait of 10 to 20 seconds. Tapping the drawing calls the bee and pushes the sprig, which springs back. In February it is the icon's own snowdrop.
+
+### The four new files
+
+| File | What is in it |
+|---|---|
+| `CornerScene.swift` | The deciding: which month, how far through it, calm or breezy or gusty, fine or rain or frost or night, and whether the bee may fly. No drawing, so it is tested (13 new tests) |
+| `CornerSprigs.swift` | The twelve drawings, the shapes they are built from, the colours and the bee |
+| `CornerIconArt.swift` | The app icon's snowdrop as outlines, for February |
+| `LivingCorner.swift` | The engine that moves it all, the view, and the preview page for Settings |
+
+### How a drawing is put together
+
+Each drawing is **stems** and **parts**. A stem is a curved line. A part is a leaf, flower or fruit fixed part way along a stem. Here is September's bough and one of its pears:
+
+```swift
+let a = twig.stem(at(6, 90), at(38, 30), at(126, 27), width: 1.7)
+twig.add(a, 0.62, .pear(tall: CornerMath.lerp(21, 27, t), ripe: t)) { $0.hangs = true; $0.fan = -3; $0.swing = 0.55 }
+```
+
+- `twig.stem(...)` adds a line from 6, 90 (bottom left) that bends towards 38, 30 and ends at 126, 27. It gives back a number, kept in `a`, that stands for this stem.
+- `twig.add(a, 0.62, ...)` fixes a part to stem `a`, 62% of the way along it.
+- `.pear(tall:ripe:)` says the part is a pear. `t` is how far through the month it is, from 0 to 1. `CornerMath.lerp(21, 27, t)` is a number that slides from 21 to 27 as `t` goes from 0 to 1, so the pear is 21 tall on the 1st and 27 on the 30th.
+- The piece in curly brackets sets what is unusual about this part. `$0` means "the part being added". It hangs straight down and swings like a weight.
+
+Because parts are fixed to stems by "how far along", they follow when the wind bends the stem. Nothing has to be moved by hand.
+
+### How it moves
+
+`LivingCorner` wraps its drawing in a `TimelineView`, which asks for the picture again up to thirty times a second, handing over the time. Every frame the engine works everything out afresh from that time:
+
+- **Growing in**: how many seconds since Today opened decides how much of each stem is drawn and how big each part is.
+- **Swaying**: three slow sine waves of different lengths added together give a lean in degrees. A wave that never quite repeats looks like wind. Points further from the foot of the plant turn more, which makes it bend like a stem.
+- **A tap** adds one more wave that dies away: `nudgeSize * exp(-1.7 * sinceTap) * sin(7.2 * sinceTap)`. `sin` swings back and forth and `exp` of a growing minus number shrinks towards nothing, so the swing gets smaller each time.
+
+It stops redrawing when the app is in the background. With Reduce Motion on it draws once, finished and still, with the bee sitting on the flower.
+
+### Nothing to set up
+
+In `TodayView.swift` the old `BotanicalCorner()` becomes `LivingCorner(cornerScene: cornerScene)`, and `cornerScene` is made from things Today already had:
+
+```swift
+CornerScene.make(date: .now, calendar: .current,
+                 temperatureC: weather.current?.temperatureC,
+                 precipitationMM: weather.current?.precipitationMM,
+                 windSpeedKMH: weather.current?.windSpeedKMH,
+                 isNight: isNight)
+```
+
+- `weather.current` is the last reading from the weather service, or nothing if there has not been one. The `?` means "if there is one".
+- `isNight` was already there, worked out from the sun's position for the garden.
+- With no reading at all the corner shows a light breeze on a fine day.
+
+The limits, all in `CornerScene.swift` and all Claude's choices for William to check: calm under 8 km/h, gusty over 20 (the app's own "too windy" line), rain from 0.1 mm, frost at 0°C or below, and the bee needs 5°C.
+
+### The preview in Settings
+
+The page the sidebar's Settings opens ("Settings and tools", `MoreTab` in `MainTabView.swift`) has a new row, "Corner drawing". It opens `CornerPreviewView`: one large drawing with a month menu, a day slider, wind and weather switches and "Open it again", then all twelve months moving in a grid. Tapping a month in the grid shows it large. Nothing chosen there changes Today. Things happen sooner there than on Today so there is something to watch.
+
+### Smaller things
+
+- The colours are kept inside `CornerSprigs.swift` as `CornerInks`, a light set and a dark set, and not in `Design/colours.json`. Two reasons: a fruit ripening is one colour mixed into another, which needs the numbers, and the new colours are still a proposal (doc 49). Six of them repeat values from `colours.json`. If those change there, change them here too.
+- `BotanicalCorner` is still in `Theme.swift` and is no longer used.
+- The crocus and runner bean drawn before William chose daffodil and lavender are not carried across. They are in `design/living-corner.js`.
+- Checking aids: `-cornerMonth 2 -cornerDay 20 -cornerWind gusty -cornerSky rain` set the scene on Today and in the preview. `-startSection more -demoCorner YES` opens the preview.
+- Names: the cross-file check goes by names, so several here are longer than they need be (`sprigPart`, `cornerSky`, `lineInk`).
 
 ## 14 November 2026, 16:26: the sidebar's lens follows the fingers again
 
@@ -339,6 +926,61 @@ Nothing else about the sidebar is changed: the gearing (0.6), settling on the ne
 
 **Not tried by hand.** A script cannot make a two-finger scroll.
 
+## 14 November 2026, 16:27: a page grows out of the tile that was tapped
+
+**On the branch `tile-grow`. Built for William's iPhone (signed, `tg1-iphone.log`, 16:48) and for the Mac (`tg3-mac.log`, 17:11) with no errors, at the first attempt.** 596 logic tests pass. Written from William's iPhone without the Mac, then built once he moved the chat to the Mac. **On his iPhone since 17:08**, mixed with the iPhone chat's `iphone-first-fixes` at his word (the branch `tile-grow-phone-mix`, for the phone only). **Nobody has yet said what it looks like moving: it waits on William before it goes into `main`.** His recording is `Design/Reference/2026-11-14 recording-iphone-gardens-tiles-slide-in.mp4`.
+
+**Why.** William, 16:21, with a recording of the Gardens page on his iPhone (tapping "Garden map", swiping back, tapping "Weather"): "I'd like these tiles and any time you tap a tile like this that leads to more information for it to grow from the tile. Still swipe back though as previously agreed."
+
+**What you should see, on an iPhone or iPad.** Tap a tile and its page grows out of that tile to fill the screen. Go back with the back button or a swipe from the left edge and the page shrinks back into the tile.
+
+**Where.**
+
+| Tapped | Opens |
+|---|---|
+| The nine tiles on Gardens | Plants, Year, Sowings, Beds, Garden map, Seed, Crosses, Scan a seed packet, Weather |
+| The four tiles on Wildlife | Sightings, Surveys, Species, Identify from a photo |
+| A plant's card on Plants | That plant's page |
+| A sighting's card on Sightings | That sighting |
+| A cross's card on Crosses | That cross |
+
+Rows in a list and the small "View all" links still slide in from the right. That was Claude's choice of where to stop.
+
+**How (`GrowFromTile.swift`, new).** Apple calls this a "zoom" transition. It needs two lines that point at each other:
+
+```swift
+tile.matchedTransitionSource(id: "tile", in: space)             // on the thing tapped
+page.navigationTransition(.zoom(sourceID: "tile", in: space))   // on the page it opens
+```
+
+- `matchedTransitionSource` marks a view as the place a page grows from.
+- `navigationTransition(.zoom(...))` tells a page to grow from the view with the same `id`, in place of sliding in.
+- `space` is a `Namespace`: a private box of names. The same `id` in two boxes is two different things. Each tile makes its own box with `@Namespace`, so every tile can use the name "tile".
+
+The file wraps those two lines as `growSource` and `growsFrom`, and adds `GrowingLink`, which is a `NavigationLink` that does both for you. So a tile changed from this:
+
+```swift
+NavigationLink { WeatherDiaryView() } label: { HubTile(...) }
+```
+
+to this:
+
+```swift
+GrowingLink { WeatherDiaryView() } label: { HubTile(...) }
+```
+
+Plants and Sightings open their pages a different way (the card hands over a record and the page is named once, in `navigationDestination`), so there the two halves are written out, with the record's own `id` as the name.
+
+**A Mac is unchanged.** Both halves are fenced with `#if os(iOS)`. The Mac keeps its slide and its two-finger back swipe.
+
+**To put the old slide back without a rebuild:** start the app with `-tilesSlide YES`.
+
+**To watch for on the phone.**
+
+1. **A tile that vanishes after a swipe back.** Other developers report this as a fault in iOS 26 itself with this transition: after swiping back, the thing that was tapped is not drawn again, though it still works if tapped (Apple's developer forums, threads 796805, 802908 and 807715, reported up to iOS 26.4). The back button does not cause it. Not known: whether William's iPhone has it. If it does, the choices are a known workaround that makes the tile flash, or going back to the slide.
+2. **The swipe back looks different.** The page shrinks towards its tile as it follows the finger. It does not slide off to the right as it did. Apple also lets a page opened this way be pulled down from its top to go back. Neither can be switched off separately.
+3. **The glass.** A plant's card is glass and is itself the source. A tile's glass is behind the source. Either may look wrong for a moment as the page grows.
+4. A plant's page reached some other way from inside Plants would grow from the middle of the screen, there being no card to grow from.
 ## 14 November 2026, 16:25: the sighting form's plant list has a row of letters to jump by
 
 **On the branch `plant-letter-jump`, made from `main`.** Built for the Mac and the iOS Simulator with no errors (`pl1-mac.log`, `pl1-sim.log`, in `DerivedData/Windfall-plantjump`). 596 logic tests pass, 6 of them new. Seen as still pictures with the example garden: the list open and jumped to M on an iPhone 17 (light) and an 11-inch iPad Air, and jumped to S on the iPhone in dark (`shots/pl1-*`). **Not tried by hand: pressing a letter, choosing a plant, and the Mac's own window.** The pictures were made with the checking aid below, which jumps the same way a press on a letter does but without the glide.
@@ -414,6 +1056,8 @@ The look of the box (the words, the small arrows, the hairline) was written insi
 - **Choosing "None" does not clear a plant's name that was filled in from "Known from your reference data" without a plant record behind it.** The old menu behaved the same way. Left alone.
 - The sowing form and the other forms that pick a plant were not looked at. Only the sighting form's menu was changed.
 ## 14 November 2026, 16:50: widgets for the iPhone and iPad
+
+**Added at 17:40: in `main` since about 17:38, and the widget program is now built for the Mac too.** William, 17:21: "Add them to main and then build them for mac as well, it should be for all devices". 599 logic tests pass on the joined code. What changed for the Mac: `WindfallWidgets` supports `macosx` and is fenced in (`ENABLE_APP_SANDBOX = YES`, which a Mac widget must be); the "iOS only" filters in the project are gone; the app's entitlements file is used on every platform; `WindfallGroup.folder` works on a Mac only for a copy signed with the key to the shared folder (`holdsKey`); the Lock Screen shapes are inside `#if os(iOS)`; and the example garden never writes the widgets' file. `WeekFacts.jobs(today:)` became `WeekFacts.jobs(asOf:)`. **A Mac will not show the widgets yet**: macOS takes widgets only from a signed app, and a signed Mac build failed here ("No Accounts", then "requires a provisioning profile"). Until that is sorted out, running the Mac app from Xcode itself may stop with a signing error. Unsigned builds are not affected. Where the rest of this entry says "iPhone and iPad only" or "the Mac is unchanged", this paragraph wins. The knowledge base, doc 54, has the full account.
 
 **On the branch `widgets`, made from `main` (`c89c037`). Not in `main`.** Built for the iOS Simulator and for the Mac with no errors at the first attempt (`wg1-sim.log`, `wg1-mac.log`, in `DerivedData/Windfall-widgets`). The widget drawings were seen in the simulator on a checking page inside the app, with example content: Paper in light and dark. **Not seen: a real widget on a Home Screen or Lock Screen, a tap on one, a tick, or anything on a real iPhone.** A signed build for a real iPhone also succeeded at 17:05 (`wg1-ios.log`): William's free Apple team accepted the widget program's own identifier and the App Group, and both programs carry the key to the shared folder. It was not installed, because the iPhone was not plugged in. **The logic tests were not run** for this change: `Tools/checks` only looks inside the `Windfall` folder, and this chat had no Swift toolchain in its cloud workspace.
 
@@ -767,6 +1411,128 @@ _values = State(initialValue: PlantFacts.values(of: plant))
 
 **Found and left.** Sixteen Python package files (`*.whl`, 13MB) have sat at the top of the repository since `7e61a86`. One is called `swift`. They look like the result of asking Python's installer for "swift", which is an unrelated package of that name. ⚠️ CHECK: a guess from the file names. Nothing in the app uses them.
 
+## 14 November 2026, 13:45: care questions, the RHS, and keeping what Eira finds
+
+**On the branch `eira-web-finds`, made from `main`. Not merged**: William asked at 12:57 for the other chats to finish building before anything is joined. Built for the Mac and the iOS Simulator with no errors (`wf5-mac.log`, `wf5-sim.log`). 571 logic tests pass. Put to Apple's built-in model through the app, with the example garden and the real RHS website (`eira-care-3.md` in the build logs folder). The screens have been seen as still pictures only (`shots/wf5-*.png`).
+
+**The database gains one record type, `KeptFact`.** Checked in the iPad (A16) simulator at 13:47 with a database of its own: a database made by `main` opens in this version, and `main` still opens it afterwards (`wf5-after.out`).
+
+**Why.** William asked Eira: "After the first big frost, when the rhubarb has wilted, do I need to chop the leaves back?" She searched the plant library, found no pruning advice and answered "You may still leave the leaves until the season's end." The RHS says the opposite. Reading the code turned up three causes:
+
+1. **The plant search never handed over a plant's pruning.** `search_garden` gave the name, sowing months, harvest months and position, and nothing else.
+2. **Rhubarb's Pruning box is empty** in the library, for all three varieties.
+3. **Nothing told her that "nothing recorded" is not advice**, and she could only search Wikipedia, which would not have known.
+
+William then asked for three ways for a fact to reach a plant's record, each kept only when he says so: a web address pasted into the chat, Eira finding the page herself on a trusted site, and a fact typed in by hand. And for a kept fact to go into the right box of the plant's record, and to be checked again after two years.
+
+**What a question now goes through.** Taking the rhubarb question:
+
+1. `EiraChecks.lookupFirst` sees a care word ("chop") in a question and chooses the new lookup `plant_care`. The model is not asked whether to look.
+2. `plant_care` (in `EiraTools.swift`) finds the plant the question names, here Rhubarb, and reads its Pruning box. If the box holds something, that is handed over and the lookup ends.
+3. The box is empty, so the lookup says: "No pruning or cutting back advice is recorded for Rhubarb in the plant library. That means nothing has been written down. It does not mean nothing needs doing."
+4. It then finds the RHS's page for rhubarb (below), picks out the paragraph about cutting back and hands that over too, with the RHS named as a checked source.
+5. The model answers from that. Under its reply a card offers to keep the fact: for Rhubarb, in Pruning, from the RHS.
+6. If **Keep it** is pressed, the words go into the Pruning box of all three rhubarbs, and a small record beside each remembers the RHS, the page's address and the date.
+7. Asked again, step 2 finds the box filled and no website is read.
+
+**New files.**
+
+| File | What it holds |
+|---|---|
+| `KeptFacts.swift` | The record of where a kept value came from (`KeptFact`), the boxes of a plant's record a fact can go into (`PlantField`), the kinds of care question (`CareTopic`) and the rules: which plant, which box, months, the two-year check. No screen code, so all of it is tested |
+| `EiraSources.swift` | The websites Eira knows by name and how far each is trusted, how she finds the RHS's page for a plant, how she remembers which address worked, and how the right paragraph is picked out of a long page |
+| `KeptFactViews.swift` | The card under her reply, the form on a plant's page and the two lists |
+
+**Finding the RHS's page.** The RHS has no search made for programs. But its growing guides sit at addresses made from the plant's name, in several shapes (William: "RHS for example has a few different structure"). These were seen on its site on 14 November 2026:
+
+| Shape | Example |
+|---|---|
+| `/vegetables/<name>/grow-your-own` | rhubarb, carrots, garlic, broad-beans |
+| `/fruit/<name>/grow-your-own` | apples, raspberries, and rhubarb again |
+| `/herbs/<name>/grow-your-own` | mint |
+| `/plants/<name>/growing-guide` | lavender |
+| `/fruit/<name>/<subject>` | `/fruit/apples/winter-pruning`. Not guessed: reached by a pasted address |
+| `/advice/profile?pid=<number>` and `/plants/<number>/<latin-name>/details` | Need the RHS's own number, so they cannot be built from a name. Reached by a pasted address |
+
+```swift
+static func candidates(for name: String, kind: PlantKind) -> [String] {
+    let names = slugs(for: name)
+    ...
+    for section in edible {
+        for slug in names { growYourOwn.append("https://www.rhs.org.uk/\(section)/\(slug)/grow-your-own") }
+    }
+```
+
+- `slugs(for:)` turns a name into the part of an address: "Broad bean" gives `broad-bean` and `broad-beans`. Both are tried because the RHS uses both: `/fruit/apples/` but `/vegetables/rhubarb/`.
+- `edible` is the sections in an order set by the kind of plant, so a fruit tries `/fruit/` first.
+- `"\(section)"` inside a piece of text drops that value into the text. This is how every address here is put together.
+- At most eight addresses are tried. The first whose page title names the plant wins (`RHSFinder.isAbout`). That check matters: a wrong address on the RHS gives a page titled "Page Not Found".
+- `PageMemory` remembers the address that worked, so the next question about rhubarb goes straight there. A plant with no page is remembered too and not tried again for a month.
+
+**Reading a page properly** (`EiraWebLookup.swift`). Four things were wrong or missing, and each was found by putting real RHS pages through the app:
+
+- A page was cut to its first 4,000 characters as it was read. The pruning advice on a growing guide is far below that. `WebPageReader.fetch` now keeps the whole text and `WebText.passages` picks the part that bears on the question.
+- A "not found" page was read as if it were the answer. A site's reply carries a number, 200 for "here it is" and 404 for "no such page", and anything outside 200 to 299 is now treated as no page.
+- The RHS tucks the meaning of a word inside the sentence that uses it, hidden until the word is tapped. Left in, the meaning of "perennial" ("they die back to ground level each autumn") was picked out as pruning advice. Both of the RHS's forms of this are now taken out.
+- At the foot of a page are teasers for other pages. One, about plums, was handed over as advice on apples, and the model answered with the time to prune plums. Reading now stops at "You may also like".
+
+**Which paragraph** (`WebText.passages`). Each line of the page is marked: two marks for a word of the subject ("cut back", "prun", "die back"), two more if its heading holds one, and one for each of the question's own words. On a page that is about the subject from top to bottom, the question's words decide instead. A question that asks when also looks for months and seasons.
+
+**Into the right box** (`KeptFacts.swift`).
+
+```swift
+enum PlantField: String, CaseIterable, Identifiable {
+    case pruning, propagation
+    ...
+    func value(in plant: Plant) -> String? { ... }
+    func set(_ value: String?, in plant: Plant) { ... }
+}
+```
+
+- An `enum` is a fixed list of named choices. This one lists the boxes of a plant's record a fact may go into: 21 of them.
+- `value(in:)` and `set(_:in:)` are the only places that know which property of `Plant` each box is. Everything else says `field.value(in: plant)` and never needs to know.
+- `CaseIterable` gives `PlantField.allCases`, the whole list, which is what the menu on the card shows.
+- The starting choice is made by plain rules from the question (`KeptFacts.field`): "chop", "prune" and "cut back" point to Pruning, "sow" to the sowing months, and anything the rules cannot place goes to Notes. It can be changed on the card.
+- **A box of months takes only months.** "Sow from March to May" is stored as "Mar, Apr, May", because the Year page and the sowing reminders read those boxes. The card shows the months before anything is kept, and a fact naming no month cannot go into such a box.
+- If the box already holds something, the card shows it and offers **Replace** or **Add to it**.
+
+**Where it came from** (`KeptFact`, a new record type). A box holds only its words, so the source lives in a record beside it: the plant, the box, the words, the site, the address, how far the site is trusted, the date, and what the box held before. That last is what makes **Remove** safe: if the box still holds exactly what the fact put there, the old value is put back. If it has been changed by hand since, it is left alone.
+
+**The check after two years.** `KeptFacts.isDue` is true two years after a fact was kept, or after **Still right** was last pressed. A due fact is marked on the plant's page and in the list, and Eira is told it is "over two years ago and due a check" each time she is handed it. She goes on using it.
+
+**The three ways in.**
+
+1. **A pasted address.** `EiraChecks.webAddress` spots a web address in a message. The app then reads that page before the model answers (`EiraConversation.send`), where before it was left to the model to think of it.
+2. **Eira finds it herself.** The `plant_care` lookup above. Only the RHS so far.
+3. **By hand.** A plant's page has a new card, **Kept facts**, with a **Keep a fact** button. The form asks for the fact, the box, and where it was read. Given a web address it recognises the site.
+
+**Where kept facts are seen.** On the plant's page, in the Kept facts card, and as a small green label under the value itself ("RHS, kept Nov 2026"). All together under **Kept facts** in the Options menu of Eira's chat, those due a check first. Each has **Open the source**, **Change it** and **Remove**, and **Still right** once it is due.
+
+**Other changes.**
+
+- `search_garden` now hands over a plant's pruning.
+- "Should I prune?" names no plant. For so short a question about pruning, feeding or dividing, the lookup now tells the model to ask which plant. On the test sheet no model had (doc 29).
+- A page's source line names the site and says how far it is trusted, where before every page was "unverified". The list of sites is `WebSources.all` in `EiraSources.swift`. ⚠️ CHECK: it is Claude's list.
+- Eira's test sheet has a section H for all of this, and `-eiraTestFull YES` writes each lookup out whole.
+
+**Tried with Apple's model** (13:35, `eira-care-3.md`):
+
+| Question | Answer |
+|---|---|
+| The rhubarb question | "cut away the old leaves to expose the growing points to winter cold", from the RHS. The card offered Rhubarb, Pruning, RHS |
+| The same in other words, after Keep it | The same advice, "from your own plant database, kept Nov 2026". No website read |
+| What does `rhs.org.uk/fruit/apples/winter-pruning` say about when to prune? | "every winter, from November to early March" |
+| When should I prune the lavender? | "annually in late summer, just after flowering has finished", from the RHS |
+| Should I prune? | "Which plant are you referring to?" |
+
+**Not done.**
+
+- Only the RHS can be found by name. Gardeners' World and the others on the list can be read from a pasted address.
+- The RHS's terms for an app reading its pages have not been found (doc 36). One page is read when a question needs it, the request says it is Windfall, and nothing is copied or crawled. ⚠️ CHECK before Windfall is ever given to anyone else.
+- The backup file does not carry the kept-fact records. The values themselves are in the plants' records, which it does carry.
+- The card's **Plant** box takes a typed name. It does not yet offer a list to choose from.
+- Nothing here has been tried by hand.
+
 ## 14 November 2026, 12:57: "Sow to crop" was being read as days
 
 **On the branch `sow-to-crop-units`, made from `main` and merged back into it.** 535 logic tests pass.
@@ -790,6 +1556,20 @@ _values = State(initialValue: PlantFacts.values(of: plant))
 Germination was not affected. Its column is in days.
 
 **A test reads the real library**: every sow-to-crop figure in it must come out as weeks or months, and none shorter than a fortnight. If a figure is ever written another way, that test will say so.
+## 14 November 2026, 13:30: "Want to pin it down?" in the journal, "tonight" means now, and the weather for earlier today
+
+**On the branch `journal-follow-up`, made from `main` at `06a8915`. Not yet merged.** Built for the Mac with no errors. 537 logic tests pass (17 checks are new). Not yet tried by hand.
+
+**Why.** William wrote "I noticed an insect in my garden tonight" in the journal (13 November, 22:30). The entry was kept, but nothing helped him name the insect while he still remembered it. He also saw two faults: Eira asked "It is 22:30 and dark out. Was this about earlier today?" though he had written "tonight", and the weather chip said the service had no figures for ten that morning.
+
+**What changed.**
+
+1. **Pinning it down** (`JournalChat.swift`, new `JournalPinDown.swift`, `JournalChatView.swift`). When an entry says something was seen (saw, spotted, noticed, found, there was) and names it only loosely ("an insect", "a small brown beetle", "some odd mushrooms"), Eira adds one card: *Want to pin it down?* with **Add a photo**, **Describe it** and **Leave it unidentified**. A photo goes through the same identification as Identify and Eira's chat. Describe asks size in centimetres, colours, wings and how they are held (insects only), what it was doing and where. Either way an unconfirmed sighting is made, dated with the entry. "Red admiral butterfly", "cabbage white butterflies" and "a robin" count as named and get no card.
+2. **Not nagging.** One card per entry, never a run of questions. After three finds in a row go by without the card being used, it comes one time in three (`shouldOfferPinDown`).
+3. **"Tonight" means now** (`timeCheck`). "Tonight", "this evening", "just now", "right now" and "at the moment" stop the after-dark question.
+4. **The weather for earlier today** (`askServiceIfMissing`). Where a garden has a location but its weather diary has no figures yet for that hour, the weather service is now asked at the garden's location. Before, only gardens with no location were asked.
+
+**Will clash with `photo-drop`** in `JournalChat.swift`, as well as the three files doc 37 lists.
 
 ## 14 November 2026, 12:50: a sowing or a planting, added from the plant's own page
 

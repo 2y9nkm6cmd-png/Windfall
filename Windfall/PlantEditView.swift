@@ -75,7 +75,7 @@ struct PlantEditView: View {
             ScrollViewReader { scroller in
                 SheetScroll {
                     Text("What you change here is kept when the spreadsheet file is loaded again.")
-                        .font(.caption)
+                        .font(.footnote)
                         .foregroundStyle(Theme.inkSoft)
                         .fixedSize(horizontal: false, vertical: true)
                         .padding(.horizontal, 4)
@@ -170,7 +170,7 @@ struct PlantEditView: View {
             if factGroup == .naming, changes.contains(where: { $0.key == "commonName" || $0.key == "variety" }),
                plant.sourceSheet != nil {
                 Text("The spreadsheet file knows this plant by its old name and variety. Windfall remembers them, so loading the file again still finds this plant.")
-                    .font(.caption)
+                    .font(.footnote)
                     .foregroundStyle(Theme.inkSoft)
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -204,7 +204,7 @@ struct PlantEditView: View {
         let inside = box()
         return VStack(alignment: .leading, spacing: 5) {
             Text(factField.label)
-                .font(.caption)
+                .font(.footnote)
                 .foregroundStyle(Theme.inkSoft)
             FieldBox {
                 inside
@@ -222,7 +222,7 @@ struct PlantEditView: View {
             HStack(spacing: 10) {
                 TickBox(isOn: isOn)
                 Text(factField.label)
-                    .font(.subheadline)
+                    .font(.body)
                     .foregroundStyle(Theme.ink)
                 Spacer(minLength: 0)
             }
@@ -259,7 +259,7 @@ private struct MonthPicker: View {
 
         VStack(alignment: .leading, spacing: 5) {
             Text(label)
-                .font(.caption)
+                .font(.footnote)
                 .foregroundStyle(Theme.inkSoft)
 
             HStack(spacing: 4) {
@@ -272,7 +272,7 @@ private struct MonthPicker: View {
                     } label: {
                         VStack(spacing: 3) {
                             Text(String(Array("JFMAMJJASOND")[month - 1]))
-                                .font(.caption2)
+                                .font(.caption)
                                 .foregroundStyle(Theme.inkSoft)
                             RoundedRectangle(cornerRadius: 6)
                                 .fill(isOn ? tint : Theme.hairline.opacity(0.7))
@@ -292,7 +292,7 @@ private struct MonthPicker: View {
             // They are kept as they are unless a month is chosen.
             if !text.isEmpty && chosen.isEmpty {
                 Text("The record says “\(text)”, which is not a list of months. Choosing a month replaces it.")
-                    .font(.caption)
+                    .font(.footnote)
                     .foregroundStyle(Theme.inkSoft)
                     .fixedSize(horizontal: false, vertical: true)
             }

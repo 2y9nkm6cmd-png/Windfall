@@ -101,7 +101,7 @@ struct ChartsView: View {
                     if share > 0.15 {
                         Label("\(Int(share * 100))% went to the compost — worth sowing less of something",
                               systemImage: "lightbulb")
-                            .font(.caption)
+                            .font(.footnote)
                             .foregroundStyle(.orange)
                     }
                 }

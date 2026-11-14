@@ -149,7 +149,7 @@ struct EyeTestView: View {
         SheetCard("Models installed") {
             if eyes.isEmpty {
                 Text("No image model is installed on this device. One is a folder inside Windfall's Models folder holding the model, uk_species.json and uk_species_rows_f16.bin.")
-                    .font(.callout)
+                    .font(.body)
                     .foregroundStyle(Theme.inkSoft)
             }
             ForEach(eyes) { eye in
@@ -165,14 +165,14 @@ struct EyeTestView: View {
                             Text(note)
                         }
                     }
-                    .font(.caption)
+                    .font(.footnote)
                     .foregroundStyle(Theme.inkSoft)
 
                     Spacer(minLength: 8)
 
                     if eye == eiraEye {
                         Label("Eira uses this", systemImage: "checkmark.circle.fill")
-                            .font(.callout)
+                            .font(.body)
                             .foregroundStyle(Theme.leaf)
                     } else {
                         Button("Use for Eira") {
@@ -188,7 +188,7 @@ struct EyeTestView: View {
             }
             if eyes.count == 1 {
                 Text("With one model installed there is nothing to compare it with, but its answers can still be marked.")
-                    .font(.caption)
+                    .font(.footnote)
                     .foregroundStyle(Theme.inkSoft)
             }
         }
@@ -201,7 +201,7 @@ struct EyeTestView: View {
             Text(shots.isEmpty
                  ? "Choose photos you can name yourself. Use awkward ones as well as clear close-ups: the awkward ones are what tell two models apart. Include a few of things that are on no list, to see whether a model wrongly names them."
                  : "\(shots.count) chosen. They stay on this device.")
-                .font(.callout)
+                .font(.body)
                 .foregroundStyle(Theme.inkSoft)
 
             HStack(spacing: 10) {
@@ -263,7 +263,7 @@ struct EyeTestView: View {
                             .foregroundStyle(Theme.ink)
                         ForEach(eyeScore(for: eye).lines, id: \.self) { line in
                             Text(line)
-                                .font(.callout.monospacedDigit())
+                                .font(.body.monospacedDigit())
                                 .foregroundStyle(Theme.ink)
                         }
                     }
@@ -271,7 +271,7 @@ struct EyeTestView: View {
             }
             if truths.isEmpty {
                 Text("Mark each photo below with what it really is, and the scores fill in.")
-                    .font(.caption)
+                    .font(.footnote)
                     .foregroundStyle(Theme.inkSoft)
             }
             HStack(spacing: 10) {
@@ -294,7 +294,7 @@ struct EyeTestView: View {
             }
             if let done {
                 Text(done)
-                    .font(.caption)
+                    .font(.footnote)
                     .foregroundStyle(Theme.inkSoft)
             }
         }
@@ -314,7 +314,7 @@ struct EyeTestView: View {
                 }
                 VStack(alignment: .leading, spacing: 8) {
                     Text(shot.name)
-                        .font(.caption)
+                        .font(.footnote)
                         .foregroundStyle(Theme.inkSoft)
                         .lineLimit(1)
                     ForEach(eyes) { eye in
@@ -324,7 +324,7 @@ struct EyeTestView: View {
                     }
                     if answers.values.allSatisfy({ $0[shot.id] == nil }) {
                         Text("Not run yet")
-                            .font(.callout)
+                            .font(.body)
                             .foregroundStyle(Theme.inkSoft)
                     }
                 }
@@ -348,19 +348,19 @@ struct EyeTestView: View {
             }
             VStack(alignment: .leading, spacing: 1) {
                 Text(eye.name)
-                    .font(.caption)
+                    .font(.footnote)
                     .foregroundStyle(Theme.inkSoft)
                 Text(top?.entry.title ?? "No answer")
-                    .font(.callout)
+                    .font(.body)
                     .foregroundStyle(Theme.ink)
             }
             Spacer(minLength: 8)
             VStack(alignment: .trailing, spacing: 1) {
                 Text("\(top?.percent ?? ""), \(eyeAnswer.guess.isSure ? "named" : "not sure")")
-                    .font(.callout.monospacedDigit())
+                    .font(.body.monospacedDigit())
                     .foregroundStyle(eyeAnswer.guess.isSure ? Theme.leaf : Theme.inkSoft)
                 Text(String(format: "%.2f s", eyeAnswer.seconds))
-                    .font(.caption.monospacedDigit())
+                    .font(.footnote.monospacedDigit())
                     .foregroundStyle(Theme.inkSoft)
             }
         }
@@ -384,7 +384,7 @@ struct EyeTestView: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 10) {
                 Text("What is it really?")
-                    .font(.callout)
+                    .font(.body)
                     .foregroundStyle(Theme.ink)
                 // ChoiceMenu is the app's own menu box. It is given a
                 // Picker, which draws a tick beside the chosen one.

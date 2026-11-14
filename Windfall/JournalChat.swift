@@ -23,7 +23,12 @@
 //    not just now, this decides whether to ask which day the entry is
 //    about. Added 14 November 2026.
 //
-//  All of these are fixed rules. None of them uses the AI model, so they
+//  A fifth job, added 14 November 2026: noticing when an entry tells
+//  of something seen but not named ("an insect", "a strange weed"),
+//  and the questions that help pin it down. See "Pinning down
+//  something seen" at the end.
+//
+//  All of them are fixed rules. None of them uses the AI model, so they
 //  give the same answer every time and work on any device.
 //
 
@@ -332,6 +337,12 @@ enum JournalChat {
             return TimeCheck(question: "You wrote about earlier. When was it?", moments: earlier + [.now])
         }
 
+        // Words that put it at the time of writing. "Tonight" said after
+        // dark is about now, so there is nothing to ask. (Added 14
+        // November 2026: "I noticed an insect in my garden tonight" was
+        // asked whether it was about the morning.)
+        if says(["tonight", "this evening", "just now", "right now", "at the moment"]) { return nil }
+
         if isDark ?? (hour >= 20 || hour < 5) {
             let minute = calendar.component(.minute, from: now)
             let clock = String(format: "%d:%02d", hour, minute)
@@ -531,5 +542,229 @@ extension JournalChat {
             .map(String.init)
         guard said.count >= 2, let opening = said.first else { return true }
         return askingStarts.contains(opening) || said.contains(where: askingWords.contains)
+    }
+}
+
+// MARK: - Pinning down something seen
+
+extension JournalChat {
+
+    /// The broad sort of thing an entry saw. It decides which questions
+    /// are worth asking: wings matter for an insect, not for a weed.
+    enum FindKind: String, Equatable {
+        case smallCreature, bird, growing
+    }
+
+    /// Something seen but not named: "an insect", "a strange weed".
+    struct Find: Equatable {
+        /// The word as cut down by `root(of:)`: "insect", "moth".
+        let word: String
+        let kind: FindKind
+        /// The group a sighting of it goes in, where the word says.
+        /// "Creature" says nothing, so it is nil.
+        let group: TaxonGroup?
+        /// True for a caterpillar, grub, larva or maggot.
+        let isYoung: Bool
+    }
+
+    /// Words for something seen without a name, by the root
+    /// `root(of:)` makes of them. "Bee" and "moth" are here because a
+    /// bee or a moth could be one of hundreds of kinds; "robin" is not,
+    /// because a robin is already named.
+    private static let unnamedWords: [String: (FindKind, TaxonGroup?)] = [
+        "insect": (.smallCreature, .insect), "bug": (.smallCreature, .insect),
+        "beetle": (.smallCreature, .insect), "moth": (.smallCreature, .insect),
+        "butterfly": (.smallCreature, .insect), "bee": (.smallCreature, .insect),
+        "wasp": (.smallCreature, .insect), "fly": (.smallCreature, .insect),
+        "hoverfly": (.smallCreature, .insect), "caterpillar": (.smallCreature, .insect),
+        "grub": (.smallCreature, .insect), "larva": (.smallCreature, .insect),
+        "larvae": (.smallCreature, .insect), "maggot": (.smallCreature, .insect),
+        "spider": (.smallCreature, .arachnid),
+        "slug": (.smallCreature, .mollusc), "snail": (.smallCreature, .mollusc),
+        "worm": (.smallCreature, .annelid),
+        "centipede": (.smallCreature, .otherInvertebrate), "millipede": (.smallCreature, .otherInvertebrate),
+        "creature": (.smallCreature, nil), "beastie": (.smallCreature, nil),
+        "bird": (.bird, .bird),
+        "weed": (.growing, .plant), "wildflower": (.growing, .plant), "plant": (.growing, .plant),
+        "mushroom": (.growing, .fungus), "toadstool": (.growing, .fungus),
+        "fungus": (.growing, .fungus), "fungi": (.growing, .fungus)
+    ]
+
+    /// The young stages, written on a sighting as its life stage.
+    private static let youngWords: Set<String> = ["caterpillar", "grub", "larva", "larvae", "maggot"]
+
+    /// Words that say it was seen. One must be in the entry, so that
+    /// "planted some plants" is not taken for a sighting.
+    private static let seeingWords: Set<String> = [
+        "saw", "seen", "see", "spotted", "noticed", "found", "watched", "heard", "caught",
+        "disturbed", "there", "there's", "came", "visiting", "visited"]
+
+    /// Words that describe without naming: "a small brown beetle". Any
+    /// number of these may stand before the word.
+    private static let describingWords: Set<String> = [
+        "odd", "strange", "weird", "funny", "unusual", "unknown", "mystery", "new", "different",
+        "little", "small", "tiny", "big", "large", "huge", "fat", "long", "thin",
+        "black", "brown", "grey", "gray", "white", "cream", "yellow", "orange", "red", "pink",
+        "purple", "blue", "green", "dark", "pale", "bright", "shiny", "metallic", "hairy",
+        "furry", "fluffy", "spotty", "stripy", "striped", "pretty", "lovely", "beautiful", "flying"]
+
+    /// Words that can stand before those: "an", "some", "lots of", or
+    /// the seeing word itself, as in "noticed insects". Anything else
+    /// there is taken as part of a name: "red admiral butterfly",
+    /// "cabbage white butterflies", "carrot plants".
+    private static let leadingWords: Set<String> = [
+        "a", "an", "some", "this", "that", "these", "those", "few", "several", "lot", "lots",
+        "of", "loads", "two", "three", "four", "many", "another", "more", "couple", "was", "were",
+        "is", "are"]
+
+    /// The first thing an entry saw without naming, if there is one.
+    ///
+    /// The rule: a word is seen ("saw", "noticed", "there was"), and a
+    /// word from the list above stands with nothing before it but
+    /// describing words, and before those an "a", "some" or the like.
+    /// So "I noticed an insect in my garden tonight" is a find, and
+    /// "Saw a red admiral butterfly" and "Saw a robin" are not.
+    static func unnamedFind(in text: String) -> Find? {
+        // The words as written, for the small words around the find, and
+        // cut down by `root(of:)`, so that "moths" and "moth" match.
+        // ("This" is kept as written: cut down it would lose its "s".)
+        let said = text.lowercased()
+            .replacingOccurrences(of: "\u{2019}", with: "'")
+            .split(whereSeparator: { !($0.isLetter || $0 == "'" || $0 == "-") })
+            .map(String.init)
+        let roots = said.map { root(of: $0) }
+        guard said.contains(where: seeingWords.contains) else { return nil }
+
+        for (index, word) in roots.enumerated() {
+            guard let (kind, group) = unnamedWords[word] else { continue }
+            // Step back over describing words.
+            var before = index - 1
+            while before >= 0, describingWords.contains(said[before]) { before -= 1 }
+            if before < 0 || leadingWords.contains(said[before]) || seeingWords.contains(said[before]) {
+                return Find(word: word, kind: kind, group: group, isYoung: youngWords.contains(word))
+            }
+        }
+        return nil
+    }
+
+    // MARK: Asking without nagging
+
+    /// Skips in a row after which Eira asks less often.
+    static let skipsBeforeAskingLess = 3
+
+    /// Whether to offer to pin something down, given how many times in
+    /// a row the offer has been turned down. Under three, always. After
+    /// that, one time in three, so the offer never goes for good.
+    static func shouldOfferPinDown(skipsInARow: Int) -> Bool {
+        skipsInARow < skipsBeforeAskingLess || (skipsInARow - skipsBeforeAskingLess) % 3 == 2
+    }
+
+    // MARK: The questions
+
+    /// One question about what was seen, with its answers as buttons.
+    struct DescribeQuestion: Equatable, Identifiable {
+        let id: String
+        let title: String
+        let options: [String]
+        /// True when more than one answer can be chosen, as for colours.
+        let allowsMany: Bool
+    }
+
+    /// The questions worth asking about a find, given the answers so
+    /// far. Each matches something field guides identify by.
+    ///
+    /// Sizes are in centimetres. For a small creature it is body
+    /// length, for a bird beak to tail, as in bird books, and for
+    /// something growing its height.
+    static func describeQuestions(for find: Find, answers: [String: [String]]) -> [DescribeQuestion] {
+        var asked: [DescribeQuestion] = []
+        switch find.kind {
+        case .smallCreature:
+            asked.append(DescribeQuestion(id: "size", title: "Size, head to tail",
+                                          options: ["Under 0.5 cm", "0.5 to 1 cm", "1 to 2 cm", "2 to 4 cm", "Over 4 cm"],
+                                          allowsMany: false))
+        case .bird:
+            asked.append(DescribeQuestion(id: "size", title: "Size, beak to tail",
+                                          options: ["Under 12 cm", "12 to 20 cm", "20 to 35 cm", "Over 35 cm"],
+                                          allowsMany: false))
+        case .growing:
+            asked.append(DescribeQuestion(id: "size", title: "Height",
+                                          options: ["Under 5 cm", "5 to 20 cm", "20 to 50 cm", "Over 50 cm"],
+                                          allowsMany: false))
+        }
+
+        var colours = ["Black", "Brown", "Grey", "White", "Cream", "Yellow", "Orange", "Red", "Pink", "Purple", "Blue", "Green"]
+        if find.kind == .smallCreature { colours.append("Metallic") }
+        asked.append(DescribeQuestion(id: "colours", title: "Main colours", options: colours, allowsMany: true))
+
+        // Wings only for an insect that is not a caterpillar or grub.
+        if find.group == .insect, !find.isYoung {
+            asked.append(DescribeQuestion(id: "wings", title: "Wings",
+                                          options: ["No wings", "Two wings", "Four wings", "Hard wing cases", "Couldn't see"],
+                                          allowsMany: false))
+            let wings = answers["wings"]?.first
+            if wings == "Two wings" || wings == "Four wings" {
+                asked.append(DescribeQuestion(id: "held", title: "Wings held at rest",
+                                              options: ["Spread flat", "Folded like a roof", "Closed upright", "Folded along the back"],
+                                              allowsMany: false))
+            }
+        }
+
+        switch find.kind {
+        case .smallCreature:
+            asked.append(DescribeQuestion(id: "doing", title: "What it was doing",
+                                          options: ["Resting", "Flying to a light", "Feeding on a flower", "Eating leaves", "Crawling", "Flying about"],
+                                          allowsMany: false))
+            asked.append(DescribeQuestion(id: "where", title: "Where it was",
+                                          options: ["On a plant", "On a wall or fence", "On the ground or lawn", "On a window or door", "In the air"],
+                                          allowsMany: false))
+        case .bird:
+            asked.append(DescribeQuestion(id: "doing", title: "What it was doing",
+                                          options: ["Feeding on the ground", "Feeding in a tree or shrub", "At a feeder", "Singing", "Bathing or drinking", "Flying over"],
+                                          allowsMany: false))
+        case .growing:
+            if find.group == .plant {
+                asked.append(DescribeQuestion(id: "doing", title: "How it was",
+                                              options: ["In flower", "Leaves only", "Going to seed"],
+                                              allowsMany: false))
+            }
+            asked.append(DescribeQuestion(id: "where", title: "Where it was",
+                                          options: ["In a bed", "In the lawn", "In a path or paving", "On wood or a stump", "Under a hedge or tree"],
+                                          allowsMany: false))
+        }
+        return asked
+    }
+
+    /// The answers as a line for the sighting's notes, in the order the
+    /// questions were asked. Answers to questions no longer asked (wings
+    /// held, once "No wings" is chosen) are left out. Nil when nothing
+    /// was answered.
+    ///
+    /// "Described in the journal: 1 to 2 cm; brown and orange; four
+    /// wings, folded like a roof; flying to a light; on a window or door."
+    static func description(of find: Find, answers: [String: [String]]) -> String? {
+        var parts: [String] = []
+        for question in describeQuestions(for: find, answers: answers) {
+            guard let chosen = answers[question.id], !chosen.isEmpty else { continue }
+            let said = listed(chosen.map { $0.lowercased() })
+            if question.id == "held", !parts.isEmpty {
+                // "four wings, folded like a roof" reads as one thing.
+                parts[parts.count - 1] += ", " + said
+            } else {
+                parts.append(said)
+            }
+        }
+        guard !parts.isEmpty else { return nil }
+        return "Described in the journal: " + parts.joined(separator: "; ") + "."
+    }
+
+    /// "brown", "brown and orange", "black, brown and orange". No comma
+    /// before the "and".
+    static func listed(_ words: [String]) -> String {
+        switch words.count {
+        case 0: return ""
+        case 1: return words[0]
+        default: return words.dropLast().joined(separator: ", ") + " and " + words[words.count - 1]
+        }
     }
 }

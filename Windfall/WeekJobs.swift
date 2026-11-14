@@ -72,6 +72,9 @@ struct WeekJob: Identifiable, Equatable {
 
     enum Kind: String {
         case frost, wind, dry, sow, plantOut, harvest
+        /// A job of your own, added by telling Eira or by hand. These
+        /// come from GardenJobs.swift, not from the rules below.
+        case own
     }
 
     /// Sowing and harvest jobs use the same identifiers as "This month",
@@ -257,8 +260,15 @@ enum WeekJobs {
             }
         }
 
-        // Weather first, then whatever runs out soonest.
-        return found.sorted { first, second in
+        return inOrder(found)
+    }
+
+    /// Puts a list of urgent jobs in order: weather first, then whatever
+    /// runs out soonest. Its own function since 14 November 2026, so
+    /// that jobs of your own can be put in among the worked-out ones
+    /// (TodayView.swift does that) and sorted by the same rule.
+    static func inOrder(_ jobs: [WeekJob]) -> [WeekJob] {
+        jobs.sorted { first, second in
             let firstIsWeather = isWeather(first.kind), secondIsWeather = isWeather(second.kind)
             if firstIsWeather != secondIsWeather { return firstIsWeather }
             if first.daysLeft != second.daysLeft { return first.daysLeft < second.daysLeft }

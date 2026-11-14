@@ -81,11 +81,11 @@ private struct PlantingRow: View {
         VStack(alignment: .leading, spacing: 4) {
             HStack {
                 Text(planting.plant?.displayName ?? "Unknown plant")
-                    .font(.headline)
+                    .font(.title3.weight(.semibold))
 
                 if let round = planting.successionRound {
                     Text("#\(round)")
-                        .font(.caption)
+                        .font(.footnote)
                         .padding(.horizontal, 5)
                         .padding(.vertical, 1)
                         .background(.secondary.opacity(0.15), in: Capsule())
@@ -98,7 +98,7 @@ private struct PlantingRow: View {
 
             if !planting.bedNames.isEmpty {
                 Text(planting.bedNames)
-                    .font(.caption)
+                    .font(.footnote)
                     .foregroundStyle(.secondary)
             }
 
@@ -114,7 +114,7 @@ private struct PlantingRow: View {
                     Label("\(Int(rate * 100))% up", systemImage: "chart.line.uptrend.xyaxis")
                 }
             }
-            .font(.caption2)
+            .font(.caption)
             .foregroundStyle(.secondary)
         }
         .padding(.vertical, 2)
@@ -126,7 +126,7 @@ private struct StatusBadge: View {
 
     var body: some View {
         Text(label)
-            .font(.caption2.weight(.medium))
+            .font(.caption.weight(.medium))
             .padding(.horizontal, 6)
             .padding(.vertical, 2)
             .background(colour.opacity(0.18), in: Capsule())
@@ -287,7 +287,7 @@ struct NewPlantingView: View {
                         }
                         if let round = suggestedRound {
                             Text("Succession round \(round)")
-                                .font(.caption)
+                                .font(.footnote)
                                 .foregroundStyle(Theme.inkSoft)
                         }
                     } else {
@@ -300,7 +300,7 @@ struct NewPlantingView: View {
                             } label: {
                                 HStack(spacing: 6) {
                                     Image(systemName: "chevron.left")
-                                        .font(.caption.weight(.semibold))
+                                        .font(.footnote.weight(.semibold))
                                     Text("Back to \(previousPlant.displayName)")
                                 }
                             }
@@ -328,7 +328,7 @@ struct NewPlantingView: View {
                         }
                         if matchingPlants.isEmpty {
                             Text("No plant in the library matches that.")
-                                .font(.subheadline)
+                                .font(.body)
                                 .foregroundStyle(Theme.inkSoft)
                         }
                     }
@@ -398,7 +398,7 @@ struct NewPlantingView: View {
             if let advice = SeedTruth.advice(habit: habit, isF1: isF1, begun: begun,
                                              name: selectedPlant?.commonName ?? "") {
                 Text(advice)
-                    .font(.caption)
+                    .font(.footnote)
                     .foregroundStyle(Theme.inkSoft)
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -423,14 +423,14 @@ struct NewPlantingView: View {
 
                 SettingRow("Seed parent") {
                     Text(chosenCross?.seedParentName ?? selectedPlant?.displayName ?? "")
-                        .font(.subheadline)
+                        .font(.body)
                         .foregroundStyle(Theme.ink)
                         .multilineTextAlignment(.trailing)
                 }
 
                 VStack(alignment: .leading, spacing: 5) {
                     Text("Pollen parent, if you know it")
-                        .font(.caption)
+                        .font(.footnote)
                         .foregroundStyle(Theme.inkSoft)
                     FieldBox {
                         TextField("Not known (open pollinated)", text: $pollenParent)
@@ -452,7 +452,7 @@ struct NewPlantingView: View {
                     HStack(spacing: 10) {
                         TickBox(isOn: crossedByHand)
                         Text("I crossed them by hand")
-                            .font(.subheadline)
+                            .font(.body)
                             .foregroundStyle(Theme.ink)
                         Spacer(minLength: 0)
                     }
@@ -482,7 +482,7 @@ struct NewPlantingView: View {
                 .foregroundStyle(Theme.ink)
             if let latin = plant.latinName {
                 Text(latin)
-                    .font(.caption)
+                    .font(.footnote)
                     .italic()
                     .foregroundStyle(Theme.inkSoft)
             }
@@ -543,7 +543,7 @@ private struct SectionPicker: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             Text("Sections")
-                .font(.caption)
+                .font(.footnote)
                 .foregroundStyle(Theme.inkSoft)
 
             LazyVGrid(columns: columns, spacing: 6) {
@@ -556,7 +556,7 @@ private struct SectionPicker: View {
                         }
                     } label: {
                         Text(section.label)
-                            .font(.callout.weight(.medium))
+                            .font(.body.weight(.medium))
                             .foregroundStyle(Theme.ink)
                             .frame(maxWidth: .infinity)
                             .frame(height: 40)
@@ -652,7 +652,7 @@ struct PlantingDetailView: View {
                         Text("\(harvest.quantity.formatted()) \(harvest.unit.displayName)")
                         if let destination = harvest.destination {
                             Text(destination.rawValue)
-                                .font(.caption)
+                                .font(.footnote)
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -673,7 +673,7 @@ struct PlantingDetailView: View {
                     Spacer()
                     if planting.totalHarvestGrams > 0 {
                         Text("\((planting.totalHarvestGrams / 1000).formatted(.number.precision(.fractionLength(0...2)))) kg total")
-                            .font(.caption)
+                            .font(.footnote)
                             .textCase(nil)
                     }
                 }
@@ -712,7 +712,7 @@ struct PlantingDetailView: View {
                                 .foregroundStyle(.secondary)
                         }
                         Text(event.severity.rawValue.capitalized)
-                            .font(.caption)
+                            .font(.footnote)
                             .foregroundStyle(.secondary)
                     }
                 }
@@ -841,7 +841,7 @@ struct HarvestEditor: View {
                         .labelsHidden()
                     }
                     Text("Recording where it went is what separates what you grew from what you actually used.")
-                        .font(.caption)
+                        .font(.footnote)
                         .foregroundStyle(Theme.inkSoft)
                 }
 
@@ -903,7 +903,7 @@ struct PhenologyEditor: View {
                 Section {
                     Label("Bloom dates set against pollinator counts show whether what's flowering matches what's flying.",
                           systemImage: "info.circle")
-                        .font(.caption)
+                        .font(.footnote)
                         .foregroundStyle(.secondary)
                 }
             }

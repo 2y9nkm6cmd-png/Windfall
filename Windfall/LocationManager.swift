@@ -227,13 +227,13 @@ struct GridReferenceField: View {
 
             if let accuracy = locationManager.accuracyMetres, gridReference != nil {
                 Text("Fix accurate to about \(Int(accuracy)) m")
-                    .font(.caption2)
+                    .font(.caption)
                     .foregroundStyle(.secondary)
             }
 
             if let warning {
                 Label(warning, systemImage: "exclamationmark.triangle")
-                    .font(.caption2)
+                    .font(.caption)
                     .foregroundStyle(.orange)
             }
         }

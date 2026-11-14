@@ -45,3 +45,17 @@ G1 | Where is the shed on my allotment?
 then: G2 | No, that's wrong. The shed is at the north end, next to the water butt.
 keep
 G3 | Where is my shed?
+
+# H. A care question the records cannot answer (added 14 November 2026).
+# The plant library has rhubarb and no pruning advice for it. H1 should
+# say nothing is recorded, then answer from the RHS and name it. It must
+# not turn "nothing recorded" into advice. "keep find" presses Keep it on
+# the card H1 should bring up. H2 is a new conversation and should be
+# answered from the plant's own record, saying it was kept from the RHS.
+# H3 hands her a page to read. H4 names no plant, and she should ask
+# which. H needs the internet.
+H1 | After the first big frost, when the rhubarb has wilted, do I need to chop the leaves back?
+keep find
+H2 | Do I need to cut back the rhubarb's leaves in autumn?
+H3 | What does https://www.rhs.org.uk/fruit/apples/winter-pruning say about when to prune?
+H4 | Should I prune?

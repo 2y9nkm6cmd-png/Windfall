@@ -277,10 +277,10 @@ struct YearView: View {
         } label: {
             HStack(spacing: 6) {
                 Text(plantKind?.rawValue ?? "Fruit, veg\u{2026}")
-                    .font(.subheadline)
+                    .font(.body)
                     .fontWeight(plantKind == nil ? .regular : .semibold)
                 Image(systemName: "chevron.down")
-                    .font(.caption2.weight(.semibold))
+                    .font(.caption.weight(.semibold))
             }
             .foregroundStyle(Theme.ink)
             .padding(.horizontal, 14)
@@ -307,7 +307,7 @@ struct YearView: View {
                     }
                 }
                 Text("Every job")
-                    .font(.subheadline)
+                    .font(.body)
                     .fontWeight(showsEveryJob ? .semibold : .regular)
             }
             .foregroundStyle(Theme.ink)
@@ -345,7 +345,7 @@ struct YearView: View {
             HStack(spacing: 8) {
                 YearKey(activity: job, asLine: showsEveryJob)
                 Text(job.rawValue)
-                    .font(.subheadline)
+                    .font(.body)
                     .fontWeight(isOn ? .semibold : .regular)
             }
             .foregroundStyle(Theme.ink)
@@ -369,7 +369,7 @@ struct YearView: View {
         let names = isNarrow ? Calendar.current.veryShortMonthSymbols : Calendar.current.shortMonthSymbols
         return HStack(spacing: 0) {
             Text(count == 1 ? "1 plant" : "\(count) plants")
-                .font(.caption)
+                .font(.footnote)
                 .foregroundStyle(Theme.inkSoft)
                 .frame(width: nameWidth, alignment: .leading)
 
@@ -405,10 +405,10 @@ struct YearView: View {
     private func familyHeading(_ title: String, count: Int) -> some View {
         HStack(alignment: .firstTextBaseline, spacing: 10) {
             Text(title.uppercased())
-                .font(.caption.weight(.semibold))
+                .font(.footnote.weight(.semibold))
                 .kerning(0.8)
             Text(count == 1 ? "1 plant" : "\(count) plants")
-                .font(.caption)
+                .font(.footnote)
         }
         .foregroundStyle(Theme.inkSoft)
         .padding(.top, 20)
@@ -446,11 +446,11 @@ struct YearView: View {
             // On an iPhone the variety goes underneath.
             VStack(alignment: .leading, spacing: 1) {
                 Text(plant.commonName)
-                    .font(.subheadline)
+                    .font(.body)
                     .foregroundStyle(Theme.ink)
                 if !variety.isEmpty {
                     Text(variety)
-                        .font(.caption2)
+                        .font(.caption)
                         .foregroundStyle(Theme.inkSoft)
                 }
             }
@@ -464,7 +464,7 @@ struct YearView: View {
                     .layoutPriority(1)
                 if !variety.isEmpty {
                     Text(variety)
-                        .font(.caption)
+                        .font(.footnote)
                         .foregroundStyle(Theme.inkSoft)
                 }
             }
@@ -499,7 +499,7 @@ struct YearMonthButton: View {
     var body: some View {
         Button(action: onPress) {
             Text(name)
-                .font(.caption)
+                .font(.footnote)
                 .fontWeight(isThisMonth || isUnderPointer ? .bold : .regular)
                 .foregroundStyle(isThisMonth || isUnderPointer ? Theme.ink : Theme.inkSoft)
                 .frame(maxWidth: .infinity)

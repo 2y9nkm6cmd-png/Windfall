@@ -367,7 +367,7 @@ struct YearMonthView: View {
         HStack(alignment: .bottom, spacing: 10) {
             VStack(alignment: .leading, spacing: 2) {
                 Text(headerDetail(for: month))
-                    .font(.subheadline)
+                    .font(.body)
                     .foregroundStyle(Theme.inkSoft)
                 monthMenu(for: month)
             }
@@ -407,7 +407,7 @@ struct YearMonthView: View {
                     .foregroundStyle(Theme.ink)
                 // A small arrow, to show the name can be pressed.
                 Image(systemName: "chevron.down")
-                    .font(.subheadline.weight(.semibold))
+                    .font(.body.weight(.semibold))
                     .foregroundStyle(Theme.inkSoft)
             }
             .contentShape(.rect)
@@ -471,7 +471,7 @@ struct YearMonthView: View {
         if count(.flowering) > 0 { parts.append("\(count(.flowering)) in flower") }
 
         return Text(parts.joined(separator: " · "))
-            .font(.subheadline)
+            .font(.body)
             .foregroundStyle(Theme.inkSoft)
     }
 
@@ -490,12 +490,12 @@ struct YearMonthView: View {
                 // The job's coloured dot, as on the Year page's buttons.
                 YearKey(activity: job, asLine: false)
                 Text(job.rawValue)
-                    .font(.headline)
+                    .font(.title3.weight(.semibold))
                     .foregroundStyle(Theme.ink)
                 Spacer(minLength: 8)
                 if !found.isEmpty {
                     Text(found.count == 1 ? "1 plant" : "\(found.count) plants")
-                        .font(.caption)
+                        .font(.footnote)
                         .foregroundStyle(Theme.inkSoft)
                 }
             }
@@ -504,7 +504,7 @@ struct YearMonthView: View {
 
             if found.isEmpty {
                 Text("\(Self.nothingWords(for: job)) in \(PlantFilter.monthName(month)).")
-                    .font(.subheadline)
+                    .font(.body)
                     .foregroundStyle(Theme.inkSoft)
             } else {
                 ForEach(shown) { entry in
@@ -526,7 +526,7 @@ struct YearMonthView: View {
                         withAnimation(.smooth(duration: 0.25)) { _ = opened.insert(job) }
                     } label: {
                         Text("Show all \(found.count)")
-                            .font(.subheadline.weight(.medium))
+                            .font(.body.weight(.medium))
                             .foregroundStyle(Theme.leaf)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .contentShape(.rect)
@@ -548,11 +548,11 @@ struct YearMonthView: View {
         return HStack(alignment: .firstTextBaseline, spacing: 8) {
             VStack(alignment: .leading, spacing: 1) {
                 Text(entry.plant.commonName)
-                    .font(.subheadline.weight(.medium))
+                    .font(.body.weight(.medium))
                     .foregroundStyle(Theme.ink)
                 if !variety.isEmpty {
                     Text(variety)
-                        .font(.caption)
+                        .font(.footnote)
                         .foregroundStyle(Theme.inkSoft)
                 }
             }
@@ -563,7 +563,7 @@ struct YearMonthView: View {
                 // so the meaning does not rest on the colour.
                 let isUrgent = entry.monthPlace != .opening
                 Text(pressing)
-                    .font(.caption.weight(.semibold))
+                    .font(.footnote.weight(.semibold))
                     .foregroundStyle(Theme.ink)
                     .padding(.horizontal, 9)
                     .padding(.vertical, 4)
@@ -571,7 +571,7 @@ struct YearMonthView: View {
                                 in: .capsule)
             } else {
                 Text(Self.waitWords(for: entry))
-                    .font(.caption)
+                    .font(.footnote)
                     .foregroundStyle(Theme.inkSoft)
             }
         }

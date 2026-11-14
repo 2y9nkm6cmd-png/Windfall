@@ -58,11 +58,11 @@ struct OfferFrame<Content: View>: View {
 
             VStack(alignment: .leading, spacing: 10) {
                 Text(heading)
-                    .font(.subheadline.weight(.semibold))
+                    .font(.body.weight(.semibold))
                     .foregroundStyle(Theme.ink)
 
                 content()
-                    .font(.subheadline)
+                    .font(.body)
 
                 HStack(spacing: 8) {
                     Button(addTitle) { onAdd() }
@@ -200,11 +200,11 @@ struct HarvestOfferCard: View {
             // A harvest is always recorded against a sowing or planting.
             if sources.isEmpty {
                 Text("Nothing is on record as sown or planted for it. Adding this will put it on record as growing, so the harvest has somewhere to go.")
-                    .font(.caption)
+                    .font(.footnote)
                     .foregroundStyle(Theme.inkSoft)
             } else if sources.count == 1, let only = sources.first {
                 Text("From: \(Self.words(for: only)).")
-                    .font(.caption)
+                    .font(.footnote)
                     .foregroundStyle(Theme.inkSoft)
             } else {
                 SettingRow("From") {

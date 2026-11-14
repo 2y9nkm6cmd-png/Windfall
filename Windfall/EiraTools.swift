@@ -121,6 +121,26 @@ enum EiraTools {
         parameters: ["type": "object", "properties": [:]]
     )
 
+    /// How to care for one plant: what the plant's own record says and,
+    /// if it says nothing, what the RHS says.
+    ///
+    /// Like `sowingNow`, this is not offered to the model. The app runs
+    /// it itself before the model answers a care question about a plant
+    /// in the library (see EiraChecks.lookupFirst), because the model
+    /// cannot be relied on to look, and on 14 November 2026 turned an
+    /// empty record into advice.
+    static let plantCare = ToolDefinition(
+        name: "plant_care",
+        description: "Look up how to care for a plant: pruning, feeding, sowing and so on. Uses the gardener's plant library first and the RHS when the library has nothing.",
+        parameters: [
+            "type": "object",
+            "properties": [
+                "question": ["type": "string", "description": "The gardener's question"]
+            ],
+            "required": ["question"]
+        ]
+    )
+
     /// Every tool Eira may use. Kept short on purpose: a small model
     /// chooses more reliably from a few clearly different tools.
     static let all: [ToolDefinition] = [
@@ -134,6 +154,9 @@ enum EiraTools {
 struct ToolResult {
     let text: String
     let source: String
+    /// Set when the result came from a web page, so the chat can offer
+    /// to keep what was found. Nil for everything else.
+    var onlineFind: OnlineFind? = nil
 
     var formatted: String {
         "\(text)\n\n[source: \(source)]"
@@ -171,10 +194,17 @@ struct ToolRunner {
                                  days: json["days"] as? Int ?? 30)
         case "sowing_now":
             return sowingNow()
+        case "plant_care":
+            return await plantCare(question: json["question"] as? String ?? "",
+                                   screen: json["screen"] as? String ?? "")
+        // "question" is what the gardener typed, when the app is running
+        // the lookup for them. The model's own calls do not send it.
         case "search_wikipedia":
-            return await searchWikipedia(json["query"] as? String ?? "")
+            return await searchWikipedia(json["query"] as? String ?? "",
+                                         question: json["question"] as? String ?? "")
         case "read_web_page":
-            return await readWebPage(json["url"] as? String ?? "")
+            return await readWebPage(json["url"] as? String ?? "",
+                                     question: json["question"] as? String ?? "")
         default:
             return ToolResult(text: "No such tool: \(name)", source: "app")
         }
@@ -355,6 +385,12 @@ struct ToolRunner {
             if let sow = plant.sowOutdoorsMonthsText { parts.append("sow outdoors: \(sow)") }
             if let harvest = plant.harvestMonthsText { parts.append("harvest: \(harvest)") }
             if let sun = plant.sunShade { parts.append("position: \(sun)") }
+            // Pruning was never handed over until 14 November 2026, so
+            // a plant with pruning advice in its record looked to Eira
+            // as if it had none.
+            if let pruning = PlantField.pruning.value(in: plant) {
+                parts.append("pruning: \(WebText.truncate(pruning, to: 200))")
+            }
             if plant.isPollinator { parts.append("pollinator plant") }
             return parts.joined(separator: "; ")
         }
@@ -521,6 +557,103 @@ struct ToolRunner {
         return lines.joined(separator: "\n")
     }
 
+    // MARK: Care for one plant
+
+    /// What is known about caring for the plant a question names.
+    ///
+    /// Three steps:
+    ///
+    ///   1. Find the plant. The question is read for a name from the
+    ///      plant library. Failing that, the screen that was open is:
+    ///      asked "do I cut it back?" on rhubarb's page, it is rhubarb.
+    ///      If no plant is named, nothing is handed over at all (an
+    ///      empty result), and the model answers as it always did.
+    ///   2. Read the plant's own record, in the boxes that answer this
+    ///      kind of question. If they hold something, that is the
+    ///      answer, with where it came from if it was kept from a site.
+    ///   3. If they are empty, say so in words that cannot be taken for
+    ///      advice, and then look on the RHS (EiraSources.swift).
+    ///
+    /// `async` because step 3 waits for the internet.
+    private func plantCare(question: String, screen: String) async -> ToolResult {
+        let nothing = ToolResult(text: "", source: "")
+        let plants = (try? context.fetch(FetchDescriptor<Plant>())) ?? []
+        let names = plants.map(\.commonName)
+        guard let name = KeptFacts.plantNamed(in: question, among: names)
+                ?? KeptFacts.plantNamed(in: screen, among: names) else {
+            // "Should I prune?" names no plant. Eira's third rule is to
+            // ask one short question when a question is unclear, and
+            // on the test sheet no model did: each went and searched.
+            // So for the shortest of these she is told to ask.
+            if KeptFacts.shouldAskWhichPlant(question) {
+                return ToolResult(text: "The question names no plant, and no plant's page is open. "
+                                    + "Do not guess and do not look anything up. Ask which plant is meant, in one short question.",
+                                  source: "app")
+            }
+            return nothing
+        }
+        guard let topic = CareTopic.find(in: question) else { return nothing }
+        // Every variety of it: rhubarb is in the library three times.
+        let varieties = plants.filter { $0.commonName == name }
+
+        // 2. The plant's own record.
+        let store = KeptFactStore(context: context)
+        var lines: [String] = []
+        for plant in varieties {
+            let kept = store.facts(for: plant)
+            for field in topic.fields {
+                guard let value = field.value(in: plant) else { continue }
+                // Notes can be about anything. They count only if they
+                // speak of what was asked.
+                if field == .notes, !topic.pageWords.contains(where: { value.lowercased().contains($0) }) { continue }
+                var line = "\(plant.displayName), \(field.label): \(WebText.truncate(value, to: 500))"
+                if let from = kept.first(where: { $0.field == field && $0.valueAfter == value }) {
+                    line += " (\(KeptFacts.saidToEira(of: from)))"
+                }
+                if !lines.contains(line) { lines.append(line) }
+            }
+            if topic == .cuttingBack, let group = plant.pruningGroup, !group.isEmpty {
+                lines.append("\(plant.displayName), Pruning group: \(group)")
+            }
+        }
+        if !lines.isEmpty {
+            return ToolResult(text: lines.joined(separator: "\n"), source: "user's plant database")
+        }
+
+        // 3. Nothing recorded. Say so plainly, then look on the RHS.
+        let empty = "No \(topic.name) advice is recorded for \(name) in the plant library. "
+            + "That means nothing has been written down. It does not mean nothing needs doing."
+        let kind = PlantKind.of(group: varieties.first?.group)
+        guard let page = await rhsPage(for: name, kind: kind) else {
+            return ToolResult(
+                text: empty + "\nThe RHS's page for \(name) could not be found or reached. "
+                    + "If you answer from your own general knowledge, say it is not checked.",
+                source: "user's plant database")
+        }
+        let weak = KeptFacts.pageWords(forQuestion: question, plant: name)
+        let passages = WebText.passages(in: page.text, strong: topic.pageWords, weak: weak, limit: 950)
+        guard !passages.isEmpty else {
+            return ToolResult(
+                text: empty + "\nThe RHS's page \"\(page.title ?? name)\" was read and says nothing on \(topic.name). "
+                    + "If you answer from your own general knowledge, say it is not checked.",
+                source: "user's plant database and RHS at \(page.address)")
+        }
+        var result = ToolResult(
+            text: empty + "\nThe RHS's page \"\(page.title ?? name)\" says:\n\(passages)\n"
+                + "Answer from the RHS's words above and say that it is from the RHS.",
+            source: "user's plant database, and RHS, \(SourceTrust.checked.said), at \(page.address)")
+        result.onlineFind = OnlineFind(sourceName: "RHS", trust: .checked, address: page.address, title: page.title,
+                                 plantName: name, field: KeptFacts.field(forQuestion: question, words: ""))
+        return result
+    }
+
+    /// The RHS's growing guide for a plant, or nil. The finding is
+    /// done by RHSFinder.page (EiraSources.swift), which filling in a
+    /// plant's gaps shares.
+    private func rhsPage(for name: String, kind: PlantKind) async -> WebPageReader.Page? {
+        await RHSFinder.page(for: name, kind: kind)
+    }
+
     private func recentRecords(kind: String, days: Int) -> ToolResult {
         let cutoff = Date.now.addingTimeInterval(-Double(days) * 86_400)
 
@@ -600,6 +733,13 @@ final class EiraToolHub {
     var resultLimit = 1500
     /// Called each time a tool has run, so the chat can show it.
     var onToolUse: ((_ name: String, _ result: String) -> Void)?
+    /// What the lookups have found online since the list was last
+    /// emptied. The chat empties it when a question is sent, and reads
+    /// it when the reply is finished, to offer the Keep card.
+    private(set) var finds: [OnlineFind] = []
+
+    /// Forgets what was found for the question before.
+    func clearFinds() { finds = [] }
 
     init(context: ModelContext) {
         self.runner = ToolRunner(context: context)
@@ -608,6 +748,10 @@ final class EiraToolHub {
     /// Runs one tool. `argumentsJSON` is the tool's inputs written as JSON.
     func run(name: String, argumentsJSON: String) async -> String {
         let result = await runner.run(name: name, arguments: argumentsJSON)
+        // A lookup with nothing to say hands back nothing, and is not
+        // shown in the chat. (plant_care, when no plant is named.)
+        guard !result.text.isEmpty else { return "" }
+        if let onlineFind = result.onlineFind { finds.append(onlineFind) }
         let text = EiraToolHub.trimmed(result, limit: resultLimit)
         onToolUse?(name, text)
         return text
@@ -669,6 +813,14 @@ enum EiraGardenNotes {
 /// garden notes.
 enum EiraPrompt {
 
+    /// The example of right wording given in rule 8 below.
+    ///
+    /// It has a name because a model sometimes says it back word for
+    /// word in an answer about something else, and a fixed rule then
+    /// takes it out (EiraChecks.withoutEchoedExample). Both places read
+    /// it from here, so the two cannot drift apart.
+    static let nothingRecordedExample = "I have no sowings recorded for last week"
+
     static func build(
         date: Date = .now,
         gardenNotes: String = EiraGardenNotes.load(),
@@ -715,8 +867,8 @@ enum EiraPrompt {
         7. Say where each fact came from. If it is your own general \
         knowledge and not from a tool, say "from general knowledge, not checked".
         8. When a tool finds no records, say that nothing is recorded. Do \
-        not say that it did not happen. "I have no sowings recorded for \
-        last week" is right. "You did not sow anything" is wrong.
+        not say that it did not happen. "\(nothingRecordedExample)" is \
+        right. "You did not sow anything" is wrong.
 
         Identification:
         9. Give the scientific name, the features you used, your confidence \

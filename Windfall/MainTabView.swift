@@ -264,6 +264,7 @@ struct MainTabView: View {
             // space. Eira's bar sits at the foot of it. A conversation
             // opened from the bar grows up out of it as a panel, into
             // the rest of that space (`growsInPlace`, EiraPanel.swift).
+            // An iPhone's bar is placed the same way, in `phoneTabs`.
             // The page underneath still takes every tap that does not
             // land on the bar or the panel.
             .overlay(alignment: .bottom) {
@@ -310,8 +311,21 @@ struct MainTabView: View {
                         screen(for: section)
                             .eiraLooksAt(section.eiraPhrase, isJournal: section == .journal)
                     }
+                    // As on a Mac and an iPad (see `sidebarLayout` above):
+                    // an empty strip keeps the foot of each page clear,
+                    // and Eira's bar sits in an overlay with the whole
+                    // page to grow into. Until the evening of 14 November
+                    // 2026 an iPhone's bar sat in the strip itself and
+                    // opened its conversations as sheets.
                     .safeAreaInset(edge: .bottom, spacing: 0) {
-                        EiraFloatingBar()
+                        Color.clear.frame(height: EiraFloatingBar.restingHeight + 8)
+                    }
+                    .overlay(alignment: .bottom) {
+                        // An iPhone has a bar for each tab. Photos dropped
+                        // on the Journal page are meant for the bar on
+                        // that tab and no other, which is what
+                        // `takesPagePhotos` says.
+                        EiraFloatingBar(growsInPlace: true, takesPagePhotos: section == .journal)
                             .padding(.horizontal, 16)
                             .padding(.bottom, 8)
                     }
@@ -845,6 +859,10 @@ struct LensRefraction: ViewModifier, Animatable {
 // MARK: - More
 
 struct MoreTab: View {
+    /// A checking aid: `-startSection more -demoCorner YES` opens the
+    /// corner drawing's preview at once, so a picture can be taken of it.
+    @State private var showsCornerPreview = UserDefaults.standard.bool(forKey: "demoCorner")
+
     var body: some View {
         List {
             NavigationLink { UniversalSearchView() } label: {
@@ -868,12 +886,18 @@ struct MoreTab: View {
             NavigationLink { BackupView() } label: {
                 Label("Backup", systemImage: "externaldrive")
             }
+            // Every month of the drawing in Today's corner, with the
+            // wind and the weather to try. See LivingCorner.swift.
+            NavigationLink { CornerPreviewView() } label: {
+                Label("Corner drawing", systemImage: "leaf")
+            }
             NavigationLink { SettingsView() } label: {
                 Label("Settings", systemImage: "gear")
             }
         }
         .navigationTitle("Settings and tools")
         .paperScreen()
+        .navigationDestination(isPresented: $showsCornerPreview) { CornerPreviewView() }
     }
 }
 

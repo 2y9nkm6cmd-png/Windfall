@@ -357,7 +357,7 @@ struct SeedPacketScanView: View {
                         if showingRawText {
                             ForEach(scanner.recognisedLines, id: \.self) { line in
                                 Text(line)
-                                    .font(.caption.monospaced())
+                                    .font(.footnote.monospaced())
                                     .foregroundStyle(.secondary)
                             }
                         }
@@ -511,13 +511,13 @@ private struct ExtractedFieldRow: View {
                 .buttonStyle(.plain)
 
                 Text(field.label)
-                    .font(.caption)
+                    .font(.footnote)
                     .foregroundStyle(.secondary)
 
                 Spacer()
 
                 Text(field.confidenceLabel)
-                    .font(.caption2)
+                    .font(.caption)
                     .padding(.horizontal, 5)
                     .padding(.vertical, 1)
                     .background(field.confidenceColour.opacity(0.18), in: Capsule())
@@ -540,7 +540,7 @@ private struct ExtractedFieldRow: View {
             }
 
             Text("read from: \(field.sourceText)")
-                .font(.caption2)
+                .font(.caption)
                 .foregroundStyle(.tertiary)
                 .lineLimit(2)
         }

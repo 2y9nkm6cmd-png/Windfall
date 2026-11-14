@@ -35,9 +35,12 @@
 //  in the middle of the screen. The bar grows upwards into a panel of
 //  glass with the conversation inside it, and "Done" lowers it back.
 //  That is what `growsInPlace` switches on. The parts the panel shares
-//  with the conversations are in EiraPanel.swift. On an iPhone the
-//  sheets are kept. Search and the card that asks what to do with a
-//  photo are still sheets everywhere.
+//  with the conversations are in EiraPanel.swift. An iPhone kept its
+//  sheets for an hour or two and then got the panel as well (William,
+//  17:23 the same day: "I want it to behave the same way on iphone").
+//  There the panel is as wide as the bar and as tall as the page.
+//  Search and the card that asks what to do with a photo are still
+//  sheets everywhere.
 //
 
 import SwiftUI
@@ -47,9 +50,17 @@ import PhotosUI
 struct EiraFloatingBar: View {
 
     /// True where a conversation should grow up out of the bar as a
-    /// panel, which is on a Mac and an iPad. False, as on an iPhone,
-    /// keeps the sheets. MainTabView.swift chooses.
+    /// panel. MainTabView.swift sets it for every layout: a Mac, an
+    /// iPad and an iPhone. False opens the conversations as sheets, as
+    /// they were until 14 November 2026. That way is kept so that it is
+    /// one word to go back to, and for a bar drawn with no page to grow
+    /// into.
     var growsInPlace = false
+
+    /// False for a bar that should leave photos dropped on a page
+    /// alone. An iPhone has one bar for each tab, and only the Journal
+    /// tab's bar should pick up photos dropped on the Journal page.
+    var takesPagePhotos = true
 
     // @AppStorage keeps a small setting on the device, so the choice is
     // remembered the next time the app opens.
@@ -76,6 +87,10 @@ struct EiraFloatingBar: View {
     @State private var searchRequest: BarRequest?
     /// Set when what was typed reads as something for the journal.
     @State private var journalRequest: BarRequest?
+    /// Set when what was typed reads as a job to do, such as "I need to
+    /// build the wigwam at the weekend". It opens the card that offers
+    /// to add it. The rule is in GardenJobs.swift.
+    @State private var jobRequest: BarRequest?
 
     /// Set when a photo is given to Eira anywhere but the Journal page.
     /// It opens the card that asks what to do with it.
@@ -215,7 +230,7 @@ struct EiraFloatingBar: View {
                 // MainTabView.swift), and `geometry.size.height` is
                 // that height: all the room the panel can have.
                 if let open = openInPanel {
-                    panel(for: open, room: geometry.size.height)
+                    panel(for: open, room: geometry.size.height, isPhoneWide: barWidth < EiraPanel.phoneWidth)
                 }
             }
             // Everything sits at the foot of the space, however tall
@@ -259,9 +274,16 @@ struct EiraFloatingBar: View {
         .sheet(item: $photoRequest) { request in
             PhotoOfferSheet(photos: request.photos)
         }
+        // Something to do, told to Eira: she offers to add it to your
+        // jobs. "Not a job" hands the same words to her chat, on a
+        // device that can run her.
+        .sheet(item: $jobRequest) { request in
+            JobOfferSheet(said: request.text, onAskEira: askEiraInstead(of: request))
+        }
         .sheet(item: sheetOnly($eiraRequest)) { request in
             NavigationStack {
                 EiraChatView(openingQuestion: request.text.isEmpty ? nil : request.text,
+                             openingIsNotAJob: request.isNotAJob,
                              lookingAt: request.lookingAt)
                     .toolbar {
                         ToolbarItem(placement: .cancellationAction) {
@@ -305,16 +327,31 @@ struct EiraFloatingBar: View {
         // `onChange` runs its closure whenever the value it names
         // changes. See EiraScreen.handToBar.
         .onChange(of: screen?.photosForBar.count ?? 0) { _, count in
-            guard count > 0, let screen else { return }
+            guard takesPagePhotos, count > 0, let screen else { return }
             takePhotos(screen.takePhotosForBar())
         }
-        // A checking aid: `-demoOpen eira`, `-demoOpen corrections` and
-        // `-demoOpen eira-photo` open her chat as soon as the bar
-        // appears, once. `-demoOpen bar-journal` opens the journal's
-        // conversation from the bar the same way. See DemoGarden.opens.
+        // A question handed over by a page, such as the sheet that
+        // fills in a plant's gaps, opens her chat with it. The short
+        // wait lets the sheet that asked finish closing first: a new
+        // sheet cannot open while another is still on its way out.
+        // See EiraScreen.ask.
+        .onChange(of: screen?.questionForBar) { _, waiting in
+            guard waiting != nil, let screen else { return }
+            Task {
+                try? await Task.sleep(for: .milliseconds(600))
+                guard let asked = screen.takeQuestionForBar() else { return }
+                journalRequest = nil
+                eiraRequest = BarRequest(text: asked, lookingAt: screen.current?.full)
+            }
+        }
+        // A checking aid: `-demoOpen eira`, `-demoOpen corrections`,
+        // `-demoOpen eira-photo`, `-demoOpen eira-lookups`, `-demoOpen eira-find`
+        // and `-demoOpen kept-facts` open her chat as soon as the bar appears,
+        // once. `-demoOpen bar-journal` opens the journal's conversation from
+        // the bar the same way. See DemoGarden.opens.
         .onAppear {
             guard !Self.hasOpenedForChecking else { return }
-            if ["eira", "corrections", "eira-photo"].contains(DemoGarden.opens ?? "") {
+            if ["eira", "corrections", "eira-photo", "eira-lookups", "eira-lookups-open", "eira-find", "kept-facts"].contains(DemoGarden.opens ?? "") {
                 Self.hasOpenedForChecking = true
                 eiraRequest = BarRequest(text: "")
             } else if DemoGarden.opens == "bar-journal" {
@@ -362,12 +399,18 @@ struct EiraFloatingBar: View {
     ///
     /// - `room`: the height there is between the top of the page and
     ///   the bar's bottom edge.
+    /// - `isPhoneWide`: true when the bar is no wider than an iPhone.
+    ///   The panel then always takes all the height there is, and the
+    ///   button for a larger size is left out, because there is no
+    ///   larger size to go to.
     ///
     /// The panel is drawn inside the bar's own space, not hung outside
     /// it, so that every button in it is certain to take a tap.
-    private func panel(for open: OpenInPanel, room: CGFloat) -> some View {
-        let controls = EiraPanelControls(isLarge: $panelIsLarge, takesKeyboard: panelTakesKeyboard,
-                                         close: lowerPanel)
+    private func panel(for open: OpenInPanel, room: CGFloat, isPhoneWide: Bool) -> some View {
+        let controls = EiraPanelControls(isLarge: $panelIsLarge, offersLargerSize: !isPhoneWide,
+                                         takesKeyboard: panelTakesKeyboard, close: lowerPanel)
+        // On an iPhone the panel is always at its fullest.
+        let isFull = panelIsLarge || isPhoneWide
         // Down, the panel is the bar's own shape: a capsule is a
         // rectangle whose corners are rounded by half its height. Up,
         // its corners are gentler.
@@ -392,6 +435,7 @@ struct EiraFloatingBar: View {
                 .id(request.id)
             case .eira(let request):
                 EiraChatView(openingQuestion: request.text.isEmpty ? nil : request.text,
+                             openingIsNotAJob: request.isNotAJob,
                              lookingAt: request.lookingAt, panel: controls)
                     .id(request.id)
             }
@@ -400,11 +444,11 @@ struct EiraFloatingBar: View {
         .opacity(panelIsUp ? 1 : 0)
         // As wide as the bar, up to a width that is comfortable to
         // read. The larger size takes the bar's whole width.
-        .frame(maxWidth: panelIsLarge ? .infinity : EiraPanel.usualWidth)
+        .frame(maxWidth: isFull ? .infinity : EiraPanel.usualWidth)
         // The height is what grows. `alignment: .bottom` keeps the
         // foot of the conversation, where the box to type in is, on the
         // bar's own line while the rest is uncovered above it.
-        .frame(height: panelIsUp ? EiraPanel.height(room: room, isLarge: panelIsLarge) : closedSize,
+        .frame(height: panelIsUp ? EiraPanel.height(room: room, isLarge: isFull) : closedSize,
                alignment: .bottom)
         // Nothing is drawn outside the panel's shape while it is small.
         .clipShape(.rect(cornerRadius: corner))
@@ -686,6 +730,16 @@ struct EiraFloatingBar: View {
     private func ask() {
         let text = question.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty else { return }
+        // "I need to build the wigwam at the weekend" is something to
+        // do. Eira offers to add it to your jobs, on any page and on
+        // any device, since fixed rules read it and no model is needed.
+        // This comes first because such a sentence is neither a
+        // question for her nor an account of the day for the journal.
+        if GardenJobs.offer(in: text, today: .now) != nil {
+            jobRequest = BarRequest(text: text, lookingAt: screen?.current?.full)
+            question = ""
+            return
+        }
         // "Today I planted beans" is not a question. It belongs in the
         // journal, where Eira notes the time and weather and offers to
         // put the sowing on record. The rule is in JournalChat.swift.
@@ -705,6 +759,27 @@ struct EiraFloatingBar: View {
             openEira(with: text)
         } else {
             search()
+        }
+    }
+
+    /// What "Not a job" does on the card that offers to add a job: the
+    /// same words go to Eira's chat, marked so that she does not offer
+    /// the card a second time. Nil on a device that cannot run her,
+    /// where "Not a job" just closes the card.
+    ///
+    /// The return type reads "a function that takes a String and gives
+    /// nothing back, or nil". The `?` is what allows the nil.
+    private func askEiraInstead(of request: BarRequest) -> ((String) -> Void)? {
+        guard EiraEngineFactory.deviceCanRunEira else { return nil }
+        return { asked in
+            // One sheet has to be gone before the next can open, so her
+            // chat follows a moment after this one closes.
+            jobRequest = nil
+            let looking = request.lookingAt
+            Task {
+                try? await Task.sleep(for: .milliseconds(450))
+                eiraRequest = BarRequest(text: asked, lookingAt: looking, isNotAJob: true)
+            }
         }
     }
 
@@ -752,6 +827,9 @@ struct BarRequest: Identifiable {
     var lookingAt: String? = nil
     /// Photos given with the words, each as its file's own bytes.
     var photos: [Data] = []
+    /// True when the words were offered as a job to add and turned
+    /// down, so Eira's chat does not offer the same card again.
+    var isNotAJob = false
 }
 
 // MARK: - Telling Eira what is on screen

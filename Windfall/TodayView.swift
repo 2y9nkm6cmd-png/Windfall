@@ -18,17 +18,16 @@
 //  The layout changes with the room available: three columns on a Mac or
 //  a wide iPad, two on a narrower iPad and one on an iPhone.
 //
-//  The cards can be rearranged. Press and hold one and they all start to
-//  wiggle. Drag a card onto another to take its place, or use the two
-//  arrows on each card. "Done" stops it. Which card goes where is kept
-//  in TodayLayout.swift, and the pieces that do the wiggling and the
-//  dragging are at the foot of this file.
+//  The cards can be rearranged as icons are on a Home Screen. Press and
+//  hold one and they all start to jiggle. Carry a card about and the
+//  others step aside to show where it would go. "Done" stops it. Which
+//  card goes where is kept in TodayLayout.swift, and the pieces that do
+//  the jiggling and the carrying are in TodayBoard.swift.
 //
 
 import SwiftUI
 import SwiftData
 import CoreLocation
-import UniformTypeIdentifiers
 
 struct TodayView: View {
 
@@ -48,6 +47,9 @@ struct TodayView: View {
            sort: [SortDescriptor(\Bed.displayOrder)]) private var beds: [Bed]
     @Query(sort: [SortDescriptor(\Garden.displayOrder)]) private var gardens: [Garden]
     @Query private var features: [GardenFeature]
+    /// Jobs of your own, added by telling Eira or by hand. The oldest
+    /// first, which is the order those with no date are listed in.
+    @Query(sort: [SortDescriptor(\GardenJob.createdAt)]) private var ownJobs: [GardenJob]
     /// The newest finished days of the weather diary, for "This week".
     @Query(TodayFetch.latestWeather) private var finishedWeather: [WeatherDay]
 
@@ -63,6 +65,8 @@ struct TodayView: View {
     @State private var isSavingPlace = false
     @State private var sheet: CaptureSheet?
     @State private var shownGardenKey: String?
+    /// True while the sheet for adding a job by hand is up.
+    @State private var isAddingJob = false
 
     /// Jobs ticked off this month, kept on the device.
     // `store:` names the settings shared with the widgets, so a job
@@ -77,13 +81,15 @@ struct TodayView: View {
     @AppStorage("todayArrangementMiddle") private var middleStore = ""
     @AppStorage("todayArrangementNarrow") private var narrowStore = ""
 
-    /// True while the cards are wiggling and can be moved. Starting the
+    /// True while the cards are jiggling and can be moved. Starting the
     /// app with `-todayArranging YES` begins that way, as a checking aid.
     @State private var isArranging = UserDefaults.standard.bool(forKey: "todayArranging")
-    /// The card being dragged, if one is.
-    @State private var dragging: TodayPanel?
-    /// What the dragged card is being held over.
-    @State private var dropTarget: TodayDropTarget?
+    /// Which card is in the hand and where the finger is. See
+    /// `ArrangeSession` in TodayBoard.swift.
+    @State private var session = ArrangeSession()
+    /// Lets the page be scrolled from code, which happens when a card is
+    /// carried to the top or bottom edge of the window.
+    @State private var scrollPosition = ScrollPosition()
 
     private var month: Int { Calendar.current.component(.month, from: .now) }
     private var activeGardens: [Garden] { gardens.filter(\.isActive) }
@@ -105,44 +111,65 @@ struct TodayView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
                     header
-
-                    if canvas.columns == 1 {
-                        // One list, for an iPhone.
-                        zoneCards(0, on: canvas)
-                    } else {
-                        // A full-width stack, then the columns, then
-                        // another full-width stack, empty to begin with.
-                        zoneCards(0, on: canvas)
-                        columnsRow(on: canvas)
-                        if let bottom = canvas.arrangement.bottomZone {
-                            zoneCards(bottom, on: canvas)
-                        }
-                    }
-
-                    if !isArranging {
-                        rearrangeButton
-                    }
+                    board(on: canvas)
+                    // Hidden while rearranging, but still taking its
+                    // room, so nothing on the page shifts as the
+                    // jiggling starts.
+                    rearrangeButton
+                        .opacity(isArranging ? 0 : 1)
+                        .allowsHitTesting(!isArranging)
                 }
                 .padding(.leading, canvas.width >= 600 ? 14 : 16)
                 .padding(.trailing, canvas.width >= 600 ? 24 : 16)
                 .padding(.top, 12)
                 .padding(.bottom, 20)
-            }
-            // A card let go of where nothing can take it: forget the drag.
-            .onDrop(of: [.text], isTargeted: nil) { _ in
-                dragging = nil
-                dropTarget = nil
-                return false
-            }
-            // The bar takes room of its own at the top while rearranging,
-            // so it sits above the page's heading and not over it.
-            .safeAreaInset(edge: .top, spacing: 0) {
-                if isArranging {
-                    arrangingBar(columns: canvas.columns)
-                        .frame(maxWidth: .infinity)
-                        .padding(.bottom, 6)
+                // A tap on the page between the cards ends the
+                // rearranging, as a tap on the wallpaper does on a Home
+                // Screen.
+                .background {
+                    Color.clear
+                        .contentShape(.rect)
+                        .onTapGesture { finishArranging() }
+                        .allowsHitTesting(isArranging)
                 }
             }
+            .scrollPosition($scrollPosition)
+            // A finger carrying a card must not scroll the page as well.
+            .scrollDisabled(session.pressed != nil)
+            // Keeps a note of how far the page is scrolled and how far it
+            // can go, for scrolling at the edges while a card is carried.
+            .onScrollGeometryChange(for: ScrollSpan.self) { geometry in
+                ScrollSpan(y: geometry.contentOffset.y,
+                           least: -geometry.contentInsets.top,
+                           most: max(-geometry.contentInsets.top,
+                                     geometry.contentSize.height - geometry.containerSize.height + geometry.contentInsets.bottom))
+            } action: { _, span in
+                session.scrollY = span.y
+                session.scrollRange = span.least...span.most
+            }
+            // The finger's position is measured from this view's corner.
+            .coordinateSpace(.named(TodayBoard.pageSpace))
+            // Reset and Done float in the top corner while rearranging.
+            // They are laid over the page and take no room of their own:
+            // a bar that pushed the page down would move the cards out
+            // from under the finger that had just pressed one.
+            .overlay(alignment: .topTrailing) {
+                if isArranging {
+                    arrangingControls(columns: canvas.columns)
+                        .transition(.scale(scale: 0.8).combined(with: .opacity))
+                }
+            }
+            .overlay(alignment: .topLeading) {
+                if JiggleMeter.isOn { JiggleMeter() }
+            }
+            .onChange(of: geometry.size.height, initial: true) { _, height in
+                session.pageHeight = height
+            }
+            // If the window is resized to a different number of columns
+            // mid-carry, the card is put down.
+            .onChange(of: canvas.columns) { _, _ in drop() }
+            // A small tap from the trackpad or the phone as a card lifts.
+            .sensoryFeedback(.impact(weight: .medium), trigger: session.pressed) { _, now in now != nil }
         }
         .paperScreen()
         .navigationTitle("Today")
@@ -201,78 +228,81 @@ struct TodayView: View {
 
     // MARK: Laying out the cards
 
-    /// The cards of one full-width zone, one under another. While
-    /// rearranging, a space to drop into follows them.
-    @ViewBuilder
-    private func zoneCards(_ zone: Int, on canvas: TodayCanvas) -> some View {
-        ForEach(canvas.arrangement.zones[zone].filter(canvas.isShowing)) { panel in
-            card(panel, on: canvas, room: .page)
+    /// The board: every card, put where the arrangement says by
+    /// `TodayBoardLayout` (TodayBoard.swift).
+    private func board(on canvas: TodayCanvas) -> some View {
+        let arrangement = canvas.arrangement
+        // The cards on show in each zone.
+        let showing = arrangement.zones.map { $0.filter(canvas.isShowing) }
+        // A column with nothing in it is left out and its neighbours
+        // take the room, except while rearranging, when it is drawn so
+        // a card can be carried into it.
+        let shown = arrangement.shownColumns(includingEmpty: isArranging, isShowing: canvas.isShowing)
+        // With three columns, any that hold a garden plan share whatever
+        // is left and the others get a set share. Otherwise the columns
+        // share equally.
+        let roomy = arrangement.roomyColumns(isShowing: canvas.isShowing)
+        var setWidths: [Int: Double] = [:]
+        if canvas.columns == 3, shown.count > 1, !roomy.isEmpty {
+            for zone in shown where !roomy.contains(zone) {
+                setWidths[zone] = canvas.width * (shown.count == 3 ? 0.265 : 0.32)
+            }
         }
-        if isArranging {
-            dropSpace(zone, on: canvas)
-        }
-    }
+        let page = TodayBoardPlan.Page(width: 0, zones: showing, columnZones: arrangement.columnZones,
+                                       shownColumns: shown, setWidths: setWidths, isArranging: isArranging)
+        let held = session.held.map { TodayBoardLayout.Held(panel: $0, anchor: session.anchor, grab: session.grab) }
+        let actions = BoardActions(
+            pressed: { press($0) },
+            carried: { carry($0, to: $1, columns: canvas.columns) },
+            ended: { _ in drop() })
 
-    /// The columns, side by side. A column with nothing in it is left out
-    /// and its neighbours take the room, except while rearranging, when
-    /// it is drawn so a card can be dropped into it.
-    @ViewBuilder
-    private func columnsRow(on canvas: TodayCanvas) -> some View {
-        let shown = canvas.arrangement.shownColumns(includingEmpty: isArranging, isShowing: canvas.isShowing)
-        let roomy = canvas.arrangement.roomyColumns(isShowing: canvas.isShowing)
-        if !shown.isEmpty {
-            HStack(alignment: .top, spacing: 14) {
-                ForEach(shown, id: \.self) { zone in
-                    // With three columns, any that hold a garden plan
-                    // share whatever is left and the others get a set
-                    // share. Otherwise the columns share equally.
-                    let isBesidePlans = canvas.columns == 3 && shown.count > 1 && !roomy.isEmpty && !roomy.contains(zone)
-                    let setWidth: CGFloat? = isBesidePlans ? canvas.width * (shown.count == 3 ? 0.265 : 0.32) : nil
-                    VStack(spacing: 14) {
-                        ForEach(canvas.arrangement.zones[zone].filter(canvas.isShowing)) { panel in
-                            card(panel, on: canvas, room: isBesidePlans ? .sideColumn : .wideColumn)
-                        }
+        return TodayBoardLayout(page: page, held: held, session: session) {
+            ForEach(arrangement.readingOrder.filter(canvas.isShowing)) { panel in
+                // How much room the card has, which some cards are
+                // drawn differently for.
+                let zone = arrangement.position(of: panel)?.zone ?? 0
+                let room: PanelRoom = !arrangement.columnZones.contains(zone) ? .page
+                    : (setWidths[zone] != nil ? .sideColumn : .wideColumn)
+                BoardCard(panel: panel, isArranging: isArranging, session: session, actions: actions,
+                          content: panelContent(panel, on: canvas, room: room)
+                    // While rearranging, glass may be painted flat so the
+                    // cards can rock smoothly. See `CardGlass` in Theme.swift.
+                    .environment(\.paintsGlassFlat, isArranging && TodayBoard.paintsFlatWhileArranging)
+                    // For VoiceOver, which cannot carry a card about.
+                    .accessibilityActions {
                         if isArranging {
-                            dropSpace(zone, on: canvas)
+                            if arrangement.canNudge(panel, by: -1) {
+                                Button("Move \(title(of: panel)) earlier") { nudge(panel, by: -1, on: canvas) }
+                            }
+                            if arrangement.canNudge(panel, by: 1) {
+                                Button("Move \(title(of: panel)) later") { nudge(panel, by: 1, on: canvas) }
+                            }
                         }
-                    }
-                    .frame(minWidth: setWidth, maxWidth: setWidth ?? .infinity)
+                    })
+                // A card that comes or goes (the journal offer) fades.
+                .transition(.opacity)
+            }
+            // The space waiting for the card in the hand.
+            if session.held != nil {
+                BoardGap()
+                    .boardRole(.gap)
+                    .transition(.opacity)
+            }
+            // The outline of any zone with nothing in it.
+            if isArranging {
+                ForEach(showing.indices.filter { showing[$0].isEmpty }, id: \.self) { zone in
+                    EmptyZoneOutline(words: arrangement.columnZones.contains(zone) ? "Empty column" : "Full width")
+                        .boardRole(.emptyZone(zone))
+                        .transition(.opacity)
                 }
             }
         }
-    }
-
-    /// One card, with everything that lets it be rearranged wrapped
-    /// around it.
-    private func card(_ panel: TodayPanel, on canvas: TodayCanvas, room: PanelRoom) -> some View {
-        panelContent(panel, on: canvas, room: room)
-            // While rearranging, the buttons inside a card are switched
-            // off, so a press moves the card and does not press them.
-            .allowsHitTesting(!isArranging)
-            .opacity(dragging == panel ? 0.4 : 1)
-            .overlay {
-                if isArranging {
-                    arrangeControls(for: panel, on: canvas)
-                }
-            }
-            // An outline on the card a dragged one is being held over.
-            .overlay {
-                if dropTarget == .panel(panel), dragging != panel {
-                    RoundedRectangle(cornerRadius: Theme.cardRadius)
-                        .strokeBorder(Theme.leaf, lineWidth: 2.5)
-                }
-            }
-            // While rearranging, glass is painted flat so the cards can
-            // rock smoothly. See `CardGlass` in Theme.swift.
-            .environment(\.paintsGlassFlat, isArranging)
-            .modifier(Wiggle(isOn: isArranging,
-                             leansLeft: canvas.arrangement.readingOrder.firstIndex(of: panel).map { $0 % 2 == 0 } ?? false))
-            .modifier(LiftToArrange(panel: panel, title: title(of: panel), isArranging: isArranging) { isLifted in
-                beginArranging(lifting: isLifted ? panel : nil)
-            })
-            .onDrop(of: [.text], isTargeted: isTargeted(.panel(panel))) { _ in
-                drop(onto: panel, columns: canvas.columns)
-            }
+        // Keeps a note of where the board is on the page. It moves as
+        // the page scrolls, and a card being carried has to allow for it.
+        .onGeometryChange(for: CGPoint.self) { $0.frame(in: .named(TodayBoard.pageSpace)).origin } action: { origin in
+            session.boardOrigin = origin
+            if session.held != nil { retarget(columns: canvas.columns) }
+        }
     }
 
     /// What goes inside each card. Some are drawn differently when they
@@ -348,153 +378,153 @@ struct TodayView: View {
         }
     }
 
-    /// Starts the wiggling. `panel` is the card that was lifted to begin
-    /// it, if one was.
-    private func beginArranging(lifting panel: TodayPanel?) {
-        if let panel { dragging = panel }
-        if !isArranging { isArranging = true }
+    /// Starts the jiggling, from the button at the foot of the page.
+    private func beginArranging() {
+        withAnimation(TodayBoard.lift) { isArranging = true }
     }
 
     private func finishArranging() {
-        dragging = nil
-        dropTarget = nil
-        isArranging = false
+        session.letGo()
+        withAnimation(TodayBoard.settle) { isArranging = false }
     }
 
-    /// Lets a card or a drop space say "a dragged card is over me". A
-    /// Binding is a value that can be both read and set from elsewhere.
-    private func isTargeted(_ target: TodayDropTarget) -> Binding<Bool> {
-        Binding(
-            get: { dropTarget == target },
-            set: { isOver in
-                if isOver {
-                    if dragging != nil { dropTarget = target }
-                } else if dropTarget == target {
-                    dropTarget = nil
-                }
-            })
-    }
-
-    /// A card was let go over another card. Returns true if it was moved.
-    private func drop(onto target: TodayPanel, columns: Int) -> Bool {
-        guard let moving = dragging else { return false }
-        dragging = nil
-        dropTarget = nil
-        var changed = savedArrangement(columns: columns)
-        changed.move(moving, onto: target)
-        withAnimation(.snappy(duration: 0.3)) { save(changed) }
-        return true
-    }
-
-    /// A card was let go over the space at the foot of a zone.
-    private func drop(atEndOf zone: Int, columns: Int) -> Bool {
-        guard let moving = dragging else { return false }
-        dragging = nil
-        dropTarget = nil
-        var changed = savedArrangement(columns: columns)
-        changed.move(moving, toEndOf: zone)
-        withAnimation(.snappy(duration: 0.3)) { save(changed) }
-        return true
-    }
-
-    /// What sits on top of a card while rearranging: a surface to drag it
-    /// by, and two arrows for moving it without dragging.
-    private func arrangeControls(for panel: TodayPanel, on canvas: TodayCanvas) -> some View {
-        ZStack(alignment: .topTrailing) {
-            DragSurface(panel: panel, title: title(of: panel)) { dragging = panel }
-            // The arrows sit astride the card's top edge, half on and
-            // half off, like the badge on a jiggling Home Screen icon.
-            // Inside the corner they covered the compass on a garden's
-            // plan (William's picture, 13 November 2026).
-            HStack(spacing: 6) {
-                moveButton(panel, by: -1, on: canvas)
-                moveButton(panel, by: 1, on: canvas)
-            }
-            .padding(.trailing, 12)
-            .offset(y: -18)
+    /// A card has been pressed for long enough: it lifts, and if the
+    /// cards were not jiggling they start to.
+    private func press(_ panel: TodayPanel) {
+        guard session.pressed == nil else { return }
+        withAnimation(TodayBoard.lift) {
+            session.pressed = panel
+            if !isArranging { isArranging = true }
         }
     }
 
-    /// An arrow that moves a card one place earlier (-1) or later (+1).
-    private func moveButton(_ panel: TodayPanel, by step: Int, on canvas: TodayCanvas) -> some View {
-        let canMove = canvas.arrangement.canNudge(panel, by: step)
-        return Button {
-            var changed = canvas.arrangement
-            changed.nudge(panel, by: step)
-            withAnimation(.snappy(duration: 0.3)) { save(changed) }
-        } label: {
-            Image(systemName: step < 0 ? "arrow.up" : "arrow.down")
-                .font(.system(size: 14, weight: .semibold))
-                .foregroundStyle(Theme.ink)
-                .frame(width: 32, height: 32)
-                .contentShape(.circle)
+    /// The finger has moved to `point` on the page with a card under it.
+    private func carry(_ panel: TodayPanel, to point: CGPoint, columns: Int) {
+        if session.pressed == nil { press(panel) }
+        guard session.pressed == panel else { return }
+        session.fingerOnPage = point
+
+        guard session.held == nil else {
+            retarget(columns: columns)
+            return
         }
-        .buttonStyle(.plain)
-        .cardGlass(Theme.card.opacity(0.6), in: .circle, interactive: true)
-        .disabled(!canMove)
-        .opacity(canMove ? 1 : 0.35)
-        .accessibilityLabel("Move \(title(of: panel)) \(step < 0 ? "earlier" : "later")")
+        // The first movement: the card is picked up. Note where on the
+        // board the finger is and which part of the card it has hold of.
+        let finger = session.fingerOnBoard
+        if let slot = session.plan?.slots[panel], slot.width > 0, slot.height > 0 {
+            session.grab = UnitPoint(x: min(1, max(0, (finger.x - slot.minX) / slot.width)),
+                                     y: min(1, max(0, (finger.y - slot.minY) / slot.height)))
+        } else {
+            session.grab = .center
+        }
+        session.anchor = finger
+        session.held = panel
+        // A Task is a piece of work that runs alongside the rest. This
+        // one watches for the card being held at the edge of the window.
+        session.edgeScrolling = Task { await scrollAtEdges(columns: columns) }
     }
 
-    /// A space at the foot of a zone that a card can be dropped into. It
-    /// is only there while rearranging, and is how a card reaches an
-    /// empty column.
-    private func dropSpace(_ zone: Int, on canvas: TodayCanvas) -> some View {
-        let isOver = dropTarget == .endOfZone(zone)
-        let words = canvas.columns == 1 ? "Drop here for the end"
-            : (canvas.arrangement.columnZones.contains(zone) ? "Drop here" : "Drop here for full width")
-        return Text(words)
-            .font(.caption)
-            .foregroundStyle(Theme.inkSoft)
-            .frame(maxWidth: .infinity, minHeight: 52)
-            .background {
-                RoundedRectangle(cornerRadius: 14)
-                    .strokeBorder(isOver ? Theme.leaf : Theme.inkSoft.opacity(0.5),
-                                  style: StrokeStyle(lineWidth: isOver ? 2.5 : 1, dash: [6, 5]))
-            }
-            .contentShape(.rect)
-            .onDrop(of: [.text], isTargeted: isTargeted(.endOfZone(zone))) { _ in
-                drop(atEndOf: zone, columns: canvas.columns)
-            }
+    /// The finger has lifted: the card settles into the space kept for it.
+    private func drop() {
+        guard session.pressed != nil || session.held != nil else { return }
+        withAnimation(TodayBoard.settle) { session.letGo() }
     }
 
-    /// The bar across the top while rearranging.
-    private func arrangingBar(columns: Int) -> some View {
-        HStack(spacing: 10) {
-            VStack(alignment: .leading, spacing: 1) {
-                Text("Rearranging Today")
-                    .font(.subheadline.weight(.semibold))
-                Text("Drag a card onto another, or use its arrows.")
-                    .font(.caption)
+    /// Works out where the card in the hand should go, now that the
+    /// finger or the page has moved, and makes room for it there.
+    private func retarget(columns: Int) {
+        guard let panel = session.held, let plan = session.plan else { return }
+        let arrangement = savedArrangement(columns: columns)
+        guard let now = arrangement.position(of: panel) else { return }
+        // Every card is on show while rearranging, so a place counted
+        // among the cards on show is a place in the arrangement.
+        let found = plan.place(for: session.fingerOnBoard, carrying: panel, zones: arrangement.zones)
+        let wanted = ArrangeSession.Place(zone: found.zone, place: found.place)
+
+        // Already there: nothing to do, and nothing to wait for.
+        if wanted == ArrangeSession.Place(zone: now.zone, place: now.index) {
+            session.waiting?.cancel()
+            session.waitingFor = nil
+            return
+        }
+        // Already waiting to go there.
+        if session.waitingFor == wanted { return }
+
+        // Wait a moment. If the finger is still over the same place, the
+        // other cards make room.
+        session.waiting?.cancel()
+        session.waitingFor = wanted
+        session.waiting = Task {
+            try? await Task.sleep(for: TodayBoard.dwell)
+            guard !Task.isCancelled, session.held == panel, session.waitingFor == wanted else { return }
+            session.waitingFor = nil
+            var changed = savedArrangement(columns: columns)
+            changed.move(panel, toZone: wanted.zone, place: wanted.place)
+            withAnimation(TodayBoard.shuffle) { save(changed) }
+        }
+    }
+
+    /// While a card is carried, scrolls the page when the finger is near
+    /// the top or the bottom of the window, faster the nearer it gets.
+    /// Without this a card could only reach what was already on screen.
+    private func scrollAtEdges(columns: Int) async {
+        let edge = 80.0
+        while !Task.isCancelled, session.held != nil {
+            // About once a frame.
+            try? await Task.sleep(for: .milliseconds(16))
+            let y = session.fingerOnPage.y
+            var push = 0.0
+            if y < edge {
+                push = -(edge - y) / edge
+            } else if y > session.pageHeight - edge {
+                push = (y - (session.pageHeight - edge)) / edge
             }
-            .foregroundStyle(Theme.ink)
-            Spacer(minLength: 8)
+            guard push != 0, !Task.isCancelled else { continue }
+            let step = max(-1.5, min(1.5, push)) * 14
+            let target = min(max(session.scrollRange.lowerBound, session.scrollY + step), session.scrollRange.upperBound)
+            guard abs(target - session.scrollY) > 0.5 else { continue }
+            scrollPosition.scrollTo(y: target)
+        }
+    }
+
+    /// Moves a card one place earlier (-1) or later (+1), for VoiceOver.
+    private func nudge(_ panel: TodayPanel, by step: Int, on canvas: TodayCanvas) {
+        var changed = canvas.arrangement
+        changed.nudge(panel, by: step)
+        withAnimation(TodayBoard.shuffle) { save(changed) }
+    }
+
+    /// Reset and Done, shown in the top corner while rearranging.
+    private func arrangingControls(columns: Int) -> some View {
+        HStack(spacing: 8) {
             Button("Reset") {
-                withAnimation(.snappy(duration: 0.3)) { save(.standard(columns: columns, gardens: gardenKeys)) }
+                withAnimation(TodayBoard.shuffle) { save(.standard(columns: columns, gardens: gardenKeys)) }
             }
             .buttonStyle(QuietGlassButton())
             Button("Done") { finishArranging() }
-                .buttonStyle(.glassProminent)
-                .tint(Theme.leaf)
-                .foregroundStyle(Theme.onLeaf)
+                .fontWeight(.semibold)
+                .leafButton()
+                // The Escape key on a Mac does the same.
+                .keyboardShortcut(.cancelAction)
         }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 10)
-        .frame(maxWidth: 520)
-        .cardGlass(Theme.card.opacity(0.7), in: .rect(cornerRadius: 20))
-        // This bar shows only while rearranging, over the rocking cards,
-        // so it is painted flat too. See `CardGlass` in Theme.swift.
-        .environment(\.paintsGlassFlat, true)
-        .padding(.horizontal, 16)
-        .padding(.top, 8)
+        // Takes the room its words need and no less. Without this
+        // "Reset" was cut short to "Res...".
+        .fixedSize()
+        .padding(6)
+        .cardGlass(Theme.card.opacity(0.7), in: .capsule)
+        // Painted flat like the cards under it. See `CardGlass` in
+        // Theme.swift.
+        .environment(\.paintsGlassFlat, TodayBoard.paintsFlatWhileArranging)
+        .padding(.top, 12)
+        .padding(.trailing, 24)
     }
 
     /// A quiet button at the foot of the page. Pressing and holding a
     /// card does the same, but a button can be found by anyone, and by
     /// VoiceOver.
     private var rearrangeButton: some View {
-        Button("Rearrange this page") { beginArranging(lifting: nil) }
-            .font(.subheadline)
+        Button("Rearrange this page") { beginArranging() }
+            .font(.body)
             .foregroundStyle(Theme.leaf)
             .buttonStyle(.plain)
             .frame(maxWidth: .infinity)
@@ -507,17 +537,32 @@ struct TodayView: View {
         HStack(alignment: .top) {
             VStack(alignment: .leading, spacing: 2) {
                 Text(Date.now, format: .dateTime.weekday(.wide).day().month(.wide).year())
-                    .font(.subheadline)
+                    .font(.body)
                     .foregroundStyle(Theme.inkSoft)
                 Text("Today")
                     .font(.screenTitle)
                     .foregroundStyle(Theme.ink)
             }
             Spacer()
-            BotanicalCorner()
+            // The living drawing: this month's plant, moving with the
+            // garden's own weather. Nothing needs setting up: with no
+            // weather yet it shows a light breeze on a fine day.
+            LivingCorner(cornerScene: cornerScene)
                 .frame(width: 150, height: 96)
                 .padding(.top, -6)
         }
+    }
+
+    /// What the corner drawing shows now: the month and the day from the
+    /// calendar, and the wind, rain and cold from the last weather
+    /// reading, if there is one. See CornerScene.swift.
+    private var cornerScene: CornerScene {
+        CornerScene.make(date: .now, calendar: .current,
+                         temperatureC: weather.current?.temperatureC,
+                         precipitationMM: weather.current?.precipitationMM,
+                         windSpeedKMH: weather.current?.windSpeedKMH,
+                         isNight: isNight)
+            .withCheckingAids()
     }
 
     // MARK: Conditions
@@ -552,10 +597,10 @@ struct TodayView: View {
                 .frame(width: 40, height: 40)
             VStack(alignment: .leading, spacing: 3) {
                 Text(conditionsHeadline)
-                    .font(.headline)
+                    .font(.title3.weight(.semibold))
                     .foregroundStyle(Theme.ink)
                 Text(conditionsDetail)
-                    .font(.subheadline)
+                    .font(.body)
                     .foregroundStyle(Theme.inkSoft)
             }
         }
@@ -662,9 +707,7 @@ struct TodayView: View {
                 .fixedSize()
             }
             // The one filled button on the screen.
-            .buttonStyle(.glassProminent)
-            .tint(Theme.leaf)
-            .foregroundStyle(Theme.onLeaf)
+            .leafButton()
         }
     }
 
@@ -746,7 +789,7 @@ struct TodayView: View {
                             WIconView(button.icon, size: 28)
                                 .foregroundStyle(Theme.leaf)
                             Text(button.title)
-                                .font(.subheadline)
+                                .font(.body)
                                 .foregroundStyle(Theme.ink)
                         }
                         .frame(maxWidth: .infinity)
@@ -821,8 +864,23 @@ struct TodayView: View {
     private var weekJobs: [WeekJob] {
         // The gathering is in WidgetShare.swift, so the widgets can ask
         // for the same list for the days ahead.
-        WeekFacts.jobs(asOf: .now, plants: plants, plantings: plantings,
-                       finishedWeather: finishedWeather, outlook: weather.outlook)
+        let worked = WeekFacts.jobs(asOf: .now, plants: plants, plantings: plantings,
+                                    finishedWeather: finishedWeather, outlook: weather.outlook)
+        // Jobs of your own that fall this week, or are overdue, go in
+        // among the worked-out ones and the whole list is put in order
+        // again: weather first, then whatever is soonest.
+        return WeekJobs.inOrder(worked + GardenJobs.thisWeek(ownFacts, today: .now))
+    }
+
+    /// Your own jobs as the plain facts the rules work from. See
+    /// GardenJobs.swift.
+    private var ownFacts: [JobFacts] {
+        ownJobs.map { $0.facts(gardens: gardens) }
+    }
+
+    /// The record behind one of your own jobs, found by its key.
+    private func ownJob(_ key: String?) -> GardenJob? {
+        ownJobs.first { $0.id.uuidString == key }
     }
 
     /// A week job as a line with a tick box, linked to its plant or
@@ -830,13 +888,16 @@ struct TodayView: View {
     private func row(for job: WeekJob) -> TodayJob {
         var link: TodayJob.Link?
         if let subject = job.subject {
-            if job.kind == .sow {
+            if job.kind == .own {
+                link = ownJob(subject).map { TodayJob.Link.own($0) }
+            } else if job.kind == .sow {
                 link = plants.first { $0.id.uuidString == subject }.map { TodayJob.Link.plant($0) }
             } else {
                 link = plantings.first { $0.id.uuidString == subject }.map { TodayJob.Link.planting($0) }
             }
         }
-        return TodayJob(id: job.id, title: job.title, detail: job.detail, link: link)
+        // A job of your own with no garden and no day has no second line.
+        return TodayJob(id: job.id, title: job.title, detail: job.detail.isEmpty ? nil : job.detail, link: link)
     }
 
     private func weekCard(_ week: [WeekJob]) -> some View {
@@ -844,7 +905,7 @@ struct TodayView: View {
         return VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Text("This week")
-                    .font(.headline)
+                    .font(.title3.weight(.semibold))
                     .foregroundStyle(Theme.ink)
                 Spacer()
                 if rows.count > 6 {
@@ -855,7 +916,7 @@ struct TodayView: View {
                             Text("View all")
                             WIconView(.arrowRight, size: 13)
                         }
-                        .font(.subheadline)
+                        .font(.body)
                         .foregroundStyle(Theme.leaf)
                     }
                     .buttonStyle(.plain)
@@ -864,7 +925,7 @@ struct TodayView: View {
 
             if rows.isEmpty {
                 Text("Nothing urgent.")
-                    .font(.subheadline)
+                    .font(.body)
                     .foregroundStyle(Theme.ink)
             }
             ForEach(rows.prefix(6)) { job in
@@ -876,11 +937,41 @@ struct TodayView: View {
             Text(weather.outlook.isEmpty
                  ? "The urgent few, from your sowing months and records. No forecast yet, so no weather warnings."
                  : "The urgent few, from your sowing months, your records and the week's forecast.")
-                .font(.caption)
+                .font(.footnote)
                 .foregroundStyle(Theme.inkSoft)
+
+            // Jobs of your own: a way to add one by hand, and the page
+            // that lists them all. Telling Eira is the other way in.
+            HStack(spacing: 14) {
+                Button {
+                    isAddingJob = true
+                } label: {
+                    Label("Add a job", systemImage: "plus")
+                }
+                .buttonStyle(.plain)
+
+                Spacer(minLength: 0)
+
+                NavigationLink {
+                    OwnJobsView()
+                } label: {
+                    HStack(spacing: 3) {
+                        // How many of your own are still to do.
+                        let open = ownJobs.filter { !$0.isDone }.count
+                        Text(open == 0 ? "Your jobs" : "Your jobs (\(open))")
+                        WIconView(.arrowRight, size: 13)
+                    }
+                }
+                .buttonStyle(.plain)
+            }
+            .font(.body)
+            .foregroundStyle(Theme.leaf)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .glassCard()
+        .sheet(isPresented: $isAddingJob) {
+            JobSheet()
+        }
     }
 
     // MARK: Jobs
@@ -889,6 +980,16 @@ struct TodayView: View {
     private var jobs: [TodayJob] {
         var list: [TodayJob] = []
         let year = Calendar.current.component(.year, from: .now)
+
+        // Jobs of your own that are not in "This week": those with no
+        // date, and those for later this month. They come first, since
+        // you asked for them yourself.
+        for facts in GardenJobs.laterThisMonth(ownFacts, today: .now) {
+            guard let own = ownJob(facts.key) else { continue }
+            let listID = GardenJobs.listID(for: facts.key)
+            list.append(TodayJob(id: listID, title: facts.title,
+                                 detail: GardenJobs.detail(for: facts, today: .now), link: .own(own)))
+        }
 
         // Plants whose sowing months include this one and which have not
         // been sown this year.
@@ -944,7 +1045,7 @@ struct TodayView: View {
         return VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Text("This month")
-                    .font(.headline)
+                    .font(.title3.weight(.semibold))
                     .foregroundStyle(Theme.ink)
                 Spacer()
                 if jobs.count > 5 {
@@ -955,7 +1056,7 @@ struct TodayView: View {
                             Text("View all")
                             WIconView(.arrowRight, size: 13)
                         }
-                        .font(.subheadline)
+                        .font(.body)
                         .foregroundStyle(Theme.leaf)
                     }
                     .buttonStyle(.plain)
@@ -964,7 +1065,7 @@ struct TodayView: View {
 
             if jobs.isEmpty {
                 Text("Nothing pressing. Jobs appear here from your sowing months and records.")
-                    .font(.subheadline)
+                    .font(.body)
                     .foregroundStyle(Theme.inkSoft)
             }
             ForEach(jobs.prefix(5)) { job in
@@ -981,7 +1082,7 @@ struct TodayView: View {
     private func gardenCards(oneAtATime: Bool) -> some View {
         if activeGardens.isEmpty {
             Text("No gardens yet.")
-                .font(.subheadline)
+                .font(.body)
                 .foregroundStyle(Theme.inkSoft)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .glassCard()
@@ -1053,12 +1154,12 @@ struct TodayView: View {
         let recent = self.recent
         return VStack(alignment: .leading, spacing: 12) {
             Text("Recent records")
-                .font(.headline)
+                .font(.title3.weight(.semibold))
                 .foregroundStyle(Theme.ink)
 
             if recent.isEmpty {
                 Text("Nothing recorded yet. Use the buttons above to log a sowing, a harvest or a sighting.")
-                    .font(.subheadline)
+                    .font(.body)
                     .foregroundStyle(Theme.inkSoft)
             }
             ForEach(recent) { record in
@@ -1068,14 +1169,14 @@ struct TodayView: View {
 
                     VStack(alignment: .leading, spacing: 3) {
                         Text(record.title)
-                            .font(.subheadline.weight(.medium))
+                            .font(.body.weight(.medium))
                             .foregroundStyle(Theme.ink)
                         Text("\(record.kind) · \(record.dateText)")
-                            .font(.caption)
+                            .font(.footnote)
                             .foregroundStyle(Theme.inkSoft)
                         if let detail = record.detail {
                             Text(detail)
-                                .font(.caption)
+                                .font(.footnote)
                                 .foregroundStyle(Theme.inkSoft)
                         }
                         // Only sightings carry a tag. A sowing or a
@@ -1087,7 +1188,7 @@ struct TodayView: View {
                                 } else {
                                     StatusTag(text: "Provisional", fill: Theme.amber)
                                     Button("Confirm") { sheet = .sighting(sighting) }
-                                        .font(.caption.weight(.semibold))
+                                        .font(.footnote.weight(.semibold))
                                         .buttonStyle(QuietGlassButton())
                                         .tint(Theme.leaf)
                                 }
@@ -1143,10 +1244,10 @@ struct TodayView: View {
     private var journalPlaceholder: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text("Journal offer")
-                .font(.headline)
+                .font(.title3.weight(.semibold))
                 .foregroundStyle(Theme.ink)
             Text("Appears here on days when you have logged something and not yet written an entry.")
-                .font(.subheadline)
+                .font(.body)
                 .foregroundStyle(Theme.inkSoft)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -1170,7 +1271,7 @@ struct TodayView: View {
                         Text("You logged \(logged.count) \(logged.count == 1 ? "thing" : "things") today.")
                         Text("Write a journal entry?")
                     }
-                    .font(.subheadline)
+                    .font(.body)
                     .foregroundStyle(Theme.ink)
                     Spacer()
                     WIconView(.arrowRight, size: 18)
@@ -1228,166 +1329,12 @@ private enum PanelRoom {
     case page, wideColumn, sideColumn
 }
 
-/// The jiggle. A card rocks gently from side to side, over and over,
-/// while `isOn` is true.
-///
-/// Apple publishes no figures for the jiggle of the icons on the Home
-/// Screen, so this copies what can be seen there:
-///
-///   - each thing turns a little about its middle, one way then the
-///     other, and nothing else: no bobbing up and down;
-///   - no two things keep the same time, so they drift in and out of
-///     step and never move as one.
-///
-/// History (William, 13 November 2026):
-///   - first version: every card rocked through the same angle at the
-///     same pace, which read as a machine;
-///   - second version: added a bob up and down at a second pace, about
-///     three rocks a second. William: "too much, too fast" and "the
-///     wrong kind of motion". The bob made it bounce, and setting the
-///     starting lean in the same moment as starting the animation could
-///     let SwiftUI skip the lean, so a card rocked out to one side only.
-///
-/// This version uses a keyframe animation: a list of the angles the card
-/// passes through, and how long it takes to reach each one. SwiftUI plays
-/// the list and, with `repeating`, plays it again for as long as `isOn`
-/// is true. When `isOn` turns false it finishes the swing it is on and
-/// comes to rest upright.
-///
-/// ⚠️ CHECK: the pace (a full rock, left and right and back, in about half
-/// a second) is Claude's judgement, slower than before. Adjust
-/// `rockSeconds` if it still looks wrong.
-///
-/// A ViewModifier is a reusable change that can be applied to any view,
-/// here with `.modifier(Wiggle(...))`.
-private struct Wiggle: ViewModifier {
-    let isOn: Bool
-    /// Neighbouring cards start off leaning opposite ways.
-    let leansLeft: Bool
-
-    // Set in the system's Accessibility settings by people for whom
-    // movement on screen is unpleasant.
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    /// How wide the card is, which sets how far it may turn.
-    @State private var cardWidth: CGFloat = 320
-    /// Each card's own time for one full rock, chosen once when it is
-    /// made. `@State` keeps the number for as long as the card lives.
-    @State private var rockSeconds = Double.random(in: 0.46...0.58)
-
-    /// The angle, in degrees, that moves the card's corners about a point
-    /// and a half. A small card turns further than a wide one, as an icon
-    /// turns further than a widget.
-    private var angle: Double {
-        let radians = 1.5 / max(Double(cardWidth) / 2, 40)
-        return min(1.5, max(0.2, radians * 180 / .pi))
-    }
-
-    func body(content: Content) -> some View {
-        // Which way this card leans first: +1 or -1.
-        let lean = leansLeft ? -1.0 : 1.0
-        let quarter = rockSeconds / 4
-
-        content
-            .keyframeAnimator(initialValue: 0.0,
-                              repeating: isOn && !reduceMotion) { view, tilt in
-                // `tilt` is the angle the keyframes have reached right now.
-                view.rotationEffect(.degrees(tilt))
-            } keyframes: { _ in
-                // Upright, out to one side, across to the other, and back
-                // to upright. `CubicKeyframe` curves smoothly through each
-                // angle, so the card slows at each end of its swing like
-                // something rocking, rather than bouncing off a wall.
-                CubicKeyframe(angle * lean, duration: quarter)
-                CubicKeyframe(-angle * lean, duration: quarter * 2)
-                CubicKeyframe(0, duration: quarter)
-            }
-            .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { cardWidth = $0 }
-            .overlay {
-                // With Reduce Motion on, a dashed outline says "this can
-                // be moved" in place of the jiggle.
-                if isOn && reduceMotion {
-                    RoundedRectangle(cornerRadius: Theme.cardRadius)
-                        .strokeBorder(Theme.inkSoft, style: StrokeStyle(lineWidth: 1.5, dash: [6, 5]))
-                }
-            }
-    }
-}
-
-/// Starts the rearranging from a press and hold on a card.
-///
-/// The two kinds of device do it differently:
-/// - On an iPhone or iPad, pressing and holding lifts the card, ready to
-///   drag, using the system's own drag and drop. The wiggling starts as
-///   it lifts. That system is built to live alongside scrolling.
-/// - On a Mac, clicking and holding for half a second starts the
-///   wiggling. The card is then dragged by the surface laid over it.
-private struct LiftToArrange: ViewModifier {
-    let panel: TodayPanel
-    let title: String
-    let isArranging: Bool
-    /// Called to begin. True when the card has been lifted for dragging.
-    let begin: (Bool) -> Void
-
-    func body(content: Content) -> some View {
-        #if os(macOS)
-        content.simultaneousGesture(
-            LongPressGesture(minimumDuration: 0.5).onEnded { _ in begin(false) },
-            // Once the wiggling has begun this gesture stands aside, so
-            // it cannot get in the way of the dragging.
-            including: isArranging ? .subviews : .all)
-        #else
-        content.onDrag {
-            begin(true)
-            // The system needs something to carry. The name is enough:
-            // the screen itself remembers which card is moving.
-            return NSItemProvider(object: panel.rawValue as NSString)
-        } preview: {
-            DragLabel(title: title)
-        }
-        #endif
-    }
-}
-
-/// An invisible surface over a card while rearranging. It catches the
-/// press, because the card's own buttons are switched off. On a Mac it is
-/// also what the card is dragged by.
-private struct DragSurface: View {
-    let panel: TodayPanel
-    /// What the card is called, for the label that follows the pointer.
-    let title: String
-    let began: () -> Void
-
-    var body: some View {
-        #if os(macOS)
-        Color.clear
-            .contentShape(.rect)
-            .onDrag {
-                began()
-                return NSItemProvider(object: panel.rawValue as NSString)
-            } preview: {
-                DragLabel(title: title)
-            }
-        #else
-        Color.clear
-            .contentShape(.rect)
-        #endif
-    }
-}
-
-/// The small label that follows the finger or pointer while a card is
-/// dragged. A label, not a picture of the whole card, so the cards
-/// underneath can still be seen.
-private struct DragLabel: View {
-    let title: String
-
-    var body: some View {
-        Text(title)
-            .font(.subheadline.weight(.semibold))
-            .foregroundStyle(Theme.ink)
-            .padding(.horizontal, 16)
-            .padding(.vertical, 10)
-            .background(Theme.leafFill, in: .capsule)
-    }
+/// How far the page is scrolled, and the least and most it can be.
+/// `Equatable` lets SwiftUI tell when it has changed.
+private struct ScrollSpan: Equatable {
+    var y: Double
+    var least: Double
+    var most: Double
 }
 
 // MARK: - Supporting pieces
@@ -1427,6 +1374,9 @@ struct TodayJob: Identifiable {
     enum Link {
         case plant(Plant)
         case planting(Planting)
+        /// A job of your own. Its tick is kept on the record itself and
+        /// tapping it opens it to be changed.
+        case own(GardenJob)
     }
 
     let id: String
@@ -1464,12 +1414,26 @@ struct JobRow: View {
     let job: TodayJob
     @Binding var tickedStore: String
 
-    private var isTicked: Bool { TickedJobs.ids(in: tickedStore).contains(job.id) }
+    /// The job of your own being changed, if one has been tapped.
+    @State private var editing: GardenJob?
+
+    /// A worked-out job's tick is in the month's line of text. A job of
+    /// your own keeps its tick on its record, so that it lasts beyond
+    /// the month and, once iCloud sync is on, shows on every device.
+    private var isTicked: Bool {
+        if case .own(let own)? = job.link { return own.isDone }
+        return TickedJobs.ids(in: tickedStore).contains(job.id)
+    }
 
     var body: some View {
         HStack(alignment: .top, spacing: 10) {
             Button {
-                tickedStore = TickedJobs.toggling(job.id, in: tickedStore)
+                if case .own(let own)? = job.link {
+                    // Ticked now, or unticked if it was ticked already.
+                    own.doneAt = own.isDone ? nil : .now
+                } else {
+                    tickedStore = TickedJobs.toggling(job.id, in: tickedStore)
+                }
             } label: {
                 TickBox(isOn: isTicked)
                     .frame(width: 30, height: 30)
@@ -1481,16 +1445,22 @@ struct JobRow: View {
             switch job.link {
             case .plant(let plant)?: NavigationLink(value: plant) { words }.buttonStyle(.plain)
             case .planting(let planting)?: NavigationLink(value: planting) { words }.buttonStyle(.plain)
+            case .own(let own)?: Button { editing = own } label: { words }.buttonStyle(.plain)
             case nil: words
             }
             Spacer(minLength: 0)
+        }
+        // `.sheet(item:)` shows the sheet whenever `editing` holds a job
+        // and takes it away when it is emptied again.
+        .sheet(item: $editing) { own in
+            JobSheet(job: own)
         }
     }
 
     private var words: some View {
         VStack(alignment: .leading, spacing: 1) {
             Text(job.title)
-                .font(.subheadline)
+                .font(.body)
                 .strikethrough(isTicked)
                 .foregroundStyle(isTicked ? Theme.inkSoft : Theme.ink)
                 // Lets a long line run on to the next. In a narrow
@@ -1498,7 +1468,7 @@ struct JobRow: View {
                 .fixedSize(horizontal: false, vertical: true)
             if let detail = job.detail {
                 Text(detail)
-                    .font(.caption)
+                    .font(.footnote)
                     .foregroundStyle(Theme.inkSoft)
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -1587,7 +1557,7 @@ struct HarvestPicker: View {
                     if growing.isEmpty {
                         SheetCard("Nothing growing yet") {
                             Text("A harvest is recorded against a sowing. Record the sowing first.")
-                                .font(.subheadline)
+                                .font(.body)
                                 .foregroundStyle(Theme.inkSoft)
                         }
                     }
@@ -1603,7 +1573,7 @@ struct HarvestPicker: View {
                                         .foregroundStyle(Theme.ink)
                                     if !planting.bedNames.isEmpty {
                                         Text(planting.bedNames)
-                                            .font(.caption)
+                                            .font(.footnote)
                                             .foregroundStyle(Theme.inkSoft)
                                     }
                                 }

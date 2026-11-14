@@ -169,9 +169,9 @@ private struct SearchRow: View {
                 .foregroundStyle(.secondary)
                 .frame(width: 20)
             VStack(alignment: .leading, spacing: 2) {
-                Text(result.title).font(.subheadline)
+                Text(result.title).font(.body)
                 if let detail = result.detail {
-                    Text(detail).font(.caption).foregroundStyle(.secondary)
+                    Text(detail).font(.footnote).foregroundStyle(.secondary)
                 }
             }
         }

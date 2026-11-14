@@ -98,7 +98,7 @@ private struct BedShape: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(bed.name)
-                .font(.caption2.weight(.medium))
+                .font(.caption.weight(.medium))
 
             HStack(spacing: 1) {
                 ForEach(bed.orderedSections) { section in
@@ -162,7 +162,7 @@ private struct SectionSummary: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(section.fullLabel)
-                .font(.headline)
+                .font(.title3.weight(.semibold))
 
             if active.isEmpty {
                 Text("Empty").foregroundStyle(.secondary)
@@ -174,7 +174,7 @@ private struct SectionSummary: View {
                             Spacer()
                             if let sown = planting.dateSown {
                                 Text(sown, format: .dateTime.day().month())
-                                    .font(.caption)
+                                    .font(.footnote)
                                     .foregroundStyle(.secondary)
                             }
                         }
@@ -184,7 +184,7 @@ private struct SectionSummary: View {
 
             if !history.isEmpty {
                 Text("Previously")
-                    .font(.caption.weight(.medium))
+                    .font(.footnote.weight(.medium))
                     .foregroundStyle(.secondary)
 
                 ForEach(history.prefix(3)) { planting in
@@ -195,7 +195,7 @@ private struct SectionSummary: View {
                             Text(sown, format: .dateTime.year())
                         }
                     }
-                    .font(.caption)
+                    .font(.footnote)
                     .foregroundStyle(.secondary)
                 }
             }

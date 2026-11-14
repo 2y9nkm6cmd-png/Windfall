@@ -28,6 +28,12 @@ struct PlantLibraryView: View {
     /// One value, so "Clear" can put it all back in one go.
     @State private var filter = PlantFilter.fromLaunchArguments()
     @State private var showingImport = false
+    /// True while the form for a new plant is open.
+    @State private var isAddingPlant = false
+
+    /// Ties each plant's card to the page it opens, so the page grows
+    /// out of the card. See GrowFromTile.swift.
+    @Namespace private var cardSpace
 
     /// This month, 1 to 12.
     private var today: Int { Calendar.current.component(.month, from: .now) }
@@ -76,8 +82,23 @@ struct PlantLibraryView: View {
         .toolbar(removing: .title)
         #endif
         .paperScreen()
-        .navigationDestination(for: Plant.self) { PlantDetailView(plant: $0) }
+        .navigationDestination(for: Plant.self) { plant in
+            // The same id and namespace as the card, which is how the
+            // page knows which card to grow from.
+            PlantDetailView(plant: plant)
+                .growsFrom(plant.id, in: cardSpace)
+        }
         .toolbar {
+            // Adds one plant by hand. Until 14 November 2026 a plant
+            // could only arrive from the spreadsheet file or a seed
+            // packet. See PlantFillInViews.swift.
+            ToolbarItem(placement: .primaryAction) {
+                Button {
+                    isAddingPlant = true
+                } label: {
+                    Label("New plant", systemImage: "plus")
+                }
+            }
             ToolbarItem(placement: .primaryAction) {
                 Button {
                     showingImport = true
@@ -95,6 +116,9 @@ struct PlantLibraryView: View {
                 CollapsingSearchField(text: $filter.search, prompt: "Search plants")
             }
             #endif
+        }
+        .sheet(isPresented: $isAddingPlant) {
+            NewPlantSheet()
         }
         .sheet(isPresented: $showingImport) {
             NavigationStack {
@@ -131,7 +155,7 @@ struct PlantLibraryView: View {
             ForEach(PlantCards.byLetter(shown)) { group in
                 VStack(alignment: .leading, spacing: 10) {
                     Text(group.letter)
-                        .font(.system(.title3, design: .serif, weight: .medium))
+                        .font(.system(.title2, design: .serif, weight: .medium))
                         .foregroundStyle(Theme.inkSoft)
                         .padding(.leading, 4)
                         .accessibilityAddTraits(.isHeader)
@@ -142,6 +166,8 @@ struct PlantLibraryView: View {
                         ForEach(group.plants) { plant in
                             NavigationLink(value: plant) {
                                 PlantCardView(plant: plant, month: today)
+                                    // The card is where its page grows from.
+                                    .growSource(plant.id, in: cardSpace)
                             }
                             .buttonStyle(.plain)
                         }
@@ -347,7 +373,7 @@ struct PlantLibraryView: View {
             HStack(spacing: 6) {
                 WIconView(.close, size: 12)
                 Text("Clear")
-                    .font(.subheadline)
+                    .font(.body)
             }
             .foregroundStyle(Theme.ink)
             .padding(.horizontal, 14)
@@ -378,10 +404,10 @@ private struct FilterButtonLabel: View {
     var body: some View {
         HStack(spacing: 6) {
             Text(title)
-                .font(.subheadline)
+                .font(.body)
                 .lineLimit(1)
             Image(systemName: "chevron.down")
-                .font(.caption2.weight(.semibold))
+                .font(.caption.weight(.semibold))
                 .accessibilityHidden(true)
         }
         .foregroundStyle(Theme.ink)
@@ -442,10 +468,34 @@ struct PlantDetailView: View {
     /// closed. Every Edit button on the page sets this and nothing else,
     /// in the same way as `adding` above.
     @State private var editing: PlantFacts.Group?
+    /// True while the sheet that looks up this plant's gaps is open.
+    /// See PlantFillInViews.swift.
+    @State private var isFillingGaps = false
+    // Facts kept in this plant's record from a website or from your
+    // own reading. See KeptFacts.swift.
+    @Environment(\.modelContext) private var context
+    /// Every kept fact and every plant, kept up to date by SwiftData.
+    /// This page picks out its own.
+    @Query private var keptFacts: [KeptFact]
+    @Query private var allPlants: [Plant]
+    /// True while the form for keeping a fact by hand is open.
+    @State private var isKeepingFact = false
+    /// The kept fact being changed, while its form is open.
+    @State private var factToChange: KeptFact?
+
+    /// The other varieties of this plant: for rhubarb 'Victoria', the
+    /// library's other rhubarbs.
+    private var otherVarieties: [Plant] {
+        allPlants.filter { $0.commonName == plant.commonName && $0.id != plant.id }
+    }
 
     var body: some View {
         // Worked out once for this redraw.
-        let cards = PlantPage.cards(for: plant)
+        // `sources` says which values were kept from somewhere, so each
+        // can carry a small label: "RHS, kept Nov 2026".
+        let shelf = KeptFactStore(context: context)
+        let sources = shelf.sourceLabels(for: plant)
+        let cards = PlantPage.cards(for: plant, sources: sources)
 
         // GeometryReader says how wide the page is.
         GeometryReader { geometry in
@@ -479,6 +529,8 @@ struct PlantDetailView: View {
                                 companionsLink
                                 pestsCard
                                 if !addGoesRight { moreToAddCard }
+                                gapsCard
+                                keptFactsCard
                             }
                             VStack(spacing: 14) {
                                 plantingsCard
@@ -496,6 +548,8 @@ struct PlantDetailView: View {
                         companionsLink
                         pestsCard
                         moreToAddCard
+                        gapsCard
+                        keptFactsCard
                     }
                 }
                 .padding(.horizontal, 16)
@@ -527,6 +581,18 @@ struct PlantDetailView: View {
         .sheet(item: $editing) { factGroup in
             PlantEditView(plant: plant, openingAt: factGroup)
         }
+        // The sheet that looks up what this plant's record lacks.
+        .sheet(isPresented: $isFillingGaps) {
+            FillInSheet(plant: plant)
+        }
+        // The form for keeping a fact by hand, and the same form for
+        // changing one already kept.
+        .sheet(isPresented: $isKeepingFact) {
+            KeepFactSheet(plant: plant, others: otherVarieties)
+        }
+        .sheet(item: $factToChange) { fact in
+            KeepFactSheet(plant: plant, replacing: fact)
+        }
         // A checking aid: `-demoOpen plantSowing` and `-demoOpen
         // plantPlanting` open the form at once, so a still picture can
         // be taken of it. `plantEdit` opens the editing sheet at the
@@ -537,7 +603,27 @@ struct PlantDetailView: View {
             if DemoGarden.opens == "plantPlanting" { adding = .planting }
             if DemoGarden.opens == "plantEdit" { editing = .naming }
             if DemoGarden.opens == "plantEditSowing" { editing = .sowing }
+            if DemoGarden.opens == "keepFact" { isKeepingFact = true }
+            // `-demoOpen fillGaps` opens the sheet that looks up the
+            // plant's gaps. It reads the RHS, so it needs the internet.
+            if DemoGarden.opens == "fillGaps" { isFillingGaps = true }
+            // `-demoOpen keptFacts` shows the page with two example
+            // facts already kept.
+            if DemoGarden.opens == "keptFacts" { KeptFactStore(context: context).keepExamples() }
         }
+    }
+
+    /// How full the record is, and the button that looks up the rest.
+    /// The card leaves itself out when there is no gap worth filling.
+    private var gapsCard: some View {
+        GapsCard(plant: plant) { isFillingGaps = true }
+    }
+
+    /// The facts kept for this plant, and the button to keep another.
+    private var keptFactsCard: some View {
+        KeptFactsCard(plant: plant, allFacts: keptFacts,
+                      onKeep: { isKeepingFact = true },
+                      onChange: { factToChange = $0 })
     }
 
     // MARK: The top of the page
@@ -549,7 +635,7 @@ struct PlantDetailView: View {
                 if !summary.isEmpty {
                     // "softneck · Alliums · Perennial"
                     Text(summary.map(\.value).joined(separator: " · "))
-                        .font(.subheadline)
+                        .font(.body)
                         .foregroundStyle(Theme.inkSoft)
                 }
                 Text(plant.commonName)
@@ -582,10 +668,10 @@ struct PlantDetailView: View {
             HStack(spacing: 10) {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Companion planting")
-                        .font(.headline)
+                        .font(.title3.weight(.semibold))
                         .foregroundStyle(Theme.ink)
                     Text("What it grows well with, and what to keep apart from it.")
-                        .font(.subheadline)
+                        .font(.body)
                         .foregroundStyle(Theme.inkSoft)
                         .multilineTextAlignment(.leading)
                 }
@@ -609,7 +695,7 @@ struct PlantDetailView: View {
         if !pests.isEmpty {
             VStack(alignment: .leading, spacing: 10) {
                 Text("Plants that help with its pests")
-                    .font(.headline)
+                    .font(.title3.weight(.semibold))
                     .foregroundStyle(Theme.ink)
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 140), spacing: 8, alignment: .leading)],
                           alignment: .leading, spacing: 8) {
@@ -621,7 +707,7 @@ struct PlantDetailView: View {
                                 Text(pest)
                                 WIconView(.arrowRight, size: 12)
                             }
-                            .font(.subheadline)
+                            .font(.body)
                             .foregroundStyle(Theme.ink)
                             .padding(.horizontal, 12)
                             .padding(.vertical, 7)
@@ -646,10 +732,10 @@ struct PlantDetailView: View {
         if !missing.isEmpty {
             VStack(alignment: .leading, spacing: 10) {
                 Text("Add information")
-                    .font(.headline)
+                    .font(.title3.weight(.semibold))
                     .foregroundStyle(Theme.ink)
                 Text("Nothing is recorded yet under these headings.")
-                    .font(.subheadline)
+                    .font(.body)
                     .foregroundStyle(Theme.inkSoft)
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 170), spacing: 8, alignment: .leading)],
                           alignment: .leading, spacing: 8) {
@@ -662,7 +748,7 @@ struct PlantDetailView: View {
                                 Text(factGroup.title)
                                     .multilineTextAlignment(.leading)
                             }
-                            .font(.subheadline)
+                            .font(.body)
                             .foregroundStyle(Theme.ink)
                             .padding(.horizontal, 12)
                             .padding(.vertical, 7)
@@ -693,12 +779,12 @@ struct PlantDetailView: View {
 
         return VStack(alignment: .leading, spacing: 10) {
             Text("Sowings and plantings")
-                .font(.headline)
+                .font(.title3.weight(.semibold))
                 .foregroundStyle(Theme.ink)
 
             if lines.isEmpty {
                 Text("Nothing recorded for this plant yet.")
-                    .font(.subheadline)
+                    .font(.body)
                     .foregroundStyle(Theme.inkSoft)
             }
 
@@ -714,16 +800,16 @@ struct PlantDetailView: View {
                                 // "Planted 24 Oct 2026", or just "On
                                 // record" where there is no date.
                                 Text(line.date.map { "\(line.verb) \($0.formatted(.dateTime.day().month().year()))" } ?? line.verb)
-                                    .font(.subheadline.weight(.medium))
+                                    .font(.body.weight(.medium))
                                     .foregroundStyle(Theme.ink)
                                 Text(line.detail)
-                                    .font(.caption)
+                                    .font(.footnote)
                                     .foregroundStyle(Theme.inkSoft)
                                     .multilineTextAlignment(.leading)
                             }
                             Spacer(minLength: 8)
                             Text(line.status)
-                                .font(.caption)
+                                .font(.footnote)
                                 .foregroundStyle(Theme.inkSoft)
                             WIconView(.arrowRight, size: 12)
                                 .foregroundStyle(Theme.leaf)
@@ -793,14 +879,14 @@ private struct PlantFactCardView: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(alignment: .firstTextBaseline, spacing: 8) {
                 Text(factCard.title)
-                    .font(.headline)
+                    .font(.title3.weight(.semibold))
                     .foregroundStyle(Theme.ink)
                 Spacer(minLength: 8)
                 Button {
                     onEdit()
                 } label: {
                     Image(systemName: "pencil")
-                        .font(.subheadline.weight(.semibold))
+                        .font(.body.weight(.semibold))
                         .foregroundStyle(Theme.leaf)
                         // A larger area to press than the pencil itself.
                         .frame(width: 30, height: 26)
@@ -836,7 +922,7 @@ private struct PlantFactCardView: View {
                           alignment: .leading, spacing: 8) {
                     ForEach(factCard.tags, id: \.self) { tag in
                         Text(tag)
-                            .font(.subheadline)
+                            .font(.body)
                             .foregroundStyle(Theme.ink)
                             .padding(.horizontal, 12)
                             .padding(.vertical, 6)
@@ -853,13 +939,20 @@ private struct PlantFactCardView: View {
     private func factView(_ fact: PlantPage.Fact) -> some View {
         VStack(alignment: .leading, spacing: 1) {
             Text(fact.label)
-                .font(.caption)
+                .font(.footnote)
                 .foregroundStyle(Theme.inkSoft)
             Text(fact.value)
-                .font(.subheadline)
+                .font(.body)
                 .foregroundStyle(Theme.ink)
                 // Lets a long value run on to more lines.
                 .fixedSize(horizontal: false, vertical: true)
+            // Where the value came from, if it was kept from a website
+            // or from your own reading: "RHS, kept Nov 2026".
+            if let source = fact.source {
+                Text(source)
+                    .font(.caption)
+                    .foregroundStyle(Theme.leaf)
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         // VoiceOver reads the two as one: "Spacing, 0.15 m".
@@ -876,7 +969,7 @@ private struct PlantFactCardView: View {
                 HStack(spacing: 3) {
                     ForEach(Array("JFMAMJJASOND".enumerated()), id: \.offset) { _, letter in
                         Text(String(letter))
-                            .font(.caption2)
+                            .font(.caption)
                             .foregroundStyle(Theme.inkSoft)
                             .frame(maxWidth: .infinity)
                     }
@@ -887,7 +980,7 @@ private struct PlantFactCardView: View {
             ForEach(factCard.monthRows) { monthRow in
                 HStack(spacing: 8) {
                     Text(monthRow.label)
-                        .font(.caption)
+                        .font(.footnote)
                         .foregroundStyle(Theme.inkSoft)
                         .frame(width: nameWidth, alignment: .leading)
                     MonthStrip(months: monthRow.months, fill: monthRow.kind.tint)
