@@ -7,6 +7,34 @@ run without the Mac (every file reads as valid Swift, 323 logic tests
 pass). Those do not build the screens. Expect things to put right when
 it is first built, and treat how everything here looks as untried.
 
+## 14 November 2026, midday: a carrot-family warning on photo matches
+
+**On the branch `carrot-family-warning`, made from `main`.**
+
+**Why.** That morning the fine-tuning chat put a newer image model into Windfall's Models folder at William's request (BioCLIP 2.5 Huge, doc 30). The build chat ran the same 300 unseen UK photos through the app with it:
+
+| | BioCLIP 2 | BioCLIP 2.5 Huge |
+|---|---|---|
+| First answer right | 289 | 293 |
+| Right answer among the three | 295 | 299 |
+| Named outright | 272, of which 1 wrong | 294, of which 4 wrong |
+
+It is right more often and sure more often, and so it is also sure more often when wrong. **It named a photo of hemlock as cow parsley at over 99%.** The older model had said "not sure" for that photo, and had its own such mistake (hemlock water-dropwort named as yellow iris). Both plants are deadly. Both are in the carrot family. Both times a carrot-family plant was among the three candidates on screen.
+
+**What changed.**
+
+- `DangerousLookAlikes` in `SpeciesTable.swift`: a list of 31 carrot-family genera (the first word of a scientific name), and one function. If any of the three candidates is a plant whose genus is in the list, `SpeciesGuess.lookAlikeWarning` returns the warning. Otherwise it returns nil.
+- The Identify screen (`EiraVision.swift`) shows that warning in an orange box above the names, however sure the model is. The small print under every answer is unchanged.
+- *Why the group is checked as well as the name.* An animal can share a plant's genus name. Oenanthe is the water-dropworts and also the wheatears, which are birds. So the rule asks that the candidate is a plant.
+- *Why "any of the three" and not only the first.* In the first mistake the first answer was an iris. The deadly plant was second, at 6%.
+- The photo test run (`SpeciesTestRun.swift`) now counts how often the warning shows, how many photos really were of the family and whether any of those went without it.
+- `-demoMatch hemlock` shows the warning in the simulator, with the real mistake as the example.
+- The comments in `SpeciesTable.swift` no longer say the model is BioCLIP 2 with 768 numbers. The table says how many numbers its rows hold, so the code works with either.
+
+**For William to check.** ⚠️ CHECK: the genus list and the wording of the warning are Claude's, from general knowledge and not from a field guide. The warning reads: "Take care: this may be one of the carrot family. That family holds deadly plants, hemlock and hemlock water-dropwort among them, that look much like cow parsley, wild carrot, wild celery and parsley. A photo cannot tell them apart safely. If you did not sow it yourself, do not eat any part of it on the strength of this, and wear gloves to handle it: giant hogweed, of the same family, burns the skin." It will also show on photos of your own carrots, parsley, fennel and parsnips, which is why it says "if you did not sow it yourself".
+
+**Not done.** Other dangerous pairs: wild garlic with lords-and-ladies and lily of the valley, comfrey with foxglove. Each needs a checked list first. The "not sure" level (0.85) was set for the older model and should be set again for this one from William's own photos (doc 30).
+
 ## 14 November 2026, late morning: telling Eira she is wrong
 
 **On the branch `eira-corrections`, made from `main`.** Built for the Mac and the simulator as r23, with no errors. 457 logic tests pass. Seen in the simulator in light and dark (`shots/corr-*.png` on the Mac). **Not yet tried by hand with a real model.**
