@@ -323,7 +323,12 @@ struct BoardCard<Content: View>: View {
             // While rearranging, the buttons inside a card are switched
             // off, so a press moves the card and does not press them.
             .allowsHitTesting(!isArranging)
-            // The whole card can be pressed, its empty parts included.
+            // The whole card can be pressed, its empty parts included:
+            // a clear sheet behind it catches a press that lands in a
+            // gap, such as between two rows of capture buttons. (Found
+            // on the Mac, 14 November 2026: a press in that gap did
+            // nothing.)
+            .background { Color.clear.contentShape(.rect) }
             .contentShape(.rect)
             .onGeometryChange(for: CGSize.self) { $0.size } action: { size = $0 }
             // The card in the hand does not jiggle, as on the Home Screen.
