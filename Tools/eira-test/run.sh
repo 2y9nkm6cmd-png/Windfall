@@ -10,7 +10,17 @@
 # real records are never read or changed. The app's window appears while
 # it runs and closes itself at the end. The answers file ends with the
 # word DONE when the run is over.
-APP="/Users/Home/Library/Developer/Xcode/DerivedData/Windfall-claude/Build/Products/Debug/Windfall.app"
+#
+# Two settings can be given in front of the command:
+#   APP=<path to a Windfall.app>   to test another build, such as the one
+#                                  pull-side.sh makes
+#   QUIET=1                        to start it in the background and hidden,
+#                                  for when the Mac is in use: no window
+#                                  comes to the front
+APP="${APP:-/Users/Home/Library/Developer/Xcode/DerivedData/Windfall-claude/Build/Products/Debug/Windfall.app}"
+HOW=(-n)
+# "-g" does not bring the app to the front. "-j" starts it hidden.
+[ -n "$QUIET" ] && HOW=(-n -g -j)
 HERE="$(cd "$(dirname "$0")" && pwd)"
 OUT="/Users/Home/Developer/windfall-build-logs"
 SHEET="${4:-$HERE/test-sheet.txt}"
@@ -30,7 +40,7 @@ rm -f "$OUT/eira-$3.md" "$OUT/eira-$3.log"
 #    Claude chat, the run was killed part-way when the Claude app
 #    restarted, because everything a chat starts directly is stopped
 #    along with it.
-open -n -a "$APP" --stdout "$OUT/eira-$3.log" --stderr "$OUT/eira-$3.log" --args \
+open $HOW -a "$APP" --stdout "$OUT/eira-$3.log" --stderr "$OUT/eira-$3.log" --args \
   -demoGarden YES -eiraTest "$SHEET" -eiraTestOut "$OUT/eira-$3.md" \
   -eiraModelKind "$1" $MODEL
 echo "Started. Watch $OUT/eira-$3.md for DONE."

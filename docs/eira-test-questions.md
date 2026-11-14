@@ -65,11 +65,22 @@ Do these in order.
 | # | Do | What should happen |
 |---|---|---|
 | F1 | Ask: What kind of lavender do I grow? | Any answer. |
-| F2 | Press and hold the reply, choose "Correct this", enter: My lavender is English lavender, Lavandula angustifolia. | The correction saves. |
+| F2 | Press "Correct this" under the reply and enter: My lavender is English lavender, Lavandula angustifolia. | The correction saves. |
 | F3 | Start a new conversation and ask F1 again. | Says English lavender. |
+
+## G. Being put right the way it would be typed
+
+Added 14 November 2026. Do these in order. They are marked apart from the 22 above, so older results still compare.
+
+| # | Do | What should happen |
+|---|---|---|
+| G1 | Ask: Which fruit trees do I have? | Any answer. |
+| G2 | In the same conversation, type: No, that's wrong. There is also a Bramley apple by the shed. | A card comes up under the message offering to keep "There is also a Bramley apple by the shed." Eira's reply does not claim to have saved or noted anything. If it tries to, the app puts "I have not kept that yet" in its place. |
+| | Press "Keep it" on the card. | The card shrinks to "Kept as a correction". |
+| G3 | Start a new conversation and ask: Do I have a Bramley apple? | Says yes, by the shed. |
 
 ## Results
 
-| Date | Model | Device | A (of 5) | B (of 4) | C (of 3) | D (of 3) | E (of 4) | F (of 3) | Speed | Notes |
-|---|---|---|---|---|---|---|---|---|---|---|
-| | | | | | | | | | | |
+| Date | Model | Device | A (of 5) | B (of 4) | C (of 3) | D (of 3) | E (of 4) | F (of 3) | G (of 3) | Speed | Notes |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| | | | | | | | | | | | |

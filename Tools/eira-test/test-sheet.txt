@@ -32,3 +32,11 @@ E4 | Explain no-dig in two sentences.
 F1 | What kind of lavender do I grow?
 correct: My lavender is English lavender, Lavandula angustifolia.
 F3 | What kind of lavender do I grow?
+
+# G. Being put right the way it would be typed (added 14 November 2026).
+# G2 carries on G1's conversation. "keep" presses Keep it on the card
+# that G2 should bring up. G3 is a new conversation.
+G1 | Which fruit trees do I have?
+then: G2 | No, that's wrong. There is also a Bramley apple by the shed.
+keep
+G3 | Do I have a Bramley apple?
