@@ -7,6 +7,33 @@ run without the Mac (every file reads as valid Swift, 323 logic tests
 pass). Those do not build the screens. Expect things to put right when
 it is first built, and treat how everything here looks as untried.
 
+## 14 November 2026, 16:45: Eira's bar can be put away by touch on an iPhone, and the carrot-family warning knows 19 more genera
+
+**On the branch `iphone-first-fixes`, made from `main` (`db45898`).** Built and signed for William's iPhone 16 with no errors (`iphone-5.log`, in `DerivedData/Windfall-iphone`) and installed on it at 16:44. Every file reads as valid Swift. **The full logic tests were not run**: they need Linux with Swift, and one test was added. **Nothing here has been tried by hand.** The two touch gestures can only be judged on the phone.
+
+### 1. Putting Eira's bar away (`EiraFloatingBar.swift`)
+
+**Why.** William, 16:04, on first trying the app on his iPhone: once the bar is open "you can't tap out of the chat or swipe the chat down to get rid of it. Tapping the eira icon removes it though." On a Mac the Escape key closes the bar. An iPhone has no Escape key, so the snowdrop was the only way.
+
+**What changed, on an iPhone or iPad only:**
+
+- **A touch on the page closes the bar.** `touchAwayLayer` is an invisible layer that exists only while the bar is open. `Color.clear` draws nothing, and `contentShape(Rectangle())` makes that nothing count as somewhere a finger can land. It is 4,000 points square and lined up with the bottom of the bar, so it reaches up over the whole page. It sits behind the bar (`.background`), so the bar's own buttons get their taps first. A tap on it, or the start of a scroll, calls `close`.
+- **The first touch only closes the bar.** It is not passed on to the page, so nothing is opened by accident.
+- **A swipe down on the bar closes it.** `swipeDownPutsAway` watches for a drag with `simultaneousGesture`, which notices the drag without taking touches away from the text box and buttons. It counts when the finger went at least 30 points down, and further down than sideways.
+- `canBePutAway` is true only when the bar was opened by hand. It is false when the bar is pinned open and on the Journal page, where the bar is always open, so neither of those is changed.
+
+**A Mac is left alone**, with `#if os(iOS)`. A click that did nothing but close the bar would be a nuisance there, and a downward drag across a text box is how text is selected.
+
+**To check on the phone:** that a tap above the open bar closes it, that a swipe down on the bar closes it, that the bar's own buttons still work, and that the page scrolls normally once the bar is closed.
+
+### 2. The carrot-family warning (`SpeciesTable.swift`)
+
+**Why.** The image model's list on the phone was widened the same afternoon from 778 names to 6,421 (project doc 50). The warning works from `carrotFamilyGenera`, a list of 31 genera. iNaturalist has confirmed UK records for carrot-family plants in 50 genera. Without the other 19, a hemlock look-alike could have been named as one of them with no warning.
+
+**What changed.** The 19 are added: Astrantia, Beruladium, Bunium, Bupleurum, Eryngium, Falcaria, Ferula, Libanotis, Ligusticum, Meum, Orlaya, Peucedanum, Physospermum, Sanicula, Selinum, Tordylium, Trinia, Trocdaris and Visnaga. Some look nothing like hemlock (sea holly, great masterwort) and get the warning all the same: it is better given too often than too seldom. **CHECK: the genera and their common names are iNaturalist's, fetched on 14 November 2026, and have not been checked against a flora.**
+
+One logic test added: the list holds five of the new genera and 50 in all.
+
 ## 14 November 2026, 16:26: the sidebar's lens follows the fingers again
 
 **On the branch `sidebar-scroll-follows-fingers`, made from `main`.** One line in `MainTabView.swift`, in `lensScrolled(by:)`.
