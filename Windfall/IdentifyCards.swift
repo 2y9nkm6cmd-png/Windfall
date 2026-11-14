@@ -119,7 +119,7 @@ extension EiraIdentify {
     /// missing, or the photo unreadable.
     ///
     /// `taken` is the month the photo was taken, if it is known (see
-    /// SpeciesEye.monthTaken). `eye` is which image model to use. Left
+    /// PhotoFacts.month). `eye` is which image model to use. Left
     /// out, it is Eira's own.
     static func identify(photo data: Data,
                          taken: Int? = nil,
@@ -139,13 +139,26 @@ extension EiraIdentify {
     /// machine's guess is not a record until you confirm it yourself.
     /// When Eira was not sure, no name is written in at all.
     ///
+    /// - `photo`: the copy made smaller, as it was shown.
+    /// - `original`: the photo as it came, if it is still at hand. It
+    ///   goes to the photo folder (PhotoStore.swift).
+    /// - `facts`: when and where the photo was taken (PhotoFacts.swift).
+    ///   A photo taken earlier dates the sighting then, not now.
+    ///
     /// `@discardableResult` lets a caller ignore what is handed back.
     @discardableResult
     static func startSighting(from identification: EiraIdentification?,
                               photo: Data?,
+                              original: Data? = nil,
+                              facts: PhotoFacts? = nil,
                               in context: ModelContext) -> WildlifeObservation {
         let observation = WildlifeObservation()
         observation.recorderName = UserDefaults.standard.string(forKey: "recorderName")
+        // It was seen when the photo was taken, not when the photo was
+        // brought in here.
+        if let facts, facts.wasTakenEarlier(than: .now), let taken = facts.taken {
+            observation.observedAt = taken
+        }
 
         if let identification {
             observation.notes = identification.sightingNote
@@ -159,9 +172,13 @@ extension EiraIdentify {
         }
 
         if let photo, !photo.isEmpty {
-            let attached = Photo()
-            attached.imageData = photo
-            attached.thumbnailData = DiaryEntryEditor.thumbnail(from: photo)
+            // Every place that keeps a photo goes through Photo.record
+            // (PhotoDrop.swift), so that they all keep the same things:
+            // when and where it was taken, and the original in the photo
+            // folder if one has been chosen. `photo` is the smaller
+            // copy, which is what the app keeps where there is no folder.
+            let attached = Photo.record(of: original ?? photo, facts: facts, smallerCopy: photo,
+                                        otherwiseAt: observation.observedAt)
             attached.observation = observation
             observation.photos = [attached]
         }

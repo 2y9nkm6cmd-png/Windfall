@@ -13,7 +13,9 @@
 //  - When        "Now", unless changed.
 //  - Conditions  filled in from the weather service for that time.
 //  - About       the garden, or one bed.
-//  - Photos      chosen with the button, or dragged on to the sheet.
+//  - Photos      chosen with the button, dragged on to the sheet, or
+//                handed over by the Journal page or Eira's bar when a
+//                photo was dropped there.
 //  - Title       written from the entry's own first words.
 //
 //  Above the box is the day so far: what has been written, each with
@@ -22,7 +24,9 @@
 //
 //  If an entry is written after dark, or says "this morning", a card
 //  asks when it was about before it can be sent, so that it is stamped
-//  with the right weather.
+//  with the right weather. The same card asks when the photos with an
+//  entry were taken on another day, or earlier today: a photo's file
+//  says when it was taken (PhotoFacts.swift).
 //
 //  Each thing sent is saved as an ordinary diary entry. Nothing about
 //  how entries are stored has changed.
@@ -64,6 +68,11 @@ struct JournalChatView: View {
     @State private var words: String
     @State private var waitingPhotos: [WaitingPhoto] = []
     @State private var pickerItems: [PhotosPickerItem] = []
+    /// Photos handed over when the conversation was opened, because
+    /// they were dropped on the Journal page or on Eira's bar.
+    private let startingPhotos: [Data]
+    /// True once those have been put in the box, so that it happens once.
+    @State private var hasTakenStartingPhotos = false
 
     // The stamp. Nil for `chosenWhen` means "now".
     @State private var chosenWhen: Date?
@@ -84,6 +93,13 @@ struct JournalChatView: View {
     @State private var weatherAtMoment: [JournalChat.Moment: CurrentConditions] = [:]
     /// True while the weather service is being asked about the stamp's time.
     @State private var isAskingWeather = false
+
+    // The photos' own day.
+    /// The question about the photos that has been answered, so that
+    /// it is not put twice.
+    @State private var answeredPhotoCheck: JournalChat.PhotoCheck?
+    /// The weather at each time that question can offer.
+    @State private var weatherAtPhotoTime: [Date: CurrentConditions] = [:]
 
     // Eira's offers to put what was just written on record.
     @State private var offers: [RecordOffer] = []
@@ -111,10 +127,13 @@ struct JournalChatView: View {
 
     /// - `draft`: words to start with, such as Today's list of what has
     ///   been logged.
-    init(draft: String = "", cameFromEirasBar: Bool = false, askEiraInstead: ((String) -> Void)? = nil) {
+    /// - `photos`: photos to start with, each as its file's own bytes.
+    init(draft: String = "", photos: [Data] = [], cameFromEirasBar: Bool = false,
+         askEiraInstead: ((String) -> Void)? = nil) {
         // `_words` is the storage behind `@State var words`. This is how
         // a starting value is handed to it from outside.
         _words = State(initialValue: draft)
+        self.startingPhotos = photos
         self.cameFromEirasBar = cameFromEirasBar
         self.askEiraInstead = askEiraInstead
     }
@@ -135,6 +154,13 @@ struct JournalChatView: View {
     /// The question to ask before sending, if there is one.
     private var timeCheck: JournalChat.TimeCheck? {
         checkIsAnswered ? nil : JournalChat.timeCheck(for: words, at: .now, isDark: isDark)
+    }
+
+    /// The question the photos raise, if they were not taken just now
+    /// and it has not already been answered.
+    private var photoCheck: JournalChat.PhotoCheck? {
+        let check = JournalChat.photoCheck(taken: waitingPhotos.compactMap(\.facts.taken), at: .now)
+        return check == answeredPhotoCheck ? nil : check
     }
 
     private var stampWeather: Weather? {
@@ -205,14 +231,18 @@ struct JournalChatView: View {
         SheetPage("Journal", detail: dayWords, dismissTitle: "Done") {
             VStack(spacing: 0) {
                 thread(lines)
-                if let timeCheck {
-                    checkCard(timeCheck)
+                // The photos' own day is asked about first. It is firmer
+                // evidence of when this happened than the words are.
+                if let photoCheck {
+                    checkCard(question: photoCheck.question, choices: choices(for: photoCheck))
+                } else if let timeCheck {
+                    checkCard(question: timeCheck.question, choices: choices(for: timeCheck))
                 }
                 composer
             }
         }
         // Photos can be dragged on to any part of the sheet.
-        .onDrop(of: [.image], isTargeted: $isDropTarget) { providers in
+        .onDrop(of: PhotoDrop.kinds, isTargeted: $isDropTarget) { providers in
             takeDropped(providers)
         }
         .overlay {
@@ -226,6 +256,7 @@ struct JournalChatView: View {
         .task {
             voice.checkExistingPermission()
             lookUpWeather()
+            takeStartingPhotos()
             await askServiceIfMissing()
         }
         .onChange(of: chosenWhen) { _, _ in
@@ -278,6 +309,13 @@ struct JournalChatView: View {
                             .tint(Theme.leaf)
                             .padding(.leading, 36)
                     }
+                }
+
+                // Photos dropped to start this are waiting there too.
+                if !startingPhotos.isEmpty && !cameFromEirasBar && lastSent == nil {
+                    eiraSays(startingPhotos.count == 1
+                             ? "Your photo is waiting in the box below. Add a few words about it if you like, then send."
+                             : "Your \(startingPhotos.count) photos are waiting in the box below. Add a few words about them if you like, then send.")
                 }
 
                 if let sent = diary.first(where: { $0.id == lastSent }) {
@@ -441,9 +479,44 @@ struct JournalChatView: View {
 
     // MARK: The time check
 
-    private func checkCard(_ check: JournalChat.TimeCheck) -> some View {
+    /// One button on the check's card: a time, the weather then if it
+    /// is known, and what pressing it does.
+    private struct CheckChoice: Identifiable {
+        let id: String
+        let name: String
+        let weather: CurrentConditions?
+        let choose: () -> Void
+    }
+
+    /// The buttons for a question raised by the words or the hour.
+    private func choices(for check: JournalChat.TimeCheck) -> [CheckChoice] {
+        check.moments.map { moment in
+            let label = JournalChat.name(of: moment)
+            return CheckChoice(id: moment.rawValue, name: label,
+                               weather: weatherAtMoment[moment]) { answer(moment) }
+        }
+    }
+
+    /// The buttons for a question raised by when the photos were taken:
+    /// each day they point to, then "Now".
+    private func choices(for check: JournalChat.PhotoCheck) -> [CheckChoice] {
+        let days = check.moments.map { moment in
+            CheckChoice(id: moment.name, name: moment.name,
+                        weather: weatherAtPhotoTime[moment.date]) { answerPhotoCheck(check, with: moment.date) }
+        }
+        let nowLabel = JournalChat.name(of: .now)
+        let nowChoice = CheckChoice(id: "now", name: nowLabel,
+                                    weather: weatherAtMoment[.now]) { answerPhotoCheck(check, with: nil) }
+        return days + [nowChoice]
+    }
+
+    /// The card that asks when an entry was about. Until 14 November
+    /// 2026 it could only be drawn from the words' own question. Now it
+    /// is drawn from any question and list of choices, so the photos'
+    /// question looks and works the same.
+    private func checkCard(question: String, choices: [CheckChoice]) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(check.question)
+            Text(question)
                 .font(.subheadline.weight(.medium))
                 .foregroundStyle(Theme.ink)
             if checkWasSkipped {
@@ -451,15 +524,15 @@ struct JournalChatView: View {
                     .font(.caption)
                     .foregroundStyle(Theme.amber)
             }
-            ForEach(check.moments) { moment in
+            ForEach(choices) { checkChoice in
                 Button {
-                    answer(moment)
+                    checkChoice.choose()
                 } label: {
                     HStack {
-                        Text(JournalChat.name(of: moment))
+                        Text(checkChoice.name)
                             .fontWeight(.medium)
                         Spacer(minLength: 8)
-                        if let weather = weatherAtMoment[moment] {
+                        if let weather = checkChoice.weather {
                             Text(JournalChat.stampWords(weather: JournalChat.weatherWord(for: weather),
                                                         temperatureC: weather.temperatureC) ?? "")
                                 .foregroundStyle(Theme.inkSoft)
@@ -485,6 +558,20 @@ struct JournalChatView: View {
         }
         .padding(.horizontal, 14)
         .padding(.bottom, 8)
+    }
+
+    /// One of the photo question's buttons was pressed. The stamp is set
+    /// to that time and its weather, or to now if `date` is nil. Nothing
+    /// is sent yet.
+    private func answerPhotoCheck(_ check: JournalChat.PhotoCheck, with date: Date?) {
+        chosenWhen = date
+        hasOwnConditions = false
+        suggested = conditions(at: stampDate)
+        answeredPhotoCheck = check
+        // A time has now been chosen by hand, so the words' own question
+        // is not put as well.
+        checkIsAnswered = true
+        checkWasSkipped = false
     }
 
     /// One of the check's buttons was pressed. The stamp is set to that
@@ -790,6 +877,8 @@ struct JournalChatView: View {
         let id = UUID()
         let data: Data
         let thumbnail: Data?
+        /// When and where it was taken, read from the file.
+        let facts: PhotoFacts
     }
 
     private func waitingThumbnail(_ photo: WaitingPhoto) -> some View {
@@ -821,7 +910,31 @@ struct JournalChatView: View {
     }
 
     private func addPhoto(_ data: Data) {
-        waitingPhotos.append(WaitingPhoto(data: data, thumbnail: DiaryEntryEditor.thumbnail(from: data)))
+        waitingPhotos.append(WaitingPhoto(data: data, thumbnail: DiaryEntryEditor.thumbnail(from: data),
+                                          facts: PhotoFacts.read(from: data)))
+        lookUpPhotoWeather()
+    }
+
+    /// Puts the photos the conversation was opened with into the box.
+    private func takeStartingPhotos() {
+        guard !hasTakenStartingPhotos else { return }
+        hasTakenStartingPhotos = true
+        for data in startingPhotos { addPhoto(data) }
+    }
+
+    /// Looks up the weather at each time the photos' question offers,
+    /// to show beside its buttons. From the weather diary where a
+    /// garden has a place, otherwise asked of the weather service.
+    private func lookUpPhotoWeather() {
+        let moments = JournalChat.photoCheck(taken: waitingPhotos.compactMap(\.facts.taken), at: .now)?.moments ?? []
+        for moment in moments where weatherAtPhotoTime[moment.date] == nil {
+            let date = moment.date
+            if let found = conditions(at: date) {
+                weatherAtPhotoTime[date] = found
+            } else if place == nil, let near = WeatherService.shared.lastPlace {
+                Task { weatherAtPhotoTime[date] = await WeatherService.shared.conditions(at: date, near: near) }
+            }
+        }
     }
 
     /// Photos chosen with the button. They arrive one at a time, a
@@ -835,17 +948,13 @@ struct JournalChatView: View {
         pickerItems = []
     }
 
-    /// Photos dragged on to the sheet. Returns true if any were pictures.
+    /// Photos dragged on to the sheet. Returns true if any of what was
+    /// dropped could be a picture. They are read a moment later, by the
+    /// reader every drop in the app shares (PhotoDrop.swift).
     private func takeDropped(_ providers: [NSItemProvider]) -> Bool {
-        let pictures = providers.filter { $0.hasItemConformingToTypeIdentifier(UTType.image.identifier) }
-        guard !pictures.isEmpty else { return false }
-        for provider in pictures {
-            // The picture is handed over a moment later, away from the
-            // screen's own thread, so it is passed back to it to be added.
-            _ = provider.loadDataRepresentation(forTypeIdentifier: UTType.image.identifier) { data, _ in
-                guard let data else { return }
-                Task { @MainActor in addPhoto(data) }
-            }
+        guard PhotoDrop.mayHold(providers) else { return false }
+        Task {
+            for data in await PhotoDrop.pictures(from: providers) { addPhoto(data) }
         }
         return true
     }
@@ -910,8 +1019,9 @@ struct JournalChatView: View {
         let text = words.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty || !waitingPhotos.isEmpty else { return }
 
-        // The time check has to be answered first. Its card turns amber.
-        if timeCheck != nil {
+        // A question about when this was has to be answered first. Its
+        // card turns amber.
+        if photoCheck != nil || timeCheck != nil {
             checkWasSkipped = true
             return
         }
@@ -937,9 +1047,10 @@ struct JournalChatView: View {
         context.insert(entry)
 
         for waiting in waitingPhotos {
-            let photo = Photo()
-            photo.imageData = waiting.data
-            photo.thumbnailData = waiting.thumbnail
+            // The photo keeps the time it was taken, whichever time the
+            // entry is stamped with.
+            let photo = Photo.record(of: waiting.data, facts: waiting.facts, thumbnail: waiting.thumbnail,
+                                     otherwiseAt: entry.date)
             photo.diaryEntry = entry
             entry.photos?.append(photo)
         }
@@ -963,6 +1074,7 @@ struct JournalChatView: View {
         hasOwnConditions = false
         checkIsAnswered = false
         checkWasSkipped = false
+        answeredPhotoCheck = nil
         suggested = conditions(at: .now)
     }
 }

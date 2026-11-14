@@ -19,10 +19,11 @@
 //  holding one of her replies lets you correct it, and she keeps that.
 //
 //  A photo can be given to her with the camera button beside the text
-//  box (14 November 2026). Her answer to it is a card, drawn by
-//  IdentifyCards.swift from the rules in EiraIdentify.swift. Naming a
-//  photo does not use her text model, so it works even where no text
-//  model can run. Asking her about the species afterwards does.
+//  box, or dragged on to the chat (14 November 2026). Her answer to it
+//  is a card, drawn by IdentifyCards.swift from the rules in
+//  EiraIdentify.swift. Naming a photo does not use her text model, so
+//  it works even where no text model can run. Asking her about the
+//  species afterwards does.
 //
 
 import SwiftUI
@@ -64,6 +65,17 @@ struct EiraChatView: View {
     @State private var isChoosingPhotoFile = false
     /// The photo chosen in the Photos library, until it has been read.
     @State private var pickedPhoto: PhotosPickerItem?
+    /// True while a photo is being held over the chat.
+    @State private var isDropTarget = false
+    /// When and where each photo given to her was taken, by the id of
+    /// the message the photo sits in. Read before the photo is made
+    /// smaller, so a sighting can be dated when the photo was taken.
+    @State private var photoFacts: [UUID: PhotoFacts] = [:]
+    /// The same photos as they came, so that a sighting can send the
+    /// original to the photo folder. An original is large, so only the
+    /// last few are held. `photoOrder` remembers which came first.
+    @State private var photoOriginals: [UUID: Data] = [:]
+    @State private var photoOrder: [UUID] = []
     /// The answers a sighting has been started from, by the id of her
     /// reply, so each shows "Added" in place of its button.
     @State private var sightingsAdded: Set<UUID> = []
@@ -275,6 +287,24 @@ struct EiraChatView: View {
             defer { if hasLeave { url.stopAccessingSecurityScopedResource() } }
             if let data = try? Data(contentsOf: url) {
                 Task { await look(at: data) }
+            }
+        }
+        // Or one dragged on to the chat, from Finder or from Photos.
+        // Several are looked at one after another, each with its own
+        // answer. PhotoDrop reads each as its file's own bytes, so the
+        // date the camera wrote into it survives.
+        .onDrop(of: PhotoDrop.kinds, isTargeted: $isDropTarget) { providers in
+            guard PhotoDrop.mayHold(providers) else { return false }
+            Task {
+                for picture in await PhotoDrop.pictures(from: providers) {
+                    await look(at: picture)
+                }
+            }
+            return true
+        }
+        .overlay {
+            if isDropTarget {
+                PhotoDropOutline(words: "Drop a photo to ask what it is")
             }
         }
         .task {
@@ -506,12 +536,22 @@ struct EiraChatView: View {
     /// side, as on the Identify screen: plenty to name from and to keep
     /// with a sighting.
     private func look(at data: Data) async {
-        // The month it was taken is read first: shrinking loses it.
-        let taken = SpeciesEye.monthTaken(of: data)
+        // The date and place are read first, from the photo as it came:
+        // making it smaller loses them (PhotoFacts.swift).
+        let facts = PhotoFacts.read(from: data)
         let photo = DiaryEntryEditor.thumbnail(from: data, maxDimension: 1024) ?? data
         guard let photoID = conversation.givePhoto(photo) else { return }
+        // Kept for a sighting started from her answer: see addSighting.
+        photoFacts[photoID] = facts
+        photoOriginals[photoID] = data
+        photoOrder.append(photoID)
+        // Only the last eight originals are held. An older photo can
+        // still start a sighting, from its smaller copy.
+        while photoOrder.count > 8 {
+            photoOriginals[photoOrder.removeFirst()] = nil
+        }
         do {
-            let identification = try await EiraIdentify.identify(photo: photo, taken: taken, context: context)
+            let identification = try await EiraIdentify.identify(photo: photo, taken: facts.month(), context: context)
             conversation.answerPhoto(photoID, with: identification)
         } catch let problem {
             conversation.photoFailed(problem.localizedDescription)
@@ -522,8 +562,15 @@ struct EiraChatView: View {
     /// photo it was about. This is the only thing here that saves to
     /// your records, and only when you press its button.
     private func addSighting(for replyID: UUID, from identification: EiraIdentification) {
-        let photo = conversation.photoBehind[replyID].flatMap { conversation.photos[$0] }
-        EiraIdentify.startSighting(from: identification, photo: photo, in: context)
+        let photoID = conversation.photoBehind[replyID]
+        let photo = photoID.flatMap { conversation.photos[$0] }
+        // As on the Identify screen: the photo's own date becomes the
+        // sighting's, and the original goes to the photo folder if one
+        // has been chosen.
+        EiraIdentify.startSighting(from: identification, photo: photo,
+                                   original: photoID.flatMap { photoOriginals[$0] },
+                                   facts: photoID.flatMap { photoFacts[$0] },
+                                   in: context)
         sightingsAdded.insert(replyID)
     }
 

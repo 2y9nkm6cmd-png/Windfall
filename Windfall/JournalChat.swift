@@ -5,7 +5,7 @@
 //  The thinking behind the journal's conversation, kept apart from the
 //  screen (JournalChatView.swift) so that it can be tested without one.
 //
-//  Three jobs:
+//  Four jobs:
 //
 //  - The weather stamp. Each thing written in the journal is stamped
 //    with the conditions at the time. This turns the weather service's
@@ -19,7 +19,11 @@
 //    entry is probably about earlier in the day. This decides when to
 //    ask, and which times to offer, before the entry is stamped.
 //
-//  All three are fixed rules. None of them uses the AI model, so they
+//  - The photos' own day. Photos say when they were taken. If that was
+//    not just now, this decides whether to ask which day the entry is
+//    about. Added 14 November 2026.
+//
+//  All of these are fixed rules. None of them uses the AI model, so they
 //  give the same answer every time and work on any device.
 //
 
@@ -343,6 +347,106 @@ enum JournalChat {
     }
 }
 
+// MARK: - The photos' own day
+
+extension JournalChat {
+
+    /// A time the photos point to, with the words for its button:
+    /// "Wednesday 11 November at 15:02".
+    struct PhotoMoment: Equatable, Identifiable {
+        let date: Date
+        let name: String
+
+        var id: Date { date }
+    }
+
+    /// A question to put before an entry with photos is stamped, with
+    /// the times to offer. The card adds "Now" after them.
+    struct PhotoCheck: Equatable {
+        let question: String
+        let moments: [PhotoMoment]
+    }
+
+    /// Decides whether to ask when an entry was about, going by when its
+    /// photos were taken, and which times to offer.
+    ///
+    /// - `taken`: the time each photo says it was taken. Photos that do
+    ///   not say are simply left out of the list.
+    ///
+    /// The rule:
+    /// - A photo dated in the future is ignored. Its camera's clock is
+    ///   wrong.
+    /// - Photos taken today within the last hour ask nothing. "Now" is
+    ///   near enough.
+    /// - Otherwise each day with photos is offered, newest first, at
+    ///   the time of that day's last photo. No more than four days.
+    static func photoCheck(taken: [Date], at now: Date, calendar: Calendar = .current) -> PhotoCheck? {
+        let past = taken.filter { $0 <= now.addingTimeInterval(300) }
+        guard !past.isEmpty else { return nil }
+
+        // The last photo of each day stands for that day. The key is
+        // the day's midnight, the value the latest time seen that day.
+        var lastOfDay: [Date: Date] = [:]
+        for date in past {
+            let day = calendar.startOfDay(for: date)
+            lastOfDay[day] = max(lastOfDay[day] ?? date, date)
+        }
+
+        let today = calendar.startOfDay(for: now)
+        let yesterday = calendar.date(byAdding: .day, value: -1, to: today) ?? today
+        // Days worth asking about, newest first.
+        let days = lastOfDay.keys.sorted(by: >).filter { day in
+            guard day == today, let last = lastOfDay[day] else { return true }
+            return now.timeIntervalSince(last) >= 3600
+        }
+        guard let newest = days.first, let newestTime = lastOfDay[newest] else { return nil }
+
+        func clock(_ date: Date) -> String {
+            String(format: "%d:%02d", calendar.component(.hour, from: date), calendar.component(.minute, from: date))
+        }
+        /// "Wednesday 11 November", or "11 November 2025" in another year.
+        func dayWords(_ date: Date) -> String {
+            let month = calendar.monthSymbols[calendar.component(.month, from: date) - 1]
+            let number = calendar.component(.day, from: date)
+            let year = calendar.component(.year, from: date)
+            if year != calendar.component(.year, from: now) { return "\(number) \(month) \(year)" }
+            let weekday = calendar.weekdaySymbols[calendar.component(.weekday, from: date) - 1]
+            return "\(weekday) \(number) \(month)"
+        }
+        func name(_ date: Date) -> String {
+            let day = calendar.startOfDay(for: date)
+            if day == today { return "Today at \(clock(date))" }
+            if day == yesterday { return "Yesterday at \(clock(date))" }
+            return "\(dayWords(date)) at \(clock(date))"
+        }
+
+        let moments = days.prefix(4).compactMap { day in
+            lastOfDay[day].map { PhotoMoment(date: $0, name: name($0)) }
+        }
+
+        // "The photo was", "The photos were", or "Some of the photos
+        // were" when others among them were taken just now.
+        let subject: String
+        if lastOfDay.count > days.count {
+            subject = "Some of the photos were"
+        } else {
+            subject = past.count == 1 ? "The photo was" : "The photos were"
+        }
+
+        let question: String
+        if days.count > 1 {
+            question = "The photos were taken on different days. Which day is this about?"
+        } else if newest == today {
+            question = "\(subject) taken at \(clock(newestTime)) today. Is this about then?"
+        } else if newest == yesterday {
+            question = "\(subject) taken yesterday at \(clock(newestTime)). Is this about then?"
+        } else {
+            question = "\(subject) taken on \(dayWords(newestTime)). Is this about that day?"
+        }
+        return PhotoCheck(question: question, moments: moments)
+    }
+}
+
 // MARK: - Telling or asking
 
 extension JournalChat {
@@ -406,5 +510,26 @@ extension JournalChat {
         let isOwn = said.contains { ownWords.contains($0) || dayWords.contains($0) }
         let isDone = said.contains { plainDone.contains($0) || ($0.count >= 5 && $0.hasSuffix("ed")) }
         return isOwn && isDone
+    }
+
+    /// True if what was typed reads as a question or a request to Eira.
+    ///
+    /// This is the test for the Journal page, where Eira's bar says
+    /// "Tell Eira what happened in the garden". There the doubt runs the
+    /// other way: whatever is typed is taken as something for the
+    /// journal unless it plainly asks for something. "Frosty and still"
+    /// is an entry there, though it names nothing that was done.
+    ///
+    /// The rule: a question mark, an opening word that asks ("when",
+    /// "show", "find"), an asking word anywhere ("wonder", "should"),
+    /// or a single word alone, which is something to look up.
+    static func readsAsAsking(_ text: String) -> Bool {
+        if text.contains("?") { return true }
+        let said = text.lowercased()
+            .replacingOccurrences(of: "\u{2019}", with: "'")
+            .split(whereSeparator: { !($0.isLetter || $0 == "'") })
+            .map(String.init)
+        guard said.count >= 2, let opening = said.first else { return true }
+        return askingStarts.contains(opening) || said.contains(where: askingWords.contains)
     }
 }
