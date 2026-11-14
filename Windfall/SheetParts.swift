@@ -202,7 +202,9 @@ struct QuietGlassButton: ButtonStyle {
             .padding(.horizontal, 14)
             .padding(.vertical, 7)
             .contentShape(.capsule)
-            .glassEffect(.regular.tint(Theme.card.opacity(0.5)).interactive(), in: .capsule)
+            // Through `cardGlass`, so it is painted flat when the card
+            // it sits on is. See `CardGlass` in Theme.swift.
+            .cardGlass(Theme.card.opacity(0.5), in: .capsule, interactive: true)
             .opacity(configuration.isPressed ? 0.7 : 1)
     }
 }

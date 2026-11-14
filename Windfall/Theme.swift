@@ -142,15 +142,26 @@ struct CardGlass<S: Shape>: ViewModifier {
     let shape: S
     let interactive: Bool
     @Environment(\.paintsGlassFlat) private var paintsFlat
+    /// Light or dark mode.
+    @Environment(\.colorScheme) private var colorScheme
 
     func body(content: Content) -> some View {
         if paintsFlat {
             content.background {
-                // Cream, then the glass's own tint over it, with a fine
-                // light edge like the rim of the glass.
+                // The card colour, then the glass's own tint over it,
+                // with a fine light edge like the rim of the glass.
+                //
+                // In dark mode real glass comes out a shade lighter than
+                // the page, with a soft edge. Painted in the card colour
+                // alone it came out as dark as the page with a hard white
+                // line round it, like a drawing of a card (seen on the
+                // Mac, 14 November 2026). So in dark mode a thin wash of
+                // white lifts it and the edge is fainter.
+                let isDark = colorScheme == .dark
                 shape.fill(Theme.card.opacity(0.92))
                     .overlay { shape.fill(tint) }
-                    .overlay { shape.stroke(.white.opacity(0.45), lineWidth: 1) }
+                    .overlay { shape.fill(.white.opacity(isDark ? 0.07 : 0)) }
+                    .overlay { shape.stroke(.white.opacity(isDark ? 0.2 : 0.45), lineWidth: 1) }
             }
         } else {
             content.glassEffect(interactive ? .regular.tint(tint).interactive() : .regular.tint(tint),
@@ -159,7 +170,55 @@ struct CardGlass<S: Shape>: ViewModifier {
     }
 }
 
+/// The filled green button ("Start count", "Done"), as glass or painted.
+///
+/// Apple's own filled glass button cannot be told to paint itself flat.
+/// Left as glass on a card that was painted flat and rocking, it stood
+/// out as the one thing still made of glass (William, 14 November 2026:
+/// "the start count doesn't look right either"). So while
+/// `paintsGlassFlat` is on, a plain green capsule of the same size
+/// stands in for it.
+struct LeafButton: ViewModifier {
+    @Environment(\.paintsGlassFlat) private var paintsFlat
+
+    func body(content: Content) -> some View {
+        if paintsFlat {
+            content.buttonStyle(PaintedLeafButton())
+        } else {
+            content
+                .buttonStyle(.glassProminent)
+                .tint(Theme.leaf)
+                .foregroundStyle(Theme.onLeaf)
+        }
+    }
+}
+
+/// The painted stand-in. A ButtonStyle says how a button is drawn:
+/// `configuration.label` is whatever the button was given to show.
+private struct PaintedLeafButton: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .foregroundStyle(Theme.onLeaf)
+            // The same room round the words as Apple's button gives,
+            // so nothing moves when one takes the other's place.
+            #if os(macOS)
+            .padding(.horizontal, 10)
+            .frame(minHeight: 24)
+            #else
+            .padding(.horizontal, 14)
+            .frame(minHeight: 34)
+            #endif
+            .background(Theme.leaf, in: .capsule)
+            .opacity(configuration.isPressed ? 0.8 : 1)
+    }
+}
+
 extension View {
+
+    /// Makes a button the filled green one. See `LeafButton`.
+    func leafButton() -> some View {
+        modifier(LeafButton())
+    }
 
     /// Turns a view into a panel of frosted glass with rounded corners.
     /// The slight cream tint keeps text on it easy to read.

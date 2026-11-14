@@ -467,12 +467,14 @@ struct TodayView: View {
             }
             .buttonStyle(QuietGlassButton())
             Button("Done") { finishArranging() }
-                .buttonStyle(.glassProminent)
-                .tint(Theme.leaf)
-                .foregroundStyle(Theme.onLeaf)
+                .fontWeight(.semibold)
+                .leafButton()
                 // The Escape key on a Mac does the same.
                 .keyboardShortcut(.cancelAction)
         }
+        // Takes the room its words need and no less. Without this
+        // "Reset" was cut short to "Res...".
+        .fixedSize()
         .padding(6)
         .cardGlass(Theme.card.opacity(0.7), in: .capsule)
         // Painted flat like the cards under it. See `CardGlass` in
@@ -643,9 +645,7 @@ struct TodayView: View {
                 .fixedSize()
             }
             // The one filled button on the screen.
-            .buttonStyle(.glassProminent)
-            .tint(Theme.leaf)
-            .foregroundStyle(Theme.onLeaf)
+            .leafButton()
         }
     }
 
