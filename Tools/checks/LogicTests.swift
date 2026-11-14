@@ -1864,6 +1864,14 @@ struct LogicTests {
         await waitUntilIdle(jobChat)
         check(jobChat.offeredJob == nil && jobChat.messages.last?.content != GardenJobs.offerReply, "a question about a job is still a question")
 
+        // Folding and opening the to-do cards on Today.
+        check(JobFold.rowsShown(of: 9, folded: JobFold.weekRows, isOpen: false) == 6 && JobFold.rowsShown(of: 9, folded: JobFold.weekRows, isOpen: true) == 9 && JobFold.rowsShown(of: 4, folded: JobFold.weekRows, isOpen: false) == 4 && JobFold.rowsShown(of: 0, folded: JobFold.weekRows, isOpen: true) == 0, "a folded card shows six rows at most and an open one shows them all")
+        let foldMonth = ["own-potatoes"] + (1...9).map { "sow-\($0)" } + (1...5).map { "harvest-\($0)" } + ["seed-a", "worms"]
+        check(JobFold.monthPick(from: foldMonth) == ["own-potatoes", "sow-1", "sow-2", "sow-3", "sow-4"], "the folded month keeps its order and stops at five rows")
+        check(JobFold.monthPick(from: ["sow-1", "sow-2", "sow-3", "sow-4", "sow-5", "harvest-1", "worms"]) == ["sow-1", "sow-2", "sow-3", "sow-4", "harvest-1"] && JobFold.monthPick(from: ["harvest-1", "harvest-2", "harvest-3", "harvest-4", "worms"]) == ["harvest-1", "harvest-2", "harvest-3", "worms"], "four sowings and three harvests at most, so other jobs are not crowded out")
+        check(JobFold.monthPick(from: ["worms", "seed-a"]) == ["worms", "seed-a"] && JobFold.monthPick(from: []).isEmpty, "a short month is shown whole")
+        check(JobFold.headingWords(hidden: 12, isOpen: false) == "12 more" && JobFold.headingWords(hidden: 12, isOpen: true) == "Show fewer" && JobFold.headingWords(hidden: 0, isOpen: false) == nil && JobFold.headingWords(hidden: 0, isOpen: true) == nil, "the heading says how many more there are, and nothing when there are none")
+
         print("   logic tests: \(passes) passed, \(failures) failed")
         exit(failures == 0 ? 0 : 1)
     }

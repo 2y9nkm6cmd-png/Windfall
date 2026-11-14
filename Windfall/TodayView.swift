@@ -64,6 +64,16 @@ struct TodayView: View {
     /// True while the sheet for adding a job by hand is up.
     @State private var isAddingJob = false
 
+    /// Whether each to-do card is opened out to its full list. A tap on
+    /// the card's heading flips it. `@AppStorage` keeps the answer on
+    /// the device, so a card left open is still open after looking at a
+    /// plant's page and coming back, and the next time the app starts.
+    @AppStorage("todayWeekIsOpen") private var weekIsOpen = false
+    @AppStorage("todayMonthIsOpen") private var monthIsOpen = false
+    /// True when "Reduce Motion" is on in the device's settings. The
+    /// cards then open at once, with no movement.
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     /// Jobs ticked off this month, kept on the device.
     // `store:` names the settings shared with the widgets, so a job
     // ticked on the large "This week" widget is ticked here too. Where
@@ -847,34 +857,24 @@ struct TodayView: View {
 
     private func weekCard(_ week: [WeekJob]) -> some View {
         let rows = week.map { row(for: $0) }
+        // How many rows the card is showing just now: six while it is
+        // folded, all of them once it has been opened. The counting is
+        // in WeekJobs.swift (`JobFold`), where it can be tested.
+        let showing = JobFold.rowsShown(of: rows.count, folded: JobFold.weekRows, isOpen: weekIsOpen)
+        let hidden = rows.count - JobFold.rowsShown(of: rows.count, folded: JobFold.weekRows, isOpen: false)
         return VStack(alignment: .leading, spacing: 10) {
-            HStack {
-                Text("This week")
-                    .font(.title3.weight(.semibold))
-                    .foregroundStyle(Theme.ink)
-                Spacer()
-                if rows.count > 6 {
-                    NavigationLink {
-                        AllJobsView(title: "This week", jobs: rows, tickedStore: $tickedStore)
-                    } label: {
-                        HStack(spacing: 3) {
-                            Text("View all")
-                            WIconView(.arrowRight, size: 13)
-                        }
-                        .font(.body)
-                        .foregroundStyle(Theme.leaf)
-                    }
-                    .buttonStyle(.plain)
-                }
-            }
+            jobsHeading("This week", hidden: hidden, isOpen: $weekIsOpen)
 
             if rows.isEmpty {
                 Text("Nothing urgent.")
                     .font(.body)
                     .foregroundStyle(Theme.ink)
             }
-            ForEach(rows.prefix(6)) { job in
+            ForEach(rows.prefix(showing)) { job in
                 JobRow(job: job, tickedStore: $tickedStore)
+            }
+            if weekIsOpen && hidden > 0 {
+                foldLink(isOpen: $weekIsOpen)
             }
 
             // Says where the list comes from, and owns up when part of
@@ -921,7 +921,10 @@ struct TodayView: View {
 
     // MARK: Jobs
 
-    /// What is worth doing this month, worked out from the records.
+    /// Everything worth doing this month, worked out from the records.
+    /// This is the whole list, which the opened card shows. The folded
+    /// card shows a short pick from it, chosen by `JobFold.monthPick`
+    /// in WeekJobs.swift.
     private var jobs: [TodayJob] {
         var list: [TodayJob] = []
         let year = Calendar.current.component(.year, from: .now)
@@ -948,7 +951,7 @@ struct TodayView: View {
             }
             return !sownThisYear
         }
-        for plant in sowable.prefix(4) {
+        for plant in sowable {
             let indoors = MonthParser.months(in: plant.sowIndoorsMonthsText).contains(month)
             list.append(TodayJob(id: "sow-\(plant.id)", title: "Sow \(plant.displayName)",
                                  detail: indoors ? "Indoors" : "Outdoors", link: .plant(plant)))
@@ -961,7 +964,7 @@ struct TodayView: View {
                   let days = DurationParser.days(in: planting.plant?.sowToCropText)?.midpoint else { return false }
             return sown.addingTimeInterval(days * 86_400) <= Date.now.addingTimeInterval(14 * 86_400)
         }
-        for planting in due.prefix(3) {
+        for planting in due {
             list.append(TodayJob(id: "harvest-\(planting.id)",
                                  title: "Harvest \(planting.plant?.displayName ?? "crop")",
                                  detail: planting.bedNames.isEmpty ? nil : planting.bedNames,
@@ -987,38 +990,103 @@ struct TodayView: View {
         // Worked out once here. Written as plain `jobs` below, each
         // mention would go through the whole plant library again.
         let jobs = self.jobs.filter { !urgent.contains($0.id) }
+        // The folded card's short pick: a few of each kind of job, five
+        // rows at most. `Set` makes "is this one in the pick?" quick to
+        // answer for each job in turn.
+        let pick = Set(JobFold.monthPick(from: jobs.map(\.id)))
+        let hidden = jobs.count - pick.count
+        let shown = monthIsOpen ? jobs : jobs.filter { pick.contains($0.id) }
         return VStack(alignment: .leading, spacing: 10) {
-            HStack {
-                Text("This month")
-                    .font(.title3.weight(.semibold))
-                    .foregroundStyle(Theme.ink)
-                Spacer()
-                if jobs.count > 5 {
-                    NavigationLink {
-                        AllJobsView(title: "This month", jobs: jobs, tickedStore: $tickedStore)
-                    } label: {
-                        HStack(spacing: 3) {
-                            Text("View all")
-                            WIconView(.arrowRight, size: 13)
-                        }
-                        .font(.body)
-                        .foregroundStyle(Theme.leaf)
-                    }
-                    .buttonStyle(.plain)
-                }
-            }
+            jobsHeading("This month", hidden: hidden, isOpen: $monthIsOpen)
 
             if jobs.isEmpty {
                 Text("Nothing pressing. Jobs appear here from your sowing months and records.")
                     .font(.body)
                     .foregroundStyle(Theme.inkSoft)
             }
-            ForEach(jobs.prefix(5)) { job in
+            ForEach(shown) { job in
                 JobRow(job: job, tickedStore: $tickedStore)
+            }
+            if monthIsOpen && hidden > 0 {
+                foldLink(isOpen: $monthIsOpen)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .glassCard()
+    }
+
+    // MARK: Opening a card of jobs
+
+    /// The heading of a to-do card. When the card has more jobs than it
+    /// shows folded, the whole heading is a button: a tap opens the card
+    /// out where it stands and another tap folds it again.
+    ///
+    /// `isOpen` is a `Binding`: not a copy of the true-or-false value but
+    /// a way to read and change the one this screen keeps, which is why
+    /// one function can serve both cards.
+    private func jobsHeading(_ title: String, hidden: Int, isOpen: Binding<Bool>) -> some View {
+        let open = isOpen.wrappedValue
+        // What VoiceOver reads after the heading, for someone who cannot
+        // see the arrow.
+        let hint: String = hidden > 0 ? (open ? "Folds the list" : "Shows every job") : ""
+        return Button {
+            toggle(isOpen)
+        } label: {
+            HStack(spacing: 8) {
+                Text(title)
+                    .font(.title3.weight(.semibold))
+                    .foregroundStyle(Theme.ink)
+                Spacer()
+                if let words = JobFold.headingWords(hidden: hidden, isOpen: open) {
+                    HStack(spacing: 5) {
+                        Text(words)
+                        // One arrow that turns over as the card opens.
+                        Image(systemName: "chevron.down")
+                            .font(.footnote.weight(.semibold))
+                            .rotationEffect(.degrees(open ? 180 : 0))
+                    }
+                    .font(.body)
+                    .foregroundStyle(Theme.leaf)
+                }
+            }
+            // Makes the gap between the title and the arrow part of the
+            // button too. Without it only the words themselves would
+            // answer a tap.
+            .contentShape(.rect)
+        }
+        .buttonStyle(.plain)
+        // With nothing more to show, the heading is plain words again.
+        .allowsHitTesting(hidden > 0)
+        .accessibilityHint(hint)
+    }
+
+    /// "Show fewer" at the foot of an opened card, so a long list can be
+    /// folded without scrolling back up to its heading.
+    private func foldLink(isOpen: Binding<Bool>) -> some View {
+        Button {
+            toggle(isOpen)
+        } label: {
+            HStack(spacing: 5) {
+                Text("Show fewer")
+                Image(systemName: "chevron.up")
+                    .font(.footnote.weight(.semibold))
+            }
+            .font(.body)
+            .foregroundStyle(Theme.leaf)
+            .frame(maxWidth: .infinity, alignment: .trailing)
+            .contentShape(.rect)
+        }
+        .buttonStyle(.plain)
+    }
+
+    /// Opens a folded card or folds an open one. `withAnimation` asks
+    /// SwiftUI to move everything that changes as a result, so the card
+    /// grows and the cards below it slide down, where they would
+    /// otherwise jump.
+    private func toggle(_ isOpen: Binding<Bool>) {
+        withAnimation(reduceMotion ? nil : .snappy(duration: 0.3)) {
+            isOpen.wrappedValue.toggle()
+        }
     }
 
     // MARK: Gardens
@@ -1420,27 +1488,6 @@ struct JobRow: View {
         }
         .padding(.top, 5)
         .multilineTextAlignment(.leading)
-    }
-}
-
-/// Every job in a list, reached from "View all".
-struct AllJobsView: View {
-
-    let title: String
-    let jobs: [TodayJob]
-    @Binding var tickedStore: String
-
-    var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 10) {
-                ForEach(jobs) { JobRow(job: $0, tickedStore: $tickedStore) }
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .glassCard()
-            .padding()
-        }
-        .navigationTitle(title)
-        .paperScreen()
     }
 }
 
