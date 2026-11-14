@@ -41,6 +41,9 @@
 //                                                conversation
 //    keep                                        presses "Keep it" on the
 //                                                card a correction brings up
+//    keep find                                   presses "Keep it" on the
+//                                                card that offers what Eira
+//                                                read online, as it stands
 //    # a line starting with a hash is ignored
 //
 //  Each question starts a new conversation, as the test sheet asks,
@@ -67,6 +70,9 @@ enum EiraTestStep: Equatable {
     case followUp(label: String, question: String)
     /// Press "Keep it" on the card that offers to keep a correction.
     case keep
+    /// Press "Keep it" on the card that offers to keep what Eira read
+    /// online, leaving the card as it came up.
+    case keepFind
 }
 
 enum EiraTestSheet {
@@ -90,6 +96,10 @@ enum EiraTestSheet {
             }
             if line.lowercased() == "keep" {
                 steps.append(.keep)
+                continue
+            }
+            if line.lowercased() == "keep find" {
+                steps.append(.keepFind)
                 continue
             }
 
@@ -201,6 +211,24 @@ enum EiraTestRun {
                     note("\n**Keep it could not be pressed:** no correction was on offer.")
                 }
 
+            case .keepFind:
+                // What the card does when "Keep it" is pressed with
+                // nothing on it changed: the fact goes into the box the
+                // rules chose, for every variety of the plant named.
+                if let offer = conversation.offeredFind, !offer.isKept, let name = offer.onlineFind.plantName {
+                    let everyPlant = (try? context.fetch(FetchDescriptor<Plant>())) ?? []
+                    let varieties = everyPlant.filter { $0.commonName == name }
+                    let shelf = KeptFactStore(context: context)
+                    let kept = shelf.keep(words: offer.words, in: offer.onlineFind.field, of: varieties, how: .add,
+                                          sourceName: offer.onlineFind.sourceName,
+                                          sourceAddress: offer.onlineFind.address,
+                                          trust: offer.onlineFind.trust, question: offer.question)
+                    conversation.findWasKept(ids: kept.map(\.id), where: "\(name), \(offer.onlineFind.field.label)")
+                    note("\n**Pressed Keep it.** Written into \(offer.onlineFind.field.label) for \(kept.count) of \(varieties.count) varieties of \(name): \(offer.words)")
+                } else {
+                    note("\n**Keep it could not be pressed:** nothing found online was on offer for a plant in the library.")
+                }
+
             case .ask(let label, let question):
                 conversation.clear()
                 await put(question, headed: label, to: conversation, note: note)
@@ -267,6 +295,12 @@ enum EiraTestRun {
         note(timing)
         if let offer = conversation.offeredCorrection {
             note("\n**A card offered to keep this as a correction:** \(offer.words)")
+        }
+        if let offer = conversation.offeredFind {
+            let found = offer.onlineFind
+            note("\n**A card offered to keep what was found:** from \(found.sourceName) (\(found.trust.label)), "
+                 + "page \"\(found.title ?? "untitled")\", for \(found.plantName ?? "no plant named"), "
+                 + "into \(found.field.label): \(offer.words)")
         }
         if let problem = conversation.lastError {
             note("\n**Error:** \(problem)")

@@ -38,8 +38,13 @@ enum WebText {
     static func plainText(fromHTML html: String, limit: Int = 4000) -> String {
         var text = html
 
-        // Whole blocks that are never readable content.
-        for tag in ["script", "style", "noscript", "svg", "head", "nav", "footer"] {
+        // Whole blocks that are never readable content. "popover-content"
+        // is the RHS's pop-up glossary: the meaning of a word such as
+        // "perennial", written out in the middle of a sentence and
+        // hidden until the word is tapped. Left in, a definition that
+        // mentions dying back was picked out as pruning advice
+        // (14 November 2026).
+        for tag in ["script", "style", "noscript", "svg", "head", "nav", "footer", "popover-content"] {
             text = replace(text, "<\(tag)\\b[^>]*>[\\s\\S]*?</\(tag)>", with: " ")
         }
         text = replace(text, "<!--[\\s\\S]*?-->", with: " ")

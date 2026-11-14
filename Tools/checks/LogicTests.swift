@@ -1383,6 +1383,9 @@ struct LogicTests {
         local.dismissOfferedFind()
         check(wasKept && wasUndone && local.offeredFind == nil, "the card to keep a find can be kept, taken back and dismissed")
 
+        let glossary = "<p>The ground should be free from <popover-content class=\"x\"><div><p>Perennials die back to ground level each autumn.</p></div></popover-content><span>perennial</span> weeds.</p>"
+        check(WebText.plainText(fromHTML: glossary) == "The ground should be free from perennial weeds.", "a pop-up glossary is left out of a page's text: \(WebText.plainText(fromHTML: glossary))")
+
         print("   logic tests: \(passes) passed, \(failures) failed")
         exit(failures == 0 ? 0 : 1)
     }
