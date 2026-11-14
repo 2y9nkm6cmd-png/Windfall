@@ -15,13 +15,15 @@
 	</array>
 	<key>NSCameraUsageDescription</key>
 	<string>Windfall opens the camera when you choose Take a photo, to add the picture to your journal or ask Eira what it shows.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Windfall adds the photos you take with it to your Photos library. You can turn this off in Windfall's Settings.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
 	<string>Windfall turns what you say into text so you can talk to Eira and dictate records.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Windfall listens while you hold the talk button, so you can speak to Eira instead of typing.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Windfall adds a grid reference to your wildlife records and fetches local weather.</string>
+	<string>Windfall adds a grid reference to your wildlife records, fetches local weather and notes where a photo you take with it was taken.</string>
 	<key>NSLocationUsageDescription</key>
-	<string>Windfall adds a grid reference to your wildlife records and fetches local weather.</string>
+	<string>Windfall adds a grid reference to your wildlife records, fetches local weather and notes where a photo you take with it was taken.</string>
 </dict>
 </plist>

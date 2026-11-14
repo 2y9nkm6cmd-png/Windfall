@@ -38,15 +38,31 @@ Everything that touches UIKit is inside `#if os(iOS)`, so the Mac build does not
 
 Each gains one `@State` value (`isTakingPhoto`), one button and one `.cameraPhoto` line. Each hands the photo to the function it already had for a chosen photo (`takePhotos`, `look(at:)`, `take`), so a photo from the camera is treated exactly like any other.
 
+## 22:15: a copy in Photos, a switch for it and the photo's position
+
+William, 22:03: "I'd like it saved into photos as well. you should be able to turn this off. It should record gps."
+
+**Also not built or seen running.** Written the same way, after `main` (`2507727`) was merged into the branch. The checks pass: 114 files parse and 778 logic tests pass, one of them new.
+
+- **A copy in Photos.** After the photo is handed to Windfall it is added to the Photos library, as the same file, so its date and position go with it. `CameraRoll.save` in `CameraPhoto.swift`. It asks iOS for leave to add only (`.addOnly`), not to look at the library. If that is refused the photo still reaches Windfall and no copy is made.
+- **The switch.** Settings, under Photos: "Save camera photos to Photos". On unless switched off. It is shown only on a device with a camera. The choice is stored under the name `cameraSavesToPhotos`, written once as `CameraRoll.settingKey` so Settings and the camera cannot drift apart. `@AppStorage` is SwiftUI's way of tying a switch to a stored setting.
+- **The position.** Apple's camera screen does not say where the phone was. So when the camera opens, Windfall asks the phone for its position once (`findPlace`, using the app's existing `LocationManager`). When "Use Photo" is pressed the position is written into the photo's file the way a camera writes it (`CameraFile.gps`): how far north and east, a letter for which way, how accurate, the height and the time. If the position has not arrived by then it waits up to two seconds more. With location off for Windfall, or no position in time, the photo is kept without one.
+- Because the position has to be known before the file is made, the file is now made after the camera closes, not at the moment "Use Photo" is pressed. `CameraShot` carries the picture and the camera's notes across that gap.
+- `PhotoFacts.written` (new, with a logic test) turns a signed number such as -2.6 into the camera's form, 2.6 and "W". It is the reverse of `PhotoFacts.coordinate`, and the test checks that one undoes the other.
+- `Info.plist`: `NSPhotoLibraryAddUsageDescription` added, and the location sentence now also says it notes where a photo was taken.
+
 ## Not done
 
-- **The photo is not saved to the Photos library.** It goes to Windfall, and its original to the photo folder if one is chosen in Settings. Saving to Photos as well needs one more permission.
-- **No position.** Apple's camera screen does not write where the photo was taken into its notes.
 - **One photo at a time.** The camera closes after "Use Photo".
 - Not added to the seed packet scanner, the sighting form, the old diary form, the journal conversation's own photo button or "Add a photo" on the pin-down card. Each is one button and one line now that `CameraPhoto.swift` exists.
-- If camera access is refused, Apple's screen opens black. Windfall does not yet say why or point to Settings.
+- If camera access is refused, Apple's screen opens black. If adding to Photos is refused, no copy is made. Windfall does not yet say so or point to Settings in either case.
+- The photo's position is in its file and in the photo's record. It is still not copied to a sighting's own position (doc 33).
 
 ## To check on a device
+
+6. The first photo asks to add to Photos, and the photo then appears in the Photos app with its place on the map.
+7. With the Settings switch off, no copy appears in Photos.
+8. A photo taken within a second or two of opening the camera: does it have a position?
 
 1. The first "Take a photo" asks for the camera, with Windfall's sentence.
 2. A portrait photo and a landscape photo both arrive the right way up.

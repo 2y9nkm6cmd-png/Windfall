@@ -52,13 +52,31 @@
 //  NSCameraUsageDescription. iOS shows it the first time, with Allow and
 //  Don't Allow.
 //
+//  Two more things happen to a photo taken here (William, 14 November
+//  2026):
+//
+//  Where it was taken   Apple's camera screen does not say where the
+//                    phone was. So while the camera is open Windfall
+//                    asks the phone for its position, once, and writes
+//                    it into the photo's file the way a camera would.
+//                    If location is switched off for Windfall, or no
+//                    position arrives in time, the photo is kept
+//                    without one.
+//
+//  A copy in Photos   The photo is also added to the Photos library,
+//                    unless "Save camera photos to Photos" is switched
+//                    off in Settings. See `CameraRoll` below.
+//
 
 import SwiftUI
+
+import CoreLocation
 
 #if os(iOS)
 import UIKit
 import ImageIO
 import UniformTypeIdentifiers
+import Photos
 #endif
 
 enum CameraPhoto {
@@ -72,6 +90,48 @@ enum CameraPhoto {
         return false
         #endif
     }
+}
+
+/// Adding a camera photo to the Photos library.
+enum CameraRoll {
+
+    /// The name the on-or-off choice is stored under. Settings and this
+    /// file both use it, so it is written once, here.
+    static let settingKey = "cameraSavesToPhotos"
+
+    /// True unless it has been switched off in Settings. A choice that
+    /// has never been made reads as nothing at all, and `?? true` means
+    /// "in that case, on".
+    static var isOn: Bool {
+        UserDefaults.standard.object(forKey: settingKey) as? Bool ?? true
+    }
+
+    #if os(iOS)
+    /// Adds the photo to the Photos library, exactly as the file is, so
+    /// its date and position go with it. Answers true if it was added.
+    ///
+    /// The first time, iOS asks whether Windfall may add to Photos.
+    /// `.addOnly` asks for the least: leave to put photos in, and none
+    /// to look at what is already there.
+    @discardableResult
+    static func save(_ photo: Data) async -> Bool {
+        let answer = await PHPhotoLibrary.requestAuthorization(for: .addOnly)
+        guard answer == .authorized || answer == .limited else { return false }
+        do {
+            // Every change to the Photos library is made inside a
+            // "performChanges" block, which Photos runs when it is
+            // ready. `@Sendable` says the block is safe to run away
+            // from the main thread, which is where Photos runs it.
+            try await PHPhotoLibrary.shared().performChanges { @Sendable in
+                let request = PHAssetCreationRequest.forAsset()
+                request.addResource(with: .photo, data: photo, options: nil)
+            }
+            return true
+        } catch {
+            return false
+        }
+    }
+    #endif
 }
 
 extension View {
@@ -96,9 +156,20 @@ private struct CameraPhotoModifier: ViewModifier {
 
     @Binding var isPresented: Bool
     let onTaken: (Data) -> Void
-    /// The photo just taken, held for the moment between "Use Photo"
-    /// and the camera having slid away.
-    @State private var taken: Data?
+
+    #if os(iOS)
+    /// The app's one location helper, shared by every screen. The
+    /// question mark means "if there is one": a screen shown without it
+    /// still works, and its photos simply have no position.
+    @Environment(LocationManager.self) private var locationManager: LocationManager?
+    /// What the camera handed over, held for the moment between "Use
+    /// Photo" and the camera having slid away.
+    @State private var shot: CameraShot?
+    /// Where the phone is, once it has answered.
+    @State private var place: CLLocation?
+    /// True once the phone has answered, with a position or without.
+    @State private var placeIsIn = false
+    #endif
 
     func body(content: Content) -> some View {
         #if os(iOS)
@@ -111,30 +182,67 @@ private struct CameraPhotoModifier: ViewModifier {
             // usually opens a sheet of its own, and iOS will not open
             // one sheet while another is still closing.
             .fullScreenCover(isPresented: $isPresented, onDismiss: handOver) {
-                CameraScreen(onTaken: { taken = $0 }, close: { isPresented = false })
+                CameraScreen(onTaken: { shot = $0 }, close: { isPresented = false })
                     // Let the camera run under the clock and the home
                     // bar, as it does in Apple's own Camera app.
                     .ignoresSafeArea()
+                    // `.task` runs when the camera appears. Finding a
+                    // position takes a few seconds, so it is started
+                    // now, while the photo is being framed.
+                    .task { await findPlace() }
             }
         #else
         content
         #endif
     }
 
-    private func handOver() {
-        guard let photo = taken else { return }
-        taken = nil
-        onTaken(photo)
+    #if os(iOS)
+    /// Asks the phone where it is, once.
+    private func findPlace() async {
+        place = nil
+        placeIsIn = false
+        let found = await locationManager?.currentLocation()
+        // A position with an accuracy below zero is the phone's way of
+        // saying it does not really know.
+        if let found, found.horizontalAccuracy >= 0 { place = found }
+        placeIsIn = true
     }
+
+    /// The camera has closed. If a photo was taken, make its file, hand
+    /// it on and add it to Photos.
+    private func handOver() {
+        guard let taken = shot else { return }
+        shot = nil
+        Task {
+            // If the phone has not yet said where it is, give it up to
+            // two seconds more, looking every fifth of a second.
+            var waited = 0.0
+            while !placeIsIn && waited < 2 {
+                try? await Task.sleep(for: .milliseconds(200))
+                waited += 0.2
+            }
+            guard let photo = CameraFile.jpeg(from: taken.picture, notes: taken.notes, place: place) else { return }
+            onTaken(photo)
+            if CameraRoll.isOn { await CameraRoll.save(photo) }
+        }
+    }
+    #endif
 }
 
 #if os(iOS)
+
+/// What the camera hands over: the picture, and apart from it the notes
+/// the camera made, such as when it was taken.
+private struct CameraShot {
+    let picture: UIImage
+    let notes: [String: Any]?
+}
 
 /// Apple's camera screen, wrapped for SwiftUI.
 private struct CameraScreen: UIViewControllerRepresentable {
 
     /// Called with the photo when "Use Photo" is pressed.
-    let onTaken: (Data) -> Void
+    let onTaken: (CameraShot) -> Void
     /// Called to take the camera off the screen, photo or no photo.
     let close: () -> Void
 
@@ -158,10 +266,10 @@ private struct CameraScreen: UIViewControllerRepresentable {
     /// names are what UIKit requires of it.
     final class Coordinator: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
 
-        let onTaken: (Data) -> Void
+        let onTaken: (CameraShot) -> Void
         let close: () -> Void
 
-        init(onTaken: @escaping (Data) -> Void, close: @escaping () -> Void) {
+        init(onTaken: @escaping (CameraShot) -> Void, close: @escaping () -> Void) {
             self.onTaken = onTaken
             self.close = close
         }
@@ -170,10 +278,8 @@ private struct CameraScreen: UIViewControllerRepresentable {
         /// picture, and the notes the camera made about it.
         func imagePickerController(_ picker: UIImagePickerController,
                                    didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
-            let picture = info[.originalImage] as? UIImage
-            let notes = info[.mediaMetadata] as? [String: Any]
-            if let picture, let data = CameraFile.jpeg(from: picture, notes: notes) {
-                onTaken(data)
+            if let picture = info[.originalImage] as? UIImage {
+                onTaken(CameraShot(picture: picture, notes: info[.mediaMetadata] as? [String: Any]))
             }
             close()
         }
@@ -191,10 +297,11 @@ private struct CameraScreen: UIViewControllerRepresentable {
 /// when it was taken, the lens and so on. The rest of Windfall expects a
 /// file's bytes with the notes inside, because that is where
 /// PhotoFacts.swift reads a photo's date from. So the two are put back
-/// together here, as a JPEG.
+/// together here, as a JPEG, with the phone's position added if it is
+/// known.
 private enum CameraFile {
 
-    static func jpeg(from picture: UIImage, notes: [String: Any]?) -> Data? {
+    static func jpeg(from picture: UIImage, notes: [String: Any]?, place: CLLocation?) -> Data? {
         // The plain way, with no notes. Used if anything below fails.
         let plain = picture.jpegData(compressionQuality: 0.9)
 
@@ -216,7 +323,7 @@ private enum CameraFile {
             exif[kCGImagePropertyExifDateTimeOriginal as String] = stamp(.now)
         }
 
-        let properties: [String: Any] = [
+        var properties: [String: Any] = [
             // Which way up the phone was held. The pixels are always
             // stored the same way round and this note says how to turn
             // them. Without it a portrait photo would lie on its side.
@@ -225,18 +332,54 @@ private enum CameraFile {
             // How hard to squeeze the file. 1 is largest and best.
             kCGImageDestinationLossyCompressionQuality as String: 0.9
         ]
+        if let place {
+            properties[kCGImagePropertyGPSDictionary as String] = gps(place)
+        }
         CGImageDestinationAddImage(destination, pixels, properties as CFDictionary)
         guard CGImageDestinationFinalize(destination) else { return plain }
         return file as Data
     }
 
+    /// A position as a camera writes one. Each of latitude and
+    /// longitude is how far, always above zero, with a letter for which
+    /// way (PhotoFacts.written). PhotoFacts.swift reads the same notes
+    /// back.
+    private static func gps(_ place: CLLocation) -> [String: Any] {
+        let north = PhotoFacts.written(place.coordinate.latitude, positive: "N", negative: "S")
+        let east = PhotoFacts.written(place.coordinate.longitude, positive: "E", negative: "W")
+        var gps: [String: Any] = [
+            kCGImagePropertyGPSLatitude as String: north.size,
+            kCGImagePropertyGPSLatitudeRef as String: north.way,
+            kCGImagePropertyGPSLongitude as String: east.size,
+            kCGImagePropertyGPSLongitudeRef as String: east.way,
+            // How far out the position may be, in metres.
+            kCGImagePropertyGPSHPositioningError as String: place.horizontalAccuracy,
+            // When the position was found. GPS times are always written
+            // in Greenwich time, whatever the season.
+            kCGImagePropertyGPSDateStamp as String: stamp(place.timestamp, as: "yyyy:MM:dd", zone: TimeZone(secondsFromGMT: 0)),
+            kCGImagePropertyGPSTimeStamp as String: stamp(place.timestamp, as: "HH:mm:ss", zone: TimeZone(secondsFromGMT: 0))
+        ]
+        // Height above sea level, where the phone knows it. The second
+        // note is 0 for above and 1 for below.
+        if place.verticalAccuracy >= 0 {
+            gps[kCGImagePropertyGPSAltitude as String] = abs(place.altitude)
+            gps[kCGImagePropertyGPSAltitudeRef as String] = place.altitude < 0 ? 1 : 0
+        }
+        return gps
+    }
+
     /// A date as EXIF writes one: "2026:11:14 21:44:05".
-    private static func stamp(_ date: Date) -> String {
+    ///
+    /// - `form`: the pattern to write it in. Left out, date and time.
+    /// - `zone`: whose clock to read. Left out, the phone's own.
+    private static func stamp(_ date: Date, as form: String = "yyyy:MM:dd HH:mm:ss",
+                              zone: TimeZone? = nil) -> String {
         let formatter = DateFormatter()
         // A fixed locale stops the phone's own settings, such as a
         // 12-hour clock, from changing the form.
         formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.dateFormat = "yyyy:MM:dd HH:mm:ss"
+        formatter.dateFormat = form
+        if let zone { formatter.timeZone = zone }
         return formatter.string(from: date)
     }
 
