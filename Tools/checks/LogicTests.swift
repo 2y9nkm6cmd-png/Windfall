@@ -372,6 +372,60 @@ struct LogicTests {
         plansApart.move(.plan("permaculture"), toEndOf: 3)
         check(plansApart.roomyColumns { _ in true } == [2, 3] && gardensToday.roomyColumns { _ in true } == [2] && TodayPanel.plan("front").gardenKey == "front" && TodayPanel.plans.gardenKey == nil && TodayPanel(saved: "plan:") == nil && TodayPanel(saved: "weather") == nil, "every column holding a garden's plan takes the room")
 
+        // Carrying a card about, as on a Home Screen.
+        var carriedToday = wideToday
+        carriedToday.move(.recent, toZone: 1, place: 1)
+        check(carriedToday.stored == "conditions,capture|week,recent,jobs|plans|journal|", "a carried card goes to a numbered place in a zone, counted among the zone's other cards")
+        carriedToday.move(.recent, toZone: 1, place: 2); carriedToday.move(.week, toZone: 1, place: 1)
+        check(carriedToday.stored == "conditions,capture|jobs,week,recent|plans|journal|", "within its own zone a card is counted out before the place is counted")
+        carriedToday.move(.jobs, toZone: 4, place: 9); carriedToday.move(.journal, toZone: 0, place: 0); carriedToday.move(.plans, toZone: 7, place: 0)
+        check(carriedToday.stored == "journal,conditions,capture|week,recent|plans||jobs", "a place past the end is the end, and a zone that does not exist changes nothing")
+        // The board: 1,000 points wide, every card 100 tall, columns of 265, 442 and 265.
+        func boardPage(_ arrangement: TodayArrangement, arranging: Bool = true) -> TodayBoardPlan.Page {
+            TodayBoardPlan.Page(width: 1000, zones: arrangement.zones, columnZones: arrangement.columnZones,
+                                shownColumns: arrangement.shownColumns(includingEmpty: arranging) { _ in true },
+                                setWidths: [1: 265, 3: 265], isArranging: arranging)
+        }
+        let board = TodayBoardPlan(page: boardPage(wideToday)) { _, _ in 100 }
+        check(board.slots[.conditions] == CGRect(x: 0, y: 0, width: 1000, height: 100) && board.slots[.capture] == CGRect(x: 0, y: 116, width: 1000, height: 100) && board.slots[.week] == CGRect(x: 0, y: 232, width: 265, height: 100) && board.slots[.jobs] == CGRect(x: 0, y: 346, width: 265, height: 100) && board.slots[.plans] == CGRect(x: 279, y: 232, width: 442, height: 100) && board.slots[.journal] == CGRect(x: 735, y: 346, width: 265, height: 100), "the board stacks full-width cards, then columns side by side, with the set widths and the gaps")
+        check(board.emptyZones == [4: CGRect(x: 0, y: 462, width: 1000, height: 48)] && board.height == 510 && TodayBoardPlan(page: boardPage(wideToday, arranging: false)) { _, _ in 100 }.height == 446, "an empty zone keeps a strip of room while rearranging and none otherwise")
+        check(board.zone(at: CGPoint(x: 500, y: -40)) == 0 && board.zone(at: CGPoint(x: 500, y: 220)) == 0 && board.zone(at: CGPoint(x: 100, y: 300)) == 1 && board.zone(at: CGPoint(x: 271, y: 300)) == 1 && board.zone(at: CGPoint(x: 273, y: 300)) == 2 && board.zone(at: CGPoint(x: 990, y: 440)) == 3 && board.zone(at: CGPoint(x: 2000, y: 300)) == 3 && board.zone(at: CGPoint(x: 500, y: 460)) == 4 && board.zone(at: CGPoint(x: 500, y: 9000)) == 4, "every point on the page belongs to a zone, with the gaps shared down their middles")
+        let overWeek = board.place(for: CGPoint(x: 100, y: 281), carrying: .recent, zones: wideToday.zones), underJobs = board.place(for: CGPoint(x: 100, y: 440), carrying: .recent, zones: wideToday.zones), ownPlace = board.place(for: CGPoint(x: 800, y: 250), carrying: .recent, zones: wideToday.zones)
+        check(overWeek.zone == 1 && overWeek.place == 0 && underJobs.zone == 1 && underJobs.place == 2 && ownPlace.zone == 3 && ownPlace.place == 0 && board.place(for: CGPoint(x: 100, y: 283), carrying: .recent, zones: wideToday.zones).place == 1, "a carried card goes above a card until the finger passes that card's middle")
+        // The page must come to rest: wherever the finger is, the other
+        // cards make room at most twice and then stay put. (Twice, because
+        // a card carried out of a full-width zone lets everything below
+        // rise, which can bring one more card's middle past the finger.)
+        var steady = true
+        let tall: [TodayPanel: Double] = [.conditions: 90, .capture: 120, .week: 60, .jobs: 420, .plans: 700, .recent: 260, .journal: 80]
+        func boardFor(_ arrangement: TodayArrangement) -> TodayBoardPlan {
+            // Cards are taller in a narrow column and shorter at full width, as the real ones are.
+            TodayBoardPlan(page: boardPage(arrangement)) { panel, width in (tall[panel] ?? 100) * (width < 300 ? 1.4 : (width > 900 ? 0.6 : 1)) }
+        }
+        for start in [wideToday, carriedToday] {
+            for carried in TodayPanel.allCases {
+                for x in stride(from: 20.0, to: 1000, by: 97) {
+                    for y in stride(from: -30.0, to: 1900, by: 7) {
+                        var trial = start
+                        let point = CGPoint(x: x, y: y)
+                        for _ in 0..<2 {
+                            let found = boardFor(trial).place(for: point, carrying: carried, zones: trial.zones)
+                            trial.move(carried, toZone: found.zone, place: found.place)
+                        }
+                        let rested = trial
+                        for _ in 0..<3 {
+                            let found = boardFor(trial).place(for: point, carrying: carried, zones: trial.zones)
+                            trial.move(carried, toZone: found.zone, place: found.place)
+                        }
+                        if trial != rested { steady = false }
+                    }
+                }
+            }
+        }
+        check(steady, "once the other cards have made room, the same finger position asks for the same place, so cards cannot keep swapping")
+        let phoneBoard = TodayBoardPlan(page: TodayBoardPlan.Page(width: 390, zones: narrowToday.zones, columnZones: narrowToday.columnZones, shownColumns: [], isArranging: true)) { _, _ in 100 }
+        check(phoneBoard.slots[.journal] == CGRect(x: 0, y: 696, width: 390, height: 100) && phoneBoard.height == 796 && phoneBoard.emptyZones.isEmpty && phoneBoard.zone(at: CGPoint(x: 10, y: 5000)) == 0 && phoneBoard.place(for: CGPoint(x: 10, y: 5000), carrying: .conditions, zones: narrowToday.zones).place == 6, "an iPhone's board is one list, and below it all is the last place")
+
         // Telling Eira something, as against asking her.
         check(["Today, I planted some potatoes.", "Today I planted beans.", "We harvested 50 kg of Jonagolds", "Planted the garlic in bed 2", "Saw a tree bumblebee on the marjoram this morning", "I checked the bees this afternoon"].allSatisfy(JournalChat.readsAsTelling), "an account of what was done or seen reads as one for the journal")
         check(!["When do I plant beans?", "when do I plant beans", "what did I sow last week", "I wonder how deep garlic is planted", "I need to know if the beans were watered", "show me bed 3", "garlic", "broad beans", "Recommended spacing for leeks", "the beans are up", "Should the planted garlic be covered"].contains(where: JournalChat.readsAsTelling), "a question, a request, a search or a bare remark is left for Eira")

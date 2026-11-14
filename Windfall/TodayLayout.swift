@@ -289,6 +289,20 @@ struct TodayArrangement: Equatable {
         zones[zone].append(panel)
     }
 
+    /// Puts a panel at a numbered place in a zone. `place` counts the
+    /// zone's other panels from the top: 0 is above them all, 1 is below
+    /// the first of them, and so on. A number past the end means the end.
+    ///
+    /// This is what dragging does. While a card is carried about, the
+    /// screen keeps asking "which zone is the finger over, and how many
+    /// of its cards are above the finger?" and moves the card to that
+    /// place, so the others step aside before it is let go.
+    mutating func move(_ panel: TodayPanel, toZone zone: Int, place: Int) {
+        guard zones.indices.contains(zone), let from = position(of: panel) else { return }
+        zones[from.zone].remove(at: from.index)
+        zones[zone].insert(panel, at: max(0, min(place, zones[zone].count)))
+    }
+
     /// Whether a panel has anywhere to go one step earlier (-1) or one
     /// step later (+1). False for the very first and very last places.
     func canNudge(_ panel: TodayPanel, by step: Int) -> Bool {
@@ -322,9 +336,170 @@ struct TodayArrangement: Equatable {
     }
 }
 
-/// What a dragged card is being held over: another card, or the space at
-/// the foot of a zone.
-enum TodayDropTarget: Equatable {
-    case panel(TodayPanel)
-    case endOfZone(Int)
+// MARK: - The board
+
+/// Where every card on the Today screen goes, in points, worked out from
+/// the arrangement and the height each card wants.
+///
+/// The screen draws from this, and the dragging asks it "what is under
+/// the finger?". Keeping the sums here, away from the drawing, means
+/// they can be tested without a screen.
+///
+/// Distances are measured from the top left corner of the board: the
+/// area below the "Today" heading that holds the cards.
+struct TodayBoardPlan: Equatable {
+
+    /// The gap between one full-width card and the next, and between the
+    /// full-width cards and the columns.
+    static let rowGap = 16.0
+    /// The gap between columns, and between the cards in a column.
+    static let columnGap = 14.0
+    /// The height kept for a full-width zone with nothing in it, while
+    /// rearranging, so a card can be carried there.
+    static let emptyStrip = 48.0
+    /// The same for a column with nothing in it.
+    static let emptyColumn = 120.0
+
+    /// What the sums need to know.
+    struct Page {
+        /// The board's width.
+        var width: Double
+        /// The cards on show in each zone, in order. A hidden card is
+        /// left out.
+        var zones: [[TodayPanel]]
+        /// Which zones are columns, and which of those are drawn.
+        var columnZones: Range<Int>
+        var shownColumns: [Int]
+        /// Columns given a set width. The rest share what is left.
+        var setWidths: [Int: Double] = [:]
+        /// True while the cards can be moved. Empty zones then keep a
+        /// little room so there is somewhere to carry a card to.
+        var isArranging = false
+    }
+
+    /// Each card's place: where its top left corner is, and its size.
+    private(set) var slots: [TodayPanel: CGRect] = [:]
+    /// The room kept for each empty zone while rearranging.
+    private(set) var emptyZones: [Int: CGRect] = [:]
+    /// The whole board's height.
+    private(set) var height = 0.0
+
+    // What `zone(at:)` needs: where the row of columns starts and ends,
+    // and each drawn column's left and right edge.
+    private var rowTop = 0.0
+    private var rowBottom = 0.0
+    private var columnEdges: [(zone: Int, minX: Double, maxX: Double)] = []
+    private var bottomZone: Int?
+
+    static func == (a: TodayBoardPlan, b: TodayBoardPlan) -> Bool {
+        a.slots == b.slots && a.emptyZones == b.emptyZones && a.height == b.height
+    }
+
+    /// Works the places out. `heightOf` is asked how tall a card wants
+    /// to be when it is given a certain width.
+    init(page: Page, heightOf: (TodayPanel, Double) -> Double) {
+        // Gathered here and kept at the end.
+        var slots: [TodayPanel: CGRect] = [:]
+        var emptyZones: [Int: CGRect] = [:]
+        var columnEdges: [(zone: Int, minX: Double, maxX: Double)] = []
+
+        // Stacks one zone's cards from `top` downwards and returns where
+        // the stack ends. An empty zone, while rearranging, keeps `spare`
+        // points of room instead.
+        func stack(_ zone: Int, x: Double, top: Double, width: Double, gap: Double, spare: Double) -> Double {
+            var bottom = top
+            for panel in page.zones[zone] {
+                let cardHeight = heightOf(panel, width)
+                slots[panel] = CGRect(x: x, y: bottom, width: width, height: cardHeight)
+                bottom += cardHeight + gap
+            }
+            if page.zones[zone].isEmpty {
+                guard page.isArranging, spare > 0 else { return top }
+                emptyZones[zone] = CGRect(x: x, y: top, width: width, height: spare)
+                return top + spare
+            }
+            return bottom - gap
+        }
+
+        // With one column the single zone is the whole page.
+        guard !page.columnZones.isEmpty, page.zones.count >= 3 else {
+            let end = page.zones.isEmpty ? 0 : stack(0, x: 0, top: 0, width: page.width, gap: Self.rowGap, spare: 0)
+            self.slots = slots
+            height = end
+            rowTop = end
+            rowBottom = end
+            return
+        }
+
+        // The full-width stack at the top.
+        let topEnd = stack(0, x: 0, top: 0, width: page.width, gap: Self.rowGap, spare: Self.emptyStrip)
+        var y = topEnd > 0 ? topEnd + Self.rowGap : 0
+
+        // The columns. Those with a set width take it. The others share
+        // what is left equally.
+        let rowTop = y
+        var rowBottom = y
+        let shown = page.shownColumns
+        if !shown.isEmpty {
+            let gaps = Self.columnGap * Double(shown.count - 1)
+            let set = shown.compactMap { page.setWidths[$0] }.reduce(0, +)
+            let sharing = shown.filter { page.setWidths[$0] == nil }.count
+            let share = sharing > 0 ? max(0, page.width - gaps - set) / Double(sharing) : 0
+            var x = 0.0
+            for zone in shown {
+                let width = page.setWidths[zone] ?? share
+                let bottom = stack(zone, x: x, top: rowTop, width: width, gap: Self.columnGap, spare: Self.emptyColumn)
+                rowBottom = max(rowBottom, bottom)
+                columnEdges.append((zone, x, x + width))
+                x += width + Self.columnGap
+            }
+            y = rowBottom > rowTop ? rowBottom + Self.rowGap : rowTop
+        }
+
+        // The full-width stack at the bottom.
+        let last = page.zones.count - 1
+        let bottomEnd = stack(last, x: 0, top: y, width: page.width, gap: Self.rowGap, spare: Self.emptyStrip)
+
+        self.slots = slots
+        self.emptyZones = emptyZones
+        self.columnEdges = columnEdges
+        self.rowTop = rowTop
+        self.rowBottom = rowBottom
+        self.bottomZone = last
+        self.height = bottomEnd > y ? bottomEnd : max(0, y - Self.rowGap)
+    }
+
+    /// Which zone a point is in. Every point belongs to one: above the
+    /// columns is the top stack, below them the bottom stack, and in
+    /// between it is whichever column the point is nearest.
+    func zone(at point: CGPoint) -> Int {
+        // With one column, or no column drawn, there is only the top.
+        guard let bottomZone, !columnEdges.isEmpty else { return 0 }
+        if point.y < rowTop - Self.rowGap / 2 { return 0 }
+        if point.y > rowBottom + Self.rowGap / 2 { return bottomZone }
+        // The columns' shared edges are the middles of the gaps.
+        for edge in columnEdges where point.x < edge.maxX + Self.columnGap / 2 {
+            return edge.zone
+        }
+        return columnEdges[columnEdges.count - 1].zone
+    }
+
+    /// Where a card being carried should go when the finger is at
+    /// `point`: which zone, and how many of that zone's other cards are
+    /// above it.
+    ///
+    /// A card counts as above the finger once the finger is past its
+    /// middle. That one rule keeps the page steady: when the carried
+    /// card changes places with a neighbour, the neighbour moves away
+    /// from the finger, never back under it, so the two cannot keep
+    /// swapping.
+    func place(for point: CGPoint, carrying panel: TodayPanel, zones: [[TodayPanel]]) -> (zone: Int, place: Int) {
+        let zone = zone(at: point)
+        guard zones.indices.contains(zone) else { return (0, 0) }
+        let above = zones[zone].filter { other in
+            guard other != panel, let slot = slots[other] else { return false }
+            return slot.midY < point.y
+        }
+        return (zone, above.count)
+    }
 }
