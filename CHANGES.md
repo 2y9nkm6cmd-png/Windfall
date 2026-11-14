@@ -7,6 +7,68 @@ run without the Mac (every file reads as valid Swift, 323 logic tests
 pass). Those do not build the screens. Expect things to put right when
 it is first built, and treat how everything here looks as untried.
 
+## 14 November 2026, 17:12: on a Mac, a month's page follows two fingers as it turns
+
+**On the branch `month-drag-mac`, made from `main`.** Built for the Mac and the iOS Simulator with no errors (`mv7-mac.log`, `mv7-sim.log`, in `DerivedData/Windfall-month`). 596 logic tests pass. **A simulator has no trackpad, so the Mac's row was given to a 13-inch iPad with a checking aid and looked at there**, with the example garden: the row held 300 points to the right shows April sliding off and March coming in beside it, cut off cleanly at the sidebar (`shots/mv7-drag.png`); the forward arrow slides December on to January and the back arrow April back to March (`mv7-on.png`, `mv7-back.png`). **Not tried by anyone: two fingers on a real trackpad.**
+
+**Why.** William, 16:49: "Currently the month swipe works on the iphone exactly as I want it. So that when you're touching the screen you can see the swiping happening like you're dragging something. This is how I want it to work with two finger swipe on the mac."
+
+**Before, on a Mac.** Two fingers swiped sideways did nothing you could see until they had gone 60 points. Then the month turned by itself.
+
+**Now.** The page moves with the fingers from the start, and the month before or after comes into view beside it. Lift the fingers after 60 points or more and the row slides on to that month. Lift sooner and it settles back. The arrows by the month's name slide the same way. **The iPhone and iPad are not changed.**
+
+**Why the Mac needs its own way.** On an iPhone the months are a row that scrolls sideways, and the system moves it under the finger. On a Mac a sideways scroll goes to whatever is under the pointer, which is a page that only scrolls up and down, so the row never heard it. That is why the first version read the trackpad itself and jumped. This version still reads the trackpad itself, and now moves the row with it.
+
+**How it is built** (`YearMonthView.swift`).
+
+*Three pages in a row.* On a Mac the page draws the month showing with its two neighbours, and shows only the middle one:
+
+```swift
+let threePages = [pageNow - 1, pageNow, pageNow + 1]
+
+MonthRowSlide(monthDrag: monthDrag) {
+    HStack(alignment: .top, spacing: 0) {
+        ForEach(threePages, id: \.self) { page in
+            monthPage(YearCalendar.month(atPage: page), from: chosenFrom, isWide: isWide)
+                .frame(width: space.width, height: space.height)
+        }
+    }
+}
+.frame(width: space.width, height: space.height)
+.clipped()
+```
+
+- `HStack` lays the three pages side by side. Each is made exactly one page wide.
+- The `.frame` after it is one page wide and holds the row by its middle, so the middle page fills it. `.clipped()` hides what falls outside: the pages either side.
+- `MonthRowSlide` draws the row somewhere else: `monthRow.offset(x: monthDrag.across)`. `offset` moves where a view is drawn without moving anything around it. As `across` grows, the row slides right and the month before comes into view.
+
+*The number that moves it.* `MonthDrag` is a small class marked `@Observable`, holding `across`: how far the row has been dragged. Only a view that reads `across` is redrawn when it changes, and only `MonthRowSlide` reads it. So a drag, which changes it about a hundred times a second, redraws the row's place and none of the cards.
+
+*The trackpad.* `MonthSwipes` already listened to the Mac's scrolling. It used to count up to 60 points and then say "turn". It now reports the distance all the way along (`whenDragged`), and which way to turn when the fingers lift (`whenLifted`).
+
+*Finishing the turn.*
+
+```swift
+withAnimation(.smooth(duration: 0.3)) {
+    monthDrag.across = landing
+} completion: {
+    shownPage = target
+    monthDrag.across = 0
+}
+```
+
+- `withAnimation` glides `across` to `landing`, which is one page's width to the left or right, so the neighbour ends up filling the page.
+- `completion` is run when the glide has finished. In one go, with no animation, the neighbour becomes the month showing and the row goes back to rest. The two cancel out, so nothing is seen to move. The row is then ready for the next swipe, with new neighbours.
+
+**Changed besides.** While the fingers are moving sideways, the scroll is used up by the row, so the page under the pointer does not creep up or down as well. The glide the Mac sends after the fingers lift is used up too.
+
+**Checking aids**, because a simulator has no trackpad: `-demoMonthMacRow YES` gives an iPad the Mac's row of three pages, and with it `-demoMonthDrag 300` holds the row 300 points to the right, as if part-way through a swipe.
+
+**Choices that are Claude's.** ⚠️ CHECK each.
+
+- Lifting after 60 points turns the month, however quick or slow the swipe. An iPhone also goes by how fast the finger was moving. This does not.
+- One swipe turns one month at most.
+
 ## 14 November 2026, 16:26: the sidebar's lens follows the fingers again
 
 **On the branch `sidebar-scroll-follows-fingers`, made from `main`.** One line in `MainTabView.swift`, in `lensScrolled(by:)`.
