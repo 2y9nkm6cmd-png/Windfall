@@ -283,7 +283,7 @@ struct PinDownCard: View {
     private func look(at data: Data) async {
         onUsed()
         stage = .looking
-        let taken = SpeciesEye.monthTaken(of: data)
+        let taken = PhotoFacts.read(from: data).month()
         let shrunk = DiaryEntryEditor.thumbnail(from: data, maxDimension: 1024) ?? data
         photo = shrunk
         do {

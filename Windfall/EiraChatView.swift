@@ -398,6 +398,46 @@ struct EiraChatView: View {
                                         onDismiss: { conversation.dismissOfferedCorrection() },
                                         onShowAll: { showingCorrections = true })
                                 }
+
+                                // A message of yours that says you have
+                                // planted, sown or bought a plant the
+                                // library does not have is followed by a
+                                // card offering to add it and look it up.
+                                // Fixed rules decide, not the model. See
+                                // NewPlantMention in PlantFillIn.swift.
+                                // Once the plant is added the rules find
+                                // nothing new, and the card goes by itself.
+                                if message.role == .user, !newPlantRefused.contains(message.id),
+                                   let newName = NewPlantMention.name(in: message.content, known: libraryPlants.map(\.commonName)) {
+                                    NewPlantOfferCard(name: newName) { newPlantRefused.insert(message.id) }
+                                }
+
+                                // A reply of hers that was built on a web
+                                // page is followed by a card offering to
+                                // keep what she found in the plant's record.
+                                // `.id(...)` gives the card a name of its
+                                // own, so a new offer starts with a fresh
+                                // card and not the last one's typing.
+                                if let find = conversation.offeredFind, find.replyID == message.id {
+                                    FindOfferCard(
+                                        offer: find,
+                                        onKept: { ids, place in conversation.findWasKept(ids: ids, where: place) },
+                                        onUndone: { conversation.findWasUndone() },
+                                        onDismiss: { conversation.dismissOfferedFind() },
+                                        onShowAll: { showingKeptFacts = true })
+                                        .id("find-\(find.replyID)")
+                                }
+
+                                // A message of yours that read as a job to
+                                // do is followed by a card offering to add
+                                // it. Once added, Eira's next line says so
+                                // and the card is no longer needed.
+                                if let offer = conversation.offeredJob, offer.messageID == message.id, !offer.isAdded {
+                                    JobOfferCard(
+                                        said: offer.said, today: offer.at, gardens: gardens.filter(\.isActive),
+                                        onAdd: { title, line in conversation.jobWasAdded(title: title, saying: line) },
+                                        onDismiss: { conversation.dismissOfferedJob() })
+                                }
                             } else if !conversation.isGenerating || turn.id != turns.last?.id {
                                 // Lookups whose reply never came, because
                                 // it was stopped or failed. The newest
@@ -405,46 +445,6 @@ struct EiraChatView: View {
                                 // replying: StreamingView below shows
                                 // its lookups instead.
                                 ThinkingBubble(lookups: turn.lookups)
-                            }
-
-                            // A message of yours that says you have
-                            // planted, sown or bought a plant the
-                            // library does not have is followed by a
-                            // card offering to add it and look it up.
-                            // Fixed rules decide, not the model. See
-                            // NewPlantMention in PlantFillIn.swift.
-                            // Once the plant is added the rules find
-                            // nothing new, and the card goes by itself.
-                            if message.role == .user, !newPlantRefused.contains(message.id),
-                               let newName = NewPlantMention.name(in: message.content, known: libraryPlants.map(\.commonName)) {
-                                NewPlantOfferCard(name: newName) { newPlantRefused.insert(message.id) }
-                            }
-
-                            // A reply of hers that was built on a web
-                            // page is followed by a card offering to
-                            // keep what she found in the plant's record.
-                            // `.id(...)` gives the card a name of its
-                            // own, so a new offer starts with a fresh
-                            // card and not the last one's typing.
-                            if let find = conversation.offeredFind, find.replyID == message.id {
-                                FindOfferCard(
-                                    offer: find,
-                                    onKept: { ids, place in conversation.findWasKept(ids: ids, where: place) },
-                                    onUndone: { conversation.findWasUndone() },
-                                    onDismiss: { conversation.dismissOfferedFind() },
-                                    onShowAll: { showingKeptFacts = true })
-                                    .id("find-\(find.replyID)")
-                            }
-
-                            // A message of yours that read as a job to
-                            // do is followed by a card offering to add
-                            // it. Once added, Eira's next line says so
-                            // and the card is no longer needed.
-                            if let offer = conversation.offeredJob, offer.messageID == message.id, !offer.isAdded {
-                                JobOfferCard(
-                                    said: offer.said, today: offer.at, gardens: gardens.filter(\.isActive),
-                                    onAdd: { title, line in conversation.jobWasAdded(title: title, saying: line) },
-                                    onDismiss: { conversation.dismissOfferedJob() })
                             }
                         }
 

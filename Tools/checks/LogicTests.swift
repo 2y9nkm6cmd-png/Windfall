@@ -423,10 +423,10 @@ struct LogicTests {
         // a card carried out of a full-width zone lets everything below
         // rise, which can bring one more card's middle past the finger.)
         var steady = true
-        let tall: [TodayPanel: Double] = [.conditions: 90, .capture: 120, .week: 60, .jobs: 420, .plans: 700, .recent: 260, .journal: 80]
+        let cardHeights: [TodayPanel: Double] = [.conditions: 90, .capture: 120, .week: 60, .jobs: 420, .plans: 700, .recent: 260, .journal: 80]
         func boardFor(_ arrangement: TodayArrangement) -> TodayBoardPlan {
             // Cards are taller in a narrow column and shorter at full width, as the real ones are.
-            TodayBoardPlan(page: boardPage(arrangement)) { panel, width in (tall[panel] ?? 100) * (width < 300 ? 1.4 : (width > 900 ? 0.6 : 1)) }
+            TodayBoardPlan(page: boardPage(arrangement)) { panel, width in (cardHeights[panel] ?? 100) * (width < 300 ? 1.4 : (width > 900 ? 0.6 : 1)) }
         }
         for start in [wideToday, carriedToday] {
             for carried in TodayPanel.allCases {
