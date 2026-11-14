@@ -167,7 +167,12 @@ struct EiraFloatingBar: View {
                 Task { takePhotos(await PhotoDrop.pictures(from: providers)) }
                 return true
             }
+            // On an iPhone or iPad, a swipe down on the open bar puts it
+            // away. See "Putting the bar away by touch" below.
+            .swipeDownPutsAway(isOn: canBePutAway) { close(travel: barWidth - closedSize) }
             .frame(maxWidth: .infinity, alignment: .trailing)
+            // And so does a touch anywhere on the page above it.
+            .background(alignment: .bottom) { touchAwayLayer(travel: barWidth - closedSize) }
         }
         .frame(height: closedSize)
         // The two choosers behind the "+" button.
@@ -328,6 +333,45 @@ struct EiraFloatingBar: View {
         .accessibilityLabel(label)
         .help(label)
         .transition(.opacity)
+    }
+
+    // MARK: Putting the bar away by touch
+
+    /// True when the bar was opened by hand, and so can be put away. It
+    /// is false when the bar is pinned open, and on the Journal page,
+    /// where it is always open.
+    private var canBePutAway: Bool { isOpen && !staysOpen && !onJournal }
+
+    /// An invisible layer over the page while the bar is open, on an
+    /// iPhone or iPad. A tap on it, or the start of a scroll, puts the
+    /// bar away. (William, 14 November 2026, on first trying the app on
+    /// his iPhone: the only way to close the bar was the snowdrop.)
+    ///
+    /// - `Color.clear` draws nothing. `contentShape` makes that nothing
+    ///   count as a place a finger can land.
+    /// - The layer is far larger than any screen and is lined up with
+    ///   the bottom of the bar, so it reaches up over the whole page.
+    ///   It sits behind the bar, so the bar's own buttons still get
+    ///   their taps first.
+    /// - The first touch only closes the bar. It is not passed on to
+    ///   the page, so nothing is opened by accident.
+    ///
+    /// A Mac is left alone: there the Escape key closes the bar, and a
+    /// click that did nothing but close it would be a nuisance.
+    @ViewBuilder
+    private func touchAwayLayer(travel: CGFloat) -> some View {
+        #if os(iOS)
+        if canBePutAway {
+            Color.clear
+                .frame(width: 4000, height: 4000)
+                .contentShape(Rectangle())
+                .onTapGesture { close(travel: travel) }
+                .simultaneousGesture(
+                    DragGesture(minimumDistance: 12).onChanged { _ in close(travel: travel) }
+                )
+                .accessibilityHidden(true)
+        }
+        #endif
     }
 
     // MARK: Opening and closing
@@ -542,5 +586,33 @@ private struct EiraLooksAt: ViewModifier {
             // The same screen can change what it shows, for example when
             // a plant is renamed.
             .onChange(of: sight) { _, changed in screen?.show(changed, id: id) }
+    }
+}
+
+
+// MARK: - A swipe down
+
+private extension View {
+    /// On an iPhone or iPad, calls `action` when a finger is dragged
+    /// downwards across this view. On a Mac it does nothing, because a
+    /// downward drag across a text box there is how text is selected.
+    ///
+    /// - `simultaneousGesture` lets the drag be noticed without taking
+    ///   touches away from the text box and buttons inside the view.
+    /// - `translation` is how far the finger moved. The drag counts
+    ///   when it went at least 30 points down, and further down than
+    ///   sideways.
+    @ViewBuilder
+    func swipeDownPutsAway(isOn: Bool, action: @escaping () -> Void) -> some View {
+        #if os(iOS)
+        simultaneousGesture(
+            DragGesture(minimumDistance: 20).onEnded { drag in
+                let moved = drag.translation
+                if isOn && moved.height > 30 && moved.height > abs(moved.width) { action() }
+            }
+        )
+        #else
+        self
+        #endif
     }
 }

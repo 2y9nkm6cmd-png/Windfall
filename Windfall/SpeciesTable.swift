@@ -177,7 +177,33 @@ enum DangerousLookAlikes {
         "Sison",         // stone parsley
         "Sium",          // greater water-parsnip, skirret
         "Smyrnium",      // alexanders
-        "Torilis"        // the hedge parsleys
+        "Torilis",       // the hedge parsleys
+
+        // Added on 14 November 2026, when the image model's list was to be
+        // widened from 778 names to several thousand. These are the other
+        // carrot-family genera with a confirmed UK record on iNaturalist.
+        // Some look nothing like hemlock (sea holly, masterwort), and get
+        // the warning all the same: it is better given too often than
+        // too seldom. Common names are iNaturalist's.
+        "Astrantia",     // great masterwort
+        "Beruladium",    // a hybrid of lesser water-parsnip and fool's watercress
+        "Bunium",        // great pignut
+        "Bupleurum",     // the hare's-ears, thorow-wax
+        "Eryngium",      // sea holly, the eryngos
+        "Falcaria",      // longleaf
+        "Ferula",        // giant fennel
+        "Libanotis",     // moon carrot
+        "Ligusticum",    // Scots lovage
+        "Meum",          // spignel
+        "Orlaya",        // large-flowered orlaya
+        "Peucedanum",    // hog's fennel, milk parsley, masterwort
+        "Physospermum",  // bladderseed
+        "Sanicula",      // sanicle
+        "Selinum",       // Cambridge milk-parsley
+        "Tordylium",     // hartwort
+        "Trinia",        // honewort
+        "Trocdaris",     // whorled caraway
+        "Visnaga"        // toothpick-plant
     ]
 
     /// What the screen says when a carrot-family plant is among the
