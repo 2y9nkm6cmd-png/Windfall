@@ -49,6 +49,17 @@ enum WebText {
         }
         text = replace(text, "<!--[\\s\\S]*?-->", with: " ")
 
+        // A tooltip is the same thing in another form: a word's meaning,
+        // tucked inside the sentence that uses the word. On the RHS's
+        // newer pages it split "after leaf fall and before bud burst,
+        // which is usually between November and early March" into
+        // three lines, with the meaning of "bud" in the middle. First
+        // the meaning goes, then the empty shell around it. The second
+        // pattern only fits a shell with no other `<span` inside, so it
+        // can never swallow more than the tooltip.
+        text = replace(text, "<span[^>]*glossary[^>]*definition[^>]*>[\\s\\S]*?</span>", with: " ")
+        text = replace(text, "<span[^>]*role=\"tooltip\"[^>]*>(?:(?!<span)[\\s\\S])*?</span>", with: " ")
+
         // Tags that end a line of text become line breaks.
         text = replace(text, "<br\\s*/?>|</(p|div|li|tr|h[1-6]|section|article)>", with: "\n")
 
@@ -60,6 +71,10 @@ enum WebText {
         // Tidy the spacing: runs of spaces to one, runs of blank lines to one.
         // \u{00A0} is the non-breaking space that &nbsp; turns into.
         text = replace(text, "[ \\t\u{00A0}]+", with: " ")
+        // Taking a tag out leaves a space where it stood, so a word in
+        // bold at the end of a sentence was left as "early March ."
+        text = replace(text, " ([.,;:!?)])", with: "$1")
+        text = replace(text, "\\( ", with: "(")
         text = replace(text, " ?\\n ?", with: "\n")
         text = replace(text, "\\n{2,}", with: "\n\n")
         text = text.trimmingCharacters(in: .whitespacesAndNewlines)

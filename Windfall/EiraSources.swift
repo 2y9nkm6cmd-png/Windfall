@@ -301,15 +301,30 @@ extension WebText {
         let strongWords = strong.map { $0.lowercased() }.filter { !$0.isEmpty }
         let weakWords = weak.map { $0.lowercased() }.filter { !$0.isEmpty }
 
-        // A heading is a short line with no full stop in it.
-        func isHeading(_ line: String) -> Bool { line.count <= 60 && !line.contains(".") }
+        // A heading is a short line with no full stop in it. A short
+        // line with a dash in the middle is a fact, not a heading: the
+        // RHS's "Timing - November to early March".
+        func isHeading(_ line: String) -> Bool {
+            line.count <= 60 && !line.contains(".") && !line.contains(" - ") && !line.contains(" \u{2013} ")
+        }
 
-        var marked: [(index: Int, marks: Int)] = []
+        // Read no further than where the page turns to other pages:
+        // "You may also like", then a row of teasers for them. One of
+        // those, about plums, was handed to Eira as advice on apples.
+        let pageEnds = ["you may also like", "rhs guides, you may also like", "see also", "related articles",
+                        "related advice", "more from ", "get involved", "join the rhs"]
+        let end = lines.firstIndex { line in
+            let lower = line.lowercased()
+            return pageEnds.contains { lower.hasPrefix($0) }
+        } ?? lines.count
+
+        // First, every line's two kinds of mark.
+        var read: [(index: Int, strong: Int, weak: Int)] = []
         // True while the lines being read sit under a heading that
         // holds one of the strong words: everything under "Pruning and
         // Training" is about pruning, whether or not it says the word.
         var underRightHeading = false
-        for (index, line) in lines.enumerated() {
+        for (index, line) in lines.enumerated() where index < end {
             let lower = line.lowercased()
             if isHeading(line) {
                 underRightHeading = strongWords.contains { lower.contains($0) }
@@ -318,8 +333,23 @@ extension WebText {
             if line.contains("\u{00A9}") { continue }   // a photo's caption
             let strongMarks = strongWords.filter { lower.contains($0) }.count * 2 + (underRightHeading ? 2 : 0)
             let weakMarks = weakWords.filter { lower.contains($0) }.count
-            let counts = strongWords.isEmpty ? weakMarks > 0 : strongMarks > 0
-            if counts { marked.append((index, strongMarks + weakMarks)) }
+            read.append((index, strongMarks, weakMarks))
+        }
+
+        // A page that is about the subject from top to bottom ("Apples:
+        // winter pruning", asked about pruning) has a strong word on
+        // nearly every line, so the strong words pick nothing out. On
+        // such a page the question's own words decide.
+        let withStrong = read.filter { $0.strong > 0 }.count
+        let isAllAboutIt = !strongWords.isEmpty && !weakWords.isEmpty
+            && read.count >= 6 && withStrong * 10 >= read.count * 4
+        var marked: [(index: Int, marks: Int)] = []
+        for line in read {
+            if isAllAboutIt {
+                if line.weak > 0 { marked.append((line.index, line.weak * 2 + (line.strong > 0 ? 1 : 0))) }
+            } else if strongWords.isEmpty ? line.weak > 0 : line.strong > 0 {
+                marked.append((line.index, line.strong + line.weak))
+            }
         }
         guard !marked.isEmpty else { return "" }
 

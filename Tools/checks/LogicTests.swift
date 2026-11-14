@@ -1402,6 +1402,12 @@ struct LogicTests {
         let askWhich = await careHub.run(name: "plant_care", argumentsJSON: EiraToolHub.json(["question": "Should I prune?", "screen": ""]))
         check(askWhich.contains("Ask which plant is meant") && careHub.finds.isEmpty, "asked to prune with no plant named, Eira is told to ask which plant")
 
+        let tooltipPage = "<p>Prune before <button>bud<span class=\"glossary-mark__tooltip\" role=\"tooltip\"><div class=\"arrow\"></div><div><img alt=\"Bud\"></div><span class=\"glossary-mark__definition\"><p>A bud is a small shoot.</p></span></span></button> burst, usually between <strong>November</strong> and <strong>early March</strong>.</p>"
+        check(WebText.plainText(fromHTML: tooltipPage) == "Prune before bud burst, usually between November and early March.", "a word's meaning tucked inside a sentence is taken out, and the sentence stays whole: \(WebText.plainText(fromHTML: tooltipPage))")
+        let winterPruning = "Apples and pears: winter pruning\nFree-standing apple and pear trees should be pruned every year to keep them productive.\nQuick facts\nTiming - November to early March\nBefore you start\nThe aim of pruning is an open-centred crown with well-spaced branches.\nPrune while the tree is dormant, after leaf fall.\nHow much to remove\nRoutine pruning should remove about 10 to 20 per cent of the canopy.\nPruning too hard stimulates watershoots.\nTools\nSecateurs, loppers and a pruning saw, each suited to different branches.\nYou may also like\nPlums: pruning\nPlums are pruned in early spring or mid-summer to avoid silver leaf disease."
+        let whenToPrune = WebText.passages(in: winterPruning, strong: CareTopic.cuttingBack.pageWords, weak: KeptFacts.pageWords(forQuestion: "What does this say about when to prune?"))
+        check(whenToPrune.contains("[Quick facts]\nTiming - November to early March") && !whenToPrune.contains("Plums") && !whenToPrune.contains("silver leaf") && !whenToPrune.contains("Secateurs"), "on a page that is all about pruning the question's own words pick the paragraph, a fact with a dash is not a heading, and the teasers for other pages are not read: \(whenToPrune)")
+
         print("   logic tests: \(passes) passed, \(failures) failed")
         exit(failures == 0 ? 0 : 1)
     }
