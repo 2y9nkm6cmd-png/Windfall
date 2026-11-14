@@ -90,6 +90,7 @@ Icons are drawn on a 24 by 24 grid with a line 1.6 wide and rounded ends.
 | `2026-11-13 evening screenshot-year-top-bar-unclear.png` | The Year page's bar of jobs: "It's not clear on this top bar what is active" |
 | `2026-11-13 evening screenshot-fit-count-sheet-mac.png` | The count's sheet on the Mac, where William asked for windows that can be made bigger |
 | `2026-11-13 evening screenshot-sowing-form-apple.png` | The sowing form with an apple chosen: no way back, and an apple does not come true from seed |
+| `2026-11-14 screenshot-plant-page-achillea-mac.png` | Achillea's page on the Mac, dark, sent with "Could you make it so that you can add a planting of plants in the plant page?" |
 
 ## What is in Archive
 

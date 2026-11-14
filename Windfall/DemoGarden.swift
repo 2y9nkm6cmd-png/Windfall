@@ -65,6 +65,10 @@ enum DemoGarden {
     /// right, with the card that offers to keep the correction.
     /// `corrections` does the same and then opens the list of them.
     /// `eira-photo` opens her chat on an example answer to a photo.
+    ///
+    /// `plantSowing` and `plantPlanting`, with `-demoPlant Achillea`,
+    /// open the sowing form from that plant's page: the first on seed,
+    /// the second on plants.
     static var opens: String? {
         isRequested ? UserDefaults.standard.string(forKey: "demoOpen") : nil
     }
@@ -152,8 +156,11 @@ enum DemoGarden {
             permaculture.soil = .clay
         }
         let lowerBeds: [(String, Double, Double)] = [("Herb bed", 1, 3.2), ("Rockery", 1, 5.6), ("Fruit bed", 5, 3.2), ("Bog bed", 5, 5.6)]
+        // Kept so that the example planting further down has a bed.
+        var herbBed: Bed?
         for (index, place) in lowerBeds.enumerated() {
             let bed = Bed(name: place.0, site: .permaculture)
+            if index == 0 { herbBed = bed }
             bed.displayOrder = index
             bed.originX = place.1
             bed.originY = place.2
@@ -176,6 +183,28 @@ enum DemoGarden {
         sowing.quantitySown = 24
         sowing.sections = Array(allotmentBeds[2].orderedSections.prefix(2))
         context.insert(sowing)
+
+        // An achillea raised from seed in spring, and three more bought
+        // in pots and planted three weeks ago. They give a plant's page
+        // one sowing and one planting to list. See PlantDetailView.
+        if let achillea = plants.first(where: { $0.commonName.lowercased() == "achillea" }) {
+            let raised = Planting()
+            raised.plant = achillea
+            raised.dateSown = Calendar.current.date(byAdding: .month, value: -8, to: .now)
+            raised.sowingLocation = .indoors
+            raised.status = .finished
+            raised.quantitySown = 30
+            context.insert(raised)
+
+            let bought = Planting()
+            bought.plant = achillea
+            bought.dateSown = Calendar.current.date(byAdding: .day, value: -21, to: .now)
+            bought.startedFrom = .plant
+            bought.status = .growing
+            bought.quantitySown = 3
+            bought.sections = Array((herbBed?.orderedSections ?? []).prefix(1))
+            context.insert(bought)
+        }
 
         // Two sightings: one confirmed, one waiting to be confirmed.
         let butterfly = WildlifeObservation()

@@ -426,6 +426,18 @@ struct PlantDetailView: View {
 
     @Bindable var plant: Plant
 
+    /// The two forms the "Sowings and plantings" card can open.
+    ///
+    /// `Identifiable` lets `.sheet(item:)` below use it: the sheet is
+    /// up whenever `adding` holds one of these, and gone when it is nil.
+    private enum AddingToGarden: String, Identifiable {
+        case sowing, planting
+        var id: String { rawValue }
+    }
+
+    /// Which of the two forms is open. Nil when neither is.
+    @State private var adding: AddingToGarden?
+
     var body: some View {
         // Worked out once for this redraw.
         let cards = PlantPage.cards(for: plant)
@@ -448,14 +460,14 @@ struct PlantDetailView: View {
                             }
                             VStack(spacing: 14) {
                                 ForEach(sides.right) { PlantFactCardView(factCard: $0) }
-                                sowingsCard
+                                plantingsCard
                             }
                         }
                     } else {
                         ForEach(cards) { PlantFactCardView(factCard: $0) }
                         companionsLink
                         pestsCard
-                        sowingsCard
+                        plantingsCard
                     }
                 }
                 .padding(.horizontal, 16)
@@ -477,6 +489,18 @@ struct PlantDetailView: View {
         // The large name below is the title. The bar keeps the name for
         // the back button and VoiceOver, but shows no words of its own.
         .toolbar { ToolbarItem(placement: .principal) { Text("") } }
+        // The sowing form, opened with this plant already chosen.
+        // `asPlanting` starts it on "Plants" in place of seed.
+        .sheet(item: $adding) { which in
+            NewPlantingView(plant: plant, asPlanting: which == .planting)
+        }
+        // A checking aid: `-demoOpen plantSowing` and `-demoOpen
+        // plantPlanting` open the form at once, so a still picture can
+        // be taken of it. See DemoGarden.opens.
+        .onAppear {
+            if DemoGarden.opens == "plantSowing" { adding = .sowing }
+            if DemoGarden.opens == "plantPlanting" { adding = .planting }
+        }
     }
 
     // MARK: The top of the page
@@ -569,31 +593,75 @@ struct PlantDetailView: View {
         }
     }
 
-    /// Each time this plant has been sown, newest first. Left out if it
-    /// never has been.
-    @ViewBuilder
-    private var sowingsCard: some View {
-        if let plantings = plant.plantings, !plantings.isEmpty {
-            VStack(alignment: .leading, spacing: 10) {
-                Text("Sowings")
-                    .font(.headline)
-                    .foregroundStyle(Theme.ink)
-                ForEach(plantings.sorted { ($0.dateSown ?? .distantPast) > ($1.dateSown ?? .distantPast) }) { planting in
-                    HStack {
-                        Text(planting.bedNames.isEmpty ? "Not placed" : planting.bedNames)
-                            .foregroundStyle(Theme.ink)
-                        Spacer(minLength: 8)
-                        if let sown = planting.dateSown {
-                            Text(sown, format: .dateTime.day().month().year())
-                                .foregroundStyle(Theme.inkSoft)
-                        }
-                    }
+    /// Each time this plant has been sown or planted, newest first,
+    /// and two buttons to add another.
+    ///
+    /// The card is always there, even with nothing to list, because it
+    /// is where a sowing or a planting of this plant is added. Before 14
+    /// November 2026 it was left out until the plant had been sown, and
+    /// a sowing could only be started from Today or the Sowings list,
+    /// by finding the plant again.
+    private var plantingsCard: some View {
+        // What each row says is worked out in PlantPage.swift, where it
+        // is tested.
+        let lines = PlantPage.plantingLines(for: plant)
+
+        return VStack(alignment: .leading, spacing: 10) {
+            Text("Sowings and plantings")
+                .font(.headline)
+                .foregroundStyle(Theme.ink)
+
+            if lines.isEmpty {
+                Text("Nothing recorded for this plant yet.")
                     .font(.subheadline)
+                    .foregroundStyle(Theme.inkSoft)
+            }
+
+            ForEach(lines) { line in
+                // The row only knows the record's id. This finds the
+                // record itself, to hand to the page the row opens.
+                if let planting = (plant.plantings ?? []).first(where: { $0.id == line.id }) {
+                    NavigationLink {
+                        PlantingDetailView(planting: planting)
+                    } label: {
+                        HStack(alignment: .center, spacing: 8) {
+                            VStack(alignment: .leading, spacing: 2) {
+                                // "Planted 24 Oct 2026", or just "On
+                                // record" where there is no date.
+                                Text(line.date.map { "\(line.verb) \($0.formatted(.dateTime.day().month().year()))" } ?? line.verb)
+                                    .font(.subheadline.weight(.medium))
+                                    .foregroundStyle(Theme.ink)
+                                Text(line.detail)
+                                    .font(.caption)
+                                    .foregroundStyle(Theme.inkSoft)
+                                    .multilineTextAlignment(.leading)
+                            }
+                            Spacer(minLength: 8)
+                            Text(line.status)
+                                .font(.caption)
+                                .foregroundStyle(Theme.inkSoft)
+                            WIconView(.arrowRight, size: 12)
+                                .foregroundStyle(Theme.leaf)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .contentShape(.rect)
+                    }
+                    .buttonStyle(.plain)
                 }
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .glassCard()
+
+            // Setting `adding` is all a button does. The `.sheet(item:)`
+            // on the page sees the change and puts the form up.
+            HStack(spacing: 10) {
+                Button("Add a sowing") { adding = .sowing }
+                    .buttonStyle(QuietGlassButton())
+                Button("Add a planting") { adding = .planting }
+                    .buttonStyle(QuietGlassButton())
+            }
+            .padding(.top, 2)
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .glassCard()
     }
 }
 

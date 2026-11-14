@@ -151,7 +151,7 @@ private struct ToolbarTextBox: NSViewRepresentable {
     }
 
     func updateNSView(_ field: CursorTakingField, context: Context) {
-        context.coordinator.box = self
+        context.coordinator.textBox = self
         // Words changed from outside, such as the cross being pressed.
         if field.stringValue != text { field.stringValue = text }
         // A new request for the cursor since the last look.
@@ -166,29 +166,32 @@ private struct ToolbarTextBox: NSViewRepresentable {
     /// The helper AppKit reports to. AppKit tells a "delegate" object
     /// what happens in a text field, and this passes it on to SwiftUI.
     final class Coordinator: NSObject, NSTextFieldDelegate {
-        var box: ToolbarTextBox
+        /// Named `textBox`, not `box`: the project's cross-file check
+        /// goes by names, and read every other `box` in the app (a
+        /// rectangle on the garden plan) as one of these.
+        var textBox: ToolbarTextBox
         /// Starts at 0, the same as a box that opens without being
         /// asked for, so that one does not grab the cursor.
         var requestsSeen = 0
 
-        init(_ box: ToolbarTextBox) { self.box = box }
+        init(_ textBox: ToolbarTextBox) { self.textBox = textBox }
 
         /// A letter was typed or removed.
         func controlTextDidChange(_ note: Notification) {
             guard let field = note.object as? NSTextField else { return }
-            box.text = field.stringValue
+            textBox.text = field.stringValue
         }
 
         /// The cursor left the box.
         func controlTextDidEndEditing(_ note: Notification) {
-            box.onLeave()
+            textBox.onLeave()
         }
 
         /// A key that is a command, not a letter. Escape arrives as
         /// "cancel". Returning true says it has been dealt with.
         func control(_ control: NSControl, textView: NSTextView, doCommandBy command: Selector) -> Bool {
             if command == #selector(NSResponder.cancelOperation(_:)) {
-                box.onEscape()
+                textBox.onEscape()
                 return true
             }
             return false

@@ -193,6 +193,23 @@ struct NewPlantingView: View {
     /// Every cross on record. See Crosses.swift.
     @Query(sort: [SortDescriptor(\PlantCross.date, order: .reverse)]) private var crosses: [PlantCross]
 
+    /// True when the form was opened to record plants going in, not
+    /// seed: "Add a planting" on a plant's page.
+    private let opensAsPlanting: Bool
+
+    /// - `plant`: a plant to start with, already chosen. A plant's own
+    ///   page passes itself. Left out, the form opens on the list.
+    /// - `asPlanting`: true to start on "Plants" in place of seed.
+    ///
+    /// Both have a value to fall back on, so `NewPlantingView()` still
+    /// works where the form is opened with nothing chosen.
+    init(plant: Plant? = nil, asPlanting: Bool = false) {
+        // `_selectedPlant` is the storage behind `@State var
+        // selectedPlant`. This is how a starting value is handed to it.
+        _selectedPlant = State(initialValue: plant)
+        opensAsPlanting = asPlanting
+    }
+
     /// The crosses whose seed this could be: made on this plant first,
     /// then on others of its kind.
     private var offeredCrosses: [PlantCross] {
@@ -212,12 +229,12 @@ struct NewPlantingView: View {
 
     private var isF1: Bool { SeedTruth.isF1(variety: selectedPlant?.variety) }
 
-    /// The ways of starting on offer for this plant. Empty means the
-    /// form does not ask.
+    /// The ways of starting on offer for this plant. There are always
+    /// at least two, seed and plants, so the form always asks.
     private var starts: [PlantingStart] { SeedTruth.starts(for: habit, isF1: isF1) }
 
     /// True when a tree, a plant or a tuber is going in, not seed.
-    private var isPlanting: Bool { !starts.isEmpty && begun == .plant }
+    private var isPlanting: Bool { selectedPlant != nil && begun == .plant }
 
     /// Other varieties of the same plant, to offer as the pollen parent.
     /// "Apple (Cider)" and "Apple" count as the same plant.
@@ -255,7 +272,7 @@ struct NewPlantingView: View {
     var body: some View {
         // Built from the pieces in SheetParts.swift, so that it matches
         // the screen it is opened from. It was a standard Form.
-        SheetPage("New sowing",
+        SheetPage(isPlanting ? "New planting" : "New sowing",
                   confirmTitle: "Save",
                   canConfirm: selectedPlant != nil,
                   onConfirm: save) {
@@ -375,12 +392,11 @@ struct NewPlantingView: View {
         }
     }
 
-    /// A plant's name with its Latin name underneath.
-    /// Asks how it was started, for a plant where that matters, and for
-    /// seed that was saved or crossed, what its parents were.
+    /// Asks how it was started: as seed or as plants, and for seed
+    /// that was saved or crossed, what its parents were.
     private var startedCard: some View {
         SheetCard("How it was started") {
-            GlassSwitch(choices: starts, selection: $begun) { SeedTruth.title(of: $0, habit: habit) }
+            GlassSwitch(choices: starts, selection: $begun) { SeedTruth.title(of: $0, habit: habit, isF1: isF1) }
 
             if let advice = SeedTruth.advice(habit: habit, isF1: isF1, begun: begun,
                                              name: selectedPlant?.commonName ?? "") {
@@ -450,14 +466,19 @@ struct NewPlantingView: View {
             }
         }
         // A different plant has different choices. Start from its usual one.
-        .onChange(of: selectedPlant?.id, initial: true) { _, _ in
-            begun = starts.first ?? .packetSeed
+        // `initial: true` also runs this once when the card first appears,
+        // and that first time the old and new values are the same. So
+        // that is the moment to honour "Add a planting": start on Plants.
+        .onChange(of: selectedPlant?.id, initial: true) { before, after in
+            let isFirstTime = before == after
+            begun = (isFirstTime && opensAsPlanting && starts.contains(.plant)) ? .plant : (starts.first ?? .packetSeed)
             pollenParent = ""
             crossedByHand = false
             chosenCross = nil
         }
     }
 
+    /// A plant's name with its Latin name underneath.
     private func plantWords(_ plant: Plant) -> some View {
         VStack(alignment: .leading, spacing: 1) {
             Text(plant.displayName)
@@ -477,18 +498,18 @@ struct NewPlantingView: View {
         let planting = Planting()
         planting.plant = selectedPlant
         planting.dateSown = dateSown
-        if starts.isEmpty {
-            // Nothing was asked, so nothing is claimed.
+        if begun == .plant {
+            // A plant, a tree or a tuber in the ground is growing, not sown.
+            planting.startedFrom = .plant
+            planting.status = .growing
+        } else {
             planting.sowingLocation = sowingLocation
             planting.status = .sown
-        } else {
-            planting.startedFrom = begun
-            if begun == .plant {
-                // A tree or a tuber in the ground is growing, not sown.
-                planting.status = .growing
-            } else {
-                planting.sowingLocation = sowingLocation
-                planting.status = .sown
+            // Where the seed came from is only recorded for plants the
+            // form asked about. For the rest nothing was asked, so
+            // nothing is claimed.
+            if SeedTruth.asksSeedSource(for: habit, isF1: isF1) {
+                planting.startedFrom = begun
             }
             if begun == .savedSeed {
                 let pollen = pollenParent.trimmingCharacters(in: .whitespaces)
@@ -590,7 +611,8 @@ struct PlantingDetailView: View {
             }
 
             Section("Dates") {
-                DatePicker("Sown", selection: Binding(
+                // A plant, a tree or a tuber was planted, not sown.
+                DatePicker(planting.startedFrom == .plant ? "Planted" : "Sown", selection: Binding(
                     get: { planting.dateSown ?? .now },
                     set: { planting.dateSown = $0 }
                 ), displayedComponents: .date)
@@ -611,7 +633,7 @@ struct PlantingDetailView: View {
             }
 
             Section("Numbers") {
-                LabeledContent("Sown") {
+                LabeledContent(planting.startedFrom == .plant ? "Planted" : "Sown") {
                     TextField("0", value: $planting.quantitySown, format: .number)
                         .multilineTextAlignment(.trailing)
                 }

@@ -146,20 +146,37 @@ enum SeedTruth {
     }
 
     /// The ways of starting that the form offers for this plant, the
-    /// usual one first. Empty means the form asks nothing.
+    /// usual one first.
+    ///
+    /// Every plant can go in as a plant. Until 14 November 2026 only
+    /// those kept by cloning could: an achillea, bought in a pot or
+    /// raised on a windowsill, could only be recorded as seed sown.
+    /// (William, that day: "Could you make it so that you can add a
+    /// planting of plants in the plant page?")
     static func starts(for habit: SeedHabit, isF1: Bool) -> [PlantingStart] {
         switch habit {
         case .keptByCloning: return [.plant, .savedSeed]
-        case .crossesReadily: return [.packetSeed, .savedSeed]
-        case .mostlyTrue, .notKnown: return isF1 ? [.packetSeed, .savedSeed] : []
+        case .crossesReadily: return [.packetSeed, .savedSeed, .plant]
+        case .mostlyTrue, .notKnown: return isF1 ? [.packetSeed, .savedSeed, .plant] : [.packetSeed, .plant]
+        }
+    }
+
+    /// True where the form asks where seed came from, and so records
+    /// the answer. For a plant that comes true from seed, or one not on
+    /// any list, the form only asks "seed or plants", and seed is
+    /// recorded with no claim about a packet.
+    static func asksSeedSource(for habit: SeedHabit, isF1: Bool) -> Bool {
+        switch habit {
+        case .keptByCloning, .crossesReadily: return true
+        case .mostlyTrue, .notKnown: return isF1
         }
     }
 
     /// What the form calls each way of starting, for this plant.
-    static func title(of begun: PlantingStart, habit: SeedHabit) -> String {
+    static func title(of begun: PlantingStart, habit: SeedHabit, isF1: Bool = false) -> String {
         switch begun {
-        case .plant: return "A plant, tree or tuber"
-        case .packetSeed: return "Seed from a packet"
+        case .plant: return habit == .keptByCloning ? "A plant, tree or tuber" : "Plants"
+        case .packetSeed: return asksSeedSource(for: habit, isF1: isF1) ? "Seed from a packet" : "Seed"
         case .savedSeed: return habit == .keptByCloning ? "Seed, for a new seedling" : "Seed I saved"
         }
     }
@@ -177,6 +194,8 @@ enum SeedTruth {
             return "\(plant) is pollinated by other plants of its kind, so saved seed can be a cross unless the flowers were kept apart or pollinated by hand. Record what it may have crossed with."
         case (_, .savedSeed) where isF1:
             return "This is an F1 hybrid. Seed saved from it will not come true: the seedlings vary and few match the parent."
+        case (_, .plant):
+            return "For plants that came as plants: bought, given, divided or grown from a cutting. This will be recorded as planted, not sown."
         default:
             return nil
         }

@@ -168,6 +168,63 @@ enum PlantPage {
         return (left, right)
     }
 
+    // MARK: - The plant in the garden
+
+    /// One sowing or planting of the plant, as its page words it.
+    struct PlantingLine: Identifiable, Equatable {
+        let id: UUID
+        /// "Planted", "Sown" or "On record".
+        let verb: String
+        /// The day it was sown or planted. Nil when it was only put on
+        /// record, as happens for a tree that was here before the app.
+        let date: Date?
+        /// Where and how many: "Bed 3 · A · 6 plants". "Not placed" if
+        /// it has no bed.
+        let detail: String
+        /// "Growing", "Sown", "Finished" and so on.
+        let status: String
+    }
+
+    /// The plant's sowings and plantings, newest first.
+    ///
+    /// The words follow the journal's: a plant, a tree or a tuber is
+    /// "planted", seed is "sown". See `Planting.timelineTitle`.
+    static func plantingLines(for plant: Plant) -> [PlantingLine] {
+        (plant.plantings ?? [])
+            // One with no date goes by the day it was put on record.
+            .sorted { ($0.dateSown ?? $0.createdAt) > ($1.dateSown ?? $1.createdAt) }
+            .map { planting in
+                let isPlanted = planting.startedFrom == .plant
+                var verb = isPlanted ? "Planted" : "Sown"
+                if planting.dateSown == nil { verb = "On record" }
+
+                var bits: [String] = [planting.bedNames.isEmpty ? "Not placed" : planting.bedNames]
+                if let count = planting.quantitySown, count > 0 {
+                    let thing = isPlanted ? "plant" : "seed"
+                    bits.append("\(count) \(thing)\(count == 1 ? "" : "s")")
+                }
+                if let round = planting.successionRound { bits.append("round \(round)") }
+
+                return PlantingLine(id: planting.id, verb: verb, date: planting.dateSown,
+                                    detail: bits.joined(separator: " · "),
+                                    status: statusWords(planting.status))
+            }
+    }
+
+    /// A planting's stage in a word or two.
+    static func statusWords(_ status: PlantingStatus) -> String {
+        switch status {
+        case .planned: return "Planned"
+        case .sown: return "Sown"
+        case .germinated: return "Up"
+        case .plantedOut: return "Planted out"
+        case .growing: return "Growing"
+        case .harvesting: return "Harvesting"
+        case .finished: return "Finished"
+        case .failed: return "Failed"
+        }
+    }
+
     // MARK: - Pieces
 
     /// A fact, or nil if there is nothing to say. A unit is added when
