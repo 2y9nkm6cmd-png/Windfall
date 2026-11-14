@@ -196,6 +196,92 @@ enum RangeParser {
     }
 }
 
+// MARK: - Lengths of time
+
+/// Reads a length of time with its unit: "12-16 weeks", "9-12 months".
+///
+/// `RangeParser` above only finds the numbers. Until 14 November 2026
+/// "Sow to crop" was read with it and the numbers were taken as days,
+/// so garlic's "20 weeks" was shown as "20 days" and Today thought a
+/// crop was ready to pick after 20 days. Every sow-to-crop figure in
+/// the spreadsheet is in weeks or months.
+enum DurationParser {
+
+    /// The units a length of time may be written in.
+    enum TimeUnit: String, CaseIterable {
+        case days, weeks, months, years
+
+        /// How many days one of them is. A month is a twelfth of a year.
+        var inDays: Double {
+            switch self {
+            case .days: return 1
+            case .weeks: return 7
+            case .months: return 365.25 / 12
+            case .years: return 365.25
+            }
+        }
+
+        /// The ways it is written, shortest forms included.
+        fileprivate var spellings: [String] {
+            switch self {
+            case .days: return ["day"]
+            case .weeks: return ["week", "wk"]
+            case .months: return ["month", "mth"]
+            case .years: return ["year", "yr"]
+            }
+        }
+
+        /// "week" for one and "weeks" for more.
+        func word(for howMany: Double) -> String {
+            howMany == 1 ? String(rawValue.dropLast()) : rawValue
+        }
+    }
+
+    /// The numbers and the unit, as written: "12-16 weeks" is 12 to 16
+    /// and weeks. Nil if there is no number.
+    ///
+    /// The unit is the first one named. Only the numbers before it are
+    /// used, so "12 weeks (84 days)" is 12 weeks and not 12 to 84. With
+    /// no unit named the figure is taken as days, which is what the
+    /// germination column is in.
+    static func read(_ text: String?) -> (span: NumericRange, timeUnit: TimeUnit)? {
+        guard let text, !text.isEmpty else { return nil }
+        let lower = text.lowercased()
+
+        // Where each unit is first named, if it is. The earliest wins.
+        var firstNamed: (timeUnit: TimeUnit, at: String.Index)?
+        for timeUnit in TimeUnit.allCases {
+            for spelling in timeUnit.spellings {
+                if let place = lower.range(of: spelling)?.lowerBound, place < (firstNamed?.at ?? lower.endIndex) {
+                    firstNamed = (timeUnit, place)
+                }
+            }
+        }
+
+        guard let earliest = firstNamed else {
+            return RangeParser.range(in: lower).map { ($0, .days) }
+        }
+        // The figures before the unit, or failing that all of them, as
+        // in "weeks: 12-16".
+        let before = String(lower[..<earliest.at])
+        guard let span = RangeParser.range(in: before) ?? RangeParser.range(in: lower) else { return nil }
+        return (span, earliest.timeUnit)
+    }
+
+    /// The length of time in days: "12-16 weeks" is 84 to 112.
+    static func days(in text: String?) -> NumericRange? {
+        guard let length = read(text) else { return nil }
+        return NumericRange(lower: length.span.lower * length.timeUnit.inDays,
+                            upper: length.span.upper * length.timeUnit.inDays)
+    }
+
+    /// As it should be shown, in its own unit: "20 weeks", "9–12 months".
+    static func describe(_ text: String?) -> String? {
+        guard let length = read(text) else { return nil }
+        return "\(length.span.description) \(length.timeUnit.word(for: length.span.upper))"
+    }
+}
+
 // MARK: - Booleans
 
 enum BoolParser {
