@@ -7,9 +7,9 @@ run without the Mac (every file reads as valid Swift, 323 logic tests
 pass). Those do not build the screens. Expect things to put right when
 it is first built, and treat how everything here looks as untried.
 
-## 14 November 2026, TIMEHERE: a plant's facts can be added and changed in the app
+## 14 November 2026, 13:35: a plant's facts can be added and changed in the app
 
-**On the branch `plant-facts-edit`, made from `main` and merged back into it.** Built for the Mac and the iOS Simulator with no errors (`r39-mac.log`, `r39-sim.log`). 557 logic tests pass. Looked at running with the example garden on an iPad Air, a 13-inch iPad Pro and an iPhone, light and dark. The database check passed (DBCHECK).
+**On the branch `plant-facts-edit`, made from `main` and merged back into it.** Built for the Mac and the iOS Simulator with no errors (`r41-mac.log`, `r41-sim.log`). 558 logic tests pass. Looked at running with the example garden on an iPad Air, a 13-inch iPad Pro and an iPhone, light and dark. The database check passed (`migrate-side.sh origin/main origin/plant-facts-edit m4`, 13:33: the version before made a database holding the full library in the iPad mini simulator, and this version opened it and listed its 376 plants).
 
 **Why.** William, on a plant's page: "It doesn't seem to show any way to add information about the plants either". He was right. Until now a plant's facts could only come in from the spreadsheet file. Nothing in the app could add one or put one right.
 
@@ -71,7 +71,8 @@ _values = State(initialValue: PlantFacts.values(of: plant))
 - The names Claude chose for facts the page did not show before: "Time to full height", "Maintenance propagation", "Needs a propagator", "Type".
 - Rootstock is on the "Sowing from Seed" card, beside Propagation, which is where the record keeps it. Say if it belongs elsewhere.
 - The line above the name now ends with the type: "Summer berries · Wildflower · Hardy perennial · Seeds".
-- MACLINE
+- **The Mac itself has not been looked at by Claude.** The two-column page was seen on a 13-inch iPad, which lays out the same way. The pencils, the Edit button and the size of the sheet on the Mac are untried.
+- Saving was seen working in the running app: five example changes typed into the sheet, saved, and shown on the page. Typing by hand and pressing the month buttons have not been tried by anyone.
 
 **Checking aids.** `-demoPlant Achillea -demoOpen plantEdit` opens the sheet, and `plantEditSowing` opens it at the sowing card. `-demoEdit "spacingM=0.4|notes=Cut back in March"` types changes into it, and `-demoEditSave YES` saves them, so a still can show the page afterwards.
 
