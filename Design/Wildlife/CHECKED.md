@@ -2,7 +2,7 @@
 
 Each single-animal drawing in Windfall was first made from Claude's memory. This file records which have since been set beside a trustworthy written description, and what was found. **A drawing not listed here has not been checked.**
 
-**What a check is.** The identification notes on the page named are read, and the colours and markings they give are compared with the colour words in the animal's drawing function (`Tools/design/wildlife_species.py` and `wildlife_species2.py`). It is a check of colours and markings. It is not a check of the drawn outline against a photograph.
+**What a check is.** The identification notes on the page named are read, and the colours and markings they give are compared with the colour words in the animal's drawing function (`Tools/design/wildlife_species.py` and `wildlife_species2.py`). It is a check of colours and markings. It is not a check of the drawn outline against a photograph: for that, see "Photographs" below.
 
 **Checked so far: 14 of 203, all birds, on 15 November 2026.**
 
@@ -35,6 +35,18 @@ Each single-animal drawing in Windfall was first made from Claude's memory. This
 ## Not yet checked
 
 Every other bird (40), every mammal, amphibian and reptile, and every insect, spider, snail and slug. The raven, hooded crow and chough, drawn at 19:25 on 15 November, are among them.
+
+## Photographs: a route that works, proved at 19:33 on 15 November 2026
+
+The first check above was of words only. **A drawing can also be set beside photographs, when the chat is linked to William's Mac.** One photo was taken the whole way as a test:
+
+1. On the Mac (Desktop Commander's shell), ask iNaturalist for photos of the animal and download one with `curl`. The Mac can reach the web freely. Claude's cloud workspace cannot.
+2. Save it in `~/Developer/windfall-photo-check`, a folder William has let the chat read (he is asked once in each chat).
+3. Bring it into the chat with the tool that copies a file from the Mac (`device_stage_files`), and look at it.
+
+**What the test taught.** The photo asked for was the most-liked research-grade UK blackbird with an open licence. It was a white blackbird. **The most-liked photos are the oddities.** For a typical animal use the photo iNaturalist itself shows for the species (`default_photo` from `https://api.inaturalist.org/v1/taxa/<id>`), and three or four recent research-grade records beside it, not the most liked.
+
+**How to do all 203.** On the Mac, a script that for each animal downloads the species' own photo and three recent ones at the small size (about 500 points across, some 40MB in all), keeping each photographer's name and licence in a file beside them. Then one picture for each animal with its drawing beside its photos, looked at a group at a time. The photos are for checking only. They are other people's work and do not go into the app or the repository.
 
 ## For whoever carries on
 

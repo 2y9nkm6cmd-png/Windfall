@@ -1,3 +1,7 @@
+# 15 November 2026, 19:35: drawings can be checked against photographs through the Mac
+
+**By the "wildlife rows" chat.** William, 19:31: "Why can't you check against photos? Can you use anything on my Mac to compare drawings to photos?" Claude can look at a photo. What it lacked was a way to fetch one: its cloud workspace may not download from websites and its web reader returns words only. The Mac can download. One blackbird photo was fetched from iNaturalist on the Mac, saved in the new folder `~/Developer/windfall-photo-check`, brought into the chat and looked at. The steps, and what the test taught (the most-liked photo was a white blackbird), are in `Design/Wildlife/CHECKED.md`. No drawing was changed.
+
 # 15 November 2026, 19:28: a first check of the bird drawings against the Wildlife Trusts and the RSPB, and the blackbird's bill corrected
 
 **By the "wildlife rows" chat.** William, 19:23: "Can you check the animals against a field guide or other online sources that are trustworthy". **14 of the 203 single-animal drawings were checked, all birds. One was wrong and is corrected.** The record is `Design/Wildlife/CHECKED.md`, which says for each animal what was read, where, and what was found.
