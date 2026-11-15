@@ -784,10 +784,27 @@ extension HarvestDestination {
 
 struct HarvestEditor: View {
 
-    let planting: Planting
-    /// Set when this form was reached from a list of sowings in the
-    /// same sheet. The plain button then reads "Back" and returns there.
+    /// What the harvest is recorded against: a sowing or planting, or
+    /// a plant with neither on record. See `HarvestSource` in
+    /// PlantModels.swift.
+    let source: HarvestSource
+    /// Set when this form was reached from a list in the same sheet.
+    /// The plain button then reads "Back" and returns there.
     var onBack: (() -> Void)? = nil
+
+    /// For a sowing or planting already on record. A planting's own
+    /// page opens the form this way.
+    init(planting: Planting, onBack: (() -> Void)? = nil) {
+        self.init(source: .planting(planting), onBack: onBack)
+    }
+
+    /// For either kind of source. The Harvest button on Today opens the
+    /// form this way, because the plant chosen there may have nothing
+    /// on record as sown or planted.
+    init(source: HarvestSource, onBack: (() -> Void)? = nil) {
+        self.source = source
+        self.onBack = onBack
+    }
 
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var context
@@ -798,10 +815,12 @@ struct HarvestEditor: View {
     @State private var destination: HarvestDestination = .eaten
     @State private var notes = ""
 
-    /// What was sown and where, for the line under the title.
+    /// What was sown and where, for the line under the title. A plant
+    /// with nothing on record has no bed to name.
     private var sowingLine: String {
-        let name = planting.plant?.displayName ?? "Unknown plant"
-        return planting.bedNames.isEmpty ? name : "\(name). \(planting.bedNames)"
+        let name = source.plant?.displayName ?? "Unknown plant"
+        guard case .planting(let planting) = source, !planting.bedNames.isEmpty else { return name }
+        return "\(name). \(planting.bedNames)"
     }
 
     var body: some View {
@@ -813,6 +832,16 @@ struct HarvestEditor: View {
                   canConfirm: Double(quantity) != nil,
                   onConfirm: save) {
             SheetScroll {
+                // Said before anything is typed, so it is no surprise
+                // to find the plant among what is growing afterwards.
+                if source.needsPuttingOnRecord {
+                    SheetCard("Not on record yet") {
+                        Text("Nothing is on record as sown or planted for this. Saving will put it on record as growing, so the harvest has somewhere to go.")
+                            .font(.body)
+                            .foregroundStyle(Theme.inkSoft)
+                    }
+                }
+
                 SheetCard("How much") {
                     SettingRow("Date") {
                         DatePicker("Date", selection: $date, displayedComponents: .date)
@@ -857,6 +886,18 @@ struct HarvestEditor: View {
 
     private func save() {
         guard let value = Double(quantity) else { return }
+
+        // The sowing or planting the harvest goes against. A plant with
+        // none on record is given one here, and only here: nothing is
+        // added to the records until Save is pressed.
+        let planting: Planting
+        switch source {
+        case .planting(let onRecord):
+            planting = onRecord
+        case .plant(let plant):
+            planting = Planting.putOnRecord(plant, from: "the Harvest button", in: context)
+        }
+
         let harvest = Harvest()
         harvest.date = date
         harvest.quantity = value

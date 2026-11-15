@@ -131,6 +131,27 @@ enum DemoGarden {
         isRequested ? UserDefaults.standard.string(forKey: "demoOpen") : nil
     }
 
+    /// A checking aid: `-demoOpen harvest -demoHarvestSearch apple`
+    /// opens the Harvest sheet with those words already in its search
+    /// box, so a still picture can be taken of what it finds.
+    static var harvestSearch: String? {
+        isRequested ? UserDefaults.standard.string(forKey: "demoHarvestSearch") : nil
+    }
+
+    /// A checking aid: `-demoOpen harvest -demoNothingGrowing YES`
+    /// shows the Harvest sheet as it is for a garden with nothing sown
+    /// or planted. The example garden's own sowings are left alone.
+    static var nothingGrowing: Bool {
+        isRequested && UserDefaults.standard.bool(forKey: "demoNothingGrowing")
+    }
+
+    /// A checking aid: `-demoOpen harvest -demoHarvestChoose YES` goes
+    /// straight to the harvest form for the first plant the sheet
+    /// offers. With `-demoHarvestSearch`, that is the first match.
+    static var harvestChoosesFirst: Bool {
+        isRequested && UserDefaults.standard.bool(forKey: "demoHarvestChoose")
+    }
+
     /// A checking aid: `-demoEdit "spacingM=0.5|notes=Cut back in March"`
     /// types those into the sheet that edits a plant as it opens, so a
     /// still picture can show changes waiting to be saved. Each piece

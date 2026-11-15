@@ -325,6 +325,121 @@ enum HarvestDestination: String, Codable, CaseIterable, Identifiable {
     var id: String { rawValue }
 }
 
+// MARK: - What a harvest can be recorded against
+
+extension Planting {
+
+    /// True if this sowing or planting could be giving a crop: it is
+    /// not finished, it has not failed and it is more than a plan.
+    var couldBeCropping: Bool {
+        status != .finished && status != .failed && status != .planned
+    }
+
+    /// A plant's sowings and plantings that could be giving a crop,
+    /// newest first. One with no date goes last.
+    static func cropping(of plant: Plant) -> [Planting] {
+        (plant.plantings ?? [])
+            .filter(\.couldBeCropping)
+            .sorted { ($0.dateSown ?? .distantPast) > ($1.dateSown ?? .distantPast) }
+    }
+
+    /// Puts a plant on record as growing and cropping, so that a
+    /// harvest from it has somewhere to go.
+    ///
+    /// A harvest is always stored against a sowing or planting. A tree
+    /// that was here before the app has neither. This makes one for it,
+    /// with no sowing date, and a note saying how it came to be there.
+    /// The journal lists a planting with no date as "put on record", not
+    /// as sown that day.
+    ///
+    /// - `place`: where it was added from, for the note: "the journal"
+    ///   or "the Harvest button".
+    /// - `context`: the database to add it to.
+    ///
+    /// Until 15 November 2026 these lines were written out in the
+    /// journal's "Add a harvest?" card, which was the only place that
+    /// could do this. The Harvest button now does it too, so they are
+    /// here once and both call them.
+    static func putOnRecord(_ plant: Plant, from place: String, in context: ModelContext) -> Planting {
+        let planting = Planting()
+        planting.plant = plant
+        planting.status = .harvesting
+        planting.notes = "Put on record from \(place) when its first harvest was added. When it was sown or planted is not known."
+        context.insert(planting)
+        return planting
+    }
+}
+
+/// What a harvest is being recorded against.
+///
+/// An `enum` with a value attached to each case: a HarvestSource is
+/// either a sowing or planting, or a bare plant, and Swift makes every
+/// place that uses one say what happens for each.
+enum HarvestSource {
+    /// A sowing or planting already on record.
+    case planting(Planting)
+    /// A plant with nothing on record as sown or planted. Saving the
+    /// harvest puts it on record first: see `Planting.putOnRecord`.
+    case plant(Plant)
+
+    /// The plant the crop came from, if it is known.
+    var plant: Plant? {
+        switch self {
+        case .planting(let planting): return planting.plant
+        case .plant(let plant): return plant
+        }
+    }
+
+    /// True when saving the harvest will also put the plant on record.
+    var needsPuttingOnRecord: Bool {
+        if case .plant = self { return true }
+        return false
+    }
+
+    /// What to record a harvest against for a plant picked from the
+    /// library: its newest sowing or planting that could be cropping,
+    /// or the plant itself if it has none.
+    static func source(for plant: Plant) -> HarvestSource {
+        if let newest = Planting.cropping(of: plant).first { return .planting(newest) }
+        return .plant(plant)
+    }
+}
+
+/// Which plants the Harvest sheet offers from the library, and in what
+/// order. No screen code, so it can be tested without one.
+enum HarvestChoice {
+
+    /// - `plants`: the library, in the order it should be listed.
+    /// - `search`: what has been typed. Capitals and spaces at either
+    ///   end do not matter.
+    /// - `month`: 1 for January to 12 for December.
+    ///
+    /// With nothing typed, every plant is offered, those in their
+    /// harvest or fruiting months this month first: in October the
+    /// apples come before the asparagus. With something typed, only
+    /// plants whose name, variety or Latin name holds those letters,
+    /// those whose name begins with them first.
+    ///
+    /// Within each group the plants keep the order they came in.
+    static func offered(_ plants: [Plant], search: String, month: Int) -> [Plant] {
+        let needle = search.trimmingCharacters(in: .whitespaces).lowercased()
+
+        if needle.isEmpty {
+            let inSeason = plants.filter { YearActivity.harvest.months(for: $0).contains(month) }
+            let outOfSeason = plants.filter { !YearActivity.harvest.months(for: $0).contains(month) }
+            return inSeason + outOfSeason
+        }
+
+        let matching = plants.filter {
+            $0.displayName.lowercased().contains(needle)
+                || ($0.latinName?.lowercased().contains(needle) ?? false)
+        }
+        let beginningWith = matching.filter { $0.displayName.lowercased().hasPrefix(needle) }
+        let holding = matching.filter { !$0.displayName.lowercased().hasPrefix(needle) }
+        return beginningWith + holding
+    }
+}
+
 /// One picking. Courgettes get harvested thirty times — thirty rows.
 @Model
 final class Harvest {
