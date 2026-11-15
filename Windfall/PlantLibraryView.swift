@@ -790,9 +790,11 @@ struct PlantDetailView: View {
         }
     }
 
-    /// The close-ups of the plant's leaf and flower, in a card of their
-    /// own under the life stages (William, 15 November 2026: "a separate
-    /// section in the plant page"). Nothing for a plant with none.
+    /// The close-ups of the plant's leaf and flower, under the life
+    /// stages (William, 15 November 2026: "a separate section in the
+    /// plant page"), as two cards side by side (William, 11:57 the same
+    /// day: "two separate cards that sit next to each other"). Nothing
+    /// for a plant with none.
     @ViewBuilder
     private var partsCard: some View {
         if let kind = PlantDrawings.shared.kind(forPlantNamed: plant.commonName) {
@@ -892,8 +894,10 @@ struct DemoPlantPage: View {
                 let parts = PlantPicture.parts(PlantParts.shared.parts(forKind: kind.slug), kind: kind.slug)
                 let row = stages.contains { $0.key == key } ? stages : parts
                 if let first = row.first(where: { $0.key == key }) {
-                    PlantPictureDetailView(title: row == stages ? "Life stages" : "Leaf and flower",
-                                           plantName: plant.commonName, drawings: row, firstShown: first)
+                    // A close-up opens alone, as it does from its card.
+                    PlantPicturesZoomed(title: row == stages ? "Life stages" : first.label,
+                                        plantName: plant.commonName,
+                                        drawings: row == stages ? row : [first], firstShown: first)
                 } else {
                     Text("\(plant.commonName) has no drawing called \(key).")
                 }

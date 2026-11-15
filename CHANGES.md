@@ -1,3 +1,21 @@
+# 15 November 2026, 12:25: the whole Life stages card zooms in, and Leaf and Flower are two cards
+
+**By the card zoom chat.** William, 11:57: "When I said I wanted the life stages card to be able to be tapped to zoom in, I meant the entire card, then able to scroll through the life cycle but it would be zoomed in. For the leaf and flower card, I want these as two separate cards that sit next to each other, but in the same location they're in now." Made on the branch `card-zoom-15nov`, from `main` at `f4b5700`.
+
+| File | What changed, and why |
+|---|---|
+| `PlantDrawingViews.swift`, `PlantStagesCard` | The whole card is now one `GrowingLink`, so a tap anywhere on it (a drawing, a label, the title or the glass) opens the zoomed page, which grows out of the card. The row of tiles still slides sideways with a drag. Until now each tile was a link of its own |
+| `PlantPartsCard`, new `PlantCloseUpCard` | "Leaf" and "Flower" (or "Blossom", "Flowers, inside the fig") are two cards side by side, each its title and its drawing filling the card, in the same place on the page. Each card opens its own drawing zoomed in. A plant with a leaf and no flower shows the leaf card alone at half width |
+| `PlantPicturesZoomed` (was `PlantPictureDetailView`) | Every drawing of the card large, one at a time, in a sideways row that stops on each drawing (`.scrollTargetBehavior(.paging)`). Swipe to step through the life cycle while staying zoomed in, or use the arrows either side of "3 of 5", or the arrow keys on a Mac. The small tiles at the foot ring the one in view and slide straight to any stage. `scrollPosition(id:)` reads which drawing the row is on; a `ScrollViewReader` moves it when a button asks |
+| `PlantLibraryView.swift` | The checking aid `-demoPlantDrawing` opens the new page; a close-up opens alone, as from its card |
+| `PlantPage.swift` | Comment only: the drawing cards' weight for the two-column page is unchanged, as the Leaf and Flower row is about as tall as the old card |
+
+**Put right while checking:** a page opened part-way along (the checking aid) showed the first drawing while saying "3 of 5", because a scroll view starts at the left on its first showing. It now slides to the right drawing once it is on screen.
+
+**Checked:** Mac and simulator builds, unsigned: BUILD SUCCEEDED (`windfall-build-logs/cz5-mac.log`, `cz4-sim.log`). Simulator pictures (`windfall-build-logs/shots/cz-*.png`): Garlic and Tomato on an iPhone 17 Pro in light, Rhubarb in dark, Garlic on an iPad mini, the zoomed page for Garlic's life stages, Rhubarb's leaf and Garlic's flower.
+
+**Not checked:** a tap or a swipe. The pictures are of pages opened by the checking aid; nobody has yet tapped a card, swiped the zoomed row or pressed an arrow on a device.
+
 # 15 November 2026, 11:50: three branches joined into main, tested or not
 
 **By the midday join chat.** William, 11:44: "Merge all changes into the main branch, including untested ones so that I can test all changes." Joined on the branch `join-15nov-midday`, made from `main` at `14315a5`, in its own copy (`~/Developer/windfall-join2`).

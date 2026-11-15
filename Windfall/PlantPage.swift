@@ -261,9 +261,10 @@ enum PlantPage {
     }
 
     /// Roughly how tall the drawing cards at the top of the left-hand
-    /// column are, in rows: "Life stages" and "Leaf and flower" are each
-    /// a title, a row of 96-point drawings and their labels. `cards` is
-    /// how many the page shows (0, 1 or 2).
+    /// column are, in rows: "Life stages" is a title and a row of
+    /// 96-point drawings with their labels; the Leaf and Flower cards,
+    /// side by side, are a title and a drawing about as tall. `cards` is
+    /// how many rows of drawing cards the page shows (0, 1 or 2).
     static func drawingCardsWeight(cards: Int) -> Int {
         max(cards, 0) * 7
     }
