@@ -9,10 +9,11 @@ import SwiftUI
 //   - "Leaf" and "Flower": a close-up each, two cards side by side.
 //
 // Tapping anywhere on a card opens it zoomed in (`PlantPicturesZoomed`).
-// For the life stages that is every stage large, one at a time, swiped
-// through sideways. For a close-up it is that one drawing large. The
-// zoomed page grows out of the card that was tapped and shrinks back
-// into it on the way back (GrowFromTile.swift).
+// For the life stages that is the card's own row made much bigger: one
+// long strip that fills the page and is dragged along sideways. For a
+// close-up it is that one drawing large. The zoomed page grows out of
+// the card that was tapped and shrinks back into it on the way back
+// (GrowFromTile.swift).
 //
 // Until 15 November 2026, midday, each little tile was its own link and
 // "Leaf and flower" was one card with two tiles. William asked for the
@@ -155,26 +156,19 @@ struct PlantCloseUpCard: View {
     }
 }
 
-/// One tile in a row: the drawing and its label beneath.
+/// One tile in a card's row: the drawing and its label beneath.
 struct PlantPictureTile: View {
 
     let drawing: PlantPicture
     var size: CGFloat = 96
-    /// True when this is the drawing shown large, on the enlarged page.
-    var isChosen = false
 
     var body: some View {
         VStack(spacing: 6) {
             PlantDrawingView(kind: drawing.kind, stage: drawing.key, size: size)
                 .padding(4)
-                .overlay {
-                    // A ring round the drawing that is shown large.
-                    RoundedRectangle(cornerRadius: 12, style: .continuous)
-                        .strokeBorder(Theme.leaf, lineWidth: isChosen ? 2 : 0)
-                }
             Text(drawing.label)
-                .font(.footnote.weight(isChosen ? .semibold : .regular))
-                .foregroundStyle(isChosen ? Theme.ink : Theme.inkSoft)
+                .font(.footnote)
+                .foregroundStyle(Theme.inkSoft)
                 .multilineTextAlignment(.center)
                 .frame(width: size + 8)
                 .fixedSize(horizontal: false, vertical: true)
@@ -184,17 +178,21 @@ struct PlantPictureTile: View {
         // VoiceOver reads each tile as its label alone.
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(drawing.label)
-        .accessibilityAddTraits(isChosen ? .isSelected : [])
     }
 }
 
 /// A card zoomed in, on a page of its own.
 ///
-/// For the life stages: each stage as large as the screen allows, one
-/// at a time. Swipe sideways (or use the arrows, or the arrow keys on a
-/// Mac) to step through the life cycle while staying zoomed in. The
-/// small tiles at the foot show where you are and jump straight to a
-/// stage. For a close-up there is just the one drawing.
+/// For the life stages it is the card's own row made much bigger: every
+/// stage in one long strip, each with its name beneath, as tall as the
+/// page allows. Drag sideways to travel along it from seed to winter.
+/// The strip glides and stops wherever it is let go. For a close-up
+/// there is just the one drawing, in the middle.
+///
+/// Until 13:00 on 15 November 2026 this was a slideshow: one drawing to
+/// a page, snapping from page to page, with arrows, a "3 of 5" count
+/// and a second row of small tiles beneath. William asked for the card
+/// itself to fill the screen and be scrolled along, so all of that went.
 struct PlantPicturesZoomed: View {
 
     /// The card it came from: "Life stages", "Leaf".
@@ -202,182 +200,121 @@ struct PlantPicturesZoomed: View {
     let plantName: String
     let drawings: [PlantPicture]
 
-    /// Which drawing is in view, by its id ("seedling", "crop").
+    /// For the checking aid on the plant page (`-demoPlantDrawing crop`):
+    /// the drawing to have in the middle when the page opens. From a card
+    /// this is left as `nil` ("nothing") and the strip opens at its
+    /// start, as the card does.
+    var firstShown: PlantPicture? = nil
+
+    /// How much of the page's width one drawing may take when there are
+    /// several. A little over half, so the next stage always shows at
+    /// the edge and it is plain that the strip carries on. Make this
+    /// smaller to see more stages at once, larger for bigger drawings.
+    private static let shareOfWidth: CGFloat = 0.58
+
+    /// How wide and tall each drawing is, in points, on a page this size.
     ///
-    /// `@State` because swiping or tapping changes it. It is optional
-    /// (`String?`) because that is what `scrollPosition(id:)` below
-    /// works with: the scroll view writes the id of the drawing it has
-    /// settled on into this box, and when a button writes an id into it,
-    /// the scroll view slides to that drawing. One box, both directions.
-    @State private var shownID: String?
-
-    /// Where a button (an arrow, or a small tile) has asked the row to
-    /// slide to. Kept apart from `shownID`, which the row itself writes
-    /// as it moves, so the two never pull against each other.
-    @State private var target: String?
-
-    /// `firstShown` is for the checking aid on the plant page
-    /// (`-demoPlantDrawing crop`). From a card the page starts at the
-    /// first drawing, as the card does.
-    init(title: String, plantName: String, drawings: [PlantPicture], firstShown: PlantPicture? = nil) {
-        self.title = title
-        self.plantName = plantName
-        self.drawings = drawings
-        // `_shownID` is the box behind `shownID`. A starting value for
-        // an @State is put straight into the box like this.
-        _shownID = State(initialValue: (firstShown ?? drawings.first)?.id)
-    }
-
-    /// Where the shown drawing is in the row: 0 for the first.
-    private var shownIndex: Int {
-        drawings.firstIndex { $0.id == shownID } ?? 0
-    }
-
-    /// Slides to the drawing `step` places along (-1 back, +1 on), if
-    /// there is one.
-    private func move(_ step: Int) {
-        let next = shownIndex + step
-        guard drawings.indices.contains(next) else { return }
-        target = drawings[next].id
+    /// `static` means the sum belongs to the type and not to one page of
+    /// it: it uses nothing but the numbers handed to it.
+    private static func side(in page: CGSize, alone: Bool) -> CGFloat {
+        // Up and down: the page's height, less the plant's name above,
+        // the stage's name beneath and the gaps round them.
+        let roomUp = page.height - 150
+        // Across: a lone close-up may fill the width. A strip keeps to
+        // its share, so that more than one stage is in view.
+        let roomAcross = alone ? page.width - 72 : page.width * shareOfWidth
+        // The smaller of the two, never under 160 points nor over 720.
+        return max(160, min(roomUp, roomAcross, 720))
     }
 
     var body: some View {
-        // GeometryReader says how tall the page is, so a drawing is never
-        // so big that its name falls off the foot of an iPad on its side.
+        // GeometryReader measures the page and hands its size over as
+        // `page`, so the drawings can be sized to fit it.
         GeometryReader { page in
-            let side = min(560, max(220, page.size.height * 0.6))
+            let side = Self.side(in: page.size, alone: drawings.count == 1)
 
-            ScrollView {
-                VStack(alignment: .leading, spacing: 14) {
-                    Text(plantName)
-                        .font(.body)
-                        .foregroundStyle(Theme.inkSoft)
+            VStack(alignment: .leading, spacing: 10) {
+                Text(plantName)
+                    .font(.body)
+                    .foregroundStyle(Theme.inkSoft)
 
-                    // The zoomed-in row. Each drawing is one "page" as wide
-                    // as the card (`containerRelativeFrame`), and
-                    // `.paging` makes a swipe stop exactly on the next
-                    // one rather than halfway between two.
-                    //
-                    // `ScrollViewReader` hands over a `proxy`: a remote
-                    // control for the row, whose `scrollTo` slides it to
-                    // the drawing with a given id.
-                    ScrollViewReader { proxy in
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 0) {
+                // The two Spacers, one above the card and one below,
+                // share out any height left over, which puts the card in
+                // the middle of a tall page (an iPhone held upright).
+                Spacer(minLength: 0)
+
+                // `ScrollViewReader` hands over a `proxy`: a remote
+                // control for the strip, whose `scrollTo` slides it to
+                // the drawing with a given id. Only the checking aid
+                // uses it.
+                ScrollViewReader { proxy in
+                    // A plain sideways ScrollView. With nothing said
+                    // about where it may stop, it glides freely and
+                    // rests wherever the finger leaves it.
+                    ScrollView(.horizontal) {
+                        HStack(alignment: .top, spacing: side * 0.1) {
                             ForEach(drawings) { drawing in
-                                VStack(spacing: 12) {
-                                    Image(drawing.pictureName)
-                                        .resizable()
-                                        .aspectRatio(1, contentMode: .fit)
-                                        .frame(maxWidth: side, maxHeight: side)
-                                        .accessibilityLabel("\(plantName): \(drawing.label)")
-                                    Text(drawing.label)
-                                        .font(.screenTitle)
-                                        .foregroundStyle(Theme.ink)
-                                        .multilineTextAlignment(.center)
-                                        .accessibilityHidden(true)
-                                }
-                                .padding(20)
-                                .containerRelativeFrame(.horizontal)
-                                // The name `scrollTo` looks for.
-                                .id(drawing.id)
+                                stage(drawing, side: side)
                             }
                         }
-                        // Tells the scroll view that each drawing above
-                        // is a place it may come to rest.
-                        .scrollTargetLayout()
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 16)
+                        // If the strip is narrower than the card (a lone
+                        // close-up, or a very wide Mac window) this
+                        // stretches it to the card's width, and a frame
+                        // puts what it holds in its middle.
+                        .frame(minWidth: max(0, page.size.width - 32))
                     }
-                    .scrollTargetBehavior(.paging)
-                    .scrollPosition(id: $shownID)
-                    // A button has asked for another drawing: slide to it.
-                    .onChange(of: target) { _, id in
-                        guard let id else { return }
-                        withAnimation(.easeInOut(duration: 0.3)) { proxy.scrollTo(id, anchor: .leading) }
-                        target = nil
-                    }
-                    // A page opened part-way along (the checking aid
-                    // `-demoPlantDrawing crop`) starts on that drawing. A
-                    // tenth of a second's wait lets the row be laid out
-                    // first, or there is nothing yet to slide.
+                    // The scroll bar shows for a moment when the page
+                    // opens: a hint that there is more to the side.
+                    .scrollIndicatorsFlash(onAppear: true)
+                    // A tenth of a second's wait lets the strip be laid
+                    // out first, or there is nothing yet to slide.
                     .task {
-                        guard let start = shownID, start != drawings.first?.id else { return }
+                        guard let start = firstShown, start.id != drawings.first?.id else { return }
                         try? await Task.sleep(for: .milliseconds(100))
-                        proxy.scrollTo(start, anchor: .leading)
-                    }
-                    .glassCard(padding: 0)
-                    }
-
-                    if drawings.count > 1 {
-                        steps
-                        strip
+                        proxy.scrollTo(start.id, anchor: .center)
                     }
                 }
-                .padding(.horizontal, 16)
-                .padding(.top, 8)
-                .padding(.bottom, 20)
+                // Cuts the strip to the card's rounded corners, so a
+                // drawing sliding past does not poke out of them.
+                .clipShape(.rect(cornerRadius: Theme.cardRadius))
+                .glassCard(padding: 0)
+
+                Spacer(minLength: 0)
             }
+            .padding(.horizontal, 16)
+            .padding(.top, 8)
+            .padding(.bottom, 16)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         }
         .navigationTitle(title)
         #if os(iOS)
-        // The small title in the bar. The large words are on the page.
+        // The small title in the bar, to leave the page to the strip.
         .navigationBarTitleDisplayMode(.inline)
         #endif
         .paperScreen()
     }
 
-    /// Back and on arrows either side of "3 of 7". On a Mac, where there
-    /// is no swipe on a mouse, these and the arrow keys do the stepping.
-    private var steps: some View {
-        HStack(spacing: 18) {
-            Button { move(-1) } label: {
-                Image(systemName: "chevron.left")
-                    .font(.title3.weight(.semibold))
-                    .frame(width: 44, height: 44)
-                    .contentShape(Rectangle())
-            }
-            .buttonStyle(.plain)
-            .foregroundStyle(Theme.leaf)
-            .disabled(shownIndex == 0)
-            .opacity(shownIndex == 0 ? 0.3 : 1)
-            .keyboardShortcut(.leftArrow, modifiers: [])
-            .accessibilityLabel("Earlier")
-
-            Text("\(shownIndex + 1) of \(drawings.count)")
-                .font(.body.monospacedDigit())
-                .foregroundStyle(Theme.inkSoft)
-
-            Button { move(1) } label: {
-                Image(systemName: "chevron.right")
-                    .font(.title3.weight(.semibold))
-                    .frame(width: 44, height: 44)
-                    .contentShape(Rectangle())
-            }
-            .buttonStyle(.plain)
-            .foregroundStyle(Theme.leaf)
-            .disabled(shownIndex == drawings.count - 1)
-            .opacity(shownIndex == drawings.count - 1 ? 0.3 : 1)
-            .keyboardShortcut(.rightArrow, modifiers: [])
-            .accessibilityLabel("Later")
+    /// One stage of the strip: the drawing, and its name beneath.
+    private func stage(_ drawing: PlantPicture, side: CGFloat) -> some View {
+        VStack(spacing: 10) {
+            Image(drawing.pictureName)
+                .resizable()
+                // The drawings are vector shapes, so they stay sharp at
+                // any size.
+                .aspectRatio(1, contentMode: .fit)
+                .frame(width: side, height: side)
+            Text(drawing.label)
+                .font(.title3.weight(.medium))
+                .foregroundStyle(Theme.ink)
+                .multilineTextAlignment(.center)
+                .frame(width: side)
         }
-        .frame(maxWidth: .infinity)
-    }
-
-    /// Every drawing small, the one in view ringed. Tap one to slide
-    /// straight to it.
-    private var strip: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(alignment: .top, spacing: 10) {
-                ForEach(drawings) { drawing in
-                    Button {
-                        target = drawing.id
-                    } label: {
-                        PlantPictureTile(drawing: drawing, size: 64, isChosen: drawing.id == shownID)
-                    }
-                    .buttonStyle(.plain)
-                }
-            }
-            .padding(.vertical, 2)
-        }
-        .glassCard(padding: 12)
+        // The name `scrollTo` looks for.
+        .id(drawing.id)
+        // VoiceOver reads each stage as one thing: "Garlic: Seedling".
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(plantName): \(drawing.label)")
     }
 }

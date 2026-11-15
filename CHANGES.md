@@ -23,6 +23,22 @@ No Swift file changed: `plant-drawings.json` and `plant-parts.json` came out ide
 
 **One thing to know:** two close-ups, the daffodil's flower and the peacock orchid's, each have one point a tenth of a grid square (a thousandth of the drawing's width) from where the repository had it. The unchanged code run on this Mac gives the same two differences, so it is this Mac's Python rounding a half the other way, not the new code.
 
+# 15 November 2026, 13:05: the zoomed Life stages page is the card's own row made big, not a slideshow
+
+**By the card zoom chat, second round.** William, 12:51, with a picture of the row of stages: "The zoom in still isn't right. I wanted this to be the thing that fills the screen and you scroll along it." The 12:25 version showed one drawing to a page and snapped from page to page. Made on the branch `card-zoom-15nov`, from `main` at `baf4a59`.
+
+| File | What changed, and why |
+|---|---|
+| `PlantDrawingViews.swift`, `PlantPicturesZoomed` | Rewritten. The page is now one long strip: every stage side by side with its name beneath, each drawing as tall as the page allows, in a plain sideways `ScrollView` that glides and rests wherever it is let go. Gone: the pages (`containerRelativeFrame`, `.scrollTargetBehavior(.paging)`, `scrollPosition(id:)`), the arrows and arrow keys, the "3 of 5" count and the second row of small tiles. `side(in:alone:)` works the drawing's size out from the page: the smaller of the height left over and 58% of the width (`shareOfWidth`), so the next stage always shows at the edge. Two `Spacer`s put the card in the middle of a tall page. The strip is cut to the card's rounded corners (`clipShape`) |
+| The same, for a close-up | A lone Leaf or Flower still opens as one drawing, now centred in the same card and as wide as the page allows |
+| `PlantPictureTile` | Lost `isChosen` and its ring. The ring marked which page the slideshow was on, and there are no pages now |
+
+**Not built, on purpose:** a ring on "the plant's current stage". The app does not hold a current stage for a plant, so there is nothing to ring. The strip opens at its start (Seed).
+
+**Checked:** simulator and Mac builds, unsigned: BUILD SUCCEEDED (`windfall-build-logs/cz8-sim.log`, `cz8-mac.log`). Simulator pictures (`windfall-build-logs/shots/cz2-*.png`, script `cardzoom-shots2.sh`): Yarrow's strip at its start on an iPhone 17 Pro in dark and on an iPad mini in dark, its end ("Winter") on the iPad mini in light, Yarrow's flower and Rhubarb's leaf alone, and Yarrow's page with the three cards unchanged.
+
+**Not checked:** a drag along the strip on any device, the Mac's own window, and an iPad or iPhone on its side. The pictures are of pages opened by the checking aid.
+
 # 15 November 2026, 12:35: a tag on two lines is a squircle, not a bulging pill
 
 **By the "search bar corners" chat, from William's phone. On the same branch, `eira-box-corners`. Not built.** William, 12:25, with a picture of a plant's page on the iPad: "The curvature around dynamic accumulator is too much, it should be more of a squircle."
