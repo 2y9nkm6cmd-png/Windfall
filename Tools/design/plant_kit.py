@@ -45,6 +45,7 @@ COLOURS = {
     "marrow":   ("#5E9150", "#3F7242"),   # courgette skin
     "blue":     ("#8FB4E0", "#5E88B8"),
     "plum":     ("#7A5A8C", "#8E74A8"),
+    "mauve":    ("#C79AD0", "#A27BB0"),   # chives, foxglove, comfrey: pink-purple
     "beet":     ("#9C2F52", "#B5506C"),
     "pear":     ("#DDD67A", "#A9A650"),
     "shade":    ("#06472A", "#020A06"),   # laid thinly over a colour to darken one side

@@ -1245,19 +1245,36 @@ def fl_fig(a, sp):
 
 
 def fl_iris(a, sp):
-    fc = sp["fc"]; c = (50, 50)
+    """An iris: three narrow standards standing up, three falls arching out and
+    down, each with a bright signal mark, and a short style arm lying on each fall."""
+    fc = sp["fc"]; c = (50, 50); sig = sp.get("sig", "sun"); falls = sp.get("falls", (28, 152, 90))
     a.ribbon((52, 98), (52, 80), (c[0], c[1] + 10), 3.2, 2.8, "leaf", lw=0.9)
     blade(a, c[0] + 1, c[1] + 14, -96, 14, 5, "straw", "lance", veins=0, petal=True, lw=0.6)
-    for ang in (-62, -118, -90):   # standards, upright
-        blade(a, c[0], c[1], ang, 30 if ang == -90 else 27, 14, fc, "obovate", veins=0, petal=True, lw=0.9)
-    for ang in (40, 140, 90):     # falls, hanging
-        hw = blade(a, c[0], c[1], ang, 34, 22, fc, "obovate", veins=0, petal=True, lw=0.9, shade=0.12)
+    sl = sp.get("sl", 36); sw = sp.get("sw", 9)   # the standards' length and width
+    for ang in (-64, -116, -90):
+        blade(a, c[0], c[1], ang, sl if ang == -90 else sl - 3, sw, fc, "obovate", veins=0, petal=True, lw=0.9)
+    for ang in falls:
+        blade(a, c[0], c[1], ang, 36, sp.get("fw", 20), fc, "obovate", veins=0, petal=True, lw=0.9, shade=0.12)
         t = T(*c, ang)
-        a.ribbon(t(4), t(10), t(16), 3.0, 1.6, "sun", lw=0)
-        for o in (-0.5, -0.25, 0.25, 0.5):
-            a.line(f"M{P(t(8, o * 4))} Q{P(t(16, o * 9))} {P(t(26, o * 13))}", 0.5, 0.55, sp.get("veinc", "plum"))
-    for ang in (40, 140, 90):     # the style arms over the falls
-        blade(a, c[0], c[1], ang, 16, 6, fc, "elliptic", veins=0, petal=True, lw=0.7)
+        a.ribbon(t(12), t(19), t(28), 5.0, 1.4, sig, lw=0.5)   # the signal: the mark that guides a bee in
+        for o in (-0.5, 0.5):
+            a.line(f"M{P(t(13, o * 6))} Q{P(t(21, o * 10))} {P(t(31, o * 12))}", 0.5, 0.55, sp.get("veinc", "plum"))
+    for ang in falls:     # the style arms, short, so the signal shows beyond them
+        blade(a, c[0], c[1], ang, 11, 6, fc, "elliptic", veins=0, petal=True, lw=0.7)
+    return a
+
+
+def fl_string(a, sp):
+    """A hanging string of small open flowers, the youngest at the tip: red and white currants."""
+    from plant_kit import Quad
+    fc = sp["fc"]
+    q = Quad((30, 8), (58, 30), (62, 92))
+    a.ribbon(q.p0, q.c, q.p1, 2.2, 1.0, "leaf", lw=0.8)
+    for j in range(7):
+        u = 0.16 + 0.8 * j / 6; x, y = q.pt(u); sd = -1 if j % 2 else 1; r = 8.5 * (1 - 0.45 * u)
+        e = (x + sd * 13, y + 3)
+        a.line(f"M{f(x)},{f(y)} L{P(e)}", 0.8, 0.85)
+        a.flower(e[0], e[1], r, 5, fc, sp.get("cen", "primrose"), 0.8, start=-90 + 20 * sd, cr=r * 0.3, lw=0.6)
     return a
 
 
@@ -1352,7 +1369,7 @@ def fl_bluebell(a, sp):
     return a
 
 
-BLOOM_DRAW = {"daisy": fl_daisy, "flat": fl_flat, "four": fl_four, "six": fl_six, "star": fl_star, "cup": fl_cup,
+BLOOM_DRAW = {"string": fl_string, "daisy": fl_daisy, "flat": fl_flat, "four": fl_four, "six": fl_six, "star": fl_star, "cup": fl_cup,
               "bell": fl_bell, "lip": fl_lip, "pea": fl_pea, "globe": fl_globe, "mop": fl_mop, "spiky": fl_spiky,
               "pin": fl_pin, "clover": fl_clover, "umbel": fl_umbel, "tuft": fl_tuft, "plume": fl_plume,
               "trumpet": fl_trumpet, "tiny": fl_tiny, "funnel": fl_funnel, "snowdrop": fl_snowdrop, "reflex": fl_reflex,
@@ -1562,7 +1579,9 @@ LEAFX = {
     "bay": dict(kind="blade", prof="elliptic", W=0.34, teeth=7, td=0.035, tk="wave"),
     "clover": dict(chevron=True, prof="elliptic", lW=0.56, teeth=30, td=0.02, tmin=0.7),
     "pear": dict(prof="ovate", W=0.62, teeth=30, td=0.03, tmin=0.9), "nectarine": dict(teeth=40, td=0.04, tmin=1.0),
-    "marshmallow": dict(kind="lobed", lobes=3, cut=0.2, sharp=1.0, fill="sage", teeth=26, td=0.07),
+    "marshmallow": dict(kind="lobed", lobes=3, cut=0.2, sharp=1.0, fill="sage", teeth=26, td=0.07),    # ---- redrawn 15 November 2026, 20:40 (project doc 109): asparagus has tufts of needles, cress a cut leaf
+    "asparagus": dict(kind="whorls", fill="leaf"),
+    "cress": dict(kind="pinnate", pairs=3, ll=16, lW=0.34, prof="lance", teeth=6, td=0.2),
 }
 
 BLOOMX = {
@@ -1658,7 +1677,15 @@ BLOOMX = {
     # The goosefoot family and the docks carry tiny flowers up a branched spike, not in a flat-topped cluster.
     "beetroot": dict(kind="plume"), "mangelwurzel": dict(kind="plume"), "swiss-chard": dict(kind="plume"),
     "spinach-beet": dict(kind="plume"), "spinach": dict(kind="plume"), "good-king-henry": dict(kind="plume"),
-    "purple-orach": dict(kind="plume"), "sorrel": dict(kind="plume"),
+    "purple-orach": dict(kind="plume"), "sorrel": dict(kind="plume"),    # ---- redrawn 15 November 2026, 20:40 (project doc 109)
+    # Cucumber, melon and loofah: a flat yellow flower of five petals, not the courgette's big funnel.
+    "cucumber": dict(kind="flat", fc="sun", cen="amber"), "melon": dict(kind="flat", fc="sun", cen="amber"),
+    "loofah": dict(kind="flat", fc="primrose", cen="amber", R=33),
+    "iris": dict(fc="plum", sig="white", veinc="white"),
+    "yellow-iris": dict(fc="sun", sig="amber", veinc="rust", sl=22, sw=7, fw=24),
+    "whitecurrant": dict(kind="string", fc="unripe"),
+    "grape": dict(kind="plume", fc="unripe"), "rock-sea-lavender": dict(kind="plume", fc="lilac"),
+    "chives": dict(n=40, R=24, fc="mauve"),
 }
 
 

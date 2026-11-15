@@ -1,3 +1,24 @@
+# 15 November 2026, 20:45: nineteen plant drawings redrawn from the photograph check's list
+
+**By the "plant identification" chat, linked to the Mac.** On the branch `plant-drawings-redrawn`, made from `graphics-join-15nov` at `b801f7d`. William, 20:27, of the things the photograph check found and left alone: "Make the new drawings for these". Only drawings and their Python settings changed: no Swift, nothing saved. Project doc 109.
+
+The evening sweep had already redrawn two of the list (the hydrangea in flower as a lacecap, the winter windflower from a tuber with cut leaves) and the anise and coriander leaves, so those were left as they are.
+
+| Kind | Drawing | Was | Now |
+|---|---|---|---|
+| Iris, Yellow iris | Flower close-up | Read as a pansy, the yellow mark hidden | Three narrow standards up, three falls out and down, a signal mark on each fall. The yellow iris has small standards and broad falls |
+| Cucumber, Melon, Loofah | Flower close-up | The courgette's big funnel | A flat yellow flower of five petals |
+| Whitecurrant | Flower close-up | Hanging bells | A hanging string of small flat green flowers (new `fl_string`) |
+| Grape, Rock sea-lavender | Flower close-up | A flat-topped cluster | A branched spray |
+| Asparagus | Leaf close-up | A fern frond | Tufts of fine needles up a stem |
+| Cress | Leaf close-up | One lobed blade | Toothed leaflets on a stalk |
+| Chives, Foxglove, Russian comfrey, Salsify | Close-up and the plant in flower | Bluish, very pale, very dark, pale | Pink-purple, a new colour `mauve` in `plant_kit.py` |
+| Gooseberry | The plant in flower | White flowers | Green |
+
+`fl_iris` in `leaves_flowers.py` is rewritten: `sl` and `sw` set the standards' length and width, `fw` the falls' width, `sig` the signal's colour. 38 files in `Design/Plants` and the same 38 in the app's picture store.
+
+**Not done:** Sweet William's petals are still smooth-edged. A build.
+
 # 15 November 2026, 20:20: every animal drawing checked against photographs, 27 corrected, and 96 other drawings of 72 animals
 
 **By the "photo check" chat, linked to William's Mac.** William, 19:36: "Update the animal graphics based on photos you can download to the mac. If when doing it you discover that some of the animals would benefit from having multiple graphics - wings spread and not spread for birds or larvae, pupae, adult for insects, please do that." And at 19:54, with a picture of his Species page: "There's no drawings for early mining bee or red ants". Made on the branch `wildlife-photo-check`, from `main` at `d337cf9`.
