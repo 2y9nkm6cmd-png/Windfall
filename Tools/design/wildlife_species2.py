@@ -336,8 +336,8 @@ def robin():                 # round and upright on long thin legs, the wings he
 
 @sp("Turdus merula")
 def blackbird():             # long and level, the tail lifted as it lands
-    return bird(bx=45, by=54, bl=21, bd=12, tilt=-10, hr=8, hh=0.9, chest=1.05, bill=(8, 3.2, "fine", "orange"), culmen=0.14, tail=(22, 7, "square"), tail_ang=189, back="black", belly="black",
-                wing="black", eye_ring="orange", legs=(14, "dark"), leg_w=1.5, feet="stand", leg_at=(0, 7))
+    return bird(bx=45, by=54, bl=21, bd=12, tilt=-10, hr=8, hh=0.9, chest=1.05, bill=(8, 3.2, "fine", "amber"), culmen=0.14, tail=(22, 7, "square"), tail_ang=189, back="black", belly="black",
+                wing="black", eye_ring="yellow", legs=(14, "dark"), leg_w=1.5, feet="stand", leg_at=(0, 7))      # bill and eye ring yellow, by the Wildlife Trusts' garden birds page
 
 
 @sp("Turdus philomelos", "Turdus viscivorus")

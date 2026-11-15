@@ -1,4 +1,14 @@
-# 15 November 2026, 19:27: the raven, the hooded crow and the chough get drawings of their own
+# 15 November 2026, 19:28: a first check of the bird drawings against the Wildlife Trusts and the RSPB, and the blackbird's bill corrected
+
+**By the "wildlife rows" chat.** William, 19:23: "Can you check the animals against a field guide or other online sources that are trustworthy". **14 of the 203 single-animal drawings were checked, all birds. One was wrong and is corrected.** The record is `Design/Wildlife/CHECKED.md`, which says for each animal what was read, where, and what was found.
+
+**The correction.** The blackbird's bill and eye ring were orange. The Wildlife Trusts' garden birds page gives a yellow bill and a yellow ring round the eye. The bill is now `amber` (an orange-yellow) and the ring `yellow`.
+
+**How the check was done.** The words of each bird's identification notes were set beside the colour words handed to `bird`. It is a check of colours and markings against a written description. **It is not a check of the drawn shape against a photograph**, which this chat cannot do.
+
+**Why only 14.** The web tool will only open a page whose address came back from a search, not one found by following a link, and each search is large. Two pages that describe several birds at once gave the 14. The other 189 need a chat of their own, a group at a time.
+
+# 15 November 2026, 19:25: the raven, the hooded crow and the chough get drawings of their own
 
 **By the "wildlife rows" chat.** William, 19:22: "Are ravens an option". The raven was in the list (*Corvus corax*, 3,202 UK records) but showed the carrion crow's drawing. Three new drawings in `Tools/design/wildlife_species2.py`, so every crow in the list now has its own: the **raven** (the biggest: a massive bowed bill, a flat crown, shaggy throat feathers, a long full tail), the **hooded crow** (a carrion crow's shape, grey with a black head, bib, wings and tail; the hooded and carrion cross shares it) and the **chough** (black with a thin curved red bill and red legs). 203 animals now have a drawing of their own, up from 199. Pictures and one list file only, no Swift. ⚠️ From memory, like the rest. Checks: 929 logic tests pass.
 
