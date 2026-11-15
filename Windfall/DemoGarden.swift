@@ -131,6 +131,27 @@ enum DemoGarden {
         isRequested ? UserDefaults.standard.string(forKey: "demoOpen") : nil
     }
 
+    /// A checking aid: `-demoOpen harvest -demoHarvestSearch apple`
+    /// opens the Harvest sheet with those words already in its search
+    /// box, so a still picture can be taken of what it finds.
+    static var harvestSearch: String? {
+        isRequested ? UserDefaults.standard.string(forKey: "demoHarvestSearch") : nil
+    }
+
+    /// A checking aid: `-demoOpen harvest -demoNothingGrowing YES`
+    /// shows the Harvest sheet as it is for a garden with nothing sown
+    /// or planted. The example garden's own sowings are left alone.
+    static var nothingGrowing: Bool {
+        isRequested && UserDefaults.standard.bool(forKey: "demoNothingGrowing")
+    }
+
+    /// A checking aid: `-demoOpen harvest -demoHarvestChoose YES` goes
+    /// straight to the harvest form for the first plant the sheet
+    /// offers. With `-demoHarvestSearch`, that is the first match.
+    static var harvestChoosesFirst: Bool {
+        isRequested && UserDefaults.standard.bool(forKey: "demoHarvestChoose")
+    }
+
     /// A checking aid: `-demoEdit "spacingM=0.5|notes=Cut back in March"`
     /// types those into the sheet that edits a plant as it opens, so a
     /// still picture can show changes waiting to be saved. Each piece
@@ -244,6 +265,15 @@ enum DemoGarden {
         guard isRequested, let letter = UserDefaults.standard.string(forKey: "demoPlantLetter"),
               !letter.isEmpty else { return nil }
         return letter.uppercased()
+    }
+
+    /// A checking aid: `-demoOpen fit -demoFITName lav` opens a FIT
+    /// Count with "lav" already in the name box, so a still picture can
+    /// show the suggestions under it. Nil when it was not asked for.
+    static var fitName: String? {
+        guard isRequested, let typed = UserDefaults.standard.string(forKey: "demoFITName"),
+              !typed.isEmpty else { return nil }
+        return typed
     }
 
     /// Fills the empty in-memory store with an example garden. Does

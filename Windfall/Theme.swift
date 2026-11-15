@@ -15,8 +15,8 @@
 //
 //  "Liquid glass" is Apple's name for the see-through, light-bending
 //  material in iOS 26 and macOS 26. The `.glassEffect` modifier below is
-//  Apple's own. Glass needs something behind it to bend, which is why the
-//  paper background has soft washes of colour.
+//  Apple's own. The paper behind it is one flat colour (see
+//  PaperBackground), so what the glass bends is whatever scrolls under it.
 //
 
 import SwiftUI
@@ -278,7 +278,7 @@ extension View {
             .formStyle(.grouped)
             #endif
             .scrollContentBackground(.hidden)
-            .background { PaperBackground(followsWindow: true) }
+            .background { PaperBackground() }
             #if os(macOS)
             // On a Mac, lets a two-finger swipe go back from this page
             // if it was opened on top of another, with the page and its
@@ -289,79 +289,23 @@ extension View {
     }
 }
 
-/// The cream paper behind every screen, with two soft washes of colour so
-/// that glass panels have something to bend.
+/// The paper behind every screen: one flat colour, cream in light mode
+/// and deep green in dark mode (`Theme.paper`).
+///
+/// Until 15 November 2026 it also had two large blurred circles of
+/// colour, a green one at the top right and a yellow one at the bottom
+/// left, which shaded the paper from corner to corner. William asked for
+/// that to go. With it went the bookkeeping that kept each page's
+/// circles lined up with the window's (`followsWindow`, `PaperCanvas`)
+/// and the "Plain background" speed check in Settings, which did by a
+/// switch what this now always does.
 struct PaperBackground: View {
 
-    /// True for a page in the main window. Its washes of colour are then
-    /// drawn where the window's own are, not afresh inside the page.
-    ///
-    /// Why it matters: the window has this background, and so does each
-    /// page in it. Each used to work its washes out from its own edges.
-    /// A page starts to the right of the sidebar, so its yellow wash sat
-    /// in a different place from the window's, and the join showed as a
-    /// rectangle behind the sidebar (William's picture, 13 November
-    /// 2026). Drawn from the window's edges, the two match and the
-    /// sidebar floats on one unbroken background.
-    var followsWindow = false
-
-    @Environment(\.colorScheme) private var colorScheme
-    /// A speed check, switched in Settings. With it on, the two washes of
-    /// colour are left out. They are large and heavily blurred, which is
-    /// work for the graphics chip, so this shows whether they are what
-    /// makes the app feel slow.
-    @AppStorage("plainBackground") private var isPlain = false
-
     var body: some View {
-        if isPlain {
-            Theme.paper.ignoresSafeArea()
-        } else {
-            washes
-        }
+        // `ignoresSafeArea` lets the colour run under the status bar, the
+        // home indicator and the window's title bar, edge to edge.
+        Theme.paper.ignoresSafeArea()
     }
-
-    private var washes: some View {
-        GeometryReader { geometry in
-            let own = geometry.size
-            // Where this view is in the window.
-            let placed = geometry.frame(in: .global)
-            let window = PaperCanvas.shared.frame
-            let follows = followsWindow && window.width > 0 && own.width > 0
-            // The space the washes are worked out for.
-            let width = follows ? window.width : own.width
-            let height = follows ? window.height : own.height
-            // If the page has been enlarged (Command and plus on a Mac),
-            // what is drawn here comes out that much bigger, so it is
-            // drawn that much smaller to land in the same place.
-            let zoom = follows ? max(placed.width / own.width, 0.1) : 1
-            // How far the window's middle is from this view's middle.
-            let acrossShift = follows ? window.midX - placed.midX : 0
-            let downShift = follows ? window.midY - placed.midY : 0
-            ZStack {
-                Theme.paper
-                Circle()
-                    .fill(Theme.leafFill.opacity(colorScheme == .dark ? 0.30 : 0.45))
-                    .frame(width: width * 0.7 / zoom)
-                    .blur(radius: 110 / zoom)
-                    .offset(x: (width * 0.38 + acrossShift) / zoom, y: (-height * 0.42 + downShift) / zoom)
-                Circle()
-                    .fill(Theme.sun.opacity(colorScheme == .dark ? 0.08 : 0.16))
-                    .frame(width: width * 0.6 / zoom)
-                    .blur(radius: 120 / zoom)
-                    .offset(x: (-width * 0.36 + acrossShift) / zoom, y: (height * 0.44 + downShift) / zoom)
-            }
-        }
-        .ignoresSafeArea()
-    }
-}
-
-/// Where the main window's background is and how big, so that every
-/// page can draw the same washes. Set by the window's own background
-/// (MainTabView).
-@Observable
-final class PaperCanvas {
-    static let shared = PaperCanvas()
-    var frame: CGRect = .zero
 }
 
 // MARK: - Small parts used on several screens

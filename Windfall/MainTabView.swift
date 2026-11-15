@@ -112,12 +112,7 @@ struct MainTabView: View {
                 sidebarLayout
             }
         }
-        .background {
-            PaperBackground()
-                // Tells every page where the window's background is, so
-                // their washes of colour match it. See PaperBackground.
-                .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { PaperCanvas.shared.frame = $0 }
-        }
+        .background { PaperBackground() }
         // Apple's own controls, such as switches, use this colour.
         .tint(Theme.leaf)
         // Hands the screen tracker to every screen inside, and to Eira's bar.
@@ -950,7 +945,6 @@ struct SettingsView: View {
     @AppStorage("recorderName") private var recorderName = ""
     @AppStorage("gridPrecision") private var gridPrecision = 100
     @AppStorage("eiraBarStaysOpen") private var eiraBarStaysOpen = false
-    @AppStorage("plainBackground") private var plainBackground = false
     @AppStorage("plainTransitions") private var plainTransitions = false
     /// True when the sidebar has been put away to give the page the
     /// whole window. Remembered between visits.
@@ -1025,12 +1019,11 @@ struct SettingsView: View {
             }
 
             Section {
-                Toggle("Plain background", isOn: $plainBackground)
                 Toggle("Plain fade between places", isOn: $plainTransitions)
             } header: {
-                Text("Speed checks")
+                Text("Speed check")
             } footer: {
-                Text("If the app feels slow, try these one at a time. The first leaves out the soft washes of colour behind every screen. The second swaps the melt between places for a simple fade. If one of them makes the difference, that is what to change for good.")
+                Text("If the app feels slow, try this. It swaps the melt between places for a simple fade. If it makes the difference, that is what to change for good.")
             }
 
             Section("Credits") {

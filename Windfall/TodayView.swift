@@ -1597,41 +1597,66 @@ struct RecentRecord: Identifiable {
     }
 }
 
-/// Chooses which sowing a harvest belongs to, then shows the harvest
-/// form in the same sheet.
+/// Chooses what a harvest came from, then shows the harvest form in
+/// the same sheet.
+///
+/// A harvest is stored against a sowing or planting. Until 15 November
+/// 2026 this sheet listed only sowings, so with none on record it was
+/// a dead end: "Nothing growing yet. Record the sowing first."
+/// (William, with a picture: "You're not able to add a harvest by
+/// tapping harvest.") A tree that was here before the app has no
+/// sowing to record, so its crop could not be added here at all.
+///
+/// Now any plant in the library can be chosen as well. One with
+/// nothing on record is put on record as growing when its harvest is
+/// saved, which is what the journal's "Add a harvest?" card has done
+/// since 13 November.
 struct HarvestPicker: View {
 
     @Query private var plantings: [Planting]
-    @State private var chosen: Planting?
+    /// The plant library, in the order of its names, and within one
+    /// name in the order of its varieties. Without the second, the six
+    /// apples came out in a different order each time the sheet opened.
+    @Query(sort: [SortDescriptor(\Plant.commonName), SortDescriptor(\Plant.variety)]) private var plants: [Plant]
+
+    /// What was chosen. Nil while the list is showing.
+    @State private var chosen: HarvestSource?
+    /// What has been typed in the search box.
+    @State private var search = DemoGarden.harvestSearch ?? ""
 
     /// Sowings that could be giving a crop: not finished and not failed.
     private var growing: [Planting] {
-        plantings
-            .filter { $0.status != .finished && $0.status != .failed && $0.status != .planned }
+        // A checking aid, so the sheet can be pictured as it is for a
+        // garden with nothing sown. See `DemoGarden.nothingGrowing`.
+        if DemoGarden.nothingGrowing { return [] }
+        return plantings
+            .filter(\.couldBeCropping)
             .sorted { ($0.dateSown ?? .distantPast) > ($1.dateSown ?? .distantPast) }
     }
 
+    /// The plants to offer from the library: those in their harvest
+    /// months first, or those that match what has been typed. The
+    /// choosing is in `HarvestChoice` (PlantModels.swift), where it is
+    /// tested.
+    private var offered: [Plant] {
+        HarvestChoice.offered(plants, search: search,
+                              month: Calendar.current.component(.month, from: .now))
+    }
+
     var body: some View {
-        // With only one thing growing there is nothing to choose
-        // between, so the harvest form opens straight away.
-        if let planting = chosen ?? (growing.count == 1 ? growing.first : nil) {
-            HarvestEditor(planting: planting,
-                          onBack: growing.count > 1 ? { chosen = nil } : nil)
+        if let chosen {
+            // "Back" always returns to the list. Before, one sowing on
+            // its own skipped the list and opened this form at once,
+            // which would now leave no way to pick a different plant.
+            HarvestEditor(cropSource: chosen, onBack: { self.chosen = nil })
         } else {
             SheetPage("What did you harvest?") {
                 SheetScroll {
-                    if growing.isEmpty {
-                        SheetCard("Nothing growing yet") {
-                            Text("A harvest is recorded against a sowing. Record the sowing first.")
-                                .font(.body)
-                                .foregroundStyle(Theme.inkSoft)
-                        }
-                    }
                     // Each sowing is a glass button. Choosing one swaps
                     // this list for the harvest form, in the same sheet.
                     ForEach(growing) { planting in
                         Button {
-                            chosen = planting
+                            chosen = .planting(planting)
                         } label: {
                             HStack(spacing: 10) {
                                 VStack(alignment: .leading, spacing: 2) {
@@ -1654,7 +1679,78 @@ struct HarvestPicker: View {
                         .buttonStyle(.plain)
                         .cardGlass(Theme.card.opacity(0.5), in: .rect(cornerRadius: 18), interactive: true)
                     }
+
+                    libraryCard
                 }
+            }
+            // A checking aid: goes straight to the form for the first
+            // plant offered. See `DemoGarden.harvestChoosesFirst`.
+            .onAppear {
+                if DemoGarden.harvestChoosesFirst, let first = offered.first {
+                    chosen = HarvestSource.source(for: first)
+                }
+            }
+        }
+    }
+
+    /// The plant library, to search and choose from. With nothing
+    /// growing it is the whole sheet. Otherwise it sits under the
+    /// sowings, for a crop from something that was never recorded.
+    private var libraryCard: some View {
+        SheetCard(growing.isEmpty ? "Which plant?" : "Something else") {
+            Text(growing.isEmpty
+                 ? "Nothing is on record as sown or planted yet. Choose the plant, and saving its harvest will put it on record as growing."
+                 : "For a crop from something with no sowing or planting on record, such as a tree that was here before Windfall. Saving its harvest puts it on record as growing.")
+                .font(.footnote)
+                .foregroundStyle(Theme.inkSoft)
+
+            FieldBox {
+                TextField("Search plants", text: $search)
+            }
+
+            // The first eight on offer, each a row to tap. The same
+            // look as the list on the sowing form.
+            VStack(alignment: .leading, spacing: 0) {
+                ForEach(offered.prefix(8)) { plant in
+                    Button {
+                        // A plant that does have something growing is
+                        // recorded against that, not put on record twice.
+                        chosen = HarvestSource.source(for: plant)
+                    } label: {
+                        HStack(spacing: 10) {
+                            VStack(alignment: .leading, spacing: 1) {
+                                Text(plant.displayName)
+                                    .foregroundStyle(Theme.ink)
+                                if let latin = plant.latinName {
+                                    Text(latin)
+                                        .font(.footnote)
+                                        .italic()
+                                        .foregroundStyle(Theme.inkSoft)
+                                }
+                            }
+                            Spacer(minLength: 8)
+                            WIconView(.arrowRight, size: 13)
+                                .foregroundStyle(Theme.leaf)
+                        }
+                        .padding(.vertical, 7)
+                        .contentShape(.rect)
+                    }
+                    .buttonStyle(.plain)
+                    Divider()
+                        .overlay(Theme.hairline)
+                }
+            }
+
+            if offered.isEmpty {
+                Text(plants.isEmpty
+                     ? "There are no plants in the library yet. Add the plant on the Plants page first."
+                     : "No plant in the library matches that.")
+                    .font(.body)
+                    .foregroundStyle(Theme.inkSoft)
+            } else if search.isEmpty, offered.count > 8 {
+                Text("Plants in their harvest months come first. Type a name to find any other.")
+                    .font(.footnote)
+                    .foregroundStyle(Theme.inkSoft)
             }
         }
     }

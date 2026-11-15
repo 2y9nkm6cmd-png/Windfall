@@ -134,10 +134,11 @@ struct HarvestOfferCard: View {
 
     /// A plant's sowings and plantings that could be giving a crop,
     /// newest first.
+    ///
+    /// The rule is `Planting.cropping` (PlantModels.swift), shared with
+    /// the Harvest button on Today so the two cannot drift apart.
     private static func growing(of plant: Plant) -> [Planting] {
-        (plant.plantings ?? [])
-            .filter { $0.status != .finished && $0.status != .failed && $0.status != .planned }
-            .sorted { ($0.dateSown ?? .distantPast) > ($1.dateSown ?? .distantPast) }
+        Planting.cropping(of: plant)
     }
 
     /// "Sown 9 November, Bed 3"
@@ -229,13 +230,9 @@ struct HarvestOfferCard: View {
         if source == nil {
             // No sowing or planting on record, as with a tree that was
             // here before the app. One is made, marked as cropping, with
-            // a note saying where it came from.
-            let freshPlanting = Planting()
-            freshPlanting.plant = plant
-            freshPlanting.status = .harvesting
-            freshPlanting.notes = "Put on record from the journal when its first harvest was added. When it was sown or planted is not known."
-            context.insert(freshPlanting)
-            source = freshPlanting
+            // a note saying where it came from. The making is in
+            // `Planting.putOnRecord`, which the Harvest button uses too.
+            source = Planting.putOnRecord(plant, from: "the journal", in: context)
         }
         guard let source else { return }
 
