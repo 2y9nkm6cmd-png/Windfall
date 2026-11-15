@@ -166,6 +166,15 @@ enum DemoGarden {
         return [data]
     }
 
+    /// A checking aid: `-demoJournalSend YES` presses send in the
+    /// journal's conversation a moment after it opens, so a still
+    /// picture can show what sending leads to. Used with `-demoOpen
+    /// journal`, `-demoDraft "What is this?"` and `-demoPhoto`, it shows
+    /// Eira's answer to a photo that was asked about (JournalNaming.swift).
+    static var sendsJournalDraft: Bool {
+        isRequested && UserDefaults.standard.bool(forKey: "demoJournalSend")
+    }
+
     /// A checking aid: `-demoPhotoCopies 3` makes the Identify screen
     /// bring the `-demoPhoto` in three times over, so the row that
     /// several photos make can be looked at in a still picture. 1 when

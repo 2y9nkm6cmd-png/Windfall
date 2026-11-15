@@ -327,6 +327,12 @@ struct JournalChatView: View {
             voice.checkExistingPermission()
             lookUpWeather()
             takeStartingPhotos()
+            // A checking aid: `-demoJournalSend YES` presses send a
+            // moment after the conversation opens. See DemoGarden.
+            if DemoGarden.sendsJournalDraft {
+                try? await Task.sleep(for: .seconds(1))
+                send()
+            }
             await askServiceIfMissing()
         }
         // In the panel, typing carries on from Eira's bar: this box

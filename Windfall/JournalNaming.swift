@@ -232,6 +232,16 @@ struct NamingCard: View {
         }
         photos = made
 
+        // A checking aid: an example answer, so the card can be looked
+        // at where the image model cannot run, such as the simulator.
+        // See DemoGarden.showsExampleMatch.
+        if DemoGarden.showsExampleMatch {
+            var example = EiraIdentify.example(in: context, carrotFamily: DemoGarden.showsCarrotFamilyMatch)
+            example.photoCount = max(1, made.count)
+            stage = .answered(example)
+            return
+        }
+
         do {
             // `try await` because the image model takes a moment and
             // can fail: it may be missing, or the photo unreadable.
