@@ -15,6 +15,16 @@
 **Checked:** Mac and simulator builds, unsigned: BUILD SUCCEEDED (`windfall-build-logs/cz5-mac.log`, `cz4-sim.log`). Simulator pictures (`windfall-build-logs/shots/cz-*.png`): Garlic and Tomato on an iPhone 17 Pro in light, Rhubarb in dark, Garlic on an iPad mini, the zoomed page for Garlic's life stages, Rhubarb's leaf and Garlic's flower.
 
 **Not checked:** a tap or a swipe. The pictures are of pages opened by the checking aid; nobody has yet tapped a card, swiped the zoomed row or pressed an arrow on a device.
+# 15 November 2026, 12:00: the leaf and flower drawings checked for accuracy, 44 kinds put right
+
+**By the "leaf and flower in the app" chat**, after the midday join had taken in the branch as it stood at 11:26 (`0f9ace9`). This entry is the rest of that branch.
+
+William, 11:27: "When you've done that, could you double check all the drawings for accuracy." Each kind's leaf and flower was set beside the Latin name and variety in his own plant library (`StarterData.json`), and all six sheets were looked at. 44 kinds were changed in `leaves_flowers.py`: 22 leaves and 26 flowers. Project doc 81 lists each one, its reason and what is still in doubt.
+
+- **New drawing code**: a rayless daisy head (`rayless`, pineappleweed), a lacecap hydrangea (`lacecap`), an even pincushion (`even`, devil's-bit scabious), a pansy face (`fl_pansy`), a horned rampion head (`fl_horned`), round button heads (`button`, wormwood), veined petals (`veins`, rocket), spots on a leaf (`spots`, lungwort and St John's-wort), two more leaflets at the foot of a trefoil (`basal`, bird's-foot trefoil).
+- **Why the settings sit at the foot of `LEAFX` and `BLOOMX`**: every change from the check is under one comment line, so it can be told from the first pass.
+
+**Checked:** all 680 SVG files well-formed. Windfall's own checks pass in the cloud workspace on the joined code. Built for the simulator and the Mac with no errors (`lf5-sim.log`, `lf6-mac.log`). Seen in the app in still pictures: the hydrangea's lacecap enlarged in dark mode, and Viola's page in light mode.
 
 # 15 November 2026, 11:50: three branches joined into main, tested or not
 

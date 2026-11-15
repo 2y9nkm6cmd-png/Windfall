@@ -186,6 +186,12 @@ def leaf_blade(a, sp):
         a.ribbon(A, t(LT * pf + L * 0.3, 0), t(LT * pf + L * 0.86), 2.6, 0.6, sp["stalkc"], lw=0.6)
     if sp.get("chevron"):
         _chevron(a, A, ANG, L * 0.55, L * sp.get("W", 0.5))
+    if sp.get("spots"):   # lungwort's white blotches, St John's-wort's clear dots
+        r = sp.get("spotr", 1.5)
+        for j in range(16):
+            u = 0.14 + 0.72 * ((j * 0.618) % 1); v = ((j * 0.37) % 1 - 0.5) * 1.3
+            p = t(LT * pf + L * u, hw(u) * v)
+            a.oval(p[0], p[1], r, r * 0.75, j * 40, sp["spots"], 0, la=0)
     return a
 
 
@@ -323,13 +329,17 @@ def leaf_trefoil(a, sp):
     t = T(*BASE, ANG); A = t(40)
     stalk(a, BASE, t(20, 2), A, 2.4, 1.8, sp["fill"])
     L = sp.get("ll", 38)
+    if sp.get("basal"):   # bird's-foot trefoil: two more leaflets down at the foot of the stalk
+        for sg in (1, -1):
+            blade(a, *t(5), ANG + sg * 62, L * 0.6, L * 0.6 * sp.get("lW", 0.62), sp["fill"], sp.get("prof", "obovate"), veins=3, lw=1.0)
     for off in (-66, 66, 0):
         if sp.get("obcord"):   # wood sorrel: each leaflet a heart, point inwards
             g = lambda h: (1 - 0.7 * math.exp(-(h / 0.3) ** 2)) * (1 - 0.86 * math.exp(-((abs(h) - math.pi) / 0.9) ** 2)) * (1 + 0.15 * abs(math.sin(h)))
             polar_leaf(a, A[0], A[1], ANG + off, L * 0.5, g, sp["fill"], (0,))
         else:
             hw = blade(a, A[0], A[1], ANG + off, L * (1 if off == 0 else 0.9), L * sp.get("lW", 0.62), sp["fill"], sp.get("prof", "obovate"),
-                       sp.get("teeth", 0), sp.get("td", 0.07), veins=6)
+                       sp.get("teeth", 0), sp.get("td", 0.07), cut=sp.get("cut", 0), cutn=sp.get("cutn", 0),
+                       veins=sp.get("veins", 6))
             if sp.get("chevron"):
                 _chevron(a, (A[0], A[1]), ANG + off, L * 0.52, L * 0.5)
     return a
@@ -481,6 +491,17 @@ def bud(a, x, y, ang, L, fill, sepal="leaf"):
 
 def fl_daisy(a, sp):
     R = sp.get("R", 33); disc = sp.get("disc", 0.3); n = sp.get("rays", 18); cen = sp.get("cen", "sun"); k = 0.86
+    if sp.get("rayless"):   # pineappleweed: a greenish-yellow dome of disc florets and no rays at all
+        for top, base, s_ in (((50, 40), (52, 98), 1.0), ((76, 62), (60, 96), 0.62)):
+            stalk(a, base, ((base[0] + top[0]) / 2 + 3, (base[1] + top[1]) / 2 + 6), (top[0], top[1] + 14 * s_), 2.4 * s_, 2.0 * s_)
+            for i in range(9):   # the bracts cupping the foot of the dome
+                blade(a, top[0] + (i - 4) * 2.6 * s_, top[1] + 15 * s_, -90 + (i - 4) * 9, 9 * s_, 3.6 * s_, "leaf", "ovate", veins=0, petal=True, lw=0.6)
+            a.polar(top[0], top[1], lambda h: 1 - 0.1 * math.sin(h), 13 * s_, 17 * s_, 0, "pear", 0.9)
+            m = int(70 * s_)
+            for j in range(m):
+                rr = 0.9 * math.sqrt((j + 0.5) / m); th = j * GOLD
+                a.dot(top[0] + 12 * s_ * rr * math.cos(th), top[1] + 1 + 15 * s_ * rr * math.sin(th), 0.5 * s_ + 0.15, "unripe")
+        return a
     bloom_stem(a, (CX + 2, CY + R * disc * k))
     if sp.get("budside"):
         stalk(a, (58, 96), (70, 86), (78, 70), 2.0, 1.6); bud(a, 78, 70, -78, 9, "leaf")
@@ -489,8 +510,8 @@ def fl_daisy(a, sp):
         blade(a, CX, CY, i * 360 / 14 + 12, R * (disc + 0.22), R * 0.12, "leaf", "lance", veins=0, M=M, lw=0.7, petal=True)
     rows = sp.get("rows", 1)
     for r in range(rows):
-        ring_of_petals(a, n, R * (1 - 0.16 * r), R * sp.get("rw", 0.2), sp["fc"], "ray", start=-90 + r * 360 / n / 2,
-                       tip="teeth", k=k, lw=0.75)
+        ring_of_petals(a, n, R * (1 - 0.16 * r), R * sp.get("rw", 0.2), sp["fc"], sp.get("rprof", "ray"), start=-90 + r * 360 / n / 2,
+                       tip=None if sp.get("plain") else "teeth", k=k, lw=0.75)
     dc = sp["fc"] if sp.get("lig") else cen
     rd = R * disc * (0.6 if sp.get("lig") else 1)
     a.oval(CX, CY, rd, rd * k, 0, dc, 0.9)
@@ -554,6 +575,11 @@ def fl_four(a, sp):
     for i in range(4):
         blade(a, CX, CY, -45 + 90 * i + 45, R * 0.5, R * 0.16, "leaf", "lance", veins=0, M=M, lw=0.7, petal=True)
     ring_of_petals(a, 4, R, R * sp.get("pw", 0.62), sp["fc"], "claw", start=-45, k=k)
+    if sp.get("veins"):   # rocket: dark veins on cream petals
+        for i in range(4):
+            t = T(CX, CY, -45 + 90 * i)
+            for o in (-0.22, 0, 0.22):
+                a.line(opath([M(t(R * u, o * R * 0.62 * u)) for u in (0.34, 0.6, 0.9)]), 0.5, 0.8, sp["veins"])
     stamens(a, CX, CY, 1, R * 0.3, 6, "sun", M)
     a.oval(CX, CY - 1.5, 1.4, 3.2, 0, "unripe", 0.7)
     return a
@@ -809,6 +835,24 @@ def fl_globe(a, sp):
 def fl_mop(a, sp):
     """A dome of four-petalled florets: hydrangea."""
     fc = sp["fc"]; c = (50, 46); R = 34
+    if sp.get("lacecap"):   # a flat head: tiny fertile flowers in the middle, a ring of showy ones round the edge
+        c = (50, 42); R = 33; k = 0.5
+        bloom_stem(a, (c[0], c[1] + 16), w=3.2)
+        ring = [(c[0] + R * math.cos(math.radians(g)), c[1] + R * k * math.sin(math.radians(g)), g) for g in [i * 45 + 14 for i in range(8)]]
+        for x, y, g in ring:
+            a.line(f"M{f(c[0])},{f(c[1] + 15)} Q{f((c[0] + x) / 2)},{f((c[1] + 15 + y) / 2 + 3)} {f(x)},{f(y)}", 0.6, 0.6)
+        for x, y, g in [r for r in ring if math.sin(math.radians(r[2])) < 0]:
+            a.flower(x, y, 8.2, 4, fc, "white", 0.82, start=-45 + g, cr=1.2, lw=0.6)
+        a.shape(path([(c[0] + R * 0.66 * math.cos(h), c[1] + R * 0.66 * k * math.sin(h)) for h in [2 * math.pi * i / 50 for i in range(50)]]), sp.get("fertile", "beet"), 0, fa=0.18)
+        for j in range(54):
+            rr = R * 0.62 * math.sqrt((j + 0.5) / 54); th = j * GOLD; x, y = c[0] + rr * math.cos(th), c[1] + rr * k * math.sin(th)
+            if j % 3 == 0:
+                a.flower(x, y, 2.3, 5, fc, None, 0.7, start=j * 20, lw=0.35)
+            else:
+                a.oval(x, y, 1.1, 1.1, 0, sp.get("fertile", "beet"), 0.4)
+        for x, y, g in [r for r in ring if math.sin(math.radians(r[2])) >= 0]:
+            a.flower(x, y, 8.8, 4, fc, "white", 0.82, start=-45 + g, cr=1.2, lw=0.6)
+        return a
     bloom_stem(a, (c[0], c[1] + 18), w=3.4)
     for i, (x, y, z) in enumerate(sorted([p for p in sphere_points(90) if p[2] > -0.25], key=lambda p: p[2])):
         e = (c[0] + x * R, c[1] + y * R * 0.82)
@@ -839,12 +883,18 @@ def fl_pin(a, sp):
     bloom_stem(a, (c[0], c[1] + 8))
     for i in range(12):
         blade(a, c[0], c[1], i * 30 + 15, R * 0.5, R * 0.14, "leaf", "lance", veins=0, M=M, lw=0.6, petal=True)
-    for i in sorted(range(11), key=lambda i: math.sin(i * 2 * math.pi / 11)):
-        ang = i * 360 / 11; e = M(T(*c, ang)(R * 0.62))
-        blade(a, e[0], e[1], ang, R * 0.4, R * 0.42, fc, "round", veins=0, M=None, lw=0.7, petal=True, teeth=5, td=0.2)
-    a.oval(c[0], c[1], R * 0.56, R * 0.56 * k, 0, fc, 0.8)
-    for j in range(40):
-        rr = R * 0.5 * math.sqrt((j + 0.5) / 40); th = j * GOLD; x, y = c[0] + rr * math.cos(th), c[1] + rr * math.sin(th) * k
+    even = sp.get("even")   # devil's-bit: a rounder head, every floret the same size
+    if not even:
+        for i in sorted(range(11), key=lambda i: math.sin(i * 2 * math.pi / 11)):
+            ang = i * 360 / 11; e = M(T(*c, ang)(R * 0.62))
+            blade(a, e[0], e[1], ang, R * 0.4, R * 0.42, fc, "round", veins=0, M=None, lw=0.7, petal=True, teeth=5, td=0.2)
+    dome = 0.72 if even else 0.56
+    if even:
+        k = 0.92
+    a.oval(c[0], c[1], R * dome, R * dome * k, 0, fc, 0.8)
+    nf = 64 if even else 40
+    for j in range(nf):
+        rr = R * (dome - 0.06) * math.sqrt((j + 0.5) / nf); th = j * GOLD; x, y = c[0] + rr * math.cos(th), c[1] + rr * math.sin(th) * k
         a.flower(x, y, 1.4, 4, fc, None, 0.6, lw=0.35)
         a.line(f"M{f(x)},{f(y)} L{f(x + 0.6)},{f(y - 3.2)}", 0.4, 0.5); a.dot(x + 0.6, y - 3.4, 0.55, "white")
     return a
@@ -959,7 +1009,7 @@ def fl_plume(a, sp):
                 th = kk * GOLD * 1.3; rr = 2.6 + 1.2 * (kk % 2)
                 p = (px + rr * math.cos(th), py + rr * math.sin(th) * 0.8)
                 if kk < 2:
-                    a.flower(p[0], p[1], 3.2, 5, fc, "sun" if fc == "white" else None, 0.8, start=th * 30, cr=0.8, lw=0.45)
+                    a.flower(p[0], p[1], 3.2, sp.get("n", 5), fc, "sun" if fc == "white" else None, 0.8, start=th * 30, cr=0.8, lw=0.45)
                 else:
                     a.oval(p[0], p[1], 1.6, 1.6, 0, fc, 0.5)
     for k in range(5):
@@ -995,9 +1045,50 @@ def fl_tiny(a, sp):
     spots = [(34, 44, 9), (50, 34, 10), (66, 44, 9), (42, 26, 7.5), (60, 25, 7.5), (26, 32, 6.5), (74, 32, 6.5)]
     for x, y, r in sorted(spots, key=lambda s: s[1]):
         a.line(f"M50,58 Q{f((50 + x) / 2)},{f((58 + y) / 2 + 3)} {f(x)},{f(y)}", 0.5, 0.55)
+        if sp.get("button"):   # wormwood: small round nodding heads with no petals
+            a.oval(x, y - r * 0.3, r * 0.5, r * 0.3, 0, "sage", 0.6)
+            a.oval(x, y + r * 0.1, r * 0.56, r * 0.5, 0, fc, 0.7)
+            for j in range(9):
+                rr = r * 0.4 * math.sqrt((j + 0.5) / 9); a.dot(x + rr * math.cos(j * GOLD), y + r * 0.14 + rr * 0.8 * math.sin(j * GOLD), 0.4, "amber")
+            continue
         a.flower(x, y, r, n, fc, sp.get("cen", "sun"), 0.72, start=-90 + x, cr=r * 0.22, lw=0.6)
     for x, y in ((50, 16), (36, 16), (64, 15)):
         a.oval(x, y, 2.2, 2.8, 0, sp.get("budc", fc), 0.6)
+    return a
+
+
+def fl_pansy(a, sp):
+    """A pansy or viola seen face on: two petals up, one to each side, a
+    broad lip below, and dark lines running in to a yellow eye."""
+    fc = sp["fc"]; c = (50, 46)
+    bloom_stem(a, (53, 60))
+    for ang in (-116, -64):
+        blade(a, c[0], c[1], ang, 30, 30, sp.get("upc", fc), "round", veins=0, petal=True, lw=0.9, shade=0.14)
+    for ang in (168, 12):
+        blade(a, c[0], c[1], ang, 27, 27, fc, "round", veins=0, petal=True, lw=0.9)
+    blade(a, c[0], c[1] - 1, 90, 31, 40, sp.get("lipc", fc), "round", veins=0, petal=True, lw=0.9)
+    for ang, spread in ((90, (-24, -12, 0, 12, 24)), (168, (-10, 0, 10)), (12, (-10, 0, 10))):
+        for o in spread:
+            e = T(c[0], c[1], ang + o)(11 if o else 13)
+            a.line(f"M{f(c[0])},{f(c[1])} L{P(e)}", 0.7, 0.85, "dark")
+    a.oval(c[0], c[1] + 1.5, 3.0, 2.2, 0, "sun", 0.6)
+    return a
+
+
+def fl_horned(a, sp):
+    """A rampion: a round head of narrow curved florets, like claws, with
+    long narrow bracts spreading beneath it."""
+    fc = sp["fc"]; c = (50, 40); R = 21
+    bloom_stem(a, (50, 54), w=2.2)
+    for ang, L in ((172, 30), (8, 30), (206, 22), (-26, 22), (140, 20), (40, 20)):
+        blade(a, 50, 53, ang, L, 3.0, "leaf", "lance", veins=0, lw=0.7, shade=0.06)
+    a.oval(c[0], c[1] + 2, 9, 8, 0, fc, 0.8)
+    for kk in range(30):
+        ang = -205 + 230 * kk / 29; L = R * (0.82 + 0.18 * math.sin(kk * 1.9))
+        bend = -22 if ang > -90 else 22   # each tip curls in towards the top of the head
+        m = T(c[0], c[1] + 2, ang)(L * 0.6); e = T(c[0], c[1] + 2, ang + bend)(L)
+        d = f"M{f(c[0] + (kk - 14.5) * 0.3)},{f(c[1] + 2)} Q{P(m)} {P(e)}"
+        a.line(d, 2.4, 0.9, "line"); a.line(d, 1.5, 1.0, fc)
     return a
 
 
@@ -1153,7 +1244,7 @@ def fl_spike(a, sp):
                 for k in range(6):
                     e = T(x, y, -90 + x * 7 + k * 60)(4.4 * s); a.line(f"M{f(x)},{f(y)} L{P(e)}", 0.9, 0.85, sp.get("stripe", "blue"))
             else:
-                col = fc if r < rows - 2 else "lilac"
+                col = fc if r < rows - 2 else sp.get("topc", "lilac")
                 a.oval(x, y, 3.4 * s, 4.0 * s, 0, col, 0.7)
                 a.oval(x, y + 3.6 * s, 1.8 * s, 0.8 * s, 0, "white", 0.4)
     return a
@@ -1218,7 +1309,7 @@ BLOOM_DRAW = {"daisy": fl_daisy, "flat": fl_flat, "four": fl_four, "six": fl_six
               "pin": fl_pin, "clover": fl_clover, "umbel": fl_umbel, "tuft": fl_tuft, "plume": fl_plume,
               "trumpet": fl_trumpet, "tiny": fl_tiny, "funnel": fl_funnel, "snowdrop": fl_snowdrop, "reflex": fl_reflex,
               "blossom": fl_blossom, "fig": fl_fig, "iris": fl_iris, "stars": fl_stars, "spike": fl_spike, "nod": fl_nod,
-              "crown": fl_crown, "bluebell": fl_bluebell}
+              "crown": fl_crown, "bluebell": fl_bluebell, "pansy": fl_pansy, "horned": fl_horned}
 
 
 # ======================================================= what each kind gets
@@ -1300,7 +1391,7 @@ LEAFX = {
     "beetroot": dict(veinc="beet", stalkc="beet"), "radish": dict(cutn=3),
     "mangelwurzel": dict(stalkc="pale"),
     # herbs
-    "dill": dict(thread=True), "fennel": dict(thread=True), "wormwood": dict(fill="sage"),
+    "dill": dict(thread=True), "wormwood": dict(fill="sage"),
     "thyme": dict(kind="sprig", nl=11, nw=0.42, fill="sage"), "oregano": dict(kind="sprig", nl=16, nw=0.7, prof="ovate"),
     "lavender": dict(kind="needles", n=9, nl=24, nw=0.12, spread=34, stemc="sage"),
     "rosemary": dict(kind="needles", n=16, nl=17, nw=0.13, spread=46, stemc="bark"),
@@ -1312,7 +1403,7 @@ LEAFX = {
     "tarragon": dict(W=0.16, veins=0),
     "lady-s-bedstraw": dict(kind="whorls"),
     # leaves
-    "sorrel": dict(kind="hastate", W=0.5, ear=0.24), "good-king-henry": dict(kind="hastate", W=0.78, ear=0.08), "purple-orach": dict(kind="hastate", W=0.66, ear=0.1),
+    "good-king-henry": dict(kind="hastate", W=0.78, ear=0.08), "purple-orach": dict(kind="hastate", W=0.66, ear=0.1),
     "spinach": dict(kind="heart", point=0.2),
     "pak-choi": dict(kind="blade", prof="spoon", W=0.62, stalkc="white", petiole=0.04),
     "swiss-chard": dict(kind="blade", prof="ovate", W=0.62, stalkc="berry", veinc="berry"),
@@ -1341,15 +1432,12 @@ LEAFX = {
     "clover": dict(chevron=True, prof="elliptic", lW=0.56, teeth=30, td=0.02),
     "red-clover": dict(chevron=True, prof="elliptic", lW=0.5),
     "alfalfa": dict(teeth=12, td=0.06, lW=0.42),
-    "candy-cane-sorrel": dict(obcord=True),
-    "common-bird-s-foot-trefoil": dict(kind="trefoil", prof="obovate", lW=0.5, ll=30),
-    "potatoes": dict(kind="pinnate", pairs=3, ll=22, lW=0.56, teeth=0, small=True),
+            "potatoes": dict(kind="pinnate", pairs=3, ll=22, lW=0.56, teeth=0, small=True),
     # flowers
     "sweet-william": dict(veins=0), "linum": dict(W=0.16, veins=0),
     "viola": dict(kind="heart", teeth=18, td=0.06, point=0.1),
     "russian-comfrey": dict(prof="lance", W=0.32, veins=8),
-    "lungwort": dict(prof="elliptic", W=0.38, veinc="white"),
-    "native-cowslip": dict(prof="obovate", W=0.52, teeth=16, td=0.05),
+        "native-cowslip": dict(prof="obovate", W=0.52, teeth=16, td=0.05),
     "foxglove": dict(prof="lance", W=0.36, teeth=24, td=0.03),
     "blue-globe-thistle": dict(cutn=5, cut=0.7, teeth=40, td=0.22),
     "globe-artichoke": dict(cutn=5, cut=0.74, teeth=36, td=0.12),
@@ -1366,8 +1454,7 @@ LEAFX = {
     "daffodil": dict(W=10, prof="linear"), "tulip": dict(W=18, prof="lance", two=True),
     "crocus": dict(W=5, stripe=True), "iris": dict(W=13, prof="lance", midw=0), "yellow-iris": dict(W=13, prof="lance", midw=0),
     "crown-imperial": dict(W=12, prof="lance"), "peacock-orchid": dict(W=10, prof="lance"),
-    "winter-windflower": dict(kind="fern", fill="leaf"),
-    "cyclamen": dict(kind="heart", fill="deep", R=26, point=0.25, marbled=True, stalkc="beet"),
+        "cyclamen": dict(kind="heart", fill="deep", R=26, point=0.25, marbled=True, stalkc="beet"),
     # trees and fruit
     "pear": dict(prof="ovate", W=0.62, teeth=30, td=0.03), "plum": dict(prof="obovate", W=0.5),
     "olive-tree": dict(prof="lance", W=0.18, teeth=0, veins=0), "nectarine": dict(teeth=40, td=0.04),
@@ -1375,13 +1462,34 @@ LEAFX = {
     "fig": dict(lobes=5, cut=0.6, sharp=2.0, teeth=0, R=32),
     "blackcurrant": dict(lobes=5, cut=0.3, teeth=36, td=0.08), "whitecurrant": dict(lobes=5, cut=0.3, teeth=36, td=0.08),
     "gooseberry": dict(lobes=5, cut=0.34, teeth=20, td=0.12, R=26),
-    "grape": dict(lobes=5, cut=0.36, teeth=36, td=0.08), "kiwi": dict(kind="round", R=30),
-    "blueberry": dict(prof="elliptic", W=0.46), "honeyberry": dict(prof="elliptic", W=0.5),
+    "grape": dict(lobes=5, cut=0.36, teeth=36, td=0.08),     "blueberry": dict(prof="elliptic", W=0.46), "honeyberry": dict(prof="elliptic", W=0.5),
     "rose": dict(pairs=2, ll=24, lW=0.6, teeth=20, td=0.06), "raspberry": dict(pairs=2, ll=28, lW=0.58, teeth=22, td=0.08),
     "blackberry": dict(kind="palmate", n=5, spread=100, ll=34, lW=0.52, prof="ovate", teeth=22, td=0.08), "loganberry": dict(pairs=1, ll=30, lW=0.6, teeth=22, td=0.08),
     "japanese-wineberry": dict(pairs=1, ll=30, lW=0.66, teeth=22, td=0.08),
-    "hydrangea": dict(prof="ovate", W=0.56, teeth=24, td=0.05), "japanese-spiraea": dict(prof="lance", W=0.34, teeth=24, td=0.1),
-    "asparagus": dict(kind="fern", thread=True, pinnae=7, fill="leaf"),
+    "hydrangea": dict(prof="ovate", W=0.56, teeth=24, td=0.05),     "asparagus": dict(kind="fern", thread=True, pinnae=7, fill="leaf"),
+    # ---- put right in the accuracy check of 15 November 2026 (project doc 81)
+    "african-daisy": dict(prof="obovate", W=0.34, teeth=6, td=0.12),
+    "aubergine": dict(prof="ovate", W=0.62, teeth=5, td=0.14),
+    "bristol-onion": dict(W=4),
+    "calendula": dict(prof="obovate", W=0.34),
+    "candy-cane-sorrel": dict(prof="linear", lW=0.15, ll=36, veins=0),
+    "cat-nip": dict(kind="heart", R=27, teeth=22, td=0.08, point=0.4),
+    "common-bird-s-foot-trefoil": dict(kind="trefoil", prof="obovate", lW=0.5, ll=30, basal=True),
+    "common-valerian": dict(pairs=5, ll=17, lW=0.32, prof="lance", teeth=8, td=0.12),
+    "fennel": dict(thread=True, fill="bark"),
+    "french-marigold": dict(kind="pinnate", pairs=5, ll=15, lW=0.3, prof="lance", teeth=8, td=0.2, spread=62),
+    "japanese-spiraea": dict(prof="lance", W=0.34, teeth=24, td=0.1, fill="pear"),
+    "kiwi": dict(kind="blade", prof="ovate", W=0.62, teeth=40, td=0.05),
+    "leaf-salad": dict(kind="blade", prof="obovate", W=0.78, teeth=24, td=0.05, veins=7, cut=0, cutn=0),
+    "lungwort": dict(prof="ovate", W=0.46, spots="white"),
+    "mizuna": dict(kind="blade", prof="lance", W=0.5, cut=0.82, cutn=6, teeth=40, td=0.2),
+    "parsley": dict(kind="pinnate", pairs=2, ll=22, lW=0.7, prof="obovate", teeth=7, td=0.3),
+    "perforate-st-john-s-wort": dict(prof="elliptic", W=0.34, veins=4, spots="pale", spotr=0.55),
+    "poppy": dict(fill="leaf"),
+    "sorrel": dict(kind="blade", prof="lance", W=0.34, veins=8, petiole=0.24),
+    "sweetcorn": dict(W=17, prof="lance", midw=1.3),
+    "winter-windflower": dict(kind="trefoil", fill="leaf", prof="obovate", lW=0.74, ll=36, teeth=5, td=0.42, veins=3),
+    "yellow-rattle": dict(prof="lance", W=0.24, teeth=18, td=0.12),
 }
 
 BLOOMX = {
@@ -1401,20 +1509,16 @@ BLOOMX = {
     "olive-tree": dict(kind="tiny", fc="white", n=4, cen="primrose"), "bay": dict(kind="tiny", fc="primrose", n=4, cen="sun"),
     "fig": dict(kind="fig"),
     "parsnip": dict(bracts=False), "dill": dict(rays=11), "coriander": dict(fc="white"), "hogweed": dict(R=36),
-    "yarrow": dict(kind="tiny", fc="white", n=5, cen="primrose"),
-    "chicory": dict(lig=True, rays=18), "salsify": dict(lig=True, rays=16), "scorzonera": dict(lig=True, rays=16),
+        "chicory": dict(lig=True, rays=18), "salsify": dict(lig=True, rays=16), "scorzonera": dict(lig=True, rays=16),
     "celtuce": dict(lig=True, rays=14), "rudbeckia": dict(disc=0.34, rays=14, rw=0.28),
     "calendula": dict(rows=2, rays=20, disc=0.26), "french-marigold": dict(rows=2, rays=12, rw=0.36, disc=0.22),
     "zinnia": dict(rows=2, rays=16, rw=0.26, disc=0.22), "aster": dict(rays=30, rw=0.12, disc=0.24),
-    "wild-chamomile": dict(disc=0.38, rays=15), "corn-chamomile": dict(disc=0.36, rays=16), "feverfew": dict(disc=0.4, rays=12, rw=0.3),
-    "african-daisy": dict(rays=18, rw=0.2), "helipterum-rosum": dict(rays=26, rw=0.16, disc=0.3),
-    "winter-windflower": dict(kind="daisy", rays=14, rw=0.18, disc=0.22),
-    "cornflower": dict(kind="tuft", style="funnel", fringe=True), "globe-artichoke": dict(kind="tuft", style="brush", big=True, bractc="sage"),
-    "oxford-rampion": dict(kind="tuft", style="brush"), "selfheal": dict(kind="lip", fc="plum", calyx="plum"),
-    "clover": dict(kind="clover"), "red-clover": dict(kind="clover"),
-    "scabiosa": dict(kind="pin"), "devil-s-bit-scabious": dict(kind="pin"), "blue-globe-thistle": dict(kind="spiky"),
-    "hydrangea": dict(kind="mop"),
-    "wild-garlic": dict(kind="globe", loose=True, cen="primrose"), "chives": dict(n=40, R=24),
+    "corn-chamomile": dict(disc=0.36, rays=16), "feverfew": dict(disc=0.4, rays=12, rw=0.3),
+    "helipterum-rosum": dict(rays=26, rw=0.16, disc=0.3),
+        "cornflower": dict(kind="tuft", style="funnel", fringe=True), "globe-artichoke": dict(kind="tuft", style="brush", big=True, bractc="sage"),
+        "clover": dict(kind="clover"), "red-clover": dict(kind="clover"),
+    "blue-globe-thistle": dict(kind="spiky"),
+        "wild-garlic": dict(kind="globe", loose=True, cen="primrose"), "chives": dict(n=40, R=24),
     "poppy": dict(blotch="dark", cen="dark"), "california-poppy": dict(cup="eschscholzia", cen="amber"),
     "candy-cane-sorrel": dict(kind="flat", fc="white", edge="berry", cen="primrose", sepals=False, bud=False),
     "tulip": dict(cup="tulip"), "crocus": dict(feather="plum"),
@@ -1423,14 +1527,14 @@ BLOOMX = {
     "native-cowslip": dict(umbel=True, L=20, W=11, spots="carrot"),
     "blueberry": dict(urn=True, fc="white", L=16, W=12), "honeyberry": dict(L=20, W=9),
     "asparagus": dict(kind="bell", fc="primrose", L=12, W=8),
-    "lavender": dict(dense=True), "hyssop": dict(dense=True), "savory": dict(kind="tiny", fc="white", n=5), "rosemary": dict(kind="lip", dense=False),
+    "lavender": dict(dense=True), "rosemary": dict(kind="lip", dense=False),
     "sage": dict(kind="lip", dense=False), "mint": dict(kind="tiny", n=4), "oregano": dict(n=4),
     "common-bird-s-foot-trefoil": dict(head=True), "lupin": dict(spike=True, keel="white"),
     "tufted-vetch": dict(spike=True), "alfalfa": dict(kind="pea", spike=True, fc="lilac"),
     "meadowsweet": dict(kind="plume"), "rhubarb": dict(kind="plume", fc="white"),
     "sweetcorn": dict(kind="plume", tassel=True, fc="straw"),
     "borage": dict(scales=True, cen="dark"), "aubergine": dict(cen="sun"), "potatoes": dict(cen="sun"),
-    "chilli-pepper": dict(kind="star", fc="white", pw=0.42), "tomatillo": dict(kind="flat", fc="primrose", cen="plum", prof="round", pw=1.1, sepals=True),
+    "tomatillo": dict(kind="flat", fc="primrose", cen="plum", prof="round", pw=1.1, sepals=True),
     "chinese-lanterns": dict(kind="flat", fc="white", cen="primrose", pw=1.0),
     "nasturtium": dict(kind="flat", fc="carrot", cen="sun", blotch="berry", pw=1.0),
     "kiwi": dict(kind="flat", fc="white", cen="primrose", ns=28, anth="dark", pw=0.9),
@@ -1441,13 +1545,38 @@ BLOOMX = {
     "blackcurrant": dict(kind="bell", fc="unripe", L=10, W=7, nodes=[(0.4, 1, 1.0), (0.5, -1, 0.95), (0.6, 1, 0.9), (0.7, -1, 0.85), (0.8, 1, 0.8)]),
     "whitecurrant": dict(kind="bell", fc="unripe", L=10, W=7, nodes=[(0.4, 1, 1.0), (0.5, -1, 0.95), (0.6, 1, 0.9), (0.7, -1, 0.85), (0.8, 1, 0.8)]),
     "gooseberry": dict(kind="bell", fc="unripe", L=12, W=9, mix="beet"),
-    "marshmallow": dict(kind="flat", fc="pink", cen="white", pw=0.9), "geum": dict(kind="flat", pw=0.95),
-    "linum": dict(kind="flat", pw=0.8, cen="white"), "viola": dict(kind="flat", pw=0.9),
-    "perforate-st-john-s-wort": dict(kind="flat", fc="sun", cen="sun", ns=40, pw=0.62),
+    "marshmallow": dict(kind="flat", fc="pink", cen="white", pw=0.9),         "perforate-st-john-s-wort": dict(kind="flat", fc="sun", cen="sun", ns=40, pw=0.62),
     "aubrieta": dict(R=26),
     "japanese-spiraea": dict(kind="tiny", n=5),
     "peacock-orchid": dict(cen="plum"), "puschkinia": dict(kind="six", fc="white", stripe="blue", anth="sun"),
     "tarragon": None, "shallot": None, "senecio-angel-wings": None,
+    # ---- put right in the accuracy check of 15 November 2026 (project doc 81)
+    "african-daisy": dict(rays=18, rw=0.2, fc="pink"),
+    "cat-nip": dict(fc="white", calyx="sage"),
+    "chilli-pepper": dict(kind="star", fc="white", pw=0.42, cen="lilac"),
+    "cosmos": dict(kind="daisy", rays=8, rw=0.5, disc=0.2, cen="sun"),
+    "devil-s-bit-scabious": dict(kind="pin", even=True),
+    "geum": dict(kind="flat", pw=0.95, fc="berry"),
+    "grape-hyacinth": dict(topc="white"),
+    "hydrangea": dict(kind="mop", lacecap=True),
+    "hyssop": dict(dense=True, fc="pink"),
+    "iris": dict(fc="plum"),
+    "lady-s-bedstraw": dict(n=4),
+    "leaf-salad": dict(kind="daisy", fc="primrose", lig=True, rays=16, R=26),
+    "lemon-balm": dict(kind="lip", fc="white", calyx="leaf"),
+    "linum": dict(kind="flat", pw=0.8, fc="berry", cen="dark"),
+    "oxford-rampion": dict(kind="horned"),
+    "rocket-salad": dict(veins="plum"),
+    "savory": dict(kind="lip", fc="white", calyx="leaf", dense=False),
+    "scabiosa": dict(kind="pin", fc="pink"),
+    "selfheal": dict(kind="lip", fc="plum", calyx="plum", dense=True),
+    "thyme": dict(n=4),
+    "viola": dict(kind="pansy", lipc="lilac"),
+    "wild-chamomile": dict(kind="daisy", rayless=True),
+    "winter-windflower": dict(kind="daisy", fc="pink", rays=14, rw=0.16, disc=0.2, rprof="elliptic", plain=True),
+    "wormwood": dict(kind="tiny", button=True),
+    "yarrow": dict(kind="tiny", fc="pink", n=5, cen="primrose"),
+    "yellow-iris": dict(fc="sun"),
 }
 
 
