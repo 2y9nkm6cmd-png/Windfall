@@ -79,6 +79,13 @@ struct PlantDrawings {
         "Plants/plant-\(kind)-\(stage)"
     }
 
+    /// The kind's close-ups of its leaf and flower, from PlantParts.json.
+    /// Empty for a plant with none.
+    func parts(forPlantNamed name: String, in partList: PlantParts = .shared) -> [PlantParts.Part] {
+        guard let kind = kind(forPlantNamed: name) else { return [] }
+        return partList.parts(forKind: kind.slug)
+    }
+
     /// The stages a card falls back on, best first, when the month gives
     /// no reason to choose one.
     static let cardOrder = ["crop", "flower", "growing", "young"]
@@ -96,5 +103,94 @@ struct PlantDrawings {
             if let stage = find(wanted) { return stage }
         }
         return kind.stages.last
+    }
+}
+
+// The close-ups of each kind's leaf and flower.
+//
+// Made by Tools/design/leaves_flowers.py, in the same style as the life
+// stages and kept in the same store of pictures: "Plants/plant-carrot-leaf"
+// and "Plants/plant-carrot-bloom". ("bloom" and not "flower", because
+// "flower" is already the life stage "In flower".) The list of which kind
+// has which close-ups is PlantParts.json. A kind is found by its short
+// name, the `slug`, which is the same in both lists.
+
+struct PlantParts {
+
+    /// One close-up: "leaf" or "bloom", with the words to show under it,
+    /// "Leaf", "Flower", "Blossom".
+    struct Part: Decodable, Identifiable, Equatable {
+        let part: String
+        let label: String
+        var id: String { part }
+    }
+
+    /// One kind and its close-ups, as the file holds them.
+    struct Kind: Decodable {
+        let slug: String
+        let parts: [Part]
+    }
+
+    /// From a kind's slug to its close-ups.
+    private let partsBySlug: [String: [Part]]
+
+    init(kinds: [Kind]) {
+        var table: [String: [Part]] = [:]
+        for kind in kinds { table[kind.slug] = kind.parts }
+        partsBySlug = table
+    }
+
+    /// How many kinds the list holds.
+    var count: Int { partsBySlug.count }
+
+    /// Every kind's slug, in no order.
+    var slugs: [String] { Array(partsBySlug.keys) }
+
+    private struct File: Decodable { let kinds: [Kind] }
+
+    static func decode(_ data: Data) throws -> PlantParts {
+        PlantParts(kinds: try JSONDecoder().decode(File.self, from: data).kinds)
+    }
+
+    /// The list that ships inside the app. Empty if the file is missing,
+    /// and then no plant page shows a "Leaf and flower" card.
+    static let shared: PlantParts = {
+        guard let url = Bundle.main.url(forResource: "PlantParts", withExtension: "json"),
+              let data = try? Data(contentsOf: url),
+              let list = try? decode(data) else { return PlantParts(kinds: []) }
+        return list
+    }()
+
+    /// A kind's close-ups, leaf first. Empty when it has none.
+    func parts(forKind slug: String) -> [Part] {
+        partsBySlug[slug] ?? []
+    }
+}
+
+/// One drawing in a row of drawings, ready to show: which kind, which
+/// stage or close-up, and the words under it. The Life stages card and
+/// the Leaf and flower card both hand a list of these to the same row,
+/// and the enlarged page steps through the same list.
+struct PlantPicture: Identifiable, Equatable, Hashable {
+    /// The kind's short name: "broad-bean".
+    let kind: String
+    /// The stage or close-up, as in the picture's name: "crop", "leaf".
+    let key: String
+    /// The words under it: "Ready to pick", "Flower".
+    let label: String
+
+    var id: String { key }
+
+    /// The picture's name in the app's store of pictures.
+    var pictureName: String { PlantDrawings.pictureName(kind: kind, stage: key) }
+
+    /// A kind's life stages, youngest first.
+    static func stages(of kind: PlantDrawings.Kind) -> [PlantPicture] {
+        kind.stages.map { PlantPicture(kind: kind.slug, key: $0.stage, label: $0.label) }
+    }
+
+    /// A kind's close-ups, leaf first.
+    static func parts(_ parts: [PlantParts.Part], kind slug: String) -> [PlantPicture] {
+        parts.map { PlantPicture(kind: slug, key: $0.part, label: $0.label) }
     }
 }

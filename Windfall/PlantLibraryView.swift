@@ -516,7 +516,9 @@ struct PlantDetailView: View {
                         // cards are shared out to leave the two level.
                         let rightStart = PlantPage.plantingsCardWeight(lines: plant.plantings?.count ?? 0)
                         let pestCount = CompanionPests.named(in: plant.knownPests ?? "").count
+                        // The drawing cards sit at the top of the left column.
                         let leftStart = PlantPage.footCardsWeight(pests: pestCount)
+                            + PlantPage.drawingCardsWeight(cards: drawingCardCount)
                         let sides = PlantPage.twoColumns(cards, leftHeadStart: leftStart, rightHeadStart: rightStart)
                         // "Add information" goes at the foot of whichever
                         // column came out shorter.
@@ -524,6 +526,7 @@ struct PlantDetailView: View {
                         HStack(alignment: .top, spacing: 14) {
                             VStack(spacing: 14) {
                                 stagesCard
+                                partsCard
                                 ForEach(sides.left) { factCard in
                                     PlantFactCardView(factCard: factCard) { editing = factCard.group }
                                 }
@@ -544,6 +547,7 @@ struct PlantDetailView: View {
                     } else {
                         plantingsCard
                         stagesCard
+                        partsCard
                         ForEach(cards) { factCard in
                             PlantFactCardView(factCard: factCard) { editing = factCard.group }
                         }
@@ -782,8 +786,28 @@ struct PlantDetailView: View {
     @ViewBuilder
     private var stagesCard: some View {
         if let kind = PlantDrawings.shared.kind(forPlantNamed: plant.commonName) {
-            PlantStagesCard(kind: kind)
+            PlantStagesCard(kind: kind, plantName: plant.commonName)
         }
+    }
+
+    /// The close-ups of the plant's leaf and flower, in a card of their
+    /// own under the life stages (William, 15 November 2026: "a separate
+    /// section in the plant page"). Nothing for a plant with none.
+    @ViewBuilder
+    private var partsCard: some View {
+        if let kind = PlantDrawings.shared.kind(forPlantNamed: plant.commonName) {
+            let parts = PlantParts.shared.parts(forKind: kind.slug)
+            if !parts.isEmpty {
+                PlantPartsCard(kind: kind, parts: parts, plantName: plant.commonName)
+            }
+        }
+    }
+
+    /// How many of the two drawing cards this plant's page shows: 0, 1
+    /// or 2. The two-column page counts them when it shares out the facts.
+    private var drawingCardCount: Int {
+        guard let kind = PlantDrawings.shared.kind(forPlantNamed: plant.commonName) else { return 0 }
+        return 1 + (PlantParts.shared.parts(forKind: kind.slug).isEmpty ? 0 : 1)
     }
 
     private var plantingsCard: some View {
@@ -861,7 +885,21 @@ struct DemoPlantPage: View {
 
     var body: some View {
         if let plant = plants.first(where: { $0.commonName.lowercased() == name.lowercased() }) {
-            PlantDetailView(plant: plant)
+            // `-demoPlantDrawing crop` opens that drawing large instead.
+            if let key = DemoGarden.opensPlantDrawing,
+               let kind = PlantDrawings.shared.kind(forPlantNamed: plant.commonName) {
+                let stages = PlantPicture.stages(of: kind)
+                let parts = PlantPicture.parts(PlantParts.shared.parts(forKind: kind.slug), kind: kind.slug)
+                let row = stages.contains { $0.key == key } ? stages : parts
+                if let first = row.first(where: { $0.key == key }) {
+                    PlantPictureDetailView(title: row == stages ? "Life stages" : "Leaf and flower",
+                                           plantName: plant.commonName, drawings: row, firstShown: first)
+                } else {
+                    Text("\(plant.commonName) has no drawing called \(key).")
+                }
+            } else {
+                PlantDetailView(plant: plant)
+            }
         } else {
             Text("No plant called \(name).")
         }

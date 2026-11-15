@@ -166,6 +166,11 @@ def build_plants(catalogue=CATALOGUE):
         count += 1
     shutil.copyfile(os.path.join(source, "plant-drawings.json"),
                     os.path.join(ROOT, "Windfall", "PlantDrawings.json"))
+    # The close-ups of each kind's leaf and flower (leaves_flowers.py) sit
+    # in the same two folders, so the loop above has already made their
+    # picture sets. Their list goes into the app beside the other one.
+    shutil.copyfile(os.path.join(source, "plant-parts.json"),
+                    os.path.join(ROOT, "Windfall", "PlantParts.json"))
     return count
 
 

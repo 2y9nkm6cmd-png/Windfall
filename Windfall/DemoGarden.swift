@@ -185,6 +185,11 @@ enum DemoGarden {
     static var opensPlant: String? {
         isRequested ? UserDefaults.standard.string(forKey: "demoPlant") : nil
     }
+    /// With `-demoPlant Garlic`, `-demoPlantDrawing crop` opens one of
+    /// the plant's drawings large (a life stage, or "leaf" or "bloom").
+    static var opensPlantDrawing: String? {
+        isRequested ? UserDefaults.standard.string(forKey: "demoPlantDrawing") : nil
+    }
     static var opensCompanions: String? {
         isRequested ? UserDefaults.standard.string(forKey: "demoCompanions") : nil
     }

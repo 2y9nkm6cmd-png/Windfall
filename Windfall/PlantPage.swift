@@ -260,6 +260,14 @@ enum PlantPage {
         3 + (pests == 0 ? 0 : 2 + (pests + 1) / 2)
     }
 
+    /// Roughly how tall the drawing cards at the top of the left-hand
+    /// column are, in rows: "Life stages" and "Leaf and flower" are each
+    /// a title, a row of 96-point drawings and their labels. `cards` is
+    /// how many the page shows (0, 1 or 2).
+    static func drawingCardsWeight(cards: Int) -> Int {
+        max(cards, 0) * 7
+    }
+
     /// A planting's stage in a word or two.
     static func statusWords(_ status: PlantingStatus) -> String {
         switch status {
