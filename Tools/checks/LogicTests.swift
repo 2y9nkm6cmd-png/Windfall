@@ -2263,6 +2263,33 @@ struct LogicTests {
         let drawnShed = GardenFeature(name: "", kind: .tree, siteKey: "allotment")
         check(drawnBed.lengthMetres == 4.8 && drawnBed.planWidth == Bed.unmeasuredWidth && drawnBed.planName == "Bed" && drawnShed.planIsRound && drawnShed.planName == "Tree or bush", "beds and features can both be handled as things on a plan")
 
+        // What a harvest can be recorded against (15 November 2026: the Harvest button
+        // was a dead end with no sowing on record)
+        let harvestApple = Plant(commonName: "Apple"); harvestApple.variety = "Jonagold"; harvestApple.latinName = "Malus domestica"; harvestApple.fruitingMonthsText = "sep oct"
+        let harvestAsparagus = Plant(commonName: "Asparagus"); harvestAsparagus.harvestMonthsText = "apr may jun"
+        let harvestLeek = Plant(commonName: "Leek"); harvestLeek.harvestMonthsText = "oct nov dec jan"
+        let harvestSage = Plant(commonName: "Pineapple sage")
+        let harvestLibrary = [harvestApple, harvestAsparagus, harvestLeek, harvestSage]
+        check(HarvestChoice.offered(harvestLibrary, search: "", month: 10).map(\.commonName) == ["Apple", "Leek", "Asparagus", "Pineapple sage"] && HarvestChoice.offered(harvestLibrary, search: "  ", month: 5).map(\.commonName) == ["Asparagus", "Apple", "Leek", "Pineapple sage"] && HarvestChoice.offered(harvestLibrary, search: "", month: 8).map(\.commonName) == ["Apple", "Asparagus", "Leek", "Pineapple sage"], "with nothing typed the Harvest sheet offers every plant, those in their harvest or fruiting months first and the rest in the order they came")
+        check(HarvestChoice.offered(harvestLibrary, search: " APPLE ", month: 10).map(\.commonName) == ["Apple", "Pineapple sage"] && HarvestChoice.offered(harvestLibrary, search: "jona", month: 1).map(\.commonName) == ["Apple"] && HarvestChoice.offered(harvestLibrary, search: "malus", month: 1).map(\.commonName) == ["Apple"] && HarvestChoice.offered(harvestLibrary, search: "quince", month: 10).isEmpty && HarvestChoice.offered([], search: "", month: 10).isEmpty, "typing finds a plant by its name, its variety or its Latin name, a name that begins with the letters comes before one that only holds them, and the month no longer matters")
+        let harvestDay = Date(timeIntervalSinceReferenceDate: 800_000_000)
+        let leekPlanned = Planting(); leekPlanned.plant = harvestLeek; leekPlanned.status = .planned; leekPlanned.dateSown = harvestDay
+        let leekOlder = Planting(); leekOlder.plant = harvestLeek; leekOlder.status = .harvesting; leekOlder.dateSown = harvestDay.addingTimeInterval(-90 * 86_400)
+        let leekFinished = Planting(); leekFinished.plant = harvestLeek; leekFinished.status = .finished; leekFinished.dateSown = harvestDay
+        let leekNewer = Planting(); leekNewer.plant = harvestLeek; leekNewer.status = .growing; leekNewer.dateSown = harvestDay.addingTimeInterval(-10 * 86_400)
+        let leekFailed = Planting(); leekFailed.plant = harvestLeek; leekFailed.status = .failed
+        let leekUndated = Planting(); leekUndated.plant = harvestLeek; leekUndated.status = .harvesting
+        harvestLeek.plantings = [leekPlanned, leekOlder, leekFinished, leekUndated, leekNewer, leekFailed]
+        check(Planting.cropping(of: harvestLeek).map(\.id) == [leekNewer.id, leekOlder.id, leekUndated.id] && Planting.cropping(of: harvestApple).isEmpty && PlantingStatus.allCases.filter { status in let trial = Planting(); trial.status = status; return trial.couldBeCropping }.count == PlantingStatus.allCases.count - 3, "a plant's sowings that could be giving a crop leave out the planned, the finished and the failed, newest first, with an undated one last")
+        var leekSourceIsNewest = false
+        if case .planting(let found) = HarvestSource.source(for: harvestLeek) { leekSourceIsNewest = found === leekNewer }
+        var appleSourceIsThePlant = false
+        if case .plant(let found) = HarvestSource.source(for: harvestApple) { appleSourceIsThePlant = found === harvestApple }
+        check(leekSourceIsNewest && appleSourceIsThePlant && HarvestSource.source(for: harvestApple).needsPuttingOnRecord && !HarvestSource.source(for: harvestLeek).needsPuttingOnRecord && HarvestSource.source(for: harvestLeek).plant === harvestLeek && HarvestSource.planting(Planting()).plant == nil, "a plant picked for a harvest goes against its newest cropping sowing, and one with none is to be put on record")
+        let harvestContext = ModelContext()
+        let appleOnRecord = Planting.putOnRecord(harvestApple, from: "the Harvest button", in: harvestContext)
+        check(appleOnRecord.plant === harvestApple && appleOnRecord.status == .harvesting && appleOnRecord.dateSown == nil && appleOnRecord.couldBeCropping && appleOnRecord.notes == "Put on record from the Harvest button when its first harvest was added. When it was sown or planted is not known." && (try? harvestContext.fetchCount(FetchDescriptor<Planting>())) == 1 && Planting.putOnRecord(harvestSage, from: "the journal", in: harvestContext).notes == "Put on record from the journal when its first harvest was added. When it was sown or planted is not known.", "a plant with nothing sown is put on record as cropping, with no sowing date and a note of where from, and the journal's note reads as it did before")
+
         print("   logic tests: \(passes) passed, \(failures) failed")
         exit(failures == 0 ? 0 : 1)
     }
