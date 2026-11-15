@@ -885,7 +885,21 @@ struct DemoPlantPage: View {
 
     var body: some View {
         if let plant = plants.first(where: { $0.commonName.lowercased() == name.lowercased() }) {
-            PlantDetailView(plant: plant)
+            // `-demoPlantDrawing crop` opens that drawing large instead.
+            if let key = DemoGarden.opensPlantDrawing,
+               let kind = PlantDrawings.shared.kind(forPlantNamed: plant.commonName) {
+                let stages = PlantPicture.stages(of: kind)
+                let parts = PlantPicture.parts(PlantParts.shared.parts(forKind: kind.slug), kind: kind.slug)
+                let row = stages.contains { $0.key == key } ? stages : parts
+                if let first = row.first(where: { $0.key == key }) {
+                    PlantPictureDetailView(title: row == stages ? "Life stages" : "Leaf and flower",
+                                           plantName: plant.commonName, drawings: row, firstShown: first)
+                } else {
+                    Text("\(plant.commonName) has no drawing called \(key).")
+                }
+            } else {
+                PlantDetailView(plant: plant)
+            }
         } else {
             Text("No plant called \(name).")
         }
