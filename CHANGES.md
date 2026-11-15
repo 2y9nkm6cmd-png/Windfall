@@ -732,6 +732,76 @@ A plant now also counts as having a shape when its own "Flower Form" names one. 
 1. Merge `main` into `flower-shape-drawings` first, then build it for the Mac and the simulator.
 2. Look at Wildlife, Species, Flower shape coverage, and open a shape the garden has and a gap.
 3. Join it to `main` only once it builds and William has seen it.
+# 14 November 2026, 21:00: photos show at once, and a journal entry can be changed
+
+**By the "photo speed" chat, on the branch `photos-faster-entry-edit`, made from `main` at `9b18bb4`. Not in `main`.** William, 20:38: "When you add photos to Eira, it's really slow to actually show them. I know it's doing a lot to process them. There's also no way to edit journal entries".
+
+## Photos
+
+**What was slow.** Not the image model. Every small copy of a photo in the app was made by one function, `DiaryEntryEditor.thumbnail`, which:
+
+1. opened the whole photo (a phone's photo is 12 to 48 million dots, 50 to 190MB once opened out in memory),
+2. drew it again smaller, at the screen's own scale, so that on an iPhone a "1024" copy came out 3,072 dots wide and a "2048" copy larger than the photo it was made from,
+3. saved the drawing as a JPEG,
+
+all on the main thread. A thread is one line of work the device is getting on with, and the main thread is the one that draws the screen and answers touches. While it was opening a photo, nothing on screen could change. A photo given to Eira's bar was opened this way two or three times: for the card that asks what to do with it, again for the journal's box or the Identify screen, and again when kept. And nothing at all was shown between choosing a photo and the last of that work finishing. **⚠️ CHECK: this is read from the code. It has not been timed on the phone.**
+
+**What changed.**
+
+| File | Change |
+|---|---|
+| `PhotoShrink.swift` (new) | `PhotoShrink.jpeg(from:longestSide:)` makes a copy with ImageIO, Apple's reader for picture files, which reads a photo straight down to the size wanted without ever holding the full-size picture as a drawing. `SpeciesEye.swift` already read photos this way for the image model. Sizes are now in pixels and the same on every device: 600 for a tile, 1,200 for the card, 2,048 for the copy Eira looks at and a sighting keeps. `PhotoWorkshop` is an `actor`: an object that does one job at a time, off the main thread. Photos are shrunk through it one after another, so ten large photos are never open at once |
+| `JournalViews.swift` | `DiaryEntryEditor.thumbnail` keeps its name, because nine places call it, and now hands the work to `PhotoShrink`. It is marked `nonisolated`, "may be run from any thread" |
+| `PhotoDrop.swift` | `WaitingPhoto` and `WaitingPhotoTile`: a photo that has been chosen and is on its way, drawn as a grey tile with a spinner until its small copy is ready. `PhotoDrop.pictures(from:)` for the Photos chooser fetches every chosen photo at the same time (`withTaskGroup`) and hands them back in the order chosen. They were fetched one after another |
+| `JournalChatView.swift` | A tile for each photo goes into the box the moment it is chosen. Each fills in when its photo arrives. Send waits while one is still on its way |
+| `PhotoOffer.swift` | The card of three offers shows a grey tile for each photo at once and fills them in |
+| `EiraChatView.swift` | "Fetching the photo…" shows from the moment one is chosen. The copy is made in the background |
+| `EiraVision.swift` | The Identify screen the same |
+| `EiraFloatingBar.swift` | The "+" turns into a spinner while chosen photos are fetched |
+| `PhotoStore.swift` | The copy kept in the app when the original goes to the photo folder is 2,048 pixels, where it was "2,048 points" |
+
+Every Photos chooser is also given `preferredItemEncoding: .current`, which asks for each photo as it is stored. Left to itself the chooser may first convert a photo to another format.
+
+**⚠️ CHECK, Claude's choices:** the three sizes. The copy kept with a sighting where no photo folder is chosen is now 2,048 pixels on every device. Before, it was 3,072 on an iPhone and 2,048 on a Mac. One photo is shrunk at a time, so ten photos fill in one after another.
+
+**Not changed:** fetching a photo from the Photos library is Apple's and can still take seconds when iCloud holds the original. The tile and its spinner are there meanwhile. Sending an entry with photos still writes each original to the photo folder before the entry appears.
+
+## Changing a journal entry
+
+**What was there.** Press and hold on an entry in the journal's conversation gave Rename, Change the details and Delete. Nothing on screen said so, the conversation only shows the day it is on, and an entry on the Journal page could not be opened at all. "Change the details" opened the old diary form, a standard `Form`, which wrote every key press straight into the entry, so its Cancel undid nothing.
+
+**What changed.**
+
+| File | Change |
+|---|---|
+| `JournalEntryEditor.swift` (new) | `JournalEntrySheet`, built from the pieces in `SheetParts.swift`. The words, the heading, when it was, the weather and temperature, which bed it is about, photos added and taken off, and Delete, which asks first. It keeps its own copy of each thing, a draft, and writes the draft into the entry only when Save is pressed |
+| `JournalViews.swift` | On the Journal page an entry you wrote is a button with a small pencil at its end. A tap opens the sheet. Sowings, harvests and sightings on the page are as they were |
+| `JournalChatView.swift` | A pencil beside each entry's stamp opens the sheet. Press and hold still works, with "Change this entry" first. The old form is no longer opened from anywhere. It stays in `JournalViews.swift` because `thumbnail` lives in it |
+| `JournalChat.swift` | `JournalChat.heading(own:written:typed:oldWords:newWords:known:)`: what becomes of the heading. Left alone, a heading of your own stays and one written for you is written again if the words changed. Emptied, one is written from the words. Typed over, it becomes your own. Seven logic tests |
+
+**⚠️ CHECK, Claude's choices:** the weather does not follow a changed time by itself. Where the weather diary has the new time, a button offers its figures. An entry cannot be dated in the future. Deleting asks first. On the Journal page there is no press and hold, only the tap.
+
+**Not built:** opening a sowing, a harvest or a sighting from the Journal page.
+
+## Checked
+
+- The repository's checks, Swift 6.3.1 for Linux in the chat's cloud workspace: 112 files valid, type check passed, 30 record types and 30 in the schema, **756 logic tests pass** (749 before, 7 new).
+- `Photo.lastPathComponent` is a new false alarm in the name-guessing check, in `SpeciesTestRun.swift`, where `photo` is a file's address. It is in `known-false-alarms.txt`.
+- **Built for the Mac with no errors**, twice: the first version (`ps1-mac.log`, 21:21) and the branch as it now stands, `ff77c82` (`ps2-mac.log`, 21:54). In the chat's own copy `~/Developer/windfall-photospeed` and its own build folder `DerivedData/Windfall-photospeed`.
+- **Built signed for the iPhone with no errors** (`ps3-iphone.log`, 21:48), as the branch `photos-faster-phone-mix`: this branch with `eira-put-away` merged in, because that is what the phone held at the time. **That branch is for the phone only and is not to be merged into `main`.** Not installed.
+- **`PhotoShrink.jpeg` run on the Mac by itself against the old way**, on four test pictures made for the purpose (`/tmp/photospeed-test`, 21:26, while three other builds were running, so the times are long and only their ratio means anything):
+
+| Picture | Tile, old | Tile, new | Eira's copy, old | Eira's copy, new |
+|---|---|---|---|---|
+| 12 million dots, JPEG | 1.69 s | 0.38 s | 6.80 s | 1.63 s |
+| 24 million dots, HEIC | 4.03 s | 0.73 s | 8.61 s | 1.96 s |
+| 48 million dots, HEIC | 8.01 s | 0.92 s | 7.05 s | 0.48 s |
+| 1,200 by 900, JPEG | 0.09 s | 0.005 s | 1.10 s | 0.10 s |
+
+  Each copy came out the right size, and three bytes that are not a picture gave nothing back, as they should. The last row shows the old way making a small picture larger: 1,200 dots wide became 2,048.
+- **Not done: nobody has pressed anything.** No screen has been looked at, on a Mac or a phone, and nothing has been timed on the phone.
+- A photo that no small copy can be made of is kept, with a plain photo symbol on its tile. (The first version of this branch dropped it.)
+
 # 14 November 2026, 20:10: plant drawings added to the Design folder
 
 **By the plant graphics chat.** William, 18:15: "Could you create graphics for all the plants I'm growing and have seeds for. Create a graphic for each phase of their life that are relevant." At 19:06: "Make them a bit more detailed and do them all". At 20:06: "Connect to my mac to attach changes to the main file".

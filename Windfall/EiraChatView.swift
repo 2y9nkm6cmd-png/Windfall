@@ -98,6 +98,11 @@ struct EiraChatView: View {
     @State private var isChoosingPhotoFile = false
     /// The photo chosen in the Photos library, until it has been read.
     @State private var pickedPhoto: PhotosPickerItem?
+    /// How many photos have been chosen or dropped and are still being
+    /// fetched or made smaller, before they can join the conversation.
+    /// While it is above nothing, a line says so, so that choosing a
+    /// photo is answered at once.
+    @State private var photosComing = 0
     /// True while a photo is being held over the chat.
     @State private var isDropTarget = false
     /// When and where each photo given to her was taken, by the id of
@@ -163,12 +168,21 @@ struct EiraChatView: View {
         }
         // A photo for her from the Photos library. Choosing one sets
         // `pickedPhoto`, and the `onChange` below reads it.
-        .photosPicker(isPresented: $isChoosingPhoto, selection: $pickedPhoto, matching: .images)
+        // `.current` asks for the photo as it is stored. Left to itself
+        // the chooser may first convert it to another format, which
+        // takes a moment.
+        .photosPicker(isPresented: $isChoosingPhoto, selection: $pickedPhoto, matching: .images,
+                      preferredItemEncoding: .current)
         .onChange(of: pickedPhoto) { _, item in
             guard let item else { return }
             pickedPhoto = nil
+            // Counted as on its way from here, because fetching it can
+            // take a while if iCloud holds the original.
+            photosComing += 1
             Task {
-                if let data = try? await item.loadTransferable(type: Data.self) { await look(at: data) }
+                let data = try? await item.loadTransferable(type: Data.self)
+                photosComing -= 1
+                if let data { await look(at: data) }
             }
         }
         // Or one that is a file, which on a Mac is often where they are.
@@ -457,10 +471,12 @@ struct EiraChatView: View {
                                 .id("streaming")
                         }
 
-                        if conversation.isLooking {
+                        if conversation.isLooking || photosComing > 0 {
                             HStack(spacing: 6) {
                                 ProgressView().controlSize(.small)
-                                Text("Looking at the photo…")
+                                // "Fetching" until the photo is in the
+                                // conversation, "Looking" once it is.
+                                Text(conversation.isLooking ? "Looking at the photo…" : "Fetching the photo…")
                                     .font(.body)
                                     .foregroundStyle(Theme.inkSoft)
                             }
@@ -739,14 +755,19 @@ struct EiraChatView: View {
     /// (EiraIdentify.identify). The answer joins the conversation, or
     /// the reason there is none does.
     ///
-    /// The photo is kept at no more than 1024 pixels on its longest
+    /// The photo is kept at no more than 2048 pixels on its longest
     /// side, as on the Identify screen: plenty to name from and to keep
     /// with a sighting.
     private func look(at data: Data) async {
         // The date and place are read first, from the photo as it came:
         // making it smaller loses them (PhotoFacts.swift).
         let facts = PhotoFacts.read(from: data)
-        let photo = DiaryEntryEditor.thumbnail(from: data, maxDimension: 1024) ?? data
+        // The smaller copy is made in the background (PhotoShrink.swift),
+        // so the chat can still be scrolled and typed in meanwhile.
+        photosComing += 1
+        let small = await PhotoWorkshop.shared.jpeg(from: data, longestSide: PhotoShrink.lookSide)
+        photosComing -= 1
+        let photo = small ?? data
         guard let photoID = conversation.givePhoto(photo) else { return }
         // Kept for a sighting started from her answer: see addSighting.
         photoFacts[photoID] = facts

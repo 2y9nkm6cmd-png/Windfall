@@ -110,6 +110,9 @@ struct IdentifyView: View {
     /// True while a photo is being held over the screen.
     @State private var isDropTarget = false
     @State private var isWorking = false
+    /// True while a newly chosen photo is being made smaller, before it
+    /// can be shown.
+    @State private var isReadingPhoto = false
     @State private var error: String?
     /// The image model in use, for saying which under the photo.
     @State private var eyeName: String?
@@ -180,8 +183,15 @@ struct IdentifyView: View {
         // A photo from the Photos library.
         .onChange(of: pickerItem) { _, item in
             guard let item else { return }
+            // Shown as busy from here, because fetching the photo can
+            // take a while if iCloud holds the original.
+            isReadingPhoto = true
             Task {
-                if let data = try? await item.loadTransferable(type: Data.self) { take(data) }
+                if let data = try? await item.loadTransferable(type: Data.self) {
+                    await take(data)
+                } else {
+                    isReadingPhoto = false
+                }
             }
         }
         // A photo that is a file, which on a Mac is often where they are.
@@ -191,14 +201,16 @@ struct IdentifyView: View {
             // between these two calls.
             let hasLeave = url.startAccessingSecurityScopedResource()
             defer { if hasLeave { url.stopAccessingSecurityScopedResource() } }
-            if let data = try? Data(contentsOf: url) { take(data) }
+            if let data = try? Data(contentsOf: url) {
+                Task { await take(data) }
+            }
         }
         // A photo dragged on to the screen is looked at straight away.
         .onDrop(of: PhotoDrop.kinds, isTargeted: $isDropTarget) { providers in
             guard PhotoDrop.mayHold(providers) else { return false }
             Task {
                 guard let first = await PhotoDrop.pictures(from: providers).first else { return }
-                take(first)
+                await take(first)
                 await identify()
             }
             return true
@@ -214,7 +226,7 @@ struct IdentifyView: View {
             // is looked at as soon as the screen opens.
             if let startingPhoto, !hasTakenStartingPhoto {
                 hasTakenStartingPhoto = true
-                take(startingPhoto)
+                await take(startingPhoto)
                 if !DemoGarden.showsExampleMatch { await identify() }
             }
             // A checking aid: an example answer, so the cards can be
@@ -231,7 +243,18 @@ struct IdentifyView: View {
     @ViewBuilder
     private var cards: some View {
         SheetCard("Photo") {
-            if let imageData, let image = displayImage(imageData) {
+            if isReadingPhoto {
+                // The photo has been chosen and is being fetched or made
+                // smaller. Saying so at once is what stops the screen
+                // seeming to have ignored the choice.
+                HStack(spacing: 8) {
+                    ProgressView().controlSize(.small)
+                    Text("Fetching the photo…")
+                        .font(.body)
+                        .foregroundStyle(Theme.inkSoft)
+                }
+                .frame(maxWidth: .infinity, minHeight: 120)
+            } else if let imageData, let image = displayImage(imageData) {
                 image
                     .resizable()
                     .scaledToFit()
@@ -251,7 +274,9 @@ struct IdentifyView: View {
                     .foregroundStyle(Theme.inkSoft)
             }
             HStack(spacing: 10) {
-                PhotosPicker(selection: $pickerItem, matching: .images) {
+                // `.current` asks for the photo as it is stored, without
+                // the chooser converting it to another format first.
+                PhotosPicker(selection: $pickerItem, matching: .images, preferredItemEncoding: .current) {
                     Label(imageData == nil ? "From Photos" : "Another from Photos", systemImage: "photo.on.rectangle")
                 }
                 .buttonStyle(QuietGlassButton())
@@ -268,7 +293,7 @@ struct IdentifyView: View {
                 .foregroundStyle(Theme.inkSoft)
         }
 
-        if imageData != nil {
+        if imageData != nil, !isReadingPhoto {
             Button {
                 Task { await identify() }
             } label: {
@@ -315,18 +340,24 @@ struct IdentifyView: View {
 
     /// Takes a newly chosen photo and clears the last answer.
     ///
-    /// The photo is kept at no more than 1024 pixels on its longest
+    /// The photo is kept at no more than 2048 pixels on its longest
     /// side. That is plenty to identify from and to keep with a
     /// sighting, and a fraction of the size of the original.
-    private func take(_ data: Data) {
+    ///
+    /// `async` because the smaller copy is made in the background
+    /// (PhotoShrink.swift) and this waits for it, with the screen free
+    /// to show "Fetching the photo…" meanwhile.
+    private func take(_ data: Data) async {
+        isReadingPhoto = true
+        identification = nil
+        error = nil
         // Read the date and place first, from the photo as it came:
         // making it smaller loses them. The date gives Eira the month
         // to judge a species by (PhotoFacts.month).
         facts = PhotoFacts.read(from: data)
         originalData = data
-        imageData = DiaryEntryEditor.thumbnail(from: data, maxDimension: 1024) ?? data
-        identification = nil
-        error = nil
+        imageData = await PhotoWorkshop.shared.jpeg(from: data, longestSide: PhotoShrink.lookSide) ?? data
+        isReadingPhoto = false
     }
 
     /// Asks the image model what the photo most resembles, and has
