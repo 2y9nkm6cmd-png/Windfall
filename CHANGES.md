@@ -1,3 +1,63 @@
+# 15 November 2026, 16:45: the paper behind every screen is one flat colour
+
+**By the "remove the gradient" chat, linked to the Mac. Branch `plain-paper-background`, made from `main` at `a2744bb`. Joined into `main` at 17:06 the same day, by the project's rule that a change which builds and passes its tests goes in. `main` moved twice while it was being made (the resting corner drawing, then the frame timer in the motion tour) and was merged in both times. Only `CHANGES.md` met.**
+
+William, 16:35: "Let's remove the gradient background in app".
+
+**Before.** `PaperBackground` in `Theme.swift` painted the paper colour and then two very large, heavily blurred circles over it: a green one (`Theme.leafFill`) towards the top right and a yellow one (`Theme.sun`) towards the bottom left. Blurred that much they read as a soft shading from corner to corner. They were there so that glass panels had something to bend.
+
+**Now.** `PaperBackground` paints `Theme.paper` and nothing else: cream in light mode, deep green in dark mode.
+
+| File | What changed, and why |
+|---|---|
+| `Theme.swift`, `PaperBackground` | The body is `Theme.paper.ignoresSafeArea()`. The two circles, the sums that placed them (`GeometryReader`, the zoom and the shifts) and the `followsWindow` setting are gone. `followsWindow` only existed to line a page's circles up with the window's, so with no circles it has nothing to do |
+| `Theme.swift`, `PaperCanvas` | Removed. It was the note of where the window's background was, kept for the same lining-up |
+| `Theme.swift`, `paperScreen()` | Asks for `PaperBackground()` with no setting |
+| `MainTabView.swift`, the window's background | No longer measures itself with `onGeometryChange` to fill in `PaperCanvas` |
+| `MainTabView.swift`, Settings | The **Plain background** switch is removed: it did by a switch what the app now always does. The section is headed "Speed check" and holds the one switch left, Plain fade between places. Its words are shortened to match |
+
+**Not changed:** the paper colour itself. Cards, glass and Eira's bar. Sheets, the plant chooser and Eira's panel, which use `PaperBackground()` too and so go flat with everything else. The other three gradients in the app, none of which is a background: the bright rim on a glass switch (`GlassSwitch.swift`), the same rim on the sidebar's glass (`MainTabView.swift`) and the shadow at the edge of a page being swiped back on a Mac (`PageZoom.swift`). The widgets, which never had the circles.
+
+**What it costs.** Glass over bare paper has only the flat colour to bend, so a glass card at rest looks a little plainer than it did. It still shows what scrolls under it.
+
+**What it saves.** Two blurs of 110 and 120 points across the whole window, on every page and every sheet, are no longer drawn. Not measured.
+
+**Left behind on purpose:** a device that had the Plain background switch on keeps a stored value called `plainBackground` that nothing reads any more. It does no harm.
+
+**Checked:** Windfall's own checks in the cloud workspace (Swift 6.3.1 for Linux), on the branch and after each merge of `main`: 124 files parse, the type check passes, cross-file checks clean, 871 logic tests pass. Simulator, unsigned: BUILD SUCCEEDED twice (`windfall-build-logs/pp1-sim.log` on the change alone, `pp2-sim.log` with the resting corner drawing merged in). Mac, unsigned: BUILD SUCCEEDED (`pp3-mac.log`, the same code as `pp2`). Simulator pictures of Today looked at by Claude (`shots/pp-today-iphone-light.png`, `pp-today-iphone-dark.png`, `pp-today-ipad-light.png`, `pp-today-ipad-dark.png`, script `plainpaper-shots.sh`). The bare paper measures the same on the left as on the right and at the top as at the foot: `#F8F1E5` in light mode and `#0C1C14` in dark mode. Beside a card or the sidebar it is three to five steps darker, which is that card's own soft shadow.
+
+**Not checked:** a real iPhone, iPad or the Mac's own window. Any page but Today: Settings with its one switch, a sheet, the plant chooser and Eira's panel were not pictured (the picture named `pp-settings-iphone-light.png` shows Today: the launch argument used does not open Settings). **The last merge was not built as one piece.** It added only `MotionTour.swift`, which the steady animations chat built with `main` (`pm7-sim.log`) and which uses none of the names this change removed. The Mac's disk was down to 3GB, so a third full build was not run.
+# 15 November 2026, 16:40: the pause when changing place, measured on the iPad itself
+
+**By the "steady animations" chat, on the Mac.** William, 16:20, asked whether he wanted the pause measured on the iPad: "Sure". No screen was changed. The motion tour (`MotionTour.swift`) gained a way of timing every frame on a real device.
+
+| File | What changed, and why |
+|---|---|
+| `MotionTour.swift`, `FrameWatch` | A `CADisplayLink` is a timer the screen itself drives: it calls once for every frame the screen is about to show, on the app's main thread. While that thread is busy building a page it cannot be called, so a long wait between two calls is a stall, and its length is how long the picture stood still. `FrameWatch` notes every wait longer than a frame and a half. iPhone and iPad only: on a Mac it does nothing |
+| `MotionTour.swift`, `measureTour` | `-demoGarden YES -motionTour measure`: every place twice over, each time from Today and back, then Eira's bar and panel. It prints a report, each line beginning MOTION: the first stall after each change, the longest, the time lost and when each stall fell |
+
+**How it is run.** `windfall-build-logs/measure-run.sh ipad <name> [arguments]` starts the app on the iPad with `devicectl device process launch --console`, which hands back what the app prints. The iPad must be awake and unlocked. It uses the example garden, which lives in memory, so the iPad's own records are not touched. The app is closed afterwards so the example garden is not left showing.
+
+**What the iPad mini said** (`pm3-ipad-melt-console.log`, `pm3-ipad-fade-console.log`, `pm4-ipad-release-console.log`, one frame is 17 thousandths of a second):
+
+| Going to | The picture stood still for | Then |
+|---|---|---|
+| Today, from anywhere | 110 to 125, and at once 45 to 60 more: about 170 | one or two short stalls |
+| Year, Plants | 90 to 130, then 55 to 110: 170 to 210 | two to four short stalls |
+| Journal, Gardens | 85 to 100, then 35 to 50: 130 to 150 | up to three short stalls |
+| Wildlife, Identify, Settings | 55 to 80, then 25 to 50: 90 to 120 | two or three short stalls |
+
+- The melt lasts 300. So on most changes more than half of it has gone by before the first new picture is drawn. That is the jump seen on film.
+- **A second visit is no quicker than the first.** Each change builds the page afresh.
+- **"Plain fade between places" makes no difference** to the stall. The melt is not what is slow.
+- **A Release build is no quicker.** So it is not Windfall's own code being built for checking.
+- **Where the time goes** (Time Profiler on the iPad, `films/pm-profile-bursts.txt`, summed by `profile-sum.py`): nine tenths of it is inside SwiftUI itself, building the new page's tree of views and laying it out. Windfall's own functions are on under a tenth of the samples. The largest of ours is Today fetching every plant (`TodayView.plants`, 4%).
+- Eira's bar: asking for the keyboard still costs a stall of 85 to 190, and it lands at about 360 after the tap, on the tail of the bar's spring. The panel rising costs 80 to 95 once. Sinking and closing cost next to nothing.
+
+**Checked:** Mac, simulator and signed device builds (Debug and Release): BUILD SUCCEEDED (`pm6-mac.log`, `pm6-sim.log`, `pm3-ios.log`, `pm4-ios-release.log`, and `pm7-sim.log` after `main` was merged in). Syntax and cross-file checks pass (`pm6-checks.log`).
+
+**Not done:** any cure. Two are open, for William to choose between: start the melt and the lens a moment later, once the page is built, so both play whole (small, adds about 0.15 seconds); or keep each place alive once visited, on the iPad, so going back costs nothing (larger, with several things to get right).
+
 # 15 November 2026, 16:40: the corner drawing rests when it cannot be seen, and two jobs stop being done for nothing
 
 **By the "power efficiency" chat, linked to the Mac. Branch `power-quiet`, made from `main` at `a2744bb`.** The research behind it is doc 91 in the knowledge base. William, 16:16: "Make the changes that will not affect speed or make the app quicker."
