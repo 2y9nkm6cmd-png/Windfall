@@ -560,6 +560,9 @@ struct TodayView: View {
             LivingCorner(cornerScene: cornerScene)
                 .frame(width: 150, height: 96)
                 .padding(.top, -6)
+                // While a sheet is up over Today the drawing rests: it
+                // is hidden or dimmed behind the sheet. See LivingCorner.
+                .environment(\.cornerIsCovered, sheet != nil || isAddingJob)
         }
     }
 
