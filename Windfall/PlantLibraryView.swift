@@ -717,8 +717,8 @@ struct PlantDetailView: View {
                             .foregroundStyle(Theme.ink)
                             .padding(.horizontal, 12)
                             .padding(.vertical, 7)
-                            .background(Theme.leafFill, in: .capsule)
-                            .contentShape(.capsule)
+                            .background(Theme.leafFill, in: Theme.tagShape)
+                            .contentShape(Theme.tagShape)
                         }
                         .buttonStyle(.plain)
                     }
@@ -758,8 +758,8 @@ struct PlantDetailView: View {
                             .foregroundStyle(Theme.ink)
                             .padding(.horizontal, 12)
                             .padding(.vertical, 7)
-                            .background(Theme.leafFill, in: .capsule)
-                            .contentShape(.capsule)
+                            .background(Theme.leafFill, in: Theme.tagShape)
+                            .contentShape(Theme.tagShape)
                         }
                         .buttonStyle(.plain)
                     }
@@ -982,7 +982,7 @@ private struct PlantFactCardView: View {
                             .foregroundStyle(Theme.ink)
                             .padding(.horizontal, 12)
                             .padding(.vertical, 6)
-                            .background(Theme.leafFill, in: .capsule)
+                            .background(Theme.leafFill, in: Theme.tagShape)
                     }
                 }
             }

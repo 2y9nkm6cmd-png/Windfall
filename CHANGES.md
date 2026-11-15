@@ -38,6 +38,36 @@
 **Checked:** Mac and simulator builds, unsigned: BUILD SUCCEEDED (`windfall-build-logs/sd1-sim.log`, `sd1-mac.log`, and `sd2-*` after `main` was merged in). Syntax and cross-file checks pass (`sd1-checks.log`; the type check and logic tests do not run on the Mac, as before). Simulator pictures, all looked at (`windfall-build-logs/shots/sd1-*.png`): the checking page, Today on an iPhone 17 Pro and an iPad mini, Eira's chat, the journal's conversation and the Ask Eira widget in Paper and Garden green, in light and dark.
 
 **Not checked:** the sway in motion (only still pictures of its furthest points), the symbol on a Mac's screen, a widget placed on a real Home Screen, and the Lock Screen circle, which iOS colours itself.
+
+# 15 November 2026, 13:11: the plant drawings have solid lines, and stems sit behind leaves behind flowers
+
+**By the "solid lines into the app" chat, on the Mac.** William, 12:19, with a picture of Achillea's "In flower" drawing zoomed in on the iPad: "The opacities used on the drawing of the flowers means that lines are passing through each other and looking a bit odd and more complicated than I think they should." The drawing code was changed in a chat on his phone (project doc 86). This entry puts that code and the redrawn pictures into the app. Branch `solid-lines-15nov`, made from `main` at `baf4a59`, with `eira-box-corners` (the two entries below) joined in.
+
+| File | What changed, and why |
+|---|---|
+| `Tools/design/plant_kit.py`: `line_colours`, `mix`, `flat`, `inside`, `halfway` | Every line is now written in one solid colour. Until now an outline was drawn 85% see-through and a vein 30 to 42%, so two lines that crossed made a darker spot and a stem showed through the leaf in front of it. The drawing code still says how strong a line is. The last step works out the colour that strength would have looked (an outline over the card colour, a fainter line over whatever it sits on) and writes that as a plain colour |
+| `plant_kit.py`: `STEM`, `LEAF`, `BLOOM`, `Art.on`, `Art.group` | Every mark remembers a layer. When a whole plant has been drawn its marks are sorted: stems at the back, then leaves, then flowers and fruit. Until now a clump was drawn one stem at a time, so the second stem's leaves landed on the first stem's flower. An umbel's spokes sit half a layer behind its flowers |
+| `Tools/design/plants_all.py` | `@on_layer(LEAF)` on `LF`, `@on_layer(BLOOM)` on `FL`, `FR` and `SH`. `body` draws the plant as one group. The buds at the top of a spire and the fruit of trailing plants are put on the flower layer by hand |
+| `Design/Plants/light`, `Design/Plants/dark` | All 908 life stages and 340 close-ups redrawn, each in light and dark |
+| `Windfall/Assets.xcassets/Plants` | The same 1,248 drawings as the app holds them, written by `build_design_assets.py` |
+
+No Swift file changed: `plant-drawings.json` and `plant-parts.json` came out identical, so no name, stage or label moved.
+
+**How the code came across.** The project's copies could not be brought to the Mac as files, so the changes were made to the repository's own two files by a script of exact find-and-replace steps (`windfall-build-logs/solid-lines-patch.py`). Each step must match once, or nothing is written.
+
+**Checked** (`windfall-build-logs/solid-lines-compare.py`):
+
+- 340 of the 908 life stages have the same shapes in a new order, and the other 568 the same shapes in the same order. 340 is the number doc 86 gives.
+- No close-up changed its drawing order. No file has `stroke-opacity`.
+- Achillea's outline in light mode is `#2B6249`, the colour doc 86 works out.
+- The card colours the lines are mixed with (`CARD`: `#FFFCF6` light, `#142414` dark) are the app's `Card` colour in `Design/colours.json`.
+
+**Built and seen:** with `main` joined in twice more while this was made (the zoomed Life stages strip, then Eira's snowdrop symbol), Mac and simulator builds, unsigned, and a signed build for any iPhone or iPad: BUILD SUCCEEDED (`windfall-build-logs/sl1-sim.log`, `sl3-mac.log`, `sl3-ios.log`). Simulator pictures (`windfall-build-logs/shots/sl-*.png`): Yarrow's page and its "In flower" drawing zoomed in, light and dark, on an iPhone 17 Pro; Yarrow's and Russian comfrey's pages on an iPad mini; Eira's panel in light and dark. The flower heads sit in front of the leaves and no line shows through another. The "Ask Eira" box has the journal box's corners and sits level with the microphone.
+
+**Not seen:** a tag on two lines. In the pictures "Pollinator plant" and "Dynamic accumulator" each fit on one line and look like pills, as they should. Windfall's own Linux checks were not run: no Swift file changed in the drawings, and the two Swift changes of `eira-box-corners` are views.
+
+**One thing to know:** two close-ups, the daffodil's flower and the peacock orchid's, each have one point a tenth of a grid square (a thousandth of the drawing's width) from where the repository had it. The unchanged code run on this Mac gives the same two differences, so it is this Mac's Python rounding a half the other way, not the new code.
+
 # 15 November 2026, 13:05: the zoomed Life stages page is the card's own row made big, not a slideshow
 
 **By the card zoom chat, second round.** William, 12:51, with a picture of the row of stages: "The zoom in still isn't right. I wanted this to be the thing that fills the screen and you scroll along it." The 12:25 version showed one drawing to a page and snapped from page to page. Made on the branch `card-zoom-15nov`, from `main` at `baf4a59`.
@@ -53,6 +83,28 @@
 **Checked:** simulator and Mac builds, unsigned: BUILD SUCCEEDED (`windfall-build-logs/cz8-sim.log`, `cz8-mac.log`). Simulator pictures (`windfall-build-logs/shots/cz2-*.png`, script `cardzoom-shots2.sh`): Yarrow's strip at its start on an iPhone 17 Pro in dark and on an iPad mini in dark, its end ("Winter") on the iPad mini in light, Yarrow's flower and Rhubarb's leaf alone, and Yarrow's page with the three cards unchanged.
 
 **Not checked:** a drag along the strip on any device, the Mac's own window, and an iPad or iPhone on its side. The pictures are of pages opened by the checking aid.
+
+# 15 November 2026, 12:35: a tag on two lines is a squircle, not a bulging pill
+
+**By the "search bar corners" chat, from William's phone. On the same branch, `eira-box-corners`. Not built.** William, 12:25, with a picture of a plant's page on the iPad: "The curvature around dynamic accumulator is too much, it should be more of a squircle."
+
+| File | What changed, and why |
+|---|---|
+| `Theme.swift`, new `Theme.tagShape` | One shape for a tag with words in it: a rectangle with corners of 18 in Apple's smooth curve (`style: .continuous`). On one line (about 36 points tall) the corners meet, so it still looks like a pill. On two lines the sides stay straight |
+| `PlantLibraryView.swift` | The three sets of tags on a plant's page use it in place of `.capsule`: a card's tags ("Pollinator plant", "Dynamic accumulator"), the "Add information" buttons ("Human Management", "Ecological Interactions") and "Plants that help with its pests". A capsule's ends are always full half circles, so a two-line tag had ends 30 points deep |
+
+**Not checked:** anything. Not built or seen. The filter buttons and the plant cards' chips are still capsules: they stay on one line.
+
+# 15 November 2026, 12:30: the box in Eira's chat has Windfall's rounded corners
+
+**By the "search bar corners" chat, from William's phone. Branch `eira-box-corners`, from `main` at `baf4a59`. Not built: written in Claude's cloud workspace, which has no Xcode.** William, 12:22, with a picture of Eira's chat in the panel in dark mode: "The curvature of this search bar doesn't match the curvature elsewhere."
+
+| File | What changed, and why |
+|---|---|
+| `EiraChatView.swift`, the "Ask Eira…" box | It used the system's own box (`.textFieldStyle(.roundedBorder)`), whose corners are small and fixed and which is black in dark mode. It is now `.plain` with the box drawn by hand, exactly as the journal's box is in `JournalChatView.swift`: the card colour at 0.85, corners of 20, a hairline round it, 14 points of room at the sides and 10 above and below |
+
+**Not checked:** anything. It has not been built or seen. The box is taller than before (about 40 points for one line, as the journal's is), which should sit level with the 44-point microphone.
+
 # 15 November 2026, 12:25: the whole Life stages card zooms in, and Leaf and Flower are two cards
 
 **By the card zoom chat.** William, 11:57: "When I said I wanted the life stages card to be able to be tapped to zoom in, I meant the entire card, then able to scroll through the life cycle but it would be zoomed in. For the leaf and flower card, I want these as two separate cards that sit next to each other, but in the same location they're in now." Made on the branch `card-zoom-15nov`, from `main` at `f4b5700`.
