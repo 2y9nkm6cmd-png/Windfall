@@ -1,4 +1,4 @@
-# 15 November 2026, 17:40: the animals seen most often are drawn one by one, every insect has legs, and plant diseases get diagrams
+# 15 November 2026, 17:25: the animals seen most often are drawn one by one, every insect has legs, and plant diseases get diagrams
 
 **By the "wildlife rows" chat, in a cloud workspace. Not built in Xcode.** On the branch `uk-wildlife-reference`, on top of the entry below. William, 16:08: "For the drawings there should be more images for the most common varieties." 16:49: "Some of the flying insects are lacking legs. The animals definitely require more detailed drawings and more specific drawings per species... more specific frogs and toads, birds, differentiate between foxes and cats". 17:16: "Include diagrams of the diseases too".
 
