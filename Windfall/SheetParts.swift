@@ -326,21 +326,61 @@ struct NumberStepper: View {
 
     @Binding var value: Int
     let range: ClosedRange<Int>
+    /// True where the number can also be typed. For a count that can
+    /// run to dozens, such as the flowers in a patch, where pressing
+    /// the plus once for each would be slow.
+    var canType = false
 
     var body: some View {
         HStack(spacing: 10) {
             roundButton("minus", says: "One fewer") { value = max(range.lowerBound, value - 1) }
                 .disabled(value <= range.lowerBound)
                 .opacity(value <= range.lowerBound ? 0.35 : 1)
-            Text("\(value)")
-                .font(.title3.weight(.semibold))
-                .monospacedDigit()
-                .foregroundStyle(Theme.ink)
-                .frame(minWidth: 34)
+            if canType {
+                typedNumber
+            } else {
+                Text("\(value)")
+                    .font(.title3.weight(.semibold))
+                    .monospacedDigit()
+                    .foregroundStyle(Theme.ink)
+                    .frame(minWidth: 34)
+            }
             roundButton("plus", says: "One more") { value = min(range.upperBound, value + 1) }
                 .disabled(value >= range.upperBound)
                 .opacity(value >= range.upperBound ? 0.35 : 1)
         }
+    }
+
+    /// The number as a small box to type in. The box works in text, so
+    /// the link below turns the number into text to show it, and what
+    /// is typed back into a number, kept within the range, at every key
+    /// press. (A number box of SwiftUI's own waits for Return, and an
+    /// iPhone's number pad has no Return key.)
+    private var typedNumber: some View {
+        TextField("0", text: Binding(
+            get: { String(value) },
+            set: { typed in
+                // Anything that is not a digit is dropped.
+                let digits = typed.filter { ("0"..."9").contains($0) }
+                value = min(range.upperBound, max(range.lowerBound, Int(digits) ?? range.lowerBound))
+            }
+        ))
+        .textFieldStyle(.plain)
+        .multilineTextAlignment(.center)
+        .font(.title3.weight(.semibold))
+        .monospacedDigit()
+        .foregroundStyle(Theme.ink)
+        #if os(iOS)
+        .keyboardType(.numberPad)
+        #endif
+        .frame(width: 58)
+        .padding(.vertical, 5)
+        .background(Theme.card.opacity(0.7), in: .rect(cornerRadius: 10))
+        .overlay {
+            RoundedRectangle(cornerRadius: 10)
+                .strokeBorder(Theme.hairline)
+        }
+        .accessibilityLabel("Number")
     }
 
     private func roundButton(_ symbol: String, says words: String, action: @escaping () -> Void) -> some View {

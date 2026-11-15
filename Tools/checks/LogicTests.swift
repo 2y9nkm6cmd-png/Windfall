@@ -1659,6 +1659,40 @@ struct LogicTests {
         check(lettered.first?.items == ["Alfalfa", "Apple", "Apple|Pendragon", "apple|Spartan", "apple (Cider)|Camelot", "Apple (Cider)|Fiona"], "within a letter the order is by name and then by variety: \(lettered.first?.items ?? [])")
         check(PlantLetters.groups([String](), name: { $0 }).isEmpty && PlantLetters.groups(["Sage", "sage"], name: { $0 }).first?.items == ["Sage", "sage"], "an empty list gives no letters, and two names alike keep the order they came in")
 
+        // Naming the flower a FIT Count watches (FITTargets.swift)
+        check(FITTargets.flowers.count == 14 && Set(FITTargets.flowers.map(\.name)).count == 14, "there are fourteen target flowers, each named once")
+        check(FITTargets.flowers.allSatisfy { FITTargets.target(name: $0.name)?.name == $0.name }, "every target flower's own name is found to be that target")
+        check(FITTargets.squash("White Dead-nettle") == "whitedeadnettle" && FITTargets.squash("  Échalote 2 ") == "echalote2", "a squashed name keeps only its letters and numbers, in lower case and without accents")
+        check(FITTargets.isTarget(name: "Dandelion") && FITTargets.isTarget(name: "white deadnettle") && FITTargets.isTarget(name: "Common knapweed") && FITTargets.isTarget(name: "Blackberry") && FITTargets.isTarget(name: "Ivy") && FITTargets.isTarget(name: "Melancholy thistle") && FITTargets.isTarget(name: "Butterfly-bush"), "everyday names for target flowers are recognised, however they are spaced or hyphenated")
+        check(!FITTargets.isTarget(name: "Ground ivy") && !FITTargets.isTarget(name: "Giant hogweed") && !FITTargets.isTarget(name: "Blue globe thistle") && !FITTargets.isTarget(name: "Lavender") && !FITTargets.isTarget(name: "Water hawthorn") && !FITTargets.isTarget(name: "Buttercup squash") && !FITTargets.isTarget(name: "Yarrow") && !FITTargets.isTarget(name: ""), "look-alike names are not taken for target flowers, and plain Lavender is not English lavender")
+        check(FITTargets.target(name: "Lavender", latin: "Lavandula angustifolia 'Hidcote'")?.name == "Lavender (English)" && FITTargets.target(name: "Lavender", latin: "Lavandula x intermedia") == nil && FITTargets.target(name: "May", latin: "Crataegus monogyna")?.name == "Hawthorn" && FITTargets.target(name: "Lesser celandine", latin: "Ranunculus ficaria") == nil, "a Latin name settles which target a plant is, or that it is none")
+        check(FITTargets.closeness(of: "Sea lavender", to: "sea") == 0 && FITTargets.closeness(of: "Sea lavender", to: "lav") == 1 && FITTargets.closeness(of: "White Dead-nettle", to: "net") == 1 && FITTargets.closeness(of: "Catmint", to: "mint") == 2 && FITTargets.closeness(of: "Catmint", to: "rose") == nil && FITTargets.closeness(of: "", to: "a") == nil, "the start of the name is closest, then the start of a later word, then anywhere inside")
+
+        let fitHidcote = Plant(commonName: "Lavender"); fitHidcote.variety = "Hidcote"; fitHidcote.latinName = "Lavandula angustifolia"; fitHidcote.floweringMonthsText = "jun jul"
+        let fitGrosso = Plant(commonName: "Lavender"); fitGrosso.variety = "Grosso"; fitGrosso.latinName = "Lavandula x intermedia"; fitGrosso.floweringMonthsText = "jul aug"
+        let fitSea = Plant(commonName: "Sea lavender")
+        let fitWanted = Plant(commonName: "Lavatera"); fitWanted.status = .wanted; fitWanted.floweringMonthsText = "jun jul aug"
+        let fitYarrow = Plant(commonName: "Yarrow"); fitYarrow.latinName = "Achillea millefolium"; fitYarrow.floweringMonthsText = "jun jul aug"
+        let fitMint = Plant(commonName: "Mint")
+        let fitCatmint = Plant(commonName: "Catmint"); fitCatmint.floweringMonthsText = "jun jul"
+        let fitGarden = [fitCatmint, fitGrosso, fitHidcote, fitWanted, fitMint, fitSea, fitYarrow]
+
+        let fitJune = FITTargets.suggestions(for: "lav", among: fitGarden, month: 6)
+        check(fitJune.map(\.title) == [fitHidcote.displayName, fitGrosso.displayName, "Sea lavender"], "typing lav in June offers the lavender in flower first, then the other, then the plant with lav in a later word")
+        check(fitJune.first?.isInFlower == true && fitJune.first?.isTarget == true && fitJune.first?.plant === fitHidcote && fitJune.first?.detail == "Lavandula angustifolia · PoMS target flower", "a suggestion carries the plant's record, its Latin name, whether it is in flower and whether it is a target")
+        check(fitJune.last?.detail == nil && fitJune.last?.isInFlower == false && fitJune[1].isTarget == false, "a plant with no Latin name has no second line, and Dutch lavender is not a target")
+        check(FITTargets.suggestions(for: "lav", among: fitGarden, month: 8).first?.plant === fitGrosso, "in August the lavender then in flower comes first")
+        check(!fitJune.contains { $0.plant === fitWanted } && !fitJune.contains { $0.plant == nil }, "a plant on the to-buy list is not offered, and the target Lavender (English) is not offered beside the gardener's own")
+        check(FITTargets.suggestions(for: "Achil", among: fitGarden, month: 6).map(\.title) == ["Yarrow"], "a plant is found by its Latin name")
+        check(FITTargets.suggestions(for: " MINT", among: fitGarden, month: 6).map(\.title) == ["Mint", "Catmint"], "a name that begins with what was typed comes before one that only holds it, even one in flower")
+        let fitDan = FITTargets.suggestions(for: "dan", among: fitGarden, month: 6)
+        check(fitDan.count == 1 && fitDan.first?.title == "Dandelion" && fitDan.first?.plant == nil && fitDan.first?.isTarget == true && fitDan.first?.detail == "PoMS target flower", "a target flower nobody planted is still offered by name")
+        check(FITTargets.suggestions(for: "", among: fitGarden, month: 6).isEmpty && FITTargets.suggestions(for: "   ", among: fitGarden, month: 6).isEmpty && FITTargets.suggestions(for: "zzz", among: fitGarden, month: 6).isEmpty, "nothing typed, or nothing found, offers nothing")
+        let fitThymes = (1...10).map { number -> Plant in let thyme = Plant(commonName: "Thyme"); thyme.variety = "No. \(number)"; return thyme }
+        let fitMany = FITTargets.suggestions(for: "th", among: fitThymes, month: 6)
+        check(fitMany.count == 6 && fitMany.last?.title == "Thistle" && fitMany.filter { $0.plant != nil }.count == 5, "a long list of plants stops at six lines and still leaves room for a target flower")
+        check(FITTargets.suggestions(for: "th", among: [], month: 6).map(\.title) == ["Thistle"] && FITTargets.suggestions(for: "white", among: [], month: 6).map(\.title) == ["White Dead-nettle", "White Clover"], "a target flower is offered only when one of its words begins with what was typed")
+
         // Eira's chat folded into turns, the words on the bubble and the plant cards.
         let askedIt = ChatMessage(role: .user, content: "Find all information about comfrey")
         let gardenHit = ChatMessage(role: .tool, content: ToolResult(text: "Russian comfrey \u{2014} 'Bocking 14'; (Symphytum \u{00D7} uplandicum 'Bocking 14'); pollinator plant", source: "user's plant database").formatted, toolName: "search_garden")
