@@ -1490,6 +1490,8 @@ LEAFX = {
     "sweetcorn": dict(W=17, prof="lance", midw=1.3),
     "winter-windflower": dict(kind="trefoil", fill="leaf", prof="obovate", lW=0.74, ll=36, teeth=5, td=0.42, veins=3),
     "yellow-rattle": dict(prof="lance", W=0.24, teeth=18, td=0.12),
+    # ---- put right in the photograph check of 15 November 2026 (project doc 107)
+    "cosmos": dict(thread=True),
 }
 
 BLOOMX = {
@@ -1528,7 +1530,7 @@ BLOOMX = {
     "blueberry": dict(urn=True, fc="white", L=16, W=12), "honeyberry": dict(L=20, W=9),
     "asparagus": dict(kind="bell", fc="primrose", L=12, W=8),
     "lavender": dict(dense=True), "rosemary": dict(kind="lip", dense=False),
-    "sage": dict(kind="lip", dense=False), "mint": dict(kind="tiny", n=4), "oregano": dict(n=4),
+    "sage": dict(kind="lip", dense=False), "mint": dict(kind="lip", dense=True), "oregano": dict(n=4),
     "common-bird-s-foot-trefoil": dict(head=True), "lupin": dict(spike=True, keel="white"),
     "tufted-vetch": dict(spike=True), "alfalfa": dict(kind="pea", spike=True, fc="lilac"),
     "meadowsweet": dict(kind="plume"), "rhubarb": dict(kind="plume", fc="white"),
@@ -1577,6 +1579,13 @@ BLOOMX = {
     "wormwood": dict(kind="tiny", button=True),
     "yarrow": dict(kind="tiny", fc="pink", n=5, cen="primrose"),
     "yellow-iris": dict(fc="sun"),
+    # ---- put right in the photograph check of 15 November 2026 (project doc 107)
+    # The goosefoot family and the docks carry tiny flowers up a branched spike, not in a flat-topped cluster.
+    "beetroot": dict(kind="plume"), "mangelwurzel": dict(kind="plume"), "swiss-chard": dict(kind="plume"),
+    "spinach-beet": dict(kind="plume"), "spinach": dict(kind="plume"), "good-king-henry": dict(kind="plume"),
+    "purple-orach": dict(kind="plume"), "sorrel": dict(kind="plume"),
+    "wild-chamomile": dict(kind="daisy", rayless=True, fc="white"),
+    "bristol-onion": dict(n=110, R=26),
 }
 
 

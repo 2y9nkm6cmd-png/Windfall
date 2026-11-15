@@ -23,6 +23,36 @@
 **Four new colours** in `wildlife_kit.py`: `sky`, `chestnut`, `khaki`, `navy`.
 
 **Checked.** `Tools/checks/run-checks.sh` with Swift 6.3.1 for Linux: 939 logic tests pass (10 new). Every drawing was looked at as a sheet in light mode. **Not checked:** the new drawings in dark mode. ⚠️ The stray files in the repository's top folder (16 `.whl` files) were there before this chat and are left alone.
+# 15 November 2026, 20:11: the plant drawings checked against photographs, and 26 put right
+
+**By the "plant identification" chat, linked to the Mac.** On the branch `plant-drawings-photo-check`, made from `main` at `78c68a7`. **Not merged and not built.** Only drawings and the two Python settings files changed: no Swift, nothing saved. Project doc 107 has the full account and the list of what was found and left alone.
+
+William asked for the plant drawings to be compared with reference photographs. For each of the 172 kinds, up to four of iNaturalist's own chosen photos for the species were downloaded on the Mac (661 photos, open licences only, kept in `~/Developer/windfall-photo-check/plants` and never put in the app or this repository). The leaf, the flower close-up, the plant in flower and the crop or young plant were set beside them and looked at: 665 drawings.
+
+## What changed
+
+| Kind | Drawing | Was | Now |
+|---|---|---|---|
+| African daisy, Cat nip, Geum, Hyssop, Scabiosa, Yarrow, Winter windflower, Iris, Yellow iris | The plant in flower | The colour from before the morning's accuracy check | The colour of its own close-up (pink, white, red, pink, pink, pink, pink, deep purple, rich yellow) |
+| Wild chamomile | The plant in flower | Daisies with white rays | Small yellow-green heads with no rays, as the close-up |
+| Leaf salad | The plant in flower and gone to seed | A cabbage-family flower | A lettuce flower |
+| Beetroot, Mangelwurzel, Swiss chard, Spinach beet, Spinach, Good King Henry, Purple orach, Sorrel | Flower close-up | Large five-petalled flowers in a flat-topped cluster | Tiny flowers up a branched spike |
+| Bristol onion | Flower close-up and the plant in flower | A loose pale lilac ball | A dense deep red-purple head |
+| Lambs lettuce | Flower close-up and the plant in flower | Strong blue | White |
+| Mint | Flower close-up | A flat-topped cluster | Rings of flowers up a spike |
+| Cosmos | Leaf close-up | Broad leaflets | Finer, thread-like |
+
+## How
+
+- `Tools/design/plants_all.py`: one word changed on each plant's line of settings, mostly `fc=` (flower colour).
+- `Tools/design/leaves_flowers.py`: new entries at the foot of `LEAFX` and `BLOOMX` under the comment "put right in the photograph check".
+- 52 files in `Design/Plants` (26 drawings, light and dark) and the same 52 in `Windfall/Assets.xcassets/Plants`, written by `build_design_assets.py`. Only the files that changed were copied in.
+
+## Not done
+
+- A build. The seed, seedling, gone-to-seed and winter drawings were not checked: the photos rarely show those stages.
+- A cultivar's colour cannot be checked from photos of the species.
+
 # 15 November 2026, 19:45: a garden placed by town or postcode, a weather card that says why it has no weather, and the job cards open as pages that grow
 
 **By the "fix those things" chat, linked to the Mac.** On the branch `fix-weather-place-and-job-cards`, made from `main` at `5e0d13a`. William had written four things on the checklist at about 13:05 and no chat had taken them up:
