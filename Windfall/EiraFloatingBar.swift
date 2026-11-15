@@ -46,6 +46,10 @@
 import SwiftUI
 import SwiftData
 import PhotosUI
+#if os(iOS)
+// Only to ask whether a real keyboard is attached. See `keyboardWillRise`.
+import GameController
+#endif
 
 struct EiraFloatingBar: View {
 
@@ -70,6 +74,9 @@ struct EiraFloatingBar: View {
     // Which screen is on top, if the screens have said. The question mark
     // means "if there is one": without it the bar still works.
     @Environment(EiraScreen.self) private var screen: EiraScreen?
+    /// Which tab this bar is on, on an iPhone. Nil on a Mac or an iPad,
+    /// where the one bar serves every place. See `EiraScreen.current(in:)`.
+    @Environment(\.eiraPlace) private var place
 
     @State private var isOpen = false
     @State private var question = ""
@@ -120,6 +127,11 @@ struct EiraFloatingBar: View {
     /// so the panel opens next time at the size it was left.
     @AppStorage("eiraPanelIsLarge") private var panelIsLarge = false
 
+    /// True while this bar is on screen. An iPhone has a bar for each
+    /// tab, and only the one being looked at should answer the motion
+    /// tour (MotionTour.swift).
+    @State private var isOnScreen = false
+
     // @FocusState says whether the text box has the keyboard.
     @FocusState private var fieldHasFocus: Bool
 
@@ -136,7 +148,12 @@ struct EiraFloatingBar: View {
 
     /// True on the Journal page, where the bar is for telling Eira what
     /// happened. See `EiraSight.isJournal`.
-    private var onJournal: Bool { screen?.current?.isJournal == true }
+    private var onJournal: Bool { sight?.isJournal == true }
+
+    /// What is on screen where this bar is: the page on top of this
+    /// bar's own tab on an iPhone, and the page on top anywhere on a
+    /// Mac or an iPad.
+    private var sight: EiraSight? { screen?.current(in: place) }
 
     /// On the Journal page the bar is always open.
     private var expanded: Bool { isOpen || staysOpen || onJournal }
@@ -151,7 +168,7 @@ struct EiraFloatingBar: View {
             return onJournal ? "Drop photos to start an entry" : "Drop a photo for Eira"
         }
         if onJournal { return isNarrow ? "Tell Eira" : "Tell Eira what happened in the garden" }
-        if let short = screen?.current?.short {
+        if let short = sight?.short {
             return "Ask Eira about \(short)"
         }
         return "Ask Eira, search or open anything"
@@ -174,6 +191,26 @@ struct EiraFloatingBar: View {
                 // keyboard away. See "Putting the bar away by touch".
                 if growsInPlace {
                     touchAwayLayer(travel: barWidth - closedSize, fillsTheSpace: true)
+                }
+
+                // The panel. Where the bar grows in place it has been
+                // given the whole height of the page to stand in (see
+                // MainTabView.swift), and `geometry.size.height` is
+                // that height: all the room the panel can have.
+                //
+                // It is drawn before the bar, so underneath it. (Until
+                // 15 November 2026 it was drawn after, on top.) The bar
+                // fades out as the panel rises and back in as it
+                // sinks. With the panel on top, that fade was hidden
+                // under the panel's glass: the bar's snowdrop and
+                // buttons vanished at once on the way up, and on the
+                // way down an empty capsule sat there until the panel
+                // was taken away, when they all appeared in one frame.
+                // With the bar on top the two melt into each other.
+                // While the panel is up the bar is invisible and lets
+                // every tap through to it.
+                if let open = openInPanel {
+                    panel(for: open, room: geometry.size.height, isPhoneWide: barWidth < EiraPanel.phoneWidth)
                 }
 
                 HStack(spacing: 10) {
@@ -241,10 +278,41 @@ struct EiraFloatingBar: View {
                 // See "Putting the bar away by touch" below.
                 .swipeDownPutsAway(isOn: touchPutsSomethingAway) { putAway(travel: barWidth - closedSize) }
                 // While the panel is up it stands where the bar was, so the
-                // bar fades out beneath it and takes no taps.
-                .opacity(panelIsUp ? 0 : 1)
-                .allowsHitTesting(!panelIsUp)
+                // bar fades out over it and takes no taps.
+                //
+                // Two details here keep the keyboard steady on an iPhone
+                // or iPad (15 November 2026). Until then, opening a
+                // conversation with the keyboard up made the keyboard
+                // drop away, the bar fall to the foot of the page and
+                // the keyboard come back, carrying the panel up again.
+                //
+                // - The bar goes on taking taps for as long as its own
+                //   text box has the keyboard (`fieldHasFocus`). A text
+                //   box that is told to take no taps gives up the
+                //   keyboard at once. Tried both ways on film: with
+                //   this, the keyboard stays where it is while the
+                //   conversation's box takes it over, a moment later.
+                //   From then on the bar takes no taps, so every tap
+                //   reaches the panel underneath.
+                // - It fades to almost nothing, not to nothing. SwiftUI
+                //   treats a view that is fully see-through as one that
+                //   cannot be touched, which may have the same effect.
+                //   (That half was not tried by itself.) One part in a
+                //   thousand cannot be seen.
+                .opacity(panelIsUp ? 0.001 : 1)
+                .allowsHitTesting(!panelIsUp || fieldHasFocus)
                 .frame(maxWidth: .infinity, alignment: .trailing)
+                // The bar is always open on the Journal page. Arriving
+                // there or leaving, it now draws out or in smoothly, in
+                // step with the page. Until 15 November 2026 nothing
+                // animated that change, so the bar jumped open or shut
+                // in a single frame while the old page was still there.
+                //
+                // `.animation(_, value:)` animates whatever changes in
+                // the views above it at the moment the named value
+                // changes, and at no other time. So the snowdrop's own
+                // journey, which is started by a tap, is left alone.
+                .animation(reduceMotion ? nil : .smooth(duration: 0.35), value: onJournal)
                 // And so does a touch anywhere on the page above it. Where
                 // the bar has the whole page to stand in, the layer for
                 // that is at the top of this ZStack. Only a bar that is
@@ -254,20 +322,27 @@ struct EiraFloatingBar: View {
                         touchAwayLayer(travel: barWidth - closedSize, fillsTheSpace: false)
                     }
                 }
-
-                // The panel. Where the bar grows in place it has been
-                // given the whole height of the page to stand in (see
-                // MainTabView.swift), and `geometry.size.height` is
-                // that height: all the room the panel can have.
-                if let open = openInPanel {
-                    panel(for: open, room: geometry.size.height, isPhoneWide: barWidth < EiraPanel.phoneWidth)
-                }
             }
             // Everything sits at the foot of the space, however tall
             // that is. The empty space above takes no taps, so the page
             // underneath can still be used.
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
+            // A checking aid: the motion tour presses the snowdrop and
+            // the buttons by itself, so that a film can be taken of the
+            // movement. An iPhone has a bar on every tab, and only the
+            // one on screen answers. See MotionTour.swift.
+            .onReceive(NotificationCenter.default.publisher(for: MotionTour.bar)) { note in
+                guard isOnScreen else { return }
+                switch note.object as? String {
+                case "toggle": toggle(travel: barWidth - closedSize)
+                case "eira": openEira(with: nil)
+                case "done": lowerPanel()
+                default: break
+                }
+            }
         }
+        .onAppear { isOnScreen = true }
+        .onDisappear { isOnScreen = false }
         // Where conversations open as sheets, the bar is only ever as
         // tall as itself. Where it grows in place it takes all the
         // height it is offered (`nil` means "no fixed height").
@@ -379,7 +454,7 @@ struct EiraFloatingBar: View {
                 try? await Task.sleep(for: .milliseconds(600))
                 guard let asked = screen.takeQuestionForBar() else { return }
                 journalRequest = nil
-                eiraRequest = BarRequest(text: asked, lookingAt: screen.current?.full)
+                eiraRequest = BarRequest(text: asked, lookingAt: sight?.full)
             }
         }
         // A checking aid: `-demoOpen eira`, `-demoOpen corrections`,
@@ -515,6 +590,14 @@ struct EiraFloatingBar: View {
         let rise: Animation = reduceMotion ? .easeInOut(duration: 0.2) : .spring(duration: 0.5, bounce: 0.16)
         withAnimation(rise) {
             panelIsUp = true
+        }
+        // A safeguard. The conversation's box should have taken the
+        // keyboard from the bar's within a tenth of a second. If for
+        // any reason it has not, the bar gives the keyboard up, so that
+        // nothing can be typed into a box nobody can see.
+        Task {
+            try? await Task.sleep(for: .milliseconds(700))
+            if panelIsUp, fieldHasFocus { fieldHasFocus = false }
         }
     }
 
@@ -747,8 +830,15 @@ struct EiraFloatingBar: View {
         //
         // The text box only exists once the bar has begun to open, which
         // is why this waits a twenty-fifth of a second before asking.
+        //
+        // Where the on-screen keyboard will come up, it waits until the
+        // bar has all but finished drawing out, about a third of a
+        // second. Nothing could be typed before the keyboard arrived
+        // anyway, and this way the keyboard lifts a finished bar. See
+        // `keyboardWillRise`.
+        let wait = keyboardWillRise ? keyboardTravelTime(for: travel) * 0.85 : 0.04
         Task {
-            try? await Task.sleep(for: .milliseconds(40))
+            try? await Task.sleep(for: .seconds(wait))
             if isOpen { fieldHasFocus = true }
         }
     }
@@ -763,6 +853,38 @@ struct EiraFloatingBar: View {
     /// within limits, so it never crawls and never flashes past.
     private func travelTime(for travel: CGFloat) -> Double {
         min(0.9, max(SnowdropWind.travel, Double(travel) / 1400))
+    }
+
+    /// True when opening the bar will bring up the on-screen keyboard:
+    /// on an iPhone or iPad with no real keyboard attached.
+    ///
+    /// It matters because the keyboard lifts the bar as it comes up,
+    /// and takes about a third of a second over it. The snowdrop's own
+    /// journey starts slowly and takes half a second or more. Run
+    /// together, the keyboard had carried the snowdrop half way up the
+    /// screen as a small circle before it had begun to move across,
+    /// and the app often stalls for a moment as the keyboard is
+    /// fetched, which froze the journey part-way (seen in films of the
+    /// simulator, 15 November 2026). So where the keyboard will rise,
+    /// the two take turns: the bar draws out first, quickly, and only
+    /// then is the keyboard asked for, so it lifts the finished bar in
+    /// one piece. See `move` and `open`.
+    ///
+    /// `GCKeyboard.coalesced` is Apple's way of asking whether any
+    /// real keyboard is attached. It is nil when there is none.
+    private var keyboardWillRise: Bool {
+        #if os(iOS)
+        return GCKeyboard.coalesced == nil
+        #else
+        return false
+        #endif
+    }
+
+    /// How long the journey takes when the keyboard will follow it:
+    /// a little over a third of a second, and a little longer for a
+    /// wide bar.
+    private func keyboardTravelTime(for travel: CGFloat) -> Double {
+        min(0.5, max(0.38, Double(travel) / 2400))
     }
 
     /// Opens or closes the bar.
@@ -780,13 +902,23 @@ struct EiraFloatingBar: View {
 
         // Start the gust. The snowdrop's lean and sway are worked out
         // from how long ago this was (see SnowdropWind).
-        let seconds = travelTime(for: travel)
+        let risesWithKeyboard = opening && keyboardWillRise
+        let seconds = risesWithKeyboard ? keyboardTravelTime(for: travel) : travelTime(for: travel)
         gustDirection = opening ? -1 : 1
         gustTravel = seconds
         let started = Date.now
         gustStart = started
 
-        if opening {
+        if risesWithKeyboard {
+            // The on-screen keyboard will come up as soon as the bar
+            // is out, and lift it. A spring sets off at once and is
+            // nearly there in a third of a second, so the keyboard is
+            // not kept waiting. Its small bounce at the end stands in
+            // for the bump against the sidebar.
+            withAnimation(.spring(duration: seconds, bounce: 0.2)) {
+                isOpen = true
+            }
+        } else if opening {
             // easeIn starts slowly and speeds up, so it is moving fast
             // when it hits the sidebar.
             withAnimation(.easeIn(duration: seconds)) {
@@ -835,7 +967,7 @@ struct EiraFloatingBar: View {
         // This comes first because such a sentence is neither a
         // question for her nor an account of the day for the journal.
         if GardenJobs.offer(in: text, today: .now) != nil {
-            jobRequest = BarRequest(text: text, lookingAt: screen?.current?.full)
+            jobRequest = BarRequest(text: text, lookingAt: sight?.full)
             question = ""
             return
         }
@@ -850,7 +982,7 @@ struct EiraFloatingBar: View {
         // unless it plainly asks something.
         let isForJournal = onJournal ? !JournalChat.readsAsAsking(text) : JournalChat.readsAsTelling(text)
         if isForJournal {
-            journalRequest = BarRequest(text: text, lookingAt: screen?.current?.full)
+            journalRequest = BarRequest(text: text, lookingAt: sight?.full)
             question = ""
             return
         }
@@ -884,7 +1016,7 @@ struct EiraFloatingBar: View {
 
     private func openEira(with text: String?) {
         // Note what is on screen at this moment, to pass on with the words.
-        eiraRequest = BarRequest(text: text ?? "", lookingAt: screen?.current?.full)
+        eiraRequest = BarRequest(text: text ?? "", lookingAt: sight?.full)
         question = ""
     }
 
@@ -897,7 +1029,7 @@ struct EiraFloatingBar: View {
     /// conversation, with whatever has been typed so far in its box.
     private func openJournal() {
         journalRequest = BarRequest(text: question.trimmingCharacters(in: .whitespacesAndNewlines),
-                                    lookingAt: screen?.current?.full)
+                                    lookingAt: sight?.full)
         question = ""
     }
 
@@ -908,7 +1040,7 @@ struct EiraFloatingBar: View {
         if onJournal {
             // Straight into an entry, with any words already typed.
             journalRequest = BarRequest(text: question.trimmingCharacters(in: .whitespacesAndNewlines),
-                                        lookingAt: screen?.current?.full, photos: pictures)
+                                        lookingAt: sight?.full, photos: pictures)
             question = ""
         } else {
             photoRequest = BarRequest(text: "", photos: pictures)
@@ -957,20 +1089,46 @@ private struct EiraLooksAt: ViewModifier {
     // "If there is one": a preview, or a sheet shown without the tracker,
     // simply does nothing.
     @Environment(EiraScreen.self) private var screen: EiraScreen?
+    // Which tab this screen is on, on an iPhone. See `eiraPlace` below.
+    @Environment(\.eiraPlace) private var place
     // A label belonging to this one screen. @State keeps it the same for
     // as long as the screen lives.
     @State private var id = UUID()
 
     func body(content: Content) -> some View {
         content
-            .onAppear { screen?.show(sight, id: id) }
+            .onAppear { screen?.show(sight, id: id, place: place) }
             .onDisappear { screen?.hide(id: id) }
             // The same screen can change what it shows, for example when
             // a plant is renamed.
-            .onChange(of: sight) { _, changed in screen?.show(changed, id: id) }
+            .onChange(of: sight) { _, changed in screen?.show(changed, id: id, place: place) }
     }
 }
 
+// MARK: - Which tab a screen is on
+
+/// The name of the tab a screen is on, on an iPhone.
+///
+/// The "environment" is a set of values that SwiftUI hands down from a
+/// view to everything inside it. MainTabView sets this once on each
+/// tab. Every page opened on that tab, every sheet opened from one of
+/// those pages and the tab's own bar can then read it, without it
+/// being passed along by hand.
+///
+/// An `EnvironmentKey` is how a new value is added to that set: a name
+/// for it and what it is when nobody has set it. Here that is nil,
+/// which is what a Mac and an iPad have, since their one bar serves
+/// every place.
+private struct EiraPlaceKey: EnvironmentKey {
+    static let defaultValue: String? = nil
+}
+
+extension EnvironmentValues {
+    var eiraPlace: String? {
+        get { self[EiraPlaceKey.self] }
+        set { self[EiraPlaceKey.self] = newValue }
+    }
+}
 
 // MARK: - A swipe down
 

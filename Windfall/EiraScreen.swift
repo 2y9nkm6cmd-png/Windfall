@@ -53,19 +53,52 @@ final class EiraScreen {
 
     /// The screens showing now, oldest first. Each has a label of its own
     /// (a UUID, a long random number) so that it can be found again.
-    private var showing: [(id: UUID, sight: EiraSight)] = []
+    ///
+    /// `place` is the tab a screen belongs to, on an iPhone. It is nil
+    /// on a Mac or an iPad, where there is one bar for every place.
+    private var showing: [(id: UUID, sight: EiraSight, place: String?)] = []
+
+    /// What each tab was last showing, kept from the moment its last
+    /// screen goes. See `current(in:)`.
+    private var resting: [String: EiraSight] = [:]
 
     /// The screen on top, if any screen has described itself.
     var current: EiraSight? { showing.last?.sight }
 
+    /// The screen on top in one place.
+    ///
+    /// An iPhone has a tab for each place and a bar of Eira's on each
+    /// tab. Until 15 November 2026 every one of those bars read
+    /// `current`, the newest screen anywhere. So when the Journal tab
+    /// was chosen, the bar on the tab being left sprang open as the
+    /// Journal's bar while its own page was still on screen, and on the
+    /// way back the Journal's bar shut before the Journal had gone.
+    /// Now each bar asks only about its own tab.
+    ///
+    /// A tab that is not on screen has no screen showing. Its bar is
+    /// told what the tab showed last (`resting`), so the bar is already
+    /// right when the tab comes back.
+    ///
+    /// With no place named, this is the same as `current`.
+    func current(in place: String?) -> EiraSight? {
+        guard let place else { return current }
+        return showing.last(where: { $0.place == place })?.sight ?? resting[place]
+    }
+
     /// A screen has appeared, or what it shows has changed.
-    func show(_ sight: EiraSight, id: UUID) {
+    func show(_ sight: EiraSight, id: UUID, place: String? = nil) {
         showing.removeAll { $0.id == id }
-        showing.append((id: id, sight: sight))
+        showing.append((id: id, sight: sight, place: place))
     }
 
     /// A screen has gone.
     func hide(id: UUID) {
+        // If it was the last screen showing in its tab, remember it as
+        // what that tab holds.
+        if let leaving = showing.first(where: { $0.id == id }), let place = leaving.place,
+           !showing.contains(where: { $0.place == place && $0.id != id }) {
+            resting[place] = leaving.sight
+        }
         showing.removeAll { $0.id == id }
     }
 
