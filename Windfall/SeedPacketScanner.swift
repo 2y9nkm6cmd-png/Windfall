@@ -287,11 +287,28 @@ struct SeedPacketScanView: View {
 
     @Query(sort: [SortDescriptor(\Plant.commonName)]) private var plants: [Plant]
 
+    /// How the screen should begin, if it has been told. The Seed page
+    /// opens it with `.camera` or `.library`, so the camera or the
+    /// Photos library comes up without a second tap. The tile on the
+    /// Gardens page says nothing, and the screen waits to be asked.
+    private let startsWith: SeedPacketStart?
+
+    /// `= nil` gives a value to fall back on, so plain
+    /// `SeedPacketScanView()` still works where it was already used.
+    init(startsWith: SeedPacketStart? = nil) {
+        self.startsWith = startsWith
+    }
+
     @State private var scanner = SeedPacketScanner()
     @State private var pickerItem: PhotosPickerItem?
     @State private var imageData: Data?
     /// True while the camera is open, on an iPhone or iPad.
     @State private var isTakingPhoto = false
+    /// True while the Photos library is open.
+    @State private var isChoosingPhoto = false
+    /// True once `startsWith` has been acted on, so that it happens
+    /// once and not every time the screen comes back into view.
+    @State private var hasBegun = false
     @State private var plantName = ""
     @State private var matchedPlant: Plant?
     @State private var showingRawText = false
@@ -318,13 +335,32 @@ struct SeedPacketScanView: View {
                         }
                     }
 
-                    PhotosPicker(selection: $pickerItem, matching: .images) {
+                    // This was a `PhotosPicker`, a button that opens the
+                    // Photos library by itself. It is now a plain
+                    // button that sets a true-or-false, with the library
+                    // added lower down by `.photosPicker(isPresented:)`.
+                    // The reason: the Seed page needs to open the
+                    // library without this button being tapped, and
+                    // only the second form can be opened from code.
+                    Button {
+                        isChoosingPhoto = true
+                    } label: {
                         Label(imageData == nil ? "Choose a photo of the packet" : "Choose a different photo",
                               systemImage: "photo.on.rectangle")
                     }
 
                     if scanner.isScanning {
                         HStack { ProgressView(); Text("Reading the packet…") }
+                    } else if imageData != nil, scanner.fields.isEmpty, scanner.lastError == nil {
+                        // A photo was read and nothing useful came of
+                        // it. Before 15 November 2026 the screen showed
+                        // nothing at all here, which looked like a
+                        // fault.
+                        Label(scanner.recognisedLines.isEmpty
+                              ? "No words could be read from that photo."
+                              : "Words were read, but none looked like sowing or packet details.",
+                              systemImage: "questionmark.circle")
+                            .foregroundStyle(.secondary)
                     }
                 } header: {
                     Text("Packet")
@@ -414,6 +450,34 @@ struct SeedPacketScanView: View {
             .cameraPhoto(isPresented: $isTakingPhoto, savesToPhotos: false) { data in
                 Task { await read(data) }
             }
+            // The Photos library. What is picked lands in `pickerItem`,
+            // and the `.onChange(of: pickerItem)` above reads it, just
+            // as it did when the button was a `PhotosPicker`.
+            .photosPicker(isPresented: $isChoosingPhoto, selection: $pickerItem, matching: .images)
+            // `.task` runs when the screen appears.
+            .task { await begin() }
+        }
+    }
+
+    /// Opens the camera or the Photos library straight away, if the
+    /// screen was asked to start with one.
+    private func begin() async {
+        guard !hasBegun else { return }
+        hasBegun = true
+        guard let startsWith, startsWith.readsAPhoto else { return }
+
+        // A short wait, four tenths of a second. This screen is itself
+        // a sheet sliding up, and iOS will not open a second thing on
+        // top while the first is still moving. `try?` means "if the
+        // wait is cut short, carry on anyway".
+        try? await Task.sleep(for: .milliseconds(400))
+
+        if startsWith == .camera, CameraPhoto.isAvailable {
+            isTakingPhoto = true
+        } else {
+            // Asked for the library, or asked for a camera this device
+            // does not have.
+            isChoosingPhoto = true
         }
     }
 

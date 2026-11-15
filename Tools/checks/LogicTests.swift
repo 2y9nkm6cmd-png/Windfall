@@ -2453,6 +2453,10 @@ struct LogicTests {
         check(openedMonth.map(\.title) == ["Your own jobs", "To sow", "To harvest", "Also", "Seed to check"] && openedMonth[0].ids == ["own-a", "own-b"] && openedMonth[1].ids == ["sow-1", "sow-2"] && openedMonth[3].ids == ["worms"] && JobFold.groups(of: []).isEmpty, "the opened month puts its jobs under headings, in the order each kind first comes and without reshuffling them")
         check(JobFold.countLine(jobs: 1, ticked: 0) == "1 job" && JobFold.countLine(jobs: 14, ticked: 3) == "14 jobs, 3 done" && JobFold.countLine(jobs: 0, ticked: 0) == "0 jobs", "the opened card's first line counts its jobs and how many are done")
 
+        // The ways to add a seed packet from the Seed page (15 November 2026).
+        check(SeedPacketStart.choices(hasCamera: true) == [.camera, .library, .typed] && SeedPacketStart.choices(hasCamera: false) == [.library, .typed], "a device with a camera is offered the camera first, and one without is not offered it at all")
+        check(SeedPacketStart.camera.readsAPhoto && SeedPacketStart.library.readsAPhoto && !SeedPacketStart.typed.readsAPhoto && Set(SeedPacketStart.allCases.map(\.id)).count == 3 && SeedPacketStart.allCases.allSatisfy { !$0.title.isEmpty && !$0.symbol.isEmpty } && SeedPacketStart.typed.title == "Type it in", "the camera and the library open the packet scanner, typing opens the form, and each choice has its own words and symbol")
+
         print("   logic tests: \(passes) passed, \(failures) failed")
         exit(failures == 0 ? 0 : 1)
     }

@@ -22,8 +22,18 @@ struct SeedListView: View {
 
     @Environment(\.modelContext) private var context
 
-    @State private var showingNew = false
+    /// Which way of adding a packet is open, if any. `nil` means none.
+    ///
+    /// One value drives one sheet, further down in `.sheet(item:)`.
+    /// Before 15 November 2026 this was a true-or-false, because there
+    /// was only one way in: the typed form.
+    @State private var adding: SeedPacketStart?
     @State private var search = ""
+
+    /// The ways in that this device can offer. See SeedPacketStart.swift.
+    private var choices: [SeedPacketStart] {
+        SeedPacketStart.choices(hasCamera: CameraPhoto.isAvailable)
+    }
 
     private var sorted: [SeedPacket] {
         packets
@@ -48,8 +58,17 @@ struct SeedListView: View {
                 } description: {
                     Text("Track packets and their germination rates so you know how thickly to sow.")
                 } actions: {
-                    Button("Add a packet") { showingNew = true }
-                        .buttonStyle(.borderedProminent)
+                    // One button for each way in. The first is the one
+                    // this device does best (the camera where there is
+                    // one), so it is the filled, green one. The others
+                    // are quieter, so the eye is led to the first.
+                    ForEach(choices) { choice in
+                        if choice == choices.first {
+                            addButton(choice).buttonStyle(.borderedProminent)
+                        } else {
+                            addButton(choice).buttonStyle(.bordered)
+                        }
+                    }
                 }
             }
 
@@ -68,13 +87,41 @@ struct SeedListView: View {
         .navigationDestination(for: SeedPacket.self) { SeedDetailView(packet: $0) }
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
-                Button { showingNew = true } label: {
+                // A `Menu` is a button that opens a short list of
+                // buttons. The "+" used to open the typed form straight
+                // away. Now it asks which way first.
+                Menu {
+                    ForEach(choices) { choice in
+                        addButton(choice)
+                    }
+                } label: {
                     Label("Add packet", systemImage: "plus")
                 }
             }
         }
-        .sheet(isPresented: $showingNew) {
-            NewSeedPacketView()
+        // `.sheet(item:)` shows a sheet whenever `adding` holds a value
+        // and hands that value in, here called `start`. Closing the
+        // sheet sets `adding` back to nil. Using one sheet for all three
+        // ways means two can never try to open at once.
+        .sheet(item: $adding) { start in
+            if start.readsAPhoto {
+                // The scanner saves a packet of its own when Save is
+                // pressed there, so the new packet appears in this list
+                // with nothing more to do here.
+                SeedPacketScanView(startsWith: start)
+            } else {
+                NewSeedPacketView()
+            }
+        }
+    }
+
+    /// The button for one way of adding a packet. It is written once
+    /// and used twice, in the empty page and in the "+" menu.
+    private func addButton(_ choice: SeedPacketStart) -> some View {
+        Button {
+            adding = choice
+        } label: {
+            Label(choice.title, systemImage: choice.symbol)
         }
     }
 }
