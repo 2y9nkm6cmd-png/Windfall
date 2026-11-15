@@ -203,10 +203,15 @@ struct GlassSwitch<Value: Hashable>: View {
             wordRow(each: each, font: .callout)
             wordRow(each: each, font: .subheadline)
             wordRow(each: each, font: .footnote)
+            // On a narrow phone four words can still be too much. The
+            // next two give up some of the space at each word's sides
+            // before the lettering gets smaller again.
+            wordRow(each: each, font: .footnote, sideSpace: 3)
+            wordRow(each: each, font: .caption, sideSpace: 3)
             // The last resort, for a very narrow switch: the smallest
             // size, with each word allowed to shrink and then be cut
             // short, as before.
-            wordRow(each: each, font: .footnote, mayShrink: true)
+            wordRow(each: each, font: .caption, sideSpace: 3, mayShrink: true)
         }
         .padding(.horizontal, rim)
     }
@@ -219,7 +224,8 @@ struct GlassSwitch<Value: Hashable>: View {
     ///   switch, which is how `ViewThatFits` knows to try the next size.
     /// - `mayShrink` true: every button is exactly `each` wide whatever
     ///   the word needs.
-    private func wordRow(each: CGFloat, font: Font, mayShrink: Bool = false) -> some View {
+    /// - `sideSpace`: the clear space kept on each side of a word.
+    private func wordRow(each: CGFloat, font: Font, sideSpace: CGFloat = 6, mayShrink: Bool = false) -> some View {
         HStack(spacing: 0) {
             ForEach(choices, id: \.self) { option in
                 Button {
@@ -229,12 +235,12 @@ struct GlassSwitch<Value: Hashable>: View {
                         if mayShrink {
                             wordLabel(option, font: font)
                                 .minimumScaleFactor(0.75)
-                                .padding(.horizontal, 6)
+                                .padding(.horizontal, sideSpace)
                                 .frame(width: each, height: height)
                         } else {
                             wordLabel(option, font: font)
                                 .fixedSize()
-                                .padding(.horizontal, 6)
+                                .padding(.horizontal, sideSpace)
                                 .frame(minWidth: each, minHeight: height)
                         }
                     }
