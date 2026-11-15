@@ -1,8 +1,8 @@
 # 15 November 2026, 17:12: the Harvest button can record a harvest with no sowing on record
 
-**By the "harvest button" chat, on the Mac.** William, 16:42, with a picture of the sheet reading "Nothing growing yet. A harvest is recorded against a sowing. Record the sowing first.": "You're not able to add a harvest by tapping harvest." Made on the branch `harvest-any-plant`, from `main` at `4a63b01`.
+**By the "harvest button" chat, on the Mac.** William, 16:42, with a picture of the sheet reading "Nothing growing yet. A harvest is recorded against a sowing. Record the sowing first.": "You're not able to add a harvest by tapping harvest." Made on the branch `harvest-any-plant`, from `main` at `4a63b01`. **Joined into `main` at 17:14**, after `main` (`3c3ef02`) was merged into the branch and the Mac build repeated.
 
-**Before.** The Harvest button on Today listed sowings and nothing else. His records hold no sowings, so the sheet was a dead end. A tree that was here before the app has no sowing to record, so its crop could never be added from this button. The journal's "Add a harvest?" card has been able to since 13 November: it puts the plant on record as growing when the harvest is added.
+**Before.** The Harvest button on Today listed sowings and nothing else. His records had nothing growing, so the sheet was a dead end. A tree that was here before the app has no sowing to record, so its crop could never be added from this button. The journal's "Add a harvest?" card has been able to since 13 November: it puts the plant on record as growing when the harvest is added.
 
 **Now.** The sheet also holds the plant library, to search and choose from. A plant with nothing on record is put on record as growing when its harvest is saved, exactly as the journal's card does. Nothing is added until Save is pressed.
 
