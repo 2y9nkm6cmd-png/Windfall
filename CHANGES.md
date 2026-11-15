@@ -1,3 +1,125 @@
+# 15 November 2026, 19:15: a garden placed by town or postcode, a weather card that says why it has no weather, and the job cards open as pages that grow
+
+**By the "fix those things" chat, linked to the Mac.** On the branch `fix-weather-place-and-job-cards`, made from `main` at `5e0d13a`. William had written four things on the checklist at about 13:05 and no chat had taken them up:
+
+| Card | His words |
+|---|---|
+| The weather fetches itself | "It's not working." |
+| Answer the location question on the phone and iPad | "It's not asking me this, no location services seem to be working." |
+| Give the Allotment a place on the map | "This is still too complex to set up." |
+| This week and This month open where they are | "I wanted them to open as cards that expand." |
+
+## What was found
+
+The first three are one fault seen from three sides. It was found by reading the records on his devices (copied off with `devicectl`, read-only):
+
+- **iPhone:** neither garden has a place on the map, and the weather diary holds no days at all. So nothing has ever been fetched there.
+- **iPad:** the Allotment has a place and the diary holds 93 days. The weather works there.
+- **Mac:** the Permaculture garden has a place. The weather works there.
+
+The weather is fetched for a garden's place, and failing that for wherever the device is. On the iPhone there was no place and the device's position never arrived. Why it never arrived cannot be read from here: either Apple's question was answered No at some point (it is then never shown again), or it was never shown. **The app handled both the same way: silently.** Three things made that worse.
+
+1. **Every "Use where I am now" button did nothing and said nothing** when the device would not give its position: in the garden's form of numbers, on the map page for setting north, and on Today's card.
+2. **The only other way to place a garden was to type its latitude and longitude as numbers**, five taps deep (Gardens, Edit layout, the form of numbers, Where it is).
+3. **Today's card said "Conditions not checked yet. Weather comes from Open-Meteo, using your garden's location"** whether or not any garden had one, with a "Check now" button that could do nothing.
+
+## What changed
+
+| Now | In plain words |
+|---|---|
+| **A garden can be placed by typing its town, village or postcode** | A new sheet, the same one everywhere. It needs no permission from anyone, so it works whatever the device says about location |
+| The same sheet offers **Use where I am now** and **The same as another garden** | Three ways, the plainest first. Nothing is kept until Save |
+| **When the device will not say where it is, the sheet says so** | And says what to do: search by name, or (after a No) a button that opens the Settings app at the right page |
+| **Today's weather card says why it has no weather** | "No weather yet. Windfall does not know where your garden is…" with one button, Set the garden's place. Offline, it says the weather could not be fetched and offers Check now |
+| **A garden with no place says so on its plan card**, with Set where it is | On Gardens and on Today. The line goes once the place is set |
+| **Settings has "Where your gardens are"** | Each garden with its place and Set or Change, and what this device has answered to the location question (Not asked yet, Allowed or Switched off) with the button that goes with it |
+| A Yes to the location question fetches the weather at once | Before, a Yes given late or in the Settings app did nothing until the next quarter of an hour |
+| A wait for the location question ends after a minute and a half | Before, if the question never appeared the wait never ended |
+| **This week and This month open as pages that grow out of the card** | A tap on the heading: the card grows to fill the screen (iPhone and iPad) with every job on it, and shrinks back on the way out. The month's jobs are under headings by kind. The card on Today stays short |
+
+## The code, and what it means
+
+### `GardenPlace.swift` (new): the rules, with no screen code
+
+This file can be tested without a device, so it is in `logic-files.txt`.
+
+- **`LocationAnswer`**: Apple has five answers to "May Windfall use your location?". Three are enough to decide what to say: `.notAsked`, `.allowed`, `.refused`. An `enum` is a value that can only be one of a fixed list.
+- **`GardenPlace.postcode(in:)`** knows a UK postcode by its shape and puts it in its usual form, so "bs161qy" is searched for as "BS16 1QY". It takes the letters and digits, checks the last three are a digit and two letters, and that what comes before is one or two letters, a digit, and at most one more letter or digit. It returns `nil` (Swift's word for "nothing") for anything else.
+- **`GardenPlace.searchText(for:)`** tidies what was typed and refuses fewer than three letters.
+- **`WeatherGap`**: why the weather card has nothing to show. `reason(isLoading:lastError:aGardenHasPlace:answer:)` picks one of four cases, and each case has its `headline`, its `detail` and its `buttonTitle`. The screen only asks the case for its words.
+
+### `GardenPlaceSheet.swift` (new): the sheet
+
+Built from the pieces in `SheetParts.swift` (`SheetPage`, `SheetScroll`, `SheetCard`), as doc 00 asks of every new sheet.
+
+```swift
+guard let request = MKGeocodingRequest(addressString: words) else { return [] }
+request.region = home
+request.preferredLocale = Locale(identifier: "en_GB")
+let items = try await request.mapItems
+```
+
+- `MKGeocodingRequest` is Apple's way, new in iOS 26, of turning words into a place on the map. (The older `CLGeocoder` is marked as retired in this version of Xcode.)
+- `guard let … else { return [] }` reads "if a request cannot be made from these words, hand back an empty list and stop".
+- `request.region = home` is a hint about where to look first: roughly Britain and Ireland.
+- `try await request.mapItems` asks and waits for the answer. `await` lets the rest of the app carry on meanwhile. `try` means it can fail (no internet), and `search()` in the sheet catches that and says so.
+
+**Why Apple's map and not the weather service's own search.** Open-Meteo's search was tried from William's Mac: it found Frenchay and Stoke Gifford but nothing for "BS16", "BS16 1QY" or "SW1A 1AA". A postcode is the natural thing to type.
+
+`save()` writes the place to the garden, rounded to four decimal places (about ten metres), and closes the sheet. `MainTabView` already watches for a garden's place changing and fetches the weather and the weather diary at once, so nothing more is needed.
+
+### `LocationManager.swift`
+
+- `answer` turns Apple's status into a `LocationAnswer`.
+- `openSettings()` opens the Settings app: Windfall's own page on an iPhone or iPad, Privacy & Security, Location Services on a Mac. The two are fenced with `#if os(macOS)`, which compiles one or the other.
+- `waitForAnswer()` now gives each waiter a ticket and starts a second small job that sleeps for 90 seconds and then lets the waiter go if it is still waiting. `removeValue(forKey:)` takes the waiter off the list and hands it back in one step, so it can never be let go twice.
+
+### `TodayView.swift`
+
+- The weather card: `weatherGap` asks `WeatherGap.reason` and the card shows its words. The button opens the sheet (`sheet = .place`) or asks the weather service again, whichever the case calls for.
+- The job cards. Two stored switches (`todayWeekIsOpen`, `todayMonthIsOpen`), "Show fewer" and the sliding animation are gone. In their place:
+
+```swift
+@State private var openJobs: JobsList?
+@Namespace private var jobCardSpace
+…
+.navigationDestination(item: $openJobs) { which in
+    jobsPage(for: which)
+        .growsFrom(which, in: jobCardSpace)
+}
+```
+
+  - `openJobs` holds which card was tapped, or nothing. The `?` after the type means "or nothing".
+  - `navigationDestination(item:)` shows a page whenever `openJobs` holds a value, and empties it when the page is left.
+  - Each card is marked `.growSource(JobsList.week, in: jobCardSpace)`, and the page `.growsFrom` the same name. That pair is what makes the page grow out of the card (`GrowFromTile.swift`, 14 November). On a Mac the page is pushed on like any other.
+- `JobsPage` (new, in the same file) draws the page. It is handed the jobs as a piece of code to run, `jobs: () -> [TodayJob]`, not as a finished list, so the list is only worked out if the page is opened and is worked out afresh whenever a job is ticked or deleted.
+
+### `WeekJobs.swift`
+
+`JobFold.groups(of:)` puts the month's jobs under headings (Your own jobs, To sow, To harvest, Seed to check, Also), in the order each kind first comes and without reshuffling them. `JobFold.countLine` writes "14 jobs, 3 done".
+
+### Smaller changes
+
+| File | Change |
+|---|---|
+| `MainTabView.swift` | `.onChange(of: locationManager.answer)` fetches the weather when the answer becomes Allowed. `SettingsView` has the new section, and its Data note now says a searched name goes to Apple Maps |
+| `GardenPlanView.swift`, `GardenPlanCard` | The "No place on the map" line and its button |
+| `GardenEditorView.swift` | "Use where I am now" is replaced by a button that opens the sheet. Latitude and Longitude stay for anyone who wants the numbers |
+| `NorthSetters.swift`, `NorthByMap` | The same, and the map appears as soon as the sheet has saved a place |
+| `DemoGarden.swift` | Checking aids: `-demoNoPlace YES` (the example allotment with no place), `-demoOpen place`, `-demoPlaceSearch Frenchay`, `-demoOpen weekJobs`, `-demoOpen monthJobs` |
+| `Tools/checks/LogicTests.swift` | 15 new tests |
+
+**The database layout is unchanged.**
+
+## ⚠️ CHECK: choices that are Claude's
+
+1. **"Cards that expand" was read as the card growing into a page of its own**, as tiles on the Gardens page do. On 14 November William was offered that and chose "Grow in place"; on the 15th, having tried it, he wrote the words above. If he meant something else, this is the part to change.
+2. The opened month is under headings by kind. The opened week is one list in its urgent order.
+3. The map is told to look in Britain and Ireland first.
+4. A searched name goes to Apple Maps. Before this, the only thing Windfall sent anywhere was each garden's rounded place, to the weather service.
+5. The words on the card, the sheet and the Settings page.
+6. A garden's place cannot be removed from the sheet, only changed.
+
 # 15 November 2026, 17:40: the UK wildlife branch joined into main
 
 **By the "combine and deploy" chat, linked to the Mac.** William, 17:35: "Combine all current versions and deploy to all devices." Made on the branch `join-15nov-evening`, from `main` at `469e9a6`, in the copy `~/Developer/windfall-join2`.

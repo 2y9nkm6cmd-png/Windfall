@@ -1567,6 +1567,13 @@ struct JobsPage: View {
             .frame(maxWidth: .infinity, alignment: .leading)
         }
         .navigationTitle(title)
+        #if os(iOS)
+        // The large serif title above is the page's title. Apple's own
+        // goes small in the bar at the top, so the name is not written
+        // twice in large letters. (`#if os(iOS)` covers the iPad too. A
+        // Mac has no such setting.)
+        .navigationBarTitleDisplayMode(.inline)
+        #endif
         .paperScreen()
     }
 

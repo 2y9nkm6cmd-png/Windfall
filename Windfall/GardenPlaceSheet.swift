@@ -168,7 +168,7 @@ struct GardenPlaceSheet: View {
 
     var body: some View {
         SheetPage(garden?.name ?? "Your garden",
-                  detail: "Where is it? Its place decides its weather, and how high the sun climbs over it.",
+                  detail: "Where it is decides its weather.",
                   confirmTitle: "Save",
                   canConfirm: chosen != nil && garden != nil,
                   onConfirm: save) {
