@@ -250,6 +250,13 @@ struct MainTabView: View {
             NavigationStack {
                 screen(for: selection)
                     .eiraLooksAt(selection.eiraPhrase, isJournal: selection == .journal)
+                    #if !os(macOS)
+                    // On an iPad the strip kept clear for Eira's bar
+                    // is put here, on the page itself, inside the
+                    // stack. See `barStrip` for what the strip is and
+                    // why an iPad has it in here and a Mac outside.
+                    .safeAreaInset(edge: .bottom, spacing: 0) { barStrip }
+                    #endif
             }
             // A new identity for each place gives it a fresh stack, so
             // the "back" trail from one never leaks into another.
@@ -264,25 +271,12 @@ struct MainTabView: View {
             .pageZoomWhereOffered()
             // A little air between the sidebar and a screen's title.
             .padding(.leading, 10)
-            // safeAreaInset tells every screen that a strip along the
-            // bottom is taken, so a long list can always be scrolled
-            // clear of Eira's bar. The strip itself is empty: it is as
-            // tall as the bar and the gap beneath it.
-            //
-            // (Until 14 November 2026 the bar itself was put in this
-            // strip. It moved to the overlay below so that it has the
-            // whole height of the page to grow into.)
-            .safeAreaInset(edge: .bottom, spacing: 0) {
-                Color.clear.frame(height: EiraFloatingBar.restingHeight + 14)
-                    // Notes where the strip begins, for a page that
-                    // finds the strip has not reached it. See
-                    // `EiraScreen.barLine`.
-                    .onGeometryChange(for: CGFloat.self) { strip in
-                        strip.frame(in: .global).minY.rounded()
-                    } action: { top in
-                        eiraScreen.barLine = top
-                    }
-            }
+            #if os(macOS)
+            // On a Mac the strip kept clear for Eira's bar goes round
+            // the whole stack, so every page in it is told, pages
+            // opened on top of another included. See `barStrip`.
+            .safeAreaInset(edge: .bottom, spacing: 0) { barStrip }
+            #endif
             // An overlay is drawn on top of a view and given the same
             // space. Eira's bar sits at the foot of it. A conversation
             // opened from the bar grows up out of it as a panel, into
@@ -322,6 +316,51 @@ struct MainTabView: View {
 
     private func toggleSidebar() {
         withAnimation(.smooth(duration: 0.3)) { sidebarIsHidden.toggle() }
+    }
+
+    /// The strip kept clear along the bottom of a page for Eira's bar,
+    /// on a Mac and an iPad. It is empty (`Color.clear` draws nothing)
+    /// and as tall as the bar and the 14 points beneath it.
+    ///
+    /// It is handed to `safeAreaInset`, which tells a page that the
+    /// strip is taken. A scrolling page then stops its last lines above
+    /// the strip, and still shows through underneath it while moving.
+    ///
+    /// (Until 14 November 2026 the bar itself was put in this strip. It
+    /// moved to an overlay so that it has the whole height of the page
+    /// to grow into.)
+    ///
+    /// Where the strip goes.
+    ///
+    /// - On a Mac, round the whole NavigationStack, as it always has.
+    /// - On an iPad, on the page inside the stack. Until 15 November
+    ///   2026 an iPad had it round the stack as well. There the stack
+    ///   is Apple's older kind of screen with the page fitted inside,
+    ///   and the strip has to be handed across that join. It was not
+    ///   handed across faithfully. In the simulator the page was told
+    ///   nothing, and the Journal's last entry sat behind the bar. On
+    ///   William's iPad that afternoon every page was told of far too
+    ///   much, about 390 points in his picture where 94 was right, and
+    ///   scrolled on past its end to leave a wide empty gap above the
+    ///   bar. 390 is five strips and the 20 points at the foot of the
+    ///   screen, which points at the strip being counted several times
+    ///   over, though that was worked out from the picture and not
+    ///   proved. With the strip on the page itself nothing crosses the
+    ///   join.
+    ///
+    /// What that leaves: on an iPad a page opened on top of another
+    /// (a plant, a bed) is no longer told about the strip at all, so
+    /// its last lines run to the foot of the screen, under the bar's
+    /// corner.
+    private var barStrip: some View {
+        Color.clear.frame(height: EiraFloatingBar.restingHeight + 14)
+            // Notes where the strip begins, for a page that finds the
+            // strip has not reached it. See `EiraScreen.barLine`.
+            .onGeometryChange(for: CGFloat.self) { strip in
+                strip.frame(in: .global).minY.rounded()
+            } action: { top in
+                eiraScreen.barLine = top
+            }
     }
 
     // MARK: iPhone
