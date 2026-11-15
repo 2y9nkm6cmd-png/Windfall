@@ -607,7 +607,7 @@ struct JournalChatView: View {
                 .font(.body.weight(.medium))
                 .foregroundStyle(Theme.ink)
             if checkWasSkipped {
-                Text("Choose one, then send.")
+                Text("Choose one and it will be sent.")
                     .font(.footnote)
                     .foregroundStyle(Theme.amber)
             }
@@ -648,9 +648,10 @@ struct JournalChatView: View {
     }
 
     /// One of the photo question's buttons was pressed. The stamp is set
-    /// to that time and its weather, or to now if `date` is nil. Nothing
-    /// is sent yet.
+    /// to that time and its weather, or to now if `date` is nil. If send
+    /// had already been pressed, the entry now goes (see `answer`).
     private func answerPhotoCheck(_ check: JournalChat.PhotoCheck, with date: Date?) {
+        let sendWasPressed = checkWasSkipped
         chosenWhen = date
         hasOwnConditions = false
         suggested = conditions(at: stampDate)
@@ -659,16 +660,27 @@ struct JournalChatView: View {
         // is not put as well.
         checkIsAnswered = true
         checkWasSkipped = false
+        if sendWasPressed { send() }
     }
 
     /// One of the check's buttons was pressed. The stamp is set to that
-    /// time and its weather. Nothing is sent yet.
+    /// time and its weather.
+    ///
+    /// If send had already been pressed, and this question was all that
+    /// held the entry back, the entry is sent now. (William, 14 November
+    /// 2026: "When I press send, it should send." Until then send had to
+    /// be pressed a second time after choosing.) If send has not been
+    /// pressed yet, nothing is sent: the answer only sets the stamp.
     private func answer(_ moment: JournalChat.Moment) {
+        // `checkWasSkipped` is true only if send was pressed while the
+        // question was unanswered. It is read before it is cleared below.
+        let sendWasPressed = checkWasSkipped
         chosenWhen = moment == .now ? nil : JournalChat.date(for: moment, now: .now)
         hasOwnConditions = false
         suggested = conditions(at: stampDate)
         checkIsAnswered = true
         checkWasSkipped = false
+        if sendWasPressed { send() }
     }
 
     // MARK: The box to write in
@@ -1143,6 +1155,25 @@ struct JournalChatView: View {
         let text = words.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty || !waitingPhotos.isEmpty else { return }
 
+        // On an iPhone or iPad, pressing send puts the keyboard away at
+        // once, whatever happens next. (William, 14 November 2026, on the
+        // iPad: "it could be resolved by when you press send the keyboard
+        // goes".) The keyboard covers the lower half of the screen there,
+        // and what send leads to is drawn exactly where it sits: the new
+        // entry, or the question below about when this was, which has to
+        // be seen to be answered.
+        //
+        // `boxHasFocus` is the @FocusState declared at the top of this
+        // view. Setting it to false takes the cursor out of the box, and
+        // iOS lowers the keyboard when no box has the cursor.
+        //
+        // `#if os(iOS)` means the lines are only compiled for an iPhone
+        // or iPad. A Mac has no keyboard on the screen, and there the
+        // cursor should stay in the box ready for the next entry.
+        #if os(iOS)
+        boxHasFocus = false
+        #endif
+
         // A question about when this was has to be answered first. Its
         // card turns amber.
         if photoCheck != nil || timeCheck != nil {
@@ -1217,5 +1248,26 @@ struct JournalChatView: View {
         checkWasSkipped = false
         answeredPhotoCheck = nil
         suggested = conditions(at: .now)
+
+        // In the panel that grows out of Eira's bar, an entry Eira has
+        // nothing to ask about puts the panel away by itself, so the
+        // Journal page is showing again with the entry on it. (William,
+        // 14 November 2026: "I shouldnt then need to press done.")
+        //
+        // The panel stays up only when she has put a card under the
+        // entry that needs an answer: a harvest or sowing to add
+        // (`offers`), something seen to pin down (`pinDown`), or a plant
+        // the library does not have. Closing then would throw the card
+        // away unseen.
+        //
+        // `if let panel` runs only when this is drawn in the panel. In
+        // a sheet `panel` is nil and nothing here happens.
+        if let panel, offers.isEmpty, pinDown == nil,
+           NewPlantMention.name(in: text, known: plants.map(\.commonName)) == nil {
+            // Lets go of the keyboard, so it does not cover the page.
+            boxHasFocus = false
+            // The same thing Done does: EiraFloatingBar's `lowerPanel`.
+            panel.close()
+        }
     }
 }
