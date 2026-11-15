@@ -1789,7 +1789,7 @@ if __name__ == "__main__":
     # This file is run as a program, but the species files import it by
     # name. Importing it by name here too means everyone shares one list.
     import wildlife as W
-    import wildlife_species, wildlife_species2, wildlife_views
+    import wildlife_species, wildlife_species2, wildlife_species3, wildlife_views
     out = sys.argv[1] if len(sys.argv) > 1 else "out_wildlife"
     missing = [slug for slug, _, _ in W.KINDS if slug not in W.DRAW]
     for mode, look in enumerate(("light", "dark")):

@@ -1,3 +1,22 @@
+# 15 November 2026, 21:05: the row of drawings on the Your species pages, and the next 50 animal drawings
+
+**By the "photo check" chat, linked to William's Mac.** William, 20:46: "Could you incorporate the drawings into the Your species pages as well. Could you also start making more drawings for all the other animals as well." Made on the branch `species-pages-and-more-animals`, from `main` at `2e7d65a`.
+
+**The row of drawings is a view of its own.** `WildlifeAnimalGallery` in `WildlifeBookViews.swift` is the large drawing with the row of small ones under it, lifted out of `WildlifeAnimalPage` so that two pages can use it. `FaunaDetailView` (a species' page in Your species) now shows it when the species has more than one drawing. Each small drawing is a button with `.buttonStyle(.plain)`, which keeps it its own button inside a list row. A checking aid, `-demoWildlife own:<scientific name>`, opens one of William's own species pages for a still picture.
+
+**50 new single-animal drawings, so 259**, in a new file, `Tools/design/wildlife_species3.py`. Each was drawn beside four or five photographs from iNaturalist and then compared with them again. Eight were corrected at that second look (`Design/Wildlife/CHECKED.md`).
+
+- **From William's own species list (10):** brown-banded carder bee, broken-belted bumblebee, shrill carder bee, honeybee, mullein moth, campion moth, geranium weevil, golden-ringed dragonfly, lob worm, brandling. Every species in his list now has a drawing of its own or a close relative's.
+- **Birds (15):** greylag goose, tufted duck, grey wagtail, ring-necked parakeet, linnet, treecreeper, stock dove, stonechat, siskin, fieldfare, great black-backed gull, common gull, whitethroat, meadow pipit, skylark.
+- **Butterflies (7):** small copper, ringlet, large skipper, small skipper, small heath, marbled white, wall brown.
+- **Moths (10):** box tree moth, brimstone moth, scarlet tiger, white ermine, buff ermine, hummingbird hawk-moth, angle shades, mint moth, heart and dart, buff-tip.
+- **Other insects (8):** 10-spot ladybird, lesser stag beetle, thick-legged hoverfly, migrant hoverfly, long hoverfly, narcissus bulb fly, alder leaf beetle, green dock beetle.
+- **Two more caterpillars** in `wildlife_views.py`: the mullein moth's and the box tree moth's.
+
+**How the next batch is chosen** is written at the top of `wildlife_species3.py`: his own species first, then the most recorded UK animals, garden animals first. 3,921 animals still show their kind's drawing.
+
+**Checked.** `Tools/checks/run-checks.sh`: 954 logic tests pass. No new test was needed: the existing ones check that every drawing named in the list exists, light and dark.
+
 # 15 November 2026, 20:45: nineteen plant drawings redrawn from the photograph check's list
 
 **By the "plant identification" chat, linked to the Mac.** On the branch `plant-drawings-redrawn`, made from `graphics-join-15nov` at `b801f7d`. William, 20:27, of the things the photograph check found and left alone: "Make the new drawings for these". Only drawings and their Python settings changed: no Swift, nothing saved. Project doc 109.

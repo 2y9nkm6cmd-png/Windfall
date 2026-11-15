@@ -74,6 +74,81 @@ struct WildlifeAnimalPicture: View {
     }
 }
 
+/// Every drawing of one animal: the one being looked at large, and under
+/// it a row of all of them, small, each with the word for what it shows
+/// ("In flight", "Female", "Caterpillar"). Tapping a small one shows it
+/// large. An animal with a single drawing shows just that drawing.
+///
+/// It is a view of its own so that two pages can use it: an animal's page
+/// in All UK wildlife, and a species' page in Your species (William,
+/// 15 November 2026: "incorporate the drawings into the Your species pages
+/// as well").
+struct WildlifeAnimalGallery: View {
+    let creature: WildlifeAnimal
+    /// How big the large drawing is.
+    var size: CGFloat = 200
+
+    // Which drawing is shown large, by its key. `nil` means the first.
+    // `@State` is a value the view keeps for itself and redraws when it
+    // changes, here when a small drawing is tapped.
+    @State private var shownKey: String?
+
+    var body: some View {
+        // There is always at least one drawing, so `pictures[0]` is safe.
+        let pictures = creature.pictures
+        let shown = pictures.first { $0.key == shownKey } ?? pictures[0]
+
+        VStack(spacing: 8) {
+            Image(shown.pictureName)
+                .resizable()
+                .scaledToFit()
+                .frame(width: size, height: size)
+                .accessibilityHidden(true)
+            if pictures.count > 1 {
+                // What the large drawing shows.
+                Text(shown.caption)
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(Theme.ink)
+                // The drawings side by side. The row scrolls sideways when
+                // there are more than fit.
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(alignment: .top, spacing: 10) {
+                        ForEach(pictures) { one in
+                            Button {
+                                shownKey = one.key
+                            } label: {
+                                VStack(spacing: 4) {
+                                    Image(one.pictureName)
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width: 64, height: 64)
+                                        .padding(4)
+                                        // A line round the one that is shown large.
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 10)
+                                                .stroke(one.key == shown.key ? Theme.ink : Color.clear, lineWidth: 1.5)
+                                        )
+                                    Text(one.caption)
+                                        .font(.caption)
+                                        .foregroundStyle(Theme.inkSoft)
+                                }
+                            }
+                            // `.plain` keeps each small drawing its own
+                            // button, also inside a list row, where a
+                            // standard button would make the whole row one.
+                            .buttonStyle(.plain)
+                            .accessibilityLabel("\(one.caption), a drawing of \(creature.title)")
+                            .accessibilityAddTraits(one.key == shown.key ? .isSelected : [])
+                        }
+                    }
+                    .padding(.horizontal, 2)
+                }
+            }
+        }
+        .frame(maxWidth: .infinity)
+    }
+}
+
 /// "1 animal" and "24 animals".
 private func animalsCounted(_ count: Int) -> String {
     count == 1 ? "1 animal" : "\(count) animals"
@@ -379,11 +454,6 @@ struct WildlifeAnimalPage: View {
         return ownSpecies.first { WildlifeReference.plain($0.scientificName ?? "") == wanted }
     }
 
-    // Which of the animal's drawings is shown large, by its key. `nil`
-    // means the first. `@State` is a value the page keeps for itself and
-    // redraws when it changes, here when a small drawing is tapped.
-    @State private var shownKey: String?
-
     var body: some View {
         let kind = book.kind(slug: creature.kindSlug)
 
@@ -417,55 +487,10 @@ struct WildlifeAnimalPage: View {
     /// The drawing, large. An animal without a drawing of its own shows
     /// its kind's, with a line saying so.
     private func picture(kindName: String?) -> some View {
-        // Every drawing of this animal. There is always at least one, so
-        // `pictures[0]` is safe.
-        let pictures = creature.pictures
-        let shown = pictures.first { $0.key == shownKey } ?? pictures[0]
-
-        return VStack(spacing: 8) {
-            Image(shown.pictureName)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 200, height: 200)
-                .accessibilityHidden(true)
-            if pictures.count > 1 {
-                // What the large drawing shows: "In flight", "Female".
-                Text(shown.caption)
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(Theme.ink)
-                // The animal's drawings side by side, small. Tapping one
-                // shows it large. The row scrolls sideways when there are
-                // more than fit.
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(alignment: .top, spacing: 10) {
-                        ForEach(pictures) { one in
-                            Button {
-                                shownKey = one.key
-                            } label: {
-                                VStack(spacing: 4) {
-                                    Image(one.pictureName)
-                                        .resizable()
-                                        .scaledToFit()
-                                        .frame(width: 64, height: 64)
-                                        .padding(4)
-                                        // A line round the one that is shown large.
-                                        .overlay(
-                                            RoundedRectangle(cornerRadius: 10)
-                                                .stroke(one.key == shown.key ? Theme.ink : Color.clear, lineWidth: 1.5)
-                                        )
-                                    Text(one.caption)
-                                        .font(.caption)
-                                        .foregroundStyle(Theme.inkSoft)
-                                }
-                            }
-                            .buttonStyle(.plain)
-                            .accessibilityLabel("\(one.caption), a drawing of \(creature.title)")
-                            .accessibilityAddTraits(one.key == shown.key ? .isSelected : [])
-                        }
-                    }
-                    .padding(.horizontal, 2)
-                }
-            }
+        VStack(spacing: 8) {
+            // The large drawing, and under it the animal's other drawings
+            // when it has any (WildlifeAnimalGallery, further up this file).
+            WildlifeAnimalGallery(creature: creature, size: 200)
             if !creature.hasOwnPicture, let kindName {
                 Text("A drawing of the kind (\(kindName.lowercased())), not of this animal.")
                     .font(.caption)
@@ -628,6 +653,23 @@ struct WildlifeAnimalPage: View {
 
 // MARK: - A checking aid
 
+/// For `-demoWildlife own:<scientific name>`: finds that species among
+/// William's own (the `Fauna` records) and shows its page. `@Query` asks
+/// the database for every record of a kind.
+private struct DemoOwnSpecies: View {
+    let scientificName: String
+    @Query private var ownSpecies: [Fauna]
+
+    var body: some View {
+        let wanted = WildlifeReference.plain(scientificName)
+        if let found = ownSpecies.first(where: { WildlifeReference.plain($0.scientificName ?? "") == wanted }) {
+            FaunaDetailView(fauna: found)
+        } else {
+            Text("No species of yours called \(scientificName).")
+        }
+    }
+}
+
 /// One of the wildlife or plant disease pages by name, for
 /// `-demoWildlife`. It lets a still picture be taken of a page without
 /// tapping through to it. What can follow `-demoWildlife`:
@@ -637,6 +679,8 @@ struct WildlifeAnimalPage: View {
 /// - `kind:tit`: one kind's page (the word after the colon is the kind's
 ///   short name in WildlifeReference.json)
 /// - `animal:Erithacus rubecula`: one animal's page, by scientific name
+/// - `own:Libellula depressa`: the page of one of William's own species
+///   (Your species), by scientific name
 /// - `diseases`: the plant diseases
 /// - `disease:rust`: one disease's page (its short name in
 ///   PlantDiseases.json)
@@ -667,6 +711,8 @@ struct DemoWildlifePage: View {
             } else {
                 Text("No animal called \(wanted).")
             }
+        case "own":
+            DemoOwnSpecies(scientificName: wanted)
         case "disease":
             if let found = PlantDiseases.shared.disease(slug: wanted) {
                 PlantDiseasePage(disease: found)
@@ -674,7 +720,7 @@ struct DemoWildlifePage: View {
                 Text("No plant disease called \(wanted).")
             }
         default:
-            Text("-demoWildlife takes species, book, diseases, kind:, animal: or disease:.")
+            Text("-demoWildlife takes species, book, diseases, kind:, animal:, own: or disease:.")
         }
     }
 }

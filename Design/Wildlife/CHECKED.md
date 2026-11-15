@@ -75,6 +75,23 @@ Every other bird, every mammal, amphibian and reptile, and every insect, spider,
 
 **Added the same day, each drawn beside its photographs:** the early mining bee, the red ants (three *Myrmica*), the yellow meadow ant and the large blue.
 
+## The next 50 animals, drawn beside photographs (15 November 2026, 20:50 to 21:05)
+
+The 50 drawings in `Tools/design/wildlife_species3.py` were each made with four or five of the species' own iNaturalist photos to hand, then set beside them on sheets and looked at again by Claude. ⚠️ Claude's eye, not William's. Corrected at that second look:
+
+| Animal | What the photographs showed | Change |
+|---|---|---|
+| Brandling | Narrow dark red rings with yellow between | The rings had run together into solid red |
+| Tufted duck | A clean white side | The folded wing hid it. It is now painted last |
+| Linnet | A warm brown back | Was dark chestnut |
+| Stock dove | Pale blue-grey, no strong pink | Was dark slate with a purple breast |
+| Campion moth | Mottled brown | Was purple |
+| Buff ermine | A few small black dots | Had long black dashes |
+| Angle shades | A dark brown V | The V was pale olive |
+| Mint moth | Reddish purple | Was lilac-purple |
+
+The other 42 agreed well enough. Noted and left: the small heath and ringlet are drawn with wings open, though both nearly always rest with them closed, and the mint moth had only one photograph.
+
 ## More than one drawing of an animal (15 November 2026)
 
 72 animals now have other drawings, 96 in all, made beside the life-stage photographs where there were any: 15 birds in flight, 8 females and 3 other plumages of birds, a perched red kite, a roe doe, 8 insects of the other sex, 9 butterflies with their wings closed, 14 caterpillars, 5 chrysalises, pupae and cocoons, 5 ladybird larvae and 2 pupae, 7 grubs and other larvae, a row of eggs, 1 shield bug nymph, 3 kinds of dragonfly and damselfly nymph, frog and toad spawn and tadpoles, and a newt larva. ⚠️ The flight drawings and the females of the birds were made from the species' own photos, few of which show a bird overhead, and from Claude's memory of the rest.

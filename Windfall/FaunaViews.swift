@@ -201,19 +201,26 @@ struct FaunaDetailView: View {
         Form {
             if let found = ukDrawing {
                 Section {
-                    Image(found.pictureName)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 160, height: 160)
-                        .frame(maxWidth: .infinity)
-                        .accessibilityHidden(true)
+                    // A species with more than one drawing (in flight,
+                    // the female, the caterpillar) shows the row of them
+                    // here too, as its page in All UK wildlife does.
+                    if let listing = ukListing, listing.hasOtherPictures {
+                        WildlifeAnimalGallery(creature: listing, size: 160)
+                    } else {
+                        Image(found.pictureName)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 160, height: 160)
+                            .frame(maxWidth: .infinity)
+                            .accessibilityHidden(true)
+                    }
                     // The link to the UK page is only for a species the
                     // list holds. That page also has its other drawings.
                     if let listing = ukListing {
                         NavigationLink {
                             WildlifeAnimalPage(creature: listing)
                         } label: {
-                            Text(listing.hasOtherPictures ? "More drawings, and when it is recorded in the UK" : "When it is recorded in the UK")
+                            Text("When it is recorded in the UK")
                         }
                     }
                 } footer: {

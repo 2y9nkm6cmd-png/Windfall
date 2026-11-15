@@ -528,6 +528,16 @@ def silver_y_caterpillar():            # green with fine white lines, walking in
     return caterpillar("green", "green", back="pale", side="white", fat=0.8, loop=True)
 
 
+@view("caterpillar", "Cucullia verbasci", main="adult")
+def mullein_caterpillar():             # far better known than the moth: whitish, with yellow bands and black spots, eating mullein and buddleia in early summer
+    return caterpillar("white", "primrose", hoops="primrose", dots=[(-0.6, "ink"), (0.0, "ink"), (0.6, "ink")], dot_r=1.0, fat=1.1)
+
+
+@view("caterpillar", "Cydalima perspectalis", main="adult")
+def box_tree_caterpillar():            # green-yellow with black stripes, white dots and a black head, in webbing on box
+    return caterpillar("pear", "ink", back="ink", side="ink", dots=[(-0.05, "white")], dot_r=0.6, fat=0.9, hairs="grey")
+
+
 def chrysalis(colour="soil", kind="hang", spikes=None, shine=None, marks=None):
     """A chrysalis or pupa.  kind: "hang" head down from a twig, "girdle"
     upright against a stem held by a thread of silk, "soil" lying loose,
