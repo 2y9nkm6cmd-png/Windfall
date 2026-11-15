@@ -105,6 +105,8 @@ enum DemoGarden {
     /// A checking aid: `-demoOpen sowing` opens the sowing form as soon
     /// as Today appears, so a still picture can be taken of it. Also
     /// `harvest`, `worms`, `fit`, `sighting`, `identify`, `photo` and `journal`.
+    /// `sighting-eira` opens the sighting form as it arrives from Eira's
+    /// made-up answer to a photo, with a made-up place.
     /// With `journal`, `-demoDraft "some words"` starts the box off with
     /// those words.
     ///

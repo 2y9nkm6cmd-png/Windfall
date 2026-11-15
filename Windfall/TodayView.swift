@@ -222,6 +222,13 @@ struct TodayView: View {
         case "worms": startSurvey(.earthwormCount)
         case "fit": startSurvey(.fitCount)
         case "sighting": startSighting()
+        case "sighting-eira":
+            // A sighting started from Eira's made-up answer to a photo,
+            // given the middle of Bristol as where the photo was taken,
+            // so a still picture can show the form arriving filled in.
+            let observation = EiraIdentify.startSighting(from: EiraIdentify.example(in: context), photos: [], in: context)
+            observation.takePlace(latitude: 51.4545, longitude: -2.5879)
+            sheet = .newSighting(observation)
         case "identify": sheet = .identify
         case "photo": sheet = .photoOffer
         case "widgets": sheet = .widgets
