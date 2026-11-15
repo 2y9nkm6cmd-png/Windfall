@@ -53,7 +53,7 @@
 |---|---|
 | `FaunaViews.swift` | The species rows carry their own page. One line removed |
 
-**⚠️ Not proven.** Why the link could not find the line is not known. The page is opened from a tile on Wildlife, by `GrowingLink`, and that may be what hides it. It could not be run where this was written. **The same pattern is in four other lists** opened the same way: Sowings (`PlantingViews.swift`), Seed (`SeedViews.swift`), Surveys (`SurveyViews.swift`) and Beds (`BedViews.swift`). They are left alone until William has tapped a row in each (checklist card `w-rows-other`). Plants and Sightings use it too and are known to open.
+**⚠️ Not proven.** Why the link could not find the line is not known. The page is opened from a tile on Wildlife, by `GrowingLink`, and that may be what hides it. It could not be run where this was written. **The same pattern is in four other lists** opened the same way: Sowings (`PlantingViews.swift`), Seed (`SeedViews.swift`), Surveys (`SurveyViews.swift`) and Beds (`BedViews.swift`). They are left alone until William has tapped a row in each (checklist card `w-rows-other`). Plants and Sightings use it too. William has worked on plant pages on the phone since and has not reported them failing, so they are taken to open.
 
 **Checked:** see the knowledge-base doc for this chat. **Not checked:** a build, and a tap on a device.
 # 15 November 2026, 16:40: the corner drawing rests when it cannot be seen, and two jobs stop being done for nothing
