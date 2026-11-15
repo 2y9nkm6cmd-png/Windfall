@@ -53,3 +53,8 @@ FungusKey.upperBound:
 FungusKey.x:
 FungusKey.y:
 Photo.lastPathComponent:
+CornerRGB.view:
+FungusKey.east:
+FungusKey.north:
+Theme.gesture:
+Theme.simultaneousGesture:
