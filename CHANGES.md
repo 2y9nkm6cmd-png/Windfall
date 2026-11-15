@@ -1,3 +1,31 @@
+# 15 November 2026, 16:40: the corner drawing rests when it cannot be seen, and two jobs stop being done for nothing
+
+**By the "power efficiency" chat, linked to the Mac. Branch `power-quiet`, made from `main` at `a2744bb`.** The research behind it is doc 91 in the knowledge base. William, 16:16: "Make the changes that will not affect speed or make the app quicker."
+
+**Why.** Measured on the Mac at 15:28: with a web browser in front of it, Windfall was spending 16% to 24% of one processor core, and the only code of its own that was running was the drawing in Today's corner, about thirty times a second. Nothing here changes what the app does. Each change stops work whose result nobody would have seen.
+
+| File | What changed, and why |
+|---|---|
+| `LivingCorner.swift`, `LivingCorner` | New `isResting`, which decides when the drawing holds still. It did so for Reduce Motion and when the app was put away. It now also rests when its page has left the screen (`isOnScreen`, set by `onAppear` and `onDisappear`), when a sheet is up over Today (`cornerIsCovered`) and, on a Mac, when Windfall's window is not the one in use (`appearsActive`). A paused `TimelineView` keeps its last picture, so the drawing stays where it was and carries on when it can be seen again |
+| `LivingCorner.swift`, `cornerIsCovered` | A new setting handed down through the environment, the way `paintsGlassFlat` is in Theme.swift. A page that puts something over the drawing sets it to true |
+| `LivingCorner.swift`, `CornerMeter` | A checking aid, off unless the app is started with `-cornerMeter YES`. It counts the pictures drawn each second and writes the count, with the time, to `windfall-corner-meter.txt` in the app's temporary folder. A second with no drawing writes nothing, so a gap in the times is a rest |
+| `TodayView.swift`, `header` | Sets `cornerIsCovered` while the capture sheet or the Add a job sheet is up |
+| `VoiceInput.swift`, `WaveformView` | The wave is capped at thirty pictures a second with `minimumInterval`. It was redrawn as often as the screen could manage, up to 120 times a second on some iPads, for a ripple that takes a whole second |
+| `WindfallShared/WidgetSummary.swift`, `showsTheSame(as:)` | New. Says whether two summaries would put the same things on every widget. It leaves out `written`, and fractions of a second in `forecastFetched`, because the file keeps times to the whole second |
+| `WidgetShare.swift`, `refresh` | Reads the file first and, if what it was about to write `showsTheSame`, writes nothing and does not ask the widgets to redraw. It runs on every coming to the front, every putting away and every quarter of an hour, and most of those times nothing has changed |
+| `WeatherDiary.swift`, `bringUpToDate` | New `askedAnything`. When every garden was resting (asked within the hour, with today's record held), no day can have changed, so the last step, reading every day and every frost record to look for new frosts, is skipped. When and what the weather service is asked is exactly as before |
+
+**On a Mac the drawing now stops when another app is in front.** That was Claude's suggestion in doc 91 (Decision 1, option A) and William has not yet answered that card. It is one line, `if !appearsActive { return true }`, and is easy to change to a slow sway or to take out.
+
+**Left out on purpose**, though they were on doc 91's list:
+
+- **A rougher location fix for the weather.** William has reported that no location services seem to be working. Changing the location code now would make that harder to find.
+- **Asking the database for today's weather record alone.** It needs a kind of question (`#Predicate`) the logic tests cannot run, so the code that shipped would have been untested, in the part of the app with an open fault. The frost step above is the half of that saving that can be tested.
+- **The Journal built a day at a time.** Two other chats changed how the Journal's page ends today, one of them not yet built. There is nothing to gain until the journal holds more than a few days.
+- **Eira's reply shown a few words at a time.** It changes how her answer looks, and William has not said he wants that.
+
+**Checked:** see the build log in doc 93.
+
 # 15 November 2026, 16:05: on an iPad, pages stop at Eira's bar again and no longer scroll on past their end
 
 **By the "scrolls too far" chat, from William's iPad. Branch `bar-strip-inside-stack`, made from `main` at `6cbfc37`. Joined into `main` at 16:05 the same day (`78276c7`), at William's word (16:03: "Let's add it to the main branch and push it out"). Written in Claude's cloud workspace: the Mac was not connected, so it has not been built or seen running, and `main` now holds a change no compiler for Apple's devices has read.**

@@ -637,8 +637,25 @@ final class CornerEngine {
 
 // MARK: - The view
 
+extension EnvironmentValues {
+    /// True while something is drawn over the page the corner drawing
+    /// is on, such as a sheet. Today sets it. The drawing then rests,
+    /// because nobody can see it move.
+    ///
+    /// `@Entry` makes a new setting that a view can hand down to
+    /// everything inside it with `.environment(\.cornerIsCovered, true)`.
+    @Entry var cornerIsCovered = false
+}
+
 /// The living drawing. Give it a scene and a frame to fill. It keeps the
 /// drawing's shape of 150 wide to 96 high inside whatever it is given.
+///
+/// When it rests. Drawing a new picture thirty times a second is the
+/// most costly thing Windfall does while nobody is touching it. On
+/// 15 November 2026 a Mac with a web browser in front of Windfall was
+/// measured spending a sixth to a quarter of one processor core on this
+/// drawing alone. So it holds still whenever it cannot be seen moving:
+/// see `isResting`. It picks up again by itself the moment it can.
 struct LivingCorner: View {
 
     let cornerScene: CornerScene
@@ -648,18 +665,44 @@ struct LivingCorner: View {
 
     /// @State keeps the one engine alive while this view is redrawn.
     @State private var engine = CornerEngine()
+    /// False once the page this drawing is on has left the screen: when
+    /// another page slides over it, or another tab is chosen. SwiftUI
+    /// says so through `onAppear` and `onDisappear` below.
+    @State private var isOnScreen = true
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.cornerIsCovered) private var isCovered
+    #if os(macOS)
+    // On a Mac a window stays "active" in `scenePhase` for as long as it
+    // is open, even with another app in front of it. `appearsActive` is
+    // the Mac's own word for "this is the window in use": it turns
+    // false when another app, or another of Windfall's windows, is in
+    // front.
+    @Environment(\.appearsActive) private var appearsActive
+    #endif
+
+    /// True whenever the drawing should hold still: Reduce Motion is on,
+    /// the app has been put away, its page is off the screen or covered,
+    /// or (on a Mac) its window is not the one in use.
+    private var isResting: Bool {
+        if reduceMotion || scenePhase != .active || !isOnScreen || isCovered { return true }
+        #if os(macOS)
+        if !appearsActive { return true }
+        #endif
+        return false
+    }
 
     var body: some View {
         let inks = colorScheme == .dark ? CornerInks.dark : CornerInks.light
         GeometryReader { geometry in
             // TimelineView redraws what is inside it again and again:
             // here up to thirty times a second, and not at all while
-            // Reduce Motion is on or the app is in the background.
-            TimelineView(.animation(minimumInterval: 1.0 / 30, paused: reduceMotion || scenePhase != .active)) { timeline in
+            // the drawing is resting. A paused TimelineView keeps the
+            // last picture it drew on screen.
+            TimelineView(.animation(minimumInterval: 1.0 / 30, paused: isResting)) { timeline in
                 Canvas { context, size in
+                    CornerMeter.shared.tick()
                     engine.draw(in: &context, canvasSize: size, time: timeline.date.timeIntervalSinceReferenceDate,
                                 cornerScene: cornerScene, inks: inks, isStill: reduceMotion, isQuick: isQuick)
                 }
@@ -672,6 +715,45 @@ struct LivingCorner: View {
         .aspectRatio(150.0 / 96.0, contentMode: .fit)
         // It is decoration: VoiceOver passes over it.
         .accessibilityHidden(true)
+        .onAppear { isOnScreen = true }
+        .onDisappear { isOnScreen = false }
+    }
+}
+
+// MARK: - A checking aid
+
+/// Counts how many times a second the corner is drawn, and writes the
+/// count to a file. Switched on by starting the app with
+/// `-cornerMeter YES`. It is how the resting above is proved: a second
+/// in which nothing was drawn writes no line, so a gap in the file's
+/// times is a rest. The file is `windfall-corner-meter.txt` in the
+/// app's temporary folder. With the switch off it does nothing.
+final class CornerMeter {
+    static let shared = CornerMeter()
+    private let isOn = UserDefaults.standard.bool(forKey: "cornerMeter")
+    private var draws = 0
+    private var since = Date.now
+    private let file = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("windfall-corner-meter.txt")
+
+    func tick() {
+        guard isOn else { return }
+        let now = Date.now
+        let passed = now.timeIntervalSince(since)
+        // After a rest, start counting afresh, so the long gap is not
+        // averaged into the first second back.
+        if passed > 2 { draws = 0; since = now; return }
+        draws += 1
+        guard passed >= 1 else { return }
+        let line = "\(now.formatted(date: .omitted, time: .standard)): \(draws) draws in the last second\n"
+        if let handle = try? FileHandle(forWritingTo: file) {
+            handle.seekToEndOfFile()
+            handle.write(Data(line.utf8))
+            try? handle.close()
+        } else {
+            try? Data(line.utf8).write(to: file)
+        }
+        draws = 0
+        since = now
     }
 }
 

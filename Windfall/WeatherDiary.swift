@@ -540,6 +540,8 @@ final class WeatherDiaryService {
 
         let today = WeatherDiary.dayKey(for: now, calendar: calendar)
         var added = 0
+        // Whether the service was asked anything at all on this run.
+        var askedAnything = false
         for place in places {
             var held = ((try? context.fetch(FetchDescriptor<WeatherDay>())) ?? []).filter { $0.siteRaw == place.site }
             // Rest only if today is already here. A diary that is empty,
@@ -547,6 +549,7 @@ final class WeatherDiaryService {
             let lastAsked = defaults.double(forKey: restKey(place.site))
             let askedLately = lastAsked > 0 && now.timeIntervalSince1970 - lastAsked < WeatherDiary.restSeconds
             if !force, askedLately, held.contains(where: { $0.dayKey == today }) { continue }
+            askedAnything = true
 
             var complete = Set(held.filter(\.isComplete).map(\.dayKey))
             let request = WeatherDiary.request(complete: complete, today: today, calendar: calendar)
@@ -562,6 +565,16 @@ final class WeatherDiaryService {
                 }
             }
             if lastError == nil { defaults.set(now.timeIntervalSince1970, forKey: restKey(place.site)) }
+        }
+
+        // If every garden was resting, no day has changed since the last
+        // run, so there can be no new frost to find. This is the usual
+        // case when the app comes back to the front, and it used to
+        // read every day of the diary and every frost record again for
+        // nothing. (15 November 2026.)
+        guard askedAnything else {
+            lastMessage = "Up to date."
+            return
         }
 
         let days = (try? context.fetch(FetchDescriptor<WeatherDay>())) ?? []

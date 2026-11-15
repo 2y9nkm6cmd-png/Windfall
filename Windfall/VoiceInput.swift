@@ -277,7 +277,11 @@ private struct WaveformView: View {
         // is. The time moves the wave along. (Until 13 November 2026 the
         // wave was meant to be moved by an animated number, which a
         // Canvas cannot follow, so the bars stood still.)
-        TimelineView(.animation) { timeline in
+        //
+        // `minimumInterval` caps it at thirty pictures a second. Left to
+        // itself it redraws as often as the screen can, up to 120 times
+        // a second on some iPads, which this slow ripple has no use for.
+        TimelineView(.animation(minimumInterval: 1.0 / 30)) { timeline in
             // One full ripple a second.
             let phase = timeline.date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 1) * .pi * 2
             Canvas { context, size in

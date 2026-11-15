@@ -148,6 +148,33 @@ nonisolated struct WidgetSummary: Codable, Equatable {
     var forecastFetched: Date?
 }
 
+// MARK: - Has anything changed?
+
+nonisolated extension WidgetSummary {
+
+    /// True when this summary and another would put the same things on
+    /// every widget. The app asks this before writing the file, so that
+    /// a file which would come out the same is not written again and
+    /// the widgets are not asked to redraw for nothing.
+    ///
+    /// Two things are left out of the comparison:
+    /// - `written`, which is only a note of when the file was saved.
+    /// - Fractions of a second in `forecastFetched`. The file keeps
+    ///   times to the whole second, so a time read back from it is up
+    ///   to a second away from the one that was saved.
+    func showsTheSame(as other: WidgetSummary) -> Bool {
+        switch (forecastFetched, other.forecastFetched) {
+        case (nil, nil): break
+        case let (mine?, theirs?): if abs(mine.timeIntervalSince(theirs)) >= 1 { return false }
+        default: return false
+        }
+        var mine = self, theirs = other
+        mine.written = .distantPast; theirs.written = .distantPast
+        mine.forecastFetched = nil; theirs.forecastFetched = nil
+        return mine == theirs
+    }
+}
+
 // MARK: - Reading it for one day
 
 nonisolated extension WidgetSummary {
