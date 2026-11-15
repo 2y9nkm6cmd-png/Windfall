@@ -30,6 +30,28 @@
 **Checked.** `Tools/checks/run-checks.sh` with Swift 6.3.1 for Linux: 132 files parse, the type check passes, the cross-file checks are clean, **965 logic tests pass** (11 new: the names, the groups, the reference and the place). Built for the simulator three times, BUILD SUCCEEDED. Seen in simulator pictures: the glass at rest on the iPad's Year and Plants pages and the iPhone's Year page, the form filled in with "Buff-tailed Bumblebee" and "Bombus terrestris" on both, and the four words one size on both.
 
 **Not checked.** A tap on the glass: no picture can press it. The lower half of the sighting form (the place and the ready-made answers), which the pictures do not reach. A real photo with a position. Anything on a Mac window.
+# 15 November 2026, 21:07: the Seed page offers a photo of the packet
+
+**By the "seed photo" chat, started from William's iPad. Written in Claude's cloud workspace: not built and not seen running when this was written.** William, 20:50, with a picture of the empty Seed page: "Why doesn't this page let you take a photo to get the information?" Then, 20:53: "Yes build all this." Made on the branch `seed-add-by-photo`, from `main` at `827e21d`.
+
+**Why it did not.** Reading a packet from a photo was already in the app (`SeedPacketScanner.swift`), but only behind its own tile on the Gardens page, "Scan a seed packet". The Seed page's "Add a packet" and its "+" opened the typed form and nothing else. Nothing joined the two.
+
+**What changed.**
+
+- **`SeedPacketStart.swift` (new)** is the list of ways to add a packet: `.camera`, `.library` and `.typed`, each with its words and its symbol. `choices(hasCamera:)` leaves the camera out on a Mac and in the simulator. It is a logic file, so it is in `Tools/checks/logic-files.txt` and has two tests.
+- **`SeedViews.swift`, the Seed page.** The empty page has a button for each way: "Photograph the packet" (filled green, where there is a camera), "Choose a photo of the packet" and "Type it in". The "+" is now a menu of the same three. One `@State`, `adding`, drives one `.sheet(item:)` in place of the old true-or-false `showingNew`.
+- **`SeedPacketScanner.swift`, the scanner.** `SeedPacketScanView(startsWith:)` can be told to begin with the camera or the Photos library, and opens it four tenths of a second after the sheet appears. `SeedPacketScanView()` with nothing in the brackets behaves as before, so the Gardens tile is unchanged. Its "Choose a photo" button was a `PhotosPicker` and is now a plain button with `.photosPicker(isPresented:)`, because only that form can be opened from code.
+- **A photo that gives nothing now says so**: "No words could be read from that photo." or "Words were read, but none looked like sowing or packet details." Before, the screen showed nothing at all.
+
+**Nothing saved has changed.** No record has a new field. The scanner already made a `SeedPacket` on Save, which is why a scanned packet shows in the Seed list.
+
+**⚠️ CHECK, Claude's choices.** The words on the three buttons. The camera first where there is one. The 0.4 second wait, which is a guess at how long the sheet takes to settle and has not been tried on a device. The "Scan a seed packet" tile is left on the Gardens page.
+
+**Not built.** A way from a photo that gave nothing straight into the typed form. The scanner is still a standard form, not one built from `SheetParts`. Reading still happens on the main thread, so the screen holds still for a moment while a large photo is read.
+
+**A checking aid.** With `-demoGarden`: `-demoSeed` opens the Seed page in place of Gardens, and `-demoSeedAdd library` (or `typed`, or `camera`) also opens that way of adding a packet. In `DemoGarden.swift`, `MainTabView.swift` and `SeedViews.swift`.
+
+**Checked.** `Tools/checks/run-checks.sh` with Swift 6.3.1 for Linux: 133 files parse, the type check passes, cross-file checks clean, 956 logic tests pass, two of them new. Those checks cannot compile a screen.
 
 # 15 November 2026, 20:57: the row of drawings on the Your species pages, and the next 50 animal drawings
 

@@ -440,6 +440,8 @@ struct MainTabView: View {
                 WeatherDiaryView()
             } else if DemoGarden.opensYear {
                 YearView()
+            } else if DemoGarden.opensSeed {
+                SeedListView()
             } else if let name = DemoGarden.opensPlant {
                 DemoPlantPage(name: name)
             } else if let name = DemoGarden.opensCompanions {

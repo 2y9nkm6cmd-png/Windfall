@@ -22,8 +22,18 @@ struct SeedListView: View {
 
     @Environment(\.modelContext) private var context
 
-    @State private var showingNew = false
+    /// Which way of adding a packet is open, if any. `nil` means none.
+    ///
+    /// One value drives one sheet, further down in `.sheet(item:)`.
+    /// Before 15 November 2026 this was a true-or-false, because there
+    /// was only one way in: the typed form.
+    @State private var adding: SeedPacketStart?
     @State private var search = ""
+
+    /// The ways in that this device can offer. See SeedPacketStart.swift.
+    private var choices: [SeedPacketStart] {
+        SeedPacketStart.choices(hasCamera: CameraPhoto.isAvailable)
+    }
 
     private var sorted: [SeedPacket] {
         packets
@@ -48,8 +58,29 @@ struct SeedListView: View {
                 } description: {
                     Text("Track packets and their germination rates so you know how thickly to sow.")
                 } actions: {
-                    Button("Add a packet") { showingNew = true }
-                        .buttonStyle(.borderedProminent)
+                    // One button for each way in. The first is the one
+                    // this device does best (the camera where there is
+                    // one), so it is the filled, green one. The others
+                    // are quieter, so the eye is led to the first.
+                    //
+                    // The buttons sit in a `VStack`, a column, ending in
+                    // `.fixedSize()`, which tells it to take only the
+                    // room its buttons need. Without that (as first
+                    // built, 15 November 2026) the empty page stretched
+                    // each button into a tall green bar with its words
+                    // squeezed out.
+                    VStack(spacing: 10) {
+                        ForEach(choices) { choice in
+                            if choice == choices.first {
+                                addButton(choice)
+                                    .buttonStyle(.borderedProminent)
+                            } else {
+                                addButton(choice)
+                                    .buttonStyle(.bordered)
+                            }
+                        }
+                    }
+                    .fixedSize()
                 }
             }
 
@@ -70,13 +101,60 @@ struct SeedListView: View {
         .navigationDestination(for: SeedPacket.self) { SeedDetailView(packet: $0) }
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
-                Button { showingNew = true } label: {
+                // A `Menu` is a button that opens a short list of
+                // buttons. The "+" used to open the typed form straight
+                // away. Now it asks which way first.
+                Menu {
+                    ForEach(choices) { choice in
+                        addButton(choice)
+                    }
+                } label: {
                     Label("Add packet", systemImage: "plus")
                 }
             }
         }
-        .sheet(isPresented: $showingNew) {
-            NewSeedPacketView()
+        // `.sheet(item:)` shows a sheet whenever `adding` holds a value
+        // and hands that value in, here called `start`. Closing the
+        // sheet sets `adding` back to nil. Using one sheet for all three
+        // ways means two can never try to open at once.
+        // A checking aid: `-demoSeed -demoSeedAdd library` opens that
+        // way of adding a packet as soon as the page appears, so a still
+        // picture can be taken of it. See DemoGarden.swift. `.task`
+        // runs once, when the page first shows.
+        .task {
+            if let way = DemoGarden.seedAdds { adding = way }
+        }
+        .sheet(item: $adding) { start in
+            if start.readsAPhoto {
+                // The scanner saves a packet of its own when Save is
+                // pressed there, so the new packet appears in this list
+                // with nothing more to do here.
+                SeedPacketScanView(startsWith: start)
+            } else {
+                NewSeedPacketView()
+            }
+        }
+    }
+
+    /// The button for one way of adding a packet. It is written once
+    /// and used twice, in the empty page and in the "+" menu.
+    private func addButton(_ choice: SeedPacketStart) -> some View {
+        Button {
+            adding = choice
+        } label: {
+            // Built by hand as a row (`HStack`) of the symbol and the
+            // words, not as a `Label`. On the empty page, Apple's
+            // `ContentUnavailableView` squeezed a `Label` to the width
+            // of its symbol and the words fell out of sight (seen in
+            // the simulator, 15 November 2026). `.fixedSize()` says
+            // "always take the room you need", and `.lineLimit(1)`
+            // keeps the words on one line.
+            HStack(spacing: 8) {
+                Image(systemName: choice.symbol)
+                Text(choice.title)
+                    .lineLimit(1)
+            }
+            .fixedSize()
         }
     }
 }
