@@ -365,9 +365,69 @@ struct SpeciesTable {
     /// shares that add up to 1 (the "softmax" step), which is what the
     /// "not sure" level was measured against.
     func guess(for photo: [Float], keeping count: Int = 3) -> SpeciesGuess {
-        guard photo.count == width, !species.isEmpty else {
+        guess(fromShares: shares(for: photo), keeping: count)
+    }
+
+    /// Several photos of the same plant or animal, weighed together.
+    ///
+    /// Each photo is compared with every row by itself, exactly as one
+    /// photo is. Then, species by species, the shares are averaged
+    /// across the photos (`averaged`), and the closest few are picked
+    /// from the averages.
+    ///
+    /// Why an average and not something bolder (15 November 2026). An
+    /// average can never be surer than the photos are between them: a
+    /// sharp photo and a poor one come out in between, and two photos
+    /// that disagree come out as "not sure". The "not sure" level was
+    /// measured on single photos, and an average keeps a share meaning
+    /// what it meant there. Multiplying the shares would reward photos
+    /// that agree, but two photos of one plant are not two independent
+    /// opinions, so it would claim more than it knows.
+    ///
+    /// With one photo this gives exactly what `guess(for:)` gives.
+    func guess(forPhotos photos: [[Float]], keeping count: Int = 3) -> SpeciesGuess {
+        guess(fromShares: SpeciesTable.averaged(photos.map { shares(for: $0) }), keeping: count)
+    }
+
+    /// The average of several lists of shares, place by place.
+    ///
+    /// `[[0.9, 0.1], [0.5, 0.5]]` gives `[0.7, 0.3]`. Every list must be
+    /// the same length, one share for each species in the table. If
+    /// they are not, or there are none, the answer is an empty list,
+    /// which the caller reads as "nothing to compare".
+    nonisolated static func averaged(_ lists: [[Double]]) -> [Double] {
+        guard let first = lists.first, !first.isEmpty,
+              lists.allSatisfy({ $0.count == first.count }) else { return [] }
+        var sums = [Double](repeating: 0, count: first.count)
+        for list in lists {
+            for place in list.indices { sums[place] += list[place] }
+        }
+        return sums.map { $0 / Double(lists.count) }
+    }
+
+    /// Picks the closest few species from a full list of shares, one
+    /// share for each species in the table, in the table's order.
+    func guess(fromShares shares: [Double], keeping count: Int = 3) -> SpeciesGuess {
+        guard shares.count == species.count, !species.isEmpty else {
             return SpeciesGuess(candidates: [], isSure: false)
         }
+        // Largest share first. Where two are exactly equal the one
+        // earlier in the table goes first, so the order never wavers.
+        let order = shares.indices
+            .sorted { shares[$0] != shares[$1] ? shares[$0] > shares[$1] : $0 < $1 }
+            .prefix(max(1, count))
+        let candidates = order.map { SpeciesCandidate(entry: species[$0], share: shares[$0]) }
+
+        let topShare = candidates.first?.share ?? 0
+        let isSure = notSureFloor.map { topShare >= $0 } ?? false
+        return SpeciesGuess(candidates: candidates, isSure: isSure)
+    }
+
+    /// Every species' share for one photo, in the table's order. The
+    /// shares add up to 1. An empty list when the photo's numbers are
+    /// not the count this table was made for.
+    func shares(for photo: [Float]) -> [Double] {
+        guard photo.count == width, !species.isEmpty else { return [] }
 
         // Scale the photo's numbers to length 1.
         let length = photo.reduce(Float(0)) { $0 + $1 * $1 }.squareRoot()
@@ -391,15 +451,7 @@ struct SpeciesTable {
         let highest = scores.max() ?? 0
         let weights = scores.map { Foundation.exp(Double($0 - highest)) }
         let total = weights.reduce(0, +)
-
-        let order = scores.indices.sorted { scores[$0] > scores[$1] }.prefix(max(1, count))
-        let candidates = order.map {
-            SpeciesCandidate(entry: species[$0], share: total > 0 ? weights[$0] / total : 0)
-        }
-
-        let topShare = candidates.first?.share ?? 0
-        let isSure = notSureFloor.map { topShare >= $0 } ?? false
-        return SpeciesGuess(candidates: candidates, isSure: isSure)
+        return weights.map { total > 0 ? $0 / total : 0 }
     }
 
     /// What the model can and cannot do, said once under any answer.

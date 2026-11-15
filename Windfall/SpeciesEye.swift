@@ -143,14 +143,38 @@ final class SpeciesEye {
     /// for more than she shows: see EiraIdentify.candidatesWanted.
     func guess(forPhoto data: Data,
                keeping count: Int = EiraIdentify.candidatesWanted) async throws -> SpeciesGuess {
-        guard let picture = SpeciesEye.picture(from: data),
-              let prepared = SpeciesEye.prepared(picture) else {
-            throw SpeciesEyeError.photoUnreadable
+        try await guess(forPhotos: [data], keeping: count)
+    }
+
+    /// Several photos of the same plant or animal in, one guess out.
+    ///
+    /// Each photo goes through the model by itself, one after another,
+    /// and the table then weighs the answers together (see
+    /// SpeciesTable.guess(forPhotos:)). One photo is the same job with
+    /// a list of one, so there is a single route through this code.
+    ///
+    /// If any photo cannot be read the whole job stops with that error:
+    /// an answer that silently left a photo out would not be the answer
+    /// to the photos on screen.
+    func guess(forPhotos photos: [Data],
+               keeping count: Int = EiraIdentify.candidatesWanted) async throws -> SpeciesGuess {
+        // Every photo is opened and shrunk before the model is loaded,
+        // so an unreadable one is found without that wait.
+        var prepared: [[Float]] = []
+        for data in photos {
+            guard let picture = SpeciesEye.picture(from: data),
+                  let ready = SpeciesEye.prepared(picture) else {
+                throw SpeciesEyeError.photoUnreadable
+            }
+            prepared.append(ready)
         }
         try await loadIfNeeded()
         guard let describe, let table else { throw SpeciesEyeError.needsNewerSystem }
-        let photoNumbers = try await describe(prepared)
-        return table.guess(for: photoNumbers, keeping: count)
+        var photoNumbers: [[Float]] = []
+        for one in prepared {
+            photoNumbers.append(try await describe(one))
+        }
+        return table.guess(forPhotos: photoNumbers, keeping: count)
     }
 
     /// Frees the memory the model and the table are using.

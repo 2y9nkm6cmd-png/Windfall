@@ -166,6 +166,15 @@ enum DemoGarden {
         return [data]
     }
 
+    /// A checking aid: `-demoPhotoCopies 3` makes the Identify screen
+    /// bring the `-demoPhoto` in three times over, so the row that
+    /// several photos make can be looked at in a still picture. 1 when
+    /// not asked for.
+    static var photoCopies: Int {
+        guard isRequested else { return 1 }
+        return min(max(1, UserDefaults.standard.integer(forKey: "demoPhotoCopies")), IdentifyView.mostPhotos)
+    }
+
     /// A checking aid: `-demoMatch YES` makes the Identify screen show a
     /// made-up answer, so its cards can be looked at in the simulator,
     /// where the identification model cannot run.

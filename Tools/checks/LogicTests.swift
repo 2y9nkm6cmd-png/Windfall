@@ -1465,6 +1465,21 @@ struct LogicTests {
             check(eyeTable.guess(for: [0, 1, 0, 0]).likeliest?.entry.title == "Galanthus nivalis" && eyeTable.caveat.contains("2 UK species") && eyeTable.caveat.contains("Never eat anything"), "a species with no English name is shown by its scientific one")
             let never = SpeciesTable(species: eyeTable.species, width: 4, scale: 100, notSureFloor: nil, numbers: [1, 0, 0, 0, 0, 1, 0, 0])
             check(!never.guess(for: [1, 0, 0, 0]).isSure && never.guess(for: [1, 0, 0, 0]).likeliest?.entry.scientific == "Bombus terrestris", "with no not-sure level nothing is named outright")
+            // Several photos of one thing, weighed together (15 November 2026).
+            let halves = SpeciesTable.averaged([[0.9, 0.1], [0.5, 0.5]])
+            check(halves.count == 2 && abs(halves[0] - 0.7) < 0.000001 && abs(halves[1] - 0.3) < 0.000001 && SpeciesTable.averaged([[0.2, 0.8]]) == [0.2, 0.8] && SpeciesTable.averaged([]).isEmpty && SpeciesTable.averaged([[0.5, 0.5], [1]]).isEmpty, "shares are averaged place by place, one list is left as it is, and lists of different lengths give nothing")
+            check(eyeTable.guess(forPhotos: [[5, 0, 0, 0]]) == eyeTable.guess(for: [5, 0, 0, 0]) && eyeTable.guess(forPhotos: [[1, 1, 0, 0]]) == eyeTable.guess(for: [1, 1, 0, 0]), "one photo weighed alone gives exactly the one-photo answer")
+            let agreed = eyeTable.guess(forPhotos: [[5, 0, 0, 0], [0.2, 0, 0, 0]])
+            check(agreed.isSure && agreed.likeliest?.entry.scientific == "Bombus terrestris" && agreed.likeliest?.percent == "over 99%", "two photos that agree are named")
+            let split = eyeTable.guess(forPhotos: [[1, 0, 0, 0], [0, 1, 0, 0]])
+            check(!split.isSure && split.candidates.map(\.percent) == ["50%", "50%"] && split.likeliest?.entry.scientific == "Bombus terrestris", "two photos that disagree are not named, and equal shares keep the table's order")
+            let helped = eyeTable.guess(forPhotos: [[1, 0, 0, 0], [1, 1, 0, 0]])
+            check(helped.isSure && abs((helped.likeliest?.share ?? 0) - 0.75) < 0.0001 && helped.likeliest?.percent == "75%", "a clear photo and a torn one come out in between: 75%")
+            let outvoted = eyeTable.guess(forPhotos: [[1, 0, 0, 0], [1, 1, 0, 0], [0, 1, 0, 0]])
+            check(!outvoted.isSure && abs((outvoted.likeliest?.share ?? 0) - 0.5) < 0.0001, "the average is never surer than the photos are between them")
+            check(eyeTable.guess(forPhotos: []).candidates.isEmpty && eyeTable.guess(forPhotos: [[1, 0, 0, 0], [1, 0]]).candidates.isEmpty && !eyeTable.guess(forPhotos: [[1, 0, 0, 0], [1, 0]]).isSure, "no photos, or one with the wrong count of numbers among them, gives nothing and no claim")
+            let everyShare = eyeTable.shares(for: [1, 1, 0, 0])
+            check(everyShare.count == 2 && abs(everyShare.reduce(0, +) - 1) < 0.000001 && eyeTable.shares(for: [1, 0]).isEmpty && eyeTable.guess(fromShares: [0.25, 0.75]).likeliest?.entry.scientific == "Galanthus nivalis" && eyeTable.guess(fromShares: [1]).candidates.isEmpty, "a photo's shares cover every species and add up to 1")
         } else {
             check(false, "the species table can be read")
         }
@@ -1501,6 +1516,9 @@ struct LogicTests {
         check(plain.verdict == .named && plain.headline == "Buff-tailed Bumblebee" && plain.subheading == "Bombus terrestris" && plain.provisionalName == "Bombus terrestris" && plain.confidence == .probable && plain.cautions.isEmpty && plain.isNameable, "a strong match with nothing against it is named as probable")
         check(plain.records.count == 2 && plain.records[0] == "It is in your wildlife list as Buff-tailed bumblebee. Flight period: Mar to Oct. Favoured plants: Comfrey, lavender." && plain.records[1] == "You have recorded it 2 times, last on 12 November 2026, 1 of them confirmed.", "the wildlife list and past sightings are looked up, by scientific or English name: \(plain.records)")
         check(plain.spoken.hasPrefix("This looks like Buff-tailed Bumblebee (Bombus terrestris). The image model puts it at 93%.") && plain.spoken.contains("Nothing has been saved.") && plain.spoken.contains("the 776 UK species") && plain.sightingNote.hasPrefix("Suggested by Eira from a photograph by BioCLIP 2.5 Huge (") && plain.sightingNote.hasSuffix("Needs confirming."), "the answer is worded for the chat and for a sighting's note")
+        var fromThree = plain
+        fromThree.photoCount = 3
+        check(plain.photoCount == 1 && plain.photosLine == nil && fromThree.photosLine == "From 3 photos, weighed together: each figure is the average across them." && fromThree.sightingNote.hasPrefix("Suggested by Eira from 3 photographs by BioCLIP 2.5 Huge (") && fromThree.sightingNote.hasSuffix("Needs confirming.") && fromThree != plain, "an answer from several photos says how many, on the card and in the sighting's note")
         let ofPlant = EiraIdentify.judge(guessOf([(lavender, 0.97)], sure: true), knowing: knows)
         check(ofPlant.records == ["It is in your plant list: Lavender, Hidcote; Lavender, Munstead."] && ofPlant.confidence == .probable, "a plant is found in the plant list under each of its varieties: \(ofPlant.records)")
         let unknownPlant = EiraIdentify.judge(guessOf([(iris, 0.9)], sure: true), knowing: knows)
@@ -1517,6 +1535,9 @@ struct LogicTests {
         check(pooled.records.contains("You have recorded Buff-tailed Bumblebee (Bombus terrestris) 2 times, last on 12 November 2026, 1 of them confirmed.") && pooled.records.contains { $0.hasPrefix("Buff-tailed Bumblebee (Bombus terrestris) is in your wildlife list.") }, "with several names in play each record line says which it is about")
         let torn2 = EiraIdentify.judge(guessOf([(buff, 0.4), (lavender, 0.35), (iris, 0.2)], sure: false), knowing: knows)
         check(torn2.verdict == .notSure && torn2.headline == "Eira is not sure" && torn2.provisionalName == nil && torn2.confidence == nil && !torn2.isNameable && torn2.spoken.hasPrefix("I am not sure what this is.") && torn2.sightingNote.hasPrefix("Eira was not sure from the photograph."), "a weak match across different genera is not named at all")
+        var tornTwice = torn2
+        tornTwice.photoCount = 2
+        check(tornTwice.sightingNote.hasPrefix("Eira was not sure from the 2 photographs."), "a weak match from two photos says two in the note")
         check(EiraIdentify.pooledGenus(of: [SpeciesCandidate(entry: buff, share: 0.6), SpeciesCandidate(entry: white, share: 0.2)]) == nil && EiraIdentify.pooledGenus(of: [SpeciesCandidate(entry: buff, share: 0.9)]) == nil && EiraIdentify.article(for: "ant") == "An" && EiraIdentify.article(for: "bumblebee") == "A", "a genus is only given when two or more of it reach the level together")
         let empty = EiraIdentify.judge(SpeciesGuess(candidates: [], isSure: false), knowing: knows)
         check(empty.verdict == .nothing && empty.spoken == "There is nothing to compare the photo with." && empty.sightingNote == "Photo saved without an identification.", "no candidates gives no answer and no claim")

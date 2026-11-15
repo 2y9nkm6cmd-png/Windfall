@@ -106,6 +106,32 @@ extension IdentifyKnowledge {
     }
 }
 
+// MARK: - One photo of an identification
+
+/// One photo that is part of an identification.
+///
+/// An identification can hold several photos of the same plant or
+/// animal: the whole of it, a leaf, the flower close up. Each is kept
+/// as one of these until a sighting is started, when each becomes a
+/// `Photo` record (see `startSighting(from:photos:in:)` below).
+///
+/// `Identifiable` means each has an `id` of its own, which is how
+/// SwiftUI tells them apart in a row and how one is picked out to be
+/// removed. A `UUID` is a long random label that never repeats.
+struct IdentifyPhoto: Identifiable {
+    let id = UUID()
+    /// The copy made smaller: what is shown, and what the image model
+    /// is given.
+    var shown: Data
+    /// The photo as it came, if it is still at hand. It goes to the
+    /// photo folder when a sighting is started (PhotoStore.swift).
+    var original: Data?
+    /// When and where it was taken, read from the photo as it came
+    /// (PhotoFacts.swift). Nil means "not read yet": Photo.record reads
+    /// it then.
+    var facts: PhotoFacts?
+}
+
 // MARK: - The whole job, and starting a sighting
 
 extension EiraIdentify {
@@ -125,12 +151,29 @@ extension EiraIdentify {
                          taken: Int? = nil,
                          context: ModelContext,
                          eye chosen: SpeciesEye? = nil) async throws -> EiraIdentification {
+        try await identify(photos: [data], taken: taken, context: context, eye: chosen)
+    }
+
+    /// Several photos of the same plant or animal in, one judged
+    /// answer out.
+    ///
+    /// The image model looks at each photo, the table averages what it
+    /// said (SpeciesTable.guess(forPhotos:)), and the fixed rules judge
+    /// the average exactly as they judge one photo's answer. The answer
+    /// remembers how many photos it came from (`photoCount`), so the
+    /// card and a sighting's note can say so.
+    static func identify(photos: [Data],
+                         taken: Int? = nil,
+                         context: ModelContext,
+                         eye chosen: SpeciesEye? = nil) async throws -> EiraIdentification {
         let looker = chosen ?? SpeciesEye.shared
-        let guess = try await looker.guess(forPhoto: data)
-        return judge(guess,
-                     knowing: .gathered(from: context, taken: taken),
-                     listSize: looker.table?.species.count,
-                     modelName: looker.loaded?.name)
+        let guess = try await looker.guess(forPhotos: photos)
+        var answer = judge(guess,
+                           knowing: .gathered(from: context, taken: taken),
+                           listSize: looker.table?.species.count,
+                           modelName: looker.loaded?.name)
+        answer.photoCount = max(1, photos.count)
+        return answer
     }
 
     /// Starts an unconfirmed sighting, with the photo attached.
@@ -152,11 +195,30 @@ extension EiraIdentify {
                               original: Data? = nil,
                               facts: PhotoFacts? = nil,
                               in context: ModelContext) -> WildlifeObservation {
+        // One photo is a list of one, so there is a single piece of
+        // code that starts a sighting, whichever screen asks.
+        var photos: [IdentifyPhoto] = []
+        if let photo, !photo.isEmpty {
+            photos = [IdentifyPhoto(shown: photo, original: original, facts: facts)]
+        }
+        return startSighting(from: identification, photos: photos, in: context)
+    }
+
+    /// Starts an unconfirmed sighting with every photo of the
+    /// identification attached, in the order they were given.
+    ///
+    /// The sighting is dated by the first photo, if that says when it
+    /// was taken and it was earlier than now. Each photo still keeps
+    /// its own date and place on its own record.
+    @discardableResult
+    static func startSighting(from identification: EiraIdentification?,
+                              photos: [IdentifyPhoto],
+                              in context: ModelContext) -> WildlifeObservation {
         let observation = WildlifeObservation()
         observation.recorderName = UserDefaults.standard.string(forKey: "recorderName")
         // It was seen when the photo was taken, not when the photo was
         // brought in here.
-        if let facts, facts.wasTakenEarlier(than: .now), let taken = facts.taken {
+        if let facts = photos.first?.facts, facts.wasTakenEarlier(than: .now), let taken = facts.taken {
             observation.observedAt = taken
         }
 
@@ -168,20 +230,24 @@ extension EiraIdentify {
                 observation.provisionalConfidence = identification.confidence ?? .possible
             }
         } else {
-            observation.notes = "Photo saved without an identification."
+            observation.notes = photos.count > 1
+                ? "\(photos.count) photos saved without an identification."
+                : "Photo saved without an identification."
         }
 
-        if let photo, !photo.isEmpty {
-            // Every place that keeps a photo goes through Photo.record
-            // (PhotoDrop.swift), so that they all keep the same things:
-            // when and where it was taken, and the original in the photo
-            // folder if one has been chosen. `photo` is the smaller
-            // copy, which is what the app keeps where there is no folder.
-            let attached = Photo.record(of: original ?? photo, facts: facts, smallerCopy: photo,
-                                        otherwiseAt: observation.observedAt)
-            attached.observation = observation
-            observation.photos = [attached]
+        // Every place that keeps a photo goes through Photo.record
+        // (PhotoDrop.swift), so that they all keep the same things:
+        // when and where it was taken, and the original in the photo
+        // folder if one has been chosen. `shown` is the smaller copy,
+        // which is what the app keeps where there is no folder.
+        var attached: [Photo] = []
+        for given in photos where !given.shown.isEmpty {
+            let record = Photo.record(of: given.original ?? given.shown, facts: given.facts,
+                                      smallerCopy: given.shown, otherwiseAt: observation.observedAt)
+            record.observation = observation
+            attached.append(record)
         }
+        if !attached.isEmpty { observation.photos = attached }
 
         context.insert(observation)
         return observation
@@ -310,6 +376,11 @@ struct IdentificationCard: View {
             }
 
             VStack(alignment: .leading, spacing: 4) {
+                // Only when there was more than one photo: the figures
+                // above are then averages, and this says so.
+                if let photos = identification.photosLine {
+                    Text(photos)
+                }
                 Text(identification.caveat)
                 if let model = identification.modelName {
                     Text("Image model: \(model).")

@@ -309,9 +309,23 @@ struct EiraIdentification: Equatable {
     var caveat: String
     /// Which image model answered, such as "BioCLIP 2.5 Huge".
     var modelName: String?
+    /// How many photos the answer was made from. More than one means
+    /// the shares are averages across them (SpeciesTable.guess(forPhotos:)).
+    /// It has a starting value, so code that builds an answer from one
+    /// photo need not mention it.
+    var photoCount = 1
 
     /// True when there is a name to put on a sighting.
     var isNameable: Bool { provisionalName != nil }
+
+    /// Said on the card when there was more than one photo, so that a
+    /// percentage is never read as one photo's score when it is an
+    /// average. Nil for a single photo.
+    var photosLine: String? {
+        photoCount > 1
+            ? "From \(photoCount) photos, weighed together: each figure is the average across them."
+            : nil
+    }
 
     /// The answer in sentences, for Eira's chat and for reading aloud.
     var spoken: String {
@@ -354,17 +368,22 @@ struct EiraIdentification: Equatable {
             .map { "\($0.entry.title), \($0.percent)" }
             .joined(separator: "; ")
         let by = modelName.map { " by \($0)" } ?? ""
+        // "a photograph" for one, "3 photographs" for several, so the
+        // note says what the figures in it were made from.
+        let several = photoCount > 1
+        let aPhoto = several ? "\(photoCount) photographs" : "a photograph"
+        let thePhoto = several ? "the \(photoCount) photographs" : "the photograph"
         switch verdict {
         case .named:
-            return "Suggested by Eira from a photograph\(by) (\(closest)). Needs confirming."
+            return "Suggested by Eira from \(aPhoto)\(by) (\(closest)). Needs confirming."
         case .oneOfSeveral(let names):
-            return "Suggested by Eira from a photograph\(by) (\(closest)). It cannot reliably be told from a photo which of these it is: \(names.joined(separator: ", ")). Needs confirming."
+            return "Suggested by Eira from \(aPhoto)\(by) (\(closest)). It cannot reliably be told from a photo which of these it is: \(names.joined(separator: ", ")). Needs confirming."
         case .genusOnly(let genus):
-            return "Eira could tell the genus, \(genus), from the photograph\(by) and not the species. Closest: \(closest)."
+            return "Eira could tell the genus, \(genus), from \(thePhoto)\(by) and not the species. Closest: \(closest)."
         case .notSure:
-            return "Eira was not sure from the photograph\(by). Closest: \(closest)."
+            return "Eira was not sure from \(thePhoto)\(by). Closest: \(closest)."
         case .nothing:
-            return "Photo saved without an identification."
+            return several ? "Photos saved without an identification." : "Photo saved without an identification."
         }
     }
 }
