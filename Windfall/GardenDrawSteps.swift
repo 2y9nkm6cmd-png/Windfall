@@ -96,6 +96,8 @@ struct GardenDrawSteps: View {
     @State private var bedID: UUID?
     /// The shed, path or tree being asked about in step 4.
     @State private var featureID: UUID?
+    /// Where the north ring is while a finger is on it. See `NorthRing`.
+    @State private var liveTop: Double?
 
     private let stepNames = ["The plot", "North", "Beds", "Sheds, paths and trees"]
 
@@ -234,8 +236,8 @@ struct GardenDrawSteps: View {
         VStack(alignment: .leading, spacing: 12) {
             question("Which way is north?", "Drag N round the ring until it points north from where you stand.")
             VStack(spacing: 8) {
-                NorthRing(garden: garden, beds: beds, features: features, size: 230)
-                NorthWords(garden: garden)
+                NorthRing(garden: garden, beds: beds, features: features, liveTop: $liveTop, size: 230)
+                NorthWords(garden: garden, liveTop: liveTop)
             }
             .frame(maxWidth: .infinity)
             .glassCard()

@@ -35,6 +35,13 @@ struct NorthRing: View {
     @Bindable var garden: Garden
     let beds: [Bed]
     let features: [GardenFeature]
+    /// The bearing the top faces while a finger is on the ring, or nil
+    /// when it is not. The page owns this, so the words under the ring
+    /// can follow the finger too. The garden itself is only changed when
+    /// the finger lifts: saving on every tiny move made every screen that
+    /// reads the records redraw 60 times a second, and the iPad froze
+    /// (15 November 2026).
+    @Binding var liveTop: Double?
     var size: CGFloat = 280
 
     /// Room round the ring for the N to sit half outside it.
@@ -42,7 +49,7 @@ struct NorthRing: View {
 
     var body: some View {
         // Where north is drawn, in degrees clockwise from straight up.
-        let north = GardenDrawing.northAngle(whenTopFaces: garden.topFacesDegrees)
+        let north = GardenDrawing.northAngle(whenTopFaces: liveTop ?? garden.topFacesDegrees)
         ZStack {
             Circle()
                 .strokeBorder(Theme.inkSoft.opacity(0.55), lineWidth: 1.5)
@@ -90,7 +97,17 @@ struct NorthRing: View {
                     // Settle on one of the eight compass points when close.
                     let point = (angle / 45).rounded() * 45
                     if abs(angle - point) <= 3 { angle = point }
-                    garden.topFacesDegrees = GardenDrawing.topFaces(whenNorthIsAt: angle)
+                    // Only the ring moves while the finger is down, and
+                    // only when the whole degree has actually changed.
+                    let top = GardenDrawing.topFaces(whenNorthIsAt: angle)
+                    if top != liveTop { liveTop = top }
+                }
+                .onEnded { _ in
+                    // The finger has lifted: save it to the garden, once.
+                    if let top = liveTop, top != garden.topFacesDegrees {
+                        garden.topFacesDegrees = top
+                    }
+                    liveTop = nil
                 }
         )
         .accessibilityElement()
@@ -106,14 +123,18 @@ struct NorthRing: View {
 struct NorthWords: View {
 
     let garden: Garden
+    /// The ring's bearing while it is being dragged, so the words follow
+    /// the finger before anything is saved.
+    var liveTop: Double? = nil
 
     var body: some View {
+        let top = liveTop ?? garden.topFacesDegrees
         VStack(spacing: 2) {
-            Text(GardenDrawing.facingWords(garden.topFacesDegrees))
+            Text(GardenDrawing.facingWords(top))
                 .font(.title3.weight(.semibold))
                 .foregroundStyle(Theme.ink)
                 .multilineTextAlignment(.center)
-            Text("\(Int(garden.topFacesDegrees.rounded()))° · the plan stays as you drew it")
+            Text("\(Int(top.rounded()))° · the plan stays as you drew it")
                 .font(.footnote)
                 .monospacedDigit()
                 .foregroundStyle(Theme.inkSoft)
@@ -133,14 +154,17 @@ struct NorthRingSetter: View {
     private var beds: [Bed] { allBeds.filter { $0.siteRaw == garden.siteKey } }
     private var features: [GardenFeature] { allFeatures.filter { $0.siteRaw == garden.siteKey && $0.isPresent } }
 
+    /// Where the ring is while a finger is on it. See `NorthRing`.
+    @State private var liveTop: Double?
+
     var body: some View {
         // No ScrollView here on purpose: a page that scrolls would fight
         // the finger for the drag round the ring.
         VStack(alignment: .leading, spacing: 12) {
             ScreenHeader(title: "Which way is north?", detail: garden.name)
             VStack(spacing: 10) {
-                NorthRing(garden: garden, beds: beds, features: features)
-                NorthWords(garden: garden)
+                NorthRing(garden: garden, beds: beds, features: features, liveTop: $liveTop)
+                NorthWords(garden: garden, liveTop: liveTop)
                 HStack(spacing: 14) {
                     nudge("arrow.counterclockwise", by: 1, says: "Move north one degree anticlockwise")
                     Text("1° at a time")
