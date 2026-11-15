@@ -2086,6 +2086,33 @@ struct LogicTests {
             let icons = sourceFolder.deletingLastPathComponent().appendingPathComponent("Design/Icons")
             let undrawn = (realKey?.pictures ?? []).filter { !FileManager.default.fileExists(atPath: icons.appendingPathComponent("fungus-\($0).svg").path) }.sorted()
             check(undrawn.isEmpty && (realKey?.pictures.count ?? 0) >= 50, "every diagram the real fungus key names has a drawing in Design/Icons: \(undrawn)")
+            // The sample stands in for John Wright's key until he answers (project doc 77).
+            let sampleKey = (try? Data(contentsOf: sourceFolder.appendingPathComponent("SampleFungusKey.json"))).flatMap { FungusKey(data: $0) }
+            let sampleUndrawn = (sampleKey?.pictures ?? []).filter { !FileManager.default.fileExists(atPath: icons.appendingPathComponent("fungus-\($0).svg").path) }.sorted()
+            check(sampleKey?.faults() == [] && sampleKey?.isSample == true && sampleKey?.isChecked == false && sampleKey?.mayShowVerdicts == true && sampleKey?.results.contains { $0.rank == "Species" } == true && sampleUndrawn.isEmpty, "the sample key reads, is sound, says it is a sample, goes to species and has its diagrams: \(sampleKey?.faults() ?? ["not read"]) \(sampleUndrawn)")
+            check(!FileManager.default.fileExists(atPath: sourceFolder.appendingPathComponent("PrivateKeys").path) || ((try? String(contentsOf: sourceFolder.deletingLastPathComponent().appendingPathComponent(".gitignore"), encoding: .utf8))?.contains("Windfall/PrivateKeys/") == true), "a folder of other people's keys is always left out of git")
+        }
+        // More than one key: someone else's key, its verdicts, the sample and the shelf.
+        let creditedKeyText = #"{"title":"T","credit":{"author":"A","work":"W","verdictsAllowed":ALLOWED},"start":"a","noneOfThese":"r-none","footer":"","steps":[{"id":"a","title":"A","question":"Q","choices":[{"text":"one","to":"r-x"},{"text":"two","to":"r-none"}]}],"results":[{"id":"r-x","name":"X","latin":"","rank":"Species","confirm":["c"],"verdict":"His word: edible when cooked"},{"id":"r-none","name":"None","latin":"","rank":"No answer","confirm":["c"]}]}"#
+        let allowedKey = FungusKey(data: Data(creditedKeyText.replacingOccurrences(of: "ALLOWED", with: "true").utf8))
+        let unallowedKey = FungusKey(data: Data(creditedKeyText.replacingOccurrences(of: "ALLOWED", with: "false").utf8))
+        let ownWithVerdict = FungusKey(data: Data(creditedKeyText.replacingOccurrences(of: #""title":"T","credit":{"author":"A","work":"W","verdictsAllowed":ALLOWED},"#, with: "").utf8))
+        check(allowedKey?.faults() == [] && allowedKey?.mayShowVerdicts == true && allowedKey?.isOwn == false && allowedKey?.displayTitle == "T", "an author's key may carry his verdicts, in his words, when he has allowed them")
+        check(unallowedKey?.faults() == ["verdicts are in the file but the author has not allowed them"] && unallowedKey?.mayShowVerdicts == false, "verdicts the author has not allowed are a fault")
+        check(ownWithVerdict?.faults() == ["Windfall's own key gives a verdict at r-x"] && ownWithVerdict?.isOwn == true && ownWithVerdict?.mayShowVerdicts == false && ownWithVerdict?.displayTitle == "Windfall's fungus key", "Windfall's own key may never give a verdict")
+        let fakeSample = FungusKey(data: Data(creditedKeyText.replacingOccurrences(of: "ALLOWED", with: "true").replacingOccurrences(of: #""title":"T","#, with: #""title":"T","sample":true,"#).utf8))
+        check(fakeSample?.faults() == ["a sample must be credited to \"Sample written by Claude\""], "a sample may not carry a real author's name")
+        if let smallKey, let allowedKey, let fakeSample {
+            let files: [String: FungusKey] = [FungusKeys.ownFile: smallKey, FungusKeys.sampleFile: fakeSample]
+            check(FungusKeys.shelf(loading: { files[$0] }).map(\.id) == [FungusKeys.ownFile, FungusKeys.sampleFile], "until his file is in the app, the shelf has Windfall's key and the sample")
+            let withWright = files.merging([FungusKeys.wrightFile: allowedKey]) { first, _ in first }
+            check(FungusKeys.shelf(loading: { withWright[$0] }).map(\.id) == [FungusKeys.ownFile, FungusKeys.wrightFile], "once his file is in the app, it takes the sample's place")
+            check(FungusKeys.shelf(loading: { $0 == FungusKeys.sampleFile ? allowedKey : nil }).isEmpty, "a file in the sample's place that is not marked as a sample is not shown")
+            var walk = FungusWalk(start: "a")
+            if let one = allowedKey.step("a")?.choices.first, let x = allowedKey.answer("r-x") {
+                walk.choose(one, at: "a")
+                check(walk.note(reaching: x, keyName: allowedKey.displayTitle).hasPrefix("T led to: X."), "a sighting's notes name the key that was used")
+            }
         }
         // Drawing a garden by hand (GardenDrawing.swift)
         check(GardenDrawing.snapped(1.4837) == 1.5 && GardenDrawing.snapped(0.1 + 0.2) == 0.3 && GardenDrawing.snapped(-0.26) == -0.3, "a dragged bed lands on the nearest ten centimetres")

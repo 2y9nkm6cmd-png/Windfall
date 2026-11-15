@@ -139,7 +139,7 @@ struct ViewAllLink<Destination: View>: View {
 }
 
 /// How wide a page is, and so how it is laid out. The same widths as Today.
-private enum PageWidth {
+enum PageWidth {
     case narrow, middle, wide
 
     init(_ width: CGFloat) {
@@ -383,13 +383,19 @@ struct WildlifeTab: View {
     private var surveys: [Survey]
     @Query private var species: [Fauna]
 
+    /// Narrow on an iPhone, which has no Identify place in its tabs, so
+    /// the ways to identify are kept here as tiles. On a Mac or an iPad
+    /// they are in Identify, in the sidebar (IdentifyViews.swift).
+    @Environment(\.horizontalSizeClass) private var sizeClass
+    private var keepsIdentifyTiles: Bool { sizeClass == .compact }
+
     var body: some View {
         GeometryReader { geometry in
             let layout = PageWidth(geometry.size.width)
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
                     ScreenHeader(title: "Wildlife", detail: summary)
-                    tiles(columns: layout == .narrow ? 2 : 4)
+                    tiles(columns: layout == .narrow ? 2 : (keepsIdentifyTiles ? 4 : 3))
 
                     if layout == .narrow {
                         sightingsCard
@@ -456,19 +462,21 @@ struct WildlifeTab: View {
                 }
                 .hubTileGlass()
 
-                GrowingLink { IdentifyView() } label: {
-                    HubTile(icon: .drawn(.photo), title: "Identify from a photo",
-                            detail: "Ask what you have seen")
-                }
-                .hubTileGlass()
+                if keepsIdentifyTiles {
+                    GrowingLink { IdentifyView() } label: {
+                        HubTile(icon: .drawn(.photo), title: "Identify from a photo",
+                                detail: "Ask what you have seen")
+                    }
+                    .hubTileGlass()
 
-                // The image model knows no fungi, so they have a key
-                // of their own to step through (FungusKeyView.swift).
-                GrowingLink { FungusKeyView() } label: {
-                    HubTile(icon: .drawn(.fungusKey), title: "Fungus key",
-                            detail: "Step to a group for a record")
+                    // The image model knows no fungi, so they have keys
+                    // of their own to step through (IdentifyViews.swift).
+                    GrowingLink { FungusKeyShelfView() } label: {
+                        HubTile(icon: .drawn(.fungusKey), title: "Fungus keys",
+                                detail: FungusKeys.inApp.count == 1 ? "Step to a group for a record" : "\(FungusKeys.inApp.count) keys to step through")
+                    }
+                    .hubTileGlass()
                 }
-                .hubTileGlass()
             }
         }
     }

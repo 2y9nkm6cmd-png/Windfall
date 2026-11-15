@@ -24,3 +24,8 @@ client_*.plist
 *.aimodelc/
 *.gguf
 *.safetensors
+
+# Keys that belong to other people, used with their permission on
+# William's own devices only. Never commit them (project doc 77).
+Windfall/PrivateKeys/
+**/WrightFungusKey.json

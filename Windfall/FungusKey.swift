@@ -25,6 +25,21 @@
 //  "checked": false until William has read it against a field guide,
 //  and the screen says "to check" for as long as it does.
 //
+//  MORE THAN ONE KEY (15 November 2026, project doc 77)
+//    The same code can step through any file of this shape. `FungusKeys`
+//    at the foot of this file lists the ones in the app: Windfall's own,
+//    then John Wright's if his file is there, or else a sample.
+//
+//    His key would be WrightFungusKey.json in Windfall/PrivateKeys. That
+//    folder is in .gitignore, so his words never reach the public copy
+//    on GitHub. Nothing of his is in the app until he has said yes and
+//    his file has been put there by hand on the Mac.
+//
+//    A key that is someone else's carries a `credit`. Only such a key
+//    may hold a `verdict`, the author's own word on eating, and only if
+//    the credit says he allowed it. Windfall's own key never may. The
+//    rules are in `faults()`.
+//
 
 import Foundation
 
@@ -37,6 +52,13 @@ struct FungusKey: Decodable {
 
     /// False until William has checked the words. Missing counts as false.
     let checked: Bool?
+    /// The key's name on screen. Missing means Windfall's own.
+    let title: String?
+    /// Whose key it is, when it is not Windfall's own.
+    let credit: Credit?
+    /// True for a stand-in, written by Claude to try the screens with,
+    /// which must never be mistaken for anyone's real key.
+    let sample: Bool?
     /// The first step's id.
     let start: String
     /// The answer that "None of these fit" leads to, from any step.
@@ -45,6 +67,21 @@ struct FungusKey: Decodable {
     let footer: String
     let steps: [Step]
     let results: [Answer]
+
+    /// Whose key it is, and what he agreed to.
+    struct Credit: Decodable, Hashable {
+        /// "John Wright".
+        let author: String
+        /// Where the key comes from: a book or a website.
+        let work: String
+        /// A web address for the original.
+        let link: String?
+        /// What the author agreed to, in a line, with the date.
+        let terms: String?
+        /// True only once the author has said his verdicts on eating may
+        /// be shown. Missing counts as false.
+        let verdictsAllowed: Bool?
+    }
 
     /// One question, with the choices that answer it.
     struct Step: Decodable, Identifiable, Hashable {
@@ -87,6 +124,10 @@ struct FungusKey: Decodable {
         let danger: String?
         /// What it means for a grower.
         let garden: String?
+        /// The author's own verdict on eating, in his words. Only in a
+        /// key that is someone else's, and shown only when he has
+        /// allowed it and William has switched it on.
+        let verdict: String?
     }
 
     /// Reads a key from the bytes of a file. Gives nothing back, and
@@ -99,13 +140,22 @@ struct FungusKey: Decodable {
     /// The key that travels inside the app, read the first time it is
     /// asked for and then kept. `Bundle.main` is the app's own package
     /// of files.
-    static let shared: FungusKey? = {
-        guard let url = Bundle.main.url(forResource: "FungusKey", withExtension: "json"),
-              let data = try? Data(contentsOf: url) else { return nil }
-        return FungusKey(data: data)
-    }()
+    static let shared: FungusKey? = FungusKeys.load(FungusKeys.ownFile)
 
     var isChecked: Bool { checked ?? false }
+
+    /// True for a sample written by Claude to try the screens.
+    var isSample: Bool { sample ?? false }
+
+    /// True for Windfall's own key, which credits nobody.
+    var isOwn: Bool { credit == nil }
+
+    /// The key's name: "Windfall's fungus key" unless the file gives one.
+    var displayTitle: String { title ?? FungusKeys.ownTitle }
+
+    /// True when this key's verdicts may be shown at all. The switch on
+    /// the Identify page decides whether they are.
+    var mayShowVerdicts: Bool { !isOwn && (credit?.verdictsAllowed ?? false) }
 
     /// The step with this id, if it is a step.
     func step(_ id: String) -> Step? { steps.first { $0.id == id } }
@@ -180,7 +230,25 @@ struct FungusKey: Decodable {
             pieces.append(contentsOf: answer.examples ?? [])
         }
         let words = pieces.joined(separator: " ").lowercased()
+        // The verdicts are not among the pieces, so this holds for
+        // every key: outside a verdict the word never appears.
         if words.contains("edible") { found.append("the word \"edible\" is in the key") }
+
+        // Verdicts belong only to someone else's key, and only with his
+        // leave. A verdict in Windfall's own key, or one he has not
+        // allowed, is a fault, so a slip cannot reach a screen.
+        let withVerdicts = results.filter { $0.verdict != nil }.map(\.id)
+        if !withVerdicts.isEmpty {
+            if isOwn {
+                found.append("Windfall's own key gives a verdict at \(withVerdicts.joined(separator: ", "))")
+            } else if !mayShowVerdicts {
+                found.append("verdicts are in the file but the author has not allowed them")
+            }
+        }
+        // A sample must say so, and must not borrow a real author's name.
+        if isSample && credit?.author != FungusKeys.sampleAuthor {
+            found.append("a sample must be credited to \"\(FungusKeys.sampleAuthor)\"")
+        }
         return found
     }
 }
@@ -250,13 +318,73 @@ struct FungusWalk: Equatable {
     var isAtStart: Bool { taken.isEmpty }
 
     /// The walk in words, for a sighting's notes, so the record shows
-    /// how the name was reached.
-    func note(reaching answer: FungusKey.Answer) -> String {
-        var lines = ["Windfall's fungus key led to: \(answer.name)" + (answer.latin.isEmpty ? "." : " (\(answer.latin)).")]
+    /// how the name was reached and through which key.
+    func note(reaching answer: FungusKey.Answer, keyName: String = FungusKeys.ownTitle) -> String {
+        var lines = ["\(keyName) led to: \(answer.name)" + (answer.latin.isEmpty ? "." : " (\(answer.latin)).")]
         if !taken.isEmpty {
             lines.append("Steps: " + taken.map(\.choice).joined(separator: " › "))
         }
         lines.append("A key gives a group, not a certain name. Not checked by anyone who knows fungi.")
         return lines.joined(separator: "\n")
+    }
+}
+
+// MARK: - The keys in the app
+
+/// Which keys the app offers, and where their files are.
+///
+/// An `enum` with no cases is a name to hang shared things on. Nothing
+/// can be made from it, only its `static` values and functions used.
+enum FungusKeys {
+
+    /// Windfall's own key, which travels with the code.
+    static let ownFile = "FungusKey"
+    /// John Wright's key, if he says yes. Kept in Windfall/PrivateKeys,
+    /// which git leaves out, so it is only ever in the app on the Mac
+    /// and William's own devices.
+    static let wrightFile = "WrightFungusKey"
+    /// A stand-in in the shape of a key that goes to species, written by
+    /// Claude, shown only while there is no file of Wright's.
+    static let sampleFile = "SampleFungusKey"
+
+    static let ownTitle = "Windfall's fungus key"
+    /// What a sample's credit must say, so it is never taken for a real key.
+    static let sampleAuthor = "Sample written by Claude"
+
+    /// One key on the shelf. `id` is its file name, which is all a
+    /// screen needs to tell two apart.
+    struct Shelved: Identifiable {
+        let id: String
+        let key: FungusKey
+    }
+
+    /// The keys to offer, in order: Windfall's own, then Wright's if his
+    /// file is in the app, otherwise the sample. `loading` reads a file
+    /// by name. The app passes one that reads from its own package; the
+    /// tests pass one that reads from a list, so they need no files.
+    static func shelf(loading: (String) -> FungusKey?) -> [Shelved] {
+        var keys: [Shelved] = []
+        if let own = loading(ownFile) { keys.append(Shelved(id: ownFile, key: own)) }
+        if let wright = loading(wrightFile) {
+            keys.append(Shelved(id: wrightFile, key: wright))
+        } else if let sample = loading(sampleFile), sample.isSample {
+            keys.append(Shelved(id: sampleFile, key: sample))
+        }
+        return keys
+    }
+
+    /// Reads a key that travels inside the app, by its file name.
+    static func load(_ name: String) -> FungusKey? {
+        guard let url = Bundle.main.url(forResource: name, withExtension: "json"),
+              let data = try? Data(contentsOf: url) else { return nil }
+        return FungusKey(data: data)
+    }
+
+    /// The keys in this copy of the app, read once and then kept.
+    static let inApp: [Shelved] = shelf(loading: load)
+
+    /// The key with this file name, if the app has it.
+    static func key(named name: String) -> FungusKey? {
+        inApp.first { $0.id == name }?.key
     }
 }

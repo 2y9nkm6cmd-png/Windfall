@@ -114,6 +114,8 @@ enum WIcon: String {
     case sprig
     /// The Fungus key's tile on the Wildlife page.
     case fungusKey = "fungus-key"
+    /// The Identify place in the sidebar: a lens over a leaf.
+    case identify
 }
 
 /// Draws one icon at a size. Outline icons take the colour of the text

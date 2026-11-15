@@ -1,0 +1,248 @@
+{
+  "title": "Sample species key",
+  "sample": true,
+  "checked": false,
+  "credit": {
+    "author": "Sample written by Claude",
+    "work": "A stand-in in the shape of a key that goes to species, to try the screens. It is not John Wright's key.",
+    "terms": "Nobody's key. It goes from the app as soon as WrightFungusKey.json is put in Windfall/PrivateKeys.",
+    "verdictsAllowed": true
+  },
+  "start": "start",
+  "noneOfThese": "r-none",
+  "footer": "A sample, to show how a key that goes to species would work. Never eat a wild fungus on the word of a key.",
+  "steps": [
+    {
+      "id": "start",
+      "title": "Spore print",
+      "question": "What colour is the spore print?",
+      "help": "Leave the cap gills down on paper that is half white and half black, under a bowl, overnight.",
+      "choices": [
+        {
+          "text": "White or cream",
+          "to": "white",
+          "picture": "spore-white"
+        },
+        {
+          "text": "Pink",
+          "to": "pink",
+          "picture": "spore-pink"
+        },
+        {
+          "text": "Brown or rusty",
+          "to": "brown",
+          "picture": "spore-brown"
+        },
+        {
+          "text": "Purple-brown to black",
+          "to": "dark",
+          "picture": "spore-black"
+        }
+      ]
+    },
+    {
+      "id": "white",
+      "title": "White spores",
+      "question": "What is on the stem?",
+      "choices": [
+        {
+          "text": "A ring, and a bag at the base",
+          "to": "r-deathcap",
+          "detail": "Dig it up whole to see the bag",
+          "picture": "stem-volva"
+        },
+        {
+          "text": "A ring, in clumps on wood or roots",
+          "to": "r-honey",
+          "picture": "stem-ring"
+        },
+        {
+          "text": "No ring, and the stem snaps like chalk",
+          "to": "r-charcoal",
+          "picture": "flesh-snap"
+        }
+      ]
+    },
+    {
+      "id": "pink",
+      "title": "Pink spores",
+      "question": "What colour are the cap and gills?",
+      "choices": [
+        {
+          "text": "Lilac to violet, in leaf litter",
+          "to": "r-woodblewit"
+        },
+        {
+          "text": "Grey-white to tan, large and fleshy",
+          "to": "r-livid",
+          "detail": "Often under broadleaved trees"
+        }
+      ]
+    },
+    {
+      "id": "brown",
+      "title": "Brown spores",
+      "question": "How is it growing?",
+      "choices": [
+        {
+          "text": "In tufts on wood, with a small ring",
+          "to": "r-woodtuft",
+          "picture": "tuft-wood"
+        },
+        {
+          "text": "On the ground, with a cobweb veil when young",
+          "to": "r-webcap",
+          "picture": "veil-cobweb"
+        }
+      ]
+    },
+    {
+      "id": "dark",
+      "title": "Dark spores",
+      "question": "What is the cap like?",
+      "choices": [
+        {
+          "text": "Tall and shaggy, turning to black ink",
+          "to": "r-shaggyink",
+          "picture": "cap-inky"
+        },
+        {
+          "text": "Rounded and white, gills pink then brown",
+          "to": "r-fieldmushroom",
+          "detail": "With a ring, in grass"
+        }
+      ]
+    }
+  ],
+  "results": [
+    {
+      "id": "r-deathcap",
+      "name": "Death cap",
+      "latin": "Amanita phalloides",
+      "rank": "Species",
+      "confirm": [
+        "Greenish to olive cap, sometimes pale",
+        "White gills, free of the stem",
+        "A ring and a bag-like volva at the base"
+      ],
+      "danger": "Deadly. One cap can kill. Wash your hands after touching it.",
+      "verdict": "Sample: the author's own verdict would show here, in his words, with his warnings."
+    },
+    {
+      "id": "r-honey",
+      "name": "Honey fungus",
+      "latin": "Armillaria mellea",
+      "rank": "Species",
+      "confirm": [
+        "Honey-coloured caps in dense clumps",
+        "A ring on the stem",
+        "Black bootlace strands under the bark"
+      ],
+      "danger": "Look-alikes on wood include the deadly funeral bell.",
+      "garden": "A serious killer of trees and shrubs. Dig out and remove infected roots and stumps.",
+      "verdict": "Sample: the author's own verdict would show here, in his words, with his warnings."
+    },
+    {
+      "id": "r-charcoal",
+      "name": "Charcoal burner",
+      "latin": "Russula cyanoxantha",
+      "rank": "Species",
+      "confirm": [
+        "Cap a mix of purple, green and grey",
+        "Gills feel greasy and bend without snapping",
+        "Stem snaps cleanly like chalk"
+      ],
+      "verdict": "Sample: the author's own verdict would show here, in his words, with his warnings."
+    },
+    {
+      "id": "r-woodblewit",
+      "name": "Wood blewit",
+      "latin": "Lepista nuda",
+      "rank": "Species",
+      "confirm": [
+        "Lilac to violet cap and gills when young",
+        "Pink spore print",
+        "Late autumn in leaf litter and compost heaps"
+      ],
+      "danger": "Webcaps can look much the same. Their spores are rusty brown, so take a print.",
+      "garden": "Often found on old compost and leaf mould heaps.",
+      "verdict": "Sample: the author's own verdict would show here, in his words, with his warnings."
+    },
+    {
+      "id": "r-livid",
+      "name": "Livid pinkgill",
+      "latin": "Entoloma sinuatum",
+      "rank": "Species",
+      "confirm": [
+        "Large grey-white cap",
+        "Yellowish gills turning pink",
+        "Smells of meal"
+      ],
+      "danger": "Poisonous. A cause of serious stomach upsets.",
+      "verdict": "Sample: the author's own verdict would show here, in his words, with his warnings."
+    },
+    {
+      "id": "r-woodtuft",
+      "name": "Sheathed woodtuft",
+      "latin": "Kuehneromyces mutabilis",
+      "rank": "Species",
+      "confirm": [
+        "Two-toned cap that dries from the middle",
+        "Small ring, scaly below it",
+        "In tufts on broadleaved stumps"
+      ],
+      "danger": "Very like the deadly funeral bell, which grows in the same places.",
+      "verdict": "Sample: the author's own verdict would show here, in his words, with his warnings."
+    },
+    {
+      "id": "r-webcap",
+      "name": "Webcaps",
+      "latin": "Cortinarius",
+      "rank": "Genus",
+      "confirm": [
+        "Cobweb veil between cap and stem when young",
+        "Rusty brown spore print",
+        "On the ground near trees"
+      ],
+      "danger": "Some webcaps are deadly and the damage can show days later. They are hard to tell apart."
+    },
+    {
+      "id": "r-shaggyink",
+      "name": "Shaggy inkcap",
+      "latin": "Coprinus comatus",
+      "rank": "Species",
+      "confirm": [
+        "Tall white cap with shaggy scales",
+        "Gills turn black and dissolve",
+        "Often on disturbed ground and new lawns"
+      ],
+      "verdict": "Sample: the author's own verdict would show here, in his words, with his warnings."
+    },
+    {
+      "id": "r-fieldmushroom",
+      "name": "Field mushroom",
+      "latin": "Agaricus campestris",
+      "rank": "Species",
+      "confirm": [
+        "White cap",
+        "Gills pink then chocolate brown",
+        "A thin ring",
+        "No yellow stain when the base is cut"
+      ],
+      "danger": "The yellow stainer looks similar and is poisonous. Its base turns bright yellow when cut.",
+      "garden": "Grows in old, unfertilised grassland.",
+      "verdict": "Sample: the author's own verdict would show here, in his words, with his warnings."
+    },
+    {
+      "id": "r-none",
+      "name": "Not in this sample",
+      "latin": "",
+      "rank": "No answer",
+      "confirm": [
+        "Photograph the top, the gills and the base",
+        "Note what it grew on and the trees nearby",
+        "Take a spore print"
+      ]
+    }
+  ]
+}

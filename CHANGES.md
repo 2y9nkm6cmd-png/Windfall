@@ -1,3 +1,26 @@
+# 15 November 2026, 10:30: room for John Wright's fungus key, and an Identify place
+
+**By the "mushroom key" chat, on the branch `fungus-keys-shelf`, not yet in `main`.** William, 09:46: "Could we build the mushroom key based on the key on foragers calendar in anticipation of acceptance from the author, so that we can see how it works?" His key is not copied before he says yes, so this builds everything around it, with a sample in its place. William, 09:51: "Build the app changes on a branch to add in later. Could it have its own place on the sidebar?" He chose an Identify place.
+
+**What changed**
+
+| File | Change |
+|---|---|
+| `Windfall/FungusKey.swift` | A key may have a `title`, a `credit` (author, work, link, terms, `verdictsAllowed`) and be marked `sample`. An answer may carry the author's `verdict`. `faults()` now also fails a verdict in Windfall's own key, a verdict the author has not allowed, and a sample with a real author's name. The "edible" check is unchanged: outside a verdict the word may never appear. New `FungusKeys` lists the keys in the app: Windfall's own, then `WrightFungusKey.json` if it is there, otherwise `SampleFungusKey.json`. `note(reaching:keyName:)` names the key used |
+| `Windfall/SampleFungusKey.json` | New. A short key to species, written by Claude in its own words, so the screens can be tried. Nobody's real key. Unchecked |
+| `Windfall/FungusKeyView.swift` | Shows whichever key it is given. A sample notice, a credit line for an author's key, and his verdict in a plain box, only when he allowed it and William's switch is on |
+| `Windfall/IdentifyViews.swift` | New. The Identify page (photo, then each key, then the verdict switch) and the iPhone's Fungus keys page |
+| `Windfall/MainTabView.swift` | `AppSection.identify`, between Wildlife and Journal. Not an iPhone tab: chosen on a wide screen that turns narrow, Wildlife shows |
+| `Windfall/HubScreens.swift` | Wildlife keeps its photo and key tiles only on an iPhone. `PageWidth` is no longer private |
+| `Windfall/Theme.swift`, `Design/Icons/identify.svg` | The Identify icon: a lens over a leaf |
+| `Windfall/DemoGarden.swift` | `-demoFungusKey SampleFungusKey` with `-demoFungus start` opens the sample |
+| `.gitignore` | `Windfall/PrivateKeys/` and any `WrightFungusKey.json` are never committed |
+| `Tools/checks/LogicTests.swift` | Ten new checks |
+
+**If John Wright says yes:** put his key, in this file's shape, at `Windfall/PrivateKeys/WrightFungusKey.json` on the Mac. Xcode's folder takes it into the app; git does not. Set `credit.verdictsAllowed` as he says. The sample then leaves the app by itself.
+
+**Checked:** the project's checks with Swift 6.3.1 in the cloud: 123 files parse, the type check passes, 843 logic tests pass, 0 fail. **Not checked:** no Mac build. The screens are only syntax-checked here.
+
 # 15 November 2026, 03:52: seven more branches joined into main
 
 **By the join chat.** William, 22:49 on 14 November: "In the morning when all the build work is finished on all versions, could you send me a list of jobs I need to do still. Could you also compile the iPhone, iPad and Mac versions when they've included all the changes and errors." The Mac had been quiet since 23:03: no build running, nothing unsaved in any copy of the code, no commit anywhere. The join was made in `~/Developer/windfall-join`, on the branch `join-15nov-morning`, from `main` at `17f0f0b`, and `main` moved only once it built and passed its tests.
