@@ -203,6 +203,16 @@ struct MainTabView: View {
                 await weatherDiary.bringUpToDate(in: context, force: true)
             }
         }
+        // And when the answer to Apple's location question changes: it
+        // was just allowed, or switched on in the Settings app. Without
+        // this, a Yes given late (or given in Settings) fetched nothing
+        // until the next quarter of an hour came round.
+        .onChange(of: locationManager.answer) { _, answer in
+            guard answer == .allowed else { return }
+            Task {
+                await WeatherNow.refresh(context: context, locationManager: locationManager, mayAsk: false)
+            }
+        }
     }
 
     /// A line of text that changes whenever any garden's place does.
@@ -956,6 +966,13 @@ struct SettingsView: View {
     /// Photos library. On unless switched off. See CameraPhoto.swift.
     @AppStorage(CameraRoll.settingKey) private var cameraSavesToPhotos = true
 
+    /// The gardens, for the list of their places.
+    @Query(sort: [SortDescriptor(\Garden.displayOrder)]) private var gardens: [Garden]
+    @Environment(LocationManager.self) private var locationManager
+    /// True while this page is waiting for the answer to Apple's
+    /// location question.
+    @State private var isAskingForLocation = false
+
     /// True while the window for choosing the photo folder is open.
     @State private var isChoosingPhotoFolder = false
     /// The chosen folder's name. Kept here so the page redraws when it
@@ -986,6 +1003,40 @@ struct SettingsView: View {
                 Text("Eira's snowdrop floats in the bottom right corner. Tap it to ask, search or open anything. With this on, her bar is always there to type into.")
             }
 
+            // Where each garden is, and whether this device will say
+            // where it is. Added 15 November 2026, when the weather had
+            // never arrived on William's iPhone and nothing on any page
+            // said why. See GardenPlace.swift.
+            Section {
+                ForEach(gardens.filter(\.isActive)) { garden in
+                    GardenPlaceRow(garden: garden)
+                }
+                LabeledContent("This device's location", value: locationManager.answer.words)
+                switch locationManager.answer {
+                case .notAsked:
+                    Button(isAskingForLocation ? "Asking…" : "Allow Windfall to use it…") {
+                        isAskingForLocation = true
+                        Task {
+                            // Brings up Apple's question and waits for
+                            // the answer.
+                            await locationManager.currentLocation()
+                            isAskingForLocation = false
+                        }
+                    }
+                    .disabled(isAskingForLocation)
+                case .refused:
+                    // Apple shows its question once only. After a No the
+                    // switch is in the Settings app.
+                    Button("Open Settings to switch it on") { LocationManager.openSettings() }
+                case .allowed:
+                    EmptyView()
+                }
+            } header: {
+                Text("Where your gardens are")
+            } footer: {
+                Text("A garden's place decides its weather and starts its weather diary. Set one by typing its town or postcode: that needs no permission. This device's own location is only used when you press a button that says so, for a grid reference, for a photo taken with Windfall, or for the weather while no garden has a place.")
+            }
+
             Section {
                 NavigationLink {
                     GardenDataView()
@@ -995,7 +1046,7 @@ struct SettingsView: View {
             } header: {
                 Text("Data")
             } footer: {
-                Text("Your records are stored on this device and are not sent anywhere. To fetch the weather, the app sends the weather service each garden's location, rounded to about a hundred metres, and nothing else.")
+                Text("Your records are stored on this device and are not sent anywhere. To fetch the weather, the app sends the weather service each garden's location, rounded to about a hundred metres, and nothing else. A town or postcode you search for, to place a garden, is sent to Apple Maps.")
             }
 
             Section {

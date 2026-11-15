@@ -23,6 +23,13 @@
 import Foundation
 import CoreLocation
 import Observation
+// For opening the Settings app at the right page (`openSettings`). A Mac
+// and an iPhone each have their own way, from their own toolkit.
+#if os(macOS)
+import AppKit
+#else
+import UIKit
+#endif
 
 @Observable
 @MainActor
@@ -48,8 +55,19 @@ final class LocationManager: NSObject {
     private let manager = CLLocationManager()
     private var continuations: [CheckedContinuation<CLLocation?, Never>] = []
     /// Anything waiting for the person to answer Apple's "may Windfall
-    /// use your location?" question. See `waitForAnswer()`.
-    private var answerWaiters: [CheckedContinuation<Void, Never>] = []
+    /// use your location?" question. See `waitForAnswer()`. Each waiter
+    /// has a ticket (a UUID, a made-up name that is never repeated), so
+    /// one that has waited too long can be let go by itself.
+    private var answerWaiters: [UUID: CheckedContinuation<Void, Never>] = [:]
+
+    /// The longest anything waits for that answer. The question is
+    /// Apple's to show, and if it never appears nothing else tells the
+    /// app so. Without a limit, a button that asked would spin for ever.
+    /// A minute and a half is far longer than reading the question takes.
+    /// An answer given after that still counts: it arrives in
+    /// `locationManagerDidChangeAuthorization` and the weather is fetched
+    /// then (MainTabView watches `authorisationStatus`).
+    private static let longestWaitForAnswer: Duration = .seconds(90)
 
     override init() {
         super.init()
@@ -69,10 +87,32 @@ final class LocationManager: NSObject {
     }
 
     func requestPermission() {
+        manager.requestWhenInUseAuthorization()
+    }
+
+    /// Apple's five answers to the location question as the three that
+    /// matter for what to say and which button to offer. See
+    /// `LocationAnswer` in GardenPlace.swift.
+    var answer: LocationAnswer {
+        if isAuthorised { return .allowed }
+        return authorisationStatus == .notDetermined ? .notAsked : .refused
+    }
+
+    /// Opens the Settings app where location is switched on and off.
+    ///
+    /// After a No, Apple never shows the question again, so the app
+    /// cannot ask twice. All it can do is take the person to the switch.
+    /// On an iPhone or iPad that is Windfall's own page in Settings. On a
+    /// Mac it is Privacy & Security, Location Services.
+    static func openSettings() {
         #if os(macOS)
-        manager.requestWhenInUseAuthorization()
+        if let page = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_LocationServices") {
+            NSWorkspace.shared.open(page)
+        }
         #else
-        manager.requestWhenInUseAuthorization()
+        if let page = URL(string: UIApplication.openSettingsURLString) {
+            UIApplication.shared.open(page)
+        }
         #endif
     }
 
@@ -110,13 +150,23 @@ final class LocationManager: NSObject {
         return fix
     }
 
-    /// Pauses until the location question has been answered either way.
-    /// The answer arrives in `locationManagerDidChangeAuthorization`
-    /// below, which lets everything waiting here carry on.
+    /// Pauses until the location question has been answered either way,
+    /// or until `longestWaitForAnswer` has passed. The answer arrives in
+    /// `locationManagerDidChangeAuthorization` below, which lets
+    /// everything waiting here carry on.
     private func waitForAnswer() async {
         guard authorisationStatus == .notDetermined else { return }
+        let ticket = UUID()
         await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
-            answerWaiters.append(continuation)
+            answerWaiters[ticket] = continuation
+            // A second small job that sleeps, then lets this waiter go if
+            // it is still waiting. `removeValue` hands back the waiter and
+            // takes it off the list in one step, so it can never be let
+            // go twice (which would stop the app).
+            Task { @MainActor [weak self] in
+                try? await Task.sleep(for: LocationManager.longestWaitForAnswer)
+                self?.answerWaiters.removeValue(forKey: ticket)?.resume()
+            }
         }
     }
 
@@ -179,7 +229,7 @@ extension LocationManager: CLLocationManagerDelegate {
             // starts, before anyone has been asked, and that is not an
             // answer.
             if status != .notDetermined {
-                let waiting = self.answerWaiters
+                let waiting = Array(self.answerWaiters.values)
                 self.answerWaiters.removeAll()
                 for continuation in waiting { continuation.resume() }
             }

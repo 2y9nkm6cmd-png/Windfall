@@ -337,7 +337,8 @@ struct NorthByMap: View {
     @State private var mapMiddle: CLLocationCoordinate2D?
     /// The bearing the outline's top edge faces.
     @State private var turn = 0.0
-    @State private var isFinding = false
+    /// True while the sheet for giving the garden its place is up.
+    @State private var isPlacing = false
 
     private var width: Double { garden.widthMetres ?? 10 }
     private var depth: Double { garden.depthMetres ?? 10 }
@@ -374,6 +375,17 @@ struct NorthByMap: View {
             if let latitude = garden.latitude, let longitude = garden.longitude {
                 look(at: CLLocationCoordinate2D(latitude: latitude, longitude: longitude))
             }
+        }
+        // When the sheet below gives the garden a place, show the map
+        // there at once. `onChange` runs its code whenever the value it
+        // watches changes.
+        .onChange(of: garden.latitude) {
+            if outlineMiddle == nil, let latitude = garden.latitude, let longitude = garden.longitude {
+                look(at: CLLocationCoordinate2D(latitude: latitude, longitude: longitude))
+            }
+        }
+        .sheet(isPresented: $isPlacing) {
+            GardenPlaceSheet(garden: garden)
         }
     }
 
@@ -465,31 +477,21 @@ struct NorthByMap: View {
     }
 
     /// Shown when the garden has no latitude and longitude yet.
+    ///
+    /// Until 15 November 2026 this had its own "Use where I am now"
+    /// button, which did nothing and said nothing when the device would
+    /// not give its position, and otherwise sent the reader off to type
+    /// latitude and longitude. It now opens the one sheet that every
+    /// page uses to place a garden (GardenPlaceSheet.swift).
     private var noPlace: some View {
         VStack(alignment: .leading, spacing: 10) {
             Text("The map needs to know where this garden is.")
                 .foregroundStyle(Theme.ink)
-            Text("Stand in the garden and use the button, or type its latitude and longitude in the form of numbers.")
+            Text("Type its town or postcode, or stand in the garden and use where you are.")
                 .font(.footnote)
                 .foregroundStyle(Theme.inkSoft)
-            Button {
-                Task {
-                    isFinding = true
-                    if let fix = await locationManager.currentLocation() {
-                        // Four decimal places is about ten metres.
-                        let latitude = (fix.coordinate.latitude * 10_000).rounded() / 10_000
-                        let longitude = (fix.coordinate.longitude * 10_000).rounded() / 10_000
-                        garden.latitude = latitude
-                        garden.longitude = longitude
-                        look(at: CLLocationCoordinate2D(latitude: latitude, longitude: longitude))
-                    }
-                    isFinding = false
-                }
-            } label: {
-                HStack {
-                    Text("Use where I am now")
-                    if isFinding { ProgressView().controlSize(.small) }
-                }
+            Button("Set where it is") {
+                isPlacing = true
             }
             .buttonStyle(QuietGlassButton())
         }
