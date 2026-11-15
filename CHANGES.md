@@ -1,6 +1,6 @@
 # 15 November 2026, 19:20: the birds redrawn so each family has its own outline, jointed legs on the four-legged animals, three different owls
 
-**By the "wildlife rows" chat, from William's iPad.** William, 19:06: "Now sweep through them and make them more detailed. A lot of the birds look similarly shaped." Made on the branch `wildlife-drawings-detail`, from `main` at `5e0d13a`. **Pictures only: no Swift file is changed.** Not built, not in `main`.
+**By the "wildlife rows" chat, from William's iPad.** William, 19:06: "Now sweep through them and make them more detailed. A lot of the birds look similarly shaped." Made on the branch `wildlife-drawings-detail`, from `main` at `5e0d13a`. **Pictures only: no Swift file is changed.** Not built. **In `main` since 19:30**, see the end of this entry.
 
 **Why the birds looked alike.** Every bird was the same oval body with a round head and a straight tail, turned to a different angle and coloured differently. So a wren, a blackbird and a woodpigeon had one outline between them.
 
@@ -38,6 +38,8 @@
 **⚠️ Not checked.** Any drawing against a photograph or a field guide: the shapes and proportions are from memory, as the colours were. The mammals in dark mode. A build. The insects other than the furry ones were looked at and left as they were, as were the spiders, snails, the waterbirds, herons and the waders' kind drawing.
 
 **Checked.** `Tools/checks/run-checks.sh` with Swift 6.3.1 for Linux: 929 logic tests pass. 199 animals still have a drawing of their own and the picture names are unchanged, so no code needs to know.
+
+**Joined into `main` at 19:30 without a build.** William, 19:05: "Include these on the next build." `main` had not moved since the branch was cut, so the join is the one commit laid on top, with nothing to settle. It was put in unbuilt because it changes pictures, one name in `WildlifeReference.json` and the Python that draws, and no Swift file: there is nothing for Xcode to fail to compile. ⚠️ What a build has not shown is how the new pictures look in the app at the size of a row. **No device has them until the next build is installed.**
 
 # 15 November 2026, 17:40: the UK wildlife branch joined into main
 
