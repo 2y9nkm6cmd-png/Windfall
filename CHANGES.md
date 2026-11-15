@@ -355,6 +355,49 @@ The first line was there already: the app's icon is the one called `AppIcon`. Th
 **Taken out again**, because nothing uses them now: the ten Mac slots in `AppIcon.appiconset/Contents.json`, the seven `windfall-app-icon-mac-...png` pictures and `Tools/design/make_mac_app_icon.swift`. They are in the repository's history at `e7cb8be`.
 
 **Two modes come free.** macOS also has a tinted and a clear icon style. The Mac makes both from the same drawing by itself.
+# 14 November 2026, 21:55: Today scrolls again on an iPhone and iPad
+
+**By the Today scroll chat, from William's iPhone. Branch `today-scroll-iphone`, made from `main` at `4b28986`. Not in `main`. Written in Claude's cloud workspace: the Mac was not connected and the workspace has no Swift, so it has not been built, parsed by the Swift compiler or seen running.**
+
+William, 21:41: "On the current iphone build, you can't scroll up and down on the today view".
+
+## The cause
+
+Carrying Today's cards about (`home-screen-rearrange`) joined `main` at 18:18 today. It had only ever been built and tried on a Mac. Its own notes said: "iPhone and iPad: Not built. The press and hold has to live alongside scrolling there."
+
+Each card had a SwiftUI press-and-hold followed by a drag, added with `simultaneousGesture`. On a touch screen, since iOS 18, a SwiftUI gesture of that kind on something inside a `ScrollView` takes the touch from the first moment and the page never scrolls. `simultaneousGesture` does not prevent it. Apple's developer forums have long threads on it. On an iPhone the cards fill Today, so there was nowhere left to scroll from. A Mac scrolls with the trackpad or wheel, not a press, so it never showed there.
+
+**This is Claude's reading of the code and of those reports. It was not confirmed by running anything.**
+
+## What changed (`TodayBoard.swift` only)
+
+- **On an iPhone or iPad the press and hold is now UIKit's long press** (`FingerHold`, a `UIGestureRecognizerRepresentable`). UIKit's long press and the page's scrolling settle between themselves whose touch it is: a finger that moves scrolls, a finger held still for 0.45 seconds lifts the card.
+- **On a Mac nothing changes.** `withPickUp` in `BoardCard` picks the gesture when the app is built, with `#if os(iOS)`.
+- `hold` and `slack` are the two figures both gestures share: 0.45 seconds and 10 points to start the jiggling, 0.15 seconds and 40 points once jiggling.
+- `FingerHold.Coordinator` tells UIKit the long press may not run alongside a scroll view's own gestures, and may run alongside anything else, as `simultaneousGesture` allowed before.
+
+## Checked
+
+| | |
+|---|---|
+| Braces and brackets balance, iPhone-only code is fenced (`check_platforms.py`) | Yes |
+| Swift's own syntax check, the type check, the logic tests | **No.** No Swift in this workspace. No logic file changed |
+| Builds for iPhone, Mac or simulator | **No** |
+| Tried by hand | **No** |
+
+## To check when it is built
+
+1. iPhone: does Today scroll, starting with the finger on a card and on a button inside a card?
+2. Press and hold a card for half a second: do the cards jiggle and does the card lift and follow the finger?
+3. While jiggling: does a quick swipe over a card scroll, and a short hold lift it?
+4. Carry a card to the top or bottom edge: does the page scroll under it?
+5. Hold a button inside a card until the card lifts, then let go: the button should not fire.
+6. Mac: carrying cards is as it was.
+
+## ⚠️ CHECK
+
+- If the build fails on `FingerHold`, the likeliest lines are `context.converter.location(in: .named(TodayBoard.pageSpace))` and the `Coordinator` class's `@MainActor`.
+- If Today scrolls but a card will not lift when the press starts on a button, the `Coordinator`'s answer is the place to look.
 
 # 14 November 2026, 19:20: the to-do cards on Today open out where they are
 
