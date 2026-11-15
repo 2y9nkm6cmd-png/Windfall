@@ -26,6 +26,17 @@ William, 16:45, with a picture of the journal's conversation: a photo in the box
 3. Several photos are taken to be of one plant or animal and weighed together, as on the Identify screen. "What are these?" with photos of different things will get one muddled answer.
 4. A question that does not ask for a name is still saved as an entry, after the time card: "Is this ready to pick?", "What should I do with this?". There is no "Ask Eira about it" on the card either. Both want her text model to be handed the photo's name, which is a larger piece of work.
 5. The same holds in a sheet (Today's Note button, and the card of three offers) as in the panel on Eira's bar.
+
+**The top of the answer.** The conversation keeps itself at its newest line, and her answer is taller than an iPhone's screen, so the first pictures showed only the foot of the card with the name out of sight above. `showTop` in `JournalChatView.swift` now moves the list, once the answer is drawn, so that your question and the photo sit at the top (`ScrollViewReader` and `scrollTo`).
+
+**Checked.**
+
+- Windfall's own checks in the cloud workspace (Swift 6.3.1 for Linux), after `main` (`8aac79b`) was joined in: 125 files parse, the type check of the logic files passes, cross-file checks clean, 881 logic tests pass, five of them new.
+- Builds with no errors, in the copy `~/Developer/windfall-idphotos` (taken over from the identify photos chat to save disk) and `DerivedData/Windfall-idphotos`: the simulator and the Mac before the join (`pq1`, `pq2`), then the Mac and a signed build for any iPhone or iPad after it (`pq3`, 17:18 and 17:19). No warnings from the new code.
+- Simulator pictures looked at by Claude (`shots/pq-*.png` and `pq2-*.png`), with a test photo dated Wednesday 11 November. "Acer in full colour": the time card shows, and send turns it amber and holds the entry, as before. "What is this?": no time card. Sent: the question and photo in green at the top, Eira's answer under them with its name, bars and reasons, and Add a sighting, Write a journal entry with it and Not now at its foot. iPhone Air dark and light, iPad (A16) dark.
+
+**Not checked.** The real image model through this card: the simulator cannot run it, so the pictures show the made-up answer of `-demoMatch`. The three buttons, by hand. Write a journal entry with it, and the entry that follows. A sighting made from the answer. Several photos at once. The conversation in the panel on Eira's bar, which is where William met the fault: the pictures are of the sheet, which draws the same conversation.
+
 # 15 November 2026, 17:12: the Harvest button can record a harvest with no sowing on record
 
 **By the "harvest button" chat, on the Mac.** William, 16:42, with a picture of the sheet reading "Nothing growing yet. A harvest is recorded against a sowing. Record the sowing first.": "You're not able to add a harvest by tapping harvest." Made on the branch `harvest-any-plant`, from `main` at `4a63b01`. **Joined into `main` at 17:14**, after `main` (`3c3ef02`) was merged into the branch and the Mac build repeated.
