@@ -23,6 +23,10 @@
 //  own, with what to sow, plant out and harvest in it. That page is in
 //  YearMonthView.swift.
 //
+//  Where the columns are too narrow for "Jan", "Feb" and so on to be
+//  written across, as on an iPad held upright, the names are turned on
+//  their sides. See `monthHeading` and `OnItsSide`.
+//
 //  The sums (which months join into a bar) are in YearCalendar.swift.
 //
 
@@ -365,18 +369,41 @@ struct YearView: View {
     // MARK: The months
 
     private func monthHeading(count: Int) -> some View {
-        // Three letters where there is room, one letter on an iPhone.
+        // One letter on an iPhone, three letters everywhere else.
         let names = isNarrow ? Calendar.current.veryShortMonthSymbols : Calendar.current.shortMonthSymbols
-        return HStack(spacing: 0) {
+        // `ViewThatFits` is handed two or more versions of a view, the
+        // best first. It measures each and shows the first one that fits
+        // the room it has. Here: the names written across where every
+        // column is wide enough for them, and the names turned on their
+        // sides where it is not, as on an iPad held upright with the
+        // sidebar showing. `in: .horizontal` means only the width is
+        // measured. (Until 15 November 2026 a name with too little room
+        // was drawn as "…", which told nobody which month it was.)
+        return ViewThatFits(in: .horizontal) {
+            monthRow(count: count, names: names, turned: false)
+            monthRow(count: count, names: names, turned: true)
+        }
+        .padding(.horizontal, sidePadding)
+    }
+
+    /// The heading written one way: the count of plants, then the twelve
+    /// months, either across (`turned` false) or on their sides (true).
+    private func monthRow(count: Int, names: [String], turned: Bool) -> some View {
+        // `alignment: .bottom` keeps the count level with the foot of the
+        // month names when the turned names make the heading taller.
+        HStack(alignment: .bottom, spacing: 0) {
             Text(count == 1 ? "1 plant" : "\(count) plants")
                 .font(.footnote)
                 .foregroundStyle(Theme.inkSoft)
                 .frame(width: nameWidth, alignment: .leading)
+                .frame(height: isNarrow ? 40 : 32)
 
             ForEach(1...12, id: \.self) { month in
                 // Each month's name is a button that opens the month's
                 // own page. (Asked for by William on 14 November 2026.)
                 YearMonthButton(name: names[month - 1],
+                                allNames: names,
+                                turned: turned,
                                 fullName: Calendar.current.monthSymbols[month - 1],
                                 isThisMonth: month == thisMonth,
                                 height: isNarrow ? 40 : 32) {
@@ -384,7 +411,6 @@ struct YearView: View {
                 }
             }
         }
-        .padding(.horizontal, sidePadding)
     }
 
     /// The band behind the rows, one column wide.
@@ -486,9 +512,15 @@ struct YearMonthButton: View {
 
     /// The name as written: "Nov", or "N" on an iPhone.
     let name: String
+    /// All twelve names as written. Only used for measuring: see `label`.
+    let allNames: [String]
+    /// True when the name is turned on its side, reading upwards, because
+    /// the column is too narrow for it to be written across.
+    let turned: Bool
     /// The whole name, for VoiceOver and the Mac's pop-up hint.
     let fullName: String
     let isThisMonth: Bool
+    /// The least height the button may have.
     let height: CGFloat
     /// What to do when it is pressed. `() -> Void` means a piece of code
     /// that takes nothing and hands nothing back.
@@ -496,14 +528,16 @@ struct YearMonthButton: View {
 
     @State private var isUnderPointer = false
 
+    /// This month's name, and the name under the pointer, are bold.
+    private var isStrong: Bool { isThisMonth || isUnderPointer }
+
     var body: some View {
         Button(action: onPress) {
-            Text(name)
-                .font(.footnote)
-                .fontWeight(isThisMonth || isUnderPointer ? .bold : .regular)
-                .foregroundStyle(isThisMonth || isUnderPointer ? Theme.ink : Theme.inkSoft)
+            label
                 .frame(maxWidth: .infinity)
-                .frame(height: height)
+                // A turned name sits at the foot of the heading, so all
+                // twelve start on the same line just above the rows.
+                .frame(minHeight: height, alignment: turned ? .bottom : .center)
                 .background {
                     if isThisMonth {
                         // The top of the band that runs down the rows.
@@ -522,6 +556,77 @@ struct YearMonthButton: View {
         .help("See \(fullName)")
         .accessibilityLabel(fullName)
         .accessibilityHint("Shows what to sow, plant and harvest in \(fullName)")
+    }
+
+    /// The name, with the room the longest of the twelve names needs.
+    ///
+    /// A `ZStack` lays views one on top of another and is as large as the
+    /// largest of them. All twelve names are in it, in bold and hidden
+    /// (`.hidden()` keeps a view's room but does not draw it), with the
+    /// one name that shows on top. So every column asks for the same
+    /// room, the room the longest name needs even in bold. That is what
+    /// lets `ViewThatFits` in the heading tell whether the names fit
+    /// across, and it keeps all twelve the same height when turned.
+    private var label: some View {
+        ZStack(alignment: turned ? .bottom : .center) {
+            ForEach(allNames.indices, id: \.self) { index in
+                word(allNames[index], bold: true).hidden()
+            }
+            word(name, bold: isStrong)
+                .foregroundStyle(isStrong ? Theme.ink : Theme.inkSoft)
+        }
+        // A little air: between names written across, and above and
+        // below names on their sides.
+        .padding(.horizontal, turned ? 0 : 2)
+        .padding(.vertical, turned ? 6 : 0)
+    }
+
+    /// One name, written across or turned on its side.
+    @ViewBuilder
+    private func word(_ text: String, bold: Bool) -> some View {
+        // `fixedSize()` gives the word the room it needs and no less, so
+        // it is never cut short to "…".
+        let written = Text(text)
+            .font(.footnote)
+            .fontWeight(bold ? .bold : .regular)
+            .lineLimit(1)
+            .fixedSize()
+        if turned {
+            // A quarter turn anticlockwise, so the word reads upwards,
+            // the way the label on the side of a chart does.
+            OnItsSide { written.rotationEffect(.degrees(-90)) }
+        } else {
+            written
+        }
+    }
+}
+
+// MARK: - Room for a turned view
+
+/// Makes room for a view that has been given a quarter turn.
+///
+/// `rotationEffect` only changes how a view is drawn. SwiftUI still lays
+/// the page out as though the view were lying flat, so a turned word
+/// would keep a wide, short space and spill over its neighbours.
+///
+/// A `Layout` is SwiftUI's way of letting code decide sizes and places.
+/// This one asks its view how large it is lying flat, reports that size
+/// with the width and height swapped (the room the turned view really
+/// covers) and puts the view in the middle of that room.
+struct OnItsSide: Layout {
+
+    /// How much room this layout asks for.
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        guard let view = subviews.first else { return .zero }
+        // `.unspecified` asks the view for the size it would like best.
+        let flat = view.sizeThatFits(.unspecified)
+        return CGSize(width: flat.height, height: flat.width)
+    }
+
+    /// Where the view goes inside the room this layout was given.
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        guard let view = subviews.first else { return }
+        view.place(at: CGPoint(x: bounds.midX, y: bounds.midY), anchor: .center, proposal: .unspecified)
     }
 }
 

@@ -127,6 +127,16 @@ struct MainTabView: View {
         .onOpenURL { url in
             if WidgetRoute.shared.take(url) { selection = .today }
         }
+        // A checking aid: the motion tour changes place by itself, the
+        // way a tap on the sidebar or a tab would. See MotionTour.swift.
+        .onReceive(NotificationCenter.default.publisher(for: MotionTour.place)) { note in
+            guard let wanted = note.object as? String, let place = AppSection(rawValue: wanted) else { return }
+            if sizeClass == .compact {
+                selection = place
+            } else {
+                withAnimation(.smooth(duration: 0.3)) { selection = place }
+            }
+        }
         // When the app is put away, leave the widgets an up-to-date file.
         .onChange(of: scenePhase) {
             if scenePhase == .background { WidgetShare.refresh(context: context) }
@@ -146,6 +156,8 @@ struct MainTabView: View {
                 Task { await EiraTestRun.runIfAsked(context: context) }
                 // Its twin for photos: see SpeciesTestRun.
                 Task { await SpeciesTestRun.runIfAsked() }
+                // And one for anything that moves: see MotionTour.
+                Task { await MotionTour.runIfAsked() }
             } else {
                 GardenDataImporter().loadStarterDataIfNeeded(into: context)
                 // Make sure the allotment and the permaculture garden
@@ -347,6 +359,13 @@ struct MainTabView: View {
                             .padding(.horizontal, 16)
                             .padding(.bottom, 8)
                     }
+                    // Tells every page on this tab, and this tab's bar,
+                    // which tab they are on, so that each bar goes by
+                    // its own tab's page and not by whichever page
+                    // appeared last anywhere. It comes after the
+                    // overlay so that the bar is told as well as the
+                    // pages. See `EiraScreen.current(in:)`.
+                    .environment(\.eiraPlace, section.rawValue)
                 }
             }
         }
