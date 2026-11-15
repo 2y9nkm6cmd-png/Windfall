@@ -2,7 +2,7 @@
 
 **By the "photo check" chat, linked to William's Mac.** William, 19:36: "Update the animal graphics based on photos you can download to the mac. If when doing it you discover that some of the animals would benefit from having multiple graphics - wings spread and not spread for birds or larvae, pupae, adult for insects, please do that." And at 19:54, with a picture of his Species page: "There's no drawings for early mining bee or red ants". Made on the branch `wildlife-photo-check`, from `main` at `d337cf9`.
 
-**The check.** 2,200 photographs from iNaturalist were downloaded to the Mac (`~/Developer/windfall-photo-check`, not in the repository) and each of the 203 drawings was looked at beside five of its own. 27 were wrong and are corrected. `Design/Wildlife/CHECKED.md` lists each one and what the photographs showed. Three animals that shared a drawing wrongly now have their own in six places: the three whites, the two cardinal beetles, the two hawkers, the stoat and weasel, the two voles, the two frogs and the two toads.
+**The check.** 2,200 photographs from iNaturalist were downloaded to the Mac (`~/Developer/windfall-photo-check`, not in the repository) and each of the 203 drawings was looked at beside five of its own. 27 were wrong and are corrected. `Design/Wildlife/CHECKED.md` lists each one and what the photographs showed. Animals that wrongly shared one drawing now have their own: the three whites, the two cardinal beetles, the two hawkers, the stoat and weasel, the two voles, the two frogs and the two toads.
 
 **An animal can now have more than one drawing.**
 
