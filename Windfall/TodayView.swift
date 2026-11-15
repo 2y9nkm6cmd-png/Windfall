@@ -1614,8 +1614,10 @@ struct RecentRecord: Identifiable {
 struct HarvestPicker: View {
 
     @Query private var plantings: [Planting]
-    /// The plant library, in the order of its names.
-    @Query(sort: [SortDescriptor(\Plant.commonName)]) private var plants: [Plant]
+    /// The plant library, in the order of its names, and within one
+    /// name in the order of its varieties. Without the second, the six
+    /// apples came out in a different order each time the sheet opened.
+    @Query(sort: [SortDescriptor(\Plant.commonName), SortDescriptor(\Plant.variety)]) private var plants: [Plant]
 
     /// What was chosen. Nil while the list is showing.
     @State private var chosen: HarvestSource?
