@@ -1,3 +1,18 @@
+# 15 November 2026, 16:05: a species opens when its row is tapped
+
+**By the "wildlife rows" chat, from William's iPad, in a cloud workspace. Not built in Xcode.** William, 15:58, with a picture of Wildlife, Species on the iPad, the Campion moth row grey: "Nothing happens when you tap the wildlife". Made on the branch `species-rows-open`, from `main` at `6cbfc37`.
+
+**Before.** In `FaunaListView` a species row was `NavigationLink(value: animal)`. That kind of link only hands over the record. Which page a record opens is said once, somewhere else, by `.navigationDestination(for: Fauna.self)`. When a link of this kind cannot find that line, the row goes grey, stays grey and nothing opens, which is what the picture shows.
+
+**Now.** Each row is `NavigationLink { FaunaDetailView(fauna: animal) } label: { ... }`: the link is given its page outright. It is the same kind of link as "Flower shape coverage" and "Cascades" two rows above it, and as the latest sightings on the Wildlife page. The `.navigationDestination(for: Fauna.self)` line is gone from this page, because nothing uses it any more. Search still has its own.
+
+| File | What changed |
+|---|---|
+| `FaunaViews.swift` | The species rows carry their own page. One line removed |
+
+**⚠️ Not proven.** Why the link could not find the line is not known. The page is opened from a tile on Wildlife, by `GrowingLink`, and that may be what hides it. It could not be run where this was written. **The same pattern is in four other lists** opened the same way: Sowings (`PlantingViews.swift`), Seed (`SeedViews.swift`), Surveys (`SurveyViews.swift`) and Beds (`BedViews.swift`). They are left alone until William has tapped a row in each (checklist card `w-rows-other`). Plants and Sightings use it too and are known to open.
+
+**Checked:** see the knowledge-base doc for this chat. **Not checked:** a build, and a tap on a device.
 # 15 November 2026, 15:30: on Identify, a further photo joins the identification
 
 **By the identify photos chat.** William, 14:05: "Can you make it so that when you're identifying plants, if you need to take another photo, the previous one is still stored as part of the identification". Made on the branch `identify-keep-photos`, from `main` at `143e24e`.

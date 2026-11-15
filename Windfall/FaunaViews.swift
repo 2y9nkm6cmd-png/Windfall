@@ -60,7 +60,24 @@ struct FaunaListView: View {
 
             Section("Species") {
                 ForEach(filtered) { animal in
-                    NavigationLink(value: animal) {
+                    // Each row is given its page outright, the way the
+                    // two rows above ("Flower shape coverage" and
+                    // "Cascades") are given theirs.
+                    //
+                    // Until 15 November 2026 a row only handed over the
+                    // animal (`NavigationLink(value: animal)`) and left
+                    // it to a separate line lower down,
+                    // `.navigationDestination(for: Fauna.self)`, to say
+                    // which page an animal opens. On William's iPad the
+                    // row went grey when tapped and no page came. That
+                    // is what a link does when it cannot find that line.
+                    // (Not proven: the fix was written away from the Mac
+                    // and the fault could not be made to happen there.)
+                    // A link that carries its own page has nothing to
+                    // look for, so it cannot miss.
+                    NavigationLink {
+                        FaunaDetailView(fauna: animal)
+                    } label: {
                         VStack(alignment: .leading, spacing: 2) {
                             Text(animal.commonName).font(.body.weight(.medium))
                             if let latin = animal.scientificName {
@@ -82,7 +99,8 @@ struct FaunaListView: View {
         .searchable(text: $search, prompt: "Search species")
         .navigationTitle("Species")
         .paperScreen()
-        .navigationDestination(for: Fauna.self) { FaunaDetailView(fauna: $0) }
+        // (`.navigationDestination(for: Fauna.self)` stood here. The
+        // rows above now carry their own page, so it is not needed.)
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Toggle("On the wing now", isOn: $activeOnly)
