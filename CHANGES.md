@@ -28,6 +28,23 @@
 - After "Done" on an iPhone the keyboard stays up, in the bar's box. It did before this change too.
 - Today's corner drawing and the switch between garden plans arrive a moment after the page on an iPad.
 
+# 15 November 2026, 14:08: on the Year page, month names turn on their sides where they do not fit
+
+**By the "year months" chat.** William, 13:10, with a picture of the Year page on the iPad held upright: "On iPad this screen isn't working for me. Instead of the dots, could you make the months aligned vertically." Each month's column there is about 18 points wide and "Nov" needs about 26, so SwiftUI cut every name down to "…". Made on the branch `year-months-upright`, from `main` at `1c0ca84`, with `main` at `143e24e` merged in before it was joined.
+
+| File | What changed, and why |
+|---|---|
+| `YearView.swift`, `monthHeading` | The heading is now handed to `ViewThatFits` in two versions: the names written across, then the names turned on their sides. `ViewThatFits` measures each and shows the first that fits the width, so a wide page looks as it did and a narrow one gets turned names. Nothing is set per device: an iPad on its side, an iPad Pro and a wide Mac window still read across, and a narrow Mac window turns them |
+| New `monthRow(count:names:turned:)` | The row itself (the count of plants, then twelve buttons), written once and used for both versions. Its `HStack` is lined up on the bottom, so "125 plants" stays level with the foot of the names when the turned heading is taller |
+| `YearMonthButton` | Takes `allNames` and `turned`. Its `label` is a `ZStack` holding all twelve names in bold and hidden, with the one that shows on top, so every column asks for the room the longest name needs. That is what makes `ViewThatFits`'s measurement true for twelve equal columns, and keeps the twelve the same height when turned. `fixedSize()` on the word means it is never cut to "…" again. A turned name sits at the foot of the heading and reads upwards |
+| New `OnItsSide` (a `Layout`) | `rotationEffect` only changes how a view is drawn: the page is still laid out as if the word lay flat. `OnItsSide` asks the word how large it is flat, reports that size with width and height swapped, and puts the word in the middle, so the turned word takes the room it really covers |
+
+**Left as it was:** the iPhone's single letters (J F M A…), the band down this month's column, the rows, and the month's own page that a name opens.
+
+**Checked:** simulator build, unsigned, before the merge: BUILD SUCCEEDED (`windfall-build-logs/ym1-sim.log`). Simulator pictures (`windfall-build-logs/shots/ym-*.png`, script `yearmonths-shots.sh`, which makes simulators of its own): an iPad mini upright in dark shows the twelve names on their sides, each over its column, "Nov" bold in the band; an iPad Pro 13-inch upright shows them across, as before.
+
+**Not checked:** a tap on a turned name, the Mac's own window made narrow, the largest text sizes, and the iPad with the sidebar hidden (the names should go back to reading across).
+
 # 15 November 2026, 13:35: the Journal's last entry scrolls clear of Eira's bar
 
 **By the "zoom still not right" chat, its second job.** William, 13:16, with a picture from the iPad: "In journal, because Eira's bar is there the whole time, the very bottom item is cut off. Could you make it so that you can scroll the posts above the bar?" Made on the branch `journal-clear-of-bar`, from `main` at `720efee`.
