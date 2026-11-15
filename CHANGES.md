@@ -1,3 +1,32 @@
+# 15 November 2026, 17:12: the Harvest button can record a harvest with no sowing on record
+
+**By the "harvest button" chat, on the Mac.** William, 16:42, with a picture of the sheet reading "Nothing growing yet. A harvest is recorded against a sowing. Record the sowing first.": "You're not able to add a harvest by tapping harvest." Made on the branch `harvest-any-plant`, from `main` at `4a63b01`.
+
+**Before.** The Harvest button on Today listed sowings and nothing else. His records hold no sowings, so the sheet was a dead end. A tree that was here before the app has no sowing to record, so its crop could never be added from this button. The journal's "Add a harvest?" card has been able to since 13 November: it puts the plant on record as growing when the harvest is added.
+
+**Now.** The sheet also holds the plant library, to search and choose from. A plant with nothing on record is put on record as growing when its harvest is saved, exactly as the journal's card does. Nothing is added until Save is pressed.
+
+| File | What changed, and why |
+|---|---|
+| `PlantModels.swift` | `Planting.couldBeCropping` and `Planting.cropping(of:)`: the one rule for "could be giving a crop" (not planned, finished or failed), which was written out in two places. `Planting.putOnRecord(_:from:in:)`: makes the planting for a plant with none, with status harvesting, no sowing date and a note of where it was added from. `HarvestSource`: what a harvest goes against, either a planting or a bare plant. `HarvestChoice.offered`: which plants the sheet lists, and in what order |
+| `TodayView.swift`, `HarvestPicker` | Lists what is growing as before, then a card with a search box and the first eight plants on offer. The card is headed "Which plant?" when nothing is growing and "Something else" when something is. With nothing typed, plants in their harvest or fruiting months this month come first. A plant that does have something growing is recorded against that. The library is sorted by name and then by variety, so plants of one name keep their order |
+| `PlantingViews.swift`, `HarvestEditor` | Takes a `HarvestSource` (`cropSource`). For a bare plant it shows a card, "Not on record yet", and Save calls `Planting.putOnRecord` first. `HarvestEditor(planting:)` still works, for a planting's own page |
+| `JournalOfferCards.swift` | Calls `Planting.cropping` and `Planting.putOnRecord` in place of its own copies. Its note reads word for word as before |
+| `DemoGarden.swift` | Three checking aids for `-demoOpen harvest`: `-demoHarvestSearch apple`, `-demoNothingGrowing YES` and `-demoHarvestChoose YES` |
+| `Tools/checks/LogicTests.swift` | Five new tests: the order with nothing typed, searching, which sowings count as cropping, what a picked plant is recorded against, and putting a plant on record |
+
+**Claude's choices, for William to confirm (checklist card `d-harvest-list`).**
+
+1. **One sowing no longer skips the list.** Before, a single sowing opened the harvest form at once. That would now leave no way to choose a different plant, so the list always shows and "Back" on the form returns to it. One more tap when there is one sowing.
+2. **Plants in their harvest months come first** when nothing is typed. The months are the plant's own Harvest and Fruiting months from the library.
+3. **The note on a plant put on record here** reads "Put on record from the Harvest button when its first harvest was added. When it was sown or planted is not known."
+4. **No bed is asked for.** A plant put on record this way is "not placed", as from the journal. It can be given a bed on its own page.
+
+**Not changed:** a plant that is not in the library still cannot be harvested. It has to be added on the Plants page first. The form still opens on grams.
+
+**Checked:** Windfall's own checks in a cloud workspace (Swift 6.3.1 for Linux), on the branch with `main` (`3c3ef02`) merged in: 124 files parse, type check passes, cross-file checks clean, 876 logic tests pass. Mac and simulator, unsigned: BUILD SUCCEEDED (`windfall-build-logs/hv2-sim.log`, `hv3-mac.log`; the Mac build is of the merged code). Simulator pictures looked at by Claude, iPhone 17 Pro with the example garden (`shots/hv-nothing-dark.png`, `hv-growing-light.png`, `hv-search-light.png`, `hv-form-dark.png`, `hv-nomatch-light.png`, script `harvest-shots.sh`): the card alone with nothing growing, the two sowings with "Something else" under them, "apple" finding the six apples, the form for an apple with "Not on record yet", and "No plant in the library matches that."
+
+**Not checked:** Save pressed by anyone. The pictures stop at the form, so no harvest has been saved through this sheet and no plant put on record by it, on any device. The simulator pictures were taken before the sort by variety and before `main` was merged in. The sheet on an iPad, and on the Mac's own window.
 # 15 November 2026, 16:45: the paper behind every screen is one flat colour
 
 **By the "remove the gradient" chat, linked to the Mac. Branch `plain-paper-background`, made from `main` at `a2744bb`. Joined into `main` at 17:06 the same day, by the project's rule that a change which builds and passes its tests goes in. `main` moved twice while it was being made (the resting corner drawing, then the frame timer in the motion tour) and was merged in both times. Only `CHANGES.md` met.**
