@@ -44,6 +44,10 @@ No Swift file changed: `plant-drawings.json` and `plant-parts.json` came out ide
 - Achillea's outline in light mode is `#2B6249`, the colour doc 86 works out.
 - The card colours the lines are mixed with (`CARD`: `#FFFCF6` light, `#142414` dark) are the app's `Card` colour in `Design/colours.json`.
 
+**Built and seen:** with `main` joined in twice more while this was made (the zoomed Life stages strip, then Eira's snowdrop symbol), Mac and simulator builds, unsigned, and a signed build for any iPhone or iPad: BUILD SUCCEEDED (`windfall-build-logs/sl1-sim.log`, `sl3-mac.log`, `sl3-ios.log`). Simulator pictures (`windfall-build-logs/shots/sl-*.png`): Yarrow's page and its "In flower" drawing zoomed in, light and dark, on an iPhone 17 Pro; Yarrow's and Russian comfrey's pages on an iPad mini; Eira's panel in light and dark. The flower heads sit in front of the leaves and no line shows through another. The "Ask Eira" box has the journal box's corners and sits level with the microphone.
+
+**Not seen:** a tag on two lines. In the pictures "Pollinator plant" and "Dynamic accumulator" each fit on one line and look like pills, as they should. Windfall's own Linux checks were not run: no Swift file changed in the drawings, and the two Swift changes of `eira-box-corners` are views.
+
 **One thing to know:** two close-ups, the daffodil's flower and the peacock orchid's, each have one point a tenth of a grid square (a thousandth of the drawing's width) from where the repository had it. The unchanged code run on this Mac gives the same two differences, so it is this Mac's Python rounding a half the other way, not the new code.
 
 # 15 November 2026, 13:05: the zoomed Life stages page is the card's own row made big, not a slideshow
