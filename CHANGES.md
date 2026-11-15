@@ -1,6 +1,6 @@
 # 15 November 2026, 16:45: the paper behind every screen is one flat colour
 
-**By the "remove the gradient" chat, linked to the Mac. Branch `plain-paper-background`, made from `main` at `a2744bb`.**
+**By the "remove the gradient" chat, linked to the Mac. Branch `plain-paper-background`, made from `main` at `a2744bb`. Joined into `main` at 17:10 the same day, by the project's rule that a change which builds and passes its tests goes in. `main` moved twice while it was being made (the resting corner drawing, then the frame timer in the motion tour) and was merged in both times. Only `CHANGES.md` met.**
 
 William, 16:35: "Let's remove the gradient background in app".
 
@@ -23,6 +23,10 @@ William, 16:35: "Let's remove the gradient background in app".
 **What it saves.** Two blurs of 110 and 120 points across the whole window, on every page and every sheet, are no longer drawn. Not measured.
 
 **Left behind on purpose:** a device that had the Plain background switch on keeps a stored value called `plainBackground` that nothing reads any more. It does no harm.
+
+**Checked:** Windfall's own checks in the cloud workspace (Swift 6.3.1 for Linux), on the branch and after each merge of `main`: 124 files parse, the type check passes, cross-file checks clean, 871 logic tests pass. Simulator, unsigned: BUILD SUCCEEDED twice (`windfall-build-logs/pp1-sim.log` on the change alone, `pp2-sim.log` with the resting corner drawing merged in). Mac, unsigned: BUILD SUCCEEDED (`pp3-mac.log`, the same code as `pp2`). Simulator pictures of Today looked at by Claude (`shots/pp-today-iphone-light.png`, `pp-today-iphone-dark.png`, `pp-today-ipad-light.png`, `pp-today-ipad-dark.png`, script `plainpaper-shots.sh`). The bare paper measures the same on the left as on the right and at the top as at the foot: `#F8F1E5` in light mode and `#0C1C14` in dark mode. Beside a card or the sidebar it is three to five steps darker, which is that card's own soft shadow.
+
+**Not checked:** a real iPhone, iPad or the Mac's own window. Any page but Today: Settings with its one switch, a sheet, the plant chooser and Eira's panel were not pictured (the picture named `pp-settings-iphone-light.png` shows Today: the launch argument used does not open Settings). **The last merge was not built as one piece.** It added only `MotionTour.swift`, which the steady animations chat built with `main` (`pm7-sim.log`) and which uses none of the names this change removed. The Mac's disk was down to 3GB, so a third full build was not run.
 # 15 November 2026, 16:40: the pause when changing place, measured on the iPad itself
 
 **By the "steady animations" chat, on the Mac.** William, 16:20, asked whether he wanted the pause measured on the iPad: "Sure". No screen was changed. The motion tour (`MotionTour.swift`) gained a way of timing every frame on a real device.
