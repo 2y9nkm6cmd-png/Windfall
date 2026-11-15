@@ -68,7 +68,7 @@ enum PacketSide: String, CaseIterable, Identifiable {
 
 /// One line of words read from a photo of a packet.
 struct PacketLine: Equatable {
-    let text: String
+    var text: String
     /// How sure the reader was of the letters, from 0 to 1.
     var confidence: Double = 1
     /// Where the line sat on the photo, each as a share of the photo's
@@ -284,7 +284,21 @@ enum PacketReading {
     /// digits. Otherwise a line is joined to the one before when that
     /// one stopped in the middle of a sentence, and then the whole is
     /// cut at its full stops.
-    static func sentences(from lines: [PacketLine]) -> [Sentence] {
+    static func sentences(from printed: [PacketLine]) -> [Sentence] {
+        // A heading with its words on the same line, "Harvest: July to
+        // October", is first made two lines: the heading and the rest.
+        var lines: [PacketLine] = []
+        for packetLine in printed {
+            if let match = Pattern.first("^([A-Za-z ]{3,24}:)\\s+(\\S.*)$", in: packetLine.text.trimmingCharacters(in: .whitespaces)),
+               heading(of: match[1]) != nil {
+                var label = packetLine, rest = packetLine
+                label.text = match[1]
+                rest.text = match[2]
+                lines += [label, rest]
+            } else {
+                lines.append(packetLine)
+            }
+        }
         var result: [Sentence] = []
         // The run of joined lines being built: its words so far, where
         // each line began in them, and the least confidence.
@@ -458,46 +472,74 @@ enum PacketReading {
 
     // MARK: Months
 
-    /// The words in a sentence that say what its months are for, each
-    /// as a pattern. The first that fits a place wins, so "plant out"
-    /// is tried before "out".
-    private static let monthCues: [(pattern: String, field: PacketField)] = [
-        ("\\b(?:plant(?:ing)? out(?:side|doors)?|plant outdoors|plant outside|transplant(?:ing)?)\\b", .plantOut),
-        ("\\b(?:indoors?|inside|under glass|under cover|greenhouse|propagator|windowsill|in trays|in pots|in modules|cold frame)\\b", .sowIndoors),
-        ("\\b(?:outdoors?|outside|direct(?:ly)?|in situ|where they are to (?:flower|grow|crop)|flowering position|in the open|seed bed|in drills)\\b", .sowOutdoors),
-        ("\\b(?:flowers?|flowering|blooms?|blooming)\\b", .flowering),
-        ("\\b(?:harvest(?:ing|s)?|pick(?:ing)?|crops?|cropping|lift(?:ing)?)\\b", .harvest),
-        // "sow", "sown" and "sowing", and not "sowings": `\b` is the
-        // edge of a word, so the word must end there.
-        ("\\b(?:sow|sown|sowing)\\b", .sowingTime)
+    /// What a packet's months can be for.
+    private enum MonthUse { case sow, plantOut, flowering, harvest }
+
+    /// A word in a sentence that says what its months are for. It is
+    /// one of two sorts. A doing word (sow, plant out, flowers,
+    /// harvest) comes before its months. A place word (indoors,
+    /// outdoors) says where the sowing is done, and may come before the
+    /// months or after them: "Sow outdoors in March", "Sow in March
+    /// outdoors".
+    private enum MonthCue {
+        case doing(MonthUse)
+        case place(PacketField)
+    }
+
+    /// The cues, each as a pattern. They are tried in this order and a
+    /// place in the sentence goes to the first that fits it, so "plant
+    /// outdoors" is planting out and not also "outdoors", and
+    /// "flowering position" is a place and not also "flowering".
+    private static let monthCues: [(pattern: String, cue: MonthCue)] = [
+        ("\\b(?:plant(?:ing)? out(?:side|doors)?|plant outdoors|plant outside|transplant(?:ing)?)\\b", .doing(.plantOut)),
+        ("\\b(?:indoors?|inside|under glass|under cover|greenhouse|propagator|windowsill|in trays|in pots|in modules|cold frame)\\b", .place(.sowIndoors)),
+        ("\\b(?:outdoors?|outside|direct(?:ly)?|in situ|where they are to (?:flower|grow|crop)|flowering position|in the open|seed bed|in drills)\\b", .place(.sowOutdoors)),
+        ("\\b(?:flowers?|flowering|blooms?|blooming)\\b", .doing(.flowering)),
+        ("\\b(?:harvest(?:ing|s)?|pick(?:ing)?|crops?|cropping|lift(?:ing)?)\\b", .doing(.harvest)),
+        // "sow" and "sown" as whole words: `\b` is the edge of a word,
+        // so "sowings" does not count. "sowing" counts only as a label
+        // ("Sowing time"), not as a thing ("from a spring sowing").
+        ("\\b(?:sow|sown)\\b|\\bsowing(?=\\s*(?::|time|period|months?))", .doing(.sow))
     ]
 
-    /// Where each cue stands in a sentence.
-    private static func cues(in sentence: String) -> [(at: Int, field: PacketField)] {
-        var found: [(at: Int, field: PacketField)] = []
+    /// Where each cue stands in a sentence, the doing words and the
+    /// place words apart, each in the order written.
+    private static func cues(in sentence: String) -> (doing: [(at: Int, use: MonthUse)], places: [(at: Int, field: PacketField)]) {
+        var doing: [(at: Int, use: MonthUse)] = []
+        var places: [(at: Int, field: PacketField)] = []
         var taken: [NSRange] = []
         let whole = NSRange(sentence.startIndex..., in: sentence)
-        for cue in monthCues {
-            guard let expression = try? NSRegularExpression(pattern: cue.pattern, options: [.caseInsensitive]) else { continue }
+        for entry in monthCues {
+            guard let expression = try? NSRegularExpression(pattern: entry.pattern, options: [.caseInsensitive]) else { continue }
             for fitted in expression.matches(in: sentence, range: whole) {
-                // A place already claimed by an earlier cue is left to
-                // it: "plant outdoors" is not also "outdoors".
+                // A place already claimed by an earlier cue is left to it.
                 if taken.contains(where: { NSIntersectionRange($0, fitted.range).length > 0 }) { continue }
                 taken.append(fitted.range)
-                found.append((fitted.range.location, cue.field))
+                switch entry.cue {
+                case .doing(let use): doing.append((fitted.range.location, use))
+                case .place(let field): places.append((fitted.range.location, field))
+                }
             }
         }
-        return found.sorted { $0.at < $1.at }
+        return (doing.sorted { $0.at < $1.at }, places.sorted { $0.at < $1.at })
     }
 
     /// The months in each sentence, and what they are for.
     ///
-    /// Each month or range goes with the cue just before it in the
-    /// sentence: in "Sow indoors February to April or outdoors April to
-    /// June", the first range is for indoors and the second for
-    /// outdoors. With no cue before it, it goes with the sentence's
-    /// first cue. With no cue at all, the heading decides: a bare "June
-    /// to October." under FLOWERS is the flowering time.
+    /// For each month or range of months, two questions:
+    ///
+    /// 1. What is being done? The doing word before it in the sentence:
+    ///    in "Sow March to May for flowers June to September" the first
+    ///    range follows "sow" and the second follows "flowers". With no
+    ///    doing word before it, the heading of its block decides: a
+    ///    bare "June to October." under FLOWERS is the flowering time.
+    /// 2. If it is sowing, where? The place word that goes with it. A
+    ///    packet puts the place either before its months all through a
+    ///    sentence or after them all through, so the first place word
+    ///    shows which: "Sow indoors February to April or outdoors April
+    ///    to June", "Sow October to November under glass or March to
+    ///    April outdoors". With no place word it is a plain "Sowing
+    ///    time".
     private static func months(in sentences: [Sentence]) -> [PacketFinding] {
         var gathered: [PacketField: (months: [Int], confidence: Double, source: String, side: PacketSide)] = [:]
 
@@ -506,21 +548,42 @@ enum PacketReading {
             // sow in. `sowBy` below reads that.
             guard Pattern.first(dateCue, in: sentence.text) == nil else { continue }
             let spans = MonthParser.spans(in: sentence.text)
-            guard !spans.isEmpty else { continue }
+            guard let firstSpan = spans.first else { continue }
             let found = cues(in: sentence.text)
-            // "Sow March to May outdoors": the months come before the
-            // word that says where. When a sentence names only one of
-            // indoors and outdoors, plain "sow" means that one.
-            let places = Set(found.map(\.field)).intersection([.sowIndoors, .sowOutdoors])
-            let onlyPlace = places.count == 1 ? places.first : nil
+            let placeComesFirst = (found.places.first?.at ?? Int.max) < firstSpan.at
+            let headingField = sentence.blockHeading?.monthField
 
             for span in spans {
-                var field = found.last(where: { $0.at < span.at })?.field ?? found.first?.field
                 var sureness = 0.9
-                if field == .sowingTime, let onlyPlace { field = onlyPlace }
-                if field == nil {
-                    field = sentence.blockHeading?.monthField
+                var use = found.doing.last(where: { $0.at < span.at })?.use
+                var field: PacketField?
+                if use == nil, let headingField, ![.sowingTime, .sowIndoors, .sowOutdoors].contains(headingField) {
+                    // No doing word before it, under FLOWERS or HARVEST.
+                    field = headingField
                     sureness = 0.8
+                } else if use == nil, !found.places.isEmpty || found.doing.contains(where: { $0.use == .sow }) {
+                    // "March to May: sow outdoors", "Indoors: February".
+                    use = .sow
+                } else if use == nil {
+                    use = found.doing.first?.use
+                }
+
+                switch use {
+                case .sow:
+                    let before = found.places.last(where: { $0.at < span.at })?.field
+                    let after = found.places.first(where: { $0.at > span.at })?.field
+                    let place = placeComesFirst ? (before ?? after) : (after ?? before)
+                    // A block headed SOW INDOORS has said where already.
+                    let headed = headingField == .sowIndoors || headingField == .sowOutdoors ? headingField : nil
+                    field = place ?? headed ?? .sowingTime
+                case .plantOut: field = .plantOut
+                case .flowering: field = .flowering
+                case .harvest: field = .harvest
+                case nil:
+                    if field == nil {
+                        field = headingField
+                        sureness = 0.8
+                    }
                 }
                 guard let field else { continue }
                 var entry = gathered[field] ?? (months: [], confidence: sentence.confidence * sureness, source: sentence.text, side: sentence.side)
@@ -928,6 +991,11 @@ enum PacketReading {
         for (index, packetLine) in lines.enumerated() where couldBeTitle(packetLine) {
             let known = KeptFacts.plantNamed(in: packetLine.text, among: knownPlants)
             let size = middleHeight[packetLine.side].map { packetLine.height / max($0, 0.0001) } ?? 0
+            // Small writing that names no plant of yours must at least
+            // look like a title, each word with a capital: "Cornflower
+            // Blue Ball", and not "Great for pollinators".
+            let everyWordCapital = packetLine.text.split(separator: " ").allSatisfy { $0.first?.isLowercase != true }
+            guard known != nil || size >= 1.4 || everyWordCapital else { continue }
             var score: Double = known == nil ? 0 : 3
             score += min(size, 4)
             if packetLine.side == .front { score += 0.5 }
