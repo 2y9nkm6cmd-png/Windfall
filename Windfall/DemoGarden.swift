@@ -96,6 +96,22 @@ enum DemoGarden {
         isRequested && ProcessInfo.processInfo.arguments.contains("-demoWeather")
     }
 
+    /// A checking aid: `-demoSeed` opens the Seed page in place of the
+    /// Gardens page, so a still picture can be taken of it. The example
+    /// garden has no seed packets, so it is the empty page that shows.
+    static var opensSeed: Bool {
+        isRequested && ProcessInfo.processInfo.arguments.contains("-demoSeed")
+    }
+
+    /// A checking aid, used with `-demoSeed`: `-demoSeedAdd library`
+    /// (or `typed`, or `camera`) also opens that way of adding a packet
+    /// as soon as the page appears. The simulator has no camera, so
+    /// `camera` falls back to the Photos library there.
+    static var seedAdds: SeedPacketStart? {
+        guard isRequested, let way = UserDefaults.standard.string(forKey: "demoSeedAdd") else { return nil }
+        return SeedPacketStart(rawValue: way)
+    }
+
     /// True when the app was also started with `-demoWeatherDay`, which
     /// opens one day of weather in place of the Gardens page.
     static var opensWeatherDay: Bool {

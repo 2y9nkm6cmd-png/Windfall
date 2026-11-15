@@ -103,6 +103,13 @@ struct SeedListView: View {
         // and hands that value in, here called `start`. Closing the
         // sheet sets `adding` back to nil. Using one sheet for all three
         // ways means two can never try to open at once.
+        // A checking aid: `-demoSeed -demoSeedAdd library` opens that
+        // way of adding a packet as soon as the page appears, so a still
+        // picture can be taken of it. See DemoGarden.swift. `.task`
+        // runs once, when the page first shows.
+        .task {
+            if let way = DemoGarden.seedAdds { adding = way }
+        }
         .sheet(item: $adding) { start in
             if start.readsAPhoto {
                 // The scanner saves a packet of its own when Save is

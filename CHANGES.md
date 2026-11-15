@@ -17,6 +17,8 @@
 
 **Not built.** A way from a photo that gave nothing straight into the typed form. The scanner is still a standard form, not one built from `SheetParts`. Reading still happens on the main thread, so the screen holds still for a moment while a large photo is read.
 
+**A checking aid.** With `-demoGarden`: `-demoSeed` opens the Seed page in place of Gardens, and `-demoSeedAdd library` (or `typed`, or `camera`) also opens that way of adding a packet. In `DemoGarden.swift`, `MainTabView.swift` and `SeedViews.swift`.
+
 **Checked.** `Tools/checks/run-checks.sh` with Swift 6.3.1 for Linux: 133 files parse, the type check passes, cross-file checks clean, 956 logic tests pass, two of them new. Those checks cannot compile a screen.
 
 # 15 November 2026, 20:57: the row of drawings on the Your species pages, and the next 50 animal drawings
