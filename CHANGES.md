@@ -1,3 +1,34 @@
+# 15 November 2026, 16:40: the pause when changing place, measured on the iPad itself
+
+**By the "steady animations" chat, on the Mac.** William, 16:20, asked whether he wanted the pause measured on the iPad: "Sure". No screen was changed. The motion tour (`MotionTour.swift`) gained a way of timing every frame on a real device.
+
+| File | What changed, and why |
+|---|---|
+| `MotionTour.swift`, `FrameWatch` | A `CADisplayLink` is a timer the screen itself drives: it calls once for every frame the screen is about to show, on the app's main thread. While that thread is busy building a page it cannot be called, so a long wait between two calls is a stall, and its length is how long the picture stood still. `FrameWatch` notes every wait longer than a frame and a half. iPhone and iPad only: on a Mac it does nothing |
+| `MotionTour.swift`, `measureTour` | `-demoGarden YES -motionTour measure`: every place twice over, each time from Today and back, then Eira's bar and panel. It prints a report, each line beginning MOTION: the first stall after each change, the longest, the time lost and when each stall fell |
+
+**How it is run.** `windfall-build-logs/measure-run.sh ipad <name> [arguments]` starts the app on the iPad with `devicectl device process launch --console`, which hands back what the app prints. The iPad must be awake and unlocked. It uses the example garden, which lives in memory, so the iPad's own records are not touched. The app is closed afterwards so the example garden is not left showing.
+
+**What the iPad mini said** (`pm3-ipad-melt-console.log`, `pm3-ipad-fade-console.log`, `pm4-ipad-release-console.log`, one frame is 17 thousandths of a second):
+
+| Going to | The picture stood still for | Then |
+|---|---|---|
+| Today, from anywhere | 110 to 125, and at once 45 to 60 more: about 170 | one or two short stalls |
+| Year, Plants | 90 to 130, then 55 to 110: 170 to 210 | two to four short stalls |
+| Journal, Gardens | 85 to 100, then 35 to 50: 130 to 150 | up to three short stalls |
+| Wildlife, Identify, Settings | 55 to 80, then 25 to 50: 90 to 120 | two or three short stalls |
+
+- The melt lasts 300. So on most changes more than half of it has gone by before the first new picture is drawn. That is the jump seen on film.
+- **A second visit is no quicker than the first.** Each change builds the page afresh.
+- **"Plain fade between places" makes no difference** to the stall. The melt is not what is slow.
+- **A Release build is no quicker.** So it is not Windfall's own code being built for checking.
+- **Where the time goes** (Time Profiler on the iPad, `films/pm-profile-bursts.txt`, summed by `profile-sum.py`): nine tenths of it is inside SwiftUI itself, building the new page's tree of views and laying it out. Windfall's own functions are on under a tenth of the samples. The largest of ours is Today fetching every plant (`TodayView.plants`, 4%).
+- Eira's bar: asking for the keyboard still costs a stall of 85 to 190, and it lands at about 360 after the tap, on the tail of the bar's spring. The panel rising costs 80 to 95 once. Sinking and closing cost next to nothing.
+
+**Checked:** Mac, simulator and signed device builds (Debug and Release): BUILD SUCCEEDED (`pm6-mac.log`, `pm6-sim.log`, `pm3-ios.log`, `pm4-ios-release.log`). Syntax and cross-file checks pass (`pm6-checks.log`).
+
+**Not done:** any cure. Two are open, for William to choose between: start the melt and the lens a moment later, once the page is built, so both play whole (small, adds about 0.15 seconds); or keep each place alive once visited, on the iPad, so going back costs nothing (larger, with several things to get right).
+
 # 15 November 2026, 16:05: on an iPad, pages stop at Eira's bar again and no longer scroll on past their end
 
 **By the "scrolls too far" chat, from William's iPad. Branch `bar-strip-inside-stack`, made from `main` at `6cbfc37`. Joined into `main` at 16:05 the same day (`78276c7`), at William's word (16:03: "Let's add it to the main branch and push it out"). Written in Claude's cloud workspace: the Mac was not connected, so it has not been built or seen running, and `main` now holds a change no compiler for Apple's devices has read.**
