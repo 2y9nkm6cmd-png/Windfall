@@ -95,6 +95,8 @@ struct IdentifyView: View {
 
     @State private var pickerItem: PhotosPickerItem?
     @State private var isChoosingFile = false
+    /// True while the camera is open, on an iPhone or iPad.
+    @State private var isTakingPhoto = false
     @State private var imageData: Data?
     /// What Eira made of the photo: the image model's match, judged
     /// against your records and the month.
@@ -205,6 +207,14 @@ struct IdentifyView: View {
                 Task { await take(data) }
             }
         }
+        // A photo taken now with the camera, on an iPhone or iPad. See
+        // CameraPhoto.swift.
+        .cameraPhoto(isPresented: $isTakingPhoto) { photo in
+            // `take` waits while the photo is made smaller, away from the
+            // screen's own work, so it is started as a Task, as the other
+            // ways in above are.
+            Task { await take(photo) }
+        }
         // A photo dragged on to the screen is looked at straight away.
         .onDrop(of: PhotoDrop.kinds, isTargeted: $isDropTarget) { providers in
             guard PhotoDrop.mayHold(providers) else { return false }
@@ -273,7 +283,19 @@ struct IdentifyView: View {
                     .font(.footnote)
                     .foregroundStyle(Theme.inkSoft)
             }
-            HStack(spacing: 10) {
+            // ChipFlow lays buttons out in a row and wraps them on to a
+            // second row when they do not fit, as three do not on an
+            // iPhone.
+            ChipFlow(spacing: 10) {
+                if CameraPhoto.isAvailable {
+                    Button {
+                        isTakingPhoto = true
+                    } label: {
+                        Label(imageData == nil ? "Take a photo" : "Take another", systemImage: "camera")
+                    }
+                    .buttonStyle(QuietGlassButton())
+                }
+
                 // `.current` asks for the photo as it is stored, without
                 // the chooser converting it to another format first.
                 PhotosPicker(selection: $pickerItem, matching: .images, preferredItemEncoding: .current) {

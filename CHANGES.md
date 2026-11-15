@@ -182,6 +182,87 @@ This is the same pattern as the background colour and the drawing in the entry o
 **Nothing saved has changed.** No record type was touched.
 
 **The drawings themselves are still a first pass that William has not gone through** (project docs 59, 62 and 63).
+# 14 November 2026, 21:50: "Take a photo" on an iPhone and iPad
+
+**By the camera chat, from William's iPhone. Branch `camera-option`, made from `main` at `4b28986`. Not in `main`. Written in Claude's cloud workspace: the Mac was not connected, so it has not been built or seen running.** The repository's own checks pass there: every file parses, 761 logic tests pass and no platform problems are found. Those checks cannot compile a screen, and none of this code is covered by a logic test, because it all needs Apple's camera and picture libraries.
+
+William, 21:44, with a picture of the "+" menu on the Journal page showing "From a file" and "From Photos": "I want an open camera option on phone and ipad".
+
+## What changed, and why
+
+**Before.** A photo could be chosen from Photos, chosen as a file or dragged in. To photograph something in the garden he had to leave Windfall, take it in the Camera app and come back to choose it. The app had no camera code and no leave to use the camera (doc 33 listed it as not built).
+
+**Now.** "Take a photo" is a third choice in three places, on an iPhone or iPad only:
+
+- the "+" on Eira's bar, on every page. On the Journal page the photo starts an entry. Elsewhere it brings up the card of three offers, as any other photo does.
+- the camera button in Eira's chat. She says what the photo shows.
+- the Identify screen, as a button beside "From Photos" and "From a file". The three buttons now wrap on to a second row on a narrow screen.
+
+A Mac shows no such choice. So does the simulator, which has no camera.
+
+## The code, explained
+
+### `CameraPhoto.swift` (new)
+
+Apple's camera screen is an older, UIKit screen called `UIImagePickerController`. Windfall's screens are SwiftUI. Most of the file is the bridge.
+
+- `CameraPhoto.isAvailable` asks the device whether it has a camera. Each place draws "Take a photo" only if the answer is yes.
+- `.cameraPhoto(isPresented:onTaken:)` is a modifier any screen can add. `isPresented` is a `Binding`: a two-way link to a true-or-false value. The screen sets it true to open the camera and the camera sets it false when it closes. `onTaken` is the code to run with the photo.
+- `CameraScreen` is a `UIViewControllerRepresentable`: SwiftUI's wrapper for a UIKit screen. Its `Coordinator` is a small helper object, because UIKit reports "Use Photo" and "Cancel" by calling functions on an object, and a SwiftUI view is not one.
+- **The photo is handed over only once the camera has slid away** (`onDismiss`). What receives it usually opens a sheet, and iOS will not open one sheet while another is closing.
+- `CameraFile.jpeg` puts the picture and the camera's notes back together as one JPEG file. The camera hands them over apart. The rest of Windfall reads a photo's date out of the file (`PhotoFacts.swift`), so without this a photo from the camera would have no date of its own. It also writes which way up the phone was held, or a portrait photo would lie on its side.
+
+Everything that touches UIKit is inside `#if os(iOS)`, so the Mac build does not see it.
+
+### `Info.plist`
+
+`NSCameraUsageDescription`: the sentence iOS shows the first time, beside Allow and Don't Allow. Without it iOS closes an app the moment it asks for the camera.
+
+### `EiraFloatingBar.swift`, `EiraChatView.swift`, `EiraVision.swift`
+
+Each gains one `@State` value (`isTakingPhoto`), one button and one `.cameraPhoto` line. Each hands the photo to the function it already had for a chosen photo (`takePhotos`, `look(at:)`, `take`), so a photo from the camera is treated exactly like any other.
+
+## 22:15: a copy in Photos, a switch for it and the photo's position
+
+William, 22:03: "I'd like it saved into photos as well. you should be able to turn this off. It should record gps."
+
+**Also not built or seen running.** Written the same way, after `main` (`2507727`) was merged into the branch. The checks pass: 114 files parse and 778 logic tests pass, one of them new.
+
+- **A copy in Photos.** After the photo is handed to Windfall it is added to the Photos library, as the same file, so its date and position go with it. `CameraRoll.save` in `CameraPhoto.swift`. It asks iOS for leave to add only (`.addOnly`), not to look at the library. If that is refused the photo still reaches Windfall and no copy is made.
+- **The switch.** Settings, under Photos: "Save camera photos to Photos". On unless switched off. It is shown only on a device with a camera. The choice is stored under the name `cameraSavesToPhotos`, written once as `CameraRoll.settingKey` so Settings and the camera cannot drift apart. `@AppStorage` is SwiftUI's way of tying a switch to a stored setting.
+- **The position.** Apple's camera screen does not say where the phone was. So when the camera opens, Windfall asks the phone for its position once (`findPlace`, using the app's existing `LocationManager`). When "Use Photo" is pressed the position is written into the photo's file the way a camera writes it (`CameraFile.gps`): how far north and east, a letter for which way, how accurate, the height and the time. If the position has not arrived by then it waits up to two seconds more. With location off for Windfall, or no position in time, the photo is kept without one.
+- Because the position has to be known before the file is made, the file is now made after the camera closes, not at the moment "Use Photo" is pressed. `CameraShot` carries the picture and the camera's notes across that gap.
+- `PhotoFacts.written` (new, with a logic test) turns a signed number such as -2.6 into the camera's form, 2.6 and "W". It is the reverse of `PhotoFacts.coordinate`, and the test checks that one undoes the other.
+- `Info.plist`: `NSPhotoLibraryAddUsageDescription` added, and the location sentence now also says it notes where a photo was taken.
+
+## 22:40: the camera in the seed packet scanner
+
+William, 22:30: "Can seed packet scanning access camera as well?"
+
+**Also not built or seen running.** 114 files parse and 778 logic tests pass.
+
+- **`SeedPacketScanner.swift`: "Photograph the packet"**, above "Choose a photo of the packet", on a device with a camera. One `@State`, one button and one `.cameraPhoto` line. Both ways in now end in one new function, `read(_:)`, which shows the photo, reads it and guesses the plant's name.
+- **A packet photo is not copied to the Photos library**, whatever the Settings switch says. `.cameraPhoto` gained a setting for this, `savesToPhotos`, which is true unless a screen says otherwise. The scanner says false.
+- **A fault found and fixed: the scanner read portrait photos sideways.** A phone stores a portrait photo on its side with a note saying which way to turn it. The scanner handed Apple's text reader (Vision) only the pixels, so the note was lost. It now hands over the photo's file (`VNImageRequestHandler(data:)`), and Vision turns it upright itself. This affected photos chosen from the library as well, and would have affected nearly every packet photographed with the camera.
+
+## Not done
+
+- **One photo at a time.** The camera closes after "Use Photo".
+- Not added to the sighting form, the old diary form, the journal conversation's own photo button or "Add a photo" on the pin-down card. Each is one button and one line now that `CameraPhoto.swift` exists.
+- If camera access is refused, Apple's screen opens black. If adding to Photos is refused, no copy is made. Windfall does not yet say so or point to Settings in either case.
+- The photo's position is in its file and in the photo's record. It is still not copied to a sighting's own position (doc 33).
+
+## To check on a device
+
+1. The first "Take a photo" asks for the camera, with Windfall's sentence.
+2. A portrait photo and a landscape photo both arrive the right way up.
+3. On the Journal page the photo starts an entry and no "which day" card appears, since it was taken a moment ago.
+4. On the iPad the camera covers the whole screen.
+5. The menu's order by the "+". iOS turns a menu over when it opens upwards.
+6. The first photo asks to add to Photos, and the photo then appears in the Photos app with its place on the map.
+7. With the Settings switch off, no copy appears in Photos.
+8. A photo taken within a second or two of opening the camera: does it have a position?
+9. Scan a packet: photograph one held upright. The words should be read, and no copy should appear in Photos.
 
 # 14 November 2026, 21:35: a fungus key to step through, with a diagram for each choice
 

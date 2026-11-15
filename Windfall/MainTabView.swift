@@ -878,6 +878,10 @@ struct SettingsView: View {
     /// whole window. Remembered between visits.
     @AppStorage("sidebarIsHidden") private var sidebarIsHidden = false
 
+    /// Whether a photo taken with the camera is also added to the
+    /// Photos library. On unless switched off. See CameraPhoto.swift.
+    @AppStorage(CameraRoll.settingKey) private var cameraSavesToPhotos = true
+
     /// True while the window for choosing the photo folder is open.
     @State private var isChoosingPhotoFolder = false
     /// The chosen folder's name. Kept here so the page redraws when it
@@ -931,10 +935,15 @@ struct SettingsView: View {
                         photoFolderName = nil
                     }
                 }
+                // Only where there is a camera to take one with. A Mac
+                // and the simulator have none, so the switch is left out.
+                if CameraPhoto.isAvailable {
+                    Toggle("Save camera photos to Photos", isOn: $cameraSavesToPhotos)
+                }
             } header: {
                 Text("Photos")
             } footer: {
-                Text("Choose a folder in iCloud Drive and the original of every photo you add is kept there as a file, in a folder for each year, where your other devices can reach it. The app keeps a smaller copy to show. With no folder chosen, originals are kept inside the app on this device only. Photos added before a folder was chosen stay where they are.")
+                Text((CameraPhoto.isAvailable ? "A photo taken with Take a photo is also added to your Photos library, with where it was taken, unless the switch is off. " : "") + "Choose a folder in iCloud Drive and the original of every photo you add is kept there as a file, in a folder for each year, where your other devices can reach it. The app keeps a smaller copy to show. With no folder chosen, originals are kept inside the app on this device only. Photos added before a folder was chosen stay where they are.")
             }
 
             Section {

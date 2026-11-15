@@ -85,6 +85,20 @@ extension PhotoFacts {
         return way == "S" || way == "W" ? -abs(value) : value
     }
 
+    /// The other way round from `coordinate`: a signed number into the
+    /// camera's way of writing it, how far and a letter for which way.
+    /// Used when Windfall writes a position into a photo it has just
+    /// taken (CameraPhoto.swift).
+    ///
+    /// - `positive`: the letter for above zero, "N" or "E".
+    /// - `negative`: the letter for below zero, "S" or "W".
+    ///
+    /// The answer is a "tuple": two values handed back together, each
+    /// with a name.
+    static func written(_ value: Double, positive: String, negative: String) -> (size: Double, way: String) {
+        (size: abs(value), way: value < 0 ? negative : positive)
+    }
+
     /// The facts from the three notes a photo's file can hold, as text
     /// and numbers. Split out from `read(from:)` so it can be tested
     /// without a real photo.

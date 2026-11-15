@@ -95,9 +95,11 @@ struct EiraFloatingBar: View {
     /// Set when a photo is given to Eira anywhere but the Journal page.
     /// It opens the card that asks what to do with it.
     @State private var photoRequest: BarRequest?
-    // The two ways of choosing a photo from the "+" button.
+    // The ways of giving a photo from the "+" button: two choosers
+    // and, on an iPhone or iPad, the camera.
     @State private var isChoosingFromPhotos = false
     @State private var isChoosingFile = false
+    @State private var isTakingPhoto = false
     /// What was chosen in the Photos chooser. It hands over opaque
     /// items, and the pictures are loaded from them a moment later.
     @State private var pickedItems: [PhotosPickerItem] = []
@@ -300,6 +302,10 @@ struct EiraFloatingBar: View {
                 if hasLeave { url.stopAccessingSecurityScopedResource() }
             }
             takePhotos(pictures)
+        }
+        // The camera, on an iPhone or iPad. See CameraPhoto.swift.
+        .cameraPhoto(isPresented: $isTakingPhoto) { photo in
+            takePhotos([photo])
         }
         // A photo given to Eira away from the Journal page: she asks
         // what to do with it.
@@ -566,12 +572,19 @@ struct EiraFloatingBar: View {
 
     /// The "+" beside the snowdrop: give Eira a photo.
     ///
-    /// A `Menu` is a button that opens a short list of choices. Here
-    /// there are two, because photos live in two places: the Photos
-    /// library, and ordinary files, which on a Mac is often where they
-    /// are.
+    /// A `Menu` is a button that opens a short list of choices. Photos
+    /// live in two places: the Photos library, and ordinary files,
+    /// which on a Mac is often where they are. An iPhone or iPad has a
+    /// third choice, to take one now.
     private var photoButton: some View {
         Menu {
+            if CameraPhoto.isAvailable {
+                Button {
+                    isTakingPhoto = true
+                } label: {
+                    Label("Take a photo", systemImage: "camera")
+                }
+            }
             Button {
                 isChoosingFromPhotos = true
             } label: {
