@@ -1,3 +1,30 @@
+# 15 November 2026, 11:50: three branches joined into main, tested or not
+
+**By the midday join chat.** William, 11:44: "Merge all changes into the main branch, including untested ones so that I can test all changes." Joined on the branch `join-15nov-midday`, made from `main` at `14315a5`, in its own copy (`~/Developer/windfall-join2`).
+
+**What came in**, in this order:
+
+| Branch | What it is | Tried by William? |
+|---|---|---|
+| `ipad-fixes-15nov` | Two iPad fixes from the morning (doc 78), described below | Installed on the iPad and iPhone at 11:28 inside the widget colour mix, not yet reported on |
+| `fungus-keys-shelf` | Room for John Wright's fungus key, a sample key in its place, and Identify as a place in the sidebar on the Mac and iPad (doc 77) | Mac build only, at 10:30 |
+| `leaf-flower-in-app` | The leaf and flower close-ups as a section of their own on a plant's page, and every plant drawing opens large when tapped (doc 79) | No |
+
+**The iPad fixes, which had no entry of their own:**
+
+| File | What changed, and why |
+|---|---|
+| `Windfall/Theme.swift`, `TagButtonStyle` | A new outline pill the size of a tag, so Confirm on Recent records matches the Provisional tag beside it |
+| `StatusTag` | Keeps its word on one line (`lineLimit(1)`, `fixedSize()`), so "Provisional" and "Confirm" no longer break in half in a narrow column |
+| Recent records | `ViewThatFits` puts the tag and Confirm side by side, or one above the other when there is no room |
+| `NorthRing`, `NorthRingSetter`, `GardenDrawSteps` | Dragging N round the ring froze the iPad for 9.5 seconds: every move saved the garden, so every screen reading the records redrew about 60 times a second. Now only a preview (`liveTop`) moves while dragging, and the garden is saved once when the finger lifts |
+
+**Clashes:** only `CHANGES.md`, twice, where each branch had added its entry at the top. All entries kept, newest first. No Swift file clashed.
+
+**Checked:** Windfall's own checks in a cloud workspace, Swift 6.3.1 for Linux: 123 files parse, the type check passes, cross-file checks clean, **854 logic tests pass, 0 fail**. Mac build, unsigned: BUILD SUCCEEDED (`windfall-build-logs/j2-1-mac.log`).
+
+**Not checked:** anything on a screen. The fungus keys and Identify have never been seen on an iPhone or iPad, and the leaf and flower section has not been seen by William anywhere.
+
 # 15 November 2026, 11:30: the widgets stand on the app icon's background
 
 **By the widget colour chat.** William, 11:15: "The widget background colours should match the app icon background colour." Made on the branch `widget-icon-ground`, from `main` at `505ec61`.
