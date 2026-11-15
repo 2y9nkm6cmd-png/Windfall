@@ -62,13 +62,25 @@ struct SeedListView: View {
                     // this device does best (the camera where there is
                     // one), so it is the filled, green one. The others
                     // are quieter, so the eye is led to the first.
-                    ForEach(choices) { choice in
-                        if choice == choices.first {
-                            addButton(choice).buttonStyle(.borderedProminent)
-                        } else {
-                            addButton(choice).buttonStyle(.bordered)
+                    //
+                    // The buttons sit in a `VStack`, a column, ending in
+                    // `.fixedSize()`, which tells it to take only the
+                    // room its buttons need. Without that (as first
+                    // built, 15 November 2026) the empty page stretched
+                    // each button into a tall green bar with its words
+                    // squeezed out.
+                    VStack(spacing: 10) {
+                        ForEach(choices) { choice in
+                            if choice == choices.first {
+                                addButton(choice)
+                                    .buttonStyle(.borderedProminent)
+                            } else {
+                                addButton(choice)
+                                    .buttonStyle(.bordered)
+                            }
                         }
                     }
+                    .fixedSize()
                 }
             }
 
