@@ -155,6 +155,19 @@ struct RunSurveyView: View {
     /// True when the conditions were filled in from the weather service.
     @State private var conditionsWereFilled = false
 
+    /// Every plant in the library, for the suggestions under the name
+    /// box. `@Query` asks the database and keeps the answer up to date.
+    @Query(sort: [SortDescriptor(\Plant.commonName)]) private var plants: [Plant]
+    /// The name last chosen from the suggestions. While the box still
+    /// says exactly this, there is nothing more to suggest.
+    @State private var chosenName: String?
+    /// True once "On the PoMS target list" has been set by hand. After
+    /// that the app leaves the switch alone.
+    @State private var targetSetByHand = false
+    /// `@FocusState` says whether the name box has the keyboard, and
+    /// setting it to false puts the keyboard away.
+    @FocusState private var nameHasKeyboard: Bool
+
     enum Phase { case setup, counting, finished }
 
     /// How long the count is meant to last, from the scheme's own rules.
@@ -185,7 +198,12 @@ struct RunSurveyView: View {
         } message: {
             Text("Nothing from it will be kept.")
         }
-        .onAppear { fillConditionsFromWeather() }
+        .onAppear {
+            fillConditionsFromWeather()
+            // A checking aid: a name typed in already, so a still
+            // picture can show the suggestions. See DemoGarden.fitName.
+            if let typed = DemoGarden.fitName, survey.targetPlantName == nil { nameTyped(typed) }
+        }
     }
 
     private var headerLine: String {
@@ -224,22 +242,117 @@ struct RunSurveyView: View {
             FieldBox {
                 TextField("Plant name", text: Binding(
                     get: { survey.targetPlantName ?? "" },
-                    set: { survey.targetPlantName = $0.isEmpty ? nil : $0 }
+                    set: { nameTyped($0) }
                 ))
+                .focused($nameHasKeyboard)
+                // Plant names are not in the spelling dictionary, and a
+                // "correction" to one would spoil the matching.
+                .autocorrectionDisabled()
             }
+
+            // The plants being grown, and the scheme's target flowers,
+            // that answer what has been typed. One press fills the name in.
+            ForEach(flowerSuggestions) { suggestion in
+                suggestionRow(suggestion)
+            }
+
             SettingRow("Floral units") {
                 NumberStepper(value: Binding(
                     get: { survey.floralUnitCount ?? 0 },
                     set: { survey.floralUnitCount = $0 }
-                ), range: 0...500)
+                ), range: 0...500, canType: true)
             }
-            Toggle("On the PoMS target list", isOn: $survey.isSchemeTargetFlower)
+            Toggle("On the PoMS target list", isOn: Binding(
+                get: { survey.isSchemeTargetFlower },
+                set: {
+                    survey.isSchemeTargetFlower = $0
+                    targetSetByHand = true
+                }
+            ))
                 .tint(Theme.leaf)
                 .foregroundStyle(Theme.ink)
+            if let target = matchedTarget, survey.isSchemeTargetFlower, !targetSetByHand {
+                Text("Switched on for you: \(target.name) is one of the scheme's fourteen target flowers.")
+                    .font(.footnote)
+                    .foregroundStyle(Theme.inkSoft)
+            }
             Text("Count the floral units in the patch before starting the timer.")
                 .font(.footnote)
                 .foregroundStyle(Theme.inkSoft)
         }
+    }
+
+    /// What to offer under the name box. The choosing and the ordering
+    /// are in FITTargets.swift.
+    private var flowerSuggestions: [FITSuggestion] {
+        let typed = survey.targetPlantName ?? ""
+        // A name just chosen from this list needs no list under it.
+        guard typed != chosenName else { return [] }
+        return FITTargets.suggestions(for: typed, among: plants,
+                                      month: Calendar.current.component(.month, from: .now))
+    }
+
+    /// The target flower the name in the box is, if it is one.
+    private var matchedTarget: FITTargetFlower? {
+        FITTargets.target(name: survey.targetPlant?.commonName ?? survey.targetPlantName ?? "",
+                          latin: survey.targetPlant?.latinName)
+    }
+
+    /// One suggestion: the name, a smaller line under it and a tag if
+    /// the plant is in flower this month. The whole line is a button.
+    private func suggestionRow(_ suggestion: FITSuggestion) -> some View {
+        Button {
+            choose(suggestion)
+        } label: {
+            HStack(spacing: 8) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(suggestion.title)
+                        .font(.body)
+                        .foregroundStyle(Theme.ink)
+                    if let detail = suggestion.detail {
+                        Text(detail)
+                            .font(.footnote)
+                            .foregroundStyle(Theme.inkSoft)
+                    }
+                }
+                .multilineTextAlignment(.leading)
+                Spacer(minLength: 0)
+                if suggestion.isInFlower {
+                    StatusTag(text: "In flower", fill: Theme.leafFill)
+                }
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            // Makes the empty part of the line pressable too.
+            .contentShape(.rect)
+        }
+        .buttonStyle(.plain)
+        .background(Theme.leafFill.opacity(0.35), in: .rect(cornerRadius: 12))
+        .accessibilityHint("Uses this as the target flower")
+    }
+
+    /// Called with every change to the name box.
+    private func nameTyped(_ words: String) {
+        // SwiftUI can hand back the same words, when the keyboard comes
+        // or goes for one. Nothing has changed then.
+        guard words != (survey.targetPlantName ?? "") else { return }
+        survey.targetPlantName = words.isEmpty ? nil : words
+        // The count stays joined to a plant's record only while the box
+        // still says that plant's name.
+        if let plant = survey.targetPlant, plant.displayName != words { survey.targetPlant = nil }
+        if !targetSetByHand {
+            survey.isSchemeTargetFlower = FITTargets.isTarget(name: words, latin: survey.targetPlant?.latinName)
+        }
+    }
+
+    /// Takes a suggestion: fills the name in, joins the count to the
+    /// plant's record if there is one, and sets the target-list switch.
+    private func choose(_ suggestion: FITSuggestion) {
+        survey.targetPlantName = suggestion.title
+        survey.targetPlant = suggestion.plant
+        chosenName = suggestion.title
+        if !targetSetByHand { survey.isSchemeTargetFlower = suggestion.isTarget }
+        nameHasKeyboard = false
     }
 
     private var pitCard: some View {

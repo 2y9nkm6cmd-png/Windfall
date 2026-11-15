@@ -267,6 +267,15 @@ enum DemoGarden {
         return letter.uppercased()
     }
 
+    /// A checking aid: `-demoOpen fit -demoFITName lav` opens a FIT
+    /// Count with "lav" already in the name box, so a still picture can
+    /// show the suggestions under it. Nil when it was not asked for.
+    static var fitName: String? {
+        guard isRequested, let typed = UserDefaults.standard.string(forKey: "demoFITName"),
+              !typed.isEmpty else { return nil }
+        return typed
+    }
+
     /// Fills the empty in-memory store with an example garden. Does
     /// nothing if it has already been filled.
     static func fill(_ context: ModelContext) {
