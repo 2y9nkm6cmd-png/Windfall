@@ -6,6 +6,10 @@
 //  what visits this plant, what should I plant for this animal, and which
 //  flower shapes is my garden missing.
 //
+//  Since 15 November 2026 the list also opens the UK wildlife reference
+//  (WildlifeBookViews.swift), and each of William's own species shows the
+//  drawing of its kind from it.
+//
 
 import SwiftUI
 import SwiftData
@@ -43,6 +47,27 @@ struct FaunaListView: View {
                 }
             }
 
+            // The UK wildlife reference: every animal you could meet,
+            // by kind, each kind with a drawing (WildlifeBookViews.swift).
+            // It ships inside the app and is not part of the records.
+            if !WildlifeReference.shared.animals.isEmpty {
+                Section {
+                    NavigationLink {
+                        WildlifeBookView()
+                    } label: {
+                        HStack(spacing: 12) {
+                            WildlifeKindPicture(slug: "bumblebee", size: 40)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("All UK wildlife").font(.body.weight(.medium))
+                                Text("\(WildlifeReference.shared.animals.count) animals by kind, with drawings")
+                                    .font(.footnote)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                    }
+                }
+            }
+
             if !shapes.isEmpty {
                 Section {
                     NavigationLink {
@@ -58,7 +83,8 @@ struct FaunaListView: View {
                 }
             }
 
-            Section("Species") {
+            // William's own list, from his Fauna sheet, with his notes.
+            Section("Your species") {
                 ForEach(filtered) { animal in
                     // Each row is given its page outright, the way the
                     // two rows above ("Flower shape coverage" and
@@ -78,19 +104,27 @@ struct FaunaListView: View {
                     NavigationLink {
                         FaunaDetailView(fauna: animal)
                     } label: {
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(animal.commonName).font(.body.weight(.medium))
-                            if let latin = animal.scientificName {
-                                Text(latin).font(.footnote).italic().foregroundStyle(.secondary)
+                        HStack(spacing: 12) {
+                            // The drawing of its kind, found by its
+                            // scientific name in the UK wildlife list.
+                            // A species the list does not hold has none.
+                            if let kind = WildlifeReference.shared.kind(ofScientificName: animal.scientificName) {
+                                WildlifeKindPicture(slug: kind.slug, size: 44)
                             }
-                            HStack(spacing: 6) {
-                                if let group = animal.recordingGroup { Text(group) }
-                                if let tongue = animal.tongueLength, tongue != "n/a" {
-                                    Text("· \(tongue) tongue")
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(animal.commonName).font(.body.weight(.medium))
+                                if let latin = animal.scientificName {
+                                    Text(latin).font(.footnote).italic().foregroundStyle(.secondary)
                                 }
+                                HStack(spacing: 6) {
+                                    if let group = animal.recordingGroup { Text(group) }
+                                    if let tongue = animal.tongueLength, tongue != "n/a" {
+                                        Text("· \(tongue) tongue")
+                                    }
+                                }
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
                             }
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
                         }
                     }
                 }
@@ -124,8 +158,28 @@ struct FaunaDetailView: View {
         }
     }
 
+    /// This species in the UK wildlife list, if it is there. It gives the
+    /// page its drawing and a link to the months it is recorded in.
+    private var ukListing: WildlifeAnimal? {
+        WildlifeReference.shared.animal(scientificName: fauna.scientificName)
+    }
+
     var body: some View {
         Form {
+            if let listing = ukListing {
+                Section {
+                    WildlifeKindPicture(slug: listing.kindSlug, size: 160)
+                        .frame(maxWidth: .infinity)
+                    NavigationLink {
+                        WildlifeAnimalPage(creature: listing)
+                    } label: {
+                        Text("When it is recorded in the UK")
+                    }
+                } footer: {
+                    Text("The drawing is of its kind, not of this species.")
+                }
+            }
+
             Section {
                 if let latin = fauna.scientificName {
                     LabeledContent("Scientific name") { Text(latin).italic() }

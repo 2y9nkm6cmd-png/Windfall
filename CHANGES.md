@@ -1,3 +1,46 @@
+# 15 November 2026, 17:05: a UK wildlife reference, with a drawing for each kind of animal
+
+**By the "wildlife rows" chat, from William's iPad, in a cloud workspace. Not built in Xcode.** William, 15:58: "It would be good if you could create a sheet with all wildlife that you could encounter in the uk in it. With drawings." Asked three things, he chose: in the app, the animals Eira can name, and one drawing for each kind. Made on the branch `uk-wildlife-reference`, on top of `species-rows-open` (the entry below), because both change `FaunaViews.swift`.
+
+**Before.** Wildlife, Species listed the 21 animals of William's own Fauna sheet and nothing else.
+
+**Now.** The Species page opens with "All UK wildlife": 4,180 animals in 83 kinds, each kind with a drawing. His own 21 are still there, under "Your species", and 19 of them now show their kind's drawing.
+
+| File | What it is, and why |
+|---|---|
+| `WildlifeReference.json` (new) | The list that ships inside the app: every animal with 20 or more research-grade UK records on iNaturalist, fetched 15 November 2026. Each has its names, kind, family, order, count of UK records and, where fetched, its count in each month. Field names are one letter to keep the file small |
+| `WildlifeReference.swift` (new) | Reads the list and answers questions about it: the kinds under their headings, a kind's animals, an animal by scientific name, search, and the months an animal is about in, in words. No drawing code, so it is tested without a Mac. **The list is read from the file and never written into the database**, so it cannot be muddled with William's records and costs iCloud nothing |
+| `WildlifeBookViews.swift` (new) | Three pages. `WildlifeBookView`: the kinds as tiles under headings, with a search box. `WildlifeKindPage`: one kind's animals, most recorded first, with a switch for "only those recorded in November". `WildlifeAnimalPage`: one animal, with twelve bars for the months it is recorded in and a link to William's own notes when he has it |
+| `FaunaViews.swift` | A row at the top opens the new pages. "Species" is headed "Your species". Each of his species shows its kind's drawing, found by scientific name, and its page has the drawing and a link to its months |
+| `Assets.xcassets/Wildlife` (new) | The 83 drawings, each light and dark |
+| `Tools/data/wildlife_kinds.py` (new) | The 83 kinds and the rules that sort an animal into one, from its family, order and class |
+| `Tools/data/build_wildlife_reference.py` (new) | Makes `WildlifeReference.json` from what was fetched |
+| `Tools/data/wildlife/` (new) | What iNaturalist returned, the three scripts that fetched it and a READ-ME |
+| `Tools/design/wildlife_kit.py`, `wildlife.py` (new) | The drawing kit and the 83 drawings. An animal is built from simple shapes joined into one outline, with patches of colour cut to fit. **They need the Python library `shapely`** (`pip install shapely`), the first of the drawing scripts to need anything beyond Python |
+| `Tools/design/build_design_assets.py` | `build_wildlife()` copies `Design/Wildlife` into the app's store of pictures |
+| `Tools/checks/LogicTests.swift`, `logic-files.txt` | 19 new tests |
+
+**What the code means, in short.**
+
+- `struct WildlifeAnimal: Decodable`: a `struct` is a bundle of values. `Decodable` means Swift can fill one in from a JSON file by itself. `CodingKeys` tells it that the file's `"s"` is `scientificName`, and so on.
+- `static let shared`: the list is read once, the first time anything asks for it, and kept.
+- `placesByKind` and `placeByName` are look-up tables made once when the list is read, so finding a kind's animals or one animal by name does not mean walking through four thousand rows each time.
+- `isAbout(inMonth:)` returns true, false or nothing (`Bool?`). Nothing means the months were not fetched for that animal. The pages keep such an animal when filtering by month, because leaving it out would claim something the list does not know.
+- Every link in the new pages is `NavigationLink { page } label: { row }`, the kind that carries its own page (see the entry below).
+
+**⚠️ CHECK, all Claude's:**
+
+1. **The names are iNaturalist's.** Some are not the usual British ones: "Nightcrawler" for the lob worm, "Common Wood-Pigeon", "Buff-tailed Bumble Bee". 780 animals have no common name and are shown by scientific name.
+2. **The 83 kinds, their names and their headings**, and every rule in `wildlife_kinds.py`. Some kinds are catch-alls: "Other birds" holds wagtails, pipits, larks, starling, kingfisher and cuckoo. The slow-worm is with the snakes because it looks like one. Gall makers gathers gall wasps, gall midges and gall mites.
+3. **The 83 drawings.** Each is a picture of a kind, drawn as one typical member: the bumblebee is a buff-tailed, the tit a blue tit, the thrush a robin. Claude's weakest: the sea snail, the badger, the deer and the squirrel.
+4. **"About in a month" means at least 2 in 100 of its records fall in it.** The level is the one Eira's photo rules use. Records follow where and when people look, not only where animals are.
+5. **The list is what iNaturalist's recorders have photographed**, so it holds a domestic cat, a horse and a walrus, and misses anything rarely photographed. It should be nearly the animals in the image model's list of 6,421 names, which was cut by the same rule the day before, but the two were fetched a day apart and were not compared.
+6. **His own list is not joined to this one.** A species in both is linked by scientific name only. Two of his 21 are not in the UK list: "Andrena spp." (a group, not a species) and *Myrmica sabuleti*.
+
+**Checked:** Windfall's own checks in a cloud workspace (Swift 6.3.1 for Linux): 126 files parse, type check passes, cross-file checks clean, 890 logic tests pass. The drawings were looked at by Claude as a sheet, light and dark. Rebuilding the picture store changed no existing picture.
+
+**Not checked:** a build. No screen in `WildlifeBookViews.swift` or the changed `FaunaViews.swift` has been compiled or seen. How long a list of 580 moths takes to open. How the drawings look at 40 points in a row.
+
 # 15 November 2026, 16:05: a species opens when its row is tapped
 
 **By the "wildlife rows" chat, from William's iPad, in a cloud workspace. Not built in Xcode.** William, 15:58, with a picture of Wildlife, Species on the iPad, the Campion moth row grey: "Nothing happens when you tap the wildlife". Made on the branch `species-rows-open`, from `main` at `6cbfc37`.
