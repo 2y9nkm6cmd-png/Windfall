@@ -1,4 +1,4 @@
-# 15 November 2026, 17:05: a UK wildlife reference, with a drawing for each kind of animal
+# 15 November 2026, 16:50: a UK wildlife reference, with a drawing for each kind of animal
 
 **By the "wildlife rows" chat, from William's iPad, in a cloud workspace. Not built in Xcode.** William, 15:58: "It would be good if you could create a sheet with all wildlife that you could encounter in the uk in it. With drawings." Asked three things, he chose: in the app, the animals Eira can name, and one drawing for each kind. Made on the branch `uk-wildlife-reference`, on top of `species-rows-open` (the entry below), because both change `FaunaViews.swift`.
 
@@ -8,7 +8,7 @@
 
 | File | What it is, and why |
 |---|---|
-| `WildlifeReference.json` (new) | The list that ships inside the app: every animal with 20 or more research-grade UK records on iNaturalist, fetched 15 November 2026. Each has its names, kind, family, order, count of UK records and, where fetched, its count in each month. Field names are one letter to keep the file small |
+| `WildlifeReference.json` (new) | The list that ships inside the app: every animal with 20 or more research-grade UK records on iNaturalist, fetched 15 November 2026. Each has its names, kind, family, order, count of UK records and its count in each month. Field names are one letter to keep the file small |
 | `WildlifeReference.swift` (new) | Reads the list and answers questions about it: the kinds under their headings, a kind's animals, an animal by scientific name, search, and the months an animal is about in, in words. No drawing code, so it is tested without a Mac. **The list is read from the file and never written into the database**, so it cannot be muddled with William's records and costs iCloud nothing |
 | `WildlifeBookViews.swift` (new) | Three pages. `WildlifeBookView`: the kinds as tiles under headings, with a search box. `WildlifeKindPage`: one kind's animals, most recorded first, with a switch for "only those recorded in November". `WildlifeAnimalPage`: one animal, with twelve bars for the months it is recorded in and a link to William's own notes when he has it |
 | `FaunaViews.swift` | A row at the top opens the new pages. "Species" is headed "Your species". Each of his species shows its kind's drawing, found by scientific name, and its page has the drawing and a link to its months |
