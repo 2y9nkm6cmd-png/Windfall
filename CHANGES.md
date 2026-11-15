@@ -1,3 +1,28 @@
+# 15 November 2026, 16:05: on an iPad, pages stop at Eira's bar again and no longer scroll on past their end
+
+**By the "scrolls too far" chat, from William's iPad. Branch `bar-strip-inside-stack`, made from `main` at `6cbfc37`. Not in `main`. Written in Claude's cloud workspace: the Mac was not connected, so it has not been built or seen running.**
+
+William, 15:47, with a picture of the Journal on the iPad: "The journal app and settings app now scroll too far initially." Asked what he saw, he chose: the page opens at the top, but can be dragged up until a big empty gap sits above Eira's bar. Today, Gardens, Wildlife and Plants do it too. The keyboard had not been up.
+
+**What the picture shows.** The last card of the Journal ends 334 points down a window 744 points tall, with the page at rest. Eira's bar begins at 650. So there are 410 points under the last card where there should be 114: the 20 points of air the page adds, the bar's strip of 74 and the 20 points at the foot of the screen. Take the page's own 20 away and the page had been told that 390 points along its bottom were taken. 390 is five strips of 74 and the 20 at the foot.
+
+**The likely cause.** MainTabView keeps a strip clear for the bar with `safeAreaInset`, put round each place's `NavigationStack`. On an iPad the stack is Apple's older kind of screen with the SwiftUI page fitted inside, and the strip has to be handed across that join. Two things have now been seen there, both wrong: at 13:35 in the simulator the page was told nothing (the Journal's last entry sat behind the bar), and at 15:42 on the iPad every page was told about five times too much. **The count of five was worked out from one picture. It was not reproduced, and why it is five was not found.** Nothing in today's changes to `MainTabView.swift` alters how tall the strip is.
+
+**The change.** On an iPad the strip no longer crosses the join. It is put on the page itself, inside the stack.
+
+| File | What changed, and why |
+|---|---|
+| `MainTabView.swift`, `sidebarLayout` | New `barStrip`: the empty strip and its measurement, written once. On an iPad it is put on the place's page inside the `NavigationStack` (`#if !os(macOS)`). On a Mac it stays round the stack, as before (`#if os(macOS)`) |
+| `JournalViews.swift`, `hiddenByBar` | The note says that an iPad's strip is now on the page, so the extra room it adds there should come to nothing. The sums are unchanged |
+
+**Not changed:** the iPhone, whose strip is still round the stack on each tab. Nobody has reported it there. The Mac. Where the bar sits and how it opens.
+
+**What this costs on an iPad.** A page opened on top of another (a plant, a bed, a page behind a Settings tile) is no longer told about the strip, so its last lines run to the foot of the screen and can sit under the bar's corner. Before 13:35 today the simulator showed those pages untold as well. Giving them the strip needs each of them to add it, or `paperScreen()` to, without also adding it to sheets: a job of its own.
+
+**Checked:** Windfall's own checks in the cloud workspace (Swift 6.3.1 for Linux): 124 files parse, the type check of the logic files passes, cross-file checks clean, 871 logic tests pass. These checks read a screen's code for mistakes of grammar only. They cannot say whether the page now stops in the right place.
+
+**Not checked:** a build of any kind. Anything on a screen. **To check on the iPad:** Journal, Settings and Today each scrolled to the foot (the last card should stop about 20 points above the bar), the same after changing place a few times, with the iPad upright and on its side, and with the sidebar hidden. If the gap is still there, the strip was not the cause and this change can be taken out again.
+
 # 15 November 2026, 15:30: on Identify, a further photo joins the identification
 
 **By the identify photos chat.** William, 14:05: "Can you make it so that when you're identifying plants, if you need to take another photo, the previous one is still stored as part of the identification". Made on the branch `identify-keep-photos`, from `main` at `143e24e`.

@@ -197,6 +197,12 @@ struct JournalTimelineView: View {
     /// the bar hides, and that much is added under the last card. If
     /// the strip did reach the page, the two are the same, the answer
     /// is nothing and no room is added twice.
+    ///
+    /// Since the afternoon of 15 November 2026 an iPad has the strip on
+    /// the page itself, inside the stack (`MainTabView.barStrip`), so
+    /// there the answer should always be nothing. This is kept for an
+    /// iPhone, whose strip is still round the stack, and as a
+    /// safeguard.
     private func hiddenByBar(_ geometry: GeometryProxy) -> CGFloat {
         // `guard let` stops here with 0 if there is no tracker or the
         // line has not been measured yet.
