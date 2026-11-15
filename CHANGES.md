@@ -1,3 +1,29 @@
+# 15 November 2026, 16:45: the paper behind every screen is one flat colour
+
+**By the "remove the gradient" chat, linked to the Mac. Branch `plain-paper-background`, made from `main` at `a2744bb`.**
+
+William, 16:35: "Let's remove the gradient background in app".
+
+**Before.** `PaperBackground` in `Theme.swift` painted the paper colour and then two very large, heavily blurred circles over it: a green one (`Theme.leafFill`) towards the top right and a yellow one (`Theme.sun`) towards the bottom left. Blurred that much they read as a soft shading from corner to corner. They were there so that glass panels had something to bend.
+
+**Now.** `PaperBackground` paints `Theme.paper` and nothing else: cream in light mode, deep green in dark mode.
+
+| File | What changed, and why |
+|---|---|
+| `Theme.swift`, `PaperBackground` | The body is `Theme.paper.ignoresSafeArea()`. The two circles, the sums that placed them (`GeometryReader`, the zoom and the shifts) and the `followsWindow` setting are gone. `followsWindow` only existed to line a page's circles up with the window's, so with no circles it has nothing to do |
+| `Theme.swift`, `PaperCanvas` | Removed. It was the note of where the window's background was, kept for the same lining-up |
+| `Theme.swift`, `paperScreen()` | Asks for `PaperBackground()` with no setting |
+| `MainTabView.swift`, the window's background | No longer measures itself with `onGeometryChange` to fill in `PaperCanvas` |
+| `MainTabView.swift`, Settings | The **Plain background** switch is removed: it did by a switch what the app now always does. The section is headed "Speed check" and holds the one switch left, Plain fade between places. Its words are shortened to match |
+
+**Not changed:** the paper colour itself. Cards, glass and Eira's bar. Sheets, the plant chooser and Eira's panel, which use `PaperBackground()` too and so go flat with everything else. The other three gradients in the app, none of which is a background: the bright rim on a glass switch (`GlassSwitch.swift`), the same rim on the sidebar's glass (`MainTabView.swift`) and the shadow at the edge of a page being swiped back on a Mac (`PageZoom.swift`). The widgets, which never had the circles.
+
+**What it costs.** Glass over bare paper has only the flat colour to bend, so a glass card at rest looks a little plainer than it did. It still shows what scrolls under it.
+
+**What it saves.** Two blurs of 110 and 120 points across the whole window, on every page and every sheet, are no longer drawn. Not measured.
+
+**Left behind on purpose:** a device that had the Plain background switch on keeps a stored value called `plainBackground` that nothing reads any more. It does no harm.
+
 # 15 November 2026, 16:05: on an iPad, pages stop at Eira's bar again and no longer scroll on past their end
 
 **By the "scrolls too far" chat, from William's iPad. Branch `bar-strip-inside-stack`, made from `main` at `6cbfc37`. Joined into `main` at 16:05 the same day (`78276c7`), at William's word (16:03: "Let's add it to the main branch and push it out"). Written in Claude's cloud workspace: the Mac was not connected, so it has not been built or seen running, and `main` now holds a change no compiler for Apple's devices has read.**
