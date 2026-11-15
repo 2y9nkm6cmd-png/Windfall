@@ -145,6 +145,15 @@ def insect(a, cx=50, top=None, head=(4.4, 3.8, "black"), th=(6.5, 7.0, "black"),
         w = arx * math.sqrt(max(0.0, 1 - v * v)) * (0.96 if not tip else 0.8)
         stroke(a, [(cx - w, ay + v * ary), (cx, ay + v * ary + ary * 0.07), (cx + w, ay + v * ary)], 0.45, 0.3)
     figure(a, [furry(cx, ty, trx, try_)], tc, [(band(cx, ty, trx, try_, v1, v2), c) for v1, v2, c in th_bands], close=0)
+    if fuzz:      # a furry insect: short pale hairs lying back along the thorax and abdomen
+        for ox, oy, rx, ry, rows in ((cx, ty, trx, try_, 3), (cx, ay, arx, ary, 5)):
+            for r in range(rows):
+                v = -0.62 + 1.24 * (r + 0.5) / rows
+                n = 5 if r % 2 else 4
+                for k in range(n):
+                    u = -0.72 + 1.44 * (k + 0.5) / n
+                    x = ox + u * rx * math.sqrt(1 - v * v); y = oy + v * ry
+                    stroke(a, [(x, y - 0.8), (x + u * 0.5, y + 1.0)], 0.4, 0.42, col="cream", smooth=False)
     figure(a, [ell(cx, hy, hrx, hry)], hc, close=0)
     if eyes:
         for side in (1, -1):
@@ -1308,10 +1317,32 @@ def bat():
     return a
 
 
-def four_legs(a, xs, top, foot, w, colour, sock=None, far=False):
-    for x in xs:
-        g = limb([(x, top), (x + 0.6, (top + foot) / 2), (x + 0.2, foot)], w, w * 0.72)
-        figure(a, [g], colour, [(band(x, foot, 6, foot - top, -0.38, 0.2), sock)] if sock else [], close=0, lw=0.9, shade=not far)
+def four_legs(a, xs, top, foot, w, colour, sock=None, far=False, hoof=None):
+    """Two of an animal's legs seen from the side, with their joints. The one
+    further back is a HIND leg: a broad thigh, then a hock that points
+    backwards. The other is a FRONT leg: straight, with a knee halfway. Each
+    ends in a paw, or a hoof if a hoof colour is given. A leg too short to
+    show its joints (a badger's) is a stump with a paw.
+      sock   a colour for the lower leg (a fox's black legs)
+      far    the pair on the animal's far side, drawn flat without shading"""
+    L = foot - top
+    for i, x in enumerate(sorted(xs)):
+        paw = ell(x + w * 0.4, foot - w * 0.28, w * 0.8, w * 0.36)
+        if L < w * 3.4:
+            g = [limb([(x, top), (x + 0.6, (top + foot) / 2), (x + 0.2, foot - w * 0.2)], w, w * 0.8), paw]
+        elif i == 0:
+            hock = (x - w * 0.75, top + L * 0.64)
+            g = [limb([(x - w * 0.2, top), (x + w * 0.55, top + L * 0.36), hock], w * 1.7, w * 0.78), limb([hock, (x - w * 0.3, foot - w * 0.3)], w * 0.78, w * 0.66),
+                 ell(x + w * 0.2, foot - w * 0.28, w * 0.8, w * 0.36)]
+        else:
+            knee = (x + w * 0.2, top + L * 0.5)
+            g = [limb([(x, top), knee], w * 1.25, w * 0.8), limb([knee, (x - w * 0.05, foot - w * 0.3)], w * 0.8, w * 0.66), paw]
+        patches = []
+        if sock:
+            patches.append((band(x, foot, 12, L, -0.42, 0.3), sock))
+        if hoof:
+            patches.append((band(x, foot, 12, L, -0.09, 0.3), hoof))
+        figure(a, g, colour, patches, close=0.4, lw=0.9, shade=not far)
 
 
 @draws("fox")
