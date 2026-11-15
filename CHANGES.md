@@ -1,3 +1,21 @@
+# 15 November 2026, 13:35: the Journal's last entry scrolls clear of Eira's bar
+
+**By the "zoom still not right" chat, its second job.** William, 13:16, with a picture from the iPad: "In journal, because Eira's bar is there the whole time, the very bottom item is cut off. Could you make it so that you can scroll the posts above the bar?" Made on the branch `journal-clear-of-bar`, from `main` at `720efee`.
+
+**The cause.** MainTabView keeps a strip clear along the bottom of every page for the bar (`safeAreaInset`), put round each place's `NavigationStack`. On an iPad that strip does not reach the page inside the stack: the Journal's scrolling stopped at the screen's own bottom edge, 74 points lower than it should, so the last entry rested behind the bar. A picture of the simulator before the change shows it (`shots/jb-before-ipad-end.png`).
+
+| File | What changed, and why |
+|---|---|
+| `EiraScreen.swift` | New `barLine`: how far down the window the bar's strip begins. Kept on the tracker every page can already read |
+| `MainTabView.swift` | Both strips (sidebar layout and iPhone tabs) report where they begin with `onGeometryChange`, which runs only when the measurement changes |
+| `JournalViews.swift`, `JournalTimelineView` | New `hiddenByBar(_:)`: the page's own bottom edge less `barLine`, never under 0 nor over 120. That much is added under the last card, on top of the usual 20 points. Where the strip does reach the page the sum comes to nothing, so room is never added twice |
+| `DemoGarden.swift` | A checking aid, `-startSection journal -demoJournalEnd YES`, opens the Journal already scrolled to its foot (`defaultScrollAnchor`) |
+
+**Not changed:** every other page. Today, Gardens and the rest are laid out the same way, so on an iPad their last lines very likely stop 74 points low as well. It shows less there because the bar is closed to a small round button in the corner.
+
+**Checked:** simulator build, unsigned: BUILD SUCCEEDED (`windfall-build-logs/jb2-sim.log`). Simulator pictures with the Journal scrolled to its foot (`shots/jb-after-ipad-end.png` on an iPad mini, `jb-after-iphone-end.png` on an iPhone 17e, script `journalbar-shots.sh`): the last card ends about 20 points above the bar on both.
+
+**Not checked:** a scroll by hand on any device, the Mac's own window, the iPad on its side, and whether the iPhone ever had the fault (the "before" picture of the iPhone was lost: another chat was using the same simulator).
 # 15 November 2026, 13:15: Eira's symbol is the app icon's snowdrop, in colour
 
 **By the snowdrop chat.** William, 14 November: "Can we rebuild Eira's icon so it more resembles the snowdrop in the app icon?" On 15 November he chose option A of three drawn for him: "No bee in the Eira icon... it keeps its circle" and "I think A", the whole snowdrop in colour, and of the circle's colour "You used the right green" (project docs 72 and 83). Made on the branch `eira-snowdrop-a`, from `main`.

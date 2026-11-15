@@ -190,6 +190,12 @@ enum DemoGarden {
     static var opensPlantDrawing: String? {
         isRequested ? UserDefaults.standard.string(forKey: "demoPlantDrawing") : nil
     }
+    /// A checking aid: `-startSection journal -demoJournalEnd YES` opens
+    /// the Journal page already scrolled to its foot, to see whether the
+    /// last entry comes clear of Eira's bar.
+    static var journalStartsAtEnd: Bool {
+        isRequested && UserDefaults.standard.bool(forKey: "demoJournalEnd")
+    }
     static var opensCompanions: String? {
         isRequested ? UserDefaults.standard.string(forKey: "demoCompanions") : nil
     }
