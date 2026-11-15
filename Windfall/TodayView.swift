@@ -226,7 +226,8 @@ struct TodayView: View {
             // A sighting started from Eira's made-up answer to a photo,
             // given the middle of Bristol as where the photo was taken,
             // so a still picture can show the form arriving filled in.
-            let observation = EiraIdentify.startSighting(from: EiraIdentify.example(in: context), photos: [], in: context)
+            let madeUpAnswer = EiraIdentify.example(in: context)
+            let observation = EiraIdentify.startSighting(from: madeUpAnswer, photos: [], in: context)
             observation.takePlace(latitude: 51.4545, longitude: -2.5879)
             sheet = .newSighting(observation)
         case "identify": sheet = .identify
