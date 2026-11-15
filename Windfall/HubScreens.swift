@@ -382,6 +382,9 @@ struct WildlifeTab: View {
     @Query(sort: [SortDescriptor(\Survey.startedAt, order: .reverse)])
     private var surveys: [Survey]
     @Query private var species: [Fauna]
+    /// Where records are saved and deleted. Used to delete a sighting
+    /// swiped away in Latest sightings.
+    @Environment(\.modelContext) private var context
 
     /// Narrow on an iPhone, which has no Identify place in its tabs, so
     /// the ways to identify are kept here as tiles. On a Mac or an iPad
@@ -457,8 +460,11 @@ struct WildlifeTab: View {
                 .hubTileGlass()
 
                 GrowingLink { FaunaListView() } label: {
+                    // Says what is inside: William's own species and the
+                    // UK guide. Until 15 November 2026 it read "21 in the
+                    // reference", and William could not tell what it was.
                     HubTile(icon: .drawn(.butterfly), title: "Species",
-                            detail: "\(species.count) in the reference")
+                            detail: speciesTileWords)
                 }
                 .hubTileGlass()
 
@@ -479,6 +485,13 @@ struct WildlifeTab: View {
                 }
             }
         }
+    }
+
+    /// The Species tile's second line: "Your 21, and 4,180 UK animals".
+    private var speciesTileWords: String {
+        let uk = WildlifeReference.shared.animals.count
+        let yours = "Your \(species.count)"
+        return uk > 0 ? "\(yours), and \(uk.formatted()) UK animals" : "\(yours) species"
     }
 
     // MARK: Latest sightings
@@ -507,6 +520,9 @@ struct WildlifeTab: View {
                     sightingRow(sighting)
                 }
                 .buttonStyle(.plain)
+                // Swipe left for Delete (SwipeToDelete.swift). Its photos
+                // go with it (`deleteRule: .cascade` in WildlifeModels.swift).
+                .swipeToDelete { context.delete(sighting) }
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)

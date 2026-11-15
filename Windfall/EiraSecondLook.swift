@@ -120,7 +120,8 @@ enum EiraSecondLook {
     ///   their shares among plants alone.
     /// - `seen`: what Apple's model said, or nil if it could not look
     ///   (no Apple Intelligence, an older system, or it failed).
-    /// - `yourPlants`: William's own plants with a scientific name.
+    /// - `yourPlants`: William's own plants. Those with no scientific
+    ///   name can only be matched by their English name.
     ///
     /// The rules:
     /// 1. If Apple's model says the animal is not on a plant, no plant
@@ -130,8 +131,8 @@ enum EiraSecondLook {
     /// 3. If it could not look at all, the image model's first plant is
     ///    used only when its share is at least `plantShareOnItsOwn`.
     /// 4. The plant is then looked for among William's own: the same
-    ///    species first, then the same genus. His name for it is used
-    ///    when one matches.
+    ///    species first, then the same genus, then by English name. His
+    ///    name for it is used when one matches.
     /// 5. What it was doing comes only from Apple's model, and only when
     ///    it chose one of the ready-made answers.
     static func suggestion(plants: [SpeciesCandidate],
@@ -151,7 +152,7 @@ enum EiraSecondLook {
 
         if let chosen {
             result.plantLatin = chosen.scientific
-            if let yours = yourPlant(for: chosen.scientific, among: yourPlants) {
+            if let yours = yourPlant(for: chosen.scientific, common: chosen.common, among: yourPlants) {
                 result.plantName = yours.name
                 result.plantIsYours = true
             } else {
@@ -187,13 +188,40 @@ enum EiraSecondLook {
     }
 
     /// One of William's plants with this species, or failing that this
-    /// genus. The first in his list wins, so the answer never wavers.
-    static func yourPlant(for scientific: String, among yours: [KnownPlant]) -> KnownPlant? {
+    /// genus, or failing that this English name. The first in his list
+    /// wins, so the answer never wavers.
+    ///
+    /// The English name step was added on 15 November 2026: his
+    /// Sunflower has no Latin name in his list, so a bee on a sunflower
+    /// was offered "Common Sunflower (Helianthus annuus)" and not his
+    /// own Sunflower.
+    static func yourPlant(for scientific: String, common: String? = nil, among yours: [KnownPlant]) -> KnownPlant? {
         let species = SpeciesName.key(scientific)
-        if let same = yours.first(where: { SpeciesName.key($0.latin) == species }) { return same }
+        if !species.isEmpty, let same = yours.first(where: { SpeciesName.key($0.latin) == species }) { return same }
         let genus = species.split(separator: " ").first.map(String.init) ?? species
-        guard !genus.isEmpty else { return nil }
-        return yours.first { SpeciesName.key($0.latin).split(separator: " ").first.map(String.init) == genus }
+        if !genus.isEmpty,
+           let sameGenus = yours.first(where: { SpeciesName.key($0.latin).split(separator: " ").first.map(String.init) == genus }) {
+            return sameGenus
+        }
+        guard let common else { return nil }
+        return yours.first { $0.latin.isEmpty && englishNameFits(yours: $0.common, theirs: common) }
+    }
+
+    /// True when the English name of one of William's plants is the
+    /// last word or words of the image model's English name, whole
+    /// words only: his "Sunflower" fits "Common Sunflower", and his
+    /// "Rose" does not fit "Rosebay Willowherb".
+    ///
+    /// ⚠️ CHECK: it can match a plant to a wild relative of the same
+    /// name, such as his Parsley to Cow Parsley. It is only used for
+    /// plants with no Latin name in his list, and only to suggest.
+    static func englishNameFits(yours: String?, theirs: String) -> Bool {
+        func words(_ text: String) -> [String] {
+            text.lowercased().split(whereSeparator: { !$0.isLetter }).map(String.init)
+        }
+        let mine = words(yours ?? ""), wild = words(theirs)
+        guard !mine.isEmpty, mine.count <= wild.count else { return false }
+        return Array(wild.suffix(mine.count)) == mine
     }
 
     /// The words Apple's model is given with the photo.

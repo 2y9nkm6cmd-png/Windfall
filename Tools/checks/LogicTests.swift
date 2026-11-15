@@ -1673,6 +1673,12 @@ struct LogicTests {
         lookedAt.keep(looked)
         check(wantedBefore && !lookedAt.wantsSecondLook && lookedAt.eiraPlantSuggestion == "Sunflower — Velvet Queen" && lookedAt.eiraDoingSuggestion == "Feeding at a flower" && lookedAt.associatedPlantName == nil && lookedAt.interaction == nil, "the suggestions are kept on the sighting without filling its boxes, and it is not looked at twice")
         check(EiraSecondLook.question(animal: "Honey Bee", plantNames: ["Common Sunflower (Helianthus annuus)"]).contains("Common Sunflower (Helianthus annuus)") && EiraSecondLook.question(animal: "Honey Bee", plantNames: []).contains("(none)"), "the question names the animal and offers the plants")
+        // A plant with no Latin name is matched by its English name (15 November 2026).
+        let noLatin = [KnownPlant(name: "Sunflower — Giant single", latin: "", common: "Sunflower"), KnownPlant(name: "Rose — Gertrude Jekyll", latin: "", common: "Rose")]
+        let byEnglish = EiraSecondLook.suggestion(plants: plantsSeen, seen: SeenInPhoto(isOnPlant: true, plantChoice: "Common Sunflower", plantWords: nil, doing: nil), yourPlants: noLatin)
+        check(byEnglish.plantName == "Sunflower — Giant single" && byEnglish.plantIsYours, "your Sunflower with no Latin name is matched to Common Sunflower by its English name: \(byEnglish)")
+        check(EiraSecondLook.englishNameFits(yours: "Sunflower", theirs: "Common Sunflower") && !EiraSecondLook.englishNameFits(yours: "Rose", theirs: "Rosebay Willowherb") && !EiraSecondLook.englishNameFits(yours: "Sunflower", theirs: "Sunflower Common") && !EiraSecondLook.englishNameFits(yours: "", theirs: "Rose") && !EiraSecondLook.englishNameFits(yours: "Giant Sunflower", theirs: "Sunflower"), "an English name fits only as the whole last words")
+        check(EiraSecondLook.yourPlant(for: "Helianthus annuus", common: "Common Sunflower", among: [KnownPlant(name: "Lavender", latin: "Lavandula angustifolia", common: "Sunflower")]) == nil, "a plant with a Latin name is never matched by English name alone")
         // More than one image model.
         let huge = EyeModel.describing(folder: "bioclip2", modelFile: "bioclip2_image_f16.aimodel", label: Data(#"{"name":"BioCLIP 2.5 Huge","note":"1.2GB","order":1}"#.utf8))
         let small = EyeModel.describing(folder: "bioclip2-original", modelFile: "m.aimodel", label: Data(#"{"name":"BioCLIP 2","order":2}"#.utf8))
