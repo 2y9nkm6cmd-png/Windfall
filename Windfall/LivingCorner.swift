@@ -92,6 +92,9 @@ final class CornerEngine {
     /// For this many seconds after the drawing opens it counts as
     /// "just opened": a bee that is asleep is there from the start.
     private static let openingSeconds = 3.0
+    /// How long the drawing is left to grow in before it may be rested.
+    /// See `LivingCorner.hasGrownIn`.
+    static let growingInSeconds = 4.0
     /// In great heat the whole plant hangs over by this many degrees.
     private static let wiltDegrees = 5.0
     /// And each leaf turns this share of the way to hanging straight down.
@@ -669,6 +672,12 @@ struct LivingCorner: View {
     /// another page slides over it, or another tab is chosen. SwiftUI
     /// says so through `onAppear` and `onDisappear` below.
     @State private var isOnScreen = true
+    /// False for the first few seconds, while the plant grows in from
+    /// its base. The drawing is not rested during them, or a plant
+    /// caught half grown would stand half grown until it was next seen:
+    /// on a Mac, Windfall is often opened and at once left behind
+    /// another window.
+    @State private var hasGrownIn = false
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.scenePhase) private var scenePhase
@@ -684,9 +693,12 @@ struct LivingCorner: View {
 
     /// True whenever the drawing should hold still: Reduce Motion is on,
     /// the app has been put away, its page is off the screen or covered,
-    /// or (on a Mac) its window is not the one in use.
+    /// or (on a Mac) its window is not the one in use. The last three
+    /// wait until the plant has grown in.
     private var isResting: Bool {
-        if reduceMotion || scenePhase != .active || !isOnScreen || isCovered { return true }
+        if reduceMotion || scenePhase != .active { return true }
+        guard hasGrownIn else { return false }
+        if !isOnScreen || isCovered { return true }
         #if os(macOS)
         if !appearsActive { return true }
         #endif
@@ -717,6 +729,14 @@ struct LivingCorner: View {
         .accessibilityHidden(true)
         .onAppear { isOnScreen = true }
         .onDisappear { isOnScreen = false }
+        // `.task` starts when the drawing appears. `Task.sleep` waits
+        // without using the processor. Four seconds covers the growing
+        // in (the longest stem takes a little over one, and the parts
+        // along it follow).
+        .task {
+            try? await Task.sleep(for: .seconds(CornerEngine.growingInSeconds))
+            hasGrownIn = true
+        }
     }
 }
 
