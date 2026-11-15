@@ -68,9 +68,11 @@ struct PlantLibraryView: View {
             }
         }
         #if os(iOS)
-        // On an iPhone and iPad the search is Apple's own. On a Mac it is
-        // the magnifying glass in the toolbar below.
-        .searchable(text: $filter.search, prompt: "Search plants")
+        // On an iPhone and iPad the search is Apple's own, resting as a
+        // magnifying glass until tapped (`tuckedSearch`, in
+        // CollapsingSearch.swift). On a Mac it is the glass in the toolbar
+        // below.
+        .tuckedSearch(text: $filter.search, prompt: "Search plants")
         #endif
         .navigationTitle("Plants")
         #if os(iOS)

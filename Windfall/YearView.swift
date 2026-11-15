@@ -212,7 +212,9 @@ struct YearView: View {
                 }
             }
         }
-        .searchable(text: $search, prompt: "Filter plants")
+        // The search rests as a magnifying glass on an iPhone and iPad
+        // and opens when tapped. See `tuckedSearch` in CollapsingSearch.swift.
+        .tuckedSearch(text: $search, prompt: "Filter plants")
         .navigationTitle("Year")
         .paperScreen()
         // When `openMonth` is given a month, that month's page slides

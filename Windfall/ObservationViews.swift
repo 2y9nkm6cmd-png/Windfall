@@ -95,7 +95,9 @@ struct ObservationListView: View {
                 .padding(.bottom, 20)
             }
         }
-        .searchable(text: $search, prompt: "Search sightings")
+        // The search rests as a magnifying glass on an iPhone and iPad
+        // and opens when tapped. See `tuckedSearch` in CollapsingSearch.swift.
+        .tuckedSearch(text: $search, prompt: "Search sightings")
         .navigationTitle("Sightings")
         .paperScreen()
         .navigationDestination(for: WildlifeObservation.self) { observation in

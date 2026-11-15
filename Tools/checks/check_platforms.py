@@ -2,7 +2,7 @@ import re, sys, os
 d = sys.argv[1]
 ios_only = ['AVAudioSession','UIImpactFeedbackGenerator','UINotificationFeedbackGenerator','UIApplication','UIImage','UIGraphicsImageRenderer','UIViewController','UIWindowScene','UIDevice','UIScreen','UIColor',
             'navigationBarTitleDisplayMode','keyboardType','textInputAutocapitalization','insetGrouped','fullScreenCover','navigationBarTrailing','navigationBarLeading','topBarTrailing','topBarLeading','bottomBar',
-            'isIdleTimerDisabled','EditButton','pickerStyle(.wheel)','navigationBarHidden','navigationBarItems','autocapitalization(','import UIKit','statusBarHidden','.decimalPad','.numberPad','jpegData','UIPasteboard','listStyle(.grouped)']
+            'isIdleTimerDisabled','EditButton','pickerStyle(.wheel)','navigationBarHidden','navigationBarItems','autocapitalization(','import UIKit','statusBarHidden','.decimalPad','.numberPad','jpegData','UIPasteboard','listStyle(.grouped)','searchToolbarBehavior']
 mac_only = ['NSImage','NSApplication','NSWindow','NSBitmapImageRep','import AppKit','NSPasteboard','NSColor','NSWorkspace','lockFocus','tiffRepresentation']
 n = 0
 for f in sorted(os.listdir(d)):

@@ -192,7 +192,9 @@ struct WildlifeBookView: View {
             .padding(.top, 8)
             .padding(.bottom, 20)
         }
-        .searchable(text: $search, prompt: "Search UK wildlife")
+        // The search rests as a magnifying glass on an iPhone and iPad
+        // and opens when tapped. See `tuckedSearch` in CollapsingSearch.swift.
+        .tuckedSearch(text: $search, prompt: "Search UK wildlife")
         .navigationTitle("UK wildlife")
         .paperScreen()
         // Tells Eira which page is open. See EiraScreen.

@@ -157,7 +157,9 @@ struct FaunaListView: View {
                 }
             }
         }
-        .searchable(text: $search, prompt: "Search species")
+        // The search rests as a magnifying glass on an iPhone and iPad
+        // and opens when tapped. See `tuckedSearch` in CollapsingSearch.swift.
+        .tuckedSearch(text: $search, prompt: "Search species")
         .navigationTitle("Species")
         .paperScreen()
         // (`.navigationDestination(for: Fauna.self)` stood here. The

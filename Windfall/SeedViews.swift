@@ -62,7 +62,9 @@ struct SeedListView: View {
                 for i in offsets { context.delete(sorted[i]) }
             }
         }
-        .searchable(text: $search, prompt: "Search seed")
+        // The search rests as a magnifying glass on an iPhone and iPad
+        // and opens when tapped. See `tuckedSearch` in CollapsingSearch.swift.
+        .tuckedSearch(text: $search, prompt: "Search seed")
         .navigationTitle("Seed")
         .paperScreen()
         .navigationDestination(for: SeedPacket.self) { SeedDetailView(packet: $0) }

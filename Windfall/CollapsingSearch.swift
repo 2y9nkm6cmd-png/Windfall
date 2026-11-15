@@ -2,20 +2,63 @@
 //  CollapsingSearch.swift
 //  Windfall
 //
-//  A search box for a Mac window's toolbar that rests as a magnifying
-//  glass and opens into a box to type in when it is clicked.
+//  A page's search rests as a magnifying glass and opens into a box to
+//  type in when the glass is pressed. This file holds both ways of
+//  doing that:
 //
-//  Why it exists: SwiftUI's own `.searchable` puts a wide search box in
-//  the toolbar for good. Apple does offer a version that shrinks to a
-//  button (`.searchToolbarBehavior(.minimize)`), but marks it as not
-//  available on a Mac, so this one is drawn here.
+//  1. On an iPhone and iPad, Apple's own search box with one extra
+//     line that tells it to rest as a button (`tuckedSearch`, just
+//     below).
+//  2. On a Mac, a box drawn here (`CollapsingSearchField`), because
+//     Apple marks its own shrinking search as not available on a Mac.
 //
-//  It only draws the box. What the typed words do is up to the screen
-//  that owns the text, as with `.searchable`.
+//  Neither decides what the typed words do. That is up to the screen
+//  that owns the text.
 //
 
-#if os(macOS)
 import SwiftUI
+
+// MARK: - iPhone and iPad: Apple's search, resting as a glass
+
+extension View {
+
+    /// Gives a page its search, resting as a magnifying glass.
+    ///
+    /// A page writes `.tuckedSearch(text: $search, prompt: "Search seed")`
+    /// where it used to write `.searchable(text: $search, prompt: ...)`.
+    ///
+    /// - `text` is a `Binding`: the page keeps the typed words and this
+    ///   only reads and writes them, so the page's list narrows as each
+    ///   letter is typed.
+    /// - `prompt` is the grey wording in the empty box.
+    ///
+    /// Why it is here and not written out on each page: six pages have
+    /// a search, and William asked (15 November 2026) for none of them
+    /// to show the box until it is wanted. With the rule in one place,
+    /// a seventh page gets the same behaviour by using the same line.
+    ///
+    /// `some View` means "a view, and Swift can work out which kind".
+    func tuckedSearch(text: Binding<String>, prompt: String) -> some View {
+        #if os(iOS)
+        // `.searchable` adds Apple's search box. `.searchToolbarBehavior
+        // (.minimize)` must come straight after it: it tells that box to
+        // rest as a round glass button and open when tapped. Apple closes
+        // it again with its own cross.
+        return self
+            .searchable(text: text, prompt: prompt)
+            .searchToolbarBehavior(.minimize)
+        #else
+        // A Mac has no `.minimize`. These pages keep the box as it was.
+        // Plants does not come through here on a Mac: it uses the glass
+        // drawn below.
+        return self.searchable(text: text, prompt: prompt)
+        #endif
+    }
+}
+
+// MARK: - Mac: a glass drawn here
+
+#if os(macOS)
 
 struct CollapsingSearchField: View {
 
