@@ -391,6 +391,16 @@ struct JournalChatView: View {
     // MARK: The day so far
 
     private func thread(_ lines: [DayLine]) -> some View {
+        // `ScrollViewReader` hands over a `proxy`: a handle that can
+        // move the list so that a named line is in view. It is used
+        // once, to show the top of Eira's answer to a photo (see
+        // `showTop`).
+        ScrollViewReader { proxy in
+            threadLines(lines, proxy: proxy)
+        }
+    }
+
+    private func threadLines(_ lines: [DayLine], proxy: ScrollViewProxy) -> some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 12) {
                 eiraSays(lines.isEmpty
@@ -471,6 +481,7 @@ struct JournalChatView: View {
                 // Eira's answer to it. See JournalNaming.swift.
                 if let naming {
                     NamingCard(request: naming,
+                               onAnswered: { showTop(of: naming.id, with: proxy) },
                                onJournal: { writeAbout(naming) },
                                onFinish: { self.naming = nil })
                     // A new card for each question.
@@ -1423,6 +1434,27 @@ struct JournalChatView: View {
         checkWasSkipped = false
         answeredPhotoCheck = nil
         suggested = conditions(at: .now)
+    }
+
+    /// Brings the top of Eira's answer to a photo into view.
+    ///
+    /// The conversation keeps itself at its newest line, the bottom. Her
+    /// answer is a tall card, taller than an iPhone's screen, so left
+    /// alone only its foot would show and the name she gives, which is
+    /// at its top, would be out of sight above. `scrollTo` moves the
+    /// list so the card's top (your question and the photo) sits at the
+    /// top instead. Where the whole card fits anyway, nothing moves.
+    ///
+    /// The short wait lets the card be laid out at its new height
+    /// first: asked too soon, the list would move to where the top of
+    /// the small "Looking…" card had been.
+    private func showTop(of id: UUID, with proxy: ScrollViewProxy) {
+        Task {
+            try? await Task.sleep(for: .milliseconds(150))
+            withAnimation(.easeOut(duration: 0.25)) {
+                proxy.scrollTo(id, anchor: .top)
+            }
+        }
     }
 
     /// "Write a journal entry with it" on Eira's answer: the photos go

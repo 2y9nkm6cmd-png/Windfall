@@ -58,6 +58,9 @@ struct NamingRequest: Identifiable {
 struct NamingCard: View {
 
     let request: NamingRequest
+    /// Called once Eira's answer is showing, so the journal can bring
+    /// the top of it into view.
+    let onAnswered: () -> Void
     /// Called by "Write a journal entry with it": the journal puts the
     /// photos back in its box.
     let onJournal: () -> Void
@@ -239,6 +242,7 @@ struct NamingCard: View {
             var example = EiraIdentify.example(in: context, carrotFamily: DemoGarden.showsCarrotFamilyMatch)
             example.photoCount = max(1, made.count)
             stage = .answered(example)
+            onAnswered()
             return
         }
 
@@ -251,6 +255,7 @@ struct NamingCard: View {
             // For the Identify widgets: her last answer, with its photo.
             WidgetShare.noteAnswer(identification, photo: made.first?.shown)
             stage = .answered(identification)
+            onAnswered()
         } catch let problem {
             stage = .failed(problem.localizedDescription)
         }

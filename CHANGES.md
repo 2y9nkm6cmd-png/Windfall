@@ -1,3 +1,32 @@
+# 15 November 2026, 17:00: a photo sent with "What is this?" in the journal is a question for Eira, not an entry
+
+**By the "what is this" chat, linked to the Mac. Branch `journal-photo-question`, made from `main` at `4a63b01`.**
+
+William, 16:45, with a picture of the journal's conversation: a photo in the box, "What is this?" typed, and the card "The photo was taken at 13:44 today. Is this about then?" gone amber with "Choose one and it will be sent." His words: "Weird that I can't say what is this without selecting the time it was sent?"
+
+**Why it happened.** The journal's conversation took everything sent from its box for a journal entry. It never asked whether the words were a question. A photo taken more than an hour ago brings up the card that asks which time the entry is about, and `send()` would not go on until the card was answered. Had a time been chosen, "What is this?" would have been saved as an entry with the photo, and nothing would have looked at the photo.
+
+**What it does now.** A photo sent with words that ask what it is skips the time card, writes no entry and is handed to Eira. Her answer comes as a card in the conversation: the same card her chat shows, with Add a sighting, Write a journal entry with it and Not now.
+
+| File | What changed, and why |
+|---|---|
+| `JournalChat.swift`, `asksForAName` | New, a fixed rule with no screen code so it can be tested. True for "What is this?", "what's this", "What tree is that", "Do you know what these are", "Can you identify this", "ID this", "Name this". It wants twelve words or fewer, and either "identify", "ID" or "name this", or a "what" or "which" followed somewhere by a pointing word (this, that, it, these, those, they) next to "is" or "are". "What a beauty this is" is left out. It asks for a name only: "What should I do with this?" and "Is this ready to pick?" are not caught, because the image model can only match a photo to a name |
+| `JournalNaming.swift` | New. `NamingRequest` holds the words, each photo as it came, when each was taken and its small copy. `NamingCard` draws your question and the photos as a green bubble, then Eira's card: "Looking at the photo", then her answer (`ChatIdentification`, the card her chat and the pin-down card use). The looking is `EiraIdentify.identify(photos:)`, as on the Identify screen, so several photos are weighed together and no more than six are looked at. A sighting goes through `EiraIdentify.startSighting(from:photos:in:)`, so it keeps each photo's own date and its original, and takes the bed chosen on the "about" chip |
+| `JournalChatView.swift`, `send` | Before the check that holds an entry back for the time card: if there is a photo in the box and the words `asksForAName`, `askForAName` runs and `send` stops there. The box is emptied and the stamp put back to now |
+| `JournalChatView.swift`, `body` | The time card is left out while the box holds a photo and words that ask for a name, since nothing is going to be stamped |
+| `JournalChatView.swift`, `writeAbout` | What "Write a journal entry with it" does: the photos go back in the box. `photosAreForAnEntry` is set, so the next thing sent is an entry whatever its words say. Without it "Not sure what this is" could never be written down. It is cleared when the box next has no photos |
+| `JournalChatView.swift`, `thread` | The card is drawn under the day so far. Eira's opening line for a photo now ends "or ask me what it is", and goes once the box holds no photo. Before, it stayed after the photo had gone |
+| `DemoGarden.swift`, `sendsJournalDraft` | A checking aid: `-demoJournalSend YES` presses send a second after the journal's conversation opens. With `-demoOpen journal`, `-demoDraft` and `-demoPhoto` it lets a still picture show what sending leads to. `-demoMatch YES` gives the card a made-up answer where the image model cannot run |
+| `Tools/checks/LogicTests.swift` | Five new tests of the rule |
+
+**Claude's choices, for William to confirm.**
+
+1. Which words count. The list above is Claude's, and twelve words is a guess at where a question ends and an account of the day begins.
+2. Nothing is saved until a button is pressed. The photo is not kept anywhere if Not now is pressed.
+3. Several photos are taken to be of one plant or animal and weighed together, as on the Identify screen. "What are these?" with photos of different things will get one muddled answer.
+4. A question that does not ask for a name is still saved as an entry, after the time card: "Is this ready to pick?", "What should I do with this?". There is no "Ask Eira about it" on the card either. Both want her text model to be handed the photo's name, which is a larger piece of work.
+5. The same holds in a sheet (Today's Note button, and the card of three offers) as in the panel on Eira's bar.
+
 # 15 November 2026, 16:40: the corner drawing rests when it cannot be seen, and two jobs stop being done for nothing
 
 **By the "power efficiency" chat, linked to the Mac. Branch `power-quiet`, made from `main` at `a2744bb`.** The research behind it is doc 91 in the knowledge base. William, 16:16: "Make the changes that will not affect speed or make the app quicker."
