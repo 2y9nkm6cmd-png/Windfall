@@ -1,6 +1,6 @@
 # 15 November 2026, 16:05: on an iPad, pages stop at Eira's bar again and no longer scroll on past their end
 
-**By the "scrolls too far" chat, from William's iPad. Branch `bar-strip-inside-stack`, made from `main` at `6cbfc37`. Joined into `main` at 16:10 the same day, at William's word (16:03: "Let's add it to the main branch and push it out"). Written in Claude's cloud workspace: the Mac was not connected, so it has not been built or seen running, and `main` now holds a change no compiler for Apple's devices has read.**
+**By the "scrolls too far" chat, from William's iPad. Branch `bar-strip-inside-stack`, made from `main` at `6cbfc37`. Joined into `main` at 16:05 the same day (`78276c7`), at William's word (16:03: "Let's add it to the main branch and push it out"). Written in Claude's cloud workspace: the Mac was not connected, so it has not been built or seen running, and `main` now holds a change no compiler for Apple's devices has read.**
 
 William, 15:47, with a picture of the Journal on the iPad: "The journal app and settings app now scroll too far initially." Asked what he saw, he chose: the page opens at the top, but can be dragged up until a big empty gap sits above Eira's bar. Today, Gardens, Wildlife and Plants do it too. The keyboard had not been up.
 
