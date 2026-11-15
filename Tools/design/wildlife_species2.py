@@ -19,6 +19,7 @@ from wildlife_kit import Art, P, LW, turn, curve, ell, blob, poly, limb, mirror,
 import wildlife as W
 from wildlife import sp
 import wildlife_species as S1
+from wildlife_flight import soar
 
 
 def bird(bx=44, by=56, bl=19, bd=12.5, tilt=-22, hr=8.4, hdx=0.0, hdy=0.0, neck=None, neck_col=None,
@@ -274,7 +275,8 @@ def blue_tit():
     def collar(a, sil, head, t):      # the dark line that runs from the bib round the back of the white cheek
         hx, hy = head
         stroke(a, [(hx + 3.4, hy + 7.2), (hx - 2.6, hy + 6.4), (hx - 7.0, hy + 1.6)], 1.2, 0.95, col="ink")
-    return bird(**TIT, back="olive", belly="yellow", cap="steel", cheek="white", bib="ink", wing="steel", wingbars=[(-0.1, 0.02, "white")], eyeline=True, tail_col="steel", nape="steel",
+        a.dot(hx + 4.4, hy + 6.6, 1.5, "ink")                                                  # a small dark chin, not a great tit's bib
+    return bird(**TIT, back="olive", belly="yellow", cap="steel", cheek="white", wing="steel", wingbars=[(-0.1, 0.02, "white")], eyeline=True, tail_col="steel", nape="steel",
                 belly_stripe="slate", primaries="steel", after=collar)
 
 
@@ -510,7 +512,7 @@ def starling():
                 a.dot(p[0], p[1], 0.6, "cream")
     # short-tailed and pointed at both ends: a dagger bill, a flat forehead and long triangular wings
     return bird(bl=18, bd=12, tilt=-30, hr=7.4, hh=0.84, chest=1.1, bill=(10, 2.8, "dagger", "yellow"), tail=(9, 6, "notch"), wing_len=1.25, back="black", belly="black", breast="plum",
-                nape="marrow", wing="bark", primaries="brown", legs=(13, "skin"), leg_w=1.5, feet="stand", after=flecks)
+                nape="marrow", wing="dark", primaries="brown", legs=(13, "skin"), leg_w=1.5, feet="stand", after=flecks)
 
 
 @sp("Motacilla alba")
@@ -530,7 +532,7 @@ def on_wire(a, sil, head, t):
 
 @sp("Hirundo rustica")
 def swallow():
-    return bird(bx=47, by=56, bl=17.5, bd=10, tilt=-30, hr=7.2, bill=(3.6, 1.8, "fine", "dark"), tail=(34, 7, "fork"), tail_ang=140, back="steel", belly="cream", face="rust", bib="rust",
+    return bird(bx=47, by=56, bl=17.5, bd=10, tilt=-30, hr=7.2, bill=(3.6, 1.8, "fine", "dark"), tail=(34, 7, "fork"), tail_ang=140, back="steel", belly="cream", face="rust", bib="rust", collar="steel",
                 wing="steel", wing_len=1.75, feet="none", before=wire, after=on_wire)
 
 
@@ -542,15 +544,10 @@ def house_martin():
 
 @sp("Apus apus")
 def swift():
-    a = Art()   # in flight from below: a cigar body and two long curved wings
-    wing_r = blob([(52, 46), (64, 38), (80, 36), (93, 44), (96, 54), (88, 47), (74, 46), (60, 52)], 8)
-    body = blob([(50, 28), (54, 34), (55, 48), (53, 62), (50, 66), (47, 62), (45, 48), (46, 34)], 8)
-    tail = poly((47.4, 62), (44, 78), (50, 70), (56, 78), (52.6, 62))
-    sil = figure(a, [wing_r, mirror(wing_r), body, tail], "bark", [(ell(50, 33, 2.4, 2), "cream")], close=1.0)
-    for s in (1, -1):
-        stroke(a, [(50 + s * 6, 46), (50 + s * 24, 41), (50 + s * 42, 47)], 0.5, 0.45, col="cream")
-        eye(a, 50 + s * 2.4, 31, 0.8, False)
-    return a
+    # in flight from below, as it is always seen: sooty brown all over (the first drawing was pale brown), with long
+    # scythe-shaped wings, a short forked tail and a small pale throat
+    return soar(span=46, chord=7, shape="scythe", sweep=20, arch=1, col="dark", tail=(10, 9, "fork"), throat="grey", body=(4.2, 28), head=(3.6, 3.4), bill=(1.2, 1.6, "ink"),
+                feather_lines=False, cy=42)
 
 
 @sp("Alcedo atthis")
@@ -616,7 +613,7 @@ def grey_heron():
     def plume(a, sil, head, t):
         stroke(a, [(head[0] - 3, head[1] - 1.4), (head[0] - 10, head[1] + 1), (head[0] - 15, head[1] + 5)], 1.2, col="ink")
     return bird(bx=44, by=46, bl=17, bd=9.5, tilt=-28, hr=5.6, hdx=3, hdy=-17, neck=[(62, 34), (56, 24)], bill=(17, 3.4, "dagger", "yellow"), tail=(9, 6, "square"), tail_col="grey", back="grey",
-                belly="white", wing="grey", wingbars=[(-0.8, -0.56, "black")], feet="none", eye_r=1.0, eyeline=True, eye_col="yellow", before=wader_legs("olive"), after=plume)
+                belly="grey", neck_col="white", hood="white", wing="grey", wingbars=[(-0.8, -0.56, "black")], feet="none", eye_r=1.0, eyeline=True, eye_col="yellow", before=wader_legs("olive"), after=plume)
 
 
 @sp("Egretta garzetta")
@@ -673,22 +670,9 @@ def sparrowhawk():
 
 @sp("Milvus milvus")
 def red_kite():
-    a = Art()   # in flight from below: long angled wings and a deeply forked tail
-    wing_r = blob([(53, 44), (66, 36), (82, 34), (96, 30), (95, 38), (86, 46), (72, 52), (56, 54)], 8)
-    body = blob([(50, 30), (54, 36), (54.6, 52), (52, 62), (48, 62), (45.4, 52), (46, 36)], 8)
-    tail = poly((47, 60), (40, 84), (50, 72), (60, 84), (53, 60))
-    patches = [(tail.buffer(0.4), "orange"), (body.buffer(0.4), "rust"), (ell(50, 33, 4.6, 4), "grey")]
-    for s in (1, -1):
-        patches += [(ell(50 + s * 34, 39, 7, 5, -s * 14), "white"), (ell(50 + s * 45, 33, 5, 5), "black")]
-    sil = figure(a, [wing_r, mirror(wing_r), body, tail], "rust", patches, close=1.0)
-    for s in (1, -1):
-        for k in range(4):
-            stroke(a, [(50 + s * (40 + k * 2), 38 + k * 1.6), (50 + s * (47 + k * 0.6), 31 + k * 1.6)], 0.5, 0.5, col="cream", smooth=False)
-        stroke(a, [(50 + s * 8, 48), (50 + s * 22, 44), (50 + s * 36, 44)], 0.5, 0.45, col="ink")
-    paint(a, poly((48.6, 28.6), (51.4, 28.6), (50, 25.4)), "yellow", 0.7)
-    for s in (1, -1):
-        eye(a, 50 + s * 2.2, 32, 0.8, False)
-    return a
+    # in flight from below: long angled wings with black "fingers" and a white patch before them, a pale grey head and a deeply forked rusty tail
+    return soar(span=47, chord=11, shape="broad", sweep=7, arch=2, col="dark", under="rust", window="white", tips="ink", tail=(20, 15, "fork"), tail_col="orange", belly="rust",
+                head_col="grey", bill=(2.8, 2.2, "yellow"), body=(4.6, 28))
 
 
 def owl_fig(body="tan", chest="buff", wings="brown", face="buff", eyes="ink", heart=False, streak="brown", dots=None, sx=1.0, sy=1.0, flat=0.0, legs=0.0, brows=None):
@@ -859,8 +843,12 @@ def long_low(colour, belly, tail_w=(7, 2), tail_tip=None, length=1.0, ear=2.6):
 def otter(): return long_low("brown", "buff", (8, 2.4))
 
 
-@sp("Mustela erminea", "Mustela nivalis")
-def stoat(): return long_low("tan", "white", (4, 2.6), tail_tip="ink", ear=3)
+@sp("Mustela erminea")
+def stoat(): return long_low("brown", "white", (4, 2.6), tail_tip="ink", ear=3)      # the black tip to its tail is what tells it from a weasel
+
+
+@sp("Mustela nivalis")
+def weasel(): return long_low("rust", "white", (2.6, 1.6), length=0.9, ear=2.6)       # smaller and redder, with a short tail and no black tip
 
 
 def rodent(colour="tan", belly="cream", ear=(6.4, 7), eye_r=1.7, tail=(3.2, 1.4, "skin"), tail_pts=None, snout=0.0, blunt=0.0, body=(21, 12.5), feet="skin"):
@@ -892,7 +880,12 @@ def wood_mouse(): return rodent()
 def brown_rat(): return rodent("brown", "grey", ear=(4.6, 5), eye_r=1.4, tail=(4.6, 1.8, "skin"), tail_pts=[(24, 64), (12, 70), (5, 66), (4, 58)], body=(24, 13.5))
 
 
-@sp("Clethrionomys glareolus", "Microtus agrestis")
+@sp("Clethrionomys glareolus")
+def bank_vole():             # chestnut-red on the back, with ears that show and a longer tail than the field vole's
+    return rodent("rust", "buff", ear=(4.2, 4.2), eye_r=1.4, tail=(2.6, 1.4, "bark"), tail_pts=[(26, 64), (16, 68), (8, 66)], blunt=1.0, body=(20, 13.5))
+
+
+@sp("Microtus agrestis")
 def vole(): return rodent("bark", "buff", ear=(3.4, 3.4), eye_r=1.3, tail=(2.4, 1.4, "bark"), tail_pts=[(26, 64), (18, 67), (13, 66)], blunt=1.0, body=(20, 13.5))
 
 
@@ -1038,22 +1031,23 @@ def long_eared_bat():
 # AMPHIBIANS AND REPTILES
 # =====================================================================
 
-@sp("Rana temporaria", "Pelophylax ridibundus")
-def common_frog():
+def frog_fig(skin="khaki", dark="brown", mask="dark", stripe=None):
     a = Art()   # smooth skin, a pointed face, a dark mask behind the eye and long barred legs
     body = blob([(20, 64), (30, 50), (46, 42), (62, 39), (76, 42), (88, 51), (86, 58), (72, 64), (54, 70), (34, 72)], 8)
-    figure(a, [limb([(66, 60), (70, 73), (79, 76)], 4.4, 3)], "olive", close=0, lw=0.9)
+    figure(a, [limb([(66, 60), (70, 73), (79, 76)], 4.4, 3)], skin, close=0, lw=0.9)
     for d in (-1.6, 1.6):
         stroke(a, [(79, 76), (85, 76 + d)], 0.9, smooth=False)
-    sil = figure(a, [body, ell(71, 39.6, 5.2, 4.6)], "olive", [(blob([(50, 68), (70, 61), (88, 53), (86, 59), (72, 65), (54, 71)], 8), "cream")], close=1.2)
-    paint(a, blob([(58, 45), (68, 44), (75, 47.6), (72, 51), (62, 50)], 6).intersection(sil), "brown")   # the mask
-    spots(a, sil, [(34, 54), (42, 48), (50, 51), (40, 58), (56, 44)], 1.5, "deep")
+    sil = figure(a, [body, ell(71, 39.6, 5.2, 4.6)], skin, [(blob([(50, 68), (70, 61), (88, 53), (86, 59), (72, 65), (54, 71)], 8), "cream")], close=1.2)
+    paint(a, blob([(58, 45), (68, 44), (75, 47.6), (72, 51), (62, 50)], 6).intersection(sil), mask)   # the mask
+    spots(a, sil, [(34, 54), (42, 48), (50, 51), (40, 58), (56, 44), (28, 60), (47, 45)], 1.5, dark)
+    if stripe:
+        stroke(a, [(30, 53), (44, 45.6), (58, 42.6), (68, 42)], 1.5, 0.95, col=stripe)
     stroke(a, [(32, 50), (46, 43.6), (60, 41)], 0.6, 0.6, col="buff")                        # the ridge down each side of the back
     thigh = limb([(30, 62), (42, 54), (50, 62)], 9, 7)
     shin = limb([(50, 63), (40, 72), (28, 75)], 6, 4)
-    lsil = figure(a, [thigh, shin, limb([(28, 75), (42, 78), (56, 77)], 3.6, 2.4)], "olive", close=0.8)
+    lsil = figure(a, [thigh, shin, limb([(28, 75), (42, 78), (56, 77)], 3.6, 2.4)], skin, close=0.8)
     for x, y in ((36, 58), (42, 56), (47, 59), (45, 68), (38, 72)):
-        stroke(a, [(x - 1.6, y - 2), (x + 1.6, y + 2)], 1.3, 0.9, col="deep", smooth=False)   # bars across the leg
+        stroke(a, [(x - 1.6, y - 2), (x + 1.6, y + 2)], 1.3, 0.9, col=dark, smooth=False)   # bars across the leg
     for d in (-1.8, 0, 1.8):
         stroke(a, [(56, 77), (63, 77 + d)], 0.9, smooth=False)
     a.dot(71.4, 40, 2.9, "amber"); paint(a, ell(71.6, 40, 1.9, 1.2), "ink")
@@ -1063,8 +1057,15 @@ def common_frog():
     return a
 
 
-@sp("Bufo bufo", "Epidalea calamita")
-def common_toad():
+@sp("Rana temporaria")
+def common_frog(): return frog_fig()          # olive-brown, by the photographs. The first drawing was green, which is the marsh frog
+
+
+@sp("Pelophylax ridibundus")
+def marsh_frog(): return frog_fig("green", "dark", "green", stripe="leaf")      # green, dark-spotted, with a pale green line down the back and no mask
+
+
+def toad_fig(stripe=None):
     a = Art()   # squat and warty, a blunt face, short legs: it walks, it does not leap
     body = blob([(18, 66), (24, 50), (40, 41), (58, 39), (72, 43), (82, 51), (83, 60), (74, 68), (54, 73), (30, 73)], 8)
     figure(a, [limb([(64, 62), (66, 73), (74, 76)], 5.4, 4)], "bark", close=0, lw=0.9)
@@ -1081,11 +1082,35 @@ def common_toad():
         stroke(a, [(24, 76), (18, 76 + d)], 1.0, smooth=False)
     a.dot(67.4, 40.6, 2.8, "orange"); paint(a, ell(67.6, 40.6, 1.9, 0.9), "ink")
     stroke(a, [(72, 54.4), (83, 54)], 0.6, 0.6, smooth=False)
+    if stripe:
+        stroke(a, [(24, 51), (40, 42), (56, 40)], 1.4, 0.95, col=stripe)
     ground(a, 79.4, 12, 90)
     return a
 
 
-sp("Lissotriton vulgaris", "Lissotriton helveticus")(W.DRAW["newt"])
+@sp("Bufo bufo")
+def common_toad(): return toad_fig()
+
+
+@sp("Epidalea calamita")
+def natterjack(): return toad_fig("yellow")   # the yellow line down its back is what tells it from a common toad
+
+
+@sp("Lissotriton vulgaris", "Lissotriton helveticus")
+def smooth_newt():           # olive-brown with dark spots and an orange belly (the first drawing was green with an orange stripe)
+    a = Art()
+    line = [(84, 24), (70, 30), (58, 42), (52, 56), (40, 66), (26, 68), (14, 78)]
+    W.four_feet(a, [(66, 33, -40), (70, 36, 62), (50, 58, 142), (55, 60, 40)], "soil", 10)
+    tail = limb([(52, 56), (40, 66), (26, 68), (14, 78)], 9, 1.6)
+    under = limb([(q[0] + 2.6, q[1] + 2.6) for q in line], 4.6, 1.2)
+    sil = figure(a, [limb(line[:4], 8.6, 9.6), tail, ell(85, 23.4, 6.2, 5, -22)], "soil", [(under, "orange")], close=1.4)
+    spots(a, sil, [(76, 25), (70, 28), (64, 33), (61, 40), (56, 44), (54, 52), (48, 58), (42, 63), (34, 66), (26, 66.4), (67, 37), (58, 50)], 1.15, "dark")
+    stroke(a, [(80, 20.6), (88, 21.6), (92, 24.6)], 0.9, 0.9, col="dark")                     # the dark line through the eye
+    eye(a, 87.6, 19.8, 1.0, False); eye(a, 89.4, 25, 1.0, False)
+    return a
+
+
+W.DRAW["newt"] = smooth_newt
 sp("Zootoca vivipara")(W.DRAW["lizard"])
 sp("Vipera berus")(W.DRAW["snake"])
 
@@ -1118,7 +1143,7 @@ def great_crested_newt():
 def slow_worm():
     a = Art()   # a legless lizard: smooth, bronze and shiny, with a small head and no neck
     line = [(80, 26), (64, 22), (44, 24), (30, 34), (30, 48), (44, 54), (62, 52), (74, 60), (72, 74), (56, 80), (36, 78), (22, 82)]
-    sil = figure(a, [limb(line, 6.6, 2.0), ell(82, 26.6, 5.4, 3.9, 8)], "amber", [(limb(line, 1.0, 0.5), "brown")], close=1.0)
+    sil = figure(a, [limb(line, 6.6, 2.0), ell(82, 26.6, 5.4, 3.9, 8)], "soil", [(limb(line, 1.0, 0.5), "dark")], close=1.0)      # bronze-brown, by the photographs (it was yellow)
     stroke(a, [(q[0] - 0.9, q[1] - 1.2) for q in curve(line, 8)[4:-10]], 0.7, 0.8, col="cream")
     eye(a, 84.4, 25, 0.9, False)
     stroke(a, [(87, 27.6), (90.6, 28.4)], 0.5, smooth=False)

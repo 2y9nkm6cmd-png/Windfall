@@ -2315,7 +2315,7 @@ struct LogicTests {
                 check(realBook.kind(ofScientificName: "Bombus terrestris")?.slug == "bumblebee" && realBook.kind(ofScientificName: "Erithacus rubecula")?.slug == "thrush" && realBook.kind(ofScientificName: "Lumbricus terrestris")?.slug == "earthworm" && realBook.kind(ofScientificName: "Episyrphus balteatus")?.slug == "hoverfly" && realBook.kind(ofScientificName: "Apis mellifera")?.slug == "honeybee", "well-known animals fall into the kinds expected")
                 let ownNames = (starterFile.table(named: "Fauna")?.rows ?? []).compactMap { $0["Scientific Name"] }
                 let unlisted = ownNames.filter { realBook.animal(scientificName: $0) == nil }
-                print("   (William's own species not in the UK list, so with no drawing: \(unlisted.count) of \(ownNames.count): \(unlisted))")
+                print("   (William's own species not in the UK list, which find a drawing through their genus: \(unlisted.count) of \(ownNames.count): \(unlisted))")
                 check(!ownNames.isEmpty && unlisted.count <= ownNames.count / 3, "most of William's own species are in the UK list")
             } else {
                 check(false, "the UK wildlife list in the app can be read")
@@ -2328,6 +2328,38 @@ struct LogicTests {
          "animals":[{"s":"Cyanistes caeruleus","c":"Blue Tit","k":"tit","n":900,"p":"cyanistes-caeruleus"},{"s":"Poecile palustris","c":"Marsh Tit","k":"tit","n":90}]}
         """.utf8))
         check(drawnBook.animals[0].pictureName == "Wildlife/wild-sp-cyanistes-caeruleus" && drawnBook.animals[0].hasOwnPicture && drawnBook.animals[1].pictureName == "Wildlife/wild-tit" && !drawnBook.animals[1].hasOwnPicture, "an animal with a drawing of its own shows it, and any other shows its kind's")
+
+        // MARK: An animal with more than one drawing (15 November 2026)
+        let viewsBook = try! WildlifeReference.decode(Data("""
+        {"kinds":[{"slug":"thrush","name":"Thrushes","group":"Birds"},{"slug":"raptor","name":"Birds of prey","group":"Birds"}],
+         "animals":[{"s":"Turdus merula","c":"Blackbird","k":"thrush","n":900,"p":"turdus-merula","v":["female"],"w":"male"},
+                    {"s":"Buteo buteo","c":"Buzzard","k":"raptor","n":800,"p":"buteo-buteo","v":["flight","shiny"]},
+                    {"s":"Turdus pilaris","c":"Fieldfare","k":"thrush","n":90,"v":["female"]},
+                    {"s":"Erithacus rubecula","c":"Robin","k":"thrush","n":700,"p":"erithacus-rubecula"}]}
+        """.utf8))
+        let blackbirdPictures = viewsBook.animals[0].pictures
+        check(blackbirdPictures.map(\.key) == ["male", "female"] && blackbirdPictures.map(\.caption) == ["Male", "Female"]
+              && blackbirdPictures.map(\.pictureName) == ["Wildlife/wild-sp-turdus-merula", "Wildlife/wild-sp-turdus-merula--female"] && viewsBook.animals[0].hasOtherPictures,
+              "an animal with a second drawing gives both, each with the words for what it shows")
+        check(viewsBook.animals[1].pictures.map(\.caption) == ["Adult", "In flight", "Shiny"], "the first drawing is called Adult when the file does not say, and a key with no words of its own is shown with a capital")
+        check(viewsBook.animals[2].pictures.count == 1 && viewsBook.animals[2].pictures[0].pictureName == "Wildlife/wild-thrush" && !viewsBook.animals[2].hasOtherPictures
+              && viewsBook.animals[3].pictures.count == 1 && viewsBook.animals[3].pictures[0].caption.isEmpty && !viewsBook.animals[3].hasOtherPictures,
+              "an animal with one drawing, or with only its kind's, gives one with no label")
+
+        // MARK: A drawing for a name the list does not hold (15 November 2026)
+        let genusBook = try! WildlifeReference.decode(Data("""
+        {"kinds":[{"slug":"ant","name":"Ants","group":"Bees, wasps and ants"},{"slug":"solitary-bee","name":"Solitary bees","group":"Bees, wasps and ants"},{"slug":"moth","name":"Moths","group":"Butterflies and moths"}],
+         "genera":{"myrmica":"Myrmica rubra","andrena":"Andrena haemorrhoa","cucullia":"Cucullia absent"},
+         "animals":[{"s":"Myrmica rubra","c":"Common Red Ant","k":"ant","n":217,"p":"myrmica-rubra"},{"s":"Andrena haemorrhoa","c":"Early Mining Bee","k":"solitary-bee","n":2558,"p":"andrena-haemorrhoa"},
+                    {"s":"Andrena fulva","c":"Tawny Mining Bee","k":"solitary-bee","n":3855,"p":"andrena-fulva"},{"s":"Cucullia verbasci","c":"Mullein","k":"moth","n":500},{"s":"Cucullia umbratica","c":"Shark","k":"moth","n":90}]}
+        """.utf8))
+        check(genusBook.drawing(forScientificName: "Myrmica sabuleti") == WildlifeReference.Drawing(pictureName: "Wildlife/wild-sp-myrmica-rubra", note: "The drawing is of a close relative, Common Red Ant (Myrmica rubra).")
+              && genusBook.drawing(forScientificName: "Andrena spp.")?.pictureName == "Wildlife/wild-sp-andrena-haemorrhoa", "a species the list does not hold shows the animal that stands for its genus: a red ant for any Myrmica, the early mining bee for Andrena spp.")
+        check(genusBook.drawing(forScientificName: "andrena fulva") == WildlifeReference.Drawing(pictureName: "Wildlife/wild-sp-andrena-fulva", note: nil)
+              && genusBook.drawing(forScientificName: "Cucullia verbasci") == WildlifeReference.Drawing(pictureName: "Wildlife/wild-moth", note: "The drawing is of its kind, not of this species."), "a species in the list shows its own drawing with no note, or its kind's with one")
+        check(genusBook.drawing(forScientificName: "Cucullia lychnitis")?.pictureName == "Wildlife/wild-moth" && genusBook.drawing(forScientificName: "Zacladus geranii") == nil && genusBook.drawing(forScientificName: nil) == nil && genusBook.drawing(forScientificName: "  ") == nil,
+              "with no stand-in to show, a genus gives its kind's drawing, and a genus the list has never met gives none")
+        check(WildlifeReference.genus(of: " Andrena spp. ") == "andrena" && WildlifeReference.genus(of: "Corvus cornix × corone") == "corvus", "the genus is the first word of the name, in small letters")
         check(drawnBook.kind(slug: "tit")?.typical == "Cyanistes caeruleus" && drawnBook.kind(slug: "owl")?.typical == nil && drawnBook.pictured(ofKind: "tit").map(\.scientificName) == ["Cyanistes caeruleus"], "a kind can name the animal its drawing shows, and list its animals that have their own")
         let sickList = try! PlantDiseases.decode(Data("""
         {"diseases":[{"slug":"blight","name":"Blight","cause":"A water mould","seen":"Dark blotches.","plants":"Potatoes and tomatoes.","when":"Midsummer.","helps":"Remove the tops."},
@@ -2357,6 +2389,18 @@ struct LogicTests {
                     ["light", "dark"].contains { !FileManager.default.fileExists(atPath: designFolder.appendingPathComponent("Wildlife/\($0)/" + creature.pictureName.replacingOccurrences(of: "Wildlife/", with: "") + ".svg").path) }
                 }
                 check(own.count > 150 && lost.isEmpty, "each of the \(own.count) animals with a drawing of its own has it, light and dark (missing: \(lost.prefix(5).map(\.scientificName)))")
+                let many = realBook.animals.filter(\.hasOtherPictures)
+                let lostViews = many.flatMap { creature in
+                    creature.pictures.filter { one in
+                        ["light", "dark"].contains { !FileManager.default.fileExists(atPath: designFolder.appendingPathComponent("Wildlife/\($0)/" + one.pictureName.replacingOccurrences(of: "Wildlife/", with: "") + ".svg").path) }
+                    }.map { "\(creature.scientificName) \($0.key)" }
+                }
+                let unnamed = Set(many.flatMap { ($0.otherViews ?? []) + [$0.mainShows ?? "adult"] }).filter { WildlifeAnimal.viewNames[$0] == nil }
+                check(many.count > 50 && lostViews.isEmpty && unnamed.isEmpty, "each of the \(many.count) animals with more than one drawing has every one, light and dark, and words for each (missing: \(lostViews.prefix(5)), no words: \(unnamed.sorted()))")
+                check(realBook.drawing(forScientificName: "Andrena spp.")?.pictureName == "Wildlife/wild-sp-andrena-haemorrhoa" && realBook.drawing(forScientificName: "Myrmica sabuleti")?.pictureName == "Wildlife/wild-sp-myrmica-rubra"
+                      && realBook.genusStandIns.values.allSatisfy { realBook.animal(scientificName: $0)?.hasOwnPicture == true }, "William's early mining bee (Andrena spp.) and red ant (Myrmica sabuleti) each find a drawing, and every animal that stands for a genus is in the list with a drawing of its own")
+                check(realBook.animal(scientificName: "Buteo buteo")?.pictures.map(\.caption) == ["Perched", "In flight"] && realBook.animal(scientificName: "Turdus merula")?.pictures.map(\.key) == ["male", "female"]
+                      && realBook.animal(scientificName: "Aglais io")?.pictures.map(\.key) == ["upperside", "underside", "caterpillar", "chrysalis"], "the buzzard is drawn perched and in flight, the blackbird as male and female, the peacock with its wings open and closed and as caterpillar and chrysalis")
                 let typicals = realBook.kinds.compactMap(\.typical)
                 check(typicals.count > 30 && typicals.allSatisfy { realBook.animal(scientificName: $0) != nil }, "every kind that names the animal its drawing shows names one in the list")
                 check(realBook.kind(ofScientificName: "Felis catus")?.slug == "cat" && realBook.kind(ofScientificName: "Vulpes vulpes")?.slug == "fox" && realBook.kind(ofScientificName: "Bufo bufo")?.slug == "toad" && realBook.kind(ofScientificName: "Rana temporaria")?.slug == "frog", "foxes are apart from cats, and frogs from toads")

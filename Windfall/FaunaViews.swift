@@ -126,9 +126,17 @@ struct FaunaListView: View {
                             // Its drawing, found by its scientific name in
                             // the UK wildlife list: its own if it has one,
                             // otherwise its kind's. A species the list
-                            // does not hold has none.
-                            if let listed = WildlifeReference.shared.animal(scientificName: animal.scientificName) {
-                                WildlifeAnimalPicture(creature: listed, size: 44)
+                            // does not hold shows a close relative's, or
+                            // its kind's, found by its genus (the first
+                            // word of the name): "Andrena spp." finds the
+                            // early mining bee and Myrmica sabuleti the
+                            // red ant.
+                            if let found = WildlifeReference.shared.drawing(forScientificName: animal.scientificName) {
+                                Image(found.pictureName)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 44, height: 44)
+                                    .accessibilityHidden(true)
                             }
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(animal.commonName).font(.body.weight(.medium))
@@ -183,20 +191,34 @@ struct FaunaDetailView: View {
         WildlifeReference.shared.animal(scientificName: fauna.scientificName)
     }
 
+    /// The drawing for this species: its own, a close relative's or its
+    /// kind's. Nil only when nothing of its genus is in the UK list.
+    private var ukDrawing: WildlifeReference.Drawing? {
+        WildlifeReference.shared.drawing(forScientificName: fauna.scientificName)
+    }
+
     var body: some View {
         Form {
-            if let listing = ukListing {
+            if let found = ukDrawing {
                 Section {
-                    WildlifeAnimalPicture(creature: listing, size: 160)
+                    Image(found.pictureName)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 160, height: 160)
                         .frame(maxWidth: .infinity)
-                    NavigationLink {
-                        WildlifeAnimalPage(creature: listing)
-                    } label: {
-                        Text("When it is recorded in the UK")
+                        .accessibilityHidden(true)
+                    // The link to the UK page is only for a species the
+                    // list holds. That page also has its other drawings.
+                    if let listing = ukListing {
+                        NavigationLink {
+                            WildlifeAnimalPage(creature: listing)
+                        } label: {
+                            Text(listing.hasOtherPictures ? "More drawings, and when it is recorded in the UK" : "When it is recorded in the UK")
+                        }
                     }
                 } footer: {
-                    if !listing.hasOwnPicture {
-                        Text("The drawing is of its kind, not of this species.")
+                    if let note = found.note {
+                        Text(note)
                     }
                 }
             }

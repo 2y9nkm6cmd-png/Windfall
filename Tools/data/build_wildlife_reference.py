@@ -37,6 +37,8 @@ src = json.load(open(os.path.join(HERE, "wildlife", "uk-animals-inaturalist.json
 order = {slug: i for i, (slug, _, _) in enumerate(KINDS)}
 drawn = json.load(open(os.path.join(ROOT, "Design", "Wildlife", "species-drawings.json"), encoding="utf-8"))
 own, typical = drawn["species"], drawn["kindsDrawnAs"]
+# An animal's OTHER drawings (in flight, the female, the caterpillar) and what its first drawing shows.
+views, shows = drawn.get("views", {}), drawn.get("mainShows", {})
 animals, unsorted = [], []
 for a in src["animals"]:
     k = kind_of(a["lineage"])
@@ -52,9 +54,12 @@ for a in src["animals"]:
     if a.get("months"): row["m"] = a["months"]
     if a.get("introduced"): row["i"] = True
     if a["name"] in own: row["p"] = own[a["name"]]
+    if a["name"] in views: row["v"] = views[a["name"]]; row["w"] = shows.get(a["name"], "adult")
     animals.append(row)
 animals.sort(key=lambda r: (order[r["k"]], -r["n"], r["s"]))
-out = {"source": src["source"], "fetched": src["fetched"], "rule": src["rule"], "checked": False,
+# For a few genera, the animal whose drawing stands for every member: used for one of William's own species that the list does not hold.
+genera = {g.lower(): name for g, name in drawn.get("genera", {}).items()}
+out = {"source": src["source"], "fetched": src["fetched"], "rule": src["rule"], "checked": False, "genera": genera,
        "kinds": [dict({"slug": s, "name": n, "group": g}, **({"is": typical[s]} if s in typical else {})) for s, n, g in KINDS], "animals": animals}
 path = os.path.join(ROOT, "Windfall", "WildlifeReference.json")
 with open(path, "w", encoding="utf-8") as fh:
@@ -63,5 +68,6 @@ with open(path, "w", encoding="utf-8") as fh:
 with_months = sum(1 for r in animals if "m" in r)
 lost = sorted(set(own) - {r["s"] for r in animals})
 print(f"{sum(1 for r in animals if 'p' in r)} animals have a drawing of their own. Drawn but not in the list: {lost}")
+print(f"{sum(1 for r in animals if 'v' in r)} of them have more than one drawing: {sum(len(r['v']) for r in animals if 'v' in r)} other drawings in all.")
 print(f"{len(animals)} animals in {len(KINDS)} kinds written to Windfall/WildlifeReference.json "
       f"({os.path.getsize(path) // 1024} KB). {with_months} have month counts. Not sorted into a kind: {unsorted}")
