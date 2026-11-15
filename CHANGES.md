@@ -1,3 +1,17 @@
+# 15 November 2026, 21:51: Eira's second look at a sighting's photo, for the plant it was on and what it was doing
+
+**By the "iPad changes" chat.** On `search-rests-as-glass`, then `main` moved to it (`02d1a97`). William, 21:39: "Eira should do a second pass of the photo for the plant and what it's doing. Install this version now."
+
+- **New `EiraSecondLook.swift`** (a logic file, tested): `SightingDoing.choices` (the ten ready-made answers, moved here from the form), `SeenInPhoto`, `SecondLookSuggestion`, and `EiraSecondLook.suggestion(plants:seen:yourPlants:)`, the rules that turn the two looks into suggestions. `WildlifeObservation.keep(_:)` and `wantsSecondLook`.
+- **New `EiraSecondLookRunner.swift`** (needs Apple's frameworks): runs the look. 1. `SpeciesEye.plantGuess(forPhotos:)`, the image model again with every row that is not "Plantae" set aside (`SpeciesTable.guess(fromShares:keeping:among:)`, which shares the rest out again and is never "sure"). 2. Apple's on-device model, where `SystemLanguageModel.default.capabilities.contains(.vision)`, shown the first photo with `Attachment(cgImage)` and made to fill in `SecondLookReply` (`@Generable`): on a plant or not, one of the five plants offered, a few words about the plant, one of the ten answers.
+- **The rules.** Not on a plant: no plant. A plant or an answer that was not offered is thrown away. With no look from Apple's model, the image model's first plant only at a share of 0.5 or more among plants (⚠️ CHECK: Claude's level, not measured). The plant is matched to one of William's own by species, then genus.
+- **Five new fields on `WildlifeObservation`**, all optional: `eiraPlantSuggestion`, `eiraPlantSuggestionLatin`, `eiraDoingSuggestion`, `eiraSecondLookNote`, `eiraSecondLookAt`. Suggestions only.
+- **The form** (`ObservationViews.swift`): at the top of "On a plant?", the look starts by itself the first time a sighting with a photo opens ("Eira is looking at the photo…"), then shows each suggestion with Use, the line of what she saw, and Look again. Nothing is filled in until Use is tapped.
+- `-demoOpen sighting-eira` now also carries a made-up second look.
+- `known-false-alarms.txt`: `SeenInPhoto.insert:` (the member check reads any `seen` as one).
+
+**Checked.** 135 files parse, type check passes, cross-file checks clean, **978 logic tests pass** (13 new). Built for the simulator and signed, BUILD SUCCEEDED. Installed on the iPad (21:51:36) and iPhone (21:51:39), no error. **Not seen at all:** the look running, on any device. The simulator has neither the image model nor, as far as is known, Apple's model with sight, and no picture was taken of the lower half of the form. **Not on the Mac.**
+
 # 15 November 2026, 21:32: three things found on the iPad: the search rests as a glass, a sighting from Eira arrives filled in, and a switch's words are one size
 
 **By the "iPad changes" chat, linked to William's Mac while he used the iPad.** On the branch `search-rests-as-glass`, from `main` at `827e21d`.
