@@ -1,3 +1,13 @@
+# 15 November 2026, 12:30: the box in Eira's chat has Windfall's rounded corners
+
+**By the "search bar corners" chat, from William's phone. Branch `eira-box-corners`, from `main` at `baf4a59`. Not built: written in Claude's cloud workspace, which has no Xcode.** William, 12:22, with a picture of Eira's chat in the panel in dark mode: "The curvature of this search bar doesn't match the curvature elsewhere."
+
+| File | What changed, and why |
+|---|---|
+| `EiraChatView.swift`, the "Ask Eira…" box | It used the system's own box (`.textFieldStyle(.roundedBorder)`), whose corners are small and fixed and which is black in dark mode. It is now `.plain` with the box drawn by hand, exactly as the journal's box is in `JournalChatView.swift`: the card colour at 0.85, corners of 20, a hairline round it, 14 points of room at the sides and 10 above and below |
+
+**Not checked:** anything. It has not been built or seen. The box is taller than before (about 40 points for one line, as the journal's is), which should sit level with the 44-point microphone.
+
 # 15 November 2026, 12:25: the whole Life stages card zooms in, and Leaf and Flower are two cards
 
 **By the card zoom chat.** William, 11:57: "When I said I wanted the life stages card to be able to be tapped to zoom in, I meant the entire card, then able to scroll through the life cycle but it would be zoomed in. For the leaf and flower card, I want these as two separate cards that sit next to each other, but in the same location they're in now." Made on the branch `card-zoom-15nov`, from `main` at `f4b5700`.
