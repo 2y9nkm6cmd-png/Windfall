@@ -1,3 +1,19 @@
+# 15 November 2026, 11:30: the widgets stand on the app icon's background
+
+**By the widget colour chat.** William, 11:15: "The widget background colours should match the app icon background colour." Made on the branch `widget-icon-ground`, from `main` at `505ec61`.
+
+The app icon is cream `#FAEEE0` in light mode and green `#06421B` in dark mode (`Windfall/AppIconMac.icon/icon.json`, doc 47). Before this, the Paper widgets used the card colour (`#FFFCF6` light, `#142414` dark) and Garden green used the sidebar's green `#0C2C14`. Both were near the icon's colours but not the same.
+
+| File | What changed, and why |
+|---|---|
+| `Design/colours.json` | A new named colour, `IconGround`: `#FAEEE0` light, `#06421B` dark. Kept here and not typed into the Swift, so the icon's background has one home and the light and dark values switch by themselves |
+| Both `Assets.xcassets/Colours/IconGround.colorset` | Written by `Tools/design/build_design_assets.py` from the line above. Nothing else in the catalogues changed |
+| `WindfallShared/WidgetViews.swift`, `WidgetPalette.paper` | `ground` (the widget's background) is now `IconGround`. `inset` (the photo box and the capture buttons) is now `Card`, because the old inset colour, `Paper` `#F8F1E5`, is almost the same cream as the new background and would have vanished. `Card` is a shade lighter than the cream in light mode and a shade darker than the green in dark mode, so the boxes still show |
+| `WindfallShared/WidgetViews.swift`, `WidgetPalette.green` | `ground` is now the icon's green `#06421B`, in both modes. The colours that sit on it were moved up with it so they keep the same step from the background: `inset` `#0E4F25`, `fill` (the tags) `#1F6234`, `line` (the thin dividers) `#2B5F3A`, and `onLeaf` (text on the pale green) `#06421B` |
+| `WindfallWidgets/WindfallWidgets.swift` | The words under the Look setting say both looks match the icon |
+
+The app's own screens are not changed: `Card`, `Paper` and the sidebar keep their colours. Only the widgets, and the app's widget checking page (which draws the same views), use `IconGround`.
+
 # 15 November 2026, 03:52: seven more branches joined into main
 
 **By the join chat.** William, 22:49 on 14 November: "In the morning when all the build work is finished on all versions, could you send me a list of jobs I need to do still. Could you also compile the iPhone, iPad and Mac versions when they've included all the changes and errors." The Mac had been quiet since 23:03: no build running, nothing unsaved in any copy of the code, no commit anywhere. The join was made in `~/Developer/windfall-join`, on the branch `join-15nov-morning`, from `main` at `17f0f0b`, and `main` moved only once it built and passed its tests.

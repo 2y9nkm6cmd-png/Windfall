@@ -14,6 +14,12 @@
       "use": "Cards, buttons and beds on a plan"
     },
     {
+      "name": "IconGround",
+      "light": "#FAEEE0",
+      "dark": "#06421B",
+      "use": "The app icon's background: cream in light mode, the icon's green in dark mode. The widgets' background"
+    },
+    {
       "name": "Hairline",
       "light": "#E0D9CB",
       "dark": "#2B3B2E",
