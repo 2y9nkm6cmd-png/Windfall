@@ -6,7 +6,7 @@
 
 | File | What changed, and why |
 |---|---|
-| `LivingCorner.swift`, `LivingCorner` | New `isResting`, which decides when the drawing holds still. It did so for Reduce Motion and when the app was put away. It now also rests when its page has left the screen (`isOnScreen`, set by `onAppear` and `onDisappear`), when a sheet is up over Today (`cornerIsCovered`) and, on a Mac, when Windfall's window is not the one in use (`appearsActive`). A paused `TimelineView` keeps its last picture, so the drawing stays where it was and carries on when it can be seen again. The last three wait for `hasGrownIn`, four seconds after the drawing appears, so that a plant is never left standing half grown: found when a copy started behind another window drew nothing at all |
+| `LivingCorner.swift`, `LivingCorner` | New `isResting`, which decides when the drawing holds still. It did so for Reduce Motion and when the app was put away. It now also rests when its page has left the screen (`isOnScreen`, set by `onAppear` and `onDisappear`), when a sheet is up over Today (`cornerIsCovered`) and, on a Mac, when Windfall's window is not the one in use (`appearsActive`). A paused `TimelineView` keeps its last picture, so the drawing stays where it was and carries on when it can be seen again. The last three wait for `hasGrownIn`, four seconds after the drawing appears, so that a plant is never left standing half grown: found when a copy started behind another window drew for less than a second, which by the code leaves the plant at its first moment of growth |
 | `LivingCorner.swift`, `cornerIsCovered` | A new setting handed down through the environment, the way `paintsGlassFlat` is in Theme.swift. A page that puts something over the drawing sets it to true |
 | `LivingCorner.swift`, `CornerMeter` | A checking aid, off unless the app is started with `-cornerMeter YES`. It counts the pictures drawn each second and writes the count, with the time, to `windfall-corner-meter.txt` in the app's temporary folder. A second with no drawing writes nothing, so a gap in the times is a rest |
 | `TodayView.swift`, `header` | Sets `cornerIsCovered` while the capture sheet or the Add a job sheet is up |
@@ -24,7 +24,14 @@
 - **The Journal built a day at a time.** Two other chats changed how the Journal's page ends today, one of them not yet built. There is nothing to gain until the journal holds more than a few days.
 - **Eira's reply shown a few words at a time.** It changes how her answer looks, and William has not said he wants that.
 
-**Checked:** see the build log in doc 93.
+**Checked.**
+
+- Windfall's own checks in the cloud workspace (Swift 6.3.1 for Linux): 124 files parse, the type check of the logic files passes, cross-file checks clean, 871 logic tests pass. Eight more checks of `showsTheSame`, run by hand there, pass: a summary read back from the file is not equal by `==` (the fraction of a second) and does show the same, and a newer forecast, a colder night, a job gone or a moved place each count as a change.
+- Builds with no errors for the Mac and the simulator, unsigned, in this chat's own copy (`pw1` and `pw2` logs, 16:36 to 16:41). No warnings from the new code. These were also the first builds of the iPad strip change of 16:05, which builds.
+- **On the Mac, like for like**: a copy started behind another window with the example garden, read with `top` from 22 seconds after starting. `main` of 15:26: 12.8%, 15.7%, 16.0%, 15.2% and 14.4% of one core. This branch: 0.5%, then 0.0% four times. The counter shows it drawing 27, 31 and 30 times in its first three full seconds, while the plant grew in, and not once in the half minute after.
+- **In an iPhone simulator**, with `-motionTour places`: about 30 draws a second on Today, none during the seconds the tour spent on the Journal, Gardens and Wildlife, and 30 again each time it came back to Today.
+
+**Not checked.** The Mac's window in use: nobody has seen that the drawing moves again when Windfall is clicked, since that would have meant taking the screen from William. A sheet over Today, and a plant's page over Today. A real iPhone or iPad. The widgets, which the simulator and an unsigned Mac copy do not run. Whether the iPhone already rested the drawing on another tab before this change: only the new build has a counter.
 
 # 15 November 2026, 16:05: on an iPad, pages stop at Eira's bar again and no longer scroll on past their end
 
