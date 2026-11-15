@@ -1,3 +1,18 @@
+# 15 November 2026, 13:05: the zoomed Life stages page is the card's own row made big, not a slideshow
+
+**By the card zoom chat, second round.** William, 12:51, with a picture of the row of stages: "The zoom in still isn't right. I wanted this to be the thing that fills the screen and you scroll along it." The 12:25 version showed one drawing to a page and snapped from page to page. Made on the branch `card-zoom-15nov`, from `main` at `baf4a59`.
+
+| File | What changed, and why |
+|---|---|
+| `PlantDrawingViews.swift`, `PlantPicturesZoomed` | Rewritten. The page is now one long strip: every stage side by side with its name beneath, each drawing as tall as the page allows, in a plain sideways `ScrollView` that glides and rests wherever it is let go. Gone: the pages (`containerRelativeFrame`, `.scrollTargetBehavior(.paging)`, `scrollPosition(id:)`), the arrows and arrow keys, the "3 of 5" count and the second row of small tiles. `side(in:alone:)` works the drawing's size out from the page: the smaller of the height left over and 58% of the width (`shareOfWidth`), so the next stage always shows at the edge. Two `Spacer`s put the card in the middle of a tall page. The strip is cut to the card's rounded corners (`clipShape`) |
+| The same, for a close-up | A lone Leaf or Flower still opens as one drawing, now centred in the same card and as wide as the page allows |
+| `PlantPictureTile` | Lost `isChosen` and its ring. The ring marked which page the slideshow was on, and there are no pages now |
+
+**Not built, on purpose:** a ring on "the plant's current stage". The app does not hold a current stage for a plant, so there is nothing to ring. The strip opens at its start (Seed).
+
+**Checked:** simulator and Mac builds, unsigned: BUILD SUCCEEDED (`windfall-build-logs/cz8-sim.log`, `cz8-mac.log`). Simulator pictures (`windfall-build-logs/shots/cz2-*.png`, script `cardzoom-shots2.sh`): Yarrow's strip at its start on an iPhone 17 Pro in dark and on an iPad mini in dark, its end ("Winter") on the iPad mini in light, Yarrow's flower and Rhubarb's leaf alone, and Yarrow's page with the three cards unchanged.
+
+**Not checked:** a drag along the strip on any device, the Mac's own window, and an iPad or iPhone on its side. The pictures are of pages opened by the checking aid.
 # 15 November 2026, 12:25: the whole Life stages card zooms in, and Leaf and Flower are two cards
 
 **By the card zoom chat.** William, 11:57: "When I said I wanted the life stages card to be able to be tapped to zoom in, I meant the entire card, then able to scroll through the life cycle but it would be zoomed in. For the leaf and flower card, I want these as two separate cards that sit next to each other, but in the same location they're in now." Made on the branch `card-zoom-15nov`, from `main` at `f4b5700`.
