@@ -37,7 +37,7 @@ enum LookChoice: String, AppEnum {
 /// The one setting every Windfall widget has.
 struct LookIntent: WidgetConfigurationIntent {
     static let title: LocalizedStringResource = "Look"
-    static let description: IntentDescription? = IntentDescription("Paper follows light and dark mode. Garden green is the sidebar's green.")
+    static let description: IntentDescription? = IntentDescription("Both match the app icon. Paper is cream in light mode and the icon's green in dark mode. Garden green is the icon's green all the time.")
 
     @Parameter(title: "Look", default: .paper)
     var look: LookChoice

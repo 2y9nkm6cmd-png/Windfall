@@ -23,12 +23,34 @@
 - **Why the enlarged page is a pushed page, not a sheet.** William's rule of 14 November: a tile that leads to more should grow its page out of itself, with the swipe back kept.
 - **Nothing saved has changed.** No record type was touched.
 
+## The drawings checked for accuracy, 11:27 to 11:50
+
+William, 11:27: "When you've done that, could you double check all the drawings for accuracy." Each kind's leaf and flower was set beside the Latin name and variety in his own plant library (`StarterData.json`), and all six sheets were looked at. 44 kinds were changed in `leaves_flowers.py`: 22 leaves and 26 flowers. Project doc 81 lists each one, its reason and what is still in doubt.
+
+- **New drawing code**: a rayless daisy head (`rayless`, pineappleweed), a lacecap hydrangea (`lacecap`), an even pincushion (`even`, devil's-bit scabious), a pansy face (`fl_pansy`), a horned rampion head (`fl_horned`), round button heads (`button`, wormwood), veined petals (`veins`, rocket), spots on a leaf (`spots`, lungwort and St John's-wort), two more leaflets at the foot of a trefoil (`basal`, bird's-foot trefoil).
+- **Why the settings sit at the foot of `LEAFX` and `BLOOMX`**: every change from the check is under one comment line, so it can be told from the first pass.
+
 ## Checked
 
 | Check | Result |
 |---|---|
 | Windfall's own checks, cloud workspace, Swift 6.3.1 | Syntax, types and cross-file checks pass. **844 logic tests pass**, 11 of them new |
 | New tests | The list of close-ups is read, leaf first. A plant finds its close-ups through its kind by any of its names. A plant with no drawings has none. Picture names. The life stages become a row in order. The two-column weights. With the real files: the app's list is the one in `Design/Plants`, it covers the same 172 kinds as the life stages, and every close-up has a light and a dark drawing |
+# 15 November 2026, 11:30: the widgets stand on the app icon's background
+
+**By the widget colour chat.** William, 11:15: "The widget background colours should match the app icon background colour." Made on the branch `widget-icon-ground`, from `main` at `505ec61`.
+
+The app icon is cream `#FAEEE0` in light mode and green `#06421B` in dark mode (`Windfall/AppIconMac.icon/icon.json`, doc 47). Before this, the Paper widgets used the card colour (`#FFFCF6` light, `#142414` dark) and Garden green used the sidebar's green `#0C2C14`. Both were near the icon's colours but not the same.
+
+| File | What changed, and why |
+|---|---|
+| `Design/colours.json` | A new named colour, `IconGround`: `#FAEEE0` light, `#06421B` dark. Kept here and not typed into the Swift, so the icon's background has one home and the light and dark values switch by themselves |
+| Both `Assets.xcassets/Colours/IconGround.colorset` | Written by `Tools/design/build_design_assets.py` from the line above. Nothing else in the catalogues changed |
+| `WindfallShared/WidgetViews.swift`, `WidgetPalette.paper` | `ground` (the widget's background) is now `IconGround`. `inset` (the photo box and the capture buttons) is now `Card`, because the old inset colour, `Paper` `#F8F1E5`, is almost the same cream as the new background and would have vanished. `Card` is a shade lighter than the cream in light mode and a shade darker than the green in dark mode, so the boxes still show |
+| `WindfallShared/WidgetViews.swift`, `WidgetPalette.green` | `ground` is now the icon's green `#06421B`, in both modes. The colours that sit on it were moved up with it so they keep the same step from the background: `inset` `#0E4F25`, `fill` (the tags) `#1F6234`, `line` (the thin dividers) `#2B5F3A`, and `onLeaf` (text on the pale green) `#06421B` |
+| `WindfallWidgets/WindfallWidgets.swift` | The words under the Look setting say both looks match the icon |
+
+The app's own screens are not changed: `Card`, `Paper` and the sidebar keep their colours. Only the widgets, and the app's widget checking page (which draws the same views), use `IconGround`.
 
 # 15 November 2026, 03:52: seven more branches joined into main
 

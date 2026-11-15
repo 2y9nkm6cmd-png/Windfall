@@ -18,8 +18,10 @@ import ImageIO
 
 // MARK: - The two looks
 
-/// Paper follows light and dark mode, like the app's cards. Garden
-/// green is the sidebar's green with cream text, the same in both.
+/// Both looks stand on the app icon's own background, so a widget sits
+/// on the Home Screen like a piece of the icon. Paper follows light and
+/// dark mode as the icon does: cream in light, the icon's green in dark.
+/// Garden green is the icon's green with cream text, the same in both.
 nonisolated enum WidgetLook: String, CaseIterable {
     case paper, green
 }
@@ -31,15 +33,15 @@ struct WidgetPalette: Sendable {
 
     /// The app's own named colours, from the asset catalogue.
     static let paper = WidgetPalette(
-        ground: Color("Colours/Card"), inset: Color("Colours/Paper"), ink: Color("Colours/Ink"),
+        ground: Color("Colours/IconGround"), inset: Color("Colours/Card"), ink: Color("Colours/Ink"),
         soft: Color("Colours/InkSoft"), leaf: Color("Colours/Leaf"), onLeaf: Color("Colours/OnLeaf"),
         fill: Color("Colours/LeafFill"), amber: Color("Colours/Amber"), line: Color("Colours/Hairline"),
         disc: Color("Colours/EiraDisc"), flower: Color("Colours/EiraFlower"))
 
     static let green = WidgetPalette(
-        ground: Color(hex: 0x0C2C14), inset: Color(hex: 0x15391E), ink: Color(hex: 0xF8F1E5),
-        soft: Color(hex: 0xB9C9B4), leaf: Color(hex: 0xC4DC7C), onLeaf: Color(hex: 0x0C2C14),
-        fill: Color(hex: 0x24502C), amber: Color(hex: 0x5A4520), line: Color(hex: 0x2A4A30),
+        ground: Color(hex: 0x06421B), inset: Color(hex: 0x0E4F25), ink: Color(hex: 0xF8F1E5),
+        soft: Color(hex: 0xB9C9B4), leaf: Color(hex: 0xC4DC7C), onLeaf: Color(hex: 0x06421B),
+        fill: Color(hex: 0x1F6234), amber: Color(hex: 0x5A4520), line: Color(hex: 0x2B5F3A),
         disc: Color(hex: 0xF8F1E5), flower: Color(hex: 0x06472A))
 
     static func of(_ look: WidgetLook) -> WidgetPalette { look == .green ? .green : .paper }
