@@ -18,6 +18,39 @@ The evening sweep had already redrawn two of the list (the hydrangea in flower a
 `fl_iris` in `leaves_flowers.py` is rewritten: `sl` and `sw` set the standards' length and width, `fw` the falls' width, `sig` the signal's colour. 38 files in `Design/Plants` and the same 38 in the app's picture store.
 
 **Not done:** Sweet William's petals are still smooth-edged. A build.
+# 15 November 2026, 20:33: the three drawing branches joined, built and put on the devices
+
+**By the "graphics join" chat, linked to the Mac.** William, 20:14: "As soon as all graphics updates are made, insert them into the app and issue the app." Made on the branch `graphics-join-15nov`, from `main` at `78c68a7`.
+
+**What was waiting.** Three chats had redrawn pictures in the same hour, each on a branch of its own:
+
+| Branch | What it holds | Its entry below |
+|---|---|---|
+| `drawings-accuracy-sweep` (`3ee3288`) | Every toothed leaf shows its teeth, and the life stages follow the close-ups. 88 kinds of plant | 19:45, "every toothed leaf" |
+| `plant-drawings-photo-check` (`c588a44`) | 26 plant drawings put right against photographs | 20:11 |
+| `wildlife-photo-check` (`1b8ff58`) | 27 animal drawings corrected against photographs, and 96 other drawings of 72 animals (in flight, female, caterpillar and so on) | 20:20 |
+
+**Where they met.** The animal branch met nothing but this file. The two plant branches had both changed `Tools/design/plants_all.py`, `Tools/design/leaves_flowers.py` and the same four drawings, because neither knew of the other:
+
+- **`plants_all.py`.** On the lines both had changed, the sweep's line is kept. Each already holds the colour the photograph check set (yarrow, cat nip, iris, yellow iris and winter windflower are the same on both sides) and adds the sweep's teeth, tuber, rhizome and stem leaves.
+- **Three kinds were put right twice**, once by each chat: leaf salad's flower, wild chamomile's rayless heads and the Bristol onion's head. The sweep's drawing of each is kept: a primrose lettuce flower with a fluffy seed head, heads with no rays, and a tight egg-shaped head whose lowest buds are still green. The photograph check's settings for the same three (`fl="daisy", fr=4.4`, `fl="tiny", fc="pear"`, and `"bristol-onion": dict(n=110, R=26)` with `"wild-chamomile": dict(kind="daisy", rayless=True, fc="white")` in `BLOOMX`) are left out. ⚠️ CHECK: Claude's choice between two drawings of the same thing.
+- **`leaves_flowers.py`.** Both lists of settings at the foot of `LEAFX` and `BLOOMX` are kept, the sweep's first. The photograph check's eight branched spikes (beetroot, mangelwurzel, Swiss chard, spinach beet, spinach, Good King Henry, purple orach, sorrel) follow under their own comment line. Its `"cosmos": dict(thread=True)` was the same as the sweep's and is there once.
+- **The pictures.** With the two scripts joined, all 1,248 plant drawings were drawn again and compared with what the merge held: byte for byte the same, light and dark, but for the daffodil's and peacock orchid's close-ups, which differ by one rounded digit on this machine as the 13:11 entry describes. The repository's copies of those two are kept. `build_design_assets.py` then changed nothing.
+
+**What the photograph check had left alone and the sweep had already done.** Three of the things on the photograph check's "found and left alone" list (project doc 107) are put right by the sweep, so they are right in this join: the hydrangea in flower is a lacecap, the winter windflower grows from a tuber with stalked leaves of three leaflets, and anise and coriander have their own three-leaflet lower leaf.
+
+**No Swift file was changed by the join.** The animal branch's Swift (`WildlifeReference.swift`, `WildlifeBookViews.swift`, `FaunaViews.swift`, the logic tests) came in whole.
+
+**Checked.**
+
+- Windfall's own checks in the cloud workspace, Swift 6.3.1 for Linux, on the joined code: 132 files parse, the type check passes, the cross-file checks are clean, **954 logic tests pass, 0 fail**.
+- On the Mac, from the copy `~/Developer/windfall-fixes` into `DerivedData/Windfall-fixes` (`gj1-sim.log`, `gj1-ios.log`, `gj1-mac.log`): simulator BUILD SUCCEEDED 20:23, signed for any iPhone or iPad 20:25, Mac 20:26. They were built from `b801f7d`. The two commits after it change only this file and some Python cache files, none of which goes into the app.
+
+**Seen in the built app** (eleven simulator pictures, `shots/gj-*.png`, script `gj-shots.sh`, looked at by Claude): Raspberry's page and its leaf enlarged, with teeth that show. Beetroot's flower enlarged in dark mode, a branched spike. Fig, whose stage reads "In leaf". Hydrangea on an iPad with lacecap flowers in the life stage and the close-up. Geum in dark mode, red. The blackbird with Male and Female, the peacock with Wings open, Wings closed, Caterpillar and Chrysalis, the buzzard with Perched and In flight. Species still lists the example garden's animals with a drawing each.
+
+**On all three devices.** The animal chat was installing its own branch at the same minute, so each install here was made after that chat's had finished on the device, and this build holds everything that one does. iPad 20:30:59 and iPhone 20:32:23, both exit 0 (`gj1-install-ipad.log`, `gj1-install-iphone.log`). On the Mac the animal chat's copy (process 28363, opened 20:32:04) was closed at 20:33:20 and this build opened at 20:33:21 (process 28602). The Mac's records were copied first (`records-copy-15nov-2032`) and counted before and after: 376 plants, 2 gardens, 11 photos, 4 sightings, 2 journal entries, 94 days of weather.
+
+**Not checked.** A tap on any device. The other 160 or so kinds of plant and the other animals in the built app (their pictures were looked at by the chats that drew them). Dark mode beyond the three pictures above.
 
 # 15 November 2026, 20:20: every animal drawing checked against photographs, 27 corrected, and 96 other drawings of 72 animals
 
