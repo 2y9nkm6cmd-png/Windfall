@@ -1,3 +1,7 @@
+# 15 November 2026, 19:27: the raven, the hooded crow and the chough get drawings of their own
+
+**By the "wildlife rows" chat.** William, 19:22: "Are ravens an option". The raven was in the list (*Corvus corax*, 3,202 UK records) but showed the carrion crow's drawing. Three new drawings in `Tools/design/wildlife_species2.py`, so every crow in the list now has its own: the **raven** (the biggest: a massive bowed bill, a flat crown, shaggy throat feathers, a long full tail), the **hooded crow** (a carrion crow's shape, grey with a black head, bib, wings and tail; the hooded and carrion cross shares it) and the **chough** (black with a thin curved red bill and red legs). 203 animals now have a drawing of their own, up from 199. Pictures and one list file only, no Swift. ⚠️ From memory, like the rest. Checks: 929 logic tests pass.
+
 # 15 November 2026, 19:20: the birds redrawn so each family has its own outline, jointed legs on the four-legged animals, three different owls
 
 **By the "wildlife rows" chat, from William's iPad.** William, 19:06: "Now sweep through them and make them more detailed. A lot of the birds look similarly shaped." Made on the branch `wildlife-drawings-detail`, from `main` at `5e0d13a`. **Pictures only: no Swift file is changed.** Not built. **In `main` since 19:19**, see the end of this entry.

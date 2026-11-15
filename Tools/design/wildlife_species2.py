@@ -412,6 +412,28 @@ def rook():                  # a steep forehead, a bare pale face and baggy "tro
     return bird(**{**CROW, "thigh": 7.5, "culmen": 0.1, "hr": 8.2}, peak=1.3, bill=(13.5, 4.2, "cone", "grey"), back="black", belly="black", wing="black", face="grey")
 
 
+@sp("Corvus corax")
+def raven():                 # the biggest crow: a massive bowed bill, a flat crown, shaggy throat feathers and a long full tail
+    def hackles(a, sil, head, t):
+        hx, hy = head
+        for k in range(4):
+            stroke(a, [(hx + 4.4 - k * 2.2, hy + 6.2 + k * 0.5), (hx + 5.8 - k * 2.2, hy + 10.4 + k * 0.5)], 0.7, 0.6, col="slate", smooth=False)
+    return bird(**{**CROW, "bx": 46, "bl": 25, "bd": 13.6, "hr": 8.6, "hh": 0.82, "hw": 1.1, "culmen": 0.5, "thigh": 6.5, "tail": (23, 9.5, "round"), "wing_len": 1.16, "chest": 1.14, "tilt": -16},
+                bill=(14.5, 7.2, "cone", "black"), back="black", belly="black", wing="black", after=hackles,
+                extra=[(ell(60, 46, 4.6, 6, -20), "black")])
+
+
+@sp("Corvus cornix", "Corvus cornix × corone")
+def hooded_crow():           # a carrion crow's shape in a grey waistcoat: black head, bib, wings and tail
+    return bird(**CROW, bill=(11, 5.6, "cone", "black"), back="grey", belly="grey", hood="black", throat="black", bib="black", wing="black", tail_col="black", primaries="black")
+
+
+@sp("Pyrrhocorax pyrrhocorax")
+def chough():                # glossy black, with a thin curved red bill and red legs
+    return bird(**{**CROW, "bl": 21, "bd": 12, "hr": 8.4, "hh": 0.92, "thigh": 4, "legs": (13, "red"), "leg_w": 1.5, "tail": (17, 8, "square"), "wing_len": 1.18}, bill=(12, 3.3, "curve", "red"),
+                back="black", belly="black", wing="black")
+
+
 @sp("Coloeus monedula")
 def jackdaw():               # small and neat for a crow, short-billed, with a pale eye
     return bird(**{**CROW, "bl": 20, "bd": 12.4, "hr": 8.8, "hh": 0.94, "tilt": -24, "thigh": 4, "tail": (16, 8, "square"), "wing_len": 1.05}, bill=(6.4, 4, "cone", "black"), back="black",
