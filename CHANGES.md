@@ -1,3 +1,35 @@
+# 15 November 2026, 11:30: the leaf and flower close-ups on a plant's page, and every drawing opens large
+
+**By the "leaf and flower in the app" chat.** William, 11:12: "Great work on the plant leaf and flower drawings. Could you add them into the next build. Could you also make it so that you can tap on the life stages to enlarge it." Earlier, at 10:30, he had said where the close-ups go: "This would be a separate section in the plant page."
+
+## On the screen
+
+- **A plant's page has a new card, "Leaf and flower"**, straight under "Life stages": a close-up of its leaf and one of its flower, 96 points each with the label beneath ("Leaf", "Flower", "Blossom" for tree fruit, "Flowers, inside the fig"). On a two-column page it sits with Life stages at the top of the left column. A plant with no drawings (the mixes, the to-buy plants) shows neither card. Ginkgo, Senecio 'Angel Wings', Shallot and Tarragon show a leaf only.
+- **Tap any drawing on either card and it opens large**, on a page of its own that grows out of the tile and shrinks back into it on the way back (the same zoom as every other tile, `GrowingLink` in GrowFromTile.swift). The drawing fills the width of the page, up to 560 points. Under it are the plant's name and the drawing's label in the page-title serif, and a row of the card's other drawings at 64 points: tap one to swap it in, so the life stages can be stepped through without going back. The one shown has a green ring.
+
+## How
+
+| File | What changed |
+|---|---|
+| `Tools/design/leaves_flowers.py` (new) | Draws the close-ups: 340 drawings, each in light and dark. Project doc 79 says how |
+| `Design/Plants/light`, `dark`, `plant-parts.json` | The 680 new SVG files and their list |
+| `Tools/design/build_design_assets.py` | Also copies `plant-parts.json` into the app as `Windfall/PlantParts.json`. The 340 new picture sets came from the existing loop by themselves: `Assets.xcassets/Plants` now holds 1,248 |
+| `PlantDrawings.swift` | New `PlantParts`: reads the list and gives a kind's close-ups by its slug. New `PlantPicture`: one drawing in a row (kind, stage or close-up, label), made from either list. `parts(forPlantNamed:)` finds a plant's close-ups through its kind |
+| `PlantDrawingViews.swift` | `PlantPictureRow`: a titled card of tiles, each a `GrowingLink`. `PlantStagesCard` now uses it, and so does the new `PlantPartsCard`. `PlantPictureTile`: one tile. `PlantPictureDetailView`: the enlarged page |
+| `PlantLibraryView.swift` | `partsCard` on the plant page under `stagesCard`, in both layouts. The two-column page counts the drawing cards at the top of the left column when it shares out the facts |
+| `PlantPage.swift` | `drawingCardsWeight(cards:)`: seven rows for each drawing card. This settles "Not done" 5 of project doc 71 |
+
+- **Why one row for both cards.** The Life stages card and the Leaf and flower card are the same thing: a title and a row of drawings. Making both from `PlantPictureRow` means the tap to enlarge, and anything changed later, is written once.
+- **Why the enlarged page is a pushed page, not a sheet.** William's rule of 14 November: a tile that leads to more should grow its page out of itself, with the swipe back kept.
+- **Nothing saved has changed.** No record type was touched.
+
+## Checked
+
+| Check | Result |
+|---|---|
+| Windfall's own checks, cloud workspace, Swift 6.3.1 | Syntax, types and cross-file checks pass. **844 logic tests pass**, 11 of them new |
+| New tests | The list of close-ups is read, leaf first. A plant finds its close-ups through its kind by any of its names. A plant with no drawings has none. Picture names. The life stages become a row in order. The two-column weights. With the real files: the app's list is the one in `Design/Plants`, it covers the same 172 kinds as the life stages, and every close-up has a light and a dark drawing |
+
 # 15 November 2026, 03:52: seven more branches joined into main
 
 **By the join chat.** William, 22:49 on 14 November: "In the morning when all the build work is finished on all versions, could you send me a list of jobs I need to do still. Could you also compile the iPhone, iPad and Mac versions when they've included all the changes and errors." The Mac had been quiet since 23:03: no build running, nothing unsaved in any copy of the code, no commit anywhere. The join was made in `~/Developer/windfall-join`, on the branch `join-15nov-morning`, from `main` at `17f0f0b`, and `main` moved only once it built and passed its tests.

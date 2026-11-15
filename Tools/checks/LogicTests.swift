@@ -2019,6 +2019,21 @@ struct LogicTests {
         } else {
             check(false, "the example kinds are found by name")
         }
+        // The close-ups of each kind's leaf and flower.
+        let partList = try! PlantParts.decode(Data("""
+        {"kinds":[{"slug":"leek","name":"Leek","parts":[{"part":"leaf","label":"Leaf"},{"part":"bloom","label":"Flower"}]},
+                  {"slug":"ginkgo","name":"Gingko","parts":[{"part":"leaf","label":"Leaf"}]}]}
+        """.utf8))
+        check(partList.count == 2 && partList.parts(forKind: "leek").map(\.part) == ["leaf", "bloom"], "the list of close-ups is read, leaf first")
+        check(partList.parts(forKind: "snowdrop").isEmpty, "a kind missing from the list of close-ups has none")
+        check(drawingList.parts(forPlantNamed: "Leeks", in: partList).map(\.label) == ["Leaf", "Flower"], "a plant finds its close-ups through its kind, by any of its names")
+        check(drawingList.parts(forPlantNamed: "Herb mix", in: partList).isEmpty, "a plant with no drawings has no close-ups")
+        check(PlantPicture.parts(partList.parts(forKind: "leek"), kind: "leek").map(\.pictureName) == ["Plants/plant-leek-leaf", "Plants/plant-leek-bloom"], "a close-up's name in the app's store of pictures")
+        if let leek = drawingList.kind(forPlantNamed: "Leek") {
+            let row = PlantPicture.stages(of: leek)
+            check(row.map(\.key) == ["seed", "crop", "flower"] && row[1].label == "Ready to lift" && row[1].pictureName == "Plants/plant-leek-crop", "the life stages become a row of pictures in order, for the card and the enlarged page")
+        }
+        check(PlantPage.drawingCardsWeight(cards: 0) == 0 && PlantPage.drawingCardsWeight(cards: 2) == 2 * PlantPage.drawingCardsWeight(cards: 1), "the two-column page counts each drawing card it shows")
         // The real list, the real drawings and the real plant library.
         if let starterPath = ProcessInfo.processInfo.environment["WINDFALL_STARTER"],
            let starterData = FileManager.default.contents(atPath: starterPath),
@@ -2047,6 +2062,26 @@ struct LogicTests {
                 check(!libraryNames.isEmpty && undrawn.count <= 6, "all but the mixes in the plant library have drawings (\(libraryNames.count) rows, without: \(undrawn.sorted()))")
             } else {
                 check(false, "the app's list of plant drawings can be read")
+            }
+            let partsInApp = FileManager.default.contents(atPath: appFolder.appendingPathComponent("PlantParts.json").path)
+            let partsInDesign = FileManager.default.contents(atPath: plantsFolder.appendingPathComponent("plant-parts.json").path)
+            check(partsInApp != nil && partsInApp == partsInDesign, "the app's list of close-ups is the one in Design/Plants")
+            if let partsInApp, let realParts = try? PlantParts.decode(partsInApp),
+               let inApp, let realList = try? PlantDrawings.decode(inApp) {
+                check(Set(realParts.slugs) == Set(realList.kinds.map(\.slug)), "the close-ups cover the same \(realParts.count) kinds as the life stages")
+                var missing: [String] = []
+                for slug in realParts.slugs {
+                    for part in realParts.parts(forKind: slug) {
+                        for look in ["light", "dark"] {
+                            let file = plantsFolder.appendingPathComponent("\(look)/plant-\(slug)-\(part.part).svg").path
+                            if !FileManager.default.fileExists(atPath: file) { missing.append("\(look)/\(slug)-\(part.part)") }
+                        }
+                    }
+                }
+                check(missing.isEmpty, "every close-up has a light and a dark drawing (missing: \(missing.prefix(5)))")
+                check(realParts.slugs.allSatisfy { realParts.parts(forKind: $0).first?.part == "leaf" }, "every kind has a leaf, and it comes first")
+            } else {
+                check(false, "the app's list of close-ups can be read")
             }
         }
 
