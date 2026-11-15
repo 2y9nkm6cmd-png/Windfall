@@ -1,0 +1,188 @@
+{
+ "checked": false,
+ "written": "2026-11-15",
+ "source": "Written by Claude from general knowledge. Not checked against a reference.",
+ "diseases": [
+  {
+   "slug": "rust",
+   "name": "Rust",
+   "cause": "A fungus",
+   "seen": "Orange, brown or yellow raised spots, mostly on the underside of the leaf, with pale marks above them.",
+   "plants": "Leeks, garlic, broad beans, mint, hollyhocks, roses and pears.",
+   "when": "Summer and autumn, worst in damp weather.",
+   "helps": "Take off the affected leaves, give plants room for air to move, go easy on nitrogen feed and clear away dead leaves at the end of the season."
+  },
+  {
+   "slug": "powdery-mildew",
+   "name": "Powdery mildew",
+   "cause": "A fungus",
+   "seen": "A white powdery coating on leaves and shoots, as if dusted with flour.",
+   "plants": "Courgettes and squash, peas, apples, roses, gooseberries and grapes.",
+   "when": "Late summer, when the soil is dry and the air humid.",
+   "helps": "Water the roots in dry spells, mulch, thin crowded growth so air can move and take off the worst leaves."
+  },
+  {
+   "slug": "downy-mildew",
+   "name": "Downy mildew",
+   "cause": "A water mould",
+   "seen": "Yellow patches with straight edges on top of the leaf, and a grey or purplish fuzz beneath them.",
+   "plants": "Lettuce, onions, brassicas, peas and grapes.",
+   "when": "Cool, wet weather.",
+   "helps": "Space plants well, water at the base in the morning, take off affected leaves and move the crop next year."
+  },
+  {
+   "slug": "blight",
+   "name": "Blight (late blight)",
+   "cause": "A water mould, Phytophthora infestans",
+   "seen": "Dark brown blotches that spread quickly across the leaves, with a pale edge and white fuzz beneath in damp air. Brown patches on tomato fruit. Potato tubers rot.",
+   "plants": "Potatoes and tomatoes.",
+   "when": "Warm, humid spells from midsummer.",
+   "helps": "Cut down and remove blighted potato tops, grow tomatoes under cover, choose varieties that resist it and do not compost affected tubers."
+  },
+  {
+   "slug": "apple-scab",
+   "name": "Apple scab",
+   "cause": "A fungus, Venturia inaequalis",
+   "seen": "Dark, scabby spots on the fruit, which may crack, and olive-brown blotches on the leaves.",
+   "plants": "Apples. Pears have a scab of their own that looks the same.",
+   "when": "Wet springs and summers.",
+   "helps": "Rake up fallen leaves in autumn, prune so air moves through the tree and choose varieties that resist it."
+  },
+  {
+   "slug": "canker",
+   "name": "Apple canker",
+   "cause": "A fungus, Neonectria ditissima",
+   "seen": "A sunken patch of dead, cracked bark, often in rings round a bud or a wound. A branch dies beyond it once the patch goes all the way round.",
+   "plants": "Apples and pears.",
+   "when": "Seen at any time. It gets in through wounds and leaf scars.",
+   "helps": "Cut back to healthy wood in dry weather and improve the drainage on wet ground."
+  },
+  {
+   "slug": "brown-rot",
+   "name": "Brown rot",
+   "cause": "A fungus, Monilinia",
+   "seen": "Fruit turns brown and soft with rings of cream spots on it. Shrivelled fruit hang on the tree through winter.",
+   "plants": "Apples, pears, plums and cherries.",
+   "when": "Summer and autumn. It gets in where the skin is broken.",
+   "helps": "Pick off and throw away rotten and shrivelled fruit, from the tree and the ground."
+  },
+  {
+   "slug": "grey-mould",
+   "name": "Grey mould",
+   "cause": "A fungus, Botrytis cinerea",
+   "seen": "A fuzzy grey mould on soft fruit, flowers, leaves and stems.",
+   "plants": "Strawberries, raspberries, grapes, tomatoes, lettuce and many plants under glass.",
+   "when": "Cool, damp, still air.",
+   "helps": "Clear dead and damaged growth, give plants room, ventilate a greenhouse and keep strawberries off the soil with straw."
+  },
+  {
+   "slug": "black-spot",
+   "name": "Rose black spot",
+   "cause": "A fungus, Diplocarpon rosae",
+   "seen": "Black or purple spots with a feathery edge on rose leaves. The leaf yellows around them and falls.",
+   "plants": "Roses.",
+   "when": "From spring onwards, worst when wet.",
+   "helps": "Gather fallen leaves, prune out marked stems in spring and choose varieties that resist it."
+  },
+  {
+   "slug": "club-root",
+   "name": "Club root",
+   "cause": "A soil organism, Plasmodiophora brassicae",
+   "seen": "Roots swollen into knobs and clubs. The plant wilts on warm days and stays small.",
+   "plants": "Cabbages, sprouts, cauliflower, swede, turnip, radish and wallflowers.",
+   "when": "Summer. It stays in the soil for many years.",
+   "helps": "Lime acid soil, improve the drainage, raise plants in pots before planting out, choose varieties that resist it and do not carry soil from an affected bed."
+  },
+  {
+   "slug": "leaf-curl",
+   "name": "Peach leaf curl",
+   "cause": "A fungus, Taphrina deformans",
+   "seen": "New leaves pucker, thicken and blister red, then turn white and fall.",
+   "plants": "Peaches, nectarines and almonds.",
+   "when": "Spring.",
+   "helps": "Keep the rain off the tree from midwinter to late spring with a cover, pick off affected leaves, then feed and water so it grows fresh ones."
+  },
+  {
+   "slug": "chocolate-spot",
+   "name": "Chocolate spot",
+   "cause": "A fungus, Botrytis fabae",
+   "seen": "Chocolate-brown spots on the leaves, stems and pods of broad beans, which can join into blotches.",
+   "plants": "Broad beans.",
+   "when": "Wet springs, and on plants sown in autumn.",
+   "helps": "Space plants well, grow on well-drained soil and go easy on nitrogen feed."
+  },
+  {
+   "slug": "damping-off",
+   "name": "Damping off",
+   "cause": "Soil fungi and water moulds",
+   "seen": "Seedlings fall over, pinched thin at the soil, sometimes with white fluff around them.",
+   "plants": "Any seedlings in trays and pots.",
+   "when": "Wet, warm, crowded sowings.",
+   "helps": "Use clean pots and fresh compost, sow thinly, water sparingly and give the seedlings air."
+  },
+  {
+   "slug": "honey-fungus",
+   "name": "Honey fungus",
+   "cause": "A fungus, Armillaria",
+   "seen": "A white sheet under the bark at the foot of the plant that smells of mushrooms, black bootlaces in the soil, honey-coloured toadstools in autumn, and a plant that dies back.",
+   "plants": "Many trees and shrubs, among them apples, roses, privet and birch.",
+   "when": "The toadstools show in autumn. The rest can be found all year.",
+   "helps": "Dig out the affected plant with its stump and roots, and replant with something less prone to it.",
+   "note": "The toadstools are not to be eaten on the strength of a drawing."
+  },
+  {
+   "slug": "sooty-mould",
+   "name": "Sooty mould",
+   "cause": "Fungi that live on honeydew",
+   "seen": "A black, sooty film on the leaves that wipes off.",
+   "plants": "Any plant with aphids, whitefly or scale insects above the marked leaves.",
+   "when": "Summer and autumn.",
+   "helps": "Deal with the sap-sucking insects that drop the honeydew. The mould then weathers away, or can be wiped off."
+  },
+  {
+   "slug": "blossom-end-rot",
+   "name": "Blossom end rot",
+   "cause": "Not a disease: too little calcium reaching the fruit, from uneven watering",
+   "seen": "A dark, sunken, leathery patch at the base of the fruit.",
+   "plants": "Tomatoes, peppers, aubergines and courgettes.",
+   "when": "Summer, most often in pots and growing bags.",
+   "helps": "Water regularly so the compost never dries out, use larger pots and mulch."
+  },
+  {
+   "slug": "coral-spot",
+   "name": "Coral spot",
+   "cause": "A fungus, Nectria cinnabarina",
+   "seen": "Small coral-pink or orange spots on dead twigs. It can spread from dead wood into live.",
+   "plants": "Currants, figs, acers and many other woody plants.",
+   "when": "Seen all year, clearest in damp weather.",
+   "helps": "Cut out dead wood in dry weather, back to healthy growth, and do not leave prunings lying about."
+  },
+  {
+   "slug": "white-rot",
+   "name": "Onion white rot",
+   "cause": "A fungus, Stromatinia cepivora",
+   "seen": "Leaves yellow and wilt. At the base of the bulb is a white fluffy mould with tiny black dots in it.",
+   "plants": "Onions, garlic and leeks.",
+   "when": "Summer. It stays in the soil for many years.",
+   "helps": "Lift and throw away affected plants, not on the compost heap. Do not grow onions there again for a long time, and do not carry soil from the bed."
+  },
+  {
+   "slug": "mosaic-virus",
+   "name": "Mosaic virus",
+   "cause": "A virus",
+   "seen": "Leaves mottled in a patchwork of yellow and green. Growth is stunted and twisted and fruit may be marked.",
+   "plants": "Courgettes, cucumbers, tomatoes and many others.",
+   "when": "Any time in the growing season. Aphids and hands carry it from plant to plant.",
+   "helps": "There is no cure. Take out affected plants, wash hands and tools after touching them and choose varieties that resist it."
+  },
+  {
+   "slug": "fireblight",
+   "name": "Fireblight",
+   "cause": "A bacterium, Erwinia amylovora",
+   "seen": "Blossom and shoots wilt and turn brown or black as if scorched. Shoot tips bend over like a crook, and the dead leaves hang on.",
+   "plants": "Pears, apples, hawthorn, pyracantha and cotoneaster.",
+   "when": "Late spring and summer, in warm wet weather.",
+   "helps": "Cut out affected growth well below the damage, back to healthy wood, and clean the blades between cuts."
+  }
+ ]
+}

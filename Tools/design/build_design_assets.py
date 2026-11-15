@@ -174,11 +174,73 @@ def build_plants(catalogue=CATALOGUE):
     return count
 
 
+def build_wildlife(catalogue=CATALOGUE):
+    """The wildlife drawings: Design/Wildlife/light and /dark become
+    Wildlife/<name>.imageset, each holding the light drawing and the dark
+    one. There is one for each kind of animal (Tools/design/wildlife.py).
+    The list of animals itself is made by Tools/data/build_wildlife_reference.py."""
+    source = os.path.join(DESIGN, "Wildlife")
+    folder = os.path.join(catalogue, "Wildlife")
+    fresh_folder(folder)
+    write_json(os.path.join(folder, "Contents.json"),
+               {"info": INFO, "properties": {"provides-namespace": True}})
+    count = 0
+    for filename in sorted(os.listdir(os.path.join(source, "light"))):
+        if not filename.endswith(".svg"):
+            continue
+        name = filename[:-4]
+        image_set = os.path.join(folder, name + ".imageset")
+        os.makedirs(image_set)
+        shutil.copyfile(os.path.join(source, "light", filename), os.path.join(image_set, filename))
+        shutil.copyfile(os.path.join(source, "dark", filename), os.path.join(image_set, name + "-dark.svg"))
+        write_json(os.path.join(image_set, "Contents.json"), {
+            "images": [{"idiom": "universal", "filename": filename},
+                       {"idiom": "universal", "filename": name + "-dark.svg",
+                        "appearances": [{"appearance": "luminosity", "value": "dark"}]}],
+            "info": INFO,
+            "properties": {"preserves-vector-representation": True,
+                           "template-rendering-intent": "original"}})
+        count += 1
+    return count
+
+
+def build_diseases(catalogue=CATALOGUE):
+    """The plant disease diagrams: Design/Diseases/light and /dark become
+    Diseases/<name>.imageset (Tools/design/plant_diseases.py)."""
+    source = os.path.join(DESIGN, "Diseases")
+    folder = os.path.join(catalogue, "Diseases")
+    fresh_folder(folder)
+    write_json(os.path.join(folder, "Contents.json"),
+               {"info": INFO, "properties": {"provides-namespace": True}})
+    count = 0
+    for filename in sorted(os.listdir(os.path.join(source, "light"))):
+        if not filename.endswith(".svg"):
+            continue
+        name = filename[:-4]
+        image_set = os.path.join(folder, name + ".imageset")
+        os.makedirs(image_set)
+        shutil.copyfile(os.path.join(source, "light", filename), os.path.join(image_set, filename))
+        shutil.copyfile(os.path.join(source, "dark", filename), os.path.join(image_set, name + "-dark.svg"))
+        write_json(os.path.join(image_set, "Contents.json"), {
+            "images": [{"idiom": "universal", "filename": filename},
+                       {"idiom": "universal", "filename": name + "-dark.svg",
+                        "appearances": [{"appearance": "luminosity", "value": "dark"}]}],
+            "info": INFO,
+            "properties": {"preserves-vector-representation": True,
+                           "template-rendering-intent": "original"}})
+        count += 1
+    return count
+
+
 if __name__ == "__main__":
     n = build_colours()
     outline, colour = build_icons()
     plants = build_plants()
     print(f"{plants} plant drawings written to Windfall/Assets.xcassets/Plants")
+    wildlife = build_wildlife()
+    print(f"{wildlife} wildlife drawings written to Windfall/Assets.xcassets/Wildlife")
+    diseases = build_diseases()
+    print(f"{diseases} plant disease diagrams written to Windfall/Assets.xcassets/Diseases")
     # The same again for the widgets' own store.
     write_json(os.path.join(WIDGET_CATALOGUE, "Contents.json"), {"info": INFO})
     build_colours(WIDGET_CATALOGUE)

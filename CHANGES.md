@@ -1,3 +1,112 @@
+# 15 November 2026, 17:25: the animals seen most often are drawn one by one, every insect has legs, and plant diseases get diagrams
+
+**By the "wildlife rows" chat, in a cloud workspace. Not built in Xcode.** On the branch `uk-wildlife-reference`, on top of the entry below. William, 16:08: "For the drawings there should be more images for the most common varieties." 16:49: "Some of the flying insects are lacking legs. The animals definitely require more detailed drawings and more specific drawings per species... more specific frogs and toads, birds, differentiate between foxes and cats". 17:16: "Include diagrams of the diseases too".
+
+**Before.** One drawing for each of 83 kinds, shared by every animal of the kind. Legs were drawn under the wings, so on a hoverfly, a dragonfly, a butterfly and a moth they did not show.
+
+**Now.**
+
+| What | In plain words |
+|---|---|
+| **199 animals have a drawing of their own** (173 different drawings, because look-alikes share one) | Seven bumblebees by their bands, six solitary bees, the hornet, seven hoverflies, thirteen butterflies, six moths, seven ladybirds, eleven other beetles, five shield bugs, eleven dragonflies and damselflies, six spiders, three snails, two slugs, 51 birds, 25 mammals and nine amphibians and reptiles. An animal without one still shows its kind's drawing |
+| **Every insect's legs show** | Legs are now drawn after the wings, in three parts with a stouter thigh. Butterflies, moths, dragonflies, damselflies, the micro-moth and the lacewing were given legs |
+| **More in each drawing** | A bird has flight feathers, shoulder feathers, tail feathers and toes. Mammals have strokes of fur and whiskers. Insects have lines between the rings of the abdomen and more veins in the wing |
+| **85 kinds, up from 83** | "Fox and cats" is now Fox and Cats. "Frogs and toads" is now Frogs and Toads |
+| **39 kinds now show one typical animal, redrawn** | The kind's drawing and that animal's are the same picture: Tits shows the blue tit. The file says which (`"is"` on the kind) |
+| **20 plant disease diagrams, with notes** | Rust, powdery mildew, downy mildew, blight, apple scab, canker, brown rot, grey mould, rose black spot, club root, peach leaf curl, chocolate spot, damping off, honey fungus, sooty mould, blossom end rot, coral spot, onion white rot, mosaic virus and fireblight. Each has what you see, the plants it is found on, when, and what helps |
+
+| File | What changed |
+|---|---|
+| `Tools/design/wildlife_species.py`, `wildlife_species2.py` (new) | The single-animal drawings. Each is tied to a scientific name with `@sp("Bombus terrestris")`. Birds all come from one figure, `bird`, that takes a colour word for each part of the plumage, so a correction is a change of one word |
+| `Tools/design/wildlife.py` | Legs after wings. `SPECIES`, the list of single-animal drawings. Writes `species-drawings.json` |
+| `Tools/design/plant_diseases.py` (new) | The 20 diagrams |
+| `Tools/data/wildlife_kinds.py` | The two splits |
+| `Tools/data/build_wildlife_reference.py` | Gives an animal `"p"`, the name of its own drawing, and a kind `"is"` |
+| `WildlifeReference.swift` | `ownPicture`, `hasOwnPicture`, `pictureName` on an animal. `typical` on a kind. `pictured(ofKind:)` |
+| `WildlifeBookViews.swift` | `WildlifeAnimalPicture` shows an animal's own drawing or its kind's. Rows show a drawing where the animal has its own. An animal's page says "a drawing of the kind" only when it is one |
+| `FaunaViews.swift` | William's own species show their own drawings. A second row, "Plant diseases" |
+| `PlantDiseases.json`, `PlantDiseases.swift`, `PlantDiseaseViews.swift` (new) | The notes, the code that reads them, and two pages: the list and one disease. `affecting(plantNamed:)` finds a plant's diseases and is not yet used by any page |
+| `Assets.xcassets/Wildlife` (284 pictures), `Assets.xcassets/Diseases` (20) | Each light and dark. The wildlife pictures are 9MB |
+| `Tools/checks` | 11 new tests. 901 pass |
+
+**What the code means, in short.**
+
+- `let ownPicture: String?`: the question mark means "may be missing". Most animals have none.
+- `ownPicture.map { "Wildlife/wild-sp-\($0)" } ?? "Wildlife/wild-\(kindSlug)"`: "if there is an own picture, make its name from it. Otherwise (`??`) use the kind's."
+- `@sp("Eristalis tenax", "Eristalis pertinax")` above a drawing function hangs that one drawing on both names.
+
+**⚠️ CHECK, all Claude's:**
+
+1. **Every single-animal drawing is from memory of its markings**, not from a field guide or a photograph. They matter more than the kind drawings did, because each claims to be one species.
+2. **Which animals share a drawing**: the common and tapered drone flies, the buff-tailed's look-alikes are not shared but the three whites are (green-veined, small and large), the common blue and azure damselflies, the common and ruddy darters, the southern and migrant hawkers, wood, house and yellow-necked mice, bank and field voles, common and pygmy shrews, stoat and weasel, brown and mountain hares, song and mistle thrushes, chiffchaff and willow warbler, the grey and common seals, the two pipistrelles, and the dolphins with the porpoise.
+3. **Males are drawn** where the sexes differ (blackbird, chaffinch, house sparrow, mallard, kestrel, orange-tip, banded demoiselle). The hairy-footed flower bee is the female.
+4. **Which animals were chosen.** Mostly the most recorded of each kind, with garden animals preferred over birds of the shore.
+5. **Every word about the plant diseases** is from general knowledge and unchecked. The advice is about growing conditions only: no sprays and no amounts.
+6. **Where the diseases sit**: a row on the Species page, beside the wildlife. They are not wildlife. Plants may be the better home.
+
+**Checked:** Windfall's own checks (Swift 6.3.1 for Linux): 128 files parse, type check passes, cross-file checks clean, 901 logic tests pass. Every drawing looked at once by Claude as a sheet in light mode. Five were corrected after that look (the tawny mining bee's colour, the cockchafer's tail, two spiders' legs, the squirrels' tails) and those five have not been looked at again.
+
+**Not checked:** a build. The single-animal drawings in dark mode. The pages on any device.
+
+# 15 November 2026, 16:50: a UK wildlife reference, with a drawing for each kind of animal
+
+**By the "wildlife rows" chat, from William's iPad, in a cloud workspace. Not built in Xcode.** William, 15:58: "It would be good if you could create a sheet with all wildlife that you could encounter in the uk in it. With drawings." Asked three things, he chose: in the app, the animals Eira can name, and one drawing for each kind. Made on the branch `uk-wildlife-reference`, on top of `species-rows-open` (the entry below), because both change `FaunaViews.swift`.
+
+**Before.** Wildlife, Species listed the 21 animals of William's own Fauna sheet and nothing else.
+
+**Now.** The Species page opens with "All UK wildlife": 4,180 animals in 83 kinds, each kind with a drawing. His own 21 are still there, under "Your species", and 19 of them now show their kind's drawing.
+
+| File | What it is, and why |
+|---|---|
+| `WildlifeReference.json` (new) | The list that ships inside the app: every animal with 20 or more research-grade UK records on iNaturalist, fetched 15 November 2026. Each has its names, kind, family, order, count of UK records and its count in each month. Field names are one letter to keep the file small |
+| `WildlifeReference.swift` (new) | Reads the list and answers questions about it: the kinds under their headings, a kind's animals, an animal by scientific name, search, and the months an animal is about in, in words. No drawing code, so it is tested without a Mac. **The list is read from the file and never written into the database**, so it cannot be muddled with William's records and costs iCloud nothing |
+| `WildlifeBookViews.swift` (new) | Three pages. `WildlifeBookView`: the kinds as tiles under headings, with a search box. `WildlifeKindPage`: one kind's animals, most recorded first, with a switch for "only those recorded in November". `WildlifeAnimalPage`: one animal, with twelve bars for the months it is recorded in and a link to William's own notes when he has it |
+| `FaunaViews.swift` | A row at the top opens the new pages. "Species" is headed "Your species". Each of his species shows its kind's drawing, found by scientific name, and its page has the drawing and a link to its months |
+| `Assets.xcassets/Wildlife` (new) | The 83 drawings, each light and dark |
+| `Tools/data/wildlife_kinds.py` (new) | The 83 kinds and the rules that sort an animal into one, from its family, order and class |
+| `Tools/data/build_wildlife_reference.py` (new) | Makes `WildlifeReference.json` from what was fetched |
+| `Tools/data/wildlife/` (new) | What iNaturalist returned, the three scripts that fetched it and a READ-ME |
+| `Tools/design/wildlife_kit.py`, `wildlife.py` (new) | The drawing kit and the 83 drawings. An animal is built from simple shapes joined into one outline, with patches of colour cut to fit. **They need the Python library `shapely`** (`pip install shapely`), the first of the drawing scripts to need anything beyond Python |
+| `Tools/design/build_design_assets.py` | `build_wildlife()` copies `Design/Wildlife` into the app's store of pictures |
+| `Tools/checks/LogicTests.swift`, `logic-files.txt` | 19 new tests |
+
+**What the code means, in short.**
+
+- `struct WildlifeAnimal: Decodable`: a `struct` is a bundle of values. `Decodable` means Swift can fill one in from a JSON file by itself. `CodingKeys` tells it that the file's `"s"` is `scientificName`, and so on.
+- `static let shared`: the list is read once, the first time anything asks for it, and kept.
+- `placesByKind` and `placeByName` are look-up tables made once when the list is read, so finding a kind's animals or one animal by name does not mean walking through four thousand rows each time.
+- `isAbout(inMonth:)` returns true, false or nothing (`Bool?`). Nothing means the months were not fetched for that animal. The pages keep such an animal when filtering by month, because leaving it out would claim something the list does not know.
+- Every link in the new pages is `NavigationLink { page } label: { row }`, the kind that carries its own page (see the entry below).
+
+**⚠️ CHECK, all Claude's:**
+
+1. **The names are iNaturalist's.** Some are not the usual British ones: "Nightcrawler" for the lob worm, "Common Wood-Pigeon", "Buff-tailed Bumble Bee". 780 animals have no common name and are shown by scientific name.
+2. **The 83 kinds, their names and their headings**, and every rule in `wildlife_kinds.py`. Some kinds are catch-alls: "Other birds" holds wagtails, pipits, larks, starling, kingfisher and cuckoo. The slow-worm is with the snakes because it looks like one. Gall makers gathers gall wasps, gall midges and gall mites.
+3. **The 83 drawings.** Each is a picture of a kind, drawn as one typical member: the bumblebee is a buff-tailed, the tit a blue tit, the thrush a robin. Claude's weakest: the sea snail, the badger, the deer and the squirrel.
+4. **"About in a month" means at least 2 in 100 of its records fall in it.** The level is the one Eira's photo rules use. Records follow where and when people look, not only where animals are.
+5. **The list is what iNaturalist's recorders have photographed**, so it holds a domestic cat, a horse and a walrus, and misses anything rarely photographed. It should be nearly the animals in the image model's list of 6,421 names, which was cut by the same rule the day before, but the two were fetched a day apart and were not compared.
+6. **His own list is not joined to this one.** A species in both is linked by scientific name only. Two of his 21 are not in the UK list: "Andrena spp." (a group, not a species) and *Myrmica sabuleti*.
+
+**Checked:** Windfall's own checks in a cloud workspace (Swift 6.3.1 for Linux): 126 files parse, type check passes, cross-file checks clean, 890 logic tests pass. The drawings were looked at by Claude as a sheet, light and dark. Rebuilding the picture store changed no existing picture.
+
+**Not checked:** a build. No screen in `WildlifeBookViews.swift` or the changed `FaunaViews.swift` has been compiled or seen. How long a list of 580 moths takes to open. How the drawings look at 40 points in a row.
+
+# 15 November 2026, 16:05: a species opens when its row is tapped
+
+**By the "wildlife rows" chat, from William's iPad, in a cloud workspace. Not built in Xcode.** William, 15:58, with a picture of Wildlife, Species on the iPad, the Campion moth row grey: "Nothing happens when you tap the wildlife". Made on the branch `species-rows-open`, from `main` at `6cbfc37`.
+
+**Before.** In `FaunaListView` a species row was `NavigationLink(value: animal)`. That kind of link only hands over the record. Which page a record opens is said once, somewhere else, by `.navigationDestination(for: Fauna.self)`. When a link of this kind cannot find that line, the row goes grey, stays grey and nothing opens, which is what the picture shows.
+
+**Now.** Each row is `NavigationLink { FaunaDetailView(fauna: animal) } label: { ... }`: the link is given its page outright. It is the same kind of link as "Flower shape coverage" and "Cascades" two rows above it, and as the latest sightings on the Wildlife page. The `.navigationDestination(for: Fauna.self)` line is gone from this page, because nothing uses it any more. Search still has its own.
+
+| File | What changed |
+|---|---|
+| `FaunaViews.swift` | The species rows carry their own page. One line removed |
+
+**⚠️ Not proven.** Why the link could not find the line is not known. The page is opened from a tile on Wildlife, by `GrowingLink`, and that may be what hides it. It could not be run where this was written. **The same pattern is in four other lists** opened the same way: Sowings (`PlantingViews.swift`), Seed (`SeedViews.swift`), Surveys (`SurveyViews.swift`) and Beds (`BedViews.swift`). They are left alone until William has tapped a row in each (checklist card `w-rows-other`). Plants and Sightings use it too. William has worked on plant pages on the phone since and has not reported them failing, so they are taken to open.
+
+**Checked:** see the knowledge-base doc for this chat. **Not checked:** a build, and a tap on a device.
+
 # 15 November 2026, 17:00: a photo sent with "What is this?" in the journal is a question for Eira, not an entry
 
 **By the "what is this" chat, linked to the Mac. Branch `journal-photo-question`, made from `main` at `4a63b01`. Joined into `main` at 17:25 the same day.**

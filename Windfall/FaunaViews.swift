@@ -6,6 +6,10 @@
 //  what visits this plant, what should I plant for this animal, and which
 //  flower shapes is my garden missing.
 //
+//  Since 15 November 2026 the list also opens the UK wildlife reference
+//  (WildlifeBookViews.swift), and each of William's own species shows the
+//  drawing of its kind from it.
+//
 
 import SwiftUI
 import SwiftData
@@ -43,6 +47,45 @@ struct FaunaListView: View {
                 }
             }
 
+            // The UK wildlife reference: every animal you could meet,
+            // by kind, each kind with a drawing (WildlifeBookViews.swift).
+            // It ships inside the app and is not part of the records.
+            if !WildlifeReference.shared.animals.isEmpty {
+                Section {
+                    NavigationLink {
+                        WildlifeBookView()
+                    } label: {
+                        HStack(spacing: 12) {
+                            WildlifeKindPicture(slug: "bumblebee", size: 40)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("All UK wildlife").font(.body.weight(.medium))
+                                Text("\(WildlifeReference.shared.animals.count) animals by kind, with drawings")
+                                    .font(.footnote)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                    }
+                    // Diagrams of the common plant diseases
+                    // (PlantDiseaseViews.swift). ⚠️ Kept here for now, beside
+                    // the pests. William has not said where it belongs.
+                    if !PlantDiseases.shared.list.isEmpty {
+                        NavigationLink {
+                            PlantDiseaseListView()
+                        } label: {
+                            HStack(spacing: 12) {
+                                PlantDiseasePicture(slug: "rust", size: 40)
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Plant diseases").font(.body.weight(.medium))
+                                    Text("\(PlantDiseases.shared.list.count) common ones, each with a diagram")
+                                        .font(.footnote)
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
             if !shapes.isEmpty {
                 Section {
                     NavigationLink {
@@ -58,22 +101,49 @@ struct FaunaListView: View {
                 }
             }
 
-            Section("Species") {
+            // William's own list, from his Fauna sheet, with his notes.
+            Section("Your species") {
                 ForEach(filtered) { animal in
-                    NavigationLink(value: animal) {
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(animal.commonName).font(.body.weight(.medium))
-                            if let latin = animal.scientificName {
-                                Text(latin).font(.footnote).italic().foregroundStyle(.secondary)
+                    // Each row is given its page outright, the way the
+                    // two rows above ("Flower shape coverage" and
+                    // "Cascades") are given theirs.
+                    //
+                    // Until 15 November 2026 a row only handed over the
+                    // animal (`NavigationLink(value: animal)`) and left
+                    // it to a separate line lower down,
+                    // `.navigationDestination(for: Fauna.self)`, to say
+                    // which page an animal opens. On William's iPad the
+                    // row went grey when tapped and no page came. That
+                    // is what a link does when it cannot find that line.
+                    // (Not proven: the fix was written away from the Mac
+                    // and the fault could not be made to happen there.)
+                    // A link that carries its own page has nothing to
+                    // look for, so it cannot miss.
+                    NavigationLink {
+                        FaunaDetailView(fauna: animal)
+                    } label: {
+                        HStack(spacing: 12) {
+                            // Its drawing, found by its scientific name in
+                            // the UK wildlife list: its own if it has one,
+                            // otherwise its kind's. A species the list
+                            // does not hold has none.
+                            if let listed = WildlifeReference.shared.animal(scientificName: animal.scientificName) {
+                                WildlifeAnimalPicture(creature: listed, size: 44)
                             }
-                            HStack(spacing: 6) {
-                                if let group = animal.recordingGroup { Text(group) }
-                                if let tongue = animal.tongueLength, tongue != "n/a" {
-                                    Text("· \(tongue) tongue")
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(animal.commonName).font(.body.weight(.medium))
+                                if let latin = animal.scientificName {
+                                    Text(latin).font(.footnote).italic().foregroundStyle(.secondary)
                                 }
+                                HStack(spacing: 6) {
+                                    if let group = animal.recordingGroup { Text(group) }
+                                    if let tongue = animal.tongueLength, tongue != "n/a" {
+                                        Text("· \(tongue) tongue")
+                                    }
+                                }
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
                             }
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
                         }
                     }
                 }
@@ -82,7 +152,8 @@ struct FaunaListView: View {
         .searchable(text: $search, prompt: "Search species")
         .navigationTitle("Species")
         .paperScreen()
-        .navigationDestination(for: Fauna.self) { FaunaDetailView(fauna: $0) }
+        // (`.navigationDestination(for: Fauna.self)` stood here. The
+        // rows above now carry their own page, so it is not needed.)
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Toggle("On the wing now", isOn: $activeOnly)
@@ -106,8 +177,30 @@ struct FaunaDetailView: View {
         }
     }
 
+    /// This species in the UK wildlife list, if it is there. It gives the
+    /// page its drawing and a link to the months it is recorded in.
+    private var ukListing: WildlifeAnimal? {
+        WildlifeReference.shared.animal(scientificName: fauna.scientificName)
+    }
+
     var body: some View {
         Form {
+            if let listing = ukListing {
+                Section {
+                    WildlifeAnimalPicture(creature: listing, size: 160)
+                        .frame(maxWidth: .infinity)
+                    NavigationLink {
+                        WildlifeAnimalPage(creature: listing)
+                    } label: {
+                        Text("When it is recorded in the UK")
+                    }
+                } footer: {
+                    if !listing.hasOwnPicture {
+                        Text("The drawing is of its kind, not of this species.")
+                    }
+                }
+            }
+
             Section {
                 if let latin = fauna.scientificName {
                     LabeledContent("Scientific name") { Text(latin).italic() }

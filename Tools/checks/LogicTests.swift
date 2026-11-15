@@ -2270,6 +2270,98 @@ struct LogicTests {
         let drawnShed = GardenFeature(name: "", kind: .tree, siteKey: "allotment")
         check(drawnBed.lengthMetres == 4.8 && drawnBed.planWidth == Bed.unmeasuredWidth && drawnBed.planName == "Bed" && drawnShed.planIsRound && drawnShed.planName == "Tree or bush", "beds and features can both be handled as things on a plan")
 
+        // MARK: The UK wildlife reference
+        let wildBook = try! WildlifeReference.decode(Data("""
+        {"source":"test","fetched":"2026-11-15","kinds":[{"slug":"bumblebee","name":"Bumblebees","group":"Bees, wasps and ants"},{"slug":"wasp","name":"Wasps","group":"Bees, wasps and ants"},{"slug":"tit","name":"Tits","group":"Birds"},{"slug":"owl","name":"Owls","group":"Birds"}],
+         "animals":[{"s":"Bombus terrestris","c":"Buff-tailed Bumble Bee","k":"bumblebee","f":"Apidae","o":"Hymenoptera","n":900,"m":[10,30,90,120,130,140,150,120,70,30,8,2]},
+                    {"s":"Bombus hypnorum","c":"Tree Bumble Bee","k":"bumblebee","f":"Apidae","n":300,"m":[0,0,20,60,90,100,30,0,0,0,0,0]},
+                    {"s":"Bombus rupestris","k":"bumblebee","n":40},
+                    {"s":"Cyanistes caeruleus","c":"Blue Tit","k":"tit","f":"Paridae","n":5000,"m":[500,500,500,400,400,400,300,300,400,400,450,450],"i":true}]}
+        """.utf8))
+        check(wildBook.animals.count == 4 && wildBook.kinds.count == 4 && wildBook.fetched == "2026-11-15", "the UK wildlife list is read, with its short field names")
+        check(wildBook.groups.map(\.name) == ["Bees, wasps and ants", "Birds"] && wildBook.groups[0].kinds.map(\.slug) == ["bumblebee"] && wildBook.groups[1].kinds.map(\.slug) == ["tit"], "kinds are gathered under their headings in the file's order, and a kind with no animals is left out")
+        check(wildBook.count(ofKind: "bumblebee") == 3 && wildBook.count(ofKind: "owl") == 0 && wildBook.animals(ofKind: "bumblebee").map(\.scientificName) == ["Bombus terrestris", "Bombus hypnorum", "Bombus rupestris"], "a kind's animals come in the file's order, most recorded first")
+        check(wildBook.kind(slug: "tit")?.pictureName == "Wildlife/wild-tit", "a kind's drawing has a name in the app's store of pictures")
+        check(wildBook.animal(scientificName: "  bombus TERRESTRIS ")?.commonName == "Buff-tailed Bumble Bee" && wildBook.animal(scientificName: nil) == nil && wildBook.animal(scientificName: "Bombus nowhere") == nil, "an animal is found by its scientific name whatever its capitals and stray spaces")
+        check(wildBook.kind(ofScientificName: "Cyanistes caeruleus")?.slug == "tit" && wildBook.kind(ofScientificName: "Parus major") == nil, "one of William's own species finds its kind's drawing by scientific name")
+        if let treeBee = wildBook.animal(scientificName: "Bombus hypnorum"), let cuckooBee = wildBook.animal(scientificName: "Bombus rupestris"), let blueTit = wildBook.animal(scientificName: "Cyanistes caeruleus") {
+            check(near(treeBee.share(ofMonth: 6) ?? 0, 100.0 / 300.0, 1e-9) && treeBee.share(ofMonth: 13) == nil && cuckooBee.share(ofMonth: 6) == nil, "a month's share of the records is worked out, and is not known without month counts")
+            check(treeBee.isAbout(inMonth: 5) == true && treeBee.isAbout(inMonth: 11) == false && cuckooBee.isAbout(inMonth: 5) == nil, "an animal is about in a month that holds at least 2 in 100 of its records")
+            check(treeBee.monthsAbout == [3, 4, 5, 6, 7] && treeBee.seasonWords == "March to July" && blueTit.seasonWords == "All year" && cuckooBee.seasonWords == nil, "the months an animal is about in are said in words: \(treeBee.seasonWords ?? "nil")")
+            check(cuckooBee.title == "Bombus rupestris" && treeBee.title == "Tree Bumble Bee" && blueTit.introduced == true && treeBee.introduced == nil, "an animal with no common name is shown by its scientific name")
+        }
+        check(wildBook.animals(ofKind: "bumblebee", aboutInMonth: 11).map(\.scientificName) == ["Bombus rupestris"] && wildBook.animals(ofKind: "bumblebee", aboutInMonth: 6).count == 3, "asking for a month keeps an animal whose months are not known and drops one known to be absent")
+        check(wildBook.search("bumble").map(\.scientificName) == ["Bombus terrestris", "Bombus hypnorum"] && wildBook.search("BOMBUS").count == 3 && wildBook.search("paridae").count == 1 && wildBook.search("  ").isEmpty && wildBook.search("bombus", limit: 2).count == 2, "search looks in common names, scientific names and families, most recorded first")
+        check(WildlifeReference.words(forMonths: [11, 12, 1, 2]) == "November to February" && WildlifeReference.words(forMonths: [5]) == "May" && WildlifeReference.words(forMonths: [3, 4, 9, 10]) == "March to April, September to October" && WildlifeReference.words(forMonths: []) == "Not known" && WildlifeReference.words(forMonths: Array(1...12)) == "All year" && WildlifeReference.words(forMonths: [12, 1]) == "December to January", "a run of months that goes round the end of the year is said as one run")
+        // The real list, the real drawings and William's own species.
+        if let starterPath = ProcessInfo.processInfo.environment["WINDFALL_STARTER"],
+           let starterData = FileManager.default.contents(atPath: starterPath),
+           let starterFile = try? GardenDataFile.decode(starterData) {
+            let appFolder = URL(fileURLWithPath: starterPath).deletingLastPathComponent()
+            let wildFolder = appFolder.deletingLastPathComponent().appendingPathComponent("Design/Wildlife")
+            if let inApp = FileManager.default.contents(atPath: appFolder.appendingPathComponent("WildlifeReference.json").path),
+               let realBook = try? WildlifeReference.decode(inApp) {
+                var undrawn: [String] = []
+                for kind in realBook.kinds {
+                    for look in ["light", "dark"] where !FileManager.default.fileExists(atPath: wildFolder.appendingPathComponent("\(look)/wild-\(kind.slug).svg").path) {
+                        undrawn.append("\(look)/\(kind.slug)")
+                    }
+                }
+                check(realBook.kinds.count > 60 && undrawn.isEmpty, "each of the \(realBook.kinds.count) kinds of animal has a light and a dark drawing (missing: \(undrawn.prefix(5)))")
+                let kindSlugs = Set(realBook.kinds.map(\.slug))
+                check(realBook.animals.count > 3000 && realBook.animals.allSatisfy { kindSlugs.contains($0.kindSlug) }, "every one of the \(realBook.animals.count) animals belongs to a kind that exists")
+                check(Set(realBook.animals.map { WildlifeReference.plain($0.scientificName) }).count == realBook.animals.count, "no animal is in the list twice")
+                check(realBook.animals.allSatisfy { $0.monthCounts == nil || $0.monthCounts?.count == 12 } && realBook.animals.allSatisfy { $0.ukRecords >= 20 }, "month counts come in twelves, and every animal has at least 20 UK records")
+                check(realBook.kind(ofScientificName: "Bombus terrestris")?.slug == "bumblebee" && realBook.kind(ofScientificName: "Erithacus rubecula")?.slug == "thrush" && realBook.kind(ofScientificName: "Lumbricus terrestris")?.slug == "earthworm" && realBook.kind(ofScientificName: "Episyrphus balteatus")?.slug == "hoverfly" && realBook.kind(ofScientificName: "Apis mellifera")?.slug == "honeybee", "well-known animals fall into the kinds expected")
+                let ownNames = (starterFile.table(named: "Fauna")?.rows ?? []).compactMap { $0["Scientific Name"] }
+                let unlisted = ownNames.filter { realBook.animal(scientificName: $0) == nil }
+                print("   (William's own species not in the UK list, so with no drawing: \(unlisted.count) of \(ownNames.count): \(unlisted))")
+                check(!ownNames.isEmpty && unlisted.count <= ownNames.count / 3, "most of William's own species are in the UK list")
+            } else {
+                check(false, "the UK wildlife list in the app can be read")
+            }
+        }
+
+        // MARK: Single-animal drawings and the plant diseases
+        let drawnBook = try! WildlifeReference.decode(Data("""
+        {"kinds":[{"slug":"tit","name":"Tits","group":"Birds","is":"Cyanistes caeruleus"},{"slug":"owl","name":"Owls","group":"Birds"}],
+         "animals":[{"s":"Cyanistes caeruleus","c":"Blue Tit","k":"tit","n":900,"p":"cyanistes-caeruleus"},{"s":"Poecile palustris","c":"Marsh Tit","k":"tit","n":90}]}
+        """.utf8))
+        check(drawnBook.animals[0].pictureName == "Wildlife/wild-sp-cyanistes-caeruleus" && drawnBook.animals[0].hasOwnPicture && drawnBook.animals[1].pictureName == "Wildlife/wild-tit" && !drawnBook.animals[1].hasOwnPicture, "an animal with a drawing of its own shows it, and any other shows its kind's")
+        check(drawnBook.kind(slug: "tit")?.typical == "Cyanistes caeruleus" && drawnBook.kind(slug: "owl")?.typical == nil && drawnBook.pictured(ofKind: "tit").map(\.scientificName) == ["Cyanistes caeruleus"], "a kind can name the animal its drawing shows, and list its animals that have their own")
+        let sickList = try! PlantDiseases.decode(Data("""
+        {"diseases":[{"slug":"blight","name":"Blight","cause":"A water mould","seen":"Dark blotches.","plants":"Potatoes and tomatoes.","when":"Midsummer.","helps":"Remove the tops."},
+                     {"slug":"leaf-curl","name":"Peach leaf curl","cause":"A fungus","seen":"Red blisters.","plants":"Peaches, nectarines and almonds.","when":"Spring.","helps":"A rain cover.","note":"Take care."},
+                     {"slug":"scab","name":"Scab","cause":"A fungus","seen":"Spots.","plants":"Apples. Pears have their own.","when":"Wet springs.","helps":"Rake leaves."},
+                     {"slug":"chocolate-spot","name":"Chocolate spot","cause":"A fungus","seen":"Brown spots.","plants":"Broad beans and peas.","when":"Spring.","helps":"Space."}]}
+        """.utf8))
+        check(sickList.list.count == 4 && sickList.disease(slug: "blight")?.season == "Midsummer." && sickList.disease(slug: "leaf-curl")?.note == "Take care." && sickList.disease(slug: "blight")?.pictureName == "Diseases/disease-blight", "the plant diseases are read, with the file's \"when\" as the season")
+        check(PlantDiseases.stem("Tomatoes") == "tomato" && PlantDiseases.stem("peaches") == "peach" && PlantDiseases.stem("Leeks") == "leek" && PlantDiseases.stem("roses") == "rose" && PlantDiseases.stem("grass") == "grass" && PlantDiseases.stem("pea") == "pea", "a plural is brought back to one for comparing")
+        check(sickList.affecting(plantNamed: "Tomato").map(\.slug) == ["blight"] && sickList.affecting(plantNamed: "Potatoes").map(\.slug) == ["blight"] && sickList.affecting(plantNamed: "Peach").map(\.slug) == ["leaf-curl"], "a plant finds the diseases that name it, whether one or many")
+        check(sickList.affecting(plantNamed: "Pea").map(\.slug) == ["chocolate-spot"] && sickList.affecting(plantNamed: "Broad bean").map(\.slug) == ["chocolate-spot"] && sickList.affecting(plantNamed: "Pear").map(\.slug) == ["scab"] && sickList.affecting(plantNamed: "Runner bean").isEmpty && sickList.affecting(plantNamed: "  ").isEmpty, "the whole name has to match, so Pea does not find the diseases of pears and peaches")
+        if let starterPath = ProcessInfo.processInfo.environment["WINDFALL_STARTER"] {
+            let appFolder = URL(fileURLWithPath: starterPath).deletingLastPathComponent()
+            let designFolder = appFolder.deletingLastPathComponent().appendingPathComponent("Design")
+            if let inApp = FileManager.default.contents(atPath: appFolder.appendingPathComponent("PlantDiseases.json").path), let realSick = try? PlantDiseases.decode(inApp) {
+                let undrawn = realSick.list.filter { disease in
+                    ["light", "dark"].contains { !FileManager.default.fileExists(atPath: designFolder.appendingPathComponent("Diseases/\($0)/disease-\(disease.slug).svg").path) }
+                }
+                check(realSick.list.count >= 15 && undrawn.isEmpty && Set(realSick.list.map(\.slug)).count == realSick.list.count, "each of the \(realSick.list.count) plant diseases has a light and a dark diagram (missing: \(undrawn.map(\.slug)))")
+                check(!realSick.affecting(plantNamed: "Tomato").isEmpty && !realSick.affecting(plantNamed: "Rose").isEmpty && !realSick.affecting(plantNamed: "Leek").isEmpty, "the real list knows diseases of tomatoes, roses and leeks")
+            } else {
+                check(false, "the plant diseases in the app can be read")
+            }
+            if let inApp = FileManager.default.contents(atPath: appFolder.appendingPathComponent("WildlifeReference.json").path), let realBook = try? WildlifeReference.decode(inApp) {
+                let own = realBook.animals.filter(\.hasOwnPicture)
+                let lost = own.filter { creature in
+                    ["light", "dark"].contains { !FileManager.default.fileExists(atPath: designFolder.appendingPathComponent("Wildlife/\($0)/" + creature.pictureName.replacingOccurrences(of: "Wildlife/", with: "") + ".svg").path) }
+                }
+                check(own.count > 150 && lost.isEmpty, "each of the \(own.count) animals with a drawing of its own has it, light and dark (missing: \(lost.prefix(5).map(\.scientificName)))")
+                let typicals = realBook.kinds.compactMap(\.typical)
+                check(typicals.count > 30 && typicals.allSatisfy { realBook.animal(scientificName: $0) != nil }, "every kind that names the animal its drawing shows names one in the list")
+                check(realBook.kind(ofScientificName: "Felis catus")?.slug == "cat" && realBook.kind(ofScientificName: "Vulpes vulpes")?.slug == "fox" && realBook.kind(ofScientificName: "Bufo bufo")?.slug == "toad" && realBook.kind(ofScientificName: "Rana temporaria")?.slug == "frog", "foxes are apart from cats, and frogs from toads")
+            }
+        }
         // What a harvest can be recorded against (15 November 2026: the Harvest button
         // was a dead end with no sowing on record)
         let harvestApple = Plant(commonName: "Apple"); harvestApple.variety = "Jonagold"; harvestApple.latinName = "Malus domestica"; harvestApple.fruitingMonthsText = "sep oct"
