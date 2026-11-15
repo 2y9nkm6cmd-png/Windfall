@@ -1,6 +1,6 @@
 # 15 November 2026, 17:00: a photo sent with "What is this?" in the journal is a question for Eira, not an entry
 
-**By the "what is this" chat, linked to the Mac. Branch `journal-photo-question`, made from `main` at `4a63b01`.**
+**By the "what is this" chat, linked to the Mac. Branch `journal-photo-question`, made from `main` at `4a63b01`. Joined into `main` at 17:25 the same day.**
 
 William, 16:45, with a picture of the journal's conversation: a photo in the box, "What is this?" typed, and the card "The photo was taken at 13:44 today. Is this about then?" gone amber with "Choose one and it will be sent." His words: "Weird that I can't say what is this without selecting the time it was sent?"
 
@@ -31,8 +31,8 @@ William, 16:45, with a picture of the journal's conversation: a photo in the box
 
 **Checked.**
 
-- Windfall's own checks in the cloud workspace (Swift 6.3.1 for Linux), after `main` (`8aac79b`) was joined in: 125 files parse, the type check of the logic files passes, cross-file checks clean, 881 logic tests pass, five of them new.
-- Builds with no errors, in the copy `~/Developer/windfall-idphotos` (taken over from the identify photos chat to save disk) and `DerivedData/Windfall-idphotos`: the simulator and the Mac before the join (`pq1`, `pq2`), then the Mac and a signed build for any iPhone or iPad after it (`pq3`, 17:18 and 17:19). No warnings from the new code.
+- Windfall's own checks in the cloud workspace (Swift 6.3.1 for Linux), after `main` was joined in twice, last at `bdb68b1`: 126 files parse, the type check of the logic files passes, cross-file checks clean, 899 logic tests pass, five of them new.
+- Builds with no errors, in the copy `~/Developer/windfall-idphotos` (taken over from the identify photos chat to save disk) and `DerivedData/Windfall-idphotos`: the simulator and the Mac before the join (`pq1`, `pq2`), then the Mac and a signed build for any iPhone or iPad after each join (`pq3` at 17:18, and `pq4` at 17:22 from `00f3d11`, the code that went into `main`). No warnings from the new code.
 - Simulator pictures looked at by Claude (`shots/pq-*.png` and `pq2-*.png`), with a test photo dated Wednesday 11 November. "Acer in full colour": the time card shows, and send turns it amber and holds the entry, as before. "What is this?": no time card. Sent: the question and photo in green at the top, Eira's answer under them with its name, bars and reasons, and Add a sighting, Write a journal entry with it and Not now at its foot. iPhone Air dark and light, iPad (A16) dark.
 
 **Not checked.** The real image model through this card: the simulator cannot run it, so the pictures show the made-up answer of `-demoMatch`. The three buttons, by hand. Write a journal entry with it, and the entry that follows. A sighting made from the answer. Several photos at once. The conversation in the panel on Eira's bar, which is where William met the fault: the pictures are of the sheet, which draws the same conversation.
