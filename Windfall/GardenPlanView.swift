@@ -330,7 +330,11 @@ struct GardenPlanCard: View {
                 }
                 Spacer()
                 NavigationLink {
-                    GardenEditorView(garden: garden)
+                    // For now this opens a page offering every way of
+                    // drawing, so they can be tried against each other.
+                    // The form of numbers (GardenEditorView) is one of
+                    // them. See GardenDrawSteps.swift.
+                    GardenDrawChooser(garden: garden)
                 } label: {
                     HStack(spacing: 4) {
                         Text(garden.widthMetres == nil ? "Draw this garden" : "Edit layout")

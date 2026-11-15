@@ -375,7 +375,18 @@ struct DemoGardenEditor: View {
 
     var body: some View {
         if let garden = gardens.first {
-            GardenEditorView(garden: garden)
+            // `-demoDraw` picks one of the newer drawing screens, for
+            // taking pictures of them: drag, steps, ring, point, map or
+            // chooser. Without it, the form of numbers.
+            switch UserDefaults.standard.string(forKey: "demoDraw") {
+            case "drag": GardenDrawView(garden: garden)
+            case "steps": GardenDrawSteps(garden: garden)
+            case "ring": NorthRingSetter(garden: garden)
+            case "point": NorthByPointing(garden: garden)
+            case "map": NorthByMap(garden: garden)
+            case "chooser": GardenDrawChooser(garden: garden)
+            default: GardenEditorView(garden: garden)
+            }
         } else {
             Text("Loading the example garden…")
         }
