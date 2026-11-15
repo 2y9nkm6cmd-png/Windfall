@@ -75,7 +75,7 @@ Every other bird, every mammal, amphibian and reptile, and every insect, spider,
 
 **Added the same day, each drawn beside its photographs:** the early mining bee, the red ants (three *Myrmica*), the yellow meadow ant and the large blue.
 
-## The next 50 animals, drawn beside photographs (15 November 2026, 20:50 to 21:05)
+## The next 50 animals, drawn beside photographs (15 November 2026, 20:50 to 20:57)
 
 The 50 drawings in `Tools/design/wildlife_species3.py` were each made with four or five of the species' own iNaturalist photos to hand, then set beside them on sheets and looked at again by Claude. ⚠️ Claude's eye, not William's. Corrected at that second look:
 

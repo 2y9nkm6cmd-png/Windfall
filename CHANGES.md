@@ -1,4 +1,4 @@
-# 15 November 2026, 21:05: the row of drawings on the Your species pages, and the next 50 animal drawings
+# 15 November 2026, 20:57: the row of drawings on the Your species pages, and the next 50 animal drawings
 
 **By the "photo check" chat, linked to William's Mac.** William, 20:46: "Could you incorporate the drawings into the Your species pages as well. Could you also start making more drawings for all the other animals as well." Made on the branch `species-pages-and-more-animals`, from `main` at `2e7d65a`.
 
