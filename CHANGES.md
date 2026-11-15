@@ -1,3 +1,41 @@
+# 15 November 2026, 17:15: a FIT Count's name box offers your plants, and the target-list switch sets itself
+
+**By the FIT Count suggestions chat. Branch `fit-target-suggestions`, made from `main` at `4a63b01`. Built for the Mac at 17:04 with no errors and no warnings from the changed files (`fit-1-mac.log`). Seen once, as a still picture of the Mac app with the example garden. Not built for the iPhone or iPad, and nobody has pressed anything.**
+
+William, 16:43, with a picture of the count's sheet and "Achil" typed in the name box: "FIT count shortcut to be more streamlined. When typing in a plant name, the plants you're growing should appear."
+
+**Before.** The name of the target flower was typed out in full. The count was never joined to the plant's own record (`Survey.targetPlant` existed and nothing ever set it). "On the PoMS target list" was ticked from memory. Floral units went up one press at a time.
+
+**Now.**
+
+- Typing in the name box lists the plants marked as growing whose name, variety or Latin name answers what was typed, so "achil" finds Yarrow by *Achillea*. A word that begins with what was typed comes before one that only holds it. Within that, plants in flower this month come first and carry an "In flower" tag.
+- One press on a line fills the name in, joins the count to that plant's record and puts the keyboard away.
+- The scheme's own fourteen target flowers are offered by name too, after your plants, so "dan" offers Dandelion in a garden that never planted one.
+- "On the PoMS target list" switches itself on when the name is a target flower, with a line saying which. Once you set the switch by hand the app leaves it alone.
+- Floral units can be typed as well as stepped.
+
+| File | What changed, and why |
+|---|---|
+| `FITTargets.swift` (new) | The fourteen target flowers and how a name is matched to one (`target(name:latin:)`), how close some words are to what was typed (`closeness`), and the list to offer (`suggestions`). No screen code, so it is tested without a Mac |
+| `SurveyViews.swift`, `RunSurveyView` | `@Query` fetches the plant library. `flowerCard` draws the suggestions under the name box (`suggestionRow`). `nameTyped` runs at every key press: it saves the name, drops the join to a plant if the name is no longer that plant's, and sets the switch. `choose` takes a suggestion. `@FocusState` lets the code put the keyboard away |
+| `SheetParts.swift`, `NumberStepper` | New `canType`. When true the number between the minus and the plus is a small box to type in. Only the floral units use it. Every other stepper is as it was |
+| `DemoGarden.swift` | A checking aid, `-demoFITName lav`, which opens the count with a name already typed, for still pictures |
+| `Tools/checks` | 19 new logic tests, and `FITTargets.swift` added to the files that are fully type-checked |
+
+**What the code means.** A `Binding` is a two-way link between a control and a value kept elsewhere. The name box used to link straight to the count's name. It now goes through `nameTyped`, a function, so that other things can happen at each key press. `FITTargets.suggestions` gives each plant a score for how well it answers what was typed, then `sort` puts them in order by asking a list of questions in turn, each one only settling the order where the two plants differ.
+
+**⚠️ CHECK, Claude's own choices:**
+
+- The fourteen target flowers are from the scheme's "FIT Count target flower guide", version 3 (ceh.ac.uk). A newer guide may differ.
+- How names are matched. A Latin name decides first. Otherwise the everyday name: plain "Lavender" is not a target (only English lavender, *Lavandula angustifolia*, is), giant hogweed, globe thistle, sow-thistle, ground ivy, water hawthorn and buttercup squash are kept out, and buttercups are held to *Ranunculus acris*, *repens* and *bulbosus* by Latin name.
+- Heather is matched as *Calluna* only. A Jersey version of the guide also allows *Erica*.
+- Only plants marked as growing are offered. Plants to buy and previously owned are not.
+- A chosen plant's name is written with its variety ("Lavender — English"), which is also what an export to the scheme would carry.
+
+**Checked:** Windfall's own checks in the cloud workspace (Swift 6.3.1 for Linux): 125 files parse, the type check of the logic files passes, cross-file checks clean, 889 logic tests pass. The Mac build. One still picture (`shots/fit-mac-b-2.png`): "lav" typed, five lines offered from the real plant library, two of them marked as target flowers.
+
+**Not checked:** pressing a suggestion. The switch setting itself on a screen. Typing floral units. The iPhone and iPad, where the keyboard and the narrower sheet matter most. A count carried through to its result and an export.
+
 # 15 November 2026, 16:40: the corner drawing rests when it cannot be seen, and two jobs stop being done for nothing
 
 **By the "power efficiency" chat, linked to the Mac. Branch `power-quiet`, made from `main` at `a2744bb`.** The research behind it is doc 91 in the knowledge base. William, 16:16: "Make the changes that will not affect speed or make the app quicker."
