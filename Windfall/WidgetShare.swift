@@ -127,7 +127,9 @@ enum WidgetShare {
         guard WindfallGroup.folder != nil, !DemoGarden.isRequested else { return }
         let calendar = Calendar.current
         let now = Date.now
-        var sharedFile = WidgetSummaryStore.read() ?? WidgetSummary(written: now)
+        // What the file holds now, kept to compare with at the end.
+        let onDisk = WidgetSummaryStore.read()
+        var sharedFile = onDisk ?? WidgetSummary(written: now)
 
         let plants = (try? context.fetch(FetchDescriptor<Plant>(sortBy: [SortDescriptor(\.commonName)]))) ?? []
         let plantings = (try? context.fetch(FetchDescriptor<Planting>())) ?? []
@@ -178,6 +180,13 @@ enum WidgetShare {
         let growing = plants.filter { $0.status == .growing }
         let thisMonth = calendar.component(.month, from: now)
         sharedFile.months = [thisMonth, YearCalendar.monthAfter(thisMonth)].map { monthCard($0, from: growing, calendar: calendar) }
+
+        // This runs every time the app comes to the front, every time
+        // it is put away and every quarter of an hour, and most of
+        // those times nothing has changed. If the file would come out
+        // the same, it is left alone and the widgets are not asked to
+        // draw again: both cost power for no gain. (15 November 2026.)
+        if let onDisk, sharedFile.showsTheSame(as: onDisk) { return }
 
         sharedFile.written = now
         WidgetSummaryStore.write(sharedFile)

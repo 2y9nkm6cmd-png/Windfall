@@ -56,6 +56,66 @@
 **⚠️ Not proven.** Why the link could not find the line is not known. The page is opened from a tile on Wildlife, by `GrowingLink`, and that may be what hides it. It could not be run where this was written. **The same pattern is in four other lists** opened the same way: Sowings (`PlantingViews.swift`), Seed (`SeedViews.swift`), Surveys (`SurveyViews.swift`) and Beds (`BedViews.swift`). They are left alone until William has tapped a row in each (checklist card `w-rows-other`). Plants and Sightings use it too and are known to open.
 
 **Checked:** see the knowledge-base doc for this chat. **Not checked:** a build, and a tap on a device.
+# 15 November 2026, 16:40: the corner drawing rests when it cannot be seen, and two jobs stop being done for nothing
+
+**By the "power efficiency" chat, linked to the Mac. Branch `power-quiet`, made from `main` at `a2744bb`.** The research behind it is doc 91 in the knowledge base. William, 16:16: "Make the changes that will not affect speed or make the app quicker."
+
+**Why.** Measured on the Mac at 15:28: with a web browser in front of it, Windfall was spending 16% to 24% of one processor core, and the only code of its own that was running was the drawing in Today's corner, about thirty times a second. Nothing here changes what the app does. Each change stops work whose result nobody would have seen.
+
+| File | What changed, and why |
+|---|---|
+| `LivingCorner.swift`, `LivingCorner` | New `isResting`, which decides when the drawing holds still. It did so for Reduce Motion and when the app was put away. It now also rests when its page has left the screen (`isOnScreen`, set by `onAppear` and `onDisappear`), when a sheet is up over Today (`cornerIsCovered`) and, on a Mac, when Windfall's window is not the one in use (`appearsActive`). A paused `TimelineView` keeps its last picture, so the drawing stays where it was and carries on when it can be seen again. The last three wait for `hasGrownIn`, four seconds after the drawing appears, so that a plant is never left standing half grown: found when a copy started behind another window drew for less than a second, which by the code leaves the plant at its first moment of growth |
+| `LivingCorner.swift`, `cornerIsCovered` | A new setting handed down through the environment, the way `paintsGlassFlat` is in Theme.swift. A page that puts something over the drawing sets it to true |
+| `LivingCorner.swift`, `CornerMeter` | A checking aid, off unless the app is started with `-cornerMeter YES`. It counts the pictures drawn each second and writes the count, with the time, to `windfall-corner-meter.txt` in the app's temporary folder. A second with no drawing writes nothing, so a gap in the times is a rest |
+| `TodayView.swift`, `header` | Sets `cornerIsCovered` while the capture sheet or the Add a job sheet is up |
+| `VoiceInput.swift`, `WaveformView` | The wave is capped at thirty pictures a second with `minimumInterval`. It was redrawn as often as the screen could manage, up to 120 times a second on some iPads, for a ripple that takes a whole second |
+| `WindfallShared/WidgetSummary.swift`, `showsTheSame(as:)` | New. Says whether two summaries would put the same things on every widget. It leaves out `written`, and fractions of a second in `forecastFetched`, because the file keeps times to the whole second |
+| `WidgetShare.swift`, `refresh` | Reads the file first and, if what it was about to write `showsTheSame`, writes nothing and does not ask the widgets to redraw. It runs on every coming to the front, every putting away and every quarter of an hour, and most of those times nothing has changed |
+| `WeatherDiary.swift`, `bringUpToDate` | New `askedAnything`. When every garden was resting (asked within the hour, with today's record held), no day can have changed, so the last step, reading every day and every frost record to look for new frosts, is skipped. When and what the weather service is asked is exactly as before |
+
+**On a Mac the drawing now stops when another app is in front.** That was Claude's suggestion in doc 91 (Decision 1, option A) and William has not yet answered that card. It is one line, `if !appearsActive { return true }`, and is easy to change to a slow sway or to take out.
+
+**Left out on purpose**, though they were on doc 91's list:
+
+- **A rougher location fix for the weather.** William has reported that no location services seem to be working. Changing the location code now would make that harder to find.
+- **Asking the database for today's weather record alone.** It needs a kind of question (`#Predicate`) the logic tests cannot run, so the code that shipped would have been untested, in the part of the app with an open fault. The frost step above is the half of that saving that can be tested.
+- **The Journal built a day at a time.** Two other chats changed how the Journal's page ends today, one of them not yet built. There is nothing to gain until the journal holds more than a few days.
+- **Eira's reply shown a few words at a time.** It changes how her answer looks, and William has not said he wants that.
+
+**Checked.**
+
+- Windfall's own checks in the cloud workspace (Swift 6.3.1 for Linux): 124 files parse, the type check of the logic files passes, cross-file checks clean, 871 logic tests pass. Eight more checks of `showsTheSame`, run by hand there, pass: a summary read back from the file is not equal by `==` (the fraction of a second) and does show the same, and a newer forecast, a colder night, a job gone or a moved place each count as a change.
+- Builds with no errors for the Mac and the simulator, unsigned, in this chat's own copy (`pw1` and `pw2` logs, 16:36 to 16:41). No warnings from the new code. These were also the first builds of the iPad strip change of 16:05, which builds.
+- **On the Mac, like for like**: a copy started behind another window with the example garden, read with `top` from 22 seconds after starting. `main` of 15:26: 12.8%, 15.7%, 16.0%, 15.2% and 14.4% of one core. This branch: 0.5%, then 0.0% four times. The counter shows it drawing 27, 31 and 30 times in its first three full seconds, while the plant grew in, and not once in the half minute after.
+- **In an iPhone simulator**, with `-motionTour places`: about 30 draws a second on Today, none during the seconds the tour spent on the Journal, Gardens and Wildlife, and 30 again each time it came back to Today.
+
+**Not checked.** The Mac's window in use: nobody has seen that the drawing moves again when Windfall is clicked, since that would have meant taking the screen from William. A sheet over Today, and a plant's page over Today. A real iPhone or iPad. The widgets, which the simulator and an unsigned Mac copy do not run. Whether the iPhone already rested the drawing on another tab before this change: only the new build has a counter.
+
+# 15 November 2026, 16:05: on an iPad, pages stop at Eira's bar again and no longer scroll on past their end
+
+**By the "scrolls too far" chat, from William's iPad. Branch `bar-strip-inside-stack`, made from `main` at `6cbfc37`. Joined into `main` at 16:05 the same day (`78276c7`), at William's word (16:03: "Let's add it to the main branch and push it out"). Written in Claude's cloud workspace: the Mac was not connected, so it has not been built or seen running, and `main` now holds a change no compiler for Apple's devices has read.**
+
+William, 15:47, with a picture of the Journal on the iPad: "The journal app and settings app now scroll too far initially." Asked what he saw, he chose: the page opens at the top, but can be dragged up until a big empty gap sits above Eira's bar. Today, Gardens, Wildlife and Plants do it too. The keyboard had not been up.
+
+**What the picture shows.** The last card of the Journal ends 334 points down a window 744 points tall, with the page at rest. Eira's bar begins at 650. So there are 410 points under the last card where there should be 114: the 20 points of air the page adds, the bar's strip of 74 and the 20 points at the foot of the screen. Take the page's own 20 away and the page had been told that 390 points along its bottom were taken. 390 is five strips of 74 and the 20 at the foot.
+
+**The likely cause.** MainTabView keeps a strip clear for the bar with `safeAreaInset`, put round each place's `NavigationStack`. On an iPad the stack is Apple's older kind of screen with the SwiftUI page fitted inside, and the strip has to be handed across that join. Two things have now been seen there, both wrong: at 13:35 in the simulator the page was told nothing (the Journal's last entry sat behind the bar), and at 15:42 on the iPad every page was told about five times too much. **The count of five was worked out from one picture. It was not reproduced, and why it is five was not found.** Nothing in today's changes to `MainTabView.swift` alters how tall the strip is.
+
+**The change.** On an iPad the strip no longer crosses the join. It is put on the page itself, inside the stack.
+
+| File | What changed, and why |
+|---|---|
+| `MainTabView.swift`, `sidebarLayout` | New `barStrip`: the empty strip and its measurement, written once. On an iPad it is put on the place's page inside the `NavigationStack` (`#if !os(macOS)`). On a Mac it stays round the stack, as before (`#if os(macOS)`) |
+| `JournalViews.swift`, `hiddenByBar` | The note says that an iPad's strip is now on the page, so the extra room it adds there should come to nothing. The sums are unchanged |
+
+**Not changed:** the iPhone, whose strip is still round the stack on each tab. Nobody has reported it there. The Mac. Where the bar sits and how it opens.
+
+**What this costs on an iPad.** A page opened on top of another (a plant, a bed, a page behind a Settings tile) is no longer told about the strip, so its last lines run to the foot of the screen and can sit under the bar's corner. Before 13:35 today the simulator showed those pages untold as well. Giving them the strip needs each of them to add it, or `paperScreen()` to, without also adding it to sheets: a job of its own.
+
+**Checked:** Windfall's own checks in the cloud workspace (Swift 6.3.1 for Linux): 124 files parse, the type check of the logic files passes, cross-file checks clean, 871 logic tests pass. These checks read a screen's code for mistakes of grammar only. They cannot say whether the page now stops in the right place.
+
+**Not checked:** a build of any kind. Anything on a screen. **To check on the iPad:** Journal, Settings and Today each scrolled to the foot (the last card should stop about 20 points above the bar), the same after changing place a few times, with the iPad upright and on its side, and with the sidebar hidden. If the gap is still there, the strip was not the cause and this change can be taken out again.
+
 # 15 November 2026, 15:30: on Identify, a further photo joins the identification
 
 **By the identify photos chat.** William, 14:05: "Can you make it so that when you're identifying plants, if you need to take another photo, the previous one is still stored as part of the identification". Made on the branch `identify-keep-photos`, from `main` at `143e24e`.
