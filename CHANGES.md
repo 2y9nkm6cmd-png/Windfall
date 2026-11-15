@@ -1,6 +1,6 @@
 # 15 November 2026, 16:45: the paper behind every screen is one flat colour
 
-**By the "remove the gradient" chat, linked to the Mac. Branch `plain-paper-background`, made from `main` at `a2744bb`. Joined into `main` at 17:10 the same day, by the project's rule that a change which builds and passes its tests goes in. `main` moved twice while it was being made (the resting corner drawing, then the frame timer in the motion tour) and was merged in both times. Only `CHANGES.md` met.**
+**By the "remove the gradient" chat, linked to the Mac. Branch `plain-paper-background`, made from `main` at `a2744bb`. Joined into `main` at 17:06 the same day, by the project's rule that a change which builds and passes its tests goes in. `main` moved twice while it was being made (the resting corner drawing, then the frame timer in the motion tour) and was merged in both times. Only `CHANGES.md` met.**
 
 William, 16:35: "Let's remove the gradient background in app".
 
