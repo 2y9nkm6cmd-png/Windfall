@@ -1,3 +1,44 @@
+# 15 November 2026, 19:20: the birds redrawn so each family has its own outline, jointed legs on the four-legged animals, three different owls
+
+**By the "wildlife rows" chat, from William's iPad.** William, 19:06: "Now sweep through them and make them more detailed. A lot of the birds look similarly shaped." Made on the branch `wildlife-drawings-detail`, from `main` at `5e0d13a`. **Pictures only: no Swift file is changed.** Not built, not in `main`.
+
+**Why the birds looked alike.** Every bird was the same oval body with a round head and a straight tail, turned to a different angle and coloured differently. So a wren, a blackbird and a woodpigeon had one outline between them.
+
+**What the bird figure is now** (`bird` in `Tools/design/wildlife_species2.py`).
+
+- **The body is a teardrop**, full at the breast and tapering to the tail, in place of an oval. Three new numbers shape it: `chest` (a pigeon's deep breast is 1.3), `back_h` and `belly_h`.
+- **The head has its own width and height** (`hw`, `hh`), so a crow's crown is flat and a jay's is high. `peak` gives the rook its steep forehead and `crest` a tuft.
+- **Legs bend back at the ankle**, as a bird's do, and can be thick or thin (`leg_w`). `thigh` gives crows and hawks their feathered "trousers". A perching bird's toes now close over the branch: the branch is drawn first, then the toes on top of it.
+- **The wing is drawn as feathers**: two rows of small ones at the shoulder, a line where the long ones begin, then five long flight feathers closing to the tip. `primaries` colours the tip, `droop` holds the wings low (the robin).
+- **More tails**: `notch`, `round` and `wedge` (the magpie's graduated tail) beside square, fork, point and fan. `tail_edge` colours the outer feathers (a chaffinch's white ones).
+- **The bill's top edge can bow** (`culmen`): a finch's and a crow's bulge, a warbler's is straight. A large bill has a nostril.
+- **New plumage parts**: `flank` and `vent`. A thrush's spots are small arrowheads. A bird on the ground stands by two tufts of grass.
+
+**Each family starts from its own proportions** (`TIT`, `FINCH`, `CROW`, `DOVE`), and the garden birds are set one by one. A small bird has a big head for its body and a large bird a small one, which is most of what makes a drawing read as small or large. Among them:
+
+- Long-tailed tit: a ball with a tail longer than itself. Wren: tiny and round with the tail cocked up. Goldcrest: a ball with a needle bill and a black-edged yellow crown.
+- Robin: round and upright on long thin legs, wings held low. Song thrush: upright and pot-bellied. Blackbird: long and level with the tail lifted. Dunnock: slim and low.
+- Bullfinch: bull-necked with a stub of a bill. Greenfinch: heavy with a big bill and short forked tail. Goldfinch: slimmer with a finer bill. House sparrow: big-headed with a square tail.
+- **Nuthatch: head down on a trunk** with its head lifted, which no other British bird does.
+- Carrion crow, rook (steep forehead, bare face, baggy thighs), jackdaw (small, short bill, pale eye), magpie (long wedge tail), jay (raised streaked crown, barred blue wing patch).
+- Woodpigeon: deep chest, small head, short legs. Collared dove: slim and long-tailed with a drawn half-collar.
+- Starling: short tail, dagger bill, long pointed wings. Pied wagtail: slender with a long white-edged tail. Kingfisher: nearly all head and bill, upright.
+- Buzzard broad with a short wide tail, kestrel slim with long wings and tail, sparrowhawk small-headed on long thin legs.
+- **The three owls are no longer one shape** (`owl_fig` has width, height, a flat crown, legs and brows): tawny broad, barn owl slim and tall on long legs, little owl squat and frowning.
+- The gulls' black wing tips are now part of the wing, not a patch laid over it.
+
+**Four-legged animals** (`four_legs` in `Tools/design/wildlife.py`, so every drawing that uses it gains). A leg was a straight stick. Now the hind leg has a broad thigh and a hock that points backwards, the front leg has a knee, and each ends in a paw or a hoof. A leg too short to show joints (a badger's) is a stump with a paw. The fox and the four deer also have a body with a deep chest and a tucked-up waist in place of an oval, and the deer a pale chin and throat, a mouth, and lines for the shoulder and haunch.
+
+**Furry insects** (`insect` in `wildlife.py`): bees and anything else drawn with a furry edge now have short pale hairs lying back along the thorax and abdomen.
+
+**The kind "Other birds" now shows the pied wagtail**, in place of an older general bird. `WildlifeReference.json` changes by that one name.
+
+**Looked at by Claude** as sheets: every bird in light and dark, every mammal, amphibian and reptile in light, the 85 kinds in light, six bees.
+
+**⚠️ Not checked.** Any drawing against a photograph or a field guide: the shapes and proportions are from memory, as the colours were. The mammals in dark mode. A build. The insects other than the furry ones were looked at and left as they were, as were the spiders, snails, the waterbirds, herons and the waders' kind drawing.
+
+**Checked.** `Tools/checks/run-checks.sh` with Swift 6.3.1 for Linux: 929 logic tests pass. 199 animals still have a drawing of their own and the picture names are unchanged, so no code needs to know.
+
 # 15 November 2026, 17:40: the UK wildlife branch joined into main
 
 **By the "combine and deploy" chat, linked to the Mac.** William, 17:35: "Combine all current versions and deploy to all devices." Made on the branch `join-15nov-evening`, from `main` at `469e9a6`, in the copy `~/Developer/windfall-join2`.
