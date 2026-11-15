@@ -1,3 +1,34 @@
+# 15 November 2026, 15:30: on Identify, a further photo joins the identification
+
+**By the identify photos chat.** William, 14:05: "Can you make it so that when you're identifying plants, if you need to take another photo, the previous one is still stored as part of the identification". Made on the branch `identify-keep-photos`, from `main` at `143e24e`.
+
+**Before.** The Identify screen held one photo. Take another, Another from Photos or a file threw the first away and put the new one in its place, so a sighting only ever had the last photo.
+
+**Now.** A further photo is added. All of them show in a row, the image model looks at each, Eira judges them together, and every one goes on the sighting. Start again clears them for a different plant or animal.
+
+| File | What changed, and why |
+|---|---|
+| `SpeciesTable.swift` | The matching is split into steps so that several photos can share it. `shares(for:)` gives every species' share for one photo. `averaged(_:)` averages several such lists place by place. `guess(fromShares:)` picks the closest few. `guess(forPhotos:)` strings them together. `guess(for:)`, the one-photo answer, now goes through the same steps and gives what it gave before |
+| `SpeciesEye.swift` | `guess(forPhotos:)` puts each photo through the image model in turn and hands the lot to the table. `guess(forPhoto:)` calls it with a list of one. An unreadable photo stops the whole job, so an answer is never quietly to fewer photos than are on screen |
+| `EiraIdentify.swift` | An answer remembers how many photos it came from (`photoCount`, 1 unless told otherwise). `photosLine` is the sentence the card shows for more than one. A sighting's note says "from 3 photographs" |
+| `IdentifyCards.swift` | New `IdentifyPhoto`: one photo of an identification, with its smaller copy, its original and its own date and place. `EiraIdentify.identify(photos:)` and `startSighting(from:photos:in:)` take a list; the one-photo versions that Eira's chat and the journal use call them with a list of one. The card says "From 3 photos, weighed together: each figure is the average across them." |
+| `EiraVision.swift`, `IdentifyView` | Holds a list of photos in place of one. One photo is shown large as before; two or more sit in a sliding row, each with a cross to remove it, and the row slides to the newest. The three ways of bringing a photo in add to the list (up to `mostPhotos`, 6). New Start again button. If Eira had already answered, she looks again by herself whenever a photo is added or removed. `lookNumber` makes sure an answer that arrives after the photos have changed is dropped |
+| `DemoGarden.swift` | A checking aid, `-demoPhotoCopies 3`, brings the `-demoPhoto` in three times over so the row can be pictured in the simulator |
+| `Tools/checks/LogicTests.swift` | Ten new tests: the averaging, one photo alone giving the old answer exactly, photos that agree, photos that disagree, a clear photo with a poor one, no photos, and the wording for several |
+
+**Claude's choices, for William to confirm (checklist card `d-identify-photos`).**
+
+1. **The photos are averaged.** Species by species, each photo's share is added up and divided by the number of photos. Two photos that agree stay sure. A sharp photo and a poor one come out in between. Two that disagree come out as "not sure". An average is never surer than its photos, and the "not sure" level (0.85, measured on single photos) keeps its meaning. The other way would be to multiply the shares, which rewards agreement but claims more than two photos of one plant can know. **Not measured on test photos either way**: there is no test set of several photos of one thing.
+2. **Another photo always adds.** There is no "replace" any more: that is the cross on a photo, or Start again.
+3. **Six photos at most**, because every original is held in memory until a sighting is started.
+4. **The first photo dates the sighting** and gives Eira the month. Each photo keeps its own date on its own record.
+5. **Eira looks again by herself** when a photo is added or removed after she has answered.
+
+**Not changed:** Eira's chat and the journal's "what is this?". There each photo is still its own question with its own answer. A photo dropped on Identify still brings in only the first of several.
+
+**Checked:** Windfall's own checks in a cloud workspace (Swift 6.3.1 for Linux): 123 files parse, type check passes, cross-file checks clean, 864 logic tests pass. Simulator and Mac, unsigned: BUILD SUCCEEDED (`windfall-build-logs/ip1-sim.log`, `ip2-mac.log`). Simulator pictures looked at by Claude (`shots/ip-one-iphone.png`, `ip-three-iphone.png`, `ip-three-ipad.png`, `ip-six-ipad.png`, script `idphotos-shots.sh`): one photo large with the four buttons, three and six photos in a row with a cross on each, the row slid to the newest, the lines of words under them. **The real image model, through the Mac build, on the same 300 UK photos as project doc 35** (`ip-species-regress.md`): first answer right 293, named outright 294 and of those right 290, the same as on 14 November, so one photo at a time is unharmed by the new route.
+
+**Not checked:** the real image model on more than one photo (the simulator cannot run it, and nobody has pressed the buttons on a device). Adding, removing and Start again by hand. A sighting made from several photos, opened afterwards. The row on the Mac's own window. The line on the answer card for several photos was not in any picture: it is below the fold.
 # 15 November 2026, 14:45: Eira's bar and panel move steadily, and the bar no longer jumps when the page changes
 
 **By the "steady animations" chat, on the Mac.** William, 14:06: "There's a bit of instability in the animations of the Eira movements, search bar appearing and transitioning between screens." Made on the branch `animation-steady`, from `main` at `143e24e`.

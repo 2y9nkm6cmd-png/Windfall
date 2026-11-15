@@ -368,6 +368,7 @@ struct IdentifyView: View {
                     }
                     .buttonStyle(QuietGlassButton())
                     .disabled(isFull)
+                    .opacity(isFull ? 0.4 : 1)
                 }
 
                 // `.current` asks for the photo as it is stored, without
@@ -377,6 +378,10 @@ struct IdentifyView: View {
                 }
                 .buttonStyle(QuietGlassButton())
                 .disabled(isFull)
+                // This button style paints its own colours, so a button
+                // that is switched off looks the same unless it is
+                // faded here.
+                .opacity(isFull ? 0.4 : 1)
 
                 Button {
                     isChoosingFile = true
@@ -385,6 +390,10 @@ struct IdentifyView: View {
                 }
                 .buttonStyle(QuietGlassButton())
                 .disabled(isFull)
+                // This button style paints its own colours, so a button
+                // that is switched off looks the same unless it is
+                // faded here.
+                .opacity(isFull ? 0.4 : 1)
 
                 // The way back to an empty screen, for a different
                 // plant or animal. Before 15 November 2026 choosing
