@@ -1646,7 +1646,7 @@ struct HarvestPicker: View {
             // "Back" always returns to the list. Before, one sowing on
             // its own skipped the list and opened this form at once,
             // which would now leave no way to pick a different plant.
-            HarvestEditor(source: chosen, onBack: { self.chosen = nil })
+            HarvestEditor(cropSource: chosen, onBack: { self.chosen = nil })
         } else {
             SheetPage("What did you harvest?") {
                 SheetScroll {

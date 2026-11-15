@@ -787,7 +787,7 @@ struct HarvestEditor: View {
     /// What the harvest is recorded against: a sowing or planting, or
     /// a plant with neither on record. See `HarvestSource` in
     /// PlantModels.swift.
-    let source: HarvestSource
+    let cropSource: HarvestSource
     /// Set when this form was reached from a list in the same sheet.
     /// The plain button then reads "Back" and returns there.
     var onBack: (() -> Void)? = nil
@@ -795,14 +795,14 @@ struct HarvestEditor: View {
     /// For a sowing or planting already on record. A planting's own
     /// page opens the form this way.
     init(planting: Planting, onBack: (() -> Void)? = nil) {
-        self.init(source: .planting(planting), onBack: onBack)
+        self.init(cropSource: .planting(planting), onBack: onBack)
     }
 
     /// For either kind of source. The Harvest button on Today opens the
     /// form this way, because the plant chosen there may have nothing
     /// on record as sown or planted.
-    init(source: HarvestSource, onBack: (() -> Void)? = nil) {
-        self.source = source
+    init(cropSource: HarvestSource, onBack: (() -> Void)? = nil) {
+        self.cropSource = cropSource
         self.onBack = onBack
     }
 
@@ -818,8 +818,8 @@ struct HarvestEditor: View {
     /// What was sown and where, for the line under the title. A plant
     /// with nothing on record has no bed to name.
     private var sowingLine: String {
-        let name = source.plant?.displayName ?? "Unknown plant"
-        guard case .planting(let planting) = source, !planting.bedNames.isEmpty else { return name }
+        let name = cropSource.plant?.displayName ?? "Unknown plant"
+        guard case .planting(let planting) = cropSource, !planting.bedNames.isEmpty else { return name }
         return "\(name). \(planting.bedNames)"
     }
 
@@ -834,7 +834,7 @@ struct HarvestEditor: View {
             SheetScroll {
                 // Said before anything is typed, so it is no surprise
                 // to find the plant among what is growing afterwards.
-                if source.needsPuttingOnRecord {
+                if cropSource.needsPuttingOnRecord {
                     SheetCard("Not on record yet") {
                         Text("Nothing is on record as sown or planted for this. Saving will put it on record as growing, so the harvest has somewhere to go.")
                             .font(.body)
@@ -891,7 +891,7 @@ struct HarvestEditor: View {
         // none on record is given one here, and only here: nothing is
         // added to the records until Save is pressed.
         let planting: Planting
-        switch source {
+        switch cropSource {
         case .planting(let onRecord):
             planting = onRecord
         case .plant(let plant):
