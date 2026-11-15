@@ -58,3 +58,4 @@ FungusKey.east:
 FungusKey.north:
 Theme.gesture:
 Theme.simultaneousGesture:
+SeenInPhoto.insert:

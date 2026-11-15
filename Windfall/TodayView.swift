@@ -229,6 +229,12 @@ struct TodayView: View {
             let madeUpAnswer = EiraIdentify.example(in: context)
             let observation = EiraIdentify.startSighting(from: madeUpAnswer, photos: [], in: context)
             observation.takePlace(latitude: 51.4545, longitude: -2.5879)
+            // And a made-up second look (EiraSecondLook.swift), so its
+            // suggestions can be seen without the models.
+            observation.keep(SecondLookSuggestion(plantName: "Common Sunflower (Helianthus annuus)",
+                                                  plantLatin: "Helianthus annuus",
+                                                  doing: "Feeding at a flower",
+                                                  note: "Eira saw it on a large yellow flower head."))
             sheet = .newSighting(observation)
         case "identify": sheet = .identify
         case "photo": sheet = .photoOffer

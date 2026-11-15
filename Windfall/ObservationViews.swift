@@ -224,6 +224,8 @@ struct ObservationEditor: View {
     @Query(sort: [SortDescriptor(\Plant.commonName)]) private var plants: [Plant]
 
     @State private var pickerItems: [PhotosPickerItem] = []
+    /// True while Eira's second look is under way (EiraSecondLook.swift).
+    @State private var isLookingAgain = false
     @State private var speciesSearch = ""
     @State private var isLoadingPhotos = false
 
@@ -500,6 +502,8 @@ struct ObservationEditor: View {
 
     private var associationCard: some View {
         SheetCard("On a plant?") {
+            secondLook
+
             SettingRow("Which plant") {
                 // A list with a row of letters to jump by, in place of a
                 // menu of every plant (PlantChooser.swift).
@@ -609,15 +613,100 @@ struct ObservationEditor: View {
         }
     }
 
+    // MARK: Eira's second look
+
+    /// Eira's suggestions for which plant and what it was doing, from a
+    /// second look at the photo (EiraSecondLook.swift). Shown at the top
+    /// of "On a plant?". The look starts by itself the first time a
+    /// sighting with a photo is opened, and its answer is kept on the
+    /// sighting so it is not repeated.
+    @ViewBuilder
+    private var secondLook: some View {
+        if isLookingAgain || observation.wantsSecondLook {
+            HStack(spacing: 10) {
+                ProgressView().controlSize(.small)
+                Text("Eira is looking at the photo for the plant and what it is doing.")
+                    .font(.footnote)
+                    .foregroundStyle(Theme.inkSoft)
+            }
+            // `.task` starts the work when this row appears and stops it
+            // if the form is closed first.
+            .task { await lookAgain() }
+        } else if observation.eiraSecondLookAt != nil {
+            VStack(alignment: .leading, spacing: 8) {
+                if let plant = observation.eiraPlantSuggestion,
+                   plant != (observation.associatedPlant?.displayName ?? observation.associatedPlantName) {
+                    suggestionButton(label: "Eira suggests it was on", value: plant) {
+                        let mine = EiraSecondLookRunner.plant(named: plant, latin: observation.eiraPlantSuggestionLatin, in: plants)
+                        observation.associatedPlant = mine
+                        observation.associatedPlantName = mine?.commonName ?? plant
+                    }
+                }
+                if let doing = observation.eiraDoingSuggestion, doing != observation.interaction {
+                    suggestionButton(label: "Eira suggests it was", value: doing) {
+                        observation.interaction = doing
+                    }
+                }
+                HStack(alignment: .firstTextBaseline) {
+                    Text(observation.eiraSecondLookNote
+                         ?? ((observation.eiraPlantSuggestion == nil && observation.eiraDoingSuggestion == nil)
+                             ? "Eira could not tell from the photo which plant it was on or what it was doing."
+                             : "Suggestions from the photo. Check them before you use them."))
+                        .font(.footnote)
+                        .foregroundStyle(Theme.inkSoft)
+                    Spacer(minLength: 8)
+                    if !(observation.photos ?? []).isEmpty {
+                        Button("Look again") {
+                            observation.eiraSecondLookAt = nil
+                            isLookingAgain = true
+                        }
+                        .font(.footnote.weight(.semibold))
+                        .buttonStyle(.plain)
+                        .foregroundStyle(Theme.leaf)
+                    }
+                }
+            }
+        }
+    }
+
+    /// One suggestion with a "Use" on the right.
+    private func suggestionButton(label: String, value: String, use: @escaping () -> Void) -> some View {
+        Button(action: use) {
+            HStack {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(label)
+                        .font(.footnote)
+                        .foregroundStyle(Theme.inkSoft)
+                    Text(value)
+                        .font(.body)
+                        .foregroundStyle(Theme.ink)
+                }
+                Spacer()
+                Text("Use")
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(Theme.leaf)
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .contentShape(.rect)
+        }
+        .buttonStyle(.plain)
+        .background(Theme.leafFill.opacity(0.35), in: .rect(cornerRadius: 12))
+    }
+
+    /// Runs the second look and keeps its answer on the sighting.
+    private func lookAgain() async {
+        isLookingAgain = true
+        await EiraSecondLookRunner.look(at: observation, yourPlants: plants)
+        isLookingAgain = false
+    }
+
     // MARK: Suggestions
 
     /// The ready-made answers under "What was it doing?".
-    /// ⚠️ CHECK: Claude's list (15 November 2026), not William's.
-    /// `static` means one list shared by every sighting's form.
-    private static let commonDoings = [
-        "Feeding at a flower", "Collecting pollen", "Resting", "Basking",
-        "Feeding on leaves", "Laying eggs", "Nesting", "Hunting", "Mating", "Flying past"
-    ]
+    /// They live in EiraSecondLook.swift (`SightingDoing.choices`),
+    /// because Eira's second look may only choose from the same list.
+    private static var commonDoings: [String] { SightingDoing.choices }
 
     /// A name suggested for this sighting that is not in the name boxes:
     /// Eira's from a photo, or a key's. Nil once either box has

@@ -348,6 +348,23 @@ final class WildlifeObservation {
     /// foliage, resting. The interaction, not just co-presence.
     var interaction: String?
 
+    // Eira's second look at the photo (EiraSecondLook.swift), added
+    // 15 November 2026. Suggestions only: the form offers each with a
+    // "Use" button and never copies them into the fields above by itself.
+    // All optional, so sightings saved before they existed still open.
+    /// The plant she suggests it was on: one of William's own plants by
+    /// name when one matches, otherwise the image model's name.
+    var eiraPlantSuggestion: String?
+    /// That plant's scientific name.
+    var eiraPlantSuggestionLatin: String?
+    /// What she suggests it was doing: one of SightingDoing.choices.
+    var eiraDoingSuggestion: String?
+    /// One line saying what she saw, such as "Eira saw it on a yellow
+    /// daisy-like flower head."
+    var eiraSecondLookNote: String?
+    /// When she looked. Nil means not yet, and the form asks her.
+    var eiraSecondLookAt: Date?
+
     // Place
     var bed: Bed?
     var section: BedSection?

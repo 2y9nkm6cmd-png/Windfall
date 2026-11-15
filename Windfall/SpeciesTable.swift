@@ -423,6 +423,37 @@ struct SpeciesTable {
         return SpeciesGuess(candidates: candidates, isSure: isSure)
     }
 
+    /// The same, from several photos' numbers averaged, but keeping
+    /// only the species that pass `keep`, such as plants alone.
+    ///
+    /// How it works: the shares of the species kept are added up, and
+    /// each is divided by that sum, so the kept ones' shares add up to 1
+    /// again. That is the same as comparing the photo with the kept rows
+    /// alone. Used by Eira's second look (EiraSecondLook.swift) to find
+    /// the flower a bee is on, with the bee itself set aside.
+    ///
+    /// Never "sure": the "not sure" level was measured against the whole
+    /// list, and means nothing for part of it.
+    func guess(forPhotos photos: [[Float]], keeping count: Int, among keep: (SpeciesEntry) -> Bool) -> SpeciesGuess {
+        guess(fromShares: SpeciesTable.averaged(photos.map { shares(for: $0) }), keeping: count, among: keep)
+    }
+
+    /// The part of the above that needs no photo: shares in, the closest
+    /// few of the kept species out.
+    func guess(fromShares shares: [Double], keeping count: Int, among keep: (SpeciesEntry) -> Bool) -> SpeciesGuess {
+        guard shares.count == species.count, !species.isEmpty else {
+            return SpeciesGuess(candidates: [], isSure: false)
+        }
+        let kept = shares.indices.filter { keep(species[$0]) }
+        let total = kept.reduce(0) { $0 + shares[$1] }
+        guard !kept.isEmpty, total > 0 else { return SpeciesGuess(candidates: [], isSure: false) }
+        let order = kept
+            .sorted { shares[$0] != shares[$1] ? shares[$0] > shares[$1] : $0 < $1 }
+            .prefix(max(1, count))
+        return SpeciesGuess(candidates: order.map { SpeciesCandidate(entry: species[$0], share: shares[$0] / total) },
+                            isSure: false)
+    }
+
     /// Every species' share for one photo, in the table's order. The
     /// shares add up to 1. An empty list when the photo's numbers are
     /// not the count this table was made for.

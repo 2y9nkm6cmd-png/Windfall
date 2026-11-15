@@ -177,6 +177,29 @@ final class SpeciesEye {
         return table.guess(forPhotos: photoNumbers, keeping: count)
     }
 
+    /// The plants in the photos, with every animal set aside: Eira's
+    /// second look (EiraSecondLook.swift). The same model and the same
+    /// photo numbers as `guess(forPhotos:)`, only compared with the
+    /// plant rows alone. Shares are among plants, and never "sure".
+    func plantGuess(forPhotos photos: [Data],
+                    keeping count: Int = EiraSecondLook.plantNamesWanted) async throws -> SpeciesGuess {
+        var prepared: [[Float]] = []
+        for data in photos {
+            guard let picture = SpeciesEye.picture(from: data),
+                  let ready = SpeciesEye.prepared(picture) else {
+                throw SpeciesEyeError.photoUnreadable
+            }
+            prepared.append(ready)
+        }
+        try await loadIfNeeded()
+        guard let describe, let table else { throw SpeciesEyeError.needsNewerSystem }
+        var photoNumbers: [[Float]] = []
+        for one in prepared {
+            photoNumbers.append(try await describe(one))
+        }
+        return table.guess(forPhotos: photoNumbers, keeping: count) { $0.group == "Plantae" }
+    }
+
     /// Frees the memory the model and the table are using.
     func unload() {
         describe = nil

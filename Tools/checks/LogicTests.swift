@@ -1646,6 +1646,33 @@ struct LogicTests {
         fine.gridPrecisionMetres = 10
         fine.takePlace(latitude: 52.657978, longitude: 1.716053)
         check(fine.gridReference == OSGridReference.from(yarmouth, precisionMetres: 10) && fine.gridReference != placed.gridReference, "the grid reference is written at the sighting's own precision: \(fine.gridReference ?? "none")")
+        // Eira's second look: which plant, and what it was doing (15 November 2026).
+        let sunflower = entry("Helianthus annuus", "Common Sunflower", "Plantae"), dandelion = entry("Taraxacum officinale", "Common Dandelion", "Plantae")
+        let plantsSeen = [SpeciesCandidate(entry: sunflower, share: 0.62), SpeciesCandidate(entry: dandelion, share: 0.2)]
+        let mine = [KnownPlant(name: "Sunflower — Velvet Queen", latin: "Helianthus annuus 'Velvet Queen'"), KnownPlant(name: "Jerusalem artichoke", latin: "Helianthus tuberosus")]
+        let looked = EiraSecondLook.suggestion(plants: plantsSeen, seen: SeenInPhoto(isOnPlant: true, plantChoice: "Common Sunflower (Helianthus annuus)", plantWords: "a large yellow flower head.", doing: "feeding at a flower "), yourPlants: mine)
+        check(looked.plantName == "Sunflower — Velvet Queen" && looked.plantIsYours && looked.plantLatin == "Helianthus annuus" && looked.doing == "Feeding at a flower" && looked.note == "Eira saw it on a large yellow flower head.", "the second look's plant is matched to your own and its doing to the list: \(looked)")
+        let notOn = EiraSecondLook.suggestion(plants: plantsSeen, seen: SeenInPhoto(isOnPlant: false, plantChoice: "Common Sunflower", plantWords: nil, doing: "Flying past"), yourPlants: mine)
+        check(notOn.plantName == nil && notOn.doing == "Flying past" && notOn.note == "Eira saw it was not on a plant.", "when Apple's model says it is not on a plant, no plant is suggested")
+        let madeUp = EiraSecondLook.suggestion(plants: plantsSeen, seen: SeenInPhoto(isOnPlant: true, plantChoice: "Rose", plantWords: "", doing: "sipping nectar"), yourPlants: mine)
+        check(madeUp.plantName == nil && madeUp.doing == nil && madeUp.isEmpty, "a plant or a doing the model made up is never used")
+        let byName = EiraSecondLook.suggestion(plants: plantsSeen, seen: SeenInPhoto(isOnPlant: true, plantChoice: "common dandelion", plantWords: nil, doing: "cannot tell"), yourPlants: mine)
+        check(byName.plantName == "Common Dandelion (Taraxacum officinale)" && !byName.plantIsYours && byName.doing == nil, "a chosen plant not among yours keeps the image model's name, and cannot tell gives no doing")
+        let imageModelOnly = EiraSecondLook.suggestion(plants: plantsSeen, seen: nil, yourPlants: [])
+        let tooWeak = EiraSecondLook.suggestion(plants: [SpeciesCandidate(entry: dandelion, share: 0.3)], seen: nil, yourPlants: [])
+        check(imageModelOnly.plantName == "Common Sunflower (Helianthus annuus)" && imageModelOnly.doing == nil && (imageModelOnly.note ?? "").contains("image model alone") && tooWeak.isEmpty && tooWeak.note == nil, "with no look from Apple's model, only a strong plant is suggested, and no doing")
+        check(EiraSecondLook.yourPlant(for: "Helianthus annuus", among: [mine[1], mine[0]])?.name == "Sunflower — Velvet Queen" && EiraSecondLook.yourPlant(for: "Helianthus debilis", among: mine)?.name == "Sunflower — Velvet Queen" && EiraSecondLook.yourPlant(for: "Rosa canina", among: mine) == nil, "your plant is found by species first, then genus")
+        let plantTable = SpeciesTable(species: [buff, sunflower, white, dandelion], width: 1, scale: 1, notSureFloor: 0.5, numbers: [1, 1, 1, 1])
+        let plantsOnly = plantTable.guess(fromShares: [0.7, 0.2, 0.05, 0.05], keeping: 5) { $0.group == "Plantae" }
+        check(plantsOnly.candidates.map(\.entry.scientific) == ["Helianthus annuus", "Taraxacum officinale"] && abs(plantsOnly.candidates[0].share - 0.8) < 1e-9 && abs(plantsOnly.candidates[1].share - 0.2) < 1e-9 && !plantsOnly.isSure && plantTable.guess(fromShares: [1], keeping: 5, among: { _ in true }).candidates.isEmpty, "the plants-only guess sets the animals aside and shares the rest out again, never sure")
+        check(SightingDoing.choice(matching: " RESTING ") == "Resting" && SightingDoing.choice(matching: "resting on a leaf") == nil && SightingDoing.choice(matching: nil) == nil && SightingDoing.choices.count == 10, "a doing must be one of the ten, whatever its capitals")
+        let lookedAt = WildlifeObservation()
+        check(!lookedAt.wantsSecondLook, "a sighting with no photo wants no second look")
+        lookedAt.photos = [Photo()]
+        let wantedBefore = lookedAt.wantsSecondLook
+        lookedAt.keep(looked)
+        check(wantedBefore && !lookedAt.wantsSecondLook && lookedAt.eiraPlantSuggestion == "Sunflower — Velvet Queen" && lookedAt.eiraDoingSuggestion == "Feeding at a flower" && lookedAt.associatedPlantName == nil && lookedAt.interaction == nil, "the suggestions are kept on the sighting without filling its boxes, and it is not looked at twice")
+        check(EiraSecondLook.question(animal: "Honey Bee", plantNames: ["Common Sunflower (Helianthus annuus)"]).contains("Common Sunflower (Helianthus annuus)") && EiraSecondLook.question(animal: "Honey Bee", plantNames: []).contains("(none)"), "the question names the animal and offers the plants")
         // More than one image model.
         let huge = EyeModel.describing(folder: "bioclip2", modelFile: "bioclip2_image_f16.aimodel", label: Data(#"{"name":"BioCLIP 2.5 Huge","note":"1.2GB","order":1}"#.utf8))
         let small = EyeModel.describing(folder: "bioclip2-original", modelFile: "m.aimodel", label: Data(#"{"name":"BioCLIP 2","order":2}"#.utf8))
