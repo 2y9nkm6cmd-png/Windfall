@@ -1,3 +1,36 @@
+# 15 November 2026, 21:32: three things found on the iPad: the search rests as a glass, a sighting from Eira arrives filled in, and a switch's words are one size
+
+**By the "iPad changes" chat, linked to William's Mac while he used the iPad.** On the branch `search-rests-as-glass`, from `main` at `827e21d`.
+
+**1. The search rests as a magnifying glass on an iPhone and iPad.** William, 21:03: "The search bar is always out rather than being an object to tap that then reveals the search bar. This is everywhere."
+
+- `CollapsingSearch.swift` has a new `tuckedSearch(text:prompt:)`. On an iPhone and iPad it is Apple's `.searchable` followed by `.searchToolbarBehavior(.minimize)`, which makes the box rest as a round button and open when tapped. On a Mac it is `.searchable` as before.
+- Six pages use it in place of `.searchable`: Plants, Year, Seed, Sightings, Species and UK wildlife.
+- **Left as it was:** "Search everything" (`SearchAndCalendar.swift`), a page whose whole purpose is its search box. The small search boxes inside forms (the plant pickers, the species list on a sighting). On a Mac, the five pages other than Plants still show the box all the time, because Apple marks `.minimize` unavailable there and only Plants has the glass drawn in `CollapsingSearchField`.
+- `check_platforms.py` now knows `searchToolbarBehavior` is for iPhone and iPad only.
+
+**2. A sighting started from Eira's answer arrives filled in.** William, 21:13: "The suggested stuff that Eira gives you isn't autofilled in the sighting and saves as unidentified. It should also autofill grid reference from photo and be giving suggestions for what it's doing and what plant it's on."
+
+- **The cause.** `EiraIdentify.startSighting` put her name only into `provisionalID`. The form's two name boxes read `commonName` and `scientificName`, and the lists read `bestAvailableName`, which does not look at `provisionalID`. So the name was kept and never shown.
+- **The names.** `EiraIdentification.sightingNames` (in `EiraIdentify.swift`) says what to write in: the English and scientific name of her first choice, or the genus alone when only the genus is clear, and nothing when she named nothing. `TaxonGroup(imageModelGroup:)` turns the image model's "Insecta", "Plantae", "Aves" and so on into the app's groups. `startSighting` writes these into the form's boxes. All five ways of saving a sighting from her answer go through `startSighting` (Identify, her chat, the journal's two routes and the photo question), so all are put right at once.
+- **Still not a record.** Nothing is confirmed until "I'm confident in this identification" is ticked, and only confirmed sightings go to iRecord. `provisionalID`, its source and its confidence are kept as before.
+- **The species reference.** `WildlifeObservation.takeDetails(from:)` fills the family, recording group and accepted name from the species reference when the name is in it, into empty boxes only. With the English name in place the form's "Known from your reference data" plants can show.
+- **Sightings already saved.** The form shows "Eira suggested ... Use this name" when a sighting has a suggestion and empty name boxes. One tap fills them.
+- **The place.** `WildlifeObservation.takePlace(from:)` (in `OSGridReference.swift`) takes a photo's latitude and longitude and writes the grid reference at the sighting's own precision. Used when a sighting is started from Eira's answer, from photos alone (`PhotoOffer.swift`) and when photos are added in the form. It never writes over a grid reference already there. `startSighting` now also takes the precision from Settings, which it did not before.
+- **What it was doing.** A row of ready-made answers under the box, one tap each. ⚠️ CHECK: the ten are Claude's list.
+- **Not built: Eira saying from the photo what it was doing and which plant it was on.** The image model names one species for the whole picture. Asked of William, not started.
+- **A checking aid:** `-demoOpen sighting-eira` opens the form as it arrives from her made-up answer, with the middle of Bristol as its place.
+
+**3. One size of lettering in a switch.** William, 21:13, of "Certain, Probable, Possible, Not identified": "These fonts are all different sizes."
+
+- **The cause.** In `GlassSwitch.swift` each word had `.minimumScaleFactor(0.75)`, so a word too long for its quarter of the switch shrank by itself.
+- **Now** `ViewThatFits` is given the whole row at six sizes, largest first, and shows the first that fits. Every word steps down together. A hidden heavy copy of each word holds its room, so the size does not change when a different word is chosen. The old one-word shrink is kept only as the last resort.
+- This is the switch used in 19 places. Where every word already fitted, nothing changes.
+
+**Checked.** `Tools/checks/run-checks.sh` with Swift 6.3.1 for Linux: 132 files parse, the type check passes, the cross-file checks are clean, **965 logic tests pass** (11 new: the names, the groups, the reference and the place). Built for the simulator three times, BUILD SUCCEEDED. Seen in simulator pictures: the glass at rest on the iPad's Year and Plants pages and the iPhone's Year page, the form filled in with "Buff-tailed Bumblebee" and "Bombus terrestris" on both, and the four words one size on both.
+
+**Not checked.** A tap on the glass: no picture can press it. The lower half of the sighting form (the place and the ready-made answers), which the pictures do not reach. A real photo with a position. Anything on a Mac window.
+
 # 15 November 2026, 20:57: the row of drawings on the Your species pages, and the next 50 animal drawings
 
 **By the "photo check" chat, linked to William's Mac.** William, 20:46: "Could you incorporate the drawings into the Your species pages as well. Could you also start making more drawings for all the other animals as well." Made on the branch `species-pages-and-more-animals`, from `main` at `2e7d65a`.
