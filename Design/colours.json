@@ -20,6 +20,24 @@
       "use": "The app icon's background: cream in light mode, the icon's green in dark mode. The widgets' background"
     },
     {
+      "name": "IconGreen",
+      "light": "#06421B",
+      "dark": "#06421B",
+      "use": "The app icon's dark green, the same in light and dark mode. Eira's green circle and the lines of her snowdrop"
+    },
+    {
+      "name": "IconCream",
+      "light": "#FAEEE0",
+      "dark": "#FAEEE0",
+      "use": "The app icon's cream, the same in light and dark mode. Eira's cream circle and the pale lines of her snowdrop"
+    },
+    {
+      "name": "IconLeaf",
+      "light": "#C0D76D",
+      "dark": "#C0D76D",
+      "use": "The app icon's leaf green, the same in light and dark mode. The leaves and cap of Eira's snowdrop"
+    },
+    {
       "name": "Hairline",
       "light": "#E0D9CB",
       "dark": "#2B3B2E",
@@ -111,15 +129,15 @@
     },
     {
       "name": "EiraDisc",
-      "light": "#06472A",
-      "dark": "#F8F1E5",
-      "use": "Eira's circle. Flips in dark mode"
+      "light": "#06421B",
+      "dark": "#FAEEE0",
+      "use": "Eira's circle: the icon's green in light mode, its cream in dark mode. Her snowdrop itself is painted from the three Icon colours (SnowdropDrawing.swift)"
     },
     {
       "name": "EiraFlower",
-      "light": "#FDFBF5",
-      "dark": "#06472A",
-      "use": "Eira's snowdrop. Flips in dark mode"
+      "light": "#FAEEE0",
+      "dark": "#06421B",
+      "use": "The lines of Eira's snowdrop on her circle: cream in light mode, green in dark mode"
     },
     {
       "name": "SowIndoors",
