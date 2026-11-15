@@ -140,7 +140,19 @@ struct SeedListView: View {
         Button {
             adding = choice
         } label: {
-            Label(choice.title, systemImage: choice.symbol)
+            // Built by hand as a row (`HStack`) of the symbol and the
+            // words, not as a `Label`. On the empty page, Apple's
+            // `ContentUnavailableView` squeezed a `Label` to the width
+            // of its symbol and the words fell out of sight (seen in
+            // the simulator, 15 November 2026). `.fixedSize()` says
+            // "always take the room you need", and `.lineLimit(1)`
+            // keeps the words on one line.
+            HStack(spacing: 8) {
+                Image(systemName: choice.symbol)
+                Text(choice.title)
+                    .lineLimit(1)
+            }
+            .fixedSize()
         }
     }
 }
