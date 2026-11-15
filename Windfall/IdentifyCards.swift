@@ -216,11 +216,21 @@ extension EiraIdentify {
                               in context: ModelContext) -> WildlifeObservation {
         let observation = WildlifeObservation()
         observation.recorderName = UserDefaults.standard.string(forKey: "recorderName")
+        // How exact a grid reference is to be, from Settings. It has to
+        // be set before the place below is worked out, because the
+        // reference is written at this precision. (0 means the setting
+        // has never been touched, and 100 metres is its starting value.)
+        let precision = UserDefaults.standard.integer(forKey: "gridPrecision")
+        observation.gridPrecisionMetres = precision == 0 ? 100 : precision
         // It was seen when the photo was taken, not when the photo was
         // brought in here.
         if let facts = photos.first?.facts, facts.wasTakenEarlier(than: .now), let taken = facts.taken {
             observation.observedAt = taken
         }
+        // And where the photo was taken, from the first photo that
+        // says. `first(where:)` walks the photos in order and stops at
+        // the first one that passes the test in the braces.
+        observation.takePlace(from: photos.first(where: { $0.facts?.latitude != nil })?.facts)
 
         if let identification {
             observation.notes = identification.sightingNote
@@ -228,6 +238,19 @@ extension EiraIdentify {
                 observation.provisionalID = name
                 observation.provisionalSource = .onDeviceModel
                 observation.provisionalConfidence = identification.confidence ?? .possible
+            }
+            // Her name goes into the form's own boxes too, so the form
+            // opens filled in and the lists show the name. It is still
+            // unconfirmed: see `EiraIdentification.sightingNames`.
+            if let names = identification.sightingNames {
+                observation.scientificName = names.scientific
+                observation.commonName = names.common
+                if let group = names.group { observation.taxonGroup = group }
+                // If it is in your species reference, take its family
+                // and recording group from there as well. `try?` turns
+                // a failed fetch into nil, and `?? []` into an empty list.
+                let reference = (try? context.fetch(FetchDescriptor<Fauna>())) ?? []
+                observation.takeDetails(from: reference)
             }
         } else {
             observation.notes = photos.count > 1
@@ -252,6 +275,9 @@ extension EiraIdentify {
         context.insert(observation)
         return observation
     }
+
+    // (`WildlifeObservation.takeDetails(from:)`, used above, is in
+    // EiraIdentify.swift, where the logic tests can reach it.)
 
     /// A made-up answer for looking at the cards where the image model
     /// cannot run, such as the iOS Simulator. It is judged against the

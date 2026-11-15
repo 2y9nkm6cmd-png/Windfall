@@ -354,6 +354,36 @@ struct ObservationEditor: View {
 
     private var nameCard: some View {
         SheetCard("What was it?") {
+            // A sighting saved before 15 November 2026 kept Eira's name
+            // out of the boxes below. This row offers it. A sighting
+            // started since then arrives with the boxes filled in
+            // (EiraIdentify.startSighting), so the row does not show.
+            if let suggested = unusedSuggestion {
+                Button {
+                    useSuggestion(suggested)
+                } label: {
+                    HStack {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(suggestionSource)
+                                .font(.footnote)
+                                .foregroundStyle(Theme.inkSoft)
+                            Text(suggested)
+                                .font(.body)
+                                .foregroundStyle(Theme.ink)
+                        }
+                        Spacer()
+                        Text("Use this name")
+                            .font(.footnote.weight(.semibold))
+                            .foregroundStyle(Theme.leaf)
+                    }
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
+                    .contentShape(.rect)
+                }
+                .buttonStyle(.plain)
+                .background(Theme.leafFill.opacity(0.35), in: .rect(cornerRadius: 12))
+            }
+
             FieldBox { TextField("Search the species list", text: $speciesSearch) }
 
             ForEach(suggestions) { match in
@@ -487,6 +517,30 @@ struct ObservationEditor: View {
                     set: { observation.interaction = $0.isEmpty ? nil : $0 }
                 ))
             }
+            // Ready-made answers, one tap each. Tapping the one already
+            // chosen clears it. Anything else can still be typed above.
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    ForEach(Self.commonDoings, id: \.self) { doing in
+                        let isChosen = observation.interaction == doing
+                        Button {
+                            observation.interaction = isChosen ? nil : doing
+                        } label: {
+                            Text(doing)
+                                .font(.footnote)
+                                .fontWeight(isChosen ? .semibold : .regular)
+                                .foregroundStyle(Theme.ink)
+                                .padding(.horizontal, 12)
+                                .frame(height: 34)
+                                .contentShape(.capsule)
+                        }
+                        .buttonStyle(.plain)
+                        .background(Theme.leafFill.opacity(isChosen ? 0.9 : 0.35), in: .capsule)
+                        .accessibilityAddTraits(isChosen ? .isSelected : [])
+                    }
+                }
+                .padding(.vertical, 2)
+            }
 
             if !knownAssociations.isEmpty {
                 Text("Known from your reference data. Tap one to fill it in.")
@@ -555,6 +609,49 @@ struct ObservationEditor: View {
         }
     }
 
+    // MARK: Suggestions
+
+    /// The ready-made answers under "What was it doing?".
+    /// ⚠️ CHECK: Claude's list (15 November 2026), not William's.
+    /// `static` means one list shared by every sighting's form.
+    private static let commonDoings = [
+        "Feeding at a flower", "Collecting pollen", "Resting", "Basking",
+        "Feeding on leaves", "Laying eggs", "Nesting", "Hunting", "Mating", "Flying past"
+    ]
+
+    /// A name suggested for this sighting that is not in the name boxes:
+    /// Eira's from a photo, or a key's. Nil once either box has
+    /// something in it.
+    private var unusedSuggestion: String? {
+        guard let suggested = observation.provisionalID, !suggested.isEmpty,
+              observation.commonName?.isEmpty ?? true,
+              observation.scientificName?.isEmpty ?? true else { return nil }
+        return suggested
+    }
+
+    /// Who made the suggestion, for the small line above it.
+    private var suggestionSource: String {
+        switch observation.provisionalSource {
+        case .onDeviceModel: return "Eira suggested"
+        case .key:           return "The key suggested"
+        default:             return "Suggested"
+        }
+    }
+
+    /// Writes the suggested name into the boxes. Eira's names are
+    /// scientific ones. A key gives an everyday name. The sighting
+    /// stays unconfirmed until the box below is ticked.
+    private func useSuggestion(_ suggested: String) {
+        if observation.provisionalSource == .key {
+            observation.commonName = suggested
+        } else {
+            observation.scientificName = suggested
+        }
+        // The English name, family and group, if it is in the species
+        // reference (EiraIdentify.swift).
+        observation.takeDetails(from: fauna)
+    }
+
     /// A small label over a box to type in.
     private func named<Field: View>(_ label: String, @ViewBuilder field: @escaping () -> Field) -> some View {
         VStack(alignment: .leading, spacing: 5) {
@@ -597,6 +694,10 @@ struct ObservationEditor: View {
 
         for item in items {
             guard let data = try? await item.loadTransferable(type: Data.self) else { continue }
+            // If the sighting has no grid reference yet and this photo
+            // says where it was taken, the place comes from the photo.
+            let whereAndWhen = PhotoFacts.read(from: data)
+            observation.takePlace(from: whereAndWhen)
             let photo = Photo()
             photo.imageData = data
             photo.thumbnailData = DiaryEntryEditor.thumbnail(from: data)

@@ -1613,6 +1613,39 @@ struct LogicTests {
         let potLabel = EiraIdentify.judge(guessOf([(entry("Stachys byzantina", "Lamb's-ear", "Plantae", source: "pot label in William's photos, to check"), 0.95)], sure: true), knowing: IdentifyKnowledge(month: 6))
         check(potLabel.cautions.count == 1 && potLabel.cautions[0].weight == .note && potLabel.cautions[0].words.contains("pot label") && potLabel.confidence == .probable, "a name that came from a pot label says so")
         check((try? JSONDecoder().decode(SpeciesEntry.self, from: Data(#"{"scientific":"A b","common":null,"group":"Plantae","taught":false,"source":"William's plant database"}"#.utf8)))?.source == "William's plant database" && (try? JSONDecoder().decode(SpeciesEntry.self, from: Data(#"{"scientific":"A b","common":null,"group":"Plantae","taught":false}"#.utf8)))?.source == nil, "a species list reads with or without each name's source")
+        // A sighting started from her answer arrives filled in (15 November 2026).
+        check(plain.sightingNames == EiraIdentification.SightingNames(common: "Buff-tailed Bumblebee", scientific: "Bombus terrestris", group: .insect) && alike.sightingNames?.scientific == "Bombus terrestris" && alike.sightingNames?.common == "Buff-tailed Bumblebee", "a named answer fills the sighting with its English name, scientific name and group: \(String(describing: plain.sightingNames))")
+        check(ofPlant.sightingNames == EiraIdentification.SightingNames(common: "English Lavender", scientific: "Lavandula angustifolia", group: .plant), "a plant's sighting is put in the Plants group")
+        check(pooled.sightingNames == EiraIdentification.SightingNames(common: nil, scientific: "Bombus", group: .insect), "when only the genus is clear the sighting gets the genus and no English name")
+        check(torn2.sightingNames == nil && empty.sightingNames == nil, "when Eira names nothing, nothing is written into the sighting")
+        var mismatched = plain
+        mismatched.provisionalName = "Bombus lucorum"
+        check(mismatched.sightingNames?.common == nil && mismatched.sightingNames?.scientific == "Bombus lucorum", "an English name is never paired with a different scientific name")
+        check(TaxonGroup(imageModelGroup: "Aves") == .bird && TaxonGroup(imageModelGroup: " plantae ") == .plant && TaxonGroup(imageModelGroup: "Fungi") == .fungus && TaxonGroup(imageModelGroup: "Beetles") == nil && TaxonGroup(imageModelGroup: "") == nil, "the image model's group words become the app's groups, and an unknown word gives none")
+        let referenceBee = Fauna()
+        referenceBee.commonName = "Buff-tailed bumblebee"; referenceBee.scientificName = "Bombus terrestris (Linnaeus, 1758)"; referenceBee.family = "Apidae"; referenceBee.recordingGroup = "Bumblebees"
+        let filledIn = WildlifeObservation()
+        filledIn.scientificName = "Bombus terrestris"
+        filledIn.takeDetails(from: [referenceBee])
+        let typedFirst = WildlifeObservation()
+        typedFirst.commonName = "My bee"; typedFirst.scientificName = "Bombus terrestris"; typedFirst.family = "Typed"
+        typedFirst.takeDetails(from: [referenceBee])
+        let notListed = WildlifeObservation()
+        notListed.scientificName = "Apis mellifera"
+        notListed.takeDetails(from: [referenceBee])
+        check(filledIn.commonName == "Buff-tailed bumblebee" && filledIn.family == "Apidae" && filledIn.schemeGroupName == "Bumblebees" && filledIn.acceptedScientificName == "Bombus terrestris (Linnaeus, 1758)" && typedFirst.commonName == "My bee" && typedFirst.family == "Typed" && typedFirst.schemeGroupName == "Bumblebees" && notListed.commonName == nil && notListed.family == nil && !filledIn.isConfirmed, "a sighting takes its family and recording group from the species reference, only into empty boxes, and is not confirmed by it")
+        // A sighting's place from its photo (15 November 2026).
+        let placed = WildlifeObservation()
+        let yarmouth = CLLocationCoordinate2D(latitude: 52.657978, longitude: 1.716053)
+        let tookPlace = placed.takePlace(from: PhotoFacts(taken: nil, latitude: 52.657978, longitude: 1.716053))
+        check(tookPlace && placed.gridReference != nil && placed.gridReference == OSGridReference.from(yarmouth, precisionMetres: 100) && (placed.gridReference ?? "").hasPrefix("TG") && placed.latitude == 52.657978 && placed.longitude == 1.716053, "a photo that says where it was taken gives the sighting its grid reference: \(placed.gridReference ?? "none")")
+        check(!placed.takePlace(from: PhotoFacts(taken: nil, latitude: 51.5, longitude: -2.6)) && placed.latitude == 52.657978, "a sighting that already has a grid reference keeps it")
+        let nowhere = WildlifeObservation()
+        check(!nowhere.takePlace(from: PhotoFacts()) && !nowhere.takePlace(from: nil) && nowhere.gridReference == nil && nowhere.latitude == nil, "a photo with no position gives no place")
+        let fine = WildlifeObservation()
+        fine.gridPrecisionMetres = 10
+        fine.takePlace(latitude: 52.657978, longitude: 1.716053)
+        check(fine.gridReference == OSGridReference.from(yarmouth, precisionMetres: 10) && fine.gridReference != placed.gridReference, "the grid reference is written at the sighting's own precision: \(fine.gridReference ?? "none")")
         // More than one image model.
         let huge = EyeModel.describing(folder: "bioclip2", modelFile: "bioclip2_image_f16.aimodel", label: Data(#"{"name":"BioCLIP 2.5 Huge","note":"1.2GB","order":1}"#.utf8))
         let small = EyeModel.describing(folder: "bioclip2-original", modelFile: "m.aimodel", label: Data(#"{"name":"BioCLIP 2","order":2}"#.utf8))

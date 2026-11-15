@@ -198,6 +198,9 @@ struct PhotoOfferSheet: View {
         // It was seen when the photo was taken, not when the photo was
         // brought in here.
         if let taken { observation.observedAt = taken }
+        // And where: the first photo that says where it was taken
+        // gives the grid reference (OSGridReference.swift).
+        observation.takePlace(from: facts.first(where: { $0.latitude != nil }))
 
         var attached: [Photo] = []
         for (place, data) in photos.enumerated() {

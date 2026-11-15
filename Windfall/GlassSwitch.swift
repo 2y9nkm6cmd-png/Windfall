@@ -186,27 +186,81 @@ struct GlassSwitch<Value: Hashable>: View {
 
     // MARK: What it is made of
 
+    /// The words, all in one size of lettering.
+    ///
+    /// Until 15 November 2026 each word shrank on its own when it was
+    /// too long for its share of the switch, so "Not identified" was
+    /// smaller than "Certain" beside it. William: "These fonts are all
+    /// different sizes."
+    ///
+    /// `ViewThatFits` is given the same row several times over, largest
+    /// lettering first, and shows the first one that fits the width it
+    /// has. So when one word is too long, every word steps down a size
+    /// together.
     private func words(each: CGFloat) -> some View {
+        ViewThatFits(in: .horizontal) {
+            wordRow(each: each, font: .body)
+            wordRow(each: each, font: .callout)
+            wordRow(each: each, font: .subheadline)
+            wordRow(each: each, font: .footnote)
+            // The last resort, for a very narrow switch: the smallest
+            // size, with each word allowed to shrink and then be cut
+            // short, as before.
+            wordRow(each: each, font: .footnote, mayShrink: true)
+        }
+        .padding(.horizontal, rim)
+    }
+
+    /// One row of the words in one size.
+    ///
+    /// - `mayShrink` false: a word keeps its full width
+    ///   (`.fixedSize()`), and its button is at least `each` wide. If a
+    ///   word is wider than `each` the row comes out wider than the
+    ///   switch, which is how `ViewThatFits` knows to try the next size.
+    /// - `mayShrink` true: every button is exactly `each` wide whatever
+    ///   the word needs.
+    private func wordRow(each: CGFloat, font: Font, mayShrink: Bool = false) -> some View {
         HStack(spacing: 0) {
             ForEach(choices, id: \.self) { option in
                 Button {
                     choose(option)
                 } label: {
-                    Text(title(option))
-                        .font(.body.weight(option == selection ? .semibold : .regular))
-                        .foregroundStyle(Theme.ink)
-                        .lineLimit(1)
-                        // Long words shrink a little before they are cut short.
-                        .minimumScaleFactor(0.75)
-                        .padding(.horizontal, 6)
-                        .frame(width: each, height: height)
-                        .contentShape(.rect)
+                    Group {
+                        if mayShrink {
+                            wordLabel(option, font: font)
+                                .minimumScaleFactor(0.75)
+                                .padding(.horizontal, 6)
+                                .frame(width: each, height: height)
+                        } else {
+                            wordLabel(option, font: font)
+                                .fixedSize()
+                                .padding(.horizontal, 6)
+                                .frame(minWidth: each, minHeight: height)
+                        }
+                    }
+                    .contentShape(.rect)
                 }
                 .buttonStyle(.plain)
                 .accessibilityAddTraits(option == selection ? .isSelected : [])
             }
         }
-        .padding(.horizontal, rim)
+    }
+
+    /// One word. The chosen word is heavier, and heavier letters are
+    /// wider. So the room is always taken by a hidden heavy copy, with
+    /// the word as it should look drawn on top of it. That way the
+    /// size never changes just because a different word is chosen.
+    private func wordLabel(_ option: Value, font: Font) -> some View {
+        Text(title(option))
+            .font(font.weight(.semibold))
+            .lineLimit(1)
+            .hidden()
+            .overlay {
+                Text(title(option))
+                    .font(font.weight(option == selection ? .semibold : .regular))
+                    .foregroundStyle(Theme.ink)
+                    .lineLimit(1)
+            }
     }
 
     /// The lens has two looks and fades between them. At rest it is

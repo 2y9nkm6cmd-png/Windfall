@@ -258,6 +258,70 @@ struct IdentifyKnowledge {
 // MARK: - The answer
 
 /// What Eira makes of a photo.
+// MARK: - A sighting's details from the species reference
+
+extension WildlifeObservation {
+
+    /// The animal in the species reference that this sighting's name
+    /// matches, if there is one. The scientific name is tried first,
+    /// compared by genus and species only (`SpeciesName.key`), then the
+    /// English name.
+    func referenceMatch(in reference: [Fauna]) -> Fauna? {
+        let latin = SpeciesName.key(scientificName)
+        if !latin.isEmpty,
+           let found = reference.first(where: { SpeciesName.key($0.scientificName) == latin }) {
+            return found
+        }
+        guard let english = commonName?.lowercased(), !english.isEmpty else { return nil }
+        return reference.first { $0.commonName.lowercased() == english }
+    }
+
+    /// Fills in what the species reference knows about the animal named
+    /// on this sighting: its family, its recording group, its accepted
+    /// name and its English name. Only empty boxes are filled, so
+    /// nothing already written is changed. Does nothing if the animal
+    /// is not in the reference.
+    ///
+    /// With the English name in place, the sighting's form can also
+    /// offer the plants this animal is known to visit (see
+    /// `knownAssociations` in ObservationViews.swift).
+    func takeDetails(from reference: [Fauna]) {
+        guard let found = referenceMatch(in: reference) else { return }
+        if commonName?.isEmpty ?? true { commonName = found.commonName }
+        if acceptedScientificName == nil { acceptedScientificName = found.acceptedName ?? found.scientificName }
+        if family == nil { family = found.family }
+        if schemeGroupName == nil { schemeGroupName = found.recordingGroup }
+        if taxonGroup == nil { taxonGroup = found.taxonGroup }
+    }
+}
+
+extension TaxonGroup {
+
+    /// Turns the image model's word for a broad group into one of this
+    /// app's groups. The image model's list uses the group names of
+    /// iNaturalist, where its names came from: "Insecta", "Plantae",
+    /// "Aves" and so on. Nil for a word not listed here, so that a
+    /// group is never guessed.
+    ///
+    /// `init?` with a question mark is an initialiser that is allowed
+    /// to fail and give nil.
+    init?(imageModelGroup word: String) {
+        switch word.trimmingCharacters(in: .whitespaces).lowercased() {
+        case "insecta":        self = .insect
+        case "arachnida":      self = .arachnid
+        case "mollusca":       self = .mollusc
+        case "aves":           self = .bird
+        case "mammalia":       self = .mammal
+        case "amphibia":       self = .amphibian
+        case "reptilia":       self = .reptile
+        case "actinopterygii": self = .fish
+        case "plantae":        self = .plant
+        case "fungi":          self = .fungus
+        default:               return nil
+        }
+    }
+}
+
 struct EiraIdentification: Equatable {
 
     enum Verdict: Equatable {
@@ -317,6 +381,59 @@ struct EiraIdentification: Equatable {
 
     /// True when there is a name to put on a sighting.
     var isNameable: Bool { provisionalName != nil }
+
+    /// The names a sighting's form is filled in with when the sighting
+    /// is started from this answer.
+    struct SightingNames: Equatable {
+        /// The English name, such as "Honey Bee". Nil where the list
+        /// has none, or when only the genus is clear.
+        var common: String?
+        /// The scientific name, or the genus alone when the species is
+        /// not clear: "Apis mellifera", or "Bombus".
+        var scientific: String
+        /// Insects, birds, plants and so on. Nil when the image model's
+        /// list files it under a word this app has no group for.
+        var group: TaxonGroup?
+    }
+
+    /// What to write into "What was it?" on a sighting started from
+    /// this answer. Nil when Eira named nothing, so that nothing is
+    /// written in.
+    ///
+    /// Until 15 November 2026 her name went only into the sighting's
+    /// hidden `provisionalID`, the form's name boxes stayed empty and
+    /// the lists said "Unidentified". William: "The suggested stuff
+    /// that Eira gives you isn't autofilled in the sighting and saves
+    /// as unidentified."
+    ///
+    /// Filling the boxes in does not make it a record. A sighting is
+    /// only confirmed when "I'm confident in this identification" is
+    /// ticked (`WildlifeObservation.isConfirmed`), and only confirmed
+    /// ones go to iRecord.
+    var sightingNames: SightingNames? {
+        // `guard let` stops here, giving nil, unless there is a name.
+        guard let provisionalName else { return nil }
+        let top = candidates.first?.entry
+        let group = top.flatMap { TaxonGroup(imageModelGroup: $0.group) }
+        switch verdict {
+        case .named, .oneOfSeveral:
+            // The suggestion is the image model's first choice, so its
+            // English name is that entry's. The check that the two
+            // scientific names agree guards against the wrong English
+            // name ever being paired with a scientific one.
+            let english = top.flatMap { entry -> String? in
+                guard SpeciesName.key(entry.scientific) == SpeciesName.key(provisionalName),
+                      let common = entry.common, !common.isEmpty else { return nil }
+                return common
+            }
+            return SightingNames(common: english, scientific: provisionalName, group: group)
+        case .genusOnly:
+            // Only the genus: no English name is claimed.
+            return SightingNames(common: nil, scientific: provisionalName, group: group)
+        case .notSure, .nothing:
+            return nil
+        }
+    }
 
     /// Said on the card when there was more than one photo, so that a
     /// percentage is never read as one photo's score when it is an

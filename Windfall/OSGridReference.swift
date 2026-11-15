@@ -247,3 +247,44 @@ private extension Double {
     var radians: Double { self * .pi / 180 }
     var degrees: Double { self * 180 / .pi }
 }
+
+// MARK: - A sighting's place from a photo
+
+extension WildlifeObservation {
+
+    /// Gives the sighting a place: the latitude and longitude, and the
+    /// grid reference worked out from them at the sighting's own
+    /// precision (`gridPrecisionMetres`: 10, 100 or 1000 metres).
+    ///
+    /// Used when a sighting is started from a photo that says where it
+    /// was taken. William, 15 November 2026: "It should also autofill
+    /// grid reference from photo."
+    ///
+    /// Outside Great Britain there is no grid reference to give, so the
+    /// latitude and longitude are kept and the reference is left as it
+    /// was.
+    ///
+    /// - Returns: true when a grid reference was written.
+    @discardableResult
+    func takePlace(latitude: Double, longitude: Double) -> Bool {
+        self.latitude = latitude
+        self.longitude = longitude
+        let coordinate = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+        guard let reference = OSGridReference.from(coordinate, precisionMetres: gridPrecisionMetres) else {
+            return false
+        }
+        gridReference = reference
+        return true
+    }
+
+    /// The same, from what a photo says about itself. Does nothing when
+    /// the photo has no position, and nothing when the sighting already
+    /// has a grid reference, so a place typed or fetched by hand is
+    /// never written over.
+    @discardableResult
+    func takePlace(from facts: PhotoFacts?) -> Bool {
+        guard gridReference?.isEmpty ?? true,
+              let latitude = facts?.latitude, let longitude = facts?.longitude else { return false }
+        return takePlace(latitude: latitude, longitude: longitude)
+    }
+}
