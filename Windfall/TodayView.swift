@@ -1251,16 +1251,13 @@ struct TodayView: View {
                         // Only sightings carry a tag. A sowing or a
                         // harvest is a fact, not an identification.
                         if let sighting = record.sighting {
-                            HStack(spacing: 8) {
-                                if sighting.isConfirmed {
-                                    StatusTag(text: "Confirmed", fill: Theme.leafFill)
-                                } else {
-                                    StatusTag(text: "Provisional", fill: Theme.amber)
-                                    Button("Confirm") { sheet = .sighting(sighting) }
-                                        .font(.footnote.weight(.semibold))
-                                        .buttonStyle(QuietGlassButton())
-                                        .tint(Theme.leaf)
-                                }
+                            // Side by side when the column is wide enough,
+                            // one above the other when it is not. ViewThatFits
+                            // tries each layout in turn and uses the first
+                            // that fits across, so a word is never split.
+                            ViewThatFits(in: .horizontal) {
+                                HStack(spacing: 8) { sightingTags(sighting) }
+                                VStack(alignment: .leading, spacing: 6) { sightingTags(sighting) }
                             }
                             .padding(.top, 2)
                         }
@@ -1271,6 +1268,24 @@ struct TodayView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .glassCard()
+    }
+
+    /// A sighting's tag, and its Confirm button while it is provisional.
+    /// Kept in one place so both layouts above show the same thing.
+    @ViewBuilder
+    private func sightingTags(_ sighting: WildlifeObservation) -> some View {
+        if sighting.isConfirmed {
+            StatusTag(text: "Confirmed", fill: Theme.leafFill)
+        } else {
+            StatusTag(text: "Provisional", fill: Theme.amber)
+            Button {
+                sheet = .sighting(sighting)
+            } label: {
+                Label("Confirm", systemImage: "checkmark")
+                    .labelStyle(.titleAndIcon)
+            }
+            .buttonStyle(TagButtonStyle())
+        }
     }
 
     // MARK: Journal offer

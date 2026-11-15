@@ -383,9 +383,33 @@ struct StatusTag: View {
         Text(text)
             .font(.footnote)
             .foregroundStyle(Theme.ink)
+            // One line, always, and as wide as the word needs. Without
+            // these SwiftUI may squeeze a tag in a narrow column and
+            // break its word in half ("Provi-sional").
+            .lineLimit(1)
+            .fixedSize()
             .padding(.horizontal, 9)
             .padding(.vertical, 4)
             .background(fill, in: .capsule)
+    }
+}
+
+/// A small button the same size as a `StatusTag`, for an action that
+/// sits beside one, such as "Confirm" next to "Provisional". It is an
+/// outline, so the filled tag reads as a state and this as something
+/// to tap.
+struct TagButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.footnote.weight(.semibold))
+            .foregroundStyle(Theme.leaf)
+            .lineLimit(1)
+            .fixedSize()
+            .padding(.horizontal, 9)
+            .padding(.vertical, 4)
+            .overlay(Capsule().strokeBorder(Theme.leaf, lineWidth: 1.2))
+            .contentShape(.capsule)
+            .opacity(configuration.isPressed ? 0.6 : 1)
     }
 }
 
