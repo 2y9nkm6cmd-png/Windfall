@@ -381,7 +381,10 @@ struct EiraWidgetBody: View {
         if family == .accessoryCircular {
             ZStack {
                 AccessoryWidgetBackground()
-                WidgetSnowdrop().fill(.primary).padding(12)
+                // The whole snowdrop in one colour. iOS picks the colour
+                // on the Lock Screen, so the drawing asks for "whatever
+                // the surroundings use" and leaves thin gaps for its lines.
+                SnowdropView(style: .oneColour).foregroundStyle(.primary).padding(9)
             }
             .accessibilityLabel("Ask Eira")
             .containerBackground(.clear, for: .widget)

@@ -29,20 +29,23 @@ nonisolated enum WidgetLook: String, CaseIterable {
 /// One set of colours for a widget. A view asks for `palette.leaf`
 /// and never names a colour value itself, as with `Theme` in the app.
 struct WidgetPalette: Sendable {
-    let ground, inset, ink, soft, leaf, onLeaf, fill, amber, line, disc, flower: Color
+    let ground, inset, ink, soft, leaf, onLeaf, fill, amber, line: Color
+    /// Which drawing of Eira's snowdrop suits this background. `nil`
+    /// means the one for light or dark mode, whichever is showing.
+    let snowdrop: SnowdropStyle?
 
     /// The app's own named colours, from the asset catalogue.
     static let paper = WidgetPalette(
         ground: Color("Colours/IconGround"), inset: Color("Colours/Card"), ink: Color("Colours/Ink"),
         soft: Color("Colours/InkSoft"), leaf: Color("Colours/Leaf"), onLeaf: Color("Colours/OnLeaf"),
         fill: Color("Colours/LeafFill"), amber: Color("Colours/Amber"), line: Color("Colours/Hairline"),
-        disc: Color("Colours/EiraDisc"), flower: Color("Colours/EiraFlower"))
+        snowdrop: nil)
 
     static let green = WidgetPalette(
         ground: Color(hex: 0x06421B), inset: Color(hex: 0x0E4F25), ink: Color(hex: 0xF8F1E5),
         soft: Color(hex: 0xB9C9B4), leaf: Color(hex: 0xC4DC7C), onLeaf: Color(hex: 0x06421B),
         fill: Color(hex: 0x1F6234), amber: Color(hex: 0x5A4520), line: Color(hex: 0x2B5F3A),
-        disc: Color(hex: 0xF8F1E5), flower: Color(hex: 0x06472A))
+        snowdrop: .onCream)
 
     static func of(_ look: WidgetLook) -> WidgetPalette { look == .green ? .green : .paper }
 }
@@ -104,54 +107,20 @@ struct WidgetTag: View {
     }
 }
 
-/// Eira's snowdrop, flower and hook only: the small version on the
-/// logo sheet. The full drawing is in Snowdrop.swift in the app.
-struct WidgetSnowdrop: Shape {
-    // The five pieces as lists of numbers: a start point, then curves
-    // of three points each. Read from the logo sheet's SVG.
-    private static let pieces: [[CGFloat]] = [
-        [-35, -40, -16, -76, 5, -84, 25, -77, 39, -73, 47, -61, 50, -47, 45, -46, 45, -46, 45, -46,
-         41, -62, 33, -70, 22, -73, 4, -78, -14, -62, -30, -38],
-        [45, -48, 44, -43, 43, -38, 43, -35, 47, -32, 52, -31, 55, -32, 55, -38, 53, -44, 49, -48,
-         48, -49, 47, -49, 45, -48],
-        [44, -34, 36, -30, 30, -23, 26, -11, 21, 3, 19, 19, 22, 24, 25, 28, 33, 18, 38, 8, 44, -4, 47, -24, 44, -34],
-        [49, -32, 45, -23, 43, -8, 44, 6, 45, 21, 50, 35, 54, 35, 59, 33, 63, 16, 61, 1, 59, -14, 55, -26, 49, -32],
-        [56, -32, 66, -28, 78, -19, 84, -7, 89, 4, 90, 16, 87, 19, 83, 22, 72, 15, 66, 8, 59, 0, 55, -16, 56, -32]
-    ]
-
-    func path(in rect: CGRect) -> Path {
-        // The drawing sits in a box 140 wide and 140 tall whose top left
-        // corner is at (-42, -94). `point` moves and scales it to fit.
-        let scale = min(rect.width, rect.height) / 140
-        func point(_ x: CGFloat, _ y: CGFloat) -> CGPoint {
-            CGPoint(x: rect.midX + (x - 28) * scale, y: rect.midY + (y + 24) * scale)
-        }
-        var path = Path()
-        for numbers in Self.pieces {
-            path.move(to: point(numbers[0], numbers[1]))
-            var index = 2
-            while index + 5 < numbers.count {
-                path.addCurve(to: point(numbers[index + 4], numbers[index + 5]),
-                              control1: point(numbers[index], numbers[index + 1]),
-                              control2: point(numbers[index + 2], numbers[index + 3]))
-                index += 6
-            }
-            path.closeSubpath()
-        }
-        return path
-    }
-}
-
-/// The snowdrop on its circle.
+/// Eira's snowdrop on its circle, as in the app. The drawing is in
+/// SnowdropDrawing.swift, shared with the app, so the two cannot differ.
+///
+/// The Paper look follows light and dark mode, as the app's symbol
+/// does. The Garden green look is always green, so it names the style
+/// that stands on a cream circle (`palette.snowdrop`).
 struct WidgetEiraDisc: View {
     let palette: WidgetPalette
     var size: CGFloat = 44
 
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
-        Circle().fill(palette.disc)
-            .overlay(WidgetSnowdrop().fill(palette.flower).padding(size * 0.14))
-            .frame(width: size, height: size)
-            .accessibilityHidden(true)
+        SnowdropOnDisc(style: palette.snowdrop ?? .following(colorScheme), size: size)
     }
 }
 
