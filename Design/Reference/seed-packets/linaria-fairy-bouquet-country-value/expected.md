@@ -34,3 +34,29 @@ Everything in "The packet says" is printed on the packet. Nothing here was looke
 5. **The plant name guess** takes the first short line in the first four. It never looks at the size of the text, and the name is the largest text on the packet.
 6. **No rule at all** for variety, hardy annual, sun, soil, thinning, successions, flowering, supplier or barcode.
 7. **The section headings** (SOW, CARE, FLOWERS, TIP) say what each block is about, and are not used.
+
+## What the new reader gives (15 November 2026, 22:26, branch `packet-reader-rules`)
+
+The rules were moved into `Windfall/PacketReading.swift` and rewritten. `read-lines.txt` is now a logic test (`Tools/checks/LogicTests.swift`): these are the values it must keep giving. **15 findings where the old scanner gave 4.** Not yet tried on a device: the test uses the lines copied by hand, which have no sizes or places.
+
+| Field | The packet says | The new reader gives | Written to the record as |
+|---|---|---|---|
+| Plant | Linaria | Linaria (low confidence: no plant of William's is named, so it is the first word of the title line) | the "Which plant?" box |
+| Variety | Fairy Bouquet Mixed | Fairy Bouquet Mixed | `SeedPacket.variety`, and `Plant.variety` for a new plant |
+| Latin name | Linaria (the genus only) | **nothing.** The packet prints no Latin name apart from the plant's name, and the reader does not know that Linaria is a genus | |
+| Life cycle | Hardy annual | Hardy annual | `Plant.classification` (the library's Classification column already says "Hardy annual"; `hardiness` holds RHS ratings such as H6) |
+| Position | Sunny | Full sun (the words the web fill-in uses for "sunny position") | `Plant.sunShade` |
+| Soil | Well drained | Well drained | `Plant.preferredSoilConditions` |
+| Sow outdoors | March to May, August to September | March, April, May, August and September | `mar apr may aug sep` |
+| Germination | 14 to 21 days | 14-21 days | `14-21 days` |
+| Sowing depth | "Cover lightly with fine soil" | Cover lightly | the words |
+| Row spacing | 20 cm | 20 cm | the packet's note |
+| Thin to | 15 cm | 15 cm | `0.15` (metres) |
+| Successions | 2 to 3 sowings | "Make 2-3 sowings for successive flowering." | the packet's note |
+| Flowering | June to October | June, July, August, September and October | `jun jul aug sep oct` |
+| Sow by | December 2028 | December 2028 | `useByDate` 31 December 2028, `packetYear` 2028 |
+| Supplier | Country Value | Country Value | `SeedPacket.supplier` |
+| Barcode | 5 010931 212569 | 5010931212569 (its check digit is right) | the packet's note |
+| Seed count | not printed | nothing | |
+
+Not read: the supplier's address (Newmarket, Suffolk, CB8 7QB), and the TIP.
