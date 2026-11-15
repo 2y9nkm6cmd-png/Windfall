@@ -22,7 +22,7 @@ import AppKit
 /// The places in the app. This one list drives both the sidebar and the
 /// tabs, so they can never disagree.
 enum AppSection: String, CaseIterable, Identifiable {
-    case today, gardens, year, plants, wildlife, journal, more
+    case today, gardens, year, plants, wildlife, identify, journal, more
 
     var id: String { rawValue }
 
@@ -33,6 +33,7 @@ enum AppSection: String, CaseIterable, Identifiable {
         case .year: return "Year"
         case .plants: return "Plants"
         case .wildlife: return "Wildlife"
+        case .identify: return "Identify"
         case .journal: return "Journal"
         case .more: return "Settings"
         }
@@ -45,13 +46,14 @@ enum AppSection: String, CaseIterable, Identifiable {
         case .year: return .year
         case .plants: return .plants
         case .wildlife: return .wildlife
+        case .identify: return .identify
         case .journal: return .journal
         case .more: return .settings
         }
     }
 
     /// An iPhone has room for five tabs. Year and Plants are reached from
-    /// Gardens there.
+    /// Gardens there, and Identify's tiles are on Wildlife.
     static let phoneTabs: [AppSection] = [.today, .gardens, .wildlife, .journal, .more]
 
     /// What Eira is told when this place is open and nothing more
@@ -63,6 +65,7 @@ enum AppSection: String, CaseIterable, Identifiable {
         case .year: return "the Year screen, a calendar of when each plant is sown, planted out and harvested"
         case .plants: return "the plant library"
         case .wildlife: return "the Wildlife screen, with sightings and surveys"
+        case .identify: return "the Identify screen, with identifying from a photo and the fungus keys"
         case .journal: return "the journal"
         case .more: return "the settings and tools"
         }
@@ -334,11 +337,12 @@ struct MainTabView: View {
         }
     }
 
-    /// Year and Plants have no tab on an iPhone. If one of them was chosen
-    /// on a wide screen that then became narrow, Gardens is shown.
+    /// Year, Plants and Identify have no tab on an iPhone. If one of them
+    /// was chosen on a wide screen that then became narrow, Gardens is
+    /// shown, or Wildlife for Identify, whose tiles are there.
     private var phoneSelection: Binding<AppSection> {
         Binding(
-            get: { AppSection.phoneTabs.contains(selection) ? selection : .gardens },
+            get: { AppSection.phoneTabs.contains(selection) ? selection : (selection == .identify ? .wildlife : .gardens) },
             set: { selection = $0 }
         )
     }
@@ -369,13 +373,14 @@ struct MainTabView: View {
             } else if DemoGarden.opensFlowerShapes {
                 FlowerShapeCoverageView()
             } else if let place = DemoGarden.opensFungusKey {
-                FungusKeyView(openingAt: place)
+                FungusKeyView(key: FungusKeys.key(named: DemoGarden.fungusKeyFile) ?? FungusKey.shared, openingAt: place)
             } else {
                 GardenTab()
             }
         case .year: YearView()
         case .plants: PlantLibraryView()
         case .wildlife: WildlifeTab()
+        case .identify: IdentifyHub()
         case .journal: JournalTimelineView()
         case .more: MoreTab()
         }

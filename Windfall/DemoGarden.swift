@@ -215,6 +215,12 @@ enum DemoGarden {
         isRequested ? UserDefaults.standard.string(forKey: "demoFungus") : nil
     }
 
+    /// With `-demoFungus`, `-demoFungusKey SampleFungusKey` opens that
+    /// key in place of Windfall's own (FungusKeys).
+    static var fungusKeyFile: String {
+        UserDefaults.standard.string(forKey: "demoFungusKey") ?? FungusKeys.ownFile
+    }
+
     /// A checking aid: `-demoOpen sighting -demoPlantLetter M` opens the
     /// sighting form, then its list of plants, already jumped to M, so a
     /// still picture can show the row of letters and where a jump lands.

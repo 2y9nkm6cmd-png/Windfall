@@ -1,3 +1,80 @@
+# 15 November 2026, 12:00: the leaf and flower drawings checked for accuracy, 44 kinds put right
+
+**By the "leaf and flower in the app" chat**, after the midday join had taken in the branch as it stood at 11:26 (`0f9ace9`). This entry is the rest of that branch.
+
+William, 11:27: "When you've done that, could you double check all the drawings for accuracy." Each kind's leaf and flower was set beside the Latin name and variety in his own plant library (`StarterData.json`), and all six sheets were looked at. 44 kinds were changed in `leaves_flowers.py`: 22 leaves and 26 flowers. Project doc 81 lists each one, its reason and what is still in doubt.
+
+- **New drawing code**: a rayless daisy head (`rayless`, pineappleweed), a lacecap hydrangea (`lacecap`), an even pincushion (`even`, devil's-bit scabious), a pansy face (`fl_pansy`), a horned rampion head (`fl_horned`), round button heads (`button`, wormwood), veined petals (`veins`, rocket), spots on a leaf (`spots`, lungwort and St John's-wort), two more leaflets at the foot of a trefoil (`basal`, bird's-foot trefoil).
+- **Why the settings sit at the foot of `LEAFX` and `BLOOMX`**: every change from the check is under one comment line, so it can be told from the first pass.
+
+**Checked:** all 680 SVG files well-formed. Windfall's own checks pass in the cloud workspace on the joined code. Built for the simulator and the Mac with no errors (`lf5-sim.log`, `lf6-mac.log`). Seen in the app in still pictures: the hydrangea's lacecap enlarged in dark mode, and Viola's page in light mode.
+
+# 15 November 2026, 11:50: three branches joined into main, tested or not
+
+**By the midday join chat.** William, 11:44: "Merge all changes into the main branch, including untested ones so that I can test all changes." Joined on the branch `join-15nov-midday`, made from `main` at `14315a5`, in its own copy (`~/Developer/windfall-join2`).
+
+**What came in**, in this order:
+
+| Branch | What it is | Tried by William? |
+|---|---|---|
+| `ipad-fixes-15nov` | Two iPad fixes from the morning (doc 78), described below | Installed on the iPad and iPhone at 11:28 inside the widget colour mix, not yet reported on |
+| `fungus-keys-shelf` | Room for John Wright's fungus key, a sample key in its place, and Identify as a place in the sidebar on the Mac and iPad (doc 77) | Mac build only, at 10:30 |
+| `leaf-flower-in-app` | The leaf and flower close-ups as a section of their own on a plant's page, and every plant drawing opens large when tapped (doc 79) | No |
+
+**The iPad fixes, which had no entry of their own:**
+
+| File | What changed, and why |
+|---|---|
+| `Windfall/Theme.swift`, `TagButtonStyle` | A new outline pill the size of a tag, so Confirm on Recent records matches the Provisional tag beside it |
+| `StatusTag` | Keeps its word on one line (`lineLimit(1)`, `fixedSize()`), so "Provisional" and "Confirm" no longer break in half in a narrow column |
+| Recent records | `ViewThatFits` puts the tag and Confirm side by side, or one above the other when there is no room |
+| `NorthRing`, `NorthRingSetter`, `GardenDrawSteps` | Dragging N round the ring froze the iPad for 9.5 seconds: every move saved the garden, so every screen reading the records redrew about 60 times a second. Now only a preview (`liveTop`) moves while dragging, and the garden is saved once when the finger lifts |
+
+**Clashes:** only `CHANGES.md`, twice, where each branch had added its entry at the top. All entries kept, newest first. No Swift file clashed.
+
+**Checked:** Windfall's own checks in a cloud workspace, Swift 6.3.1 for Linux: 123 files parse, the type check passes, cross-file checks clean, **854 logic tests pass, 0 fail**. Mac build, unsigned: BUILD SUCCEEDED (`windfall-build-logs/j2-1-mac.log`).
+
+**Not checked:** anything on a screen. The fungus keys and Identify have never been seen on an iPhone or iPad, and the leaf and flower section has not been seen by William anywhere.
+
+# 15 November 2026, 11:30: the widgets stand on the app icon's background
+
+**By the widget colour chat.** William, 11:15: "The widget background colours should match the app icon background colour." Made on the branch `widget-icon-ground`, from `main` at `505ec61`.
+
+The app icon is cream `#FAEEE0` in light mode and green `#06421B` in dark mode (`Windfall/AppIconMac.icon/icon.json`, doc 47). Before this, the Paper widgets used the card colour (`#FFFCF6` light, `#142414` dark) and Garden green used the sidebar's green `#0C2C14`. Both were near the icon's colours but not the same.
+
+| File | What changed, and why |
+|---|---|
+| `Design/colours.json` | A new named colour, `IconGround`: `#FAEEE0` light, `#06421B` dark. Kept here and not typed into the Swift, so the icon's background has one home and the light and dark values switch by themselves |
+| Both `Assets.xcassets/Colours/IconGround.colorset` | Written by `Tools/design/build_design_assets.py` from the line above. Nothing else in the catalogues changed |
+| `WindfallShared/WidgetViews.swift`, `WidgetPalette.paper` | `ground` (the widget's background) is now `IconGround`. `inset` (the photo box and the capture buttons) is now `Card`, because the old inset colour, `Paper` `#F8F1E5`, is almost the same cream as the new background and would have vanished. `Card` is a shade lighter than the cream in light mode and a shade darker than the green in dark mode, so the boxes still show |
+| `WindfallShared/WidgetViews.swift`, `WidgetPalette.green` | `ground` is now the icon's green `#06421B`, in both modes. The colours that sit on it were moved up with it so they keep the same step from the background: `inset` `#0E4F25`, `fill` (the tags) `#1F6234`, `line` (the thin dividers) `#2B5F3A`, and `onLeaf` (text on the pale green) `#06421B` |
+| `WindfallWidgets/WindfallWidgets.swift` | The words under the Look setting say both looks match the icon |
+
+The app's own screens are not changed: `Card`, `Paper` and the sidebar keep their colours. Only the widgets, and the app's widget checking page (which draws the same views), use `IconGround`.
+
+# 15 November 2026, 10:30: room for John Wright's fungus key, and an Identify place
+
+**By the "mushroom key" chat, on the branch `fungus-keys-shelf`, not yet in `main`.** William, 09:46: "Could we build the mushroom key based on the key on foragers calendar in anticipation of acceptance from the author, so that we can see how it works?" His key is not copied before he says yes, so this builds everything around it, with a sample in its place. William, 09:51: "Build the app changes on a branch to add in later. Could it have its own place on the sidebar?" He chose an Identify place.
+
+**What changed**
+
+| File | Change |
+|---|---|
+| `Windfall/FungusKey.swift` | A key may have a `title`, a `credit` (author, work, link, terms, `verdictsAllowed`) and be marked `sample`. An answer may carry the author's `verdict`. `faults()` now also fails a verdict in Windfall's own key, a verdict the author has not allowed, and a sample with a real author's name. The "edible" check is unchanged: outside a verdict the word may never appear. New `FungusKeys` lists the keys in the app: Windfall's own, then `WrightFungusKey.json` if it is there, otherwise `SampleFungusKey.json`. `note(reaching:keyName:)` names the key used |
+| `Windfall/SampleFungusKey.json` | New. A short key to species, written by Claude in its own words, so the screens can be tried. Nobody's real key. Unchecked |
+| `Windfall/FungusKeyView.swift` | Shows whichever key it is given. A sample notice, a credit line for an author's key, and his verdict in a plain box, only when he allowed it and William's switch is on |
+| `Windfall/IdentifyViews.swift` | New. The Identify page (photo, then each key, then the verdict switch) and the iPhone's Fungus keys page |
+| `Windfall/MainTabView.swift` | `AppSection.identify`, between Wildlife and Journal. Not an iPhone tab: chosen on a wide screen that turns narrow, Wildlife shows |
+| `Windfall/HubScreens.swift` | Wildlife keeps its photo and key tiles only on an iPhone. `PageWidth` is no longer private |
+| `Windfall/Theme.swift`, `Design/Icons/identify.svg` | The Identify icon: a lens over a leaf |
+| `Windfall/DemoGarden.swift` | `-demoFungusKey SampleFungusKey` with `-demoFungus start` opens the sample |
+| `.gitignore` | `Windfall/PrivateKeys/` and any `WrightFungusKey.json` are never committed |
+| `Tools/checks/LogicTests.swift` | Ten new checks |
+
+**If John Wright says yes:** put his key, in this file's shape, at `Windfall/PrivateKeys/WrightFungusKey.json` on the Mac. Xcode's folder takes it into the app; git does not. Set `credit.verdictsAllowed` as he says. The sample then leaves the app by itself.
+
+**Checked:** the project's checks with Swift 6.3.1 in the cloud: 123 files parse, the type check passes, 843 logic tests pass, 0 fail. **Not checked:** no Mac build. The screens are only syntax-checked here.
+
 # 15 November 2026, 11:30: the leaf and flower close-ups on a plant's page, and every drawing opens large
 
 **By the "leaf and flower in the app" chat.** William, 11:12: "Great work on the plant leaf and flower drawings. Could you add them into the next build. Could you also make it so that you can tap on the life stages to enlarge it." Earlier, at 10:30, he had said where the close-ups go: "This would be a separate section in the plant page."
@@ -23,34 +100,12 @@
 - **Why the enlarged page is a pushed page, not a sheet.** William's rule of 14 November: a tile that leads to more should grow its page out of itself, with the swipe back kept.
 - **Nothing saved has changed.** No record type was touched.
 
-## The drawings checked for accuracy, 11:27 to 11:50
-
-William, 11:27: "When you've done that, could you double check all the drawings for accuracy." Each kind's leaf and flower was set beside the Latin name and variety in his own plant library (`StarterData.json`), and all six sheets were looked at. 44 kinds were changed in `leaves_flowers.py`: 22 leaves and 26 flowers. Project doc 81 lists each one, its reason and what is still in doubt.
-
-- **New drawing code**: a rayless daisy head (`rayless`, pineappleweed), a lacecap hydrangea (`lacecap`), an even pincushion (`even`, devil's-bit scabious), a pansy face (`fl_pansy`), a horned rampion head (`fl_horned`), round button heads (`button`, wormwood), veined petals (`veins`, rocket), spots on a leaf (`spots`, lungwort and St John's-wort), two more leaflets at the foot of a trefoil (`basal`, bird's-foot trefoil).
-- **Why the settings sit at the foot of `LEAFX` and `BLOOMX`**: every change from the check is under one comment line, so it can be told from the first pass.
-
 ## Checked
 
 | Check | Result |
 |---|---|
 | Windfall's own checks, cloud workspace, Swift 6.3.1 | Syntax, types and cross-file checks pass. **844 logic tests pass**, 11 of them new |
 | New tests | The list of close-ups is read, leaf first. A plant finds its close-ups through its kind by any of its names. A plant with no drawings has none. Picture names. The life stages become a row in order. The two-column weights. With the real files: the app's list is the one in `Design/Plants`, it covers the same 172 kinds as the life stages, and every close-up has a light and a dark drawing |
-# 15 November 2026, 11:30: the widgets stand on the app icon's background
-
-**By the widget colour chat.** William, 11:15: "The widget background colours should match the app icon background colour." Made on the branch `widget-icon-ground`, from `main` at `505ec61`.
-
-The app icon is cream `#FAEEE0` in light mode and green `#06421B` in dark mode (`Windfall/AppIconMac.icon/icon.json`, doc 47). Before this, the Paper widgets used the card colour (`#FFFCF6` light, `#142414` dark) and Garden green used the sidebar's green `#0C2C14`. Both were near the icon's colours but not the same.
-
-| File | What changed, and why |
-|---|---|
-| `Design/colours.json` | A new named colour, `IconGround`: `#FAEEE0` light, `#06421B` dark. Kept here and not typed into the Swift, so the icon's background has one home and the light and dark values switch by themselves |
-| Both `Assets.xcassets/Colours/IconGround.colorset` | Written by `Tools/design/build_design_assets.py` from the line above. Nothing else in the catalogues changed |
-| `WindfallShared/WidgetViews.swift`, `WidgetPalette.paper` | `ground` (the widget's background) is now `IconGround`. `inset` (the photo box and the capture buttons) is now `Card`, because the old inset colour, `Paper` `#F8F1E5`, is almost the same cream as the new background and would have vanished. `Card` is a shade lighter than the cream in light mode and a shade darker than the green in dark mode, so the boxes still show |
-| `WindfallShared/WidgetViews.swift`, `WidgetPalette.green` | `ground` is now the icon's green `#06421B`, in both modes. The colours that sit on it were moved up with it so they keep the same step from the background: `inset` `#0E4F25`, `fill` (the tags) `#1F6234`, `line` (the thin dividers) `#2B5F3A`, and `onLeaf` (text on the pale green) `#06421B` |
-| `WindfallWidgets/WindfallWidgets.swift` | The words under the Look setting say both looks match the icon |
-
-The app's own screens are not changed: `Card`, `Paper` and the sidebar keep their colours. Only the widgets, and the app's widget checking page (which draws the same views), use `IconGround`.
 
 # 15 November 2026, 03:52: seven more branches joined into main
 

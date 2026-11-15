@@ -14,7 +14,11 @@
 //    FungusAnswerCard  where a walk ends: what to check, the common
 //                      kinds, any danger and what it means in a garden
 //
-//  Reached from Wildlife, Fungus key.
+//  Any key of the FungusKey shape can be shown: Windfall's own, John
+//  Wright's if his file is in the app, or the sample (FungusKeys).
+//
+//  Reached from Identify in the sidebar on a Mac or an iPad, and from
+//  Wildlife, Fungus keys on an iPhone (IdentifyViews.swift).
 //
 
 import SwiftUI
@@ -30,6 +34,13 @@ struct FungusKeyView: View {
     /// the next question appears.
     @State private var walk: FungusWalk
 
+    /// The key being stepped through.
+    let key: FungusKey?
+
+    /// William's switch on the Identify page. Off unless he turns it on,
+    /// and it only ever matters for a key whose author allowed verdicts.
+    @AppStorage("showsKeyVerdicts") private var showsVerdicts = false
+
     /// `openingAt` is for the checking aid `-demoFungus` (DemoGarden),
     /// which opens the key at one step or answer for a still picture.
     /// Left out, the key opens at its first question.
@@ -37,9 +48,12 @@ struct FungusKeyView: View {
     /// A `@State` value is given its first value through the name with
     /// an underscore, `_walk`, because `walk` itself is only the value
     /// and the underscore name is the box that holds it.
-    init(openingAt place: String? = nil) {
-        let start = FungusKey.shared?.start ?? "start"
-        let isKnown = place.map { FungusKey.shared?.step($0) != nil || FungusKey.shared?.answer($0) != nil } ?? false
+    ///
+    /// `key` is Windfall's own unless another is given.
+    init(key: FungusKey? = FungusKey.shared, openingAt place: String? = nil) {
+        self.key = key
+        let start = key?.start ?? "start"
+        let isKnown = place.map { key?.step($0) != nil || key?.answer($0) != nil } ?? false
         _walk = State(initialValue: isKnown ? FungusWalk(start: start, openingAt: place ?? start) : FungusWalk(start: start))
     }
 
@@ -50,9 +64,9 @@ struct FungusKeyView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 14) {
-                ScreenHeader(title: "Fungus key", detail: "Step by step to a group, for a record")
-                if let key = FungusKey.shared {
-                    if !key.isChecked { toCheck }
+                ScreenHeader(title: key?.displayTitle ?? FungusKeys.ownTitle, detail: headerDetail)
+                if let key {
+                    if key.isSample { sampleNotice } else if !key.isChecked { toCheck(key) }
                     trail
                     // `step(_:)` gives a step if `here` is one, and
                     // `answer(_:)` an answer if it is one of those.
@@ -61,6 +75,7 @@ struct FungusKeyView: View {
                     } else if let answer = key.answer(walk.here) {
                         answerView(answer, in: key)
                     }
+                    if let credit = key.credit, !key.isSample { creditLine(credit) }
                 } else {
                     Text("The fungus key could not be read.")
                         .font(.body)
@@ -74,18 +89,54 @@ struct FungusKeyView: View {
             .padding(.bottom, 20)
             .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .navigationTitle("Fungus key")
+        .navigationTitle(key?.displayTitle ?? FungusKeys.ownTitle)
         .paperScreen()
     }
 
     // MARK: The pieces of the page
 
-    /// Shown until FungusKey.json says "checked": true.
-    private var toCheck: some View {
-        Label("To check: Claude wrote this key from memory. Read each answer against a field guide before relying on it.",
+    /// The line under the title.
+    private var headerDetail: String {
+        guard let key, let credit = key.credit else { return "Step by step to a group, for a record" }
+        if key.isSample { return "A sample, to try a key that goes to species" }
+        return "By \(credit.author), from \(credit.work)"
+    }
+
+    /// Shown until the key's file says "checked": true.
+    private func toCheck(_ key: FungusKey) -> some View {
+        Label(key.isOwn
+              ? "To check: Claude wrote this key from memory. Read each answer against a field guide before relying on it."
+              : "To check: this copy has not yet been read against the author's own key.",
               systemImage: "exclamationmark.triangle")
             .font(.footnote)
             .foregroundStyle(Theme.inkSoft)
+    }
+
+    /// Shown on the sample, always, so it is never taken for a real key.
+    private var sampleNotice: some View {
+        Label("Sample: Claude wrote this to show how a key that goes to species would work. It is nobody's real key and has not been checked.",
+              systemImage: "exclamationmark.triangle")
+            .font(.footnote.weight(.medium))
+            .foregroundStyle(Theme.ink)
+            .padding(10)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color.orange.opacity(0.10), in: .rect(cornerRadius: 12))
+    }
+
+    /// Whose key it is, at the foot of every step. `Link` opens a web
+    /// address in the browser.
+    private func creditLine(_ credit: FungusKey.Credit) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text("Key by \(credit.author), from \(credit.work), with his permission.")
+            if let terms = credit.terms { Text(terms) }
+            if let link = credit.link, let url = URL(string: link) {
+                Link("See the original", destination: url)
+                    .tint(Theme.leaf)
+            }
+        }
+        .font(.footnote)
+        .foregroundStyle(Theme.inkSoft)
+        .padding(.top, 6)
     }
 
     /// The choices taken so far, as small buttons. Pressing one goes
@@ -168,7 +219,9 @@ struct FungusKeyView: View {
 
     private func answerView(_ answer: FungusKey.Answer, in key: FungusKey) -> some View {
         VStack(alignment: .leading, spacing: 12) {
-            FungusAnswerCard(answer: answer, footer: key.footer)
+            FungusAnswerCard(answer: answer, footer: key.footer,
+                             verdictHeading: key.mayShowVerdicts && showsVerdicts ? verdictHeading(for: key) : nil,
+                             from: key.isSample ? nil : key.credit?.work)
             if let name = key.sightingName(for: answer) {
                 if addedFor == answer.id {
                     Label("Added to your sightings as \"\(name)\", not confirmed.", systemImage: "checkmark.circle")
@@ -191,6 +244,12 @@ struct FungusKeyView: View {
             }
             backButtons
         }
+    }
+
+    /// "John Wright's verdict", or a plain heading on the sample.
+    private func verdictHeading(for key: FungusKey) -> String {
+        guard let author = key.credit?.author, !key.isSample else { return "The author's verdict" }
+        return "\(author)'s verdict"
     }
 
     private var backButtons: some View {
@@ -223,7 +282,7 @@ struct FungusKeyView: View {
         observation.provisionalID = name
         observation.provisionalSource = .key
         observation.provisionalConfidence = .possible
-        observation.notes = walk.note(reaching: answer)
+        observation.notes = walk.note(reaching: answer, keyName: key.displayTitle)
         context.insert(observation)
         withAnimation { addedFor = answer.id }
     }
@@ -287,6 +346,11 @@ private struct FungusAnswerCard: View {
 
     let answer: FungusKey.Answer
     let footer: String
+    /// The heading over the author's verdict when it is to be shown,
+    /// otherwise nil.
+    let verdictHeading: String?
+    /// Where his key comes from, for the line under his verdict.
+    let from: String?
 
     /// The heading over the list of features, which is a list of steps
     /// for "Take a spore print first".
@@ -364,6 +428,29 @@ private struct FungusAnswerCard: View {
                 .padding(12)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .background(Theme.leafFill.opacity(0.6), in: .rect(cornerRadius: 12))
+            }
+
+            // Kept apart from everything else, grey, and always with the
+            // reminder beneath it: the words are his, not Windfall's.
+            if let heading = verdictHeading, let verdict = answer.verdict {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(heading)
+                        .font(.footnote.weight(.semibold))
+                        .foregroundStyle(Theme.ink)
+                    Text(verdict)
+                        .font(.body)
+                        .foregroundStyle(Theme.ink)
+                    Text("His words\(from.map { ", from \($0)" } ?? ""). Windfall never says whether a fungus can be eaten. Never eat one on a key's word alone.")
+                        .font(.footnote)
+                        .foregroundStyle(Theme.inkSoft)
+                }
+                .padding(12)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .overlay {
+                    RoundedRectangle(cornerRadius: 12)
+                        .strokeBorder(Theme.hairline)
+                }
+                .accessibilityElement(children: .combine)
             }
 
             Text(footer)
