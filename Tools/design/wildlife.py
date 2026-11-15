@@ -44,6 +44,35 @@ def sp(*names):
     return keep
 
 
+# An animal can have MORE THAN ONE picture: a bird overhead as well as
+# perched, a female as well as a male, a caterpillar and a chrysalis as
+# well as the butterfly. The first picture is the one in SPECIES. The
+# others are kept here, each under a short key that says what it shows.
+# One of William's own species may not be in the UK list at all: "Andrena spp."
+# is a whole genus, and Myrmica sabuleti has too few records. For a few genera
+# one animal's drawing can stand for all of them: any Myrmica is a red ant.
+GENUS_IS = {}     # genus -> the scientific name of the animal whose drawing stands for the genus
+VIEWS = {}        # scientific name -> {key: the function that draws that view}, in the order they are shown
+MAIN_SHOWS = {}   # scientific name -> the key for what its FIRST picture shows ("male", "flight"), where that needs saying
+VIEW_NAMES = {"adult": "Adult", "male": "Male", "female": "Female", "juvenile": "Young bird", "summer": "In summer", "winter": "In winter", "perched": "Perched",
+              "flight": "In flight", "upperside": "Wings open", "underside": "Wings closed", "eggs": "Eggs", "spawn": "Spawn", "tadpole": "Tadpole",
+              "caterpillar": "Caterpillar", "chrysalis": "Chrysalis", "cocoon": "Cocoon", "larva": "Larva", "pupa": "Pupa", "nymph": "Nymph"}
+
+
+def view(key, *names, main=None):
+    """Marks a function as ANOTHER picture of an animal: `@view("female",
+    "Turdus merula")`. `main` says what the animal's first picture shows,
+    so the two can be told apart: `main="male"`."""
+    assert key in VIEW_NAMES, key
+    def keep(fn):
+        for n in names:
+            VIEWS.setdefault(n, {})[key] = fn
+            if main:
+                MAIN_SHOWS[n] = main
+        return fn
+    return keep
+
+
 def slug_of(scientific):
     """'Bombus terrestris' becomes 'bombus-terrestris', for a file name."""
     return "".join(c if c.isalnum() else "-" for c in scientific.lower()).strip("-")
@@ -244,7 +273,7 @@ def parasitic_wasp():
 @draws("hoverfly")
 def hoverfly():
     a = Art()
-    insect(a, head=(5.6, 4.2, "brown"), th=(6.4, 6.8, "bark"), ab=(6.6, 15, "orange"), eyes="rust",
+    insect(a, head=(5.6, 4.2, "brown"), th=(6.4, 6.8, "dark"), ab=(6.6, 15, "orange"), eyes="rust",
            bands=[(-1, -0.8, "black"), (-0.5, -0.38, "black"), (-0.3, -0.24, "black"), (0.08, 0.2, "black"), (0.28, 0.34, "black"),
                   (0.62, 0.74, "black"), (0.9, 1.1, "black")],
            wings=[(-0.5, 44, 29, 6.2, "wing", 0.85)], legs=10, leg_lw=0.9, ant=(2.6, 2.2, 0))
@@ -1760,7 +1789,7 @@ if __name__ == "__main__":
     # This file is run as a program, but the species files import it by
     # name. Importing it by name here too means everyone shares one list.
     import wildlife as W
-    import wildlife_species, wildlife_species2
+    import wildlife_species, wildlife_species2, wildlife_views
     out = sys.argv[1] if len(sys.argv) > 1 else "out_wildlife"
     missing = [slug for slug, _, _ in W.KINDS if slug not in W.DRAW]
     for mode, look in enumerate(("light", "dark")):
@@ -1775,6 +1804,10 @@ if __name__ == "__main__":
         for sci, fn in W.SPECIES.items():
             with open(os.path.join(out, look, f"wild-sp-{W.slug_of(sci)}.svg"), "w", encoding="utf-8") as fh:
                 fh.write(fn().svg(mode))
+        for sci, views in W.VIEWS.items():      # an animal's other pictures: wild-sp-<animal>--<what it shows>
+            for key, fn in views.items():
+                with open(os.path.join(out, look, f"wild-sp-{W.slug_of(sci)}--{key}.svg"), "w", encoding="utf-8") as fh:
+                    fh.write(fn().svg(mode))
         with open(os.path.join(out, f"sheet-{look}.svg"), "w", encoding="utf-8") as fh:
             fh.write(W.sheet(mode))
         if "sheets" in sys.argv[2:]:   # a large sheet of every single animal, for checking by eye: add the word "sheets" to ask for it
@@ -1782,5 +1815,11 @@ if __name__ == "__main__":
             with open(os.path.join(out, f"sheet-species-{look}.svg"), "w", encoding="utf-8") as fh:
                 fh.write(species_sheet(W, names, mode))
     with open(os.path.join(out, "species-drawings.json"), "w", encoding="utf-8") as fh:
-        json.dump({"species": {sci: W.slug_of(sci) for sci in sorted(W.SPECIES)}, "kindsDrawnAs": getattr(W, "KIND_IS", {})}, fh, indent=1, ensure_ascii=False)
-    print(len(W.DRAW), "kinds and", len(W.SPECIES), "single animals drawn, each in light and dark, written to", out, "| kinds not drawn:", missing)
+        lost = sorted(set(W.VIEWS) - set(W.SPECIES))
+        assert not lost, f"these have other pictures but no first picture: {lost}"
+        json.dump({"species": {sci: W.slug_of(sci) for sci in sorted(W.SPECIES)}, "kindsDrawnAs": getattr(W, "KIND_IS", {}),
+                   "views": {sci: list(W.VIEWS[sci]) for sci in sorted(W.VIEWS)},
+                   "mainShows": {sci: W.MAIN_SHOWS.get(sci, "adult") for sci in sorted(W.VIEWS)},
+                   "viewNames": W.VIEW_NAMES, "genera": dict(sorted(W.GENUS_IS.items()))}, fh, indent=1, ensure_ascii=False)
+    print(len(W.DRAW), "kinds and", len(W.SPECIES), "single animals drawn, with", sum(len(v) for v in W.VIEWS.values()), "other pictures of", len(W.VIEWS),
+          "of them, each in light and dark, written to", out, "| kinds not drawn:", missing)

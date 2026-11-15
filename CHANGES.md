@@ -1,3 +1,28 @@
+# 15 November 2026, 20:20: every animal drawing checked against photographs, 27 corrected, and 96 other drawings of 72 animals
+
+**By the "photo check" chat, linked to William's Mac.** William, 19:36: "Update the animal graphics based on photos you can download to the mac. If when doing it you discover that some of the animals would benefit from having multiple graphics - wings spread and not spread for birds or larvae, pupae, adult for insects, please do that." And at 19:54, with a picture of his Species page: "There's no drawings for early mining bee or red ants". Made on the branch `wildlife-photo-check`, from `main` at `d337cf9`.
+
+**The check.** 2,200 photographs from iNaturalist were downloaded to the Mac (`~/Developer/windfall-photo-check`, not in the repository) and each of the 203 drawings was looked at beside five of its own. 27 were wrong and are corrected. `Design/Wildlife/CHECKED.md` lists each one and what the photographs showed. Three animals that shared a drawing wrongly now have their own in six places: the three whites, the two cardinal beetles, the two hawkers, the stoat and weasel, the two voles, the two frogs and the two toads.
+
+**An animal can now have more than one drawing.**
+
+- `Tools/design/wildlife_views.py` (new) draws them. Each is tied to an animal and to a key for what it shows: `@view("female", "Turdus merula", main="male")`. `main` says what the first drawing shows.
+- `Tools/design/wildlife_flight.py` (new) is one adjustable figure, `soar`, for a bird overhead. The swift and the red kite, which are always seen that way, use it for their first drawing.
+- New adjustable figures in `wildlife_views.py`: `closed` (a butterfly with its wings shut), `caterpillar`, `chrysalis`, `lady_larva`, `lady_pupa`, `grub`, `soft_larva`, `water_nymph`, `tadpole_fig`.
+- The pictures are `wild-sp-<animal>--<key>.svg`. `species-drawings.json` gains `views`, `mainShows`, `viewNames` and `genera`.
+- `WildlifeReference.json`: an animal with other drawings has `"v"` (their keys) and `"w"` (what the first shows). The file has `"genera"` at the top.
+
+**In the app (Swift).**
+
+- `WildlifeReference.swift`: `WildlifeAnimal.otherViews`, `mainShows` and `pictures`, which gives every drawing of an animal with its caption. `WildlifeAnimal.viewNames` holds the words for each key.
+- `WildlifeBookViews.swift`: an animal's page shows a row of its drawings under the large one. Tapping one shows it large. `@State private var shownKey` remembers which.
+- **A drawing for a name the list does not hold.** `WildlifeReference.drawing(forScientificName:)` tries the animal itself, then the animal that stands for its genus (`genusStandIns`, from `"genera"`), then the kind of its most recorded relative. So "Andrena spp." shows the early mining bee and *Myrmica sabuleti* a red ant, each with a line saying it is a close relative. `FaunaViews.swift` uses it for the rows of "Your species" and for a species' page.
+
+**New single-animal drawings (6, so 209):** early mining bee, three red ants (one drawing), yellow meadow ant, large blue.
+
+**Four new colours** in `wildlife_kit.py`: `sky`, `chestnut`, `khaki`, `navy`.
+
+**Checked.** `Tools/checks/run-checks.sh` with Swift 6.3.1 for Linux: 939 logic tests pass (10 new). Every drawing was looked at as a sheet in light mode. **Not checked:** the new drawings in dark mode. ⚠️ The stray files in the repository's top folder (16 `.whl` files) were there before this chat and are left alone.
 # 15 November 2026, 20:11: the plant drawings checked against photographs, and 26 put right
 
 **By the "plant identification" chat, linked to the Mac.** On the branch `plant-drawings-photo-check`, made from `main` at `78c68a7`. **Not merged and not built.** Only drawings and the two Python settings files changed: no Swift, nothing saved. Project doc 107 has the full account and the list of what was found and left alone.

@@ -44,6 +44,10 @@ K.COLOURS.update({
     "cream":  ("#FBF3DA", "#D9CFB0"),
     "green":  ("#7FB069", "#4E8050"),
     "steel":  ("#4F6D8F", "#5F81A8"),   # a swallow's back, a blue tit's cap
+    "sky":      ("#B5D3F0", "#7FA6CF"),   # a holly blue: paler than a common blue
+    "chestnut": ("#7B3F2E", "#93543F"),   # a stag beetle's wing cases, a false widow, a female blackbird
+    "khaki":    ("#B4A268", "#8E8250"),   # a common frog: olive-brown, not green
+    "navy":     ("#2F3F63", "#4A5F8C"),   # a male beautiful demoiselle's wings
 })
 
 

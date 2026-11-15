@@ -379,6 +379,11 @@ struct WildlifeAnimalPage: View {
         return ownSpecies.first { WildlifeReference.plain($0.scientificName ?? "") == wanted }
     }
 
+    // Which of the animal's drawings is shown large, by its key. `nil`
+    // means the first. `@State` is a value the page keeps for itself and
+    // redraws when it changes, here when a small drawing is tapped.
+    @State private var shownKey: String?
+
     var body: some View {
         let kind = book.kind(slug: creature.kindSlug)
 
@@ -412,8 +417,55 @@ struct WildlifeAnimalPage: View {
     /// The drawing, large. An animal without a drawing of its own shows
     /// its kind's, with a line saying so.
     private func picture(kindName: String?) -> some View {
-        VStack(spacing: 8) {
-            WildlifeAnimalPicture(creature: creature, size: 200)
+        // Every drawing of this animal. There is always at least one, so
+        // `pictures[0]` is safe.
+        let pictures = creature.pictures
+        let shown = pictures.first { $0.key == shownKey } ?? pictures[0]
+
+        return VStack(spacing: 8) {
+            Image(shown.pictureName)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 200, height: 200)
+                .accessibilityHidden(true)
+            if pictures.count > 1 {
+                // What the large drawing shows: "In flight", "Female".
+                Text(shown.caption)
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(Theme.ink)
+                // The animal's drawings side by side, small. Tapping one
+                // shows it large. The row scrolls sideways when there are
+                // more than fit.
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(alignment: .top, spacing: 10) {
+                        ForEach(pictures) { one in
+                            Button {
+                                shownKey = one.key
+                            } label: {
+                                VStack(spacing: 4) {
+                                    Image(one.pictureName)
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width: 64, height: 64)
+                                        .padding(4)
+                                        // A line round the one that is shown large.
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 10)
+                                                .stroke(one.key == shown.key ? Theme.ink : Color.clear, lineWidth: 1.5)
+                                        )
+                                    Text(one.caption)
+                                        .font(.caption)
+                                        .foregroundStyle(Theme.inkSoft)
+                                }
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel("\(one.caption), a drawing of \(creature.title)")
+                            .accessibilityAddTraits(one.key == shown.key ? .isSelected : [])
+                        }
+                    }
+                    .padding(.horizontal, 2)
+                }
+            }
             if !creature.hasOwnPicture, let kindName {
                 Text("A drawing of the kind (\(kindName.lowercased())), not of this animal.")
                     .font(.caption)

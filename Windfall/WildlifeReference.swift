@@ -78,13 +78,68 @@ struct WildlifeAnimal: Decodable, Identifiable, Hashable {
     /// The name of its own drawing, for an animal that has one. About two
     /// hundred of the most often seen do. The rest show their kind's.
     let ownPicture: String?
+    /// What its OTHER drawings show, for an animal with more than one, in
+    /// the order they are shown: "flight", "female", "caterpillar". Each
+    /// is a key from `viewNames`. About seventy animals have these.
+    let otherViews: [String]?
+    /// What its FIRST drawing shows ("male", "perched", "adult"), so that
+    /// it can be told from the others. Only set when there are others.
+    let mainShows: String?
 
     // The file uses one-letter names to stay small. `CodingKeys` tells
     // Swift which letter fills which property.
     enum CodingKeys: String, CodingKey {
         case scientificName = "s", commonName = "c", kindSlug = "k", family = "f", order = "o"
         case ukRecords = "n", monthCounts = "m", introduced = "i", ownPicture = "p"
+        case otherViews = "v", mainShows = "w"
     }
+
+    /// One drawing of an animal, with the words that say what it shows.
+    struct Picture: Identifiable, Hashable {
+        /// The short key: "flight", "female", "caterpillar".
+        let key: String
+        /// The words shown under it: "In flight", "Female", "Caterpillar".
+        let caption: String
+        /// Its name in the app's store of pictures.
+        let pictureName: String
+        var id: String { key }
+    }
+
+    /// The words shown for each key. The same list is in
+    /// Tools/design/wildlife.py (`VIEW_NAMES`), and a logic test checks
+    /// that every key used in the list of animals has words here.
+    static let viewNames: [String: String] = [
+        "adult": "Adult", "male": "Male", "female": "Female", "juvenile": "Young bird",
+        "summer": "In summer", "winter": "In winter", "perched": "Perched", "flight": "In flight",
+        "upperside": "Wings open", "underside": "Wings closed", "eggs": "Eggs", "spawn": "Spawn",
+        "tadpole": "Tadpole", "caterpillar": "Caterpillar", "chrysalis": "Chrysalis",
+        "cocoon": "Cocoon", "larva": "Larva", "pupa": "Pupa", "nymph": "Nymph",
+    ]
+
+    /// The words for a key. A key with no words of its own is shown with
+    /// a capital letter, so a new one is never blank.
+    static func viewName(_ key: String) -> String {
+        viewNames[key] ?? key.capitalized
+    }
+
+    /// Every drawing of this animal, the first one first. Most animals
+    /// have one, and then its caption is empty because nothing needs
+    /// telling apart.
+    var pictures: [Picture] {
+        guard let own = ownPicture, let others = otherViews, !others.isEmpty else {
+            return [Picture(key: "only", caption: "", pictureName: pictureName)]
+        }
+        let firstKey = mainShows ?? "adult"
+        var list = [Picture(key: firstKey, caption: WildlifeAnimal.viewName(firstKey), pictureName: pictureName)]
+        // `where` skips a key that repeats the first, so no two share an id.
+        for key in others where key != firstKey {
+            list.append(Picture(key: key, caption: WildlifeAnimal.viewName(key), pictureName: "Wildlife/wild-sp-\(own)--\(key)"))
+        }
+        return list
+    }
+
+    /// True when there is more than one drawing to choose between.
+    var hasOtherPictures: Bool { pictures.count > 1 }
 
     /// True when the drawing shown is of this animal and not of its kind.
     var hasOwnPicture: Bool { ownPicture != nil }
@@ -149,26 +204,43 @@ struct WildlifeReference {
     let fetched: String
     let kinds: [WildlifeKind]
     let animals: [WildlifeAnimal]
+    /// For a few genera, the scientific name of the animal whose drawing
+    /// stands for every member, keyed by the genus in small letters:
+    /// "myrmica" to "Myrmica rubra", because any Myrmica is a red ant.
+    /// Used for a species of William's that the list does not hold.
+    let genusStandIns: [String: String]
 
-    /// From a kind's slug to the places of its animals in `animals`, and
-    /// from a scientific name in small letters to its place, so that
-    /// neither is a search through four thousand rows.
+    /// From a kind's slug to the places of its animals in `animals`, from
+    /// a scientific name in small letters to its place, and from a genus
+    /// to the places of its members, so that none is a search through
+    /// four thousand rows.
     private let placesByKind: [String: [Int]]
     private let placeByName: [String: Int]
+    private let placesByGenus: [String: [Int]]
 
-    init(source: String = "", fetched: String = "", kinds: [WildlifeKind], animals: [WildlifeAnimal]) {
+    init(source: String = "", fetched: String = "", kinds: [WildlifeKind], animals: [WildlifeAnimal], genusStandIns: [String: String] = [:]) {
         self.source = source
         self.fetched = fetched
         self.kinds = kinds
         self.animals = animals
+        self.genusStandIns = genusStandIns
         var byKind: [String: [Int]] = [:]
         var byName: [String: Int] = [:]
+        var byGenus: [String: [Int]] = [:]
         for (place, creature) in animals.enumerated() {
             byKind[creature.kindSlug, default: []].append(place)
             byName[WildlifeReference.plain(creature.scientificName)] = place
+            byGenus[WildlifeReference.genus(of: creature.scientificName), default: []].append(place)
         }
         placesByKind = byKind
         placeByName = byName
+        placesByGenus = byGenus
+    }
+
+    /// The genus of a scientific name, in small letters: its first word.
+    /// "Andrena spp." and "Andrena fulva" both give "andrena".
+    static func genus(of scientificName: String) -> String {
+        plain(scientificName).split(separator: " ").first.map(String.init) ?? ""
     }
 
     /// The shape of WildlifeReference.json.
@@ -177,12 +249,13 @@ struct WildlifeReference {
         let fetched: String?
         let kinds: [WildlifeKind]
         let animals: [WildlifeAnimal]
+        let genera: [String: String]?
     }
 
     /// Reads the list from the file's contents.
     static func decode(_ data: Data) throws -> WildlifeReference {
         let listFile = try JSONDecoder().decode(File.self, from: data)
-        return WildlifeReference(source: listFile.source ?? "", fetched: listFile.fetched ?? "", kinds: listFile.kinds, animals: listFile.animals)
+        return WildlifeReference(source: listFile.source ?? "", fetched: listFile.fetched ?? "", kinds: listFile.kinds, animals: listFile.animals, genusStandIns: listFile.genera ?? [:])
     }
 
     /// The list that ships inside the app, read once, the first time it is
@@ -250,6 +323,41 @@ struct WildlifeReference {
     /// how one of William's own species finds its drawing.
     func kind(ofScientificName scientificName: String?) -> WildlifeKind? {
         animal(scientificName: scientificName).flatMap { kind(slug: $0.kindSlug) }
+    }
+
+    // MARK: A drawing for any name
+
+    /// A drawing to show for a scientific name, and a line to put under it
+    /// when the drawing is not of that very animal.
+    struct Drawing: Equatable {
+        /// Its name in the app's store of pictures.
+        let pictureName: String
+        /// Nil when the drawing is of the animal itself.
+        let note: String?
+    }
+
+    /// The drawing for a scientific name, which need not be in the list.
+    /// William's own species list holds "Andrena spp." (a whole genus) and
+    /// Myrmica sabuleti (too scarce for the list), and both had no drawing
+    /// (his message of 15 November 2026). It tries, in order:
+    ///   1. the animal itself: its own drawing, or its kind's;
+    ///   2. the animal that stands for its genus (`genusStandIns`);
+    ///   3. the kind of its most recorded relative in the same genus.
+    /// Nil when the genus is not in the list at all.
+    func drawing(forScientificName scientificName: String?) -> Drawing? {
+        guard let scientificName else { return nil }
+        if let exact = animal(scientificName: scientificName) {
+            return Drawing(pictureName: exact.pictureName, note: exact.hasOwnPicture ? nil : "The drawing is of its kind, not of this species.")
+        }
+        let genus = WildlifeReference.genus(of: scientificName)
+        guard !genus.isEmpty else { return nil }
+        if let standIn = animal(scientificName: genusStandIns[genus]), standIn.hasOwnPicture {
+            return Drawing(pictureName: standIn.pictureName, note: "The drawing is of a close relative, \(standIn.title) (\(standIn.scientificName)).")
+        }
+        // `max(by:)` finds the largest by the rule given, here the most records.
+        let relatives = (placesByGenus[genus] ?? []).map { animals[$0] }
+        guard let commonest = relatives.max(by: { $0.ukRecords < $1.ukRecords }) else { return nil }
+        return Drawing(pictureName: "Wildlife/wild-\(commonest.kindSlug)", note: "The drawing is of its kind, not of this species.")
     }
 
     // MARK: Search

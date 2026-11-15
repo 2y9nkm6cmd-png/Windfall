@@ -13,6 +13,7 @@
   "Anax imperator": "anax-imperator",
   "Andrena cineraria": "andrena-cineraria",
   "Andrena fulva": "andrena-fulva",
+  "Andrena haemorrhoa": "andrena-haemorrhoa",
   "Anguis fragilis": "anguis-fragilis",
   "Anthidium manicatum": "anthidium-manicatum",
   "Anthocharis cardamines": "anthocharis-cardamines",
@@ -100,6 +101,7 @@
   "Ischnura elegans": "ischnura-elegans",
   "Larus argentatus": "larus-argentatus",
   "Larus fuscus": "larus-fuscus",
+  "Lasius flavus": "lasius-flavus",
   "Lepus europaeus": "lepus-europaeus",
   "Lepus timidus": "lepus-timidus",
   "Libellula depressa": "libellula-depressa",
@@ -122,6 +124,9 @@
   "Mustela erminea": "mustela-erminea",
   "Mustela nivalis": "mustela-nivalis",
   "Myathropa florea": "myathropa-florea",
+  "Myrmica rubra": "myrmica-rubra",
+  "Myrmica ruginodis": "myrmica-ruginodis",
+  "Myrmica scabrinodis": "myrmica-scabrinodis",
   "Nannus troglodytes": "nannus-troglodytes",
   "Natrix helvetica": "natrix-helvetica",
   "Noctua pronuba": "noctua-pronuba",
@@ -139,6 +144,7 @@
   "Pentatoma rufipes": "pentatoma-rufipes",
   "Periparus ater": "periparus-ater",
   "Phasianus colchicus": "phasianus-colchicus",
+  "Phengaris arion": "phengaris-arion",
   "Phoca vitulina": "phoca-vitulina",
   "Phocoena phocoena": "phocoena-phocoena",
   "Pholcus phalangioides": "pholcus-phalangioides",
@@ -255,5 +261,346 @@
   "newt": "Lissotriton vulgaris",
   "lizard": "Zootoca vivipara",
   "snake": "Vipera berus"
+ },
+ "views": {
+  "Accipiter nisus": [
+   "flight"
+  ],
+  "Adalia bipunctata": [
+   "larva"
+  ],
+  "Aeshna cyanea": [
+   "nymph"
+  ],
+  "Aeshna mixta": [
+   "nymph"
+  ],
+  "Aglais io": [
+   "underside",
+   "caterpillar",
+   "chrysalis"
+  ],
+  "Aglais urticae": [
+   "underside",
+   "caterpillar",
+   "chrysalis"
+  ],
+  "Anas platyrhynchos": [
+   "flight",
+   "female"
+  ],
+  "Anax imperator": [
+   "nymph"
+  ],
+  "Anthocharis cardamines": [
+   "female",
+   "underside",
+   "caterpillar"
+  ],
+  "Anthophora plumipes": [
+   "male"
+  ],
+  "Ardea cinerea": [
+   "flight"
+  ],
+  "Autographa gamma": [
+   "caterpillar"
+  ],
+  "Bufo bufo": [
+   "spawn",
+   "tadpole"
+  ],
+  "Buteo buteo": [
+   "flight"
+  ],
+  "Calopteryx splendens": [
+   "female"
+  ],
+  "Calopteryx virgo": [
+   "female"
+  ],
+  "Capreolus capreolus": [
+   "female"
+  ],
+  "Celastrina argiolus": [
+   "underside"
+  ],
+  "Cetonia aurata": [
+   "larva"
+  ],
+  "Chroicocephalus ridibundus": [
+   "flight",
+   "winter"
+  ],
+  "Chrysolina americana": [
+   "larva"
+  ],
+  "Coccinella septempunctata": [
+   "larva",
+   "pupa"
+  ],
+  "Coenagrion puella": [
+   "nymph"
+  ],
+  "Columba palumbus": [
+   "flight"
+  ],
+  "Corvus corax": [
+   "flight"
+  ],
+  "Corvus corone": [
+   "flight"
+  ],
+  "Deilephila elpenor": [
+   "caterpillar"
+  ],
+  "Delichon urbicum": [
+   "flight"
+  ],
+  "Enallagma cyathigerum": [
+   "nymph"
+  ],
+  "Episyrphus balteatus": [
+   "larva"
+  ],
+  "Erithacus rubecula": [
+   "juvenile"
+  ],
+  "Falco tinnunculus": [
+   "flight",
+   "female"
+  ],
+  "Fringilla coelebs": [
+   "female"
+  ],
+  "Gonepteryx rhamni": [
+   "underside",
+   "caterpillar"
+  ],
+  "Halyzia sedecimguttata": [
+   "larva"
+  ],
+  "Harmonia axyridis": [
+   "larva",
+   "pupa"
+  ],
+  "Hirundo rustica": [
+   "flight"
+  ],
+  "Ischnura elegans": [
+   "nymph"
+  ],
+  "Larus argentatus": [
+   "flight"
+  ],
+  "Larus fuscus": [
+   "flight"
+  ],
+  "Libellula depressa": [
+   "female",
+   "nymph"
+  ],
+  "Lilioceris lilii": [
+   "larva",
+   "eggs"
+  ],
+  "Lissotriton helveticus": [
+   "larva"
+  ],
+  "Lissotriton vulgaris": [
+   "larva"
+  ],
+  "Lucanus cervus": [
+   "female",
+   "larva"
+  ],
+  "Melolontha melolontha": [
+   "larva"
+  ],
+  "Milvus milvus": [
+   "perched"
+  ],
+  "Noctua pronuba": [
+   "caterpillar",
+   "pupa"
+  ],
+  "Otiorhynchus sulcatus": [
+   "larva"
+  ],
+  "Palomena prasina": [
+   "nymph"
+  ],
+  "Passer domesticus": [
+   "female"
+  ],
+  "Phasianus colchicus": [
+   "female"
+  ],
+  "Pieris brassicae": [
+   "caterpillar",
+   "chrysalis"
+  ],
+  "Pieris napi": [
+   "underside"
+  ],
+  "Pieris rapae": [
+   "caterpillar"
+  ],
+  "Polygonia c-album": [
+   "underside",
+   "caterpillar"
+  ],
+  "Polyommatus icarus": [
+   "female",
+   "underside"
+  ],
+  "Psyllobora vigintiduopunctata": [
+   "larva"
+  ],
+  "Pyrrhosoma nymphula": [
+   "nymph"
+  ],
+  "Pyrrhula pyrrhula": [
+   "female"
+  ],
+  "Rana temporaria": [
+   "spawn",
+   "tadpole"
+  ],
+  "Sturnus vulgaris": [
+   "flight",
+   "juvenile"
+  ],
+  "Sylvia atricapilla": [
+   "female"
+  ],
+  "Sympetrum sanguineum": [
+   "female"
+  ],
+  "Sympetrum striolatum": [
+   "female"
+  ],
+  "Triturus cristatus": [
+   "larva"
+  ],
+  "Turdus merula": [
+   "female"
+  ],
+  "Tyria jacobaeae": [
+   "caterpillar"
+  ],
+  "Tyto alba": [
+   "flight"
+  ],
+  "Vanessa atalanta": [
+   "underside",
+   "caterpillar"
+  ],
+  "Vanessa cardui": [
+   "caterpillar"
+  ],
+  "Zygaena filipendulae": [
+   "caterpillar",
+   "cocoon"
+  ]
+ },
+ "mainShows": {
+  "Accipiter nisus": "male",
+  "Adalia bipunctata": "adult",
+  "Aeshna cyanea": "male",
+  "Aeshna mixta": "male",
+  "Aglais io": "upperside",
+  "Aglais urticae": "upperside",
+  "Anas platyrhynchos": "male",
+  "Anax imperator": "male",
+  "Anthocharis cardamines": "male",
+  "Anthophora plumipes": "female",
+  "Ardea cinerea": "perched",
+  "Autographa gamma": "adult",
+  "Bufo bufo": "adult",
+  "Buteo buteo": "perched",
+  "Calopteryx splendens": "male",
+  "Calopteryx virgo": "male",
+  "Capreolus capreolus": "male",
+  "Celastrina argiolus": "upperside",
+  "Cetonia aurata": "adult",
+  "Chroicocephalus ridibundus": "summer",
+  "Chrysolina americana": "adult",
+  "Coccinella septempunctata": "adult",
+  "Coenagrion puella": "male",
+  "Columba palumbus": "perched",
+  "Corvus corax": "perched",
+  "Corvus corone": "perched",
+  "Deilephila elpenor": "adult",
+  "Delichon urbicum": "perched",
+  "Enallagma cyathigerum": "male",
+  "Episyrphus balteatus": "adult",
+  "Erithacus rubecula": "adult",
+  "Falco tinnunculus": "male",
+  "Fringilla coelebs": "male",
+  "Gonepteryx rhamni": "upperside",
+  "Halyzia sedecimguttata": "adult",
+  "Harmonia axyridis": "adult",
+  "Hirundo rustica": "perched",
+  "Ischnura elegans": "male",
+  "Larus argentatus": "perched",
+  "Larus fuscus": "perched",
+  "Libellula depressa": "male",
+  "Lilioceris lilii": "adult",
+  "Lissotriton helveticus": "adult",
+  "Lissotriton vulgaris": "adult",
+  "Lucanus cervus": "male",
+  "Melolontha melolontha": "adult",
+  "Milvus milvus": "flight",
+  "Noctua pronuba": "adult",
+  "Otiorhynchus sulcatus": "adult",
+  "Palomena prasina": "adult",
+  "Passer domesticus": "male",
+  "Phasianus colchicus": "male",
+  "Pieris brassicae": "female",
+  "Pieris napi": "upperside",
+  "Pieris rapae": "upperside",
+  "Polygonia c-album": "upperside",
+  "Polyommatus icarus": "male",
+  "Psyllobora vigintiduopunctata": "adult",
+  "Pyrrhosoma nymphula": "male",
+  "Pyrrhula pyrrhula": "male",
+  "Rana temporaria": "adult",
+  "Sturnus vulgaris": "adult",
+  "Sylvia atricapilla": "male",
+  "Sympetrum sanguineum": "male",
+  "Sympetrum striolatum": "male",
+  "Triturus cristatus": "adult",
+  "Turdus merula": "male",
+  "Tyria jacobaeae": "adult",
+  "Tyto alba": "perched",
+  "Vanessa atalanta": "upperside",
+  "Vanessa cardui": "upperside",
+  "Zygaena filipendulae": "adult"
+ },
+ "viewNames": {
+  "adult": "Adult",
+  "male": "Male",
+  "female": "Female",
+  "juvenile": "Young bird",
+  "summer": "In summer",
+  "winter": "In winter",
+  "perched": "Perched",
+  "flight": "In flight",
+  "upperside": "Wings open",
+  "underside": "Wings closed",
+  "eggs": "Eggs",
+  "spawn": "Spawn",
+  "tadpole": "Tadpole",
+  "caterpillar": "Caterpillar",
+  "chrysalis": "Chrysalis",
+  "cocoon": "Cocoon",
+  "larva": "Larva",
+  "pupa": "Pupa",
+  "nymph": "Nymph"
+ },
+ "genera": {
+  "Andrena": "Andrena haemorrhoa",
+  "Myrmica": "Myrmica rubra"
  }
 }

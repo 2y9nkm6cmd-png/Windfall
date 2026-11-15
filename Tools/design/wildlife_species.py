@@ -86,6 +86,14 @@ def tawny_mining(): return solbee("rust", "orange", fuzz=0.06)
 def ashy_mining(): return solbee("black", "black", th_bands=[(-1, -0.45, "grey"), (0.5, 1, "grey")], fuzz=0.04)
 
 
+@sp("Andrena haemorrhoa")
+def early_mining():          # a foxy-red thorax and a shiny black abdomen that ends in an orange tail. Asked for by William, 15 November 2026
+    return solbee("rust", "black", [(0.6, 1.1, "orange")], fuzz=0.045)
+
+
+W.GENUS_IS["Andrena"] = "Andrena haemorrhoa"      # his own list has "Early mining bee, Andrena spp."
+
+
 @sp("Colletes hederae")
 def ivy_bee():
     return solbee("rust", "black", [(-0.56, -0.42, "buff"), (-0.14, 0.0, "buff"), (0.28, 0.42, "buff"), (0.68, 0.82, "buff")], fuzz=0.04)
@@ -122,6 +130,40 @@ def hornet():
            bands=[(-1, -0.5, "rust"), (-0.22, -0.06, "brown"), (0.2, 0.34, "brown"), (0.62, 0.74, "brown")],
            wings=[(-1, 34, 31, 5.2, "buff", 0.8), (2, 20, 20, 3.8, "buff", 0.8)], legs=15, leg_lw=1.2, ant=(11, 8, 2), eyes="brown")
     return a
+
+
+# --------------------------------------------------------------------- ants
+
+def ant_fig(colour="rust", dark=None, nodes=2):
+    """A worker ant from above.  colour  the body.  dark  the head and the
+    hind part, where those are darker.  nodes  how many small knobs make
+    the waist: two for the red ants (Myrmica), one for the garden ants."""
+    a = Art()
+    cx = 50
+    six_legs(a, cx, 47, 3.6, 7, 17, 1.1, angles=(-48, 4, 52), col=colour if colour != "black" else "line")
+    figure(a, [ell(cx, 72, 8.2, 11.5)], dark or colour, close=0)
+    for v in (-0.2, 0.3):
+        stroke(a, [(cx - 7.6, 72 + v * 11.5), (cx, 73.5 + v * 11.5), (cx + 7.6, 72 + v * 11.5)], 0.5, 0.35, col="cream")
+    for y, r in (((56.4, 2.0), (60.4, 2.3)) if nodes == 2 else ((59, 2.4),)):
+        figure(a, [ell(cx, y, r, 2.1)], colour, close=0)
+    figure(a, [ell(cx, 42, 4.6, 6), ell(cx, 51, 3.4, 5)], colour, close=1.6)
+    figure(a, [blob([(cx, 21), (cx + 6, 24), (cx + 6.8, 31), (cx + 3.6, 36.5), (cx - 3.6, 36.5), (cx - 6.8, 31), (cx - 6, 24)])], dark or colour, close=0)
+    for s in (1, -1):
+        stroke(a, [(cx + s * 2.2, 21.5), (cx + s * 3, 17.5), (cx + s * 0.6, 16)], 1.0, smooth=False)
+        stroke(a, [(cx + s * 4.5, 25), (cx + s * 12.5, 22), (cx + s * 15, 12.5)], 1.0, smooth=False)
+        eye(a, cx + s * 4.4, 28, 0.9, False)
+    return a
+
+
+@sp("Myrmica rubra", "Myrmica ruginodis", "Myrmica scabrinodis")
+def red_ant(): return ant_fig("rust", "chestnut", nodes=2)       # red-brown, darker on the head and tail, with a waist of two knobs. It stings. Asked for by William
+
+
+W.GENUS_IS["Myrmica"] = "Myrmica rubra"            # his own list has "Red ant, Myrmica sabuleti", which is too scarce to be in the UK list
+
+
+@sp("Lasius flavus")
+def yellow_meadow_ant(): return ant_fig("amber", nodes=1)        # yellow-orange all over: the ant of the mounds in old lawns and meadows
 
 
 # ---------------------------------------------------------------- hoverflies
@@ -182,7 +224,7 @@ HIND = [(52, 49), (66, 47), (80, 50), (85, 62), (79, 75), (67, 79), (58, 72), (5
 
 
 def flutter(base="orange", border="brown", bw=2.6, hind_base=None, hind_border=None, fore_marks=(), hind_marks=(), tips=None, tip_cut=72,
-            body="brown", notch=(), veins=None, fore_pts=None, hind_pts=None):
+            body="brown", notch=(), veins=None, fore_pts=None, hind_pts=None, vein_w=0.45, vein_a=0.4):
     """A butterfly with its wings open, from above.
       base, border   the wing colour and the colour of its edge (bw is how wide the edge is, 0 for none)
       fore_marks     marks on the front wing, given for the RIGHT wing and copied to the left:
@@ -221,7 +263,7 @@ def flutter(base="orange", border="brown", bw=2.6, hind_base=None, hind_border=N
             if veins:
                 root = (100 - 53, 47) if flip else (53, 47)
                 for q in list(g.exterior.coords)[::9]:
-                    stroke(a, [root, ((root[0] + q[0] * 3) / 4, (root[1] + q[1] * 3) / 4)], 0.45, 0.4, col=veins, smooth=False)
+                    stroke(a, [root, ((root[0] + q[0] * 3) / 4, (root[1] + q[1] * 3) / 4)], vein_w, vein_a, col=veins, smooth=False)
             for m in marks:
                 mark(sil, m, flip)
             paint(a, sil, None, LW)
@@ -293,9 +335,19 @@ def painted_lady():
                    hind_marks=[("dot", 66, 72.4, 1.4, "ink"), ("dot", 72, 70.4, 1.4, "ink"), ("dot", 77.6, 65.6, 1.4, "ink"), ("dot", 81.6, 58.6, 1.4, "ink"), ("patch", [(52, 49), (62, 48), (60, 58), (53, 60)], "tan")])
 
 
-@sp("Pieris napi", "Pieris rapae", "Pieris brassicae")
-def white_butterfly():
-    return flutter("white", "white", 0, tips="slate", tip_cut=79, fore_marks=[("dot", 72, 34, 2.0, "slate")], hind_marks=[("dot", 66, 51, 1.3, "slate")], body="slate", veins="slate")
+@sp("Pieris rapae")
+def small_white():           # a small grey tip and one or two grey spots
+    return flutter("white", "white", 0, tips="slate", tip_cut=81, fore_marks=[("dot", 72, 34, 2.0, "slate")], hind_marks=[("dot", 66, 51, 1.3, "slate")], body="slate", veins="slate")
+
+
+@sp("Pieris brassicae")
+def large_white():           # bigger, with a bold black tip that runs down the wing's outer edge. The female, drawn here, has two black spots
+    return flutter("white", "white", 0, tips="black", tip_cut=74, fore_marks=[("dot", 71, 33, 2.4, "black"), ("dot", 66, 43, 2.2, "black")], hind_marks=[("dot", 66, 50.6, 1.5, "black")], body="dark")
+
+
+@sp("Pieris napi")
+def green_veined_white():    # grey along every vein, and a tip broken into grey streaks
+    return flutter("white", "white", 0, tips="grey", tip_cut=80, fore_marks=[("dot", 72, 34, 1.9, "slate")], body="slate", veins="slate", vein_w=0.9, vein_a=0.85)
 
 
 @sp("Anthocharis cardamines")
@@ -308,8 +360,14 @@ def orange_tip():
 def common_blue(): return flutter("blue", "white", 1.3, body="slate", veins="steel")
 
 
+@sp("Phengaris arion")
+def large_blue():            # blue with a dark border and an arc of black spots on the front wing. In William's own list, where it was showing the peacock
+    return flutter("blue", "dark", 2.6, fore_marks=[("dot", 70, 27, 1.6, "ink"), ("dot", 75, 30, 1.7, "ink"), ("dot", 78, 35, 1.6, "ink"), ("dot", 74, 40, 1.5, "ink"), ("dot", 66, 33, 1.9, "ink")],
+                   hind_marks=[("dot", 70, 58, 1.1, "ink"), ("dot", 75, 62, 1.1, "ink"), ("dot", 72, 68, 1.1, "ink")], body="slate", veins="steel")
+
+
 @sp("Celastrina argiolus")
-def holly_blue(): return flutter("lilac", "ink", 2.4, tips="ink", tip_cut=82, body="slate")
+def holly_blue(): return flutter("sky", "ink", 1.3, tips="ink", tip_cut=84, body="slate")      # pale sky blue, by the photographs. The broad dark tip is the female's
 
 
 @sp("Gonepteryx rhamni")
@@ -473,7 +531,21 @@ def cream_spot():
 sp("Cetonia aurata")(W.DRAW["chafer"])
 sp("Rhagonycha fulva")(W.DRAW["flower-beetle"])
 sp("Rutpela maculata")(W.DRAW["longhorn"])
-sp("Carabus violaceus", "Carabus problematicus")(W.DRAW["ground-beetle"])
+@sp("Carabus violaceus", "Carabus problematicus")
+def violet_ground_beetle():  # black, with a violet sheen only along the edges (the first drawing was violet all over)
+    a = Art()
+    hy, py, ey = beetle(a, head=(4.4, 4, "black"), pro=(7.6, 6.2, "black"), ely=(10.5, 20, "black"), square=0.6,
+                        legs=15, leg_lw=1.3, ant=(12, 12, 0), leg_angles=(-48, 12, 58))
+    for s in (1, -1):
+        stroke(a, [(50 + s * 8.6, ey - 13), (50 + s * 9.4, ey - 2), (50 + s * 7.6, ey + 10), (50 + s * 4, ey + 17)], 1.3, 0.95, col="plum")
+        stroke(a, [(50 + s * 6.2, py - 3.6), (50 + s * 6.6, py + 3.6)], 1.2, 0.95, col="plum", smooth=False)
+        stroke(a, [(50 + s * 2, hy - 3.4), (50 + s * 3.4, hy - 6.4), (50 + s * 0.8, hy - 6.6)], 1.0, smooth=False)
+    for dx in (-5.4, -2.7, 2.7, 5.4):
+        stroke(a, [(50 + dx, ey - 14), (50 + dx * 0.96, ey), (50 + dx * 0.6, ey + 13)], 0.5, 0.4, col="slate")
+    return a
+
+
+W.DRAW["ground-beetle"] = violet_ground_beetle
 
 
 @sp("Melolontha melolontha")
@@ -498,7 +570,7 @@ def stag_beetle():
     a = Art()
     for s in (1, -1):                                                                          # the male's antlers, which are its jaws
         figure(a, [limb([(50 + s * 4, 27), (50 + s * 11, 19), (50 + s * 9.6, 9), (50 + s * 4.6, 6)], 3.2, 1.6), limb([(50 + s * 10.4, 14), (50 + s * 6, 13)], 2, 1.2)], "rust", close=0.5, lw=0.9)
-    hy, py, ey = beetle(a, top=24, head=(7.6, 4.8, "black"), pro=(9, 5.2, "black"), ely=(9.4, 18, "beet"), square=0.8, legs=17, leg_lw=1.5, ant=None)
+    hy, py, ey = beetle(a, top=24, head=(7.6, 4.8, "black"), pro=(9, 5.2, "black"), ely=(9.4, 18, "chestnut"), square=0.8, legs=17, leg_lw=1.5, ant=None)
     for s in (1, -1):
         stroke(a, [(50 + s * 5.6, hy - 1), (50 + s * 12.6, hy - 3), (50 + s * 15.6, hy + 2.6)], 1.0, smooth=False)
         a.dot(50 + s * 15.6, hy + 2.6, 1.2, "line")
@@ -525,10 +597,9 @@ def thick_legged():
     return a
 
 
-@sp("Pyrochroa serraticornis", "Pyrochroa coccinea")
-def cardinal_beetle():
+def cardinal(head):
     a = Art()
-    hy, py, ey = beetle(a, top=19, head=(4, 3.4, "red"), pro=(5, 4.2, "red"), ely=(8.6, 20, "red"), square=0.5, legs=14, leg_lw=1.1, ant=None, shine=True)
+    hy, py, ey = beetle(a, top=19, head=(4, 3.4, head), pro=(5, 4.2, "red"), ely=(8.6, 20, "red"), square=0.5, legs=14, leg_lw=1.1, ant=None, shine=True)
     for s in (1, -1):
         pts = [(50 + s * 2.2, hy - 2.4), (50 + s * 8, hy - 9), (50 + s * 16, hy - 10), (50 + s * 22, hy - 4)]
         stroke(a, pts, 1.0)
@@ -536,6 +607,14 @@ def cardinal_beetle():
         for q in c[3:]:
             stroke(a, [q, (q[0] + s * 0.4, q[1] + 2.2)], 0.7, smooth=False)                    # the teeth of its comb-like feelers
     return a
+
+
+@sp("Pyrochroa serraticornis")
+def cardinal_beetle(): return cardinal("red")        # the common one: red all over, head too
+
+
+@sp("Pyrochroa coccinea")
+def black_headed_cardinal(): return cardinal("black")
 
 
 @sp("Ocypus olens")
@@ -724,12 +803,16 @@ def dragon2(damsel=False, body="blue", thorax="olive", rings="black", broad=1.0,
 def common_darter(): return dragon2(body="red", thorax="rust", rings="rust", broad=0.72, eyes="rust")
 
 
-@sp("Aeshna cyanea", "Aeshna mixta")
+@sp("Aeshna mixta")
+def migrant_hawker(): return dragon2(body="ink", thorax="brown", rings=None, side_spots="blue", thorax_stripe="primrose", eyes="blue")      # blue spots in pairs, a brown thorax
+
+
+@sp("Aeshna cyanea")
 def southern_hawker(): return dragon2(body="ink", thorax="brown", rings=None, side_spots="green", tip=(0.6, 0.9, "blue"), thorax_stripe="green", eyes="green")
 
 
 @sp("Libellula depressa")
-def broad_bodied_chaser(): return dragon2(body="blue", thorax="brown", rings=None, broad=1.9, side_spots="yellow", wing_base="brown", eyes="brown")
+def broad_bodied_chaser(): return dragon2(body="blue", thorax="brown", rings=None, broad=2.2, side_spots="yellow", wing_base="dark", eyes="brown")
 
 
 @sp("Libellula quadrimaculata")
@@ -761,7 +844,7 @@ def banded_demoiselle(): return dragon2(True, body="steel", thorax="steel", ring
 
 
 @sp("Calopteryx virgo")
-def beautiful_demoiselle(): return dragon2(True, body="marrow", thorax="marrow", rings=None, wing_tint="brown", eyes="ink")
+def beautiful_demoiselle(): return dragon2(True, body="steel", thorax="steel", rings=None, wing_tint="navy", eyes="ink")      # the male: wings dark blue all over. The female is under "Female"
 
 
 # ------------------------------------------------------------------- spiders
@@ -808,7 +891,7 @@ def false_widow():
     def marks(a, sil):
         paint(a, band(50, 59, 14, 16, -0.86, -0.62).intersection(sil), "cream")
         paint(a, blob([(46, 52), (50, 49), (54, 52), (53, 60), (50, 63), (47, 60)], 6).intersection(sil), "tan")
-    return spider_fig([(50, 43), (59, 46), (63.6, 57), (61, 69), (50, 75), (39, 69), (36.4, 57), (41, 46)], "beet", None, head="rust", legs="rust", banded=False, reach=0.86, leg_lw=1.5, marks=marks)
+    return spider_fig([(50, 43), (59, 46), (63.6, 57), (61, 69), (50, 75), (39, 69), (36.4, 57), (41, 46)], "chestnut", None, head="rust", legs="rust", banded=False, reach=0.86, leg_lw=1.5, marks=marks)
 
 
 @sp("Salticus scenicus")
@@ -881,7 +964,28 @@ def brown_lipped_snail(): return snail_fig("yellow", [(0.92, 1.6, "brown"), (0.8
 def white_lipped_snail(): return snail_fig("primrose", [(0.92, 1.6, "brown"), (0.8, 1.8, "brown"), (0.66, 1.4, "brown")], lip="white")
 
 
-sp("Limax maximus")(W.DRAW["slug"])
+@sp("Limax maximus")
+def leopard_slug():          # pale grey-brown, the shield behind its head spotted with black and the back striped with it
+    a = Art()
+    body = blob([(10, 66), (24, 58), (44, 51), (62, 49), (76, 52), (87, 58), (90, 65), (84, 69), (60, 70), (34, 70), (16, 69.5)], 8)
+    mantle = blob([(52, 50), (66, 47.5), (78, 52), (79, 60), (66, 63), (53, 59)], 8)
+    for bx, by, ex, ey_ in [(86, 58, 93, 47), (83.5, 56.5, 88, 45.5)]:
+        stroke(a, [(bx, by), (ex, ey_)], 1.4, smooth=False)
+        a.dot(ex, ey_, 1.3, "line")
+    stroke(a, [(89, 64), (95, 63)], 1.2, smooth=False)
+    sil = figure(a, [body], "tan", [(band(50, 69, 50, 4, 0, 1.2), "buff")], close=0)
+    for pts in ([(14, 65.4), (26, 60), (38, 57), (50, 55.6)], [(18, 67.4), (30, 64), (42, 62), (52, 61)]):      # two broken black stripes along the back
+        c = curve(pts, 8)
+        for i in range(0, len(c) - 3, 6):
+            stroke(a, c[i:i + 4], 1.3, 0.95, col="ink")
+    figure(a, [mantle], "tan", close=0, lw=0.9)
+    spots(a, mantle, [(58, 53), (63, 51), (68, 55), (73, 52.6), (62, 58), (70, 59.6), (75, 56.6), (57, 57)], 1.3, "ink")
+    a.dot(76.6, 59, 0.9, "ink")
+    stroke(a, [(8, 71.5), (92, 71.5)], 0.8, 0.5, col="soil", smooth=False)
+    return a
+
+
+W.DRAW["slug"] = leopard_slug
 
 
 @sp("Arion ater")
