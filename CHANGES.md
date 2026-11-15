@@ -1,3 +1,28 @@
+# 15 November 2026, 13:11: the plant drawings have solid lines, and stems sit behind leaves behind flowers
+
+**By the "solid lines into the app" chat, on the Mac.** William, 12:19, with a picture of Achillea's "In flower" drawing zoomed in on the iPad: "The opacities used on the drawing of the flowers means that lines are passing through each other and looking a bit odd and more complicated than I think they should." The drawing code was changed in a chat on his phone (project doc 86). This entry puts that code and the redrawn pictures into the app. Branch `solid-lines-15nov`, made from `main` at `baf4a59`, with `eira-box-corners` (the two entries below) joined in.
+
+| File | What changed, and why |
+|---|---|
+| `Tools/design/plant_kit.py`: `line_colours`, `mix`, `flat`, `inside`, `halfway` | Every line is now written in one solid colour. Until now an outline was drawn 85% see-through and a vein 30 to 42%, so two lines that crossed made a darker spot and a stem showed through the leaf in front of it. The drawing code still says how strong a line is. The last step works out the colour that strength would have looked (an outline over the card colour, a fainter line over whatever it sits on) and writes that as a plain colour |
+| `plant_kit.py`: `STEM`, `LEAF`, `BLOOM`, `Art.on`, `Art.group` | Every mark remembers a layer. When a whole plant has been drawn its marks are sorted: stems at the back, then leaves, then flowers and fruit. Until now a clump was drawn one stem at a time, so the second stem's leaves landed on the first stem's flower. An umbel's spokes sit half a layer behind its flowers |
+| `Tools/design/plants_all.py` | `@on_layer(LEAF)` on `LF`, `@on_layer(BLOOM)` on `FL`, `FR` and `SH`. `body` draws the plant as one group. The buds at the top of a spire and the fruit of trailing plants are put on the flower layer by hand |
+| `Design/Plants/light`, `Design/Plants/dark` | All 908 life stages and 340 close-ups redrawn, each in light and dark |
+| `Windfall/Assets.xcassets/Plants` | The same 1,248 drawings as the app holds them, written by `build_design_assets.py` |
+
+No Swift file changed: `plant-drawings.json` and `plant-parts.json` came out identical, so no name, stage or label moved.
+
+**How the code came across.** The project's copies could not be brought to the Mac as files, so the changes were made to the repository's own two files by a script of exact find-and-replace steps (`windfall-build-logs/solid-lines-patch.py`). Each step must match once, or nothing is written.
+
+**Checked** (`windfall-build-logs/solid-lines-compare.py`):
+
+- 340 of the 908 life stages have the same shapes in a new order, and the other 568 the same shapes in the same order. 340 is the number doc 86 gives.
+- No close-up changed its drawing order. No file has `stroke-opacity`.
+- Achillea's outline in light mode is `#2B6249`, the colour doc 86 works out.
+- The card colours the lines are mixed with (`CARD`: `#FFFCF6` light, `#142414` dark) are the app's `Card` colour in `Design/colours.json`.
+
+**One thing to know:** two close-ups, the daffodil's flower and the peacock orchid's, each have one point a tenth of a grid square (a thousandth of the drawing's width) from where the repository had it. The unchanged code run on this Mac gives the same two differences, so it is this Mac's Python rounding a half the other way, not the new code.
+
 # 15 November 2026, 12:35: a tag on two lines is a squircle, not a bulging pill
 
 **By the "search bar corners" chat, from William's phone. On the same branch, `eira-box-corners`. Not built.** William, 12:25, with a picture of a plant's page on the iPad: "The curvature around dynamic accumulator is too much, it should be more of a squircle."

@@ -5,9 +5,19 @@ downwards) from a small set of parts: stems, leaves, petals, fruit, roots.
 Colours are given by NAME and turned into real colours only when a file is
 written, so one drawing gives a light-mode and a dark-mode picture.
 """
-import math
+import math, re
+from contextlib import contextmanager
 
 LW = 1.15  # the usual line width, on the 100 grid
+
+# The layers of a plant, from the back to the front. Inside a "group" (see
+# Art.group) everything on a lower layer is drawn before everything on a
+# higher one, whatever order the code asked for it in.
+STEM, LEAF, BLOOM = 0, 1, 2
+
+# The colour of the card a drawing sits on (light, dark). See "line_colours" below.
+CARD = ("#FFFCF6", "#142414")
+
 
 # name: (light, dark). The first block is from Design/colours.json and doc 49.
 COLOURS = {
@@ -57,6 +67,75 @@ def P(pt):
     return f"{f(pt[0])},{f(pt[1])}"
 
 
+def mix(top, under, a):
+    """The solid colour you SEE when colour `top` is painted over colour
+    `under` at strength a (1 = fully solid, 0 = invisible)."""
+    tc = [int(top[i:i + 2], 16) for i in (1, 3, 5)]; uc = [int(under[i:i + 2], 16) for i in (1, 3, 5)]
+    return "#" + "".join(f"{round(x * a + y * (1 - a)):02X}" for x, y in zip(tc, uc))
+
+
+def flat(d):
+    """Turns a path (the "M10,20 Q30,40 50,60 Z" text) into plain lists of
+    points, one list for each separate stroke in it. Curves become short
+    straight pieces. Only used to find out what a faint line lies on."""
+    tok = re.findall(r"[MLQCTZmlqctz]|-?\d*\.?\d+", d)
+    subs, cur, i, cmd, pos, last_c = [], [], 0, None, (0.0, 0.0), None
+    need = {"M": 2, "L": 2, "T": 2, "Q": 4, "C": 6}
+    while i < len(tok):
+        if tok[i].isalpha():
+            cmd = tok[i]; i += 1
+            if cmd in "Zz":
+                if cur: cur.append(cur[0]); pos = cur[0]
+                continue
+        n = need[cmd.upper()]; v = [float(x) for x in tok[i:i + n]]; i += n
+        if cmd.islower():
+            v = [x + pos[k % 2] for k, x in enumerate(v)]
+        pts = [(v[k], v[k + 1]) for k in range(0, n, 2)]; up = cmd.upper()
+        if up == "M":
+            if cur: subs.append(cur)
+            cur = [pts[0]]; cmd = "L" if cmd == "M" else "l"
+        elif up == "L":
+            cur.append(pts[0])
+        else:
+            if up == "T":   # a curve that carries on smoothly from the one before
+                c = (2 * pos[0] - last_c[0], 2 * pos[1] - last_c[1]) if last_c else pos
+                pts = [c, pts[0]]
+            for k in range(1, 9):
+                u = k / 8; w = 1 - u
+                if len(pts) == 2:
+                    cur.append((w * w * pos[0] + 2 * w * u * pts[0][0] + u * u * pts[1][0],
+                                w * w * pos[1] + 2 * w * u * pts[0][1] + u * u * pts[1][1]))
+                else:
+                    cur.append((w ** 3 * pos[0] + 3 * w * w * u * pts[0][0] + 3 * w * u * u * pts[1][0] + u ** 3 * pts[2][0],
+                                w ** 3 * pos[1] + 3 * w * w * u * pts[0][1] + 3 * w * u * u * pts[1][1] + u ** 3 * pts[2][1]))
+        last_c = pts[-2] if up in "QT" else None
+        pos = pts[-1]
+    if cur: subs.append(cur)
+    return subs
+
+
+def inside(pt, poly):
+    """Is the point inside the closed outline? (Counts how many edges a line
+    drawn out to the right of the point crosses: an odd number means inside.)"""
+    x, y = pt; hit = False
+    for (x0, y0), (x1, y1) in zip(poly, poly[1:] + poly[:1]):
+        if (y0 > y) != (y1 > y) and x < x0 + (y - y0) * (x1 - x0) / (y1 - y0):
+            hit = not hit
+    return hit
+
+
+def halfway(pts):
+    """The point half-way along a run of points, measured along the line."""
+    if len(pts) < 2:
+        return pts[0]
+    seg = [math.dist(a, b) for a, b in zip(pts, pts[1:])]; half = sum(seg) / 2
+    for (a, b), l in zip(zip(pts, pts[1:]), seg):
+        if half <= l and l > 0:
+            u = half / l; return (a[0] + (b[0] - a[0]) * u, a[1] + (b[1] - a[1]) * u)
+        half -= l
+    return pts[-1]
+
+
 class Quad:
     """A curve from p0 to p1, pulled towards c. Used for stems, so that
     leaves and flowers can be placed part-way along it."""
@@ -79,11 +158,37 @@ class Quad:
 
 class Art:
     def __init__(s):
-        s.items = []
+        s.items = []      # every mark, in the order it will be drawn (back first)
+        s.lay = []        # the layer each mark is on, in step with items
+        s.layer = STEM    # the layer new marks are put on
+
+    # ----- layers: what is drawn in front of what -----
+    @contextmanager
+    def on(s, layer):
+        """`with a.on(LEAF):` puts everything drawn inside it on that layer."""
+        old = s.layer; s.layer = layer
+        try:
+            yield
+        finally:
+            s.layer = old
+
+    @contextmanager
+    def group(s):
+        """`with a.group():` draws a whole plant. When it ends, the marks made
+        inside it are put in order of layer: stems at the back, then leaves,
+        then flowers and fruit. Marks on the SAME layer keep the order they
+        were made in. Marks made outside the group are not moved."""
+        start = len(s.items)
+        yield
+        order = sorted(range(start, len(s.items)), key=lambda i: s.lay[i])
+        s.items[start:] = [s.items[i] for i in order]; s.lay[start:] = [s.lay[i] for i in order]
+
+    def _add(s, item):
+        s.items.append(item); s.lay.append(s.layer)
 
     # ----- the two basic marks -----
     def shape(s, d, fill=None, lw=LW, la=0.85, col="line", fa=1):
-        s.items.append(("path", d, fill, lw, la, col, fa)); return s
+        s._add(("path", d, fill, lw, la, col, fa)); return s
 
     def line(s, d, lw=LW, la=0.85, col="line"):
         return s.shape(d, None, lw, la, col)
@@ -148,7 +253,7 @@ class Art:
         return s
 
     def dot(s, x, y, r, fill="line"):
-        s.items.append(("dot", x, y, r, fill)); return s
+        s._add(("dot", x, y, r, fill)); return s
 
     # ----- bigger parts built from the above -----
     def toothleaf(s, x, y, ang, L, W, teeth=11, fill="leaf", depth=0.07):
@@ -216,13 +321,14 @@ class Art:
         """A flat plate of tiny flowers on spokes, like carrot or hogweed.
         curl pulls the outer spokes inwards, as a carrot head does in seed."""
         blob = blob or R * 0.2
-        for k in range(spokes):
-            u = k / (spokes - 1) - 0.5
-            a = ang + u * fan * (1 - curl * 0.55)
-            r = R * (1 - 0.18 * abs(u) * 2) * (1 - curl * 0.1)
-            e = T(x, y, a)(r)
-            m = T(x, y, ang + u * fan * (1 + curl * 0.5))(r * 0.55)
-            s.line(f"M{f(x)},{f(y)} Q{P(m)} {P(e)}", 0.8)
+        with s.on(s.layer - 0.5):   # the spokes: half a layer back, so no head's spokes cross another head's flowers
+            for k in range(spokes):
+                u = k / (spokes - 1) - 0.5
+                a = ang + u * fan * (1 - curl * 0.55)
+                r = R * (1 - 0.18 * abs(u) * 2) * (1 - curl * 0.1)
+                e = T(x, y, a)(r)
+                m = T(x, y, ang + u * fan * (1 + curl * 0.5))(r * 0.55)
+                s.line(f"M{f(x)},{f(y)} Q{P(m)} {P(e)}", 0.8)
         for k in range(spokes):
             u = k / (spokes - 1) - 0.5
             a = ang + u * fan * (1 - curl * 0.55)
@@ -260,15 +366,66 @@ class Art:
         return s
 
     # ----- writing the picture out -----
+    def line_colours(s, mode=0):
+        """Works out one SOLID colour for every line.
+
+        The drawing code still says how strong a line is (0.85 for an outline,
+        0.3 for a faint vein). Drawn see-through at that strength, a line
+        shows whatever is under it: two that cross make a darker spot, and a
+        stem shows through the outline of the leaf in front of it. So each
+        line is given the colour it WOULD have looked, painted at that
+        strength over what lies beneath it, and is then drawn solid:
+          - an outline (0.8 or stronger) is mixed with the card colour;
+          - a fainter line is mixed with the colour it sits on, found by
+            looking at the point half-way along it.
+        Fills laid thinly on purpose (the shading) are left as they are: each
+        lies only on its own shape, so nothing shows through it.
+        Returns a list in step with items: the line colour, or None."""
+        geo, out = [], []   # geo, for each mark with a fill: its box, an "is this point in it" test, its colour, its strength
+
+        def under(i, pt):
+            """The colour showing at pt before mark i is drawn."""
+            c = CARD[mode]
+            for g in geo[:i]:
+                if g and g[0] <= pt[0] <= g[2] and g[1] <= pt[1] <= g[3] and g[4](pt):
+                    c = mix(g[5], c, g[6])
+            return c
+
+        for i, it in enumerate(s.items):
+            if it[0] == "dot":
+                _, x, y, r, fill = it
+                geo.append((x - r, y - r, x + r, y + r, lambda p, x=x, y=y, r=r: math.dist(p, (x, y)) <= r, COLOURS[fill][mode], 1))
+                out.append(None); continue
+            _, d, fill, lw, la, col, fa = it
+            faint = lw and la < 0.8
+            subs = flat(d) if (fill or faint) else []
+            sc = None
+            if lw:
+                sc = COLOURS[col][mode]
+                if faint:
+                    base = under(i, halfway(subs[0]))
+                    if fill:
+                        base = mix(COLOURS[fill][mode], base, fa)
+                    sc = mix(sc, base, la)
+                elif la < 1:
+                    sc = mix(sc, CARD[mode], la)
+            if fill:
+                poly = subs[0]; xs = [p[0] for p in poly]; ys = [p[1] for p in poly]
+                geo.append((min(xs), min(ys), max(xs), max(ys), lambda p, poly=poly: inside(p, poly), COLOURS[fill][mode], fa))
+            else:
+                geo.append(None)
+            out.append(sc)
+        return out
+
     def body(s, mode=0):
         out = []
-        for it in s.items:
+        for it, sc in zip(s.items, s.line_colours(mode)):
             if it[0] == "path":
                 _, d, fill, lw, la, col, fa = it
                 fl = COLOURS[fill][mode] if fill else "none"
                 if fa != 1:
                     fl += f'" fill-opacity="{fa}'
-                st = (f' stroke="{COLOURS[col][mode]}" stroke-width="{f(lw)}" stroke-opacity="{la}"' if lw else ' stroke="none"')
+                st = f' stroke="{sc}" stroke-width="{f(lw)}"' if lw else ' stroke="none"'
                 out.append(f'<path d="{d}" fill="{fl}"{st}/>')
             else:
                 _, x, y, r, fill = it
