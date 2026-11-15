@@ -1,3 +1,53 @@
+# 15 November 2026, 17:40: the animals seen most often are drawn one by one, every insect has legs, and plant diseases get diagrams
+
+**By the "wildlife rows" chat, in a cloud workspace. Not built in Xcode.** On the branch `uk-wildlife-reference`, on top of the entry below. William, 16:08: "For the drawings there should be more images for the most common varieties." 16:49: "Some of the flying insects are lacking legs. The animals definitely require more detailed drawings and more specific drawings per species... more specific frogs and toads, birds, differentiate between foxes and cats". 17:16: "Include diagrams of the diseases too".
+
+**Before.** One drawing for each of 83 kinds, shared by every animal of the kind. Legs were drawn under the wings, so on a hoverfly, a dragonfly, a butterfly and a moth they did not show.
+
+**Now.**
+
+| What | In plain words |
+|---|---|
+| **199 animals have a drawing of their own** (173 different drawings, because look-alikes share one) | Seven bumblebees by their bands, six solitary bees, the hornet, seven hoverflies, thirteen butterflies, six moths, seven ladybirds, eleven other beetles, five shield bugs, eleven dragonflies and damselflies, six spiders, three snails, two slugs, 51 birds, 25 mammals and nine amphibians and reptiles. An animal without one still shows its kind's drawing |
+| **Every insect's legs show** | Legs are now drawn after the wings, in three parts with a stouter thigh. Butterflies, moths, dragonflies, damselflies, the micro-moth and the lacewing were given legs |
+| **More in each drawing** | A bird has flight feathers, shoulder feathers, tail feathers and toes. Mammals have strokes of fur and whiskers. Insects have lines between the rings of the abdomen and more veins in the wing |
+| **85 kinds, up from 83** | "Fox and cats" is now Fox and Cats. "Frogs and toads" is now Frogs and Toads |
+| **39 kinds now show one typical animal, redrawn** | The kind's drawing and that animal's are the same picture: Tits shows the blue tit. The file says which (`"is"` on the kind) |
+| **20 plant disease diagrams, with notes** | Rust, powdery mildew, downy mildew, blight, apple scab, canker, brown rot, grey mould, rose black spot, club root, peach leaf curl, chocolate spot, damping off, honey fungus, sooty mould, blossom end rot, coral spot, onion white rot, mosaic virus and fireblight. Each has what you see, the plants it is found on, when, and what helps |
+
+| File | What changed |
+|---|---|
+| `Tools/design/wildlife_species.py`, `wildlife_species2.py` (new) | The single-animal drawings. Each is tied to a scientific name with `@sp("Bombus terrestris")`. Birds all come from one figure, `bird`, that takes a colour word for each part of the plumage, so a correction is a change of one word |
+| `Tools/design/wildlife.py` | Legs after wings. `SPECIES`, the list of single-animal drawings. Writes `species-drawings.json` |
+| `Tools/design/plant_diseases.py` (new) | The 20 diagrams |
+| `Tools/data/wildlife_kinds.py` | The two splits |
+| `Tools/data/build_wildlife_reference.py` | Gives an animal `"p"`, the name of its own drawing, and a kind `"is"` |
+| `WildlifeReference.swift` | `ownPicture`, `hasOwnPicture`, `pictureName` on an animal. `typical` on a kind. `pictured(ofKind:)` |
+| `WildlifeBookViews.swift` | `WildlifeAnimalPicture` shows an animal's own drawing or its kind's. Rows show a drawing where the animal has its own. An animal's page says "a drawing of the kind" only when it is one |
+| `FaunaViews.swift` | William's own species show their own drawings. A second row, "Plant diseases" |
+| `PlantDiseases.json`, `PlantDiseases.swift`, `PlantDiseaseViews.swift` (new) | The notes, the code that reads them, and two pages: the list and one disease. `affecting(plantNamed:)` finds a plant's diseases and is not yet used by any page |
+| `Assets.xcassets/Wildlife` (284 pictures), `Assets.xcassets/Diseases` (20) | Each light and dark. The wildlife pictures are 9MB |
+| `Tools/checks` | 11 new tests. 901 pass |
+
+**What the code means, in short.**
+
+- `let ownPicture: String?`: the question mark means "may be missing". Most animals have none.
+- `ownPicture.map { "Wildlife/wild-sp-\($0)" } ?? "Wildlife/wild-\(kindSlug)"`: "if there is an own picture, make its name from it. Otherwise (`??`) use the kind's."
+- `@sp("Eristalis tenax", "Eristalis pertinax")` above a drawing function hangs that one drawing on both names.
+
+**⚠️ CHECK, all Claude's:**
+
+1. **Every single-animal drawing is from memory of its markings**, not from a field guide or a photograph. They matter more than the kind drawings did, because each claims to be one species.
+2. **Which animals share a drawing**: the common and tapered drone flies, the buff-tailed's look-alikes are not shared but the three whites are (green-veined, small and large), the common blue and azure damselflies, the common and ruddy darters, the southern and migrant hawkers, wood, house and yellow-necked mice, bank and field voles, common and pygmy shrews, stoat and weasel, brown and mountain hares, song and mistle thrushes, chiffchaff and willow warbler, the grey and common seals, the two pipistrelles, and the dolphins with the porpoise.
+3. **Males are drawn** where the sexes differ (blackbird, chaffinch, house sparrow, mallard, kestrel, orange-tip, banded demoiselle). The hairy-footed flower bee is the female.
+4. **Which animals were chosen.** Mostly the most recorded of each kind, with garden animals preferred over birds of the shore.
+5. **Every word about the plant diseases** is from general knowledge and unchecked. The advice is about growing conditions only: no sprays and no amounts.
+6. **Where the diseases sit**: a row on the Species page, beside the wildlife. They are not wildlife. Plants may be the better home.
+
+**Checked:** Windfall's own checks (Swift 6.3.1 for Linux): 128 files parse, type check passes, cross-file checks clean, 901 logic tests pass. Every drawing looked at once by Claude as a sheet in light mode. Five were corrected after that look (the tawny mining bee's colour, the cockchafer's tail, two spiders' legs, the squirrels' tails) and those five have not been looked at again.
+
+**Not checked:** a build. The single-animal drawings in dark mode. The pages on any device.
+
 # 15 November 2026, 16:50: a UK wildlife reference, with a drawing for each kind of animal
 
 **By the "wildlife rows" chat, from William's iPad, in a cloud workspace. Not built in Xcode.** William, 15:58: "It would be good if you could create a sheet with all wildlife that you could encounter in the uk in it. With drawings." Asked three things, he chose: in the app, the animals Eira can name, and one drawing for each kind. Made on the branch `uk-wildlife-reference`, on top of `species-rows-open` (the entry below), because both change `FaunaViews.swift`.

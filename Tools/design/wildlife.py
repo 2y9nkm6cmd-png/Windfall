@@ -10,8 +10,12 @@ Run it from the top of the repository:
 
     python3 Tools/design/wildlife.py Design/Wildlife
 
-It writes Design/Wildlife/light and /dark (one SVG for each kind, named
-wild-<kind>.svg) and a sheet of them all in each look, for checking by eye.
+It writes Design/Wildlife/light and /dark: one SVG for each kind, named
+wild-<kind>.svg, and one for each animal that has a drawing of its own,
+named wild-sp-<scientific-name>.svg (those are drawn in wildlife_species.py
+and wildlife_species2.py). It also writes a sheet of the kinds in each
+look, for checking by eye, and species-drawings.json, the list of which
+animals have their own drawing.
 Tools/design/build_design_assets.py then copies them into the app.
 
 ⚠️ Every drawing here is Claude's, made on 15 November 2026 from memory of
@@ -27,7 +31,22 @@ from shapely.ops import unary_union
 from wildlife_kit import (Art, P, LW, turn, curve, ell, blob, poly, limb, mirror, band, paint, figure, stroke, eye, spots, polys)
 from wildlife_kinds import KINDS
 
-DRAW = {}   # kind's slug -> the function that draws it
+DRAW = {}      # kind's slug -> the function that draws it
+SPECIES = {}   # scientific name -> the function that draws that one animal (wildlife_species.py and wildlife_species2.py)
+
+
+def sp(*names):
+    """Marks a function as the drawing of one animal, or of a few that look alike."""
+    def keep(fn):
+        for n in names:
+            SPECIES[n] = fn
+        return fn
+    return keep
+
+
+def slug_of(scientific):
+    """'Bombus terrestris' becomes 'bombus-terrestris', for a file name."""
+    return "".join(c if c.isalnum() else "-" for c in scientific.lower()).strip("-")
 
 
 def draws(slug):
@@ -52,14 +71,18 @@ def wing_shape(x, y, ang, L, B, pinch=0.45):
 
 
 def six_legs(a, cx, ty, half, depth, L, lw=1.0, angles=(-40, 6, 46), col="line"):
-    """Three pairs of legs from the middle part of the body. Each leg has a knee."""
+    """Three pairs of legs from the middle part of the body. Each leg has
+    three parts: a stout thigh, a shin and a thin foot."""
     for side in (1, -1):
         for dy, ang in zip((-depth * 0.5, 0, depth * 0.5), angles):
             b = (cx + side * half * 0.75, ty + dy)
-            a1, a2 = math.radians(ang - 20), math.radians(ang + 24)
-            k = (b[0] + side * L * 0.5 * math.cos(a1), b[1] + L * 0.5 * math.sin(a1))
-            e = (k[0] + side * L * 0.55 * math.cos(a2), k[1] + L * 0.55 * math.sin(a2))
-            stroke(a, [b, k, e], lw, smooth=False, col=col)
+            a1, a2, a3 = math.radians(ang - 22), math.radians(ang + 20), math.radians(ang + 50)
+            k = (b[0] + side * L * 0.46 * math.cos(a1), b[1] + L * 0.46 * math.sin(a1))
+            e = (k[0] + side * L * 0.44 * math.cos(a2), k[1] + L * 0.44 * math.sin(a2))
+            t = (e[0] + side * L * 0.2 * math.cos(a3), e[1] + L * 0.2 * math.sin(a3))
+            stroke(a, [b, k], lw * 1.55, smooth=False, col=col)
+            stroke(a, [k, e], lw, smooth=False, col=col)
+            stroke(a, [e, t], lw * 0.7, smooth=False, col=col)
 
 
 def feelers(a, cx, y, half, length, spread, elbow=0, lw=0.9, club=0):
@@ -92,8 +115,6 @@ def insect(a, cx=50, top=None, head=(4.4, 3.8, "black"), th=(6.5, 7.0, "black"),
     total = 2 * hry + 2 * try_ + 2 * ary - 2 * overlap + waist
     top = (50 - total / 2) if top is None else top
     hy = top + hry; ty = hy + hry + try_ - overlap; ay = ty + try_ + ary - overlap + waist
-    if legs:
-        six_legs(a, cx, ty, trx, try_, legs, leg_lw, leg_angles)
     for dy, sweep, L, B, colour, fa in wings:
         for side in (1, -1):
             ang = 90 - side * sweep
@@ -102,6 +123,10 @@ def insect(a, cx=50, top=None, head=(4.4, 3.8, "black"), th=(6.5, 7.0, "black"),
             t = turn(cx + side * trx * 0.5, ty + dy, ang)
             stroke(a, [t(L * 0.08), t(L * 0.5, -side * B * 0.12), t(L * 0.9, -side * B * 0.05)], 0.45, 0.4)
             stroke(a, [t(L * 0.4, -side * B * 0.1), t(L * 0.8, side * B * 0.45)], 0.45, 0.4)
+            stroke(a, [t(L * 0.22, side * B * 0.1), t(L * 0.55, side * B * 0.55)], 0.4, 0.35)
+            stroke(a, [t(L * 0.62, -side * B * 0.32), t(L * 0.66, side * B * 0.3)], 0.4, 0.35)
+    if legs:   # after the wings, so the legs show on top of them
+        six_legs(a, cx, ty, trx, try_, legs, leg_lw, leg_angles)
 
     def furry(cx_, cy_, rx, ry):
         if not fuzz:
@@ -116,6 +141,9 @@ def insect(a, cx=50, top=None, head=(4.4, 3.8, "black"), th=(6.5, 7.0, "black"),
     if waist:
         stroke(a, [(cx, ty + try_ - 1), (cx, ay - ary + 1)], 1.6, smooth=False)
     figure(a, [body], ac, [(band(cx, ay, arx, ary * (1 + tip), v1, v2), c) for v1, v2, c in bands], close=0)
+    for v in (-0.45, -0.05, 0.35, 0.7):
+        w = arx * math.sqrt(max(0.0, 1 - v * v)) * (0.96 if not tip else 0.8)
+        stroke(a, [(cx - w, ay + v * ary), (cx, ay + v * ary + ary * 0.07), (cx + w, ay + v * ary)], 0.45, 0.3)
     figure(a, [furry(cx, ty, trx, try_)], tc, [(band(cx, ty, trx, try_, v1, v2), c) for v1, v2, c in th_bands], close=0)
     figure(a, [ell(cx, hy, hrx, hry)], hc, close=0)
     if eyes:
@@ -552,6 +580,9 @@ def micro_moth():
         for s in (1, -1):
             stroke(a, [(50 + s * 2, y + 2), (50 + s * 7, y - 1)], 0.4, 0.35, smooth=False)
     spots(a, sil, [(45.5, 48), (54.5, 48)], 1.3, "brown")
+    for s_, pts in [(1, [(56, 34), (63, 30), (67, 24)]), (1, [(58.6, 46), (66, 47), (70, 53)]), (1, [(59, 62), (65, 68), (67, 76)])]:
+        for side in (1, -1):
+            stroke(a, [(50 + side * (x - 50), y) for x, y in pts], 0.8, smooth=False)
     figure(a, [ell(50, 25.6, 3.6, 3)], "tan", close=0)
     stroke(a, [(50, 23), (50, 18.5)], 1.4, smooth=False)                                       # the snout
     for s in (1, -1):
@@ -671,7 +702,6 @@ def earwig():
 def lacewing():
     a = Art()
     cx = 50
-    six_legs(a, cx, 31, 2.6, 5, 10, 0.7, angles=(-40, 6, 50))
     figure(a, [limb([(cx, 26), (cx, 62)], 3.6, 2.2)], "leaf", close=0)
     for s in (1, -1):
         for sweep, L, B in [(15, 54, 8.6), (7, 47, 6.4)]:
@@ -683,6 +713,8 @@ def lacewing():
             for k in range(1, 9):
                 u = k / 9
                 stroke(a, [t(L * u, -s * B * 0.55 * math.sin(math.pi * u) ** 0.6), t(L * u + 1.6, s * B * 0.62 * math.sin(math.pi * u) ** 0.6)], 0.35, 0.35, smooth=False)
+    six_legs(a, cx, 30, 2.6, 5, 15, 0.8, angles=(-44, 2, 46))
+    figure(a, [limb([(cx, 26), (cx, 34)], 3.8, 3.4)], "leaf", close=0)
     figure(a, [ell(cx, 22.6, 3.6, 3)], "leaf", close=0)
     for s in (1, -1):
         a.dot(cx + s * 3, 22.2, 1.3, "amber")
@@ -1676,15 +1708,48 @@ def sheet(mode, cell=150, cols=8):
     return "\n".join(out)
 
 
+def species_sheet(W, names, mode, cell=150, cols=8):
+    bg, card, ink, soft = [("#F8F1E5", "#FFFCF6", "#15271D", "#3A5549"), ("#0C1C14", "#142414", "#F1EADB", "#A7B5A5")][mode]
+    pad, lab = 12, 34
+    rows = math.ceil(len(names) / cols)
+    Wd = pad + cols * (cell + pad); H = pad + rows * (cell + lab + pad)
+    out = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{Wd}" height="{H}" viewBox="0 0 {Wd} {H}">', f'<rect width="{Wd}" height="{H}" fill="{bg}"/>']
+    for i, (label, sci) in enumerate(names):
+        x = pad + (i % cols) * (cell + pad); y = pad + (i // cols) * (cell + lab + pad)
+        out.append(f'<rect x="{x}" y="{y}" width="{cell}" height="{cell}" rx="14" fill="{card}"/>')
+        out.append(f'<g transform="translate({x},{y}) scale({cell / 100})" stroke-linecap="round" stroke-linejoin="round">{W.SPECIES[sci]().body(mode)}</g>')
+        short = label if len(label) <= 26 else label[:25] + "…"
+        out.append(f'<text x="{x + cell / 2}" y="{y + cell + 15}" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11.5" fill="{ink}">{short.replace("&", "and")}</text>')
+        out.append(f'<text x="{x + cell / 2}" y="{y + cell + 28}" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-style="italic" font-size="9.5" fill="{soft}">{sci}</text>')
+    out.append("</svg>")
+    return "\n".join(out)
+
+
 if __name__ == "__main__":
+    # This file is run as a program, but the species files import it by
+    # name. Importing it by name here too means everyone shares one list.
+    import wildlife as W
+    import wildlife_species, wildlife_species2
     out = sys.argv[1] if len(sys.argv) > 1 else "out_wildlife"
-    missing = [slug for slug, _, _ in KINDS if slug not in DRAW]
+    missing = [slug for slug, _, _ in W.KINDS if slug not in W.DRAW]
     for mode, look in enumerate(("light", "dark")):
         os.makedirs(os.path.join(out, look), exist_ok=True)
-        for slug, name, group in KINDS:
-            if slug in DRAW:
+        for old in os.listdir(os.path.join(out, look)):
+            if old.startswith("wild-") and old.endswith(".svg"):
+                os.remove(os.path.join(out, look, old))
+        for slug, name, group in W.KINDS:
+            if slug in W.DRAW:
                 with open(os.path.join(out, look, f"wild-{slug}.svg"), "w", encoding="utf-8") as fh:
-                    fh.write(DRAW[slug]().svg(mode))
+                    fh.write(W.DRAW[slug]().svg(mode))
+        for sci, fn in W.SPECIES.items():
+            with open(os.path.join(out, look, f"wild-sp-{W.slug_of(sci)}.svg"), "w", encoding="utf-8") as fh:
+                fh.write(fn().svg(mode))
         with open(os.path.join(out, f"sheet-{look}.svg"), "w", encoding="utf-8") as fh:
-            fh.write(sheet(mode))
-    print(len(DRAW), "kinds drawn, each in light and dark, written to", out, "| not drawn:", missing)
+            fh.write(W.sheet(mode))
+        if "sheets" in sys.argv[2:]:   # a large sheet of every single animal, for checking by eye: add the word "sheets" to ask for it
+            names = [(sci, sci) for sci in W.SPECIES]
+            with open(os.path.join(out, f"sheet-species-{look}.svg"), "w", encoding="utf-8") as fh:
+                fh.write(species_sheet(W, names, mode))
+    with open(os.path.join(out, "species-drawings.json"), "w", encoding="utf-8") as fh:
+        json.dump({"species": {sci: W.slug_of(sci) for sci in sorted(W.SPECIES)}, "kindsDrawnAs": getattr(W, "KIND_IS", {})}, fh, indent=1, ensure_ascii=False)
+    print(len(W.DRAW), "kinds and", len(W.SPECIES), "single animals drawn, each in light and dark, written to", out, "| kinds not drawn:", missing)

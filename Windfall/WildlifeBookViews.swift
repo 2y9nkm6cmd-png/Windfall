@@ -60,6 +60,20 @@ struct WildlifeKindPicture: View {
     }
 }
 
+/// One animal's drawing: its own if it has one, otherwise its kind's.
+struct WildlifeAnimalPicture: View {
+    let creature: WildlifeAnimal
+    var size: CGFloat = 56
+
+    var body: some View {
+        Image(creature.pictureName)
+            .resizable()
+            .scaledToFit()
+            .frame(width: size, height: size)
+            .accessibilityHidden(true)
+    }
+}
+
 /// "1 animal" and "24 animals".
 private func animalsCounted(_ count: Int) -> String {
     count == 1 ? "1 animal" : "\(count) animals"
@@ -228,7 +242,7 @@ struct WildlifeAnimalRow: View {
     var body: some View {
         HStack(spacing: 12) {
             if showsPicture {
-                WildlifeKindPicture(slug: creature.kindSlug, size: 40)
+                WildlifeAnimalPicture(creature: creature, size: 40)
             }
             VStack(alignment: .leading, spacing: 2) {
                 Text(creature.title)
@@ -296,7 +310,7 @@ struct WildlifeKindPage: View {
                 // itself, so that it can change it.
                 Toggle("Only those recorded in \(monthName)", isOn: $aboutNowOnly)
             } footer: {
-                Text("One drawing stands for the whole kind. It is not a picture of each animal.")
+                Text("This drawing stands for the whole kind. The animals seen most often have a drawing of their own, shown beside their name.")
             }
 
             Section {
@@ -304,20 +318,29 @@ struct WildlifeKindPage: View {
                     NavigationLink {
                         WildlifeAnimalPage(creature: creature)
                     } label: {
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(creature.title)
-                                .font(.body.weight(.medium))
-                                .italic(creature.commonName == nil)
-                            if creature.commonName != nil {
-                                Text(creature.scientificName)
-                                    .font(.footnote)
-                                    .italic()
-                                    .foregroundStyle(.secondary)
+                        HStack(spacing: 12) {
+                            // An animal with a drawing of its own shows
+                            // it. The rest would only repeat the kind's
+                            // drawing from the top of the page, so they
+                            // show none.
+                            if creature.hasOwnPicture {
+                                WildlifeAnimalPicture(creature: creature, size: 48)
                             }
-                            if let season = creature.seasonWords {
-                                Text(season)
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(creature.title)
+                                    .font(.body.weight(.medium))
+                                    .italic(creature.commonName == nil)
+                                if creature.commonName != nil {
+                                    Text(creature.scientificName)
+                                        .font(.footnote)
+                                        .italic()
+                                        .foregroundStyle(.secondary)
+                                }
+                                if let season = creature.seasonWords {
+                                    Text(season)
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
                             }
                         }
                     }
@@ -386,11 +409,12 @@ struct WildlifeAnimalPage: View {
 
     // MARK: The pieces
 
-    /// The kind's drawing, large, with a line saying what it is a drawing of.
+    /// The drawing, large. An animal without a drawing of its own shows
+    /// its kind's, with a line saying so.
     private func picture(kindName: String?) -> some View {
         VStack(spacing: 8) {
-            WildlifeKindPicture(slug: creature.kindSlug, size: 200)
-            if let kindName {
+            WildlifeAnimalPicture(creature: creature, size: 200)
+            if !creature.hasOwnPicture, let kindName {
                 Text("A drawing of the kind (\(kindName.lowercased())), not of this animal.")
                     .font(.caption)
                     .foregroundStyle(Theme.inkSoft)
@@ -511,7 +535,7 @@ struct WildlifeAnimalPage: View {
     /// Where the page's facts came from, and that they are unchecked.
     private var sourceCard: some View {
         card("Where this comes from") {
-            Text("iNaturalist's confirmed records in the United Kingdom, fetched on \(book.fetched). The names are iNaturalist's, so some are not the usual British ones.")
+            Text("iNaturalist's confirmed records in the United Kingdom, fetched on \(book.fetched). The names are iNaturalist's, so some are not the usual British ones. The drawing is Claude's, made from memory of the animal's markings.")
                 .font(.footnote)
                 .foregroundStyle(Theme.inkSoft)
             Text("Not yet checked.")

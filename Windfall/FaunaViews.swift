@@ -65,6 +65,24 @@ struct FaunaListView: View {
                             }
                         }
                     }
+                    // Diagrams of the common plant diseases
+                    // (PlantDiseaseViews.swift). ⚠️ Kept here for now, beside
+                    // the pests. William has not said where it belongs.
+                    if !PlantDiseases.shared.list.isEmpty {
+                        NavigationLink {
+                            PlantDiseaseListView()
+                        } label: {
+                            HStack(spacing: 12) {
+                                PlantDiseasePicture(slug: "rust", size: 40)
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Plant diseases").font(.body.weight(.medium))
+                                    Text("\(PlantDiseases.shared.list.count) common ones, each with a diagram")
+                                        .font(.footnote)
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
+                        }
+                    }
                 }
             }
 
@@ -105,11 +123,12 @@ struct FaunaListView: View {
                         FaunaDetailView(fauna: animal)
                     } label: {
                         HStack(spacing: 12) {
-                            // The drawing of its kind, found by its
-                            // scientific name in the UK wildlife list.
-                            // A species the list does not hold has none.
-                            if let kind = WildlifeReference.shared.kind(ofScientificName: animal.scientificName) {
-                                WildlifeKindPicture(slug: kind.slug, size: 44)
+                            // Its drawing, found by its scientific name in
+                            // the UK wildlife list: its own if it has one,
+                            // otherwise its kind's. A species the list
+                            // does not hold has none.
+                            if let listed = WildlifeReference.shared.animal(scientificName: animal.scientificName) {
+                                WildlifeAnimalPicture(creature: listed, size: 44)
                             }
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(animal.commonName).font(.body.weight(.medium))
@@ -168,7 +187,7 @@ struct FaunaDetailView: View {
         Form {
             if let listing = ukListing {
                 Section {
-                    WildlifeKindPicture(slug: listing.kindSlug, size: 160)
+                    WildlifeAnimalPicture(creature: listing, size: 160)
                         .frame(maxWidth: .infinity)
                     NavigationLink {
                         WildlifeAnimalPage(creature: listing)
@@ -176,7 +195,9 @@ struct FaunaDetailView: View {
                         Text("When it is recorded in the UK")
                     }
                 } footer: {
-                    Text("The drawing is of its kind, not of this species.")
+                    if !listing.hasOwnPicture {
+                        Text("The drawing is of its kind, not of this species.")
+                    }
                 }
             }
 

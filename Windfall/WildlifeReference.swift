@@ -10,6 +10,10 @@ import Foundation
 //     20 or more confirmed UK records on iNaturalist;
 //   - one drawing for each KIND of animal (bumblebee, hoverfly, tit, newt),
 //     shared by every animal of that kind, as with the plant drawings.
+// An hour later he asked for more: "more specific drawings per species",
+// "for creatures I'm likely to see". So about two hundred of the most often
+// seen animals now have a drawing of their own (`ownPicture`), and every
+// other animal still shows the drawing of its kind.
 //
 // WHERE IT COMES FROM
 // The list ships inside the app as WildlifeReference.json, made by
@@ -39,6 +43,15 @@ struct WildlifeKind: Decodable, Identifiable, Hashable {
     let name: String
     /// The heading it sits under on the page: "Bees, wasps and ants".
     let group: String
+    /// The scientific name of the animal this kind's drawing shows, where
+    /// it is a drawing of one typical member: "Bombus terrestris".
+    let typical: String?
+
+    // The file calls the last of these "is". `CodingKeys` tells Swift
+    // which name in the file fills which property.
+    enum CodingKeys: String, CodingKey {
+        case slug, name, group, typical = "is"
+    }
 
     var id: String { slug }
 
@@ -62,12 +75,24 @@ struct WildlifeAnimal: Decodable, Identifiable, Hashable {
     let monthCounts: [Int]?
     /// True when iNaturalist marks it as brought to the UK by people.
     let introduced: Bool?
+    /// The name of its own drawing, for an animal that has one. About two
+    /// hundred of the most often seen do. The rest show their kind's.
+    let ownPicture: String?
 
     // The file uses one-letter names to stay small. `CodingKeys` tells
     // Swift which letter fills which property.
     enum CodingKeys: String, CodingKey {
         case scientificName = "s", commonName = "c", kindSlug = "k", family = "f", order = "o"
-        case ukRecords = "n", monthCounts = "m", introduced = "i"
+        case ukRecords = "n", monthCounts = "m", introduced = "i", ownPicture = "p"
+    }
+
+    /// True when the drawing shown is of this animal and not of its kind.
+    var hasOwnPicture: Bool { ownPicture != nil }
+
+    /// The name of the drawing to show, in the app's store of pictures:
+    /// its own if it has one, otherwise its kind's.
+    var pictureName: String {
+        ownPicture.map { "Wildlife/wild-sp-\($0)" } ?? "Wildlife/wild-\(kindSlug)"
     }
 
     var id: String { scientificName }
@@ -206,6 +231,11 @@ struct WildlifeReference {
         let all = (placesByKind[slug] ?? []).map { animals[$0] }
         guard let month else { return all }
         return all.filter { $0.isAbout(inMonth: month) != false }
+    }
+
+    /// A kind's animals that have a drawing of their own, most recorded first.
+    func pictured(ofKind slug: String) -> [WildlifeAnimal] {
+        animals(ofKind: slug).filter(\.hasOwnPicture)
     }
 
     // MARK: One animal

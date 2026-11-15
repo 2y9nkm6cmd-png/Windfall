@@ -77,12 +77,14 @@ KINDS = [
     ("squirrel", "Squirrels", "Mammals"),
     ("rabbit", "Rabbit and hares", "Mammals"),
     ("bat", "Bats", "Mammals"),
-    ("fox", "Fox and cats", "Mammals"),
+    ("fox", "Fox", "Mammals"),
+    ("cat", "Cats", "Mammals"),
     ("badger", "Badger, otter, stoat and their kin", "Mammals"),
     ("deer", "Deer and other large grazers", "Mammals"),
     ("seal", "Seals", "Mammals"),
     ("whale", "Dolphins, porpoise and whales", "Mammals"),
-    ("frog", "Frogs and toads", "Amphibians and reptiles"),
+    ("frog", "Frogs", "Amphibians and reptiles"),
+    ("toad", "Toads", "Amphibians and reptiles"),
     ("newt", "Newts", "Amphibians and reptiles"),
     ("lizard", "Lizards and terrapins", "Amphibians and reptiles"),
     ("snake", "Snakes and the slow-worm", "Amphibians and reptiles"),
@@ -211,7 +213,9 @@ def kind_of(L):
     if ph == "Echinodermata": return "starfish"
     if ph in {"Bryozoa", "Porifera"} or cl == "Ascidiacea": return "sea-colony"
     if cl in {"Actinopterygii", "Chondrichthyes", "Petromyzonti", "Elasmobranchii"}: return "fish"
-    if cl == "Amphibia": return "frog" if o == "Anura" else "newt"
+    if cl == "Amphibia":
+        if o != "Anura": return "newt"
+        return "frog" if fam == "Ranidae" else "toad"
     if cl == "Reptilia": return "snake" if fam in {"Colubridae", "Viperidae", "Anguidae", "Natricidae"} else "lizard"
     if cl == "Mammalia":
         if o == "Chiroptera": return "bat"
@@ -219,7 +223,8 @@ def kind_of(L):
         if o == "Eulipotyphla": return "hedgehog" if fam == "Erinaceidae" else "small-mammal"
         if o == "Lagomorpha": return "rabbit"
         if fam == "Mustelidae": return "badger"
-        if fam in {"Canidae", "Felidae"}: return "fox"
+        if fam == "Canidae": return "fox"
+        if fam == "Felidae": return "cat"
         if fam in {"Phocidae", "Odobenidae"}: return "seal"
         if fam in WHALES: return "whale"
         return "deer"

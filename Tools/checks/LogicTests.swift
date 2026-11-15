@@ -2281,6 +2281,47 @@ struct LogicTests {
             }
         }
 
+        // MARK: Single-animal drawings and the plant diseases
+        let drawnBook = try! WildlifeReference.decode(Data("""
+        {"kinds":[{"slug":"tit","name":"Tits","group":"Birds","is":"Cyanistes caeruleus"},{"slug":"owl","name":"Owls","group":"Birds"}],
+         "animals":[{"s":"Cyanistes caeruleus","c":"Blue Tit","k":"tit","n":900,"p":"cyanistes-caeruleus"},{"s":"Poecile palustris","c":"Marsh Tit","k":"tit","n":90}]}
+        """.utf8))
+        check(drawnBook.animals[0].pictureName == "Wildlife/wild-sp-cyanistes-caeruleus" && drawnBook.animals[0].hasOwnPicture && drawnBook.animals[1].pictureName == "Wildlife/wild-tit" && !drawnBook.animals[1].hasOwnPicture, "an animal with a drawing of its own shows it, and any other shows its kind's")
+        check(drawnBook.kind(slug: "tit")?.typical == "Cyanistes caeruleus" && drawnBook.kind(slug: "owl")?.typical == nil && drawnBook.pictured(ofKind: "tit").map(\.scientificName) == ["Cyanistes caeruleus"], "a kind can name the animal its drawing shows, and list its animals that have their own")
+        let sickList = try! PlantDiseases.decode(Data("""
+        {"diseases":[{"slug":"blight","name":"Blight","cause":"A water mould","seen":"Dark blotches.","plants":"Potatoes and tomatoes.","when":"Midsummer.","helps":"Remove the tops."},
+                     {"slug":"leaf-curl","name":"Peach leaf curl","cause":"A fungus","seen":"Red blisters.","plants":"Peaches, nectarines and almonds.","when":"Spring.","helps":"A rain cover.","note":"Take care."},
+                     {"slug":"scab","name":"Scab","cause":"A fungus","seen":"Spots.","plants":"Apples. Pears have their own.","when":"Wet springs.","helps":"Rake leaves."},
+                     {"slug":"chocolate-spot","name":"Chocolate spot","cause":"A fungus","seen":"Brown spots.","plants":"Broad beans and peas.","when":"Spring.","helps":"Space."}]}
+        """.utf8))
+        check(sickList.list.count == 4 && sickList.disease(slug: "blight")?.season == "Midsummer." && sickList.disease(slug: "leaf-curl")?.note == "Take care." && sickList.disease(slug: "blight")?.pictureName == "Diseases/disease-blight", "the plant diseases are read, with the file's \"when\" as the season")
+        check(PlantDiseases.stem("Tomatoes") == "tomato" && PlantDiseases.stem("peaches") == "peach" && PlantDiseases.stem("Leeks") == "leek" && PlantDiseases.stem("roses") == "rose" && PlantDiseases.stem("grass") == "grass" && PlantDiseases.stem("pea") == "pea", "a plural is brought back to one for comparing")
+        check(sickList.affecting(plantNamed: "Tomato").map(\.slug) == ["blight"] && sickList.affecting(plantNamed: "Potatoes").map(\.slug) == ["blight"] && sickList.affecting(plantNamed: "Peach").map(\.slug) == ["leaf-curl"], "a plant finds the diseases that name it, whether one or many")
+        check(sickList.affecting(plantNamed: "Pea").map(\.slug) == ["chocolate-spot"] && sickList.affecting(plantNamed: "Broad bean").map(\.slug) == ["chocolate-spot"] && sickList.affecting(plantNamed: "Pear").map(\.slug) == ["scab"] && sickList.affecting(plantNamed: "Runner bean").isEmpty && sickList.affecting(plantNamed: "  ").isEmpty, "the whole name has to match, so Pea does not find the diseases of pears and peaches")
+        if let starterPath = ProcessInfo.processInfo.environment["WINDFALL_STARTER"] {
+            let appFolder = URL(fileURLWithPath: starterPath).deletingLastPathComponent()
+            let designFolder = appFolder.deletingLastPathComponent().appendingPathComponent("Design")
+            if let inApp = FileManager.default.contents(atPath: appFolder.appendingPathComponent("PlantDiseases.json").path), let realSick = try? PlantDiseases.decode(inApp) {
+                let undrawn = realSick.list.filter { disease in
+                    ["light", "dark"].contains { !FileManager.default.fileExists(atPath: designFolder.appendingPathComponent("Diseases/\($0)/disease-\(disease.slug).svg").path) }
+                }
+                check(realSick.list.count >= 15 && undrawn.isEmpty && Set(realSick.list.map(\.slug)).count == realSick.list.count, "each of the \(realSick.list.count) plant diseases has a light and a dark diagram (missing: \(undrawn.map(\.slug)))")
+                check(!realSick.affecting(plantNamed: "Tomato").isEmpty && !realSick.affecting(plantNamed: "Rose").isEmpty && !realSick.affecting(plantNamed: "Leek").isEmpty, "the real list knows diseases of tomatoes, roses and leeks")
+            } else {
+                check(false, "the plant diseases in the app can be read")
+            }
+            if let inApp = FileManager.default.contents(atPath: appFolder.appendingPathComponent("WildlifeReference.json").path), let realBook = try? WildlifeReference.decode(inApp) {
+                let own = realBook.animals.filter(\.hasOwnPicture)
+                let lost = own.filter { creature in
+                    ["light", "dark"].contains { !FileManager.default.fileExists(atPath: designFolder.appendingPathComponent("Wildlife/\($0)/" + creature.pictureName.replacingOccurrences(of: "Wildlife/", with: "") + ".svg").path) }
+                }
+                check(own.count > 150 && lost.isEmpty, "each of the \(own.count) animals with a drawing of its own has it, light and dark (missing: \(lost.prefix(5).map(\.scientificName)))")
+                let typicals = realBook.kinds.compactMap(\.typical)
+                check(typicals.count > 30 && typicals.allSatisfy { realBook.animal(scientificName: $0) != nil }, "every kind that names the animal its drawing shows names one in the list")
+                check(realBook.kind(ofScientificName: "Felis catus")?.slug == "cat" && realBook.kind(ofScientificName: "Vulpes vulpes")?.slug == "fox" && realBook.kind(ofScientificName: "Bufo bufo")?.slug == "toad" && realBook.kind(ofScientificName: "Rana temporaria")?.slug == "frog", "foxes are apart from cats, and frogs from toads")
+            }
+        }
+
         print("   logic tests: \(passes) passed, \(failures) failed")
         exit(failures == 0 ? 0 : 1)
     }
