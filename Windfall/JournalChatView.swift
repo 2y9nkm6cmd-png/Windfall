@@ -134,6 +134,16 @@ struct JournalChatView: View {
     /// it is clear the offer is not wanted (JournalChat.shouldOfferPinDown).
     @AppStorage("journalPinDownSkips") private var pinDownSkips = 0
 
+    // A photo sent with words that ask what it is ("What is this?").
+    // Eira answers it in a card, and no entry is written. See
+    // JournalNaming.swift.
+    @State private var naming: NamingRequest?
+    /// True when the photos in the box have already been named and
+    /// were put back to be written about. The next thing sent is then
+    /// an entry whatever its words say, so "Not sure what this is" can
+    /// still be written down.
+    @State private var photosAreForAnEntry = false
+
     // Small things that come and go.
     @State private var showsWhen = false
     @State private var showsConditions = false
@@ -187,6 +197,13 @@ struct JournalChatView: View {
     /// Whether the sun is down at the garden. Nil if its place is unknown.
     private var isDark: Bool? {
         place.map { Sun.position(latitude: $0.latitude, longitude: $0.longitude, at: .now).altitude < 0 }
+    }
+
+    /// True when what is in the box is a photo and words that ask what
+    /// it is. That is a question for Eira, not an entry, so the
+    /// questions about when it happened are not put (see `send`).
+    private var asksForAName: Bool {
+        !waitingPhotos.isEmpty && !photosAreForAnEntry && JournalChat.asksForAName(words)
     }
 
     /// The question to ask before sending, if there is one.
@@ -276,9 +293,17 @@ struct JournalChatView: View {
         page {
             VStack(spacing: 0) {
                 thread(lines)
-                // The photos' own day is asked about first. It is firmer
-                // evidence of when this happened than the words are.
-                if let photoCheck {
+                // A photo with "What is this?" is not going to be an
+                // entry, so there is no time to ask about and the card
+                // is left out. (Until 15 November 2026 it was shown, and
+                // send would not go until it was answered.)
+                //
+                // Otherwise the photos' own day is asked about first. It
+                // is firmer evidence of when this happened than the
+                // words are.
+                if asksForAName {
+                    EmptyView()
+                } else if let photoCheck {
                     checkCard(question: photoCheck.question, choices: choices(for: photoCheck))
                 } else if let timeCheck {
                     checkCard(question: timeCheck.question, choices: choices(for: timeCheck))
@@ -319,6 +344,12 @@ struct JournalChatView: View {
         .onChange(of: pickerItems) { _, items in
             guard !items.isEmpty else { return }
             loadPicked(items)
+        }
+        // Once the box has no photos in it, whether they were sent or
+        // taken off with their crosses, the next photo starts afresh
+        // and can be asked about again.
+        .onChange(of: waitingPhotos.isEmpty) { _, boxIsEmpty in
+            if boxIsEmpty { photosAreForAnEntry = false }
         }
         .alert("Rename", isPresented: Binding(get: { renaming != nil }, set: { if !$0 { renaming = nil } })) {
             TextField("Title", text: $newTitle)
@@ -381,10 +412,12 @@ struct JournalChatView: View {
                 }
 
                 // Photos dropped to start this are waiting there too.
-                if !startingPhotos.isEmpty && !cameFromEirasBar && lastSent == nil {
+                // The line goes once the box holds no photos: they were
+                // sent, asked about or taken off.
+                if !startingPhotos.isEmpty && !cameFromEirasBar && lastSent == nil && !waitingPhotos.isEmpty {
                     eiraSays(startingPhotos.count == 1
-                             ? "Your photo is waiting in the box below. Add a few words about it if you like, then send."
-                             : "Your \(startingPhotos.count) photos are waiting in the box below. Add a few words about them if you like, then send.")
+                             ? "Your photo is waiting in the box below. Add a few words about it and send, or ask me what it is."
+                             : "Your \(startingPhotos.count) photos are waiting in the box below. Add a few words about them and send, or ask me what they are.")
                 }
 
                 if let sent = diary.first(where: { $0.id == lastSent }) {
@@ -426,6 +459,16 @@ struct JournalChatView: View {
                                 })
                     // A new card for each find, not the old one reused.
                     .id(pinDown.id)
+                }
+
+                // A photo sent with "What is this?": your question and
+                // Eira's answer to it. See JournalNaming.swift.
+                if let naming {
+                    NamingCard(request: naming,
+                               onJournal: { writeAbout(naming) },
+                               onFinish: { self.naming = nil })
+                    // A new card for each question.
+                    .id(naming.id)
                 }
             }
             .padding(.horizontal, 20)
@@ -1230,6 +1273,20 @@ struct JournalChatView: View {
         boxHasFocus = false
         #endif
 
+        // A photo with words that ask what it is ("What is this?") is a
+        // question for Eira and not an entry. She looks at the photo and
+        // answers in a card. Nothing is written in the journal, so
+        // nobody is asked when it was. (William, 15 November 2026:
+        // "Weird that I can't say what is this without selecting the
+        // time it was sent?")
+        //
+        // This comes before the check below on purpose: that check is
+        // what used to hold such a question back.
+        if asksForAName {
+            askForAName(text)
+            return
+        }
+
         // A question about when this was has to be answered first. Its
         // card turns amber.
         if photoCheck != nil || timeCheck != nil {
@@ -1295,6 +1352,11 @@ struct JournalChatView: View {
             }
         }
 
+        // An answer about a photo left under the last thing said is
+        // finished with once something new is written.
+        naming = nil
+        photosAreForAnEntry = false
+
         // Ready for the next thing to be said.
         lastSent = entry.id
         words = ""
@@ -1326,5 +1388,47 @@ struct JournalChatView: View {
             // The same thing Done does: EiraFloatingBar's `lowerPanel`.
             panel.close()
         }
+    }
+
+    // MARK: Asking what a photo is
+
+    /// Hands the photos in the box to Eira with the question, and
+    /// empties the box. Nothing is saved: the card that answers has its
+    /// own buttons for that (JournalNaming.swift).
+    private func askForAName(_ text: String) {
+        // Only photos whose bytes have arrived. Send is held back while
+        // one is still on its way (`photosAreComing`), so this is all
+        // of them.
+        let ready = waitingPhotos.filter { $0.data != nil }
+        naming = NamingRequest(words: text,
+                               originals: ready.compactMap(\.data),
+                               facts: ready.map(\.facts),
+                               tiles: ready.map(\.thumbnailToKeep),
+                               bed: aboutBed)
+
+        // The box is cleared as it is after an entry, and the stamp put
+        // back to now, so that nothing chosen for this photo is carried
+        // over to the next thing written.
+        words = ""
+        waitingPhotos = []
+        chosenWhen = nil
+        hasOwnConditions = false
+        checkIsAnswered = false
+        checkWasSkipped = false
+        answeredPhotoCheck = nil
+        suggested = conditions(at: .now)
+    }
+
+    /// "Write a journal entry with it" on Eira's answer: the photos go
+    /// back in the box, to be written about and sent as an entry.
+    ///
+    /// The question itself is not put back. `photosAreForAnEntry` makes
+    /// the next thing sent an entry whatever its words say, so that the
+    /// same photos are not asked about a second time.
+    private func writeAbout(_ request: NamingRequest) {
+        naming = nil
+        photosAreForAnEntry = true
+        for original in request.originals { addPhoto(original) }
+        boxHasFocus = true
     }
 }

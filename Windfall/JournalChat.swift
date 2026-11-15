@@ -609,6 +609,72 @@ extension JournalChat {
         guard said.count >= 2, let opening = said.first else { return true }
         return askingStarts.contains(opening) || said.contains(where: askingWords.contains)
     }
+
+    /// True if the words ask what something is: "What is this?",
+    /// "What tree is that?", "Can you identify it?".
+    ///
+    /// This is the test the journal's conversation puts to words sent
+    /// with a photo. Such words are a question about the photo, not an
+    /// account of the day, so nothing is written in the journal and
+    /// nobody is asked when it happened: Eira looks at the photo and
+    /// says what it most resembles (JournalNaming.swift). (William, 15
+    /// November 2026: "Weird that I can't say what is this without
+    /// selecting the time it was sent?")
+    ///
+    /// The rule, on the words in small letters with "what's" read as
+    /// "what is":
+    /// - no more than twelve words. A longer piece is an account of the
+    ///   day that happens to wonder about something, and belongs in the
+    ///   journal;
+    /// - "identify", "identification" or "ID" anywhere;
+    /// - or "name" followed by a pointing word: "name this";
+    /// - or "what" or "which", and after it a pointing word next to
+    ///   "is" or "are", either way round: "what IS THIS", "what bird
+    ///   IS THAT", "do you know what THESE ARE". "What a" is left out,
+    ///   because "What a beauty this is" is not a question.
+    ///
+    /// It asks for a name only. "What should I do with this?" and "Is
+    /// this ready to pick?" are questions too, but the image model can
+    /// only match a photo to a name, so they are not caught here.
+    static func asksForAName(_ text: String) -> Bool {
+        // The words, in small letters, with punctuation dropped.
+        // `flatMap` lets one word become two: "what's" is "what is".
+        let said = text.lowercased()
+            .replacingOccurrences(of: "\u{2019}", with: "'")
+            .split(whereSeparator: { !($0.isLetter || $0 == "'") })
+            .map(String.init)
+            .flatMap { word -> [String] in
+                switch word {
+                case "what's", "whats": return ["what", "is"]
+                case "that's", "thats": return ["that", "is"]
+                case "it's": return ["it", "is"]
+                default: return [word]
+                }
+            }
+        guard !said.isEmpty, said.count <= 12 else { return false }
+
+        if said.contains(where: { $0 == "id" || $0.hasPrefix("identif") }) { return true }
+
+        // `zip(said, said.dropFirst())` walks the words two at a time:
+        // each word with the one after it.
+        if zip(said, said.dropFirst()).contains(where: { $0 == "name" && pointingWords.contains($1) }) { return true }
+
+        // The first "what" or "which" that is not "what a" or "what an".
+        guard let asked = said.indices.first(where: { place in
+            guard said[place] == "what" || said[place] == "which" else { return false }
+            let next = place + 1 < said.count ? said[place + 1] : ""
+            return next != "a" && next != "an"
+        }) else { return false }
+        let after = said[(asked + 1)...]
+        return zip(after, after.dropFirst()).contains { first, second in
+            (beingWords.contains(first) && pointingWords.contains(second))
+                || (pointingWords.contains(first) && beingWords.contains(second))
+        }
+    }
+
+    /// Words that point at the thing in the photo.
+    private static let pointingWords: Set<String> = ["this", "that", "it", "these", "those", "they"]
+    private static let beingWords: Set<String> = ["is", "are", "was", "were"]
 }
 
 // MARK: - Pinning down something seen

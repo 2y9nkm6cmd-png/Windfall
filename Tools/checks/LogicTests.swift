@@ -692,6 +692,13 @@ struct LogicTests {
         // Telling or asking, on the Journal page
         check(["Frosty and still", "Mulched raspberries", "Today I planted beans", "Two wrens on the hedge by bed 3"].allSatisfy { !JournalChat.readsAsAsking($0) } && ["When do I plant beans", "show me bed 3", "raspberries", "I wonder how deep to plant garlic", "Frost tonight?", ""].allSatisfy { JournalChat.readsAsAsking($0) }, "on the Journal page anything is an entry unless it plainly asks: a question mark, an asking word, or one word alone")
 
+        // Asking what a photo is, in the journal's conversation
+        check(["What is this?", "what's this", "Whats that", "What tree is that?", "What kind of bee is it", "Which moth are these", "Do you know what this is?", "Any idea what these are", "What are they?", "What\u{2019}s this"].allSatisfy { JournalChat.asksForAName($0) }, "words that ask what something is are a question about the photo, with or without a question mark")
+        check(["Can you identify this?", "Identification please", "ID this for me", "Name this", "name that plant"].allSatisfy { JournalChat.asksForAName($0) }, "identify, ID and \"name this\" ask for a name too")
+        check(["Acer in full colour", "Found this by the pond", "The acer by the gate", "", "Frosty and still", "This is the last of the dahlias", "This is what the acer looked like at one"].allSatisfy { !JournalChat.asksForAName($0) }, "an account of what was seen is not a request for a name, even when it points at the photo")
+        check(["What a beauty this is", "What a day. This is the last of the dahlias", "What should I do with this?", "What is the best time to prune this?", "Is this ready to pick?", "When did I plant this"].allSatisfy { !JournalChat.asksForAName($0) }, "an exclamation, and a question that does not ask for a name, are left alone")
+        check(!JournalChat.asksForAName("Planted the garlic today and found a seedling by the gate, no idea what it is, then mulched the rest") && JournalChat.asksForAName("Found this by the gate, no idea what it is"), "more than twelve words is an account of the day that happens to wonder, and stays an entry")
+
         // A plant's page as cards
         let pageGarlic = Plant(commonName: "Garlic"); pageGarlic.variety = "softneck"; pageGarlic.group = "Alliums"; pageGarlic.classification = "Perennial"
         pageGarlic.floweringMonthsText = "jul aug"; pageGarlic.maxHeightM = "0.1-0.6"; pageGarlic.spacingM = "0.15"; pageGarlic.layer = "Herbaceous"; pageGarlic.isPollinator = true; pageGarlic.isRepeller = true
