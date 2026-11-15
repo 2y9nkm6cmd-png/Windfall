@@ -1601,7 +1601,7 @@ BLOOMX = {
     "blueberry": dict(urn=True, fc="white", L=16, W=12), "honeyberry": dict(L=20, W=9),
     "asparagus": dict(kind="bell", fc="primrose", L=12, W=8),
     "lavender": dict(dense=True), "rosemary": dict(kind="lip", dense=False),
-    "sage": dict(kind="lip", dense=False), "mint": dict(kind="tiny", n=4), "oregano": dict(n=4),
+    "sage": dict(kind="lip", dense=False), "mint": dict(kind="lip", dense=True), "oregano": dict(n=4),
     "common-bird-s-foot-trefoil": dict(head=True), "lupin": dict(spike=True, keel="white"),
     "tufted-vetch": dict(spike=True), "alfalfa": dict(kind="pea", spike=True, fc="lilac"),
     "meadowsweet": dict(kind="plume"), "rhubarb": dict(kind="plume", fc="white"),
@@ -1654,6 +1654,11 @@ BLOOMX = {
     "raspberry": dict(kind="flat", fc="white", cen="unripe", pl=0.6, pw=0.5, prof="obovate", ns=30, sepl=0.8, sepw=0.22, sepc="sage"),
     "japanese-wineberry": dict(kind="flat", fc="pink", cen="unripe", pl=0.44, pw=0.6, prof="obovate", ns=22, sepl=0.98, sepw=0.26, sepc="beet", budc="beet"),
     "bristol-onion": dict(kind="globe", drum=True, topc="unripe"),
+    # ---- put right in the photograph check of 15 November 2026 (project doc 107)
+    # The goosefoot family and the docks carry tiny flowers up a branched spike, not in a flat-topped cluster.
+    "beetroot": dict(kind="plume"), "mangelwurzel": dict(kind="plume"), "swiss-chard": dict(kind="plume"),
+    "spinach-beet": dict(kind="plume"), "spinach": dict(kind="plume"), "good-king-henry": dict(kind="plume"),
+    "purple-orach": dict(kind="plume"), "sorrel": dict(kind="plume"),
 }
 
 
