@@ -13,7 +13,19 @@
 - Windfall's own checks in the cloud workspace, Swift 6.3.1 for Linux: 130 files parse, the type check passes, the cross-file checks are clean, 929 logic tests pass.
 - Signed for any iPhone or iPad: BUILD SUCCEEDED 17:39 (`j3-1-ios.log`). Mac, unsigned: BUILD SUCCEEDED 17:40 (`j3-1-mac.log`).
 
-**Not checked when this was written.** Any of the new pages on a screen.
+**On all three devices.** iPad 17:41:01, iPhone 17:41:20, the Mac's copy reopened 17:41:44 (`j3-1-install.log`).
+
+**17:50: a checking aid, and the new pages seen for the first time.** `-demoGarden YES -startSection gardens -demoWildlife <page>` opens one of the new pages in place of the Gardens page, so a still picture can be taken without tapping through. `<page>` is `species`, `book`, `diseases`, `kind:tit`, `animal:Erithacus rubecula` or `disease:rust`. It is `DemoGarden.opensWildlife`, two lines in `MainTabView.swift` and `DemoWildlifePage` at the foot of `WildlifeBookViews.swift`. It does nothing without the example garden. Built for the simulator (`j3-2-sim.log`, BUILD SUCCEEDED 17:45) and the checks run again (929 tests pass). **The Mac and device builds were made before the aid was added**, so the devices carry `4570f5f` without it.
+
+Thirteen simulator pictures, looked at by Claude (`shots/j3-*.png`, script `join3-shots.sh`), iPhone Air and iPad mini, light and dark: Species with its two new rows and a drawing beside each of the example garden's species, All UK wildlife, the Tits, Bumblebees and Larger moths pages, the robin's page with its twelve bars, Plant diseases, Rust and Blight. Every page drew and every drawing was found.
+
+**Seen in them and not changed.**
+
+- A kind's page is a standard `List`, so its cards are the system's white in light mode and neutral grey in dark mode, not Windfall's cream and green glass.
+- The card at the top of All UK wildlife still says "Each kind has one drawing, shared by all its animals", which was true before the single-animal drawings were added.
+- "Confirmed UK records" shows 44611 with no comma.
+
+**Not checked.** A tap on any device, which is the whole of the 16:05 fix. Search. How long Larger moths (580 rows) takes to open on a real device.
 
 # 15 November 2026, 17:25: the animals seen most often are drawn one by one, every insect has legs, and plant diseases get diagrams
 

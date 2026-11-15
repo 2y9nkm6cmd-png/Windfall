@@ -252,6 +252,14 @@ enum DemoGarden {
         isRequested ? UserDefaults.standard.string(forKey: "demoFlowerShape") : nil
     }
 
+    /// A checking aid: `-startSection gardens -demoWildlife book` opens
+    /// the UK wildlife pages in place of the Gardens page, so still
+    /// pictures can be taken without tapping through to them.
+    /// DemoWildlifePage lists what can follow `-demoWildlife`.
+    static var opensWildlife: String? {
+        isRequested ? UserDefaults.standard.string(forKey: "demoWildlife") : nil
+    }
+
     /// A checking aid: `-startSection gardens -demoFungus start` opens
     /// the fungus key in place of the Gardens list, and `-demoFungus
     /// r-honey` opens it at that step or answer (the ids are in

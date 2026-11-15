@@ -573,3 +573,56 @@ struct WildlifeAnimalPage: View {
         .glassCard(padding: 16)
     }
 }
+
+// MARK: - A checking aid
+
+/// One of the wildlife or plant disease pages by name, for
+/// `-demoWildlife`. It lets a still picture be taken of a page without
+/// tapping through to it. What can follow `-demoWildlife`:
+///
+/// - `species`: the Species page, with William's own list
+/// - `book`: All UK wildlife, the kinds as tiles
+/// - `kind:tit`: one kind's page (the word after the colon is the kind's
+///   short name in WildlifeReference.json)
+/// - `animal:Erithacus rubecula`: one animal's page, by scientific name
+/// - `diseases`: the plant diseases
+/// - `disease:rust`: one disease's page (its short name in
+///   PlantDiseases.json)
+struct DemoWildlifePage: View {
+
+    let page: String
+
+    var body: some View {
+        // "kind:tit" is cut at its first colon into "kind" and "tit".
+        let pieces = page.split(separator: ":", maxSplits: 1).map(String.init)
+        let wanted = pieces.count > 1 ? pieces[1] : ""
+        switch pieces.first ?? "" {
+        case "species":
+            FaunaListView()
+        case "book":
+            WildlifeBookView()
+        case "diseases":
+            PlantDiseaseListView()
+        case "kind":
+            if let found = WildlifeReference.shared.kind(slug: wanted) {
+                WildlifeKindPage(kind: found)
+            } else {
+                Text("No kind of animal called \(wanted).")
+            }
+        case "animal":
+            if let found = WildlifeReference.shared.animal(scientificName: wanted) {
+                WildlifeAnimalPage(creature: found)
+            } else {
+                Text("No animal called \(wanted).")
+            }
+        case "disease":
+            if let found = PlantDiseases.shared.disease(slug: wanted) {
+                PlantDiseasePage(disease: found)
+            } else {
+                Text("No plant disease called \(wanted).")
+            }
+        default:
+            Text("-demoWildlife takes species, book, diseases, kind:, animal: or disease:.")
+        }
+    }
+}

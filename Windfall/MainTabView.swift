@@ -442,6 +442,8 @@ struct MainTabView: View {
                 FlowerShapeCoverageView()
             } else if let place = DemoGarden.opensFungusKey {
                 FungusKeyView(key: FungusKeys.key(named: DemoGarden.fungusKeyFile) ?? FungusKey.shared, openingAt: place)
+            } else if let page = DemoGarden.opensWildlife {
+                DemoWildlifePage(page: page)
             } else {
                 GardenTab()
             }
