@@ -61,6 +61,16 @@ enum Theme {
     static let eiraFlower = Color("Colours/EiraFlower")
 
     static let cardRadius: CGFloat = 22
+
+    /// The shape of a tag or small button with words in it, such as
+    /// "Pollinator plant" on a plant's page. A rectangle with corners of
+    /// 18 in Apple's smooth curve (`.continuous`, the "squircle" of an
+    /// app icon). One line of words is about 36 points tall, so corners
+    /// of 18 meet and it still looks like a pill. Two lines are taller
+    /// than that, so the sides stay straight and it reads as a squircle.
+    /// A `.capsule` always rounds its ends into full half circles, which
+    /// on two lines became two big bulges.
+    static let tagShape = RoundedRectangle(cornerRadius: 18, style: .continuous)
 }
 
 // MARK: - Text

@@ -693,8 +693,23 @@ struct EiraChatView: View {
 
                 TextField("Ask Eira…", text: $input, axis: .vertical)
                     .lineLimit(1...4)
-                    .textFieldStyle(.roundedBorder)
+                    // `.plain` takes away the system's own box (a dark
+                    // rectangle with small, fixed corners), so the box can
+                    // be drawn below in Windfall's look. It is the journal
+                    // box's drawing (JournalChatView), so the two match.
+                    .textFieldStyle(.plain)
+                    .foregroundStyle(Theme.ink)
                     .focused($boxHasFocus)
+                    // Room between the words and the box's edge.
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 10)
+                    // The box: the card colour, with corners of 20.
+                    .background(Theme.card.opacity(0.85), in: .rect(cornerRadius: 20))
+                    // A thin line round it, with the same corners.
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 20)
+                            .strokeBorder(Theme.hairline)
+                    }
                     // Return sends. Shift-Return or Option-Return starts a new
                     // line. `.ignored` hands the key back to the text box.
                     .onKeyPress(.return, phases: .down) { press in

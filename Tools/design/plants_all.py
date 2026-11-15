@@ -8,7 +8,7 @@ size, flower shape and colour, what is harvested, what the seed looks like).
 The settings for each plant are in the KINDS list near the foot of the file.
 """
 import json, math, os, re, sys
-from plant_kit import Art, T, P, f, COLOURS
+from plant_kit import Art, T, P, f, COLOURS, LEAF, BLOOM
 import plants as S10
 
 G = 72
@@ -16,6 +16,18 @@ GOLD = 2.39996  # the golden angle: spreads dots evenly over a round head
 
 
 # ============================================================ small pieces
+def on_layer(layer):
+    """Written as @on_layer(LEAF) on the line above a function, this makes
+    everything that function draws go on that layer (see Art.group)."""
+    def wrap(fn):
+        def inner(a, *args, **kw):
+            with a.on(layer):
+                return fn(a, *args, **kw)
+        return inner
+    return wrap
+
+
+@on_layer(LEAF)
 def LF(a, kind, x, y, ang, L, fill):
     """One leaf of the named kind, starting at x,y and pointing along ang."""
     if L < 2.5:
@@ -47,6 +59,7 @@ def LF(a, kind, x, y, ang, L, fill):
         a.polar(*t(L * 0.5), lambda th: 0.55 + 0.45 * max(0, math.cos(th)) ** 0.5, L * 0.5, L * 0.55, ang, fill)
 
 
+@on_layer(BLOOM)
 def FL(a, kind, x, y, r, col, cen="sun", ang=-90):
     """One flower of the named kind, r across (roughly), facing along ang."""
     t = T(x, y, ang)
@@ -93,6 +106,7 @@ def FL(a, kind, x, y, r, col, cen="sun", ang=-90):
             a.oval(x + dx * r * 0.7, y + dy * r * 0.7, r * 0.42, r * 0.42, 0, col, 0.6)
 
 
+@on_layer(BLOOM)
 def FR(a, kind, x, y, r, col, side=1):
     """One fruit of the named kind hanging from x,y."""
     if kind == "round":
@@ -126,6 +140,7 @@ def FR(a, kind, x, y, r, col, side=1):
             a.line(f"M{P(e)} q{f(side * 2 + k)},{f(-2)} {f(side * 3 + k * 1.6)},{f(1.5)}", 0.6, 0.8, "amber")
 
 
+@on_layer(BLOOM)
 def SH(a, kind, x, y, r, ang=-90):
     """What is left when the flower has gone to seed."""
     t = T(x, y, ang)
@@ -212,7 +227,9 @@ def stemplant(a, s, bx, by, H, stage, lean=0.0, leaves=True, bare=False):
         for j in range(m):
             u = 0.56 + 0.43 * j / (m - 1); x, y = q.pt(u); side = -1 if j % 2 else 1
             if j >= m - 2 and stage == "flower":
-                a.oval(x + side * 0.8, y, 1.0, 1.3, 0, "unripe", 0.6); continue
+                with a.on(BLOOM):
+                    a.oval(x + side * 0.8, y, 1.0, 1.3, 0, "unripe", 0.6)
+                continue
             down = s.get("fl") == "bell"
             ang = (0 if side > 0 else 180) + side * (32 if down else -34)
             bloom(a, s, stage, x + side * 0.9, y, ang, 1 - 0.4 * j / m)
@@ -251,7 +268,14 @@ def root(a, s, x, y, scale=1.0):
 
 
 def body(a, s, stage, size, by=88):
-    """The whole plant above the ground, by its habit."""
+    """The whole plant above the ground, by its habit. It is drawn as one
+    group, so all its stems go behind all its leaves, and all its leaves
+    behind all its flowers and fruit, however many stems it has."""
+    with a.group():
+        _body(a, s, stage, size, by)
+
+
+def _body(a, s, stage, size, by):
     h = s["habit"]; H = s["H"] * size
     if h == "up":
         stemplant(a, s, 50, by, H, stage)
@@ -291,12 +315,13 @@ def body(a, s, stage, size, by=88):
                 x, y = q.pt(0.6); a.stem((x, y), (x, y - 5), (x + sgn * 2, y - 11), 1.0); FL(a, s["fl"], x + sgn * 2, y - 12, s["fr"], s["fc"], s.get("cen", "sun"))
             if stage == "crop":
                 k, c, r = s["fruit"]; x, y = q.pt(0.95)
-                if k == "long":
-                    a.ribbon((x - sgn * 6, by - 4), (x + sgn * 2, by - 6), (x + sgn * 9, by - 3.6), r * 1.1, r * 0.95, c, round_tip=True)
-                else:
-                    a.oval(x, by - r * 0.92, r * 1.1, r * 0.92, 0, c)
-                    for dx in (-0.45, 0, 0.45):
-                        a.line(f"M{f(x + dx * r)},{f(by - r * 1.75)} Q{f(x + dx * r * 2.1)},{f(by - r)} {f(x + dx * r)},{f(by - r * 0.1)}", 0.5, 0.3)
+                with a.on(BLOOM):
+                    if k == "long":
+                        a.ribbon((x - sgn * 6, by - 4), (x + sgn * 2, by - 6), (x + sgn * 9, by - 3.6), r * 1.1, r * 0.95, c, round_tip=True)
+                    else:
+                        a.oval(x, by - r * 0.92, r * 1.1, r * 0.92, 0, c)
+                        for dx in (-0.45, 0, 0.45):
+                            a.line(f"M{f(x + dx * r)},{f(by - r * 1.75)} Q{f(x + dx * r * 2.1)},{f(by - r)} {f(x + dx * r)},{f(by - r * 0.1)}", 0.5, 0.3)
         e = (50, by - 2 - s["H"] * size * 1.25); a.stem((50, by - 2), (50, by - 10), e, 1.2)
         LF(a, s["leaf"], e[0], e[1] + 3, -90, s["ls"] * (0.6 + 0.4 * size), s["lc"])
     elif h == "mat":

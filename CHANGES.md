@@ -1,3 +1,73 @@
+# 15 November 2026, 13:35: the Journal's last entry scrolls clear of Eira's bar
+
+**By the "zoom still not right" chat, its second job.** William, 13:16, with a picture from the iPad: "In journal, because Eira's bar is there the whole time, the very bottom item is cut off. Could you make it so that you can scroll the posts above the bar?" Made on the branch `journal-clear-of-bar`, from `main` at `720efee`.
+
+**The cause.** MainTabView keeps a strip clear along the bottom of every page for the bar (`safeAreaInset`), put round each place's `NavigationStack`. On an iPad that strip does not reach the page inside the stack: the Journal's scrolling stopped at the screen's own bottom edge, 74 points lower than it should, so the last entry rested behind the bar. A picture of the simulator before the change shows it (`shots/jb-before-ipad-end.png`).
+
+| File | What changed, and why |
+|---|---|
+| `EiraScreen.swift` | New `barLine`: how far down the window the bar's strip begins. Kept on the tracker every page can already read |
+| `MainTabView.swift` | Both strips (sidebar layout and iPhone tabs) report where they begin with `onGeometryChange`, which runs only when the measurement changes |
+| `JournalViews.swift`, `JournalTimelineView` | New `hiddenByBar(_:)`: the page's own bottom edge less `barLine`, never under 0 nor over 120. That much is added under the last card, on top of the usual 20 points. Where the strip does reach the page the sum comes to nothing, so room is never added twice |
+| `DemoGarden.swift` | A checking aid, `-startSection journal -demoJournalEnd YES`, opens the Journal already scrolled to its foot (`defaultScrollAnchor`) |
+
+**Not changed:** every other page. Today, Gardens and the rest are laid out the same way, so on an iPad their last lines very likely stop 74 points low as well. It shows less there because the bar is closed to a small round button in the corner.
+
+**Checked:** simulator build, unsigned: BUILD SUCCEEDED (`windfall-build-logs/jb2-sim.log`). Simulator pictures with the Journal scrolled to its foot (`shots/jb-after-ipad-end.png` on an iPad mini, `jb-after-iphone-end.png` on an iPhone 17e, script `journalbar-shots.sh`): the last card ends about 20 points above the bar on both.
+
+**Not checked:** a scroll by hand on any device, the Mac's own window, the iPad on its side, and whether the iPhone ever had the fault (the "before" picture of the iPhone was lost: another chat was using the same simulator).
+# 15 November 2026, 13:15: Eira's symbol is the app icon's snowdrop, in colour
+
+**By the snowdrop chat.** William, 14 November: "Can we rebuild Eira's icon so it more resembles the snowdrop in the app icon?" On 15 November he chose option A of three drawn for him: "No bee in the Eira icon... it keeps its circle" and "I think A", the whole snowdrop in colour, and of the circle's colour "You used the right green" (project docs 72 and 83). Made on the branch `eira-snowdrop-a`, from `main`.
+
+| File | What changed, and why |
+|---|---|
+| `Tools/design/eira_snowdrop.py` (new) | Copies the snowdrop's twelve outlines out of the icon's drawing (`Design/AppIcon/windfall-app-icon-light.svg`) and writes them into a Swift file, so nothing is retyped by hand and Eira's snowdrop cannot drift from the icon's. It stops if the icon's drawing has been rearranged, or if the light and dark icons disagree. With `preview` it writes pictures of the symbol, upright and leaning, to look at before a build |
+| `WindfallShared/SnowdropArt.swift` (new, written by the script) | The outlines: stalk, three leaves, three petals, the three pieces of the inner cup, the V and the cap, in the icon's own numbers. Also where Eira's circle sits on the drawing: middle 200, 215 and 200 out to the rim, which trims the leaves |
+| `WindfallShared/SnowdropDrawing.swift` (new) | The part written by hand. `SnowdropStyle` says what each part is painted with and how wide its line is: `onGreen` is the dark icon's drawing (cream lines, a cream outline round the flower) for a green circle, `onCream` the light icon's (green lines) for a cream circle, and `oneColour` for the Lock Screen. `SnowdropView` paints the parts on a `Canvas` in the icon's order. `SnowdropOnDisc` puts it on its circle. `SnowdropSway` holds the three points the plant bends at |
+| `Windfall/Snowdrop.swift` | Now only `EiraSymbol`, which picks the style for light or dark mode, the wind (`SnowdropWind`, unchanged) and a checking page, `SnowdropSheet`. The old outlines from William's logo sheet, and the code that read them, are gone from here: the reading code moved to the shared file |
+| `WindfallShared/WidgetViews.swift` | The widgets' second copy of the snowdrop (`WidgetSnowdrop`, flower and hook only) is gone. `WidgetEiraDisc` draws the shared one. A widget's set of colours no longer names a circle colour and a flower colour: it says which style suits it (`snowdrop`), and the Paper look leaves that to light and dark mode |
+| `WindfallWidgets/WindfallWidgets.swift` | The Lock Screen circle shows the whole snowdrop in one colour, with the icon's lines as thin gaps |
+| `Windfall/WidgetShare.swift` | The checking page has a page 3: `-demoOpen widgets -demoWidgetPage 3` shows the symbol at six sizes, both ways round, leaning, and in one colour |
+| `Design/colours.json` and both asset catalogues | Three new named colours, the same in light and dark: `IconGreen` `#06421B`, `IconCream` `#FAEEE0` and `IconLeaf` `#C0D76D`. `EiraDisc` is now `#06421B` in light mode and `#FAEEE0` in dark (it was `#06472A` and `#F8F1E5`), and `EiraFlower` the other way round. Nothing in the code uses those two any more: the snowdrop takes its colours from the three Icon colours. They are left in place, with true values, because `Theme.swift` still names them and another branch is open on the lines beside them |
+
+**Why a `Canvas`.** The old symbol was one colour, so each part was a SwiftUI shape and the colour came from outside. Now every part has a fill and a line of its own, in the icon's order, and the line widths are in the icon's numbers. A `Canvas` is a sheet the code paints on directly: it is lined up with the icon's numbers once, and after that each shape and width is given exactly as the icon gives it. The lean and the nod are three copies of the sheet, each turned a little more than the last.
+
+**The sway is gentler.** The wind's own sums (`SnowdropWind`) are unchanged: up to 24 degrees of lean and about 46 of nod. The new flower fills far more of the circle than the old one, and at full strength it was thrown out of the circle. So the whole plant takes 0.15 of the lean about the point where the leaves meet the ground, the stalk a further 0.35 about its foot behind the tall leaf, and the flower head half of the nod about the stalk's tip. These three numbers are Claude's choice, from pictures of the furthest lean each way.
+
+**Checked:** Mac and simulator builds, unsigned: BUILD SUCCEEDED (`windfall-build-logs/sd1-sim.log`, `sd1-mac.log`, and `sd2-*` after `main` was merged in). Syntax and cross-file checks pass (`sd1-checks.log`; the type check and logic tests do not run on the Mac, as before). Simulator pictures, all looked at (`windfall-build-logs/shots/sd1-*.png`): the checking page, Today on an iPhone 17 Pro and an iPad mini, Eira's chat, the journal's conversation and the Ask Eira widget in Paper and Garden green, in light and dark.
+
+**Not checked:** the sway in motion (only still pictures of its furthest points), the symbol on a Mac's screen, a widget placed on a real Home Screen, and the Lock Screen circle, which iOS colours itself.
+
+# 15 November 2026, 13:11: the plant drawings have solid lines, and stems sit behind leaves behind flowers
+
+**By the "solid lines into the app" chat, on the Mac.** William, 12:19, with a picture of Achillea's "In flower" drawing zoomed in on the iPad: "The opacities used on the drawing of the flowers means that lines are passing through each other and looking a bit odd and more complicated than I think they should." The drawing code was changed in a chat on his phone (project doc 86). This entry puts that code and the redrawn pictures into the app. Branch `solid-lines-15nov`, made from `main` at `baf4a59`, with `eira-box-corners` (the two entries below) joined in.
+
+| File | What changed, and why |
+|---|---|
+| `Tools/design/plant_kit.py`: `line_colours`, `mix`, `flat`, `inside`, `halfway` | Every line is now written in one solid colour. Until now an outline was drawn 85% see-through and a vein 30 to 42%, so two lines that crossed made a darker spot and a stem showed through the leaf in front of it. The drawing code still says how strong a line is. The last step works out the colour that strength would have looked (an outline over the card colour, a fainter line over whatever it sits on) and writes that as a plain colour |
+| `plant_kit.py`: `STEM`, `LEAF`, `BLOOM`, `Art.on`, `Art.group` | Every mark remembers a layer. When a whole plant has been drawn its marks are sorted: stems at the back, then leaves, then flowers and fruit. Until now a clump was drawn one stem at a time, so the second stem's leaves landed on the first stem's flower. An umbel's spokes sit half a layer behind its flowers |
+| `Tools/design/plants_all.py` | `@on_layer(LEAF)` on `LF`, `@on_layer(BLOOM)` on `FL`, `FR` and `SH`. `body` draws the plant as one group. The buds at the top of a spire and the fruit of trailing plants are put on the flower layer by hand |
+| `Design/Plants/light`, `Design/Plants/dark` | All 908 life stages and 340 close-ups redrawn, each in light and dark |
+| `Windfall/Assets.xcassets/Plants` | The same 1,248 drawings as the app holds them, written by `build_design_assets.py` |
+
+No Swift file changed: `plant-drawings.json` and `plant-parts.json` came out identical, so no name, stage or label moved.
+
+**How the code came across.** The project's copies could not be brought to the Mac as files, so the changes were made to the repository's own two files by a script of exact find-and-replace steps (`windfall-build-logs/solid-lines-patch.py`). Each step must match once, or nothing is written.
+
+**Checked** (`windfall-build-logs/solid-lines-compare.py`):
+
+- 340 of the 908 life stages have the same shapes in a new order, and the other 568 the same shapes in the same order. 340 is the number doc 86 gives.
+- No close-up changed its drawing order. No file has `stroke-opacity`.
+- Achillea's outline in light mode is `#2B6249`, the colour doc 86 works out.
+- The card colours the lines are mixed with (`CARD`: `#FFFCF6` light, `#142414` dark) are the app's `Card` colour in `Design/colours.json`.
+
+**Built and seen:** with `main` joined in twice more while this was made (the zoomed Life stages strip, then Eira's snowdrop symbol), Mac and simulator builds, unsigned, and a signed build for any iPhone or iPad: BUILD SUCCEEDED (`windfall-build-logs/sl1-sim.log`, `sl3-mac.log`, `sl3-ios.log`). Simulator pictures (`windfall-build-logs/shots/sl-*.png`): Yarrow's page and its "In flower" drawing zoomed in, light and dark, on an iPhone 17 Pro; Yarrow's and Russian comfrey's pages on an iPad mini; Eira's panel in light and dark. The flower heads sit in front of the leaves and no line shows through another. The "Ask Eira" box has the journal box's corners and sits level with the microphone.
+
+**Not seen:** a tag on two lines. In the pictures "Pollinator plant" and "Dynamic accumulator" each fit on one line and look like pills, as they should. Windfall's own Linux checks were not run: no Swift file changed in the drawings, and the two Swift changes of `eira-box-corners` are views.
+
+**One thing to know:** two close-ups, the daffodil's flower and the peacock orchid's, each have one point a tenth of a grid square (a thousandth of the drawing's width) from where the repository had it. The unchanged code run on this Mac gives the same two differences, so it is this Mac's Python rounding a half the other way, not the new code.
+
 # 15 November 2026, 13:05: the zoomed Life stages page is the card's own row made big, not a slideshow
 
 **By the card zoom chat, second round.** William, 12:51, with a picture of the row of stages: "The zoom in still isn't right. I wanted this to be the thing that fills the screen and you scroll along it." The 12:25 version showed one drawing to a page and snapped from page to page. Made on the branch `card-zoom-15nov`, from `main` at `baf4a59`.
@@ -13,6 +83,28 @@
 **Checked:** simulator and Mac builds, unsigned: BUILD SUCCEEDED (`windfall-build-logs/cz8-sim.log`, `cz8-mac.log`). Simulator pictures (`windfall-build-logs/shots/cz2-*.png`, script `cardzoom-shots2.sh`): Yarrow's strip at its start on an iPhone 17 Pro in dark and on an iPad mini in dark, its end ("Winter") on the iPad mini in light, Yarrow's flower and Rhubarb's leaf alone, and Yarrow's page with the three cards unchanged.
 
 **Not checked:** a drag along the strip on any device, the Mac's own window, and an iPad or iPhone on its side. The pictures are of pages opened by the checking aid.
+
+# 15 November 2026, 12:35: a tag on two lines is a squircle, not a bulging pill
+
+**By the "search bar corners" chat, from William's phone. On the same branch, `eira-box-corners`. Not built.** William, 12:25, with a picture of a plant's page on the iPad: "The curvature around dynamic accumulator is too much, it should be more of a squircle."
+
+| File | What changed, and why |
+|---|---|
+| `Theme.swift`, new `Theme.tagShape` | One shape for a tag with words in it: a rectangle with corners of 18 in Apple's smooth curve (`style: .continuous`). On one line (about 36 points tall) the corners meet, so it still looks like a pill. On two lines the sides stay straight |
+| `PlantLibraryView.swift` | The three sets of tags on a plant's page use it in place of `.capsule`: a card's tags ("Pollinator plant", "Dynamic accumulator"), the "Add information" buttons ("Human Management", "Ecological Interactions") and "Plants that help with its pests". A capsule's ends are always full half circles, so a two-line tag had ends 30 points deep |
+
+**Not checked:** anything. Not built or seen. The filter buttons and the plant cards' chips are still capsules: they stay on one line.
+
+# 15 November 2026, 12:30: the box in Eira's chat has Windfall's rounded corners
+
+**By the "search bar corners" chat, from William's phone. Branch `eira-box-corners`, from `main` at `baf4a59`. Not built: written in Claude's cloud workspace, which has no Xcode.** William, 12:22, with a picture of Eira's chat in the panel in dark mode: "The curvature of this search bar doesn't match the curvature elsewhere."
+
+| File | What changed, and why |
+|---|---|
+| `EiraChatView.swift`, the "Ask Eira…" box | It used the system's own box (`.textFieldStyle(.roundedBorder)`), whose corners are small and fixed and which is black in dark mode. It is now `.plain` with the box drawn by hand, exactly as the journal's box is in `JournalChatView.swift`: the card colour at 0.85, corners of 20, a hairline round it, 14 points of room at the sides and 10 above and below |
+
+**Not checked:** anything. It has not been built or seen. The box is taller than before (about 40 points for one line, as the journal's is), which should sit level with the 44-point microphone.
+
 # 15 November 2026, 12:25: the whole Life stages card zooms in, and Leaf and Flower are two cards
 
 **By the card zoom chat.** William, 11:57: "When I said I wanted the life stages card to be able to be tapped to zoom in, I meant the entire card, then able to scroll through the life cycle but it would be zoomed in. For the leaf and flower card, I want these as two separate cards that sit next to each other, but in the same location they're in now." Made on the branch `card-zoom-15nov`, from `main` at `f4b5700`.

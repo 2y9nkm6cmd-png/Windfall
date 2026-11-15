@@ -71,6 +71,13 @@ final class EiraScreen {
 
     // MARK: Photos on their way to Eira's bar
 
+    /// How far down the window the strip kept clear for Eira's bar
+    /// begins, in points from the top of the window. MainTabView
+    /// measures it. A page can compare it with where its own foot is,
+    /// to find out whether its last lines lie under the bar. Nil until
+    /// it has been measured. See `JournalTimelineView.hiddenByBar`.
+    var barLine: CGFloat?
+
     /// Photos a page has been given that belong with Eira's bar, each
     /// as its file's own bytes. The Journal page puts photos dropped on
     /// it here, and the bar picks them up and opens the journal's

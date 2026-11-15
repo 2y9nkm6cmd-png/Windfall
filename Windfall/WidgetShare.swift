@@ -303,7 +303,8 @@ final class WidgetRoute {
 /// Draws the widgets inside the app, with example content, so they can
 /// be looked at in a simulator without putting them on a Home Screen.
 /// Opened with `-demoOpen widgets`. `-demoWidgetPage 0`, 1 or 2 picks
-/// which, and `-demoWidgetLook green` the look.
+/// which, and `-demoWidgetLook green` the look. Page 3 is Eira's symbol
+/// alone, at every size.
 struct WidgetGallery: View {
 
     private let page = UserDefaults.standard.integer(forKey: "demoWidgetPage")
@@ -348,6 +349,9 @@ struct WidgetGallery: View {
                             .clipShape(.rect(cornerRadius: 24))
                         small(WeekWidgetView(jobs: nil, ticked: [], size: .small, palette: palette))
                     }
+                case 3:
+                    // Eira's symbol by itself. See SnowdropSheet.
+                    SnowdropSheet()
                 default:
                     HStack(spacing: 14) {
                         small(WeekWidgetView(jobs: jobs, ticked: ticked, size: .small, palette: palette))

@@ -262,6 +262,14 @@ struct MainTabView: View {
             // whole height of the page to grow into.)
             .safeAreaInset(edge: .bottom, spacing: 0) {
                 Color.clear.frame(height: EiraFloatingBar.restingHeight + 14)
+                    // Notes where the strip begins, for a page that
+                    // finds the strip has not reached it. See
+                    // `EiraScreen.barLine`.
+                    .onGeometryChange(for: CGFloat.self) { strip in
+                        strip.frame(in: .global).minY.rounded()
+                    } action: { top in
+                        eiraScreen.barLine = top
+                    }
             }
             // An overlay is drawn on top of a view and given the same
             // space. Eira's bar sits at the foot of it. A conversation
@@ -322,6 +330,13 @@ struct MainTabView: View {
                     // opened its conversations as sheets.
                     .safeAreaInset(edge: .bottom, spacing: 0) {
                         Color.clear.frame(height: EiraFloatingBar.restingHeight + 8)
+                            // As in `sidebarLayout`: notes where the
+                            // strip begins.
+                            .onGeometryChange(for: CGFloat.self) { strip in
+                                strip.frame(in: .global).minY.rounded()
+                            } action: { top in
+                                eiraScreen.barLine = top
+                            }
                     }
                     .overlay(alignment: .bottom) {
                         // An iPhone has a bar for each tab. Photos dropped

@@ -122,8 +122,14 @@ struct JournalTimelineView: View {
                 .padding(.leading, isNarrow ? 16 : 14)
                 .padding(.trailing, isNarrow ? 16 : 24)
                 .padding(.top, 12)
-                .padding(.bottom, 20)
+                // 20 points of air under the last card, and as much
+                // again as Eira's bar covers, so that the last entry
+                // can be scrolled up clear of it.
+                .padding(.bottom, 20 + hiddenByBar(geometry))
             }
+            // A checking aid (`-demoJournalEnd YES`): start at the foot
+            // of the page. Otherwise at the top, as any page does.
+            .defaultScrollAnchor(DemoGarden.journalStartsAtEnd ? .bottom : .top)
         }
         .paperScreen()
         .navigationTitle("Journal")
@@ -169,6 +175,37 @@ struct JournalTimelineView: View {
         .sheet(item: $entryToChange) { entry in
             JournalEntrySheet(entry: entry)
         }
+    }
+
+    // MARK: Room for Eira's bar
+
+    /// How much of the foot of this page lies under Eira's bar, in
+    /// points. Nothing, where the page already stops above the bar.
+    ///
+    /// Why it is needed. MainTabView keeps a strip clear along the
+    /// bottom of every page for the bar (`safeAreaInset`), and a
+    /// scrolling page is meant to stop above that strip. On an iPad the
+    /// strip was found not to reach this page (William's picture, 15
+    /// November 2026: the last entry sat behind the bar and would not
+    /// scroll clear). The strip is put round the NavigationStack, and
+    /// the page inside the stack was not told about it.
+    ///
+    /// So the page checks for itself. `geometry.frame(in: .global)` is
+    /// where this page sits in the window, and its `maxY` is the page's
+    /// bottom edge. `barLine` is where the strip begins. If the page's
+    /// bottom edge is lower than that line, the difference is how much
+    /// the bar hides, and that much is added under the last card. If
+    /// the strip did reach the page, the two are the same, the answer
+    /// is nothing and no room is added twice.
+    private func hiddenByBar(_ geometry: GeometryProxy) -> CGFloat {
+        // `guard let` stops here with 0 if there is no tracker or the
+        // line has not been measured yet.
+        guard let line = eiraScreen?.barLine else { return 0 }
+        let hidden = geometry.frame(in: .global).maxY - line
+        // Never less than nothing, and never more than 120 points,
+        // in case a measurement is taken part-way through a change of
+        // layout.
+        return min(max(hidden, 0), 120)
     }
 
     // MARK: The line above the title
