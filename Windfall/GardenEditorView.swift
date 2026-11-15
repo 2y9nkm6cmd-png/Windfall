@@ -34,7 +34,8 @@ struct GardenEditorView: View {
     @Query(sort: [SortDescriptor(\GardenFeature.createdAt)]) private var allFeatures: [GardenFeature]
 
     @State private var compass = CompassHeading()
-    @State private var isFindingLocation = false
+    /// True while the sheet for giving the garden its place is up.
+    @State private var isPlacing = false
 
     private var beds: [Bed] { allBeds.filter { $0.siteRaw == garden.siteKey } }
     private var features: [GardenFeature] {
@@ -160,26 +161,20 @@ struct GardenEditorView: View {
         Section {
             NumberRow("Latitude", value: $garden.latitude, decimals: 4)
             NumberRow("Longitude", value: $garden.longitude, decimals: 4)
-            Button {
-                Task {
-                    isFindingLocation = true
-                    if let fix = await locationManager.currentLocation() {
-                        // Four decimal places is about ten metres.
-                        garden.latitude = (fix.coordinate.latitude * 10_000).rounded() / 10_000
-                        garden.longitude = (fix.coordinate.longitude * 10_000).rounded() / 10_000
-                    }
-                    isFindingLocation = false
-                }
-            } label: {
-                HStack {
-                    Text("Use where I am now")
-                    if isFindingLocation { ProgressView().controlSize(.small) }
-                }
+            // One sheet with every way of finding the place: by town or
+            // postcode, where you are now, or another garden's. Until 15
+            // November 2026 this was a button that used the device's own
+            // position and said nothing when it could not have it.
+            Button("Find it by town or postcode, or use where I am…") {
+                isPlacing = true
+            }
+            .sheet(isPresented: $isPlacing) {
+                GardenPlaceSheet(garden: garden)
             }
         } header: {
             Text("Where it is")
         } footer: {
-            Text("Latitude decides how high the sun climbs, which sets how long the shadows are. It stays on this device.")
+            Text("Latitude decides how high the sun climbs, which sets how long the shadows are. The place also decides the garden's weather. It stays on this device.")
         }
     }
 

@@ -285,6 +285,8 @@ struct GardenPlanCard: View {
 
     @State private var compass = CompassHeading()
     @State private var followsCompass = false
+    /// True while the sheet for giving the garden its place is up.
+    @State private var isPlacing = false
 
     /// Where north lies on the screen, clockwise from straight up.
     private var north: Double {
@@ -322,6 +324,33 @@ struct GardenPlanCard: View {
             GardenPlanView(garden: garden, beds: beds, features: features, turn: turn)
                 .frame(maxWidth: .infinity, maxHeight: 320)
 
+            // While the garden has no place on the map, say so here and
+            // offer to set it. Until 15 November 2026 the only way was
+            // through Edit layout and the form of numbers, which William
+            // found too complex. Once the place is set this line goes.
+            if garden.latitude == nil || garden.longitude == nil {
+                HStack {
+                    Text("No place on the map, so no weather of its own")
+                        .font(.footnote)
+                        .foregroundStyle(Theme.inkSoft)
+                        .fixedSize(horizontal: false, vertical: true)
+                    Spacer()
+                    Button {
+                        isPlacing = true
+                    } label: {
+                        HStack(spacing: 4) {
+                            Text("Set where it is")
+                            WIconView(.arrowRight, size: 14)
+                        }
+                        .font(.body)
+                        .foregroundStyle(Theme.leaf)
+                        // Keeps the words on one line.
+                        .fixedSize()
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+
             HStack {
                 if GardenPlanView.hasUnplacedBeds(beds) {
                     Text("Beds not placed yet")
@@ -347,6 +376,9 @@ struct GardenPlanCard: View {
             }
         }
         .glassCard()
+        .sheet(isPresented: $isPlacing) {
+            GardenPlaceSheet(garden: garden)
+        }
         .onDisappear {
             if followsCompass { compass.stop() }
         }

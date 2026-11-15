@@ -68,15 +68,15 @@ struct TodayView: View {
     /// True while the sheet for adding a job by hand is up.
     @State private var isAddingJob = false
 
-    /// Whether each to-do card is opened out to its full list. A tap on
-    /// the card's heading flips it. `@AppStorage` keeps the answer on
-    /// the device, so a card left open is still open after looking at a
-    /// plant's page and coming back, and the next time the app starts.
-    @AppStorage("todayWeekIsOpen") private var weekIsOpen = false
-    @AppStorage("todayMonthIsOpen") private var monthIsOpen = false
-    /// True when "Reduce Motion" is on in the device's settings. The
-    /// cards then open at once, with no movement.
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    /// Which to-do card has been opened into its own page, if either.
+    /// A tap on a card's heading sets this, and the page grows out of
+    /// the card. Nil when neither is open. (Until 15 November 2026 a card
+    /// opened where it stood, and two stored switches remembered which.
+    /// William: "I wanted them to open as cards that expand.")
+    @State private var openJobs: JobsList?
+    /// The private box of names that ties each to-do card to the page
+    /// that grows from it. See GrowFromTile.swift.
+    @Namespace private var jobCardSpace
 
     /// Jobs ticked off this month, kept on the device.
     // `store:` names the settings shared with the widgets, so a job
@@ -189,6 +189,14 @@ struct TodayView: View {
         #endif
         .navigationDestination(for: Plant.self) { PlantDetailView(plant: $0) }
         .navigationDestination(for: Planting.self) { PlantingDetailView(planting: $0) }
+        // A to-do card opened into its page. `item:` shows the page
+        // whenever `openJobs` holds a value and goes back when it is
+        // emptied, and going back empties it. `growsFrom` makes the page
+        // grow out of the card marked with the same name.
+        .navigationDestination(item: $openJobs) { which in
+            jobsPage(for: which)
+                .growsFrom(which, in: jobCardSpace)
+        }
         .sheet(item: $sheet) { sheet in
             captureForm(for: sheet)
         }
@@ -218,6 +226,12 @@ struct TodayView: View {
         case "photo": sheet = .photoOffer
         case "widgets": sheet = .widgets
         case "journal": startNote(draft: UserDefaults.standard.string(forKey: "demoDraft") ?? "")
+        // The sheet for giving a garden its place. With
+        // `-demoPlaceSearch Frenchay` it searches at once.
+        case "place": sheet = .place
+        // A to-do card opened into its page.
+        case "weekJobs": openJobs = .week
+        case "monthJobs": openJobs = .month
         default: break
         }
     }
@@ -656,10 +670,16 @@ struct TodayView: View {
         }
     }
 
+    /// Why there is no weather to show, when there is none. The rules
+    /// are `WeatherGap` in GardenPlace.swift, where they can be tested.
+    private var weatherGap: WeatherGap {
+        WeatherGap.reason(isLoading: weather.isLoading, lastError: weather.lastError,
+                          aGardenHasPlace: WeatherPlace.garden(among: gardens) != nil,
+                          answer: locationManager.answer)
+    }
+
     private var conditionsHeadline: String {
-        guard let now = weather.current else {
-            return weather.isLoading ? "Checking conditions…" : "Conditions not checked yet"
-        }
+        guard let now = weather.current else { return weatherGap.headline }
         if isFITSeason {
             return now.suitsFITCount ? "Conditions suit a FIT Count."
                                      : "Not right for a FIT Count. \(now.fitCountBlockers.first ?? "")"
@@ -669,14 +689,10 @@ struct TodayView: View {
     }
 
     private var conditionsDetail: String {
-        guard let now = weather.current else {
-            if let problem = weather.lastError { return problem }
-            // Said No to the location question, and no garden is placed.
-            if locationManager.authorisationStatus == .denied || locationManager.authorisationStatus == .restricted {
-                return "Windfall may not use this device's location. Give a garden its place in Gardens and the weather will follow."
-            }
-            return "Weather comes from Open-Meteo, using your garden's location."
-        }
+        // With no weather, say why. Until 15 November 2026 this said
+        // "Weather comes from Open-Meteo, using your garden's location"
+        // even when no garden had one, which explained nothing.
+        guard let now = weather.current else { return weatherGap.detail }
         var parts = ["\(Int(now.temperatureC.rounded()))°C, \(skyWords(now)), \(now.isDry ? "dry" : "raining")."]
         if offersToSavePlace {
             // Says where the reading is from, and why the button is there.
@@ -700,11 +716,22 @@ struct TodayView: View {
     @ViewBuilder
     private var conditionsButton: some View {
         if weather.current == nil {
-            Button("Check now") {
-                Task { await refreshWeather(mayAskForLocation: true) }
+            // The one button that puts it right. When nothing says where
+            // the garden is, that is the sheet for saying so. Otherwise
+            // it asks the weather service again.
+            let gap = weatherGap
+            if let title = gap.buttonTitle {
+                Button(title) {
+                    if gap.buttonSetsPlace {
+                        sheet = .place
+                    } else {
+                        Task { await refreshWeather(mayAskForLocation: true) }
+                    }
+                }
+                .buttonStyle(QuietGlassButton())
+                // Keeps the words on one line however little room there is.
+                .fixedSize()
             }
-            .buttonStyle(QuietGlassButton())
-            .disabled(weather.isLoading)
         } else if offersToSavePlace {
             savePlaceMenu
         } else if isFITSeason || isWormSeason {
@@ -868,6 +895,9 @@ struct TodayView: View {
             JournalChatView(draft: draft, photos: checkingPhotos)
         case .widgets:
             WidgetGallery()
+        case .place:
+            // Asks which garden when more than one has no place.
+            GardenPlaceSheet()
         }
     }
 
@@ -916,13 +946,13 @@ struct TodayView: View {
 
     private func weekCard(_ week: [WeekJob]) -> some View {
         let rows = week.map { row(for: $0) }
-        // How many rows the card is showing just now: six while it is
-        // folded, all of them once it has been opened. The counting is
-        // in WeekJobs.swift (`JobFold`), where it can be tested.
-        let showing = JobFold.rowsShown(of: rows.count, folded: JobFold.weekRows, isOpen: weekIsOpen)
-        let hidden = rows.count - JobFold.rowsShown(of: rows.count, folded: JobFold.weekRows, isOpen: false)
+        // The card shows six rows at most. The rest are on the page it
+        // opens into. The counting is in WeekJobs.swift (`JobFold`),
+        // where it can be tested.
+        let showing = JobFold.rowsShown(of: rows.count, folded: JobFold.weekRows, isOpen: false)
+        let hidden = rows.count - showing
         return VStack(alignment: .leading, spacing: 10) {
-            jobsHeading("This week", hidden: hidden, isOpen: $weekIsOpen)
+            jobsHeading("This week", hidden: hidden, opens: .week)
 
             if rows.isEmpty {
                 Text("Nothing urgent.")
@@ -931,9 +961,6 @@ struct TodayView: View {
             }
             ForEach(rows.prefix(showing)) { job in
                 JobRow(job: job, tickedStore: $tickedStore)
-            }
-            if weekIsOpen && hidden > 0 {
-                foldLink(isOpen: $weekIsOpen)
             }
 
             // Says where the list comes from, and owns up when part of
@@ -973,6 +1000,8 @@ struct TodayView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .glassCard()
+        // Marks the whole card as what its page grows out of.
+        .growSource(JobsList.week, in: jobCardSpace)
         .sheet(isPresented: $isAddingJob) {
             JobSheet()
         }
@@ -1054,9 +1083,9 @@ struct TodayView: View {
         // answer for each job in turn.
         let pick = Set(JobFold.monthPick(from: jobs.map(\.id)))
         let hidden = jobs.count - pick.count
-        let shown = monthIsOpen ? jobs : jobs.filter { pick.contains($0.id) }
+        let shown = jobs.filter { pick.contains($0.id) }
         return VStack(alignment: .leading, spacing: 10) {
-            jobsHeading("This month", hidden: hidden, isOpen: $monthIsOpen)
+            jobsHeading("This month", hidden: hidden, opens: .month)
 
             if jobs.isEmpty {
                 Text("Nothing pressing. Jobs appear here from your sowing months and records.")
@@ -1066,43 +1095,33 @@ struct TodayView: View {
             ForEach(shown) { job in
                 JobRow(job: job, tickedStore: $tickedStore)
             }
-            if monthIsOpen && hidden > 0 {
-                foldLink(isOpen: $monthIsOpen)
-            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .glassCard()
+        .growSource(JobsList.month, in: jobCardSpace)
     }
 
     // MARK: Opening a card of jobs
 
     /// The heading of a to-do card. When the card has more jobs than it
-    /// shows folded, the whole heading is a button: a tap opens the card
-    /// out where it stands and another tap folds it again.
+    /// shows, the whole heading is a button: a tap opens the card into a
+    /// page of its own, which grows out of the card and holds every job.
     ///
-    /// `isOpen` is a `Binding`: not a copy of the true-or-false value but
-    /// a way to read and change the one this screen keeps, which is why
-    /// one function can serve both cards.
-    private func jobsHeading(_ title: String, hidden: Int, isOpen: Binding<Bool>) -> some View {
-        let open = isOpen.wrappedValue
-        // What VoiceOver reads after the heading, for someone who cannot
-        // see the arrow.
-        let hint: String = hidden > 0 ? (open ? "Folds the list" : "Shows every job") : ""
-        return Button {
-            toggle(isOpen)
+    /// `opens` says which page, so one function can serve both cards.
+    private func jobsHeading(_ title: String, hidden: Int, opens which: JobsList) -> some View {
+        Button {
+            openJobs = which
         } label: {
             HStack(spacing: 8) {
                 Text(title)
                     .font(.title3.weight(.semibold))
                     .foregroundStyle(Theme.ink)
                 Spacer()
-                if let words = JobFold.headingWords(hidden: hidden, isOpen: open) {
+                if let words = JobFold.headingWords(hidden: hidden, isOpen: false) {
                     HStack(spacing: 5) {
                         Text(words)
-                        // One arrow that turns over as the card opens.
-                        Image(systemName: "chevron.down")
-                            .font(.footnote.weight(.semibold))
-                            .rotationEffect(.degrees(open ? 180 : 0))
+                        // The arrow every link to another page has.
+                        WIconView(.arrowRight, size: 14)
                     }
                     .font(.body)
                     .foregroundStyle(Theme.leaf)
@@ -1116,35 +1135,32 @@ struct TodayView: View {
         .buttonStyle(.plain)
         // With nothing more to show, the heading is plain words again.
         .allowsHitTesting(hidden > 0)
-        .accessibilityHint(hint)
+        // What VoiceOver reads after the heading, for someone who cannot
+        // see the arrow.
+        .accessibilityHint(hidden > 0 ? "Opens every job" : "")
     }
 
-    /// "Show fewer" at the foot of an opened card, so a long list can be
-    /// folded without scrolling back up to its heading.
-    private func foldLink(isOpen: Binding<Bool>) -> some View {
-        Button {
-            toggle(isOpen)
-        } label: {
-            HStack(spacing: 5) {
-                Text("Show fewer")
-                Image(systemName: "chevron.up")
-                    .font(.footnote.weight(.semibold))
+    /// The page a to-do card opens into: every job, not the card's
+    /// short pick.
+    ///
+    /// The jobs are handed over as a small piece of code to run (the
+    /// part in curly brackets), not as a finished list. The list is then
+    /// only worked out if the page is really opened, and worked out
+    /// afresh each time something changes, so a job ticked or deleted on
+    /// the page shows there at once.
+    private func jobsPage(for which: JobsList) -> some View {
+        switch which {
+        case .week:
+            return JobsPage(title: "This week", grouped: false, tickedStore: $tickedStore) {
+                weekJobs.map { row(for: $0) }
             }
-            .font(.body)
-            .foregroundStyle(Theme.leaf)
-            .frame(maxWidth: .infinity, alignment: .trailing)
-            .contentShape(.rect)
-        }
-        .buttonStyle(.plain)
-    }
-
-    /// Opens a folded card or folds an open one. `withAnimation` asks
-    /// SwiftUI to move everything that changes as a result, so the card
-    /// grows and the cards below it slide down, where they would
-    /// otherwise jump.
-    private func toggle(_ isOpen: Binding<Bool>) {
-        withAnimation(reduceMotion ? nil : .snappy(duration: 0.3)) {
-            isOpen.wrappedValue.toggle()
+        case .month:
+            return JobsPage(title: "This month", grouped: true, tickedStore: $tickedStore) {
+                // The same list the card draws from: the whole month,
+                // without what is already under "This week".
+                let urgent = Set(weekJobs.map(\.id))
+                return jobs.filter { !urgent.contains($0.id) }
+            }
         }
     }
 
@@ -1435,6 +1451,8 @@ enum CaptureSheet: Identifiable {
     case photoOffer
     /// The widgets drawn inside the app. A checking aid: see WidgetGallery.
     case widgets
+    /// Giving a garden its place on the map, from the weather card.
+    case place
     case newSighting(WildlifeObservation)
     case sighting(WildlifeObservation)
     case survey(Survey)
@@ -1448,6 +1466,7 @@ enum CaptureSheet: Identifiable {
         case .identify: return "identify"
         case .photoOffer: return "photo-offer"
         case .widgets: return "widgets"
+        case .place: return "place"
         case .newSighting(let observation): return "new-sighting-\(observation.id)"
         case .sighting(let observation): return "sighting-\(observation.id)"
         case .survey(let survey): return "survey-\(survey.id)"
@@ -1492,6 +1511,96 @@ enum TickedJobs {
         var ticked = ids(in: line)
         if ticked.contains(id) { ticked.remove(id) } else { ticked.insert(id) }
         return ([monthKey] + ticked.sorted()).joined(separator: "|")
+    }
+}
+
+/// The two to-do cards on Today, as names. Used to say which card was
+/// tapped, and to tie each card to the page that grows from it.
+/// `Hashable` is what lets a value be used as such a name.
+enum JobsList: String, Hashable {
+    case week, month
+}
+
+/// A to-do card opened out: a page of its own with every job on it.
+///
+/// It grows out of the card on an iPhone or iPad and slides back into
+/// it, by the back button or a swipe from the left edge. On a Mac it is
+/// pushed on like any other page and two fingers swiped right go back.
+struct JobsPage: View {
+
+    let title: String
+    /// True to put the jobs under headings by kind (the month, which can
+    /// be long). False for one list in order (the week).
+    let grouped: Bool
+    /// The month's ticks, shared with Today so a tick here shows there.
+    @Binding var tickedStore: String
+    /// Works out the jobs. See `TodayView.jobsPage`.
+    let jobs: () -> [TodayJob]
+
+    var body: some View {
+        // Worked out once for this drawing of the page.
+        let all = jobs()
+        ScrollView {
+            VStack(alignment: .leading, spacing: 14) {
+                ScreenHeader(title: title,
+                             detail: JobFold.countLine(jobs: all.count, ticked: tickedCount(in: all)))
+
+                if all.isEmpty {
+                    Text("Nothing left to do here.")
+                        .font(.body)
+                        .foregroundStyle(Theme.inkSoft)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .glassCard()
+                } else if grouped {
+                    ForEach(JobFold.groups(of: all.map(\.id)), id: \.title) { group in
+                        card(group.title, all.filter { group.ids.contains($0.id) })
+                    }
+                } else {
+                    card(nil, all)
+                }
+            }
+            // Not wider than is comfortable to read on a Mac or an iPad.
+            .frame(maxWidth: 640, alignment: .leading)
+            .padding(.horizontal, 16)
+            .padding(.top, 12)
+            .padding(.bottom, 20)
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .navigationTitle(title)
+        #if os(iOS)
+        // The large serif title above is the page's title. Apple's own
+        // goes small in the bar at the top, so the name is not written
+        // twice in large letters. (`#if os(iOS)` covers the iPad too. A
+        // Mac has no such setting.)
+        .navigationBarTitleDisplayMode(.inline)
+        #endif
+        .paperScreen()
+    }
+
+    /// How many of these jobs are ticked. A job of your own keeps its
+    /// tick on its record, and the rest are in the month's line of text.
+    private func tickedCount(in all: [TodayJob]) -> Int {
+        let ticked = TickedJobs.ids(in: tickedStore)
+        return all.filter { job in
+            if case .own(let own)? = job.link { return own.isDone }
+            return ticked.contains(job.id)
+        }.count
+    }
+
+    /// One glass card of jobs, under a heading if one is given.
+    private func card(_ heading: String?, _ list: [TodayJob]) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            if let heading {
+                Text(heading)
+                    .font(.title3.weight(.semibold))
+                    .foregroundStyle(Theme.ink)
+            }
+            ForEach(list) { job in
+                JobRow(job: job, tickedStore: $tickedStore)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .glassCard()
     }
 }
 

@@ -340,9 +340,19 @@ enum WeekJobs {
 // MARK: - Folding a card of jobs
 
 /// How much of a to-do card is showing. On Today, "This week" and "This
-/// month" each start folded, showing a few rows. A tap on the heading
-/// opens the card out to every job. These are the sums behind that, kept
-/// here and away from the screen so that they can be tested.
+/// month" each show a few rows. A tap on the heading opens the card out
+/// into a page of its own with every job on it. These are the sums
+/// behind that, kept here and away from the screen so that they can be
+/// tested.
+///
+/// HOW A CARD OPENS (changed 15 November 2026)
+/// From 14 November the card opened where it stood: its list grew longer
+/// and the cards below slid down. William, the next day: "I wanted them
+/// to open as cards that expand." Now the card itself grows to fill the
+/// screen, the way a tile on the Gardens page grows into its page, and
+/// shrinks back into its place on the way out (GrowFromTile.swift). The
+/// card on Today stays short. `rowsShown` and `headingWords` still take
+/// `isOpen`, which Today now always passes as false.
 enum JobFold {
 
     /// Rows a folded card shows.
@@ -387,5 +397,54 @@ enum JobFold {
     static func headingWords(hidden: Int, isOpen: Bool) -> String? {
         guard hidden > 0 else { return nil }
         return isOpen ? "Show fewer" : "\(hidden) more"
+    }
+
+    // MARK: The opened card
+
+    /// The heading a job goes under on the opened "This month" page,
+    /// read from the front of its identifier. A whole month can run to
+    /// a hundred rows in spring, and one unbroken list of that length is
+    /// hard to find anything in.
+    ///
+    /// The identifiers are given in TodayView.swift: a job of your own
+    /// begins "own-", a sowing "sow-", a harvest "harvest-" and seed to
+    /// check "seed-". Anything else (the earthworm count, so far) goes
+    /// under "Also".
+    static func groupTitle(forID id: String) -> String {
+        if id.hasPrefix("own-") { return "Your own jobs" }
+        if id.hasPrefix("sow-") { return "To sow" }
+        if id.hasPrefix("harvest-") { return "To harvest" }
+        if id.hasPrefix("seed-") { return "Seed to check" }
+        return "Also"
+    }
+
+    /// One heading and the jobs under it.
+    struct Batch: Equatable {
+        let title: String
+        let ids: [String]
+    }
+
+    /// The month's jobs sorted under their headings. The headings come
+    /// in the order their first job does, and the jobs under each keep
+    /// the order they came in, so nothing is reshuffled: the list is only
+    /// given headings.
+    static func groups(of ids: [String]) -> [Batch] {
+        var titles: [String] = []
+        // A dictionary is a set of labelled boxes. Here each heading is a
+        // label and its box holds that heading's jobs.
+        var byTitle: [String: [String]] = [:]
+        for id in ids {
+            let title = groupTitle(forID: id)
+            if byTitle[title] == nil { titles.append(title) }
+            byTitle[title, default: []].append(id)
+        }
+        return titles.map { Batch(title: $0, ids: byTitle[$0] ?? []) }
+    }
+
+    /// The line above the opened page's title: "14 jobs" or "1 job",
+    /// with how many are ticked when any are.
+    static func countLine(jobs: Int, ticked: Int) -> String {
+        let count = jobs == 1 ? "1 job" : "\(jobs) jobs"
+        return ticked > 0 ? "\(count), \(ticked) done" : count
     }
 }

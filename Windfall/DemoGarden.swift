@@ -131,6 +131,20 @@ enum DemoGarden {
         isRequested ? UserDefaults.standard.string(forKey: "demoOpen") : nil
     }
 
+    /// A checking aid: `-demoOpen place -demoPlaceSearch Frenchay` opens
+    /// the sheet for giving a garden its place with those words typed
+    /// and the search already made. See GardenPlaceSheet.swift.
+    static var placeSearch: String? {
+        isRequested ? UserDefaults.standard.string(forKey: "demoPlaceSearch") : nil
+    }
+
+    /// A checking aid: `-demoNoPlace YES` leaves the example allotment
+    /// without a place on the map, so Today's weather card can be seen
+    /// as it is on a device where no garden has been placed.
+    static var hasNoPlace: Bool {
+        isRequested && UserDefaults.standard.bool(forKey: "demoNoPlace")
+    }
+
     /// A checking aid: `-demoOpen harvest -demoHarvestSearch apple`
     /// opens the Harvest sheet with those words already in its search
     /// box, so a still picture can be taken of what it finds.
@@ -316,8 +330,10 @@ enum DemoGarden {
             allotment.widthMetres = 25
             allotment.depthMetres = 10
             allotment.topFacesDegrees = 0
-            allotment.latitude = 51.5
-            allotment.longitude = -2.55
+            if !hasNoPlace {
+                allotment.latitude = 51.5
+                allotment.longitude = -2.55
+            }
             allotment.soil = .clay
         }
         var allotmentBeds: [Bed] = []
