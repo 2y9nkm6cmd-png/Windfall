@@ -47,14 +47,31 @@ PROF = {
 }
 
 
-def blade_pts(L, W, prof="ovate", teeth=0, td=0.07, cut=0, cutn=0, tip=None, n=None):
+# The nick in the edge across one tooth: s runs from 0 at the start of the
+# tooth (nearer the stalk) to 1 at its end. 1 is the bottom of a nick, 0 the
+# tip of a tooth.
+NICK = {
+    "saw":    lambda s: (1 - s) ** 1.6,                                   # sharp teeth pointing to the tip: apple, mint
+    "double": lambda s: (1 - s) ** 1.3 + (0.36 * (1 - (s - 0.5) / 0.5) ** 1.3 if s >= 0.5 else 0),   # a big tooth with a small one on its back: raspberry, bramble
+    "round":  lambda s: abs(math.cos(math.pi * s)) ** 2.4,                # rounded teeth: foxglove, lemon balm, cowslip
+    "wave":   lambda s: 0.5 + 0.5 * math.cos(2 * math.pi * s),            # no teeth, only a wavy edge: bay
+}
+
+
+def blade_pts(L, W, prof="ovate", teeth=0, td=0.07, cut=0, cutn=0, tip=None, n=None, tk="saw", tmin=0):
     """The two edges of a leaf or petal laid along the x axis from 0 to L.
     teeth gives a toothed edge, cut and cutn deep lobes down each side
     (a radish or rocket leaf), tip='teeth' a flat end with three small teeth
-    (a daisy's petal). Returns the upper edge, the lower edge and a
-    function giving the half width at any point."""
-    n = n or max(60, teeth * 9, cutn * 22)
-    pr = PROF[prof]
+    (a daisy's petal). tk is the kind of tooth (see NICK). tmin is the
+    least a tooth may stand out, in grid squares: leaves pass it so that
+    teeth still show at the size the app draws them, and then no tooth is
+    shorter than about three squares either. Returns the upper edge, the
+    lower edge and a function giving the half width at any point."""
+    if teeth and tmin and tk != "wave":
+        teeth = max(3, min(teeth, int(L / (4.4 if tk == "double" else 3.0))))
+        td = max(td, min(tmin / max(W / 2, 0.01), 0.34))
+    n = n or max(60, teeth * (16 if tk == "double" else 9), cutn * 22)
+    pr = PROF[prof]; nick = NICK[tk]
 
     def hw(u, side=1):
         w = pr(u) * W / 2
@@ -63,7 +80,7 @@ def blade_pts(L, W, prof="ovate", teeth=0, td=0.07, cut=0, cutn=0, tip=None, n=N
             w *= 1 - c * (0.5 + 0.5 * math.cos(2 * math.pi * u * cutn)) ** 2.5
         if teeth:
             s = (u * teeth + (0 if side > 0 else 0.5)) % 1
-            w *= 1 - td * (1 - s) ** 1.6 * math.sin(math.pi * u) ** 0.6
+            w *= 1 - td * nick(s) * math.sin(math.pi * u) ** 0.6
         return w
 
     end = 0.97 if tip == "teeth" else 1.0
@@ -78,11 +95,11 @@ def blade_pts(L, W, prof="ovate", teeth=0, td=0.07, cut=0, cutn=0, tip=None, n=N
 
 
 def blade(a, x, y, ang, L, W, fill, prof="ovate", teeth=0, td=0.07, cut=0, cutn=0, veins=6, lw=1.15,
-          M=None, shade=0.1, midw=0.75, veinc="line", tip=None, net=False, petal=False):
+          M=None, shade=0.1, midw=0.75, veinc="line", tip=None, net=False, petal=False, tk="saw", tmin=0):
     """A leaf (or a petal, with petal=True) drawn large, with its veins."""
     t = T(x, y, ang)
     mp = (lambda p: M(t(*p))) if M else (lambda p: t(*p))
-    top, bot, hw = blade_pts(L, W, prof, teeth, td, cut, cutn, tip)
+    top, bot, hw = blade_pts(L, W, prof, teeth, td, cut, cutn, tip, tk=tk, tmin=tmin)
     a.shape(path([mp(p) for p in top] + [mp(p) for p in bot[::-1]]), fill, lw)
     if shade:
         a.shape(path([mp(p) for p in top] + [mp((p[0], 0)) for p in top[::-1]]), "shade", 0, fa=shade)
@@ -170,6 +187,7 @@ def notch(depth, width=0.4):
 
 
 # ================================================================== leaves
+TMIN = 1.4         # the least a leaf's tooth stands out, in grid squares, so that it shows (see blade_pts)
 BASE = (20, 92)   # where the leaf stalk starts, bottom left
 ANG = -52          # the leaf lies along this line, up to the top right
 
@@ -181,7 +199,7 @@ def leaf_blade(a, sp):
     stalk(a, BASE, t(LT * pf * 0.5, 1.5), A, 3.4 if sp.get("stalkc") else 2.4, 2.6 if sp.get("stalkc") else 1.8, sp.get("stalkc", sp["fill"]))
     hw = blade(a, A[0], A[1], ANG, L, L * sp.get("W", 0.5), sp["fill"], sp.get("prof", "ovate"), sp.get("teeth", 0), sp.get("td", 0.07),
                sp.get("cut", 0), sp.get("cutn", 0), sp.get("veins", 7), midw=1.6 if sp.get("stalkc") else 0.9,
-               veinc=sp.get("veinc", "line"), net=True)
+               veinc=sp.get("veinc", "line"), net=True, tk=sp.get("tk", "saw"), tmin=sp.get("tmin", TMIN))
     if sp.get("stalkc"):   # a thick midrib the colour of the stalk
         a.ribbon(A, t(LT * pf + L * 0.3, 0), t(LT * pf + L * 0.86), 2.6, 0.6, sp["stalkc"], lw=0.6)
     if sp.get("chevron"):
@@ -205,6 +223,8 @@ def leaf_polar(a, sp):
     pf = sp.get("petiole", 0.22); t = T(*BASE, ANG); A = t(98 * pf)
     stalk(a, BASE, t(98 * pf * 0.5, 2), A, 3.6 if sp.get("stalkc") else 2.6, 2.4 if sp.get("stalkc") else 1.8, sp.get("stalkc", fill))
     td = sp.get("td", 0); teeth = sp.get("teeth", 0)
+    if teeth and td >= 0.045:   # a toothed edge, not just a wavy one: make sure the teeth show
+        td = max(td, sp.get("tmin", TMIN + 0.2) / R)
     saw = (lambda h: 1 - td * (((h + math.pi) * teeth / (2 * math.pi)) % 1) ** 1.5) if teeth else (lambda h: 1)
     if kind == "round":
         g = lambda h: (1 + 0.05 * math.cos(h)) * notch(0.6, 0.38)(h) * saw(h)
@@ -294,22 +314,33 @@ def leaf_pinnate(a, sp):
     """A leaf of several leaflets on one stalk: rose, tomato, pea."""
     from plant_kit import Quad
     pairs = sp.get("pairs", 3); t = T(*BASE, ANG); LT = 98
-    q = Quad(BASE, t(LT * 0.5, -3), t(LT * (0.8 if sp.get("tendril") else 0.78)))
-    a.ribbon(q.p0, q.c, q.p1, 2.2, 1.2, sp["fill"], lw=0.8)
     ll, lw_ = sp.get("ll", 25), sp.get("lW", 0.5)
+    tl = ll * sp.get("termk", 1.12)   # termk: how big the end leaflet is beside the others
+    end = 0.8 if sp.get("tendril") else 0.78
+    if "termk" in sp and sp.get("terminal", True):
+        end = min(end, (LT + 8 - tl) / LT)   # a big end leaflet: a shorter stalk, so that it stays in the picture
+    q = Quad(BASE, t(LT * 0.5 * end / (0.8 if sp.get("tendril") else 0.78), -3), t(LT * end))
+    a.ribbon(q.p0, q.c, q.p1, 2.2, 1.2, sp["fill"], lw=0.8)
     if sp.get("stipule"):   # pea: two large leafy ears where the stalk joins
         x, y = q.pt(0.1)
         for sg in (1, -1):
             blade(a, x, y, ANG + sg * 70, 15, 11, sp["fill"], "ovate", veins=2)
+    if sp.get("ears"):   # rose: two narrow ears joined to the foot of the stalk
+        x, y = q.pt(0.03)
+        for sg in (1, -1):
+            blade(a, x, y, q.ang(0.03) + sg * 16, 13, 3.4, sp["fill"], "lance", veins=0, lw=0.8)
+    tk = sp.get("tk", "saw"); tmin = sp.get("tmin", TMIN)
     order = []
     for i in range(pairs):
         u = 0.28 + (0.62 if sp.get("tendril") else 0.6) * i / max(1, pairs - 1)
+        if pairs == 1 and not sp.get("tendril"):
+            u = 0.74   # a leaf of three: the side pair sits just under the end leaflet
         order.append(u)
     for i, u in enumerate(order):
         x, y = q.pt(u); ang = q.ang(u); s = 1 - 0.18 * i / max(1, pairs - 1) if not sp.get("grow") else 0.82 + 0.18 * i / max(1, pairs - 1)
         for sg in (1, -1):
             blade(a, x, y, ang + sg * sp.get("spread", 58), ll * s, ll * s * lw_, sp["fill"], sp.get("prof", "ovate"),
-                  sp.get("teeth", 0), sp.get("td", 0.08), veins=4, lw=1.0)
+                  sp.get("teeth", 0), sp.get("td", 0.08), sp.get("cut", 0), sp.get("cutn", 0), veins=4, lw=1.0, tk=tk, tmin=tmin)
         if sp.get("small") and i < pairs - 1:   # tomato: small leaflets between the big ones
             x2, y2 = q.pt(u + 0.1)
             for sg in (1, -1):
@@ -320,7 +351,8 @@ def leaf_pinnate(a, sp):
             e = T(ex, ey, q.ang(1) + off)(12)
             a.line(f"M{f(ex)},{f(ey)} Q{P(T(ex, ey, q.ang(1) + off)(7))} {P(e)} q{f(curl * 3)},-3 {f(curl * 1)},-5 q{f(-curl * 2)},0 {f(-curl * 1.5)},2", 0.8, 0.8)
     elif sp.get("terminal", True):
-        blade(a, ex, ey, q.ang(1), ll * 1.12, ll * 1.12 * lw_, sp["fill"], sp.get("prof", "ovate"), sp.get("teeth", 0), sp.get("td", 0.08), veins=4, lw=1.0)
+        blade(a, ex, ey, q.ang(1), tl, tl * sp.get("termW", lw_), sp["fill"], sp.get("termprof", sp.get("prof", "ovate")), max(sp.get("teeth", 0), int(sp.get("teeth", 0) * sp.get("termk", 1.12))), sp.get("td", 0.08),
+              sp.get("cut", 0), sp.get("cutn", 0), veins=5 if tl > 30 else 4, lw=1.0, tk=tk, tmin=tmin)
     return a
 
 
@@ -339,7 +371,7 @@ def leaf_trefoil(a, sp):
         else:
             hw = blade(a, A[0], A[1], ANG + off, L * (1 if off == 0 else 0.9), L * sp.get("lW", 0.62), sp["fill"], sp.get("prof", "obovate"),
                        sp.get("teeth", 0), sp.get("td", 0.07), cut=sp.get("cut", 0), cutn=sp.get("cutn", 0),
-                       veins=sp.get("veins", 6))
+                       veins=sp.get("veins", 6), tk=sp.get("tk", "saw"), tmin=sp.get("tmin", TMIN))
             if sp.get("chevron"):
                 _chevron(a, (A[0], A[1]), ANG + off, L * 0.52, L * 0.5)
     return a
@@ -353,7 +385,7 @@ def leaf_palmate(a, sp):
     for k in sorted(range(n), key=lambda k: -abs(k - (n - 1) / 2)):
         off = -spread + 2 * spread * k / (n - 1); L = sp.get("ll", 40) * (1 - 0.42 * (abs(off) / 128) ** 1.5)
         blade(a, A[0], A[1], ANG + off, L, L * sp.get("lW", 0.24), sp["fill"], sp.get("prof", "lance"), sp.get("teeth", 0), sp.get("td", 0.08),
-              veins=4 if sp.get("lW", 0.24) > 0.3 else 0, lw=1.0)
+              veins=4 if sp.get("lW", 0.24) > 0.3 else 0, lw=1.0, tk=sp.get("tk", "saw"), tmin=sp.get("tmin", TMIN))
     a.oval(A[0], A[1], 1.8, 1.8, 0, sp["fill"], 0.8)
     return a
 
@@ -364,6 +396,7 @@ def leaf_fern(a, sp):
     t = T(*BASE, ANG); q = Quad(BASE, t(50, -4), t(96))
     a.ribbon(q.p0, q.c, q.p1, 2.0, 0.8, sp["fill"], lw=0.8)
     thread = sp.get("thread"); n = sp.get("pinnae", 6)
+    narrow = sp.get("narrow")   # short flat narrow segments with no teeth: Californian poppy, corn chamomile
     for i in range(n):
         u = 0.22 + 0.7 * i / (n - 1); x, y = q.pt(u); ang = q.ang(u); L = 30 * (1.05 - 0.75 * u)
         for sg in (1, -1):
@@ -374,12 +407,14 @@ def leaf_fern(a, sp):
                 for sg2 in (1, -1):
                     if thread:
                         blade(a, px, py, pa + sg2 * 38, l * 1.1, 1.3, sp["fill"], "linear", veins=0, lw=0.5, shade=0)
+                    elif narrow:
+                        blade(a, px, py, pa + sg2 * 40, l * 1.05, 2.3, sp["fill"], "linear", veins=0, lw=0.55, shade=0)
                     else:
                         blade(a, px, py, pa + sg2 * 44, l, l * 0.42, sp["fill"], "lance", teeth=sp.get("teeth", 0), td=0.18, veins=0, lw=0.6, shade=0.08)
             e = tq(L)
-            blade(a, e[0], e[1], pa, L * 0.3, 1.3 if thread else L * 0.12, sp["fill"], "linear" if thread else "lance", veins=0, lw=0.6, shade=0)
+            blade(a, e[0], e[1], pa, L * 0.3, 1.3 if thread else (2.3 if narrow else L * 0.12), sp["fill"], "linear" if thread or narrow else "lance", veins=0, lw=0.6, shade=0)
     e = q.pt(1)
-    blade(a, e[0], e[1], q.ang(1), 9, 1.3 if thread else 3.6, sp["fill"], "linear" if thread else "lance", veins=0, lw=0.6, shade=0)
+    blade(a, e[0], e[1], q.ang(1), 9, 1.3 if thread else (2.3 if narrow else 3.6), sp["fill"], "linear" if thread or narrow else "lance", veins=0, lw=0.6, shade=0)
     return a
 
 
@@ -538,10 +573,11 @@ def fl_flat(a, sp):
     if sp.get("bud", True):
         stalk(a, (62, 97), (70, 84), (80, 72), 2.0, 1.5); bud(a, 80, 72, -64, 11, sp.get("budc", sp["fc"]))
     M = tilt(CY, k)
+    PR = R * sp.get("pl", 1)   # pl: the petals' length as a share of the usual (raspberry: small petals, long sepals)
     if sp.get("sepals", True):
         for i in range(n):
-            blade(a, CX, CY, -90 + 360 * (i + 0.5) / n, R * 0.62, R * 0.2, "leaf", "lance", veins=0, M=M, lw=0.7, petal=True)
-    ring_of_petals(a, n, R, R * sp.get("pw", 0.92), sp["fc"], sp.get("prof", "round"), k=k, teeth=sp.get("teeth", 0), td=0.04,
+            blade(a, CX, CY, -90 + 360 * (i + 0.5) / n, R * sp.get("sepl", 0.62), R * sp.get("sepw", 0.2), sp.get("sepc", "leaf"), "lance", veins=0, M=M, lw=0.7, petal=True)
+    ring_of_petals(a, n, PR, PR * sp.get("pw", 0.92), sp["fc"], sp.get("prof", "round"), k=k, teeth=sp.get("teeth", 0), td=0.04,
                    start=sp.get("start", -90))
     if sp.get("edge"):   # candy cane sorrel: a red line round each petal
         for i in range(n):
@@ -813,6 +849,18 @@ def sphere_points(n, seed=0.5):
 def fl_globe(a, sp):
     """A ball of small star flowers on fine stalks: leek, chives, allium."""
     fc = sp["fc"]; R = sp.get("R", 30); c = (50, 40); loose = sp.get("loose")
+    if sp.get("drum"):   # round-headed leek: a tight egg-shaped head, the flowers too close to see their stalks
+        R = 19; c = (50, 36)
+        a.ribbon((50, 98), (51, 76), (c[0], c[1] + R), 2.6, 2.2, "leaf", lw=0.9)
+        a.oval(c[0], c[1], R * 0.86, R * 1.12, 0, fc, 1.0)
+        for x, y, z in sorted([q for q in sphere_points(120) if q[2] > -0.1], key=lambda q: q[2]):
+            e = (c[0] + x * R * 0.8, c[1] + y * R * 1.06)
+            if y > 0.5 and sp.get("topc"):   # it colours from the top down: the buds at the foot are the last to turn, and still green
+                a.oval(e[0], e[1], 1.5, 1.9, 0, sp["topc"], 0.4)
+            else:
+                a.flower(e[0], e[1], 2.9 * (0.7 + 0.3 * z), 6, fc, None, 0.5, start=-90 + x * 80, lw=0.4)
+                a.dot(e[0], e[1], 0.4, "pink")
+        return a
     a.ribbon((50, 98), (51, 76), (c[0], c[1] + (R * 0.5 if not loose else 0)), 3.0, 2.6, "leaf", lw=0.9)
     if not loose:
         for sg in (-1, 1):   # the papery spathe, split and hanging
@@ -1465,7 +1513,7 @@ LEAFX = {
     "grape": dict(lobes=5, cut=0.36, teeth=36, td=0.08),     "blueberry": dict(prof="elliptic", W=0.46), "honeyberry": dict(prof="elliptic", W=0.5),
     "rose": dict(pairs=2, ll=24, lW=0.6, teeth=20, td=0.06), "raspberry": dict(pairs=2, ll=28, lW=0.58, teeth=22, td=0.08),
     "blackberry": dict(kind="palmate", n=5, spread=100, ll=34, lW=0.52, prof="ovate", teeth=22, td=0.08), "loganberry": dict(pairs=1, ll=30, lW=0.6, teeth=22, td=0.08),
-    "japanese-wineberry": dict(pairs=1, ll=30, lW=0.66, teeth=22, td=0.08),
+    "japanese-wineberry": dict(pairs=1, ll=30, lW=0.66, teeth=22, td=0.08),   # all five changed again in the sweep of 15 November: see the foot of this list
     "hydrangea": dict(prof="ovate", W=0.56, teeth=24, td=0.05),     "asparagus": dict(kind="fern", thread=True, pinnae=7, fill="leaf"),
     # ---- put right in the accuracy check of 15 November 2026 (project doc 81)
     "african-daisy": dict(prof="obovate", W=0.34, teeth=6, td=0.12),
@@ -1490,6 +1538,31 @@ LEAFX = {
     "sweetcorn": dict(W=17, prof="lance", midw=1.3),
     "winter-windflower": dict(kind="trefoil", fill="leaf", prof="obovate", lW=0.74, ll=36, teeth=5, td=0.42, veins=3),
     "yellow-rattle": dict(prof="lance", W=0.24, teeth=18, td=0.12),
+    # ---- the sweep of 15 November 2026, evening (William: "they're smooth edged which real raspberry leaves aren't").
+    # Every toothed leaf now shows its teeth (TMIN above). These are the kinds changed beyond that.
+    "raspberry": dict(pairs=2, ll=27, lW=0.62, teeth=6, td=0.26, tk="double", termk=1.3, termW=0.66),
+    "blackberry": dict(kind="palmate", n=5, spread=104, ll=37, lW=0.56, prof="ovate", teeth=8, td=0.2, tk="double"),
+    "loganberry": dict(pairs=1, ll=31, lW=0.62, teeth=7, td=0.2, tk="double", termk=1.25),
+    "japanese-wineberry": dict(pairs=1, ll=27, lW=0.7, teeth=6, td=0.2, tk="double", termk=1.55, termW=0.86, termprof="round"),
+    "rose": dict(pairs=2, ll=24, lW=0.6, teeth=9, td=0.16, ears=True),
+    "meadowsweet": dict(kind="pinnate", pairs=3, ll=22, lW=0.5, teeth=6, td=0.2, tk="double", small=True, termk=1.25, termW=0.8),
+    "geum": dict(kind="pinnate", pairs=2, ll=13, lW=0.66, teeth=4, td=0.22, grow=True, termk=2.5, termW=0.86, termprof="round"),
+    "hogweed": dict(kind="pinnate", pairs=2, ll=26, lW=0.74, prof="ovate", teeth=5, td=0.3, cut=0.34, cutn=2, termk=1.2, spread=64),
+    "coriander": dict(kind="pinnate", pairs=1, ll=25, lW=0.92, prof="obovate", teeth=5, td=0.32, termk=1.2),
+    "anise": dict(kind="pinnate", pairs=1, ll=24, lW=0.86, prof="obovate", teeth=6, td=0.26, termk=1.15),
+    "lovage": dict(kind="pinnate", pairs=2, ll=26, lW=0.58, prof="obovate", teeth=4, td=0.34),
+    "poppy": dict(fill="leaf", prof="lance", W=0.56, cut=0.8, cutn=5, teeth=30, td=0.16),
+    "california-poppy": dict(narrow=True, pinnae=5), "corn-chamomile": dict(narrow=True),
+    "cosmos": dict(thread=True), "wild-chamomile": dict(thread=True),
+    "foxglove": dict(prof="lance", W=0.4, teeth=16, td=0.06, tk="round"),
+    "lemon-balm": dict(kind="blade", prof="ovate", W=0.62, teeth=11, td=0.09, tk="round"),
+    "native-cowslip": dict(prof="obovate", W=0.52, teeth=14, td=0.06, tk="round"),
+    "salvia": dict(prof="ovate", W=0.46, teeth=18, td=0.05, tk="round"),
+    "sage": dict(kind="blade", fill="sage", prof="elliptic", W=0.42, teeth=30, td=0.03, petiole=0.26, tk="round", tmin=0.8),
+    "bay": dict(kind="blade", prof="elliptic", W=0.34, teeth=7, td=0.035, tk="wave"),
+    "clover": dict(chevron=True, prof="elliptic", lW=0.56, teeth=30, td=0.02, tmin=0.7),
+    "pear": dict(prof="ovate", W=0.62, teeth=30, td=0.03, tmin=0.9), "nectarine": dict(teeth=40, td=0.04, tmin=1.0),
+    "marshmallow": dict(kind="lobed", lobes=3, cut=0.2, sharp=1.0, fill="sage", teeth=26, td=0.07),
 }
 
 BLOOMX = {
@@ -1577,6 +1650,10 @@ BLOOMX = {
     "wormwood": dict(kind="tiny", button=True),
     "yarrow": dict(kind="tiny", fc="pink", n=5, cen="primrose"),
     "yellow-iris": dict(fc="sun"),
+    # ---- the sweep of 15 November 2026, evening
+    "raspberry": dict(kind="flat", fc="white", cen="unripe", pl=0.6, pw=0.5, prof="obovate", ns=30, sepl=0.8, sepw=0.22, sepc="sage"),
+    "japanese-wineberry": dict(kind="flat", fc="pink", cen="unripe", pl=0.44, pw=0.6, prof="obovate", ns=22, sepl=0.98, sepw=0.26, sepc="beet", budc="beet"),
+    "bristol-onion": dict(kind="globe", drum=True, topc="unripe"),
 }
 
 

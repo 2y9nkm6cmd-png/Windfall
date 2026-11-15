@@ -2,11 +2,11 @@
   "images": [
     {
       "idiom": "universal",
-      "filename": "plant-fig-flower.svg"
+      "filename": "plant-fig-growing.svg"
     },
     {
       "idiom": "universal",
-      "filename": "plant-fig-flower-dark.svg",
+      "filename": "plant-fig-growing-dark.svg",
       "appearances": [
         {
           "appearance": "luminosity",

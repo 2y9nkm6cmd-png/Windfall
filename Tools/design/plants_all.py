@@ -27,27 +27,42 @@ def on_layer(layer):
     return wrap
 
 
+NOW = {}   # the settings of the kind being drawn: make() sets it, LF and FL read it
+
+
 @on_layer(LEAF)
 def LF(a, kind, x, y, ang, L, fill):
-    """One leaf of the named kind, starting at x,y and pointing along ang."""
+    """One leaf of the named kind, starting at x,y and pointing along ang.
+    Three settings of the kind being drawn change it:
+      edge   "saw" or "scallop": a toothed margin (see Art.leaf)
+      pairs  how many pairs of leaflets a compound leaf has (2 if not given)
+      hand   a compound leaf's leaflets all spring from the top of the stalk (bramble)
+      noend  a compound leaf has no leaflet at its end (it ends in a tendril)
+      endk   how big the end leaflet is beside the others
+      lb     how fat each leaflet of a leaf of three is (0.72 if not given)"""
     if L < 2.5:
         return
-    t = T(x, y, ang)
-    if kind == "simple": a.leaf(x, y, ang, L, 0.44, fill)
+    t = T(x, y, ang); edge = NOW.get("edge")
+    if kind == "simple": a.leaf(x, y, ang, L, 0.44, fill, edge=edge)
     elif kind == "lance": a.leaf(x, y, ang, L, 0.2, fill)
     elif kind == "needle": a.leaf(x, y, ang, L * 0.7, 0.14, fill, lw=0.8)
-    elif kind == "round": a.leaf(x, y, ang, L * 0.8, 0.86, fill, skew=0.5)
-    elif kind == "heart": a.leaf(x, y, ang, L, 0.72, fill, skew=0.36)
-    elif kind == "tooth": a.toothleaf(x, y, ang, L, L * 0.55, 9, fill)
+    elif kind == "round": a.leaf(x, y, ang, L * 0.8, 0.86, fill, skew=0.5, edge=edge)
+    elif kind == "heart": a.leaf(x, y, ang, L, 0.72, fill, skew=0.36, edge=edge)
+    elif kind == "tooth": a.toothleaf(x, y, ang, L, L * 0.55, 9, fill, edge=edge or "saw")
     elif kind == "cut": a.toothleaf(x, y, ang, L, L * 0.5, 7, fill, 0.2)
     elif kind == "lobed":
-        e = t(L * 0.3); a.line(f"M{f(x)},{f(y)} L{P(e)}", 1.1); a.lobedleaf(e[0], e[1], ang, L * 0.42, 5, fill)
+        e = t(L * 0.3); a.line(f"M{f(x)},{f(y)} L{P(e)}", 1.1); a.lobedleaf(e[0], e[1], ang, L * 0.42, 5, fill, teeth=3 if edge else 0)
     elif kind == "fern": a.fern(x, y, ang, L, fill=fill, pairs=5, bend=0.1)
-    elif kind == "compound": a.compound(x, y, ang, L, pairs=2, fill=fill)
+    elif kind == "compound" and NOW.get("hand"):
+        e = t(L * 0.42); a.line(f"M{f(x)},{f(y)} L{P(e)}", 0.9)
+        for off in (-104, 104, -54, 54, 0):
+            a.leaf(e[0], e[1], ang + off, L * (0.5 if off else 0.6), 0.5, fill, vein=True, lw=0.9, edge=edge)
+    elif kind == "compound":
+        a.compound(x, y, ang, L, pairs=NOW.get("pairs", 2), b=0.5 if edge else 0.42, fill=fill, end=not NOW.get("noend"), edge=edge, endk=NOW.get("endk", 1.1))
     elif kind == "trefoil":
         e = t(L * 0.5); a.line(f"M{f(x)},{f(y)} L{P(e)}", 0.9)
         for off in (-72, 72, 0):
-            a.leaf(e[0], e[1], ang + off, L * 0.52, 0.72, fill, skew=0.55, lw=0.9)
+            a.leaf(e[0], e[1], ang + off, L * 0.52, NOW.get("lb", 0.72), fill, skew=0.55, lw=0.9, edge=edge)   # lb: how fat each leaflet is
     elif kind == "palm":
         e = t(L * 0.45); a.line(f"M{f(x)},{f(y)} L{P(e)}", 0.9)
         for k in range(7):
@@ -63,9 +78,14 @@ def LF(a, kind, x, y, ang, L, fill):
 def FL(a, kind, x, y, r, col, cen="sun", ang=-90):
     """One flower of the named kind, r across (roughly), facing along ang."""
     t = T(x, y, ang)
-    if kind == "daisy":
-        for k in range(14):
-            a.leaf(x, y, k * 360 / 14, r, 0.26, col, lw=0.7, skew=0.6, detail=False)
+    if kind == "daisy" and NOW.get("rayless"):   # pineappleweed: a greenish-yellow dome and no rays
+        a.oval(x, y - r * 0.25, r * 0.5, r * 0.66, 0, "pear", 0.8)
+        for k in range(7):
+            e = T(x, y - r * 0.25, k * 51)(r * 0.26); a.dot(e[0], e[1], 0.35, "unripe")
+    elif kind == "daisy":
+        n = NOW.get("rays", 14)
+        for k in range(n):
+            a.leaf(x, y, k * 360 / n, r, 0.26 * 14 / n, col, lw=0.7, skew=0.6, detail=False)
         a.oval(x, y, r * 0.36, r * 0.36, 0, cen, 0.8)
         for k in range(7):
             e = T(x, y, k * 51)(r * 0.2); a.dot(e[0], e[1], 0.35, "rust" if cen != "dark" else "straw")
@@ -88,6 +108,13 @@ def FL(a, kind, x, y, r, col, cen="sun", ang=-90):
     elif kind == "pea":
         a.leaf(x, y, ang - 38, r * 1.6, 0.85, col, skew=0.55, detail=False, lw=0.9)
         a.leaf(x, y, ang + 22, r * 1.15, 0.5, cen if cen != "sun" else col, detail=False, lw=0.8)
+    elif kind == "lacecap":   # a flat head: tiny fertile flowers in the middle, a ring of showy ones round the edge
+        a.oval(x, y, r * 1.05, r * 0.5, 0, "pale", 0.7)
+        for k in range(9):
+            rr = r * 0.8 * math.sqrt((k + 0.5) / 9); a.dot(x + rr * math.cos(k * GOLD), y + rr * 0.42 * math.sin(k * GOLD), 0.5, "beet")
+        for k in sorted(range(6), key=lambda k: math.sin(math.radians(k * 60 + 20))):
+            e = (x + r * 1.1 * math.cos(math.radians(k * 60 + 20)), y + r * 0.56 * math.sin(math.radians(k * 60 + 20)))
+            a.flower(e[0], e[1], r * 0.42, 4, col, "white", 0.8, start=-45 + k * 25, cr=0.5, lw=0.5)
     elif kind == "globe":
         a.oval(x, y, r, r, 0, col)
         for k in range(int(r * 2.2)):
@@ -493,22 +520,66 @@ def vine(s, stage):
     return a
 
 
+def store(a, s, x, y, k, roots=True):
+    """What the plant keeps under the ground: a bulb, or with tuber=True a
+    dark knobbly tuber (winter windflower), or with rhizome=True a thick
+    stem creeping sideways (yellow iris)."""
+    if s.get("tuber"):
+        if roots:
+            a.roots(x, y + 4 * k, 5, 6 * k, 120)
+        a.polar(x, y, lambda th: 1 + 0.13 * math.cos(3 * th + 1) + 0.08 * math.sin(5 * th), 8.6 * k, 5.8 * k, -8, "dark")
+        for dx, dy in [(-3.4, -1.6), (2.6, 1.2), (0.4, -2.6)]:
+            a.line(f"M{f(x + (dx - 1.2) * k)},{f(y + dy * k)} q{f(1.2 * k)},{f(-1.1 * k)} {f(2.4 * k)},0", 0.6, 0.45, "straw")
+    elif s.get("rhizome"):
+        if roots:
+            for dx in (-9, -2, 6):
+                a.roots(x + dx * k, y + 3.4 * k, 2, 6 * k, 40)
+        a.ribbon((x - 15 * k, y + 1.5 * k), (x - 2 * k, y - 1.5 * k), (x + 13 * k, y + 1 * k), 8.4 * k, 6.6 * k, "seed", round_tip=True)
+        for dx in (-9, -3.5, 2, 7.5):
+            a.line(f"M{f(x + dx * k)},{f(y - 3.4 * k)} q{f(1.3 * k)},{f(3.4 * k)} 0,{f(6.8 * k)}", 0.6, 0.4)
+    else:
+        S10.bulb(a, x, y, k, roots)
+
+
 def bulbplant(s, stage):
+    own = s.get("tuber") or s.get("rhizome")   # not a true bulb: draw its own store, not the snowdrop's
     if stage == "bulb":
-        return S10.snowdrop_bulb()
+        if not own:
+            return S10.snowdrop_bulb()
+        a = Art(); a.ground(38, marks=False)
+        for dx, dy, w in [(-30, 46, 4), (27, 50, 3), (-24, 78, 3), (28, 74, 4)]:
+            a.line(f"M{50 + dx},{dy} L{50 + dx + w},{dy}", 0.9, 0.55, "soil")
+        store(a, s, 50, 62, 1.7); return a
     if stage == "dormant":
-        return S10.snowdrop_dormant()
+        if not own:
+            return S10.snowdrop_dormant()
+        a = Art(); a.ground(40)
+        a.line("M46,40 Q40,36 33,39", 1.2, 0.8, "straw"); a.line("M52,40 Q58,37 64,39.4", 1.2, 0.8, "straw")
+        store(a, s, 50, 64, 1.3); return a
     a = Art(); a.ground(66); H = s["H"]; lc = s["lc"]; top = (50, 72 - H)
+    cut = s.get("bleaf") == "cut"   # winter windflower: stalked leaves of three toothed leaflets, not straps
     if stage == "shoots":
         for dx, hh in [(-2.6, 13), (0, 19), (2.8, 15)][: s.get("nl", 3)]:
-            a.ribbon((50 + dx, 70), (50 + dx * 1.2, 70 - hh * 0.5), (50 + dx * 1.6, 70 - hh), 3.6, 0.8, lc)
-        S10.bulb(a, 50, 79, 0.85); return a
+            if cut:
+                a.stem((50 + dx, 70), (50 + dx * 1.6, 70 - hh * 0.4), (50 + dx * 2.4, 70 - hh * 0.7), 1.0)
+                LF(a, "trefoil", 50 + dx * 2.4, 70 - hh * 0.7, -90 + dx * 9, 9, lc)
+            else:
+                a.ribbon((50 + dx, 70), (50 + dx * 1.2, 70 - hh * 0.5), (50 + dx * 1.6, 70 - hh), 3.6, 0.8, lc)
+        store(a, s, 50, 79, 0.85); return a
     seed = stage == "seedhead"; wide = s.get("bleaf") == "broad"
     lcol = "straw" if seed else lc
     ends = [(-22, 0.62), (20, 0.56), (-9, 0.8), (11, 0.74)][: s.get("nl", 4)]
+    if cut:
+        ends = [(-20, 0.5), (19, 0.44), (-8, 0.3)]
+    if s.get("stemleaf"):   # the fritillaries: no leaves from the ground, they are on the stem
+        ends = []
     for dx, hh in ends:
         e = (50 + dx * (1.5 if seed else 1), 72 - H * hh * (0.6 if seed else 1))
-        a.ribbon((50 + dx * 0.08, 72), (50 + dx * 0.35, 72 - H * hh * 0.6), e, 7 if wide else 3.8, 0.9, lcol, round_tip=True)
+        if cut:
+            a.stem((50 + dx * 0.08, 72), (50 + dx * 0.4, 72 - H * hh * 0.7), e, 1.0)
+            LF(a, "trefoil", e[0], e[1], -90 + dx * 2.6, 15, lcol)
+        else:
+            a.ribbon((50 + dx * 0.08, 72), (50 + dx * 0.35, 72 - H * hh * 0.6), e, 7 if wide else 3.8, 0.9, lcol, round_tip=True)
     fl = s["fl"]; fc = s["fc"]; r = s["fr"]
     if fl == "goblet":   # crocus: the flower comes almost straight from the ground
         if seed:
@@ -520,6 +591,13 @@ def bulbplant(s, stage):
         bend = s.get("bend", 0)
         q = a.stem((50, 72), (50 - bend * 0.3, 72 - H * 0.6), (50 + bend, top[1]), 1.5)
         x, y = 50 + bend, top[1]
+        if s.get("stemleaf"):
+            n, L, b = s["stemleaf"]   # how many, how long, how fat
+            with a.on(LEAF):
+                for i in range(n):
+                    u = 0.1 + (0.5 if wide else 0.62) * i / (n - 1); px, py = q.pt(u); side = -1 if i % 2 else 1
+                    for sd in ((1, -1) if wide else (side,)):   # crown imperial: rings of leaves. Snake's head: one at a time
+                        a.leaf(px, py, -90 + sd * (56 if wide else 34), L * (1 - 0.25 * u), b, lcol, lw=0.9)
         if seed:
             a.oval(x, y - 2, 2.6, 3.8, bend, "unripe"); a.line(f"M{f(x)},{f(y - 4)} L{f(x)},{f(y + 0)}", 0.5, 0.4)
         elif fl in ("bells", "spike"):
@@ -552,7 +630,7 @@ def bulbplant(s, stage):
                 px, py = q.pt(u); FL(a, "six", px + (4 if j % 2 else -4), py, r, fc, "plum")
         else:
             FL(a, fl, x, y, r, fc, s.get("cen", "sun"))
-    S10.bulb(a, 50, 81, 0.8)
+    store(a, s, 50, 81, 0.8)
     return a
 
 
@@ -610,7 +688,8 @@ CROPLAB = {"root": "Ready to pull", "leaf": "Ready to pick", "head": "Ready to c
 def stages(s):
     h = s["habit"]
     if h == "tree":
-        st = ["young", "growing" if s.get("ever") else "dormant", "growing" if s.get("noflower") else "flower"]
+        # noflower: it does not flower here (ginkgo). hidden: its flowers cannot be seen (a fig's are inside the fig)
+        st = ["young", "growing" if s.get("ever") else "dormant", "growing" if s.get("noflower") or s.get("hidden") else "flower"]
         if s.get("fruit"): st += ["set", "crop"]
         if s.get("autumn"): st += ["autumn"]
         return st
@@ -645,11 +724,14 @@ def label(s, stage):
     if stage == "seedhead" and s["habit"] == "asparagus": return "Fern and berries"
     if stage == "growing" and s["habit"] == "asparagus": return "Fern"
     if stage == "dormant" and s["habit"] in ("bulb", "cyclamen"): return "Dormant"
-    if stage == "bulb" and s["habit"] == "cyclamen": return "Tuber"
+    if stage == "bulb" and (s["habit"] == "cyclamen" or s.get("tuber")): return "Tuber"
+    if stage == "bulb" and s.get("rhizome"): return "Rhizome"
     return LABEL[stage]
 
 
 def make(s, stage):
+    global NOW
+    NOW = s
     h = s["habit"]
     if h == "tree": return tree(s, stage)
     if h == "vine": return vine(s, "flower" if stage == "growing" else stage)
@@ -740,7 +822,7 @@ B = dict(
     gourd=dict(habit="trail", H=24, leaf="lobed", ls=24, lc="leaf", fl="flat", fc="sun", cen="amber", fr=7, crop="fruit",
                fruit=("round", "carrot", 9), seed="flat", cot="oval"),
     pea=dict(habit="climb", H=76, leaf="compound", ls=19, lc="leaf", fl="pea", fc="white", fr=3.4, arr="axil", crop="pod",
-             fruit=("pod", "unripe", 2.3), sh="legume", seed="pea", cot="bean"),
+             fruit=("pod", "unripe", 2.3), sh="legume", seed="pea", cot="bean", noend=True),
     night=dict(habit="up", H=64, leaf="simple", ls=20, lc="leaf", fl="star", fc="white", cen="sun", fr=3.6, arr="axil", crop="fruit",
                fruit=("round", "berry", 4.4), seed="disc", cot="narrow"),
     daisy=dict(habit="clump", H=56, leaf="lance", ls=15, lc="leaf", fl="daisy", fc="white", cen="sun", fr=8, arr="top", sh="head", seed="slim", cot="round"),
@@ -754,7 +836,7 @@ B = dict(
     bush=dict(habit="bush", H=54, leaf="simple", ls=11, lc="leaf", sc="bark", fl="tiny", fc="white", fr=2.6, arr="axil", crop="fruit",
               fruit=("round", "berry", 2.4), start="plant"),
     cane=dict(habit="cane", H=72, leaf="compound", ls=17, lc="leaf", sc="bark", fl="flat", fc="white", fr=3, arr="axil", crop="fruit",
-              fruit=("knob", "berry", 3.0), start="plant"),
+              fruit=("knob", "berry", 3.0), start="plant", edge="saw"),
 )
 KINDS = []
 
@@ -767,12 +849,12 @@ def K(name, base, also=(), **kw):
 
 
 # ---- roots
-K("Parsnip", "root", ["Parsnips"], leaf="compound", root=("long", "white", 20, 49), fl="umbel", fc="primrose", fr=8, arr="heads", sh="umbel", seed="disc", cot="narrow", H=66)
+K("Parsnip", "root", ["Parsnips"], leaf="compound", root=("long", "white", 20, 49), fl="umbel", fc="primrose", fr=8, arr="heads", sh="umbel", seed="disc", cot="narrow", H=66, edge="saw")
 K("Beetroot", "root", leaf="simple", stalkc="beet", seed="knob", fl="tiny", fc="unripe", arr="spire", sh="dry")
 K("Radish", "root", leaf="cut", ls=24, root=("round", "berry", 15, 15), fl="four", fc="pink", bi=False)
 K("Turnip", "root", leaf="cut", root=("round", "white", 25, 21), top="plum")
 K("Swede", "root", leaf="cut", lc="sage", root=("round", "pear", 29, 26), top="plum")
-K("Celeriac", "root", leaf="compound", root=("round", "seed", 28, 24), fl="umbel", fc="white", fr=7, arr="heads", sh="umbel", seed="ridged", cot="narrow")
+K("Celeriac", "root", leaf="compound", root=("round", "seed", 28, 24), fl="umbel", fc="white", fr=7, arr="heads", sh="umbel", seed="ridged", cot="narrow", edge="saw")
 K("Mangelwurzel", "root", leaf="simple", stalkc="pale", root=("round", "rust", 26, 34), seed="knob", fl="tiny", fc="unripe", arr="spire", sh="dry")
 K("Salsify", "root", leaf="strap", lc="sage", root=("long", "seed", 9, 50), fl="daisy", fc="lilac", fr=7, arr="top", sh="fluff", seed="slim", cot="grass")
 K("Scorzonera", "root", leaf="strap", root=("long", "dark", 9, 50), fl="daisy", fc="sun", fr=7, arr="top", sh="fluff", seed="slim", cot="grass")
@@ -780,25 +862,25 @@ K("Kohlrabi", "root", leaf="simple", lc="sage", root=("round", "unripe", 24, 22)
 K("Potatoes", "night", ["Potato"], leaf="compound", ls=24, H=50, start="tuber", crop="tuber", cen="sun", fc="white", fr=3.4, arr="top", habit="clump")
 # ---- the carrot family and other herbs
 K("Dill", "umbel", fc="primrose", ls=20, crop="leaf")
-K("Fennel", "umbel", fc="primrose", H=72, ls=24, crop="leaf", per=True)
+K("Fennel", "umbel", fc="primrose", H=72, ls=24, crop="leaf", per=True, lc="bark")
 K("Coriander", "umbel", H=52, leaf="cut", ls=13, crop="leaf")
 K("Parsley", "umbel", habit="ros", leaf="cut", ls=24, H=52, fc="pear", crop="leaf", bi=True, stalkc="leaf")
 K("Chervil", "umbel", H=46, ls=17, crop="leaf")
 K("Anise", "umbel", H=50, ls=16, leaf="cut")
-K("Lovage", "umbel", H=74, leaf="compound", fc="pear", crop="leaf", per=True)
-K("Celery", "umbel", habit="ros", leaf="compound", ls=34, stalkc="pale", H=58, crop="stalk", croplab="Ready to cut", bi=True)
-K("Wild angelica", "umbel", H=74, leaf="compound", fc="pink", fr=10, per=True, sc="plum")
-K("Hogweed", "umbel", ["Heradeum"], H=74, leaf="lobed", ls=28, fr=11, per=True)
-K("Yarrow", "umbel", ["Achillea"], habit="clump", H=50, ls=17, fr=6, arr="top", per=True)
-K("Common Valerian", "umbel", H=72, leaf="compound", fc="pink", fr=6, per=True)
-K("Meadowsweet", "wild", H=64, leaf="compound", ls=20, fl="plume", fc="white", fr=7, arr="top")
+K("Lovage", "umbel", H=74, leaf="compound", fc="pear", crop="leaf", per=True, edge="saw")
+K("Celery", "umbel", habit="ros", leaf="compound", ls=34, stalkc="pale", H=58, crop="stalk", croplab="Ready to cut", bi=True, edge="saw")
+K("Wild angelica", "umbel", H=74, leaf="compound", fc="pink", fr=10, per=True, sc="plum", edge="saw")
+K("Hogweed", "umbel", ["Heradeum"], H=74, leaf="compound", ls=30, fr=11, per=True, edge="saw", endk=1.3)
+K("Yarrow", "umbel", ["Achillea"], habit="clump", H=50, ls=17, fr=6, arr="top", per=True, fc="pink")
+K("Common Valerian", "umbel", H=72, leaf="compound", fc="pink", fr=6, per=True, edge="saw", pairs=3)
+K("Meadowsweet", "wild", H=64, leaf="compound", ls=20, fl="plume", fc="white", fr=7, arr="top", edge="saw")
 K("Basil", "herb", leaf="simple", ls=15, lc="leaf", fl="lip", arr="spire", opp=True, H=42)
 K("Mint", "herb", ["Applemint"], leaf="tooth", ls=14, fl="tiny", fc="lilac", arr="spire", opp=True, H=46, per=True, start="plant")
-K("Lemon Balm", "herb", leaf="tooth", ls=15, arr="axil", fr=2.2, opp=True, per=True)
+K("Lemon Balm", "herb", leaf="tooth", ls=15, arr="axil", fr=2.2, opp=True, per=True, edge="scallop")
 K("Oregano", "herb", ["Marjoram", "Wild marjoram"], leaf="round", ls=9, fl="tiny", fc="pink", arr="heads", opp=True, H=40, per=True)
 K("Tarragon", "herb", leaf="lance", ls=13, fl=None, sh=None, per=True, start="plant", H=48)
-K("Cat nip", "spire", leaf="tooth", lc="sage", ls=13, H=46, opp=True)
-K("Hyssop", "mound", fc="blue", lc="leaf", H=42)
+K("Cat nip", "spire", leaf="tooth", lc="sage", ls=13, H=46, opp=True, fc="white", edge="scallop")
+K("Hyssop", "mound", fc="pink", lc="leaf", H=42)
 K("Lavender", "mound", ["Lavandula allardii Meerlo"], H=46)
 K("Rosemary", "mound", lc="deep", fc="blue", arr="axil", H=48)
 K("Sage", "mound", leaf="simple", ls=13, H=40)
@@ -807,12 +889,12 @@ K("Wormwood", "mound", leaf="fern", ls=15, fl="tiny", fc="primrose", H=48, crop=
 K("Thyme", "mat", ["Wild thyme"], crop="leaf", start="plant")
 K("Bay", "tree", ever=True, lc="deep", fruit=None, fc="primrose", canopy="tall")
 # ---- leaves and brassicas
-K("Leaf salad", "salad", leaf="cut")
+K("Leaf salad", "salad", leaf="cut", fl="daisy", fc="primrose", fr=3.4, sh="fluff", seed="slim")
 K("Spinach", "salad", leaf="heart", lc="deep", fl="tiny", fc="unripe", arr="spire", sh="dry", seed="knob")
 K("Swiss Chard", "salad", leaf="simple", lc="deep", stalkc="berry", fl="tiny", fc="unripe", arr="spire", sh="dry", seed="knob", ls=32, bi=True)
 K("Spinach Beet", "salad", leaf="simple", lc="deep", stalkc="pale", fl="tiny", fc="unripe", arr="spire", sh="dry", seed="knob", ls=32, bi=True)
 K("Rocket salad", "salad", leaf="cut", ls=24, fc="white")
-K("Mizuna", "salad", leaf="fern", ls=28)
+K("Mizuna", "salad", leaf="cut", ls=28)
 K("Mustard", "salad", leaf="cut", ls=26, H=62)
 K("Pak Choi", "salad", leaf="round", ls=30, stalkc="white", lc="deep")
 K("Lambs Lettuce", "salad", leaf="simple", ls=17, lc="deep", fc="blue", fl="tiny", H=30, sh="dry")
@@ -834,12 +916,12 @@ K("Garlic", "allium", root=("round", "white", 22, 21), start="clove", fc="pink",
 K("Spring onion", "allium", root=("round", "white", 8, 15), ls=34, fc="white", croplab="Ready to pull")
 K("Chives", "allium", ls=30, H=38, fr=5.5, scapes=3, crop="leaf", per=True, bi=False, croplab="Ready to cut")
 K("Wild garlic", "allium", leaf="simple", ls=30, lc="leaf", fl="umbel", fc="white", fr=7, H=40, crop="leaf", per=True, bi=False, start="set", sh="dry")
-K("Bristol Onion", "allium", fc="plum", fr=7, H=62, ls=30, crop=None, per=True, bi=False, start="set")
+K("Bristol Onion", "allium", fc="beet", fr=7, H=62, ls=30, crop=None, per=True, bi=False, start="set")
 # ---- gourds
-K("Squash", "gourd", ["Winter squash"])
-K("Cucumber", "gourd", fruit=("long", "marrow", 6))
-K("Melon", "gourd", fruit=("round", "pear", 9.5))
-K("Loofah", "gourd", fruit=("long", "unripe", 7.5))
+K("Squash", "gourd", ["Winter squash"], edge="saw")
+K("Cucumber", "gourd", fruit=("long", "marrow", 6), edge="saw")
+K("Melon", "gourd", fruit=("round", "pear", 9.5), edge="saw")
+K("Loofah", "gourd", fruit=("long", "unripe", 7.5), edge="saw")
 # ---- peas and beans
 K("Pea", "pea", ["Mangetout", "Sugarsnap peas"])
 K("French bean", "pea", ["Dwarf/french bean", "French Beans", "French beans"], habit="up", H=44, leaf="trefoil", ls=24, fc="lilac", fruit=("pod", "unripe", 1.8), seed="bean")
@@ -864,47 +946,47 @@ K("Rhubarb", "salad", leaf="heart", ls=40, stalkc="berry", lc="deep", fl="plume"
 K("Nasturtium", "gourd", leaf="round", ls=17, fl="flat", fc="carrot", cen="berry", fr=6, crop=None, H=20, seed="pea")
 # ---- daisies
 K("Calendula", "daisy", fc="carrot", cen="rust", ls=16, H=42, leaf="simple", seed="ridged")
-K("Cosmos", "daisy", fc="pink", leaf="fern", ls=17, H=66, arr="heads", fl="flat", fr=7)
-K("Zinnia", "daisy", fc="berry", leaf="simple", opp=True, H=52)
+K("Cosmos", "daisy", fc="pink", leaf="fern", ls=17, H=66, arr="heads", fr=7, rays=8)
+K("Zinnia", "daisy", fc="beet", leaf="simple", opp=True, H=52)
 K("Rudbeckia", "daisy", fc="sun", cen="dark", H=58, per=True)
 K("French Marigold", "daisy", fc="carrot", cen="rust", leaf="fern", ls=14, H=30, fr=6)
 K("Ox-eye Daisy", "daisy", ["Oxeye Daisy"], leaf="cut", H=54, per=True)
 K("Corn chamomile", "daisy", leaf="fern", ls=13, H=40, fr=6, arr="heads")
-K("Wild chamomile", "daisy", leaf="fern", ls=13, H=38, fr=5, arr="heads")
+K("Wild chamomile", "daisy", leaf="fern", ls=13, H=38, fr=5, arr="heads", rayless=True)
 K("Feverfew", "daisy", leaf="cut", ls=14, H=46, fr=4.4, arr="spray", per=True)
 K("Aster", "daisy", fc="lilac", H=56, fr=6, arr="heads", per=True)
-K("African Daisy", "daisy", fc="lilac", cen="plum", leaf="simple", H=34, fr=8)
+K("African Daisy", "daisy", fc="pink", cen="plum", leaf="simple", H=34, fr=8)
 K("Helipterum Rosum", "daisy", fc="pink", lc="sage", H=40, fr=6.5)
 K("Cornflower", "daisy", ["Field cornflower"], lc="sage", fl="tuft", fc="blue", fr=6, H=60, arr="heads", sh="dry")
 K("Blue globe thistle", "daisy", leaf="cut", ls=22, lc="sage", fl="globe", fc="blue", fr=7, H=66, arr="heads", sh="burr", per=True)
-K("Scabiosa", "daisy", leaf="cut", fl="globe", fc="lilac", fr=6, H=58, arr="heads", sh="burr", per=True)
+K("Scabiosa", "daisy", leaf="cut", fl="globe", fc="pink", fr=6, H=58, arr="heads", sh="burr", per=True)
 K("Devil's-bit scabious", "daisy", leaf="lance", fl="globe", fc="blue", fr=5, H=60, arr="heads", sh="burr", per=True)
 K("Oxford rampion", "daisy", leaf="lance", fl="tuft", fc="blue", fr=5, H=44, sh="dry", per=True)
 K("Senecio 'Angel Wings'", "salad", ["Senecio canc Angel Wings"], leaf="tooth", ls=30, lc="white", fl=None, sh=None, crop="leaf", croplab="Full size", start="plant", per=True)
 # ---- spires
-K("Foxglove", "spire", ["Wild foxglove", "Digitalis Dalmatian Peach"], habit="ros", leaf="tooth", ls=26, fl="bell", fc="pink", fr=3.6, H=74, bi=True, per=False, seed="dust", sh="capsule")
-K("Salvia", "spire", ["Salvia Amisiad"], fc="plum", opp=True, H=62)
+K("Foxglove", "spire", ["Wild foxglove", "Digitalis Dalmatian Peach"], habit="ros", leaf="tooth", ls=26, fl="bell", fc="pink", fr=3.6, H=74, bi=True, per=False, seed="dust", sh="capsule", edge="scallop")
+K("Salvia", "spire", ["Salvia Amisiad"], fc="plum", opp=True, H=62, edge="scallop")
 K("Common evening-primrose", "spire", habit="ros", leaf="lance", ls=24, fl="four", fc="primrose", fr=5, H=74, bi=True, per=False, seed="dust", sh="pods")
 K("Wallflower", "spire", leaf="lance", ls=15, fl="four", fc="carrot", fr=3.6, H=46, sh="pods", per=False, bi=True)
 K("Yellow-rattle", "spire", habit="up", leaf="tooth", ls=11, opp=True, fc="primrose", H=42, per=False, sh="capsule", seed="flat")
 K("Selfheal", "mat", leaf="simple", fl="tuft", fc="plum", fr=3, H=16)
 K("Sweet William", "wild", leaf="lance", opp=True, fl="tiny", fc="beet", fr=6, arr="top", H=46, per=False, bi=True)
 # ---- other flowers
-K("Poppy", "wild", leaf="cut", ls=17, lc="sage", fl="cup", fc="berry", fr=6, arr="heads", sh="capsule", seed="dust", H=60, per=False)
+K("Poppy", "wild", leaf="cut", ls=17, lc="leaf", fl="cup", fc="berry", fr=6, arr="heads", sh="capsule", seed="dust", H=60, per=False)
 K("California Poppy", "wild", leaf="fern", ls=15, lc="sage", fl="cup", fc="carrot", fr=5, arr="top", sh="pods", seed="dust", H=34, per=False)
 K("Borage", "wild", leaf="simple", ls=18, fl="star", fc="blue", cen="dark", fr=4, arr="spray", H=56, per=False, seed="black")
 K("Russian comfrey", "wild", leaf="lance", ls=26, fl="bell", fc="plum", fr=2.4, arr="spray", H=62, start="plant", sh=None, crop="leaf", croplab="Ready to cut")
 K("Lungwort", "wild", habit="ros", leaf="simple", ls=20, lc="deep", fl="bell", fc="pink", fr=2.2, arr="spray", H=30, start="plant", sh=None)
-K("Native Cowslip", "wild", ["Cowslip"], habit="ros", leaf="tooth", ls=20, fl="bell", fc="sun", fr=2.2, arr="spray", scape=True, H=36)
-K("Geum", "wild", leaf="tooth", ls=16, fc="carrot", fr=4.6, H=46)
+K("Native Cowslip", "wild", ["Cowslip"], habit="ros", leaf="tooth", ls=20, fl="bell", fc="sun", fr=2.2, arr="spray", scape=True, H=36, edge="scallop")
+K("Geum", "wild", leaf="tooth", ls=16, fc="berry", fr=4.6, H=46)
 K("Viola", "mat", leaf="simple", ls=5, fl="flat", fc="plum", cen="sun", fr=4, H=17)
 K("Aubrieta", "mat", fl="four", fc="lilac", fr=3, H=14, start="plant")
-K("Linum", "wild", leaf="lance", ls=10, fc="blue", fr=4.4, H=50, per=False)
-K("Marshmallow", "wild", leaf="lobed", ls=20, lc="sage", fc="pink", fr=4.4, arr="axil", H=72)
+K("Linum", "wild", leaf="lance", ls=10, fc="berry", cen="dark", fr=4.4, H=50, per=False)
+K("Marshmallow", "wild", leaf="lobed", ls=20, lc="sage", fc="pink", fr=4.4, arr="axil", H=72, edge="saw")
 K("Perforate st John's-wort", "wild", leaf="simple", ls=8, opp=True, fl="star", fc="sun", fr=3.6, arr="spray", H=54)
 K("Lady's bedstraw", "wild", leaf="needle", ls=8, fl="plume", fc="sun", fr=5, arr="heads", H=46)
 K("Rock Sea Lavender", "wild", habit="ros", leaf="simple", ls=17, fl="tiny", fc="lilac", fr=3, arr="spray", scape=True, H=36)
-K("Candy Cane Sorrel", "wild", leaf="trefoil", ls=12, fl="cup", fc="white", fr=3.4, arr="top", H=26, start="set", sh=None)
+K("Candy Cane Sorrel", "wild", leaf="trefoil", lb=0.2, ls=12, fl="cup", fc="white", fr=3.4, arr="top", H=26, start="set", sh=None)
 # ---- bulbs, corms and tubers
 K("Daffodil", "bulb", fl="trumpet", fc="primrose", cen="sun", fr=10)
 K("Tulip", "bulb", ["Late Tulip"], bleaf="broad", nl=3, fr=8.5)
@@ -912,36 +994,36 @@ K("Crocus", "bulb", fl="goblet", fc="lilac", H=22, fr=7)
 K("Bluebell", "bulb", fl="bells", fc="blue", fr=2.6, bend=7)
 K("Grape Hyacinth", "bulb", fl="spike", fc="blue", fr=2.4, H=34)
 K("Puschkinia", "bulb", fl="spike", fc="white", fr=2.6, H=30, nl=2)
-K("Snake's head fritillary", "bulb", ["Fritillaria, snake's head fritillary"], fl="nod", fc="plum", fr=6.5, H=42, nl=3)
-K("Crown imperial", "bulb", ["Fritillaria, crown imperial 'William Rex'"], fl="crown", fc="carrot", fr=4, H=58, bleaf="broad")
-K("Iris", "bulb", fl="iris", fc="lilac", fr=8, H=52)
-K("Yellow Iris", "bulb", fl="iris", fc="primrose", fr=8, H=58)
+K("Snake's head fritillary", "bulb", ["Fritillaria, snake's head fritillary"], fl="nod", fc="plum", fr=6.5, H=42, nl=3, stemleaf=(4, 17, 0.1))
+K("Crown imperial", "bulb", ["Fritillaria, crown imperial 'William Rex'"], fl="crown", fc="carrot", fr=4, H=58, bleaf="broad", stemleaf=(5, 17, 0.2))
+K("Iris", "bulb", fl="iris", fc="plum", fr=8, H=52)
+K("Yellow Iris", "bulb", fl="iris", fc="sun", fr=8, H=58, rhizome=True)
 K("Peacock Orchid", "bulb", fl="stars", fc="white", fr=5.4, H=58, bend=8)
-K("Winter windflower", "bulb", ["winter windflower"], fl="daisy", fc="blue", fr=7, H=24, nl=2)
+K("Winter windflower", "bulb", ["winter windflower"], fl="daisy", fc="pink", fr=7, H=24, nl=2, bleaf="cut", tuber=True, edge="saw", lc="leaf")
 K("Cyclamen", "bulb", ["Cyclamen hederifolium Pink", "Cyclamen hederifolium White"], habit="cyclamen", fc="pink")
 # ---- tree fruit and other trees
-K("Pear", "tree", ["Perry Pear"], fruit=("pear", "pear", 4.6), canopy="tall")
-K("Plum", "tree", fruit=("round", "plum", 3.6))
+K("Pear", "tree", ["Perry Pear"], fruit=("pear", "pear", 4.6), canopy="tall", edge="saw")
+K("Plum", "tree", fruit=("round", "plum", 3.6), edge="saw")
 K("Nectarine", "tree", leaf="lance", fc="pink", fruit=("round", "carrot", 4.0), fruit2="berry", canopy="wide")
-K("Fig", "tree", leaf="lobed", lc="deep", fruit=("pear", "plum", 4.4), canopy="wide", fc="unripe")
+K("Fig", "tree", leaf="lobed", lc="deep", fruit=("pear", "plum", 4.4), canopy="wide", fc="unripe", hidden=True)
 K("Olive Tree", "tree", leaf="lance", lc="sage", ever=True, fruit=("round", "dark", 2.2), fruit2="unripe")
-K("Bristol Whitebeam", "tree", lc="sage", fruit=("round", "berry", 2.0))
+K("Bristol Whitebeam", "tree", lc="sage", fruit=("round", "berry", 2.0), edge="saw")
 K("Gingko", "tree", leaf="fan", canopy="tall", fruit=None, autumn=True, noflower=True)
 # ---- bush, cane and vine fruit, and shrubs
-K("Blackcurrant", "bush", leaf="lobed", ls=17, fruit=("string", "dark", 1.9))
-K("Whitecurrant", "bush", leaf="lobed", ls=17, fruit=("string", "white", 1.9))
-K("Gooseberry", "bush", leaf="lobed", ls=14, fruit=("round", "unripe", 2.9))
+K("Blackcurrant", "bush", leaf="lobed", ls=17, fruit=("string", "dark", 1.9), edge="saw")
+K("Whitecurrant", "bush", leaf="lobed", ls=17, fruit=("string", "white", 1.9), edge="saw")
+K("Gooseberry", "bush", leaf="lobed", ls=14, fruit=("round", "unripe", 2.9), edge="saw")
 K("Blueberry", "bush", ["Wild blueberry"], fl="bell", fr=1.8, fruit=("round", "blue", 2.3))
 K("Honeyberry", "bush", fl="bell", fc="primrose", fr=1.8, fruit=("egg", "blue", 1.7))
-K("Rose", "bush", leaf="compound", ls=17, fl="flat", fc="pink", fr=5.4, fruit=("round", "berry", 2.6), croplab="Hips")
-K("Hydrangea", "bush", leaf="tooth", ls=17, fl="globe", fc="pink", fr=7, arr="top", crop=None)
-K("Japanese Spiraea", "bush", leaf="tooth", ls=11, fl="tiny", fc="pink", fr=4.4, arr="top", crop=None)
+K("Rose", "bush", leaf="compound", ls=17, fl="flat", fc="pink", fr=5.4, fruit=("round", "berry", 2.6), croplab="Hips", edge="saw")
+K("Hydrangea", "bush", leaf="tooth", ls=17, fl="lacecap", fc="pink", fr=7, arr="top", crop=None)
+K("Japanese Spiraea", "bush", leaf="tooth", lc="pear", ls=11, fl="tiny", fc="pink", fr=4.4, arr="top", crop=None)
 K("Raspberry", "cane")
-K("Blackberry", "cane", fruit=("knob", "dark", 3.2), fc="pink")
-K("Loganberry", "cane", ["Tayberry", "Tummelberry"], fruit=("knob", "beet", 3.4))
-K("Japanese Wineberry", "cane", fruit=("knob", "carrot", 2.8), sc="rust")
-K("Grape", "bush", habit="vine", leaf="lobed", ls=17, fc="unripe", fruit=("bunch", "plum", 2.1))
-K("Kiwi", "bush", habit="vine", leaf="heart", ls=17, fc="white", fruit=("egg", "bark", 2.6))
+K("Blackberry", "cane", fruit=("knob", "dark", 3.2), fc="pink", hand=True)
+K("Loganberry", "cane", ["Tayberry", "Tummelberry"], fruit=("knob", "beet", 3.4), pairs=1)
+K("Japanese Wineberry", "cane", fruit=("knob", "carrot", 2.8), sc="rust", pairs=1, endk=1.5)
+K("Grape", "bush", habit="vine", leaf="lobed", ls=17, fc="unripe", fruit=("bunch", "plum", 2.1), edge="saw")
+K("Kiwi", "bush", habit="vine", leaf="heart", ls=17, fc="white", fruit=("egg", "bark", 2.6), edge="saw")
 
 SKIPPED = ["Herb mix", "Overwinter mix", "Overwinter Mix", "Wildflower1", "Wildflower2", "Unknown Eden"]
 SAMPLE_ALSO = {"carrot": ["Carrots", "Flowering carrot"], "leek": ["Leeks"], "apple": ["Apple (Cider)", "Apple (Culinary)"]}
