@@ -158,8 +158,8 @@ def tomato_plant(top=36, n=4, stage="young"):
                     a.oval(fx, fy, r, r * 0.92, 0, "berry" if (ripe or k == 0 and False) else ("amber" if k == 0 else "unripe"))
                     for s in range(5):
                         a.leaf(fx, fy - r * 0.86, -90 + (s - 2) * 42, 3.0, 0.4, "deep", lw=0.6)
-        a.compound(x, y, ang, 25 * (1 - 0.22 * u), pairs=2, b=0.42, size=0.4, bend=0.1 * side)
-    a.compound(50, top, -100, 11, pairs=1, b=0.44, size=0.5)
+        a.compound(x, y, ang, 25 * (1 - 0.22 * u), pairs=2, b=0.46, size=0.4, bend=0.1 * side, edge="saw")
+    a.compound(50, top, -100, 11, pairs=1, b=0.46, size=0.5, edge="saw")
     a.leaf(50, top, -50, 7, 0.4)
     return a
 
@@ -296,7 +296,7 @@ def courgette_leaves(a, spots, crown=(50, 84)):
         q = a.ribbon(crown, ((crown[0] + x) / 2 + (x - crown[0]) * 0.1, (crown[1] + y) / 2 + 2), (x, y), 2.2, 1.6, "pale")
     for (x, y), R in spots:
         ang = math.degrees(math.atan2(y - crown[1], x - crown[0]))
-        a.lobedleaf(x, y, ang, R)
+        a.lobedleaf(x, y, ang, R, teeth=3)
 
 
 def courgette_young():
@@ -336,8 +336,8 @@ def apple_maiden():
     a.line("M49.4,58 Q54,56 58,58", 1.2, 0.9, "soil")
     for i in range(8):
         u = 0.36 + 0.08 * i; x, y = q.pt(u); side = -1 if i % 2 else 1
-        a.leaf(x, y, -90 + side * 58, 10 - i * 0.3, 0.46, "leaf", vein=True)
-    a.leaf(50, 20, -96, 7, 0.44, "leaf")
+        a.leaf(x, y, -90 + side * 58, 10 - i * 0.3, 0.46, "leaf", vein=True, edge="saw")
+    a.leaf(50, 20, -96, 7, 0.44, "leaf", edge="saw")
     return a
 
 
@@ -387,7 +387,7 @@ def trifoliate(a, crown, end, L=15, fill="leaf"):
     x, y = end; ang = math.degrees(math.atan2(y - crown[1], x - crown[0]))
     a.stem(crown, ((crown[0] + x) / 2, (crown[1] + y) / 2 + 3), end, 1.1)
     for off in (-72, 72, 0):
-        a.toothleaf(x, y, ang + off, L, L * 0.86, 13, fill, 0.06)
+        a.toothleaf(x, y, ang + off, L, L * 0.86, 13, fill, 0.06, edge="saw")
 
 
 def berry(a, x, y, s=1.0, fill="berry"):
@@ -526,7 +526,7 @@ def sun_leaves(a, q, us, fill="leaf", hang=0, L=21):
         x, y = q.pt(u); side = -1 if i % 2 else 1
         ang = (-20 + hang) if side > 0 else (-160 - hang)
         e = T(x, y, ang)(5); a.line(f"M{f(x)},{f(y)} L{P(e)}", 1.0)
-        a.leaf(e[0], e[1], ang + side * 8, L * (1 - 0.25 * u), 0.72, fill, vein=True, skew=0.36)
+        a.leaf(e[0], e[1], ang + side * 8, L * (1 - 0.25 * u), 0.72, fill, vein=True, skew=0.36, edge="saw")
 
 
 def sunflower_young():

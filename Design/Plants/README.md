@@ -37,6 +37,14 @@ cp /tmp/parts/plant-parts.json Design/Plants/
 
 - `Tools/design/leaves_flowers.py`: the leaf and flower drawings. `LEAFX` and `BLOOMX` near its foot change single kinds.
 
+## Toothed leaves
+
+Checked on 15 November 2026 after William saw that the raspberry's leaves looked smooth-edged.
+
+- **In a life stage**, a kind's leaves are toothed when its line in `KINDS` (`plants_all.py`) has `edge="saw"` (sharp) or `edge="scallop"` (rounded). A leaf too small to show teeth stays smooth.
+- **In a close-up**, `teeth` and `td` in `LEAFX` give the number and depth, and `tk` the kind: `saw`, `double`, `round` or `wave`. No tooth is drawn less than `TMIN` (1.4 grid squares) out from the edge, because a finer one cannot be seen at the size the app draws it.
+- **A plant that is not a bulb** takes `tuber=True` or `rhizome=True` on its line, and its first stage is labelled to match.
+
 After either, run `python3 Tools/design/build_design_assets.py` to put them in the app.
 
 They are kept out of `Design/Icons` on purpose: `build_design_assets.py` turns every SVG in there into a small icon.

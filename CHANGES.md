@@ -180,6 +180,61 @@ let items = try await request.mapItems
 **Checked.** `Tools/checks/run-checks.sh` with Swift 6.3.1 for Linux: 929 logic tests pass. 199 animals still have a drawing of their own and the picture names are unchanged, so no code needs to know.
 
 **Joined into `main` at 19:19 without a build.** William, 19:05: "Include these on the next build." `main` had not moved since the branch was cut, so the join is the one commit laid on top, with nothing to settle. It was put in unbuilt because it changes pictures, one name in `WildlifeReference.json` and the Python that draws, and no Swift file: there is nothing for Xcode to fail to compile. ⚠️ What a build has not shown is how the new pictures look in the app at the size of a row. **No device has them until the next build is installed.**
+# 15 November 2026, 19:45: every toothed leaf shows its teeth, and the life stages follow the close-ups
+
+**By the "drawings sweep" chat, from William's phone, in a cloud workspace. Not built in Xcode.** On the branch `drawings-accuracy-sweep`, from `main` at `5e0d13a`. William, 19:10: "The raspberry leaves don't look accurate when you look at them, they're smooth edged which real raspberry leaves aren't. Sweep back through all plant drawings and check the accuracy".
+
+**What was wrong.** The raspberry close-up did have teeth, but each stood 0.65 of a grid square out from the edge: about half a point on a plant's page, so the leaf read as smooth. Every other toothed close-up had the same fault. In the life stages it was worse: a leaf of leaflets (`compound`) and a plain leaf (`simple`) had no teeth at all, so raspberry, rose, apple, tomato, the currants and the rest were drawn smooth-edged. The midday check (the 12:00 entry below) had put 44 close-ups right and left their life stages as they were, so a kind could have a flower of one colour on the Leaf and flower card and another on the Life stages card.
+
+**Now.** All 1,248 drawings were looked at again as sheets. 88 kinds changed: 58 leaf close-ups, 4 flower close-ups and 212 life stages of 65 kinds.
+
+| What | In plain words |
+|---|---|
+| **Teeth that can be seen** | No tooth on a close-up stands less than 1.4 grid squares out, and no leaf has more teeth than can be told apart. A leaf in a life stage that is too small to show teeth stays smooth |
+| **Kinds of tooth** | Sharp (`saw`), a big tooth with a small one on its back (`double`: raspberry, bramble, meadowsweet), rounded (`round`: foxglove, lemon balm, cowslip, the sages) and a plain wavy edge (`wave`: bay, which had been given teeth it does not have) |
+| **Raspberry** | Leaf: coarse double teeth and a larger end leaflet. Flower: small narrow petals, shorter than the grey-green sepals between them |
+| **The other cane fruit** | Blackberry: five toothed leaflets from one point, in the life stages too. Loganberry: three. Japanese wineberry: three, the end one large and round, and a flower of small petals in a big red calyx |
+| **Leaves redrawn** | Hogweed (a leaf of five broad lobed leaflets, not one blade), geum (a large round end leaflet), meadowsweet (small leaflets between the pairs), coriander and anise (the three-leaflet lower leaf), lovage, poppy, rose (its two ears), and plain narrow segments for Californian poppy, corn chamomile, cosmos and pineappleweed |
+| **Bristol onion** | A tight egg-shaped red-purple head with the lowest buds still green, not a loose ball |
+| **Not bulbs** | Winter windflower grows from a dark knobbly tuber and has stalked leaves of three toothed leaflets. Yellow iris grows from a rhizome. Their first stage is now labelled "Tuber" and "Rhizome" |
+| **Fritillaries** | Crown imperial and snake's head fritillary carry their leaves up the stem, not from the ground |
+| **Fig** | The Blossom stage is gone, because a fig's flowers are inside the fig. The stage is now `growing`, "In leaf". The file `plant-fig-flower` is deleted and `plant-fig-growing` added |
+| **Life stages brought into line with the midday close-ups** | African daisy, cat nip, fennel, geum, hydrangea (lacecaps), hyssop, iris, yellow iris, Japanese spiraea, leaf salad, linum, poppy, scabiosa, yarrow, cosmos, wild chamomile, winter windflower, candy cane sorrel and mizuna |
+
+| File | What changed |
+|---|---|
+| `Tools/design/plant_kit.py` | `leaf`, `toothleaf`, `lobedleaf` and `compound` take an edge. `_toothed` works out a toothed outline. With no edge given they draw exactly what they drew before |
+| `Tools/design/plants_all.py` | `NOW` holds the settings of the kind being drawn, so `LF` and `FL` can read `edge`, `pairs`, `hand`, `noend`, `endk`, `lb`, `rays` and `rayless`. `store` draws a bulb, tuber or rhizome. `stemleaf`, `tuber`, `rhizome`, `hidden` and a `lacecap` flower are new settings |
+| `Tools/design/plants.py` | Teeth on the hand-drawn apple, tomato, strawberry, sunflower and courgette |
+| `Tools/design/leaves_flowers.py` | `NICK`, `TMIN`, and `tk` and `tmin` on a blade. A leaf of leaflets can have a bigger end leaflet (`termk`, `termW`, `termprof`), lobed leaflets and ears. A flat flower can have long coloured sepals (`pl`, `sepl`, `sepw`, `sepc`). `drum` on a globe. This sweep's settings are under one comment line at the foot of `LEAFX` and `BLOOMX` |
+| `Design/Plants`, `Windfall/Assets.xcassets/Plants`, `Windfall/PlantDrawings.json` | The redrawn pictures and the list, written by the scripts |
+
+**What the code means, in short.**
+
+- `edge="saw"` on a kind's line in `KINDS` gives every leaf of that kind sharp teeth. `edge="scallop"` gives rounded ones.
+- `td = max(td, min(tmin / max(W / 2, 0.01), 0.34))`: "make each tooth at least `tmin` grid squares deep, but never more than a third of the leaf's half width."
+- `NOW = s` at the top of `make`: one shared note of which plant is being drawn, so the small drawing functions need not be handed its settings each time.
+
+**No Swift file changed and nothing saved has changed.** One stage name changed (fig), so a build must take the new `PlantDrawings.json` together with the new pictures.
+
+**⚠️ CHECK, all Claude's:**
+
+1. Six kinds were looked up on the web this evening: raspberry, Japanese wineberry, Bristol onion, winter windflower, hogweed and meadowsweet. Everything else is from general knowledge and none of it is checked against a flora.
+2. Raspberry is drawn with five leaflets, as on a new cane. The fruiting side shoots mostly have three.
+3. The books differ on the wineberry's petals: white, pink or purplish red. They are drawn pale pink.
+4. Meadowsweet's end leaflet should be cut into three lobes and is drawn whole.
+5. Zinnia was changed from tomato red to raspberry pink for 'Raspberry lemonade', which is a mix.
+6. Brassica leaves (radish, turnip, swede, broccoli) now show small teeth along their lobes. They are more wavy than toothed in life.
+
+**Seen and not changed.** The mat-forming plants (thyme, viola, selfheal, aubrieta, bird's-foot trefoil) are a green mound with no leaves of their own. The crowns of the trees only hint at leaves. Cucumber, melon and loofah share the courgette's flower. Kiwi's life stages have heart-shaped leaves where the close-up is a pointed oval.
+
+**Checked.** Every close-up and every life stage looked at by Claude as sheets in light mode after the change, and the kinds changed by hand looked at enlarged. Six drawings looked at in dark mode. A Python check of what the logic tests check: the app's two lists are the ones in `Design/Plants`, each names exactly the 1,248 drawings that exist in light and in dark, every file is well-formed and no file has `stroke-opacity`. The 84 kinds that were not meant to change came out byte for byte the same.
+
+**Not checked.** A build. Windfall's own Swift checks, because this workspace has no Swift (no Swift file changed). The drawings on any device. Dark mode beyond those six.
+
+**Two files left alone:** the daffodil's and the peacock orchid's flower close-ups differ from the repository by one point's rounding on this machine, as the 13:11 entry describes, so the repository's copies were kept.
+
+The review page "Windfall leaf and flower drawings" on Claude now shows these drawings, with the life stages under each kind and a note for each change.
 
 # 15 November 2026, 17:40: the UK wildlife branch joined into main
 

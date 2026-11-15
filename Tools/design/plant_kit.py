@@ -215,16 +215,27 @@ class Art:
             s.shape("M" + " L".join(P(p) for p in R + m[::-1]) + " Z", "shade", 0, fa=0.12)
         return q
 
-    def leaf(s, x, y, ang, L, b=0.28, fill="leaf", vein=False, lw=LW, skew=0.45, detail=True):
+    def leaf(s, x, y, ang, L, b=0.28, fill="leaf", vein=False, lw=LW, skew=0.45, detail=True, edge=None):
         """A simple pointed leaf starting at x,y and pointing along ang.
         b is how fat it is. A leaf that is big enough gets a shaded half,
-        a midrib and side veins. detail=False leaves those off (petals)."""
+        a midrib and side veins. detail=False leaves those off (petals).
+        edge gives it a toothed margin: "saw" for sharp teeth that point to
+        the tip (raspberry, apple, mint), "scallop" for rounded ones
+        (foxglove, lemon balm). A leaf too small to show teeth stays smooth."""
         t = T(x, y, ang)
-        s.shape(f"M{P(t(0))} Q{P(t(L * skew, L * b))} {P(t(L))} Q{P(t(L * skew, -L * b))} {P(t(0))} Z", fill, lw)
+        top = bot = None
+        if edge and fill and L >= 4.5 and b >= 0.26:
+            top, bot = s._toothed(L, b, skew, edge)
+            s.shape("M" + " L".join(P(t(*p)) for p in top + bot[::-1]) + " Z", fill, lw)
+        else:
+            s.shape(f"M{P(t(0))} Q{P(t(L * skew, L * b))} {P(t(L))} Q{P(t(L * skew, -L * b))} {P(t(0))} Z", fill, lw)
         if not detail or not fill:
             return s
         if L >= 8 and b >= 0.18:
-            s.shape(f"M{P(t(0))} Q{P(t(L * skew, L * b))} {P(t(L))} Z", "shade", 0, fa=0.11)
+            if top:
+                s.shape("M" + " L".join(P(t(*p)) for p in top) + " Z", "shade", 0, fa=0.11)
+            else:
+                s.shape(f"M{P(t(0))} Q{P(t(L * skew, L * b))} {P(t(L))} Z", "shade", 0, fa=0.11)
         if vein or L >= 8:
             s.line(f"M{P(t(L * 0.06))} L{P(t(L * 0.84))}", 0.6, 0.42)
         if L >= 12 and b >= 0.3:
@@ -232,6 +243,33 @@ class Art:
                 w = b * L * 2 * (u + 0.13) * (1 - u - 0.13) * 0.8
                 s.line(f"M{P(t(L * u))} L{P(t(L * (u + 0.13), w))} M{P(t(L * u))} L{P(t(L * (u + 0.13), -w))}", 0.5, 0.3)
         return s
+
+    @staticmethod
+    def _toothed(L, b, skew, edge):
+        """The two edges of a toothed leaf as points, measured along the
+        leaf: (distance from the base, distance out from the midrib).
+        The teeth stand a little outside the smooth leaf and the nicks
+        between them go a little inside it, so the leaf keeps its size."""
+        n = max(4, min(9, round(L / 2.0)))            # teeth down each side
+        deep = 0.24                                   # nick to tooth tip, as a share of the half width there
+        steps = [(0.0, 1.0), (0.72, 0.0), (1.0, 1.0)] if edge != "scallop" else [(0.0, 1.0), (0.2, 0.35), (0.5, 0.0), (0.8, 0.35), (1.0, 1.0)]
+
+        def pt(u, cutin, side):
+            x = 2 * u * (1 - u) * L * skew + u * u * L; y = 2 * u * (1 - u) * L * b
+            fade = min(1.0, u / 0.1, (1 - u) / 0.06)   # no teeth right at the stalk or the very tip
+            return (x, side * y * (1 + deep * (0.4 - cutin) * max(0.0, fade)))
+
+        out = []
+        for side in (1, -1):
+            pts = [(0.0, 0.0)]
+            for k in range(n):
+                u0 = 0.04 + 0.94 * k / n; du = 0.94 / n
+                for j, (v, cutin) in enumerate(steps):
+                    if k and j == 0:
+                        continue
+                    pts.append(pt(u0 + du * v, cutin, side))
+            pts.append((L, 0.0)); out.append(pts)
+        return out[0], out[1]
 
     def oval(s, x, y, rx, ry, rot=0, fill=None, lw=LW, col="line", la=0.85):
         return s.polar(x, y, lambda th: 1, rx, ry, rot, fill, lw, steps=40, col=col, la=la)
@@ -256,9 +294,25 @@ class Art:
         s._add(("dot", x, y, r, fill)); return s
 
     # ----- bigger parts built from the above -----
-    def toothleaf(s, x, y, ang, L, W, teeth=11, fill="leaf", depth=0.07):
+    def toothleaf(s, x, y, ang, L, W, teeth=11, fill="leaf", depth=0.07, edge=None):
+        """A broad leaf with an uneven edge. With edge left out the edge is
+        a soft wave (teeth waves round the whole leaf, depth deep): a
+        lettuce, or the lobes of a radish leaf. edge="saw" gives sharp
+        teeth pointing to the tip, edge="scallop" rounded ones: then teeth
+        is how many down EACH side."""
         t = T(x, y, ang); cx, cy = t(L / 2)
-        s.polar(cx, cy, lambda th: 1 + depth * math.cos(teeth * th), L / 2, W / 2, ang, fill)
+        if edge:
+            n = max(4, min(teeth, round(L / 2.0)))
+
+            def fn(th):
+                v = (math.pi - abs(math.atan2(math.sin(th), math.cos(th)))) / math.pi   # 0 at the stalk, 1 at the tip
+                fade = min(1.0, v / 0.08, (1 - v) / 0.05)
+                q = (v * n) % 1
+                nick = (1 - q / 0.72 if q < 0.72 else (q - 0.72) / 0.28) if edge != "scallop" else abs(math.cos(math.pi * q)) ** 2.2
+                return 1 + max(depth, 0.17) * (0.4 - nick) * max(0.0, fade)
+            s.polar(cx, cy, fn, L / 2, W / 2, ang, fill, steps=max(90, n * 28))
+        else:
+            s.polar(cx, cy, lambda th: 1 + depth * math.cos(teeth * th), L / 2, W / 2, ang, fill)
         s.line(f"M{P(t(L * 0.1))} L{P(t(L * 0.85))}", 0.6, 0.42)
         if L >= 11:
             for u in (0.25, 0.42, 0.59):
@@ -266,11 +320,14 @@ class Art:
                 s.line(f"M{P(t(L * u))} L{P(t(L * (u + 0.12), w))} M{P(t(L * u))} L{P(t(L * (u + 0.12), -w))}", 0.5, 0.3)
         return s
 
-    def lobedleaf(s, x, y, ang, R, lobes=5, fill="leaf", cut=0.36):
-        """A broad leaf with rounded lobes and a notch where the stalk joins."""
+    def lobedleaf(s, x, y, ang, R, lobes=5, fill="leaf", cut=0.36, teeth=0):
+        """A broad leaf with rounded lobes and a notch where the stalk joins.
+        teeth gives each lobe that many small sharp teeth (a currant, a
+        vine, a courgette). A leaf too small to show them stays smooth."""
         t = T(x, y, ang); cx, cy = t(R * 0.8)
-        fn = lambda th: (1 - cut) + cut * abs(math.cos(lobes * (th - math.pi) / 2)) ** 0.7
-        s.polar(cx, cy, fn, R, R * 0.95, ang, fill)
+        teeth = teeth if R >= 4.5 else 0
+        fn = lambda th: ((1 - cut) + cut * abs(math.cos(lobes * (th - math.pi) / 2)) ** 0.7) * (1 - 0.13 * (1 - ((th * lobes * teeth / (2 * math.pi)) % 1)) ** 1.4 if teeth else 1)
+        s.polar(cx, cy, fn, R, R * 0.95, ang, fill, steps=max(90, lobes * teeth * 9))
         for k in range(lobes):
             a = ang + 180 + 360 * (k + 0.5) / lobes
             e = T(cx, cy, a)(R * 0.72)
@@ -289,17 +346,19 @@ class Art:
         ex, ey = q.pt(1); s.leaf(ex, ey, q.ang(1), L * size * 0.5, 0.34, fill, lw=0.8)
         return q
 
-    def compound(s, x, y, ang, L, pairs=2, b=0.42, fill="leaf", end=True, bend=0.1, size=0.4, spread=62):
-        """A leaf made of a few larger leaflets: tomato, bean, rose."""
+    def compound(s, x, y, ang, L, pairs=2, b=0.42, fill="leaf", end=True, bend=0.1, size=0.4, spread=62, edge=None, endk=1.1):
+        """A leaf made of a few larger leaflets: tomato, bean, rose.
+        edge gives every leaflet a toothed margin (see leaf). endk is how
+        big the end leaflet is beside the others."""
         t = T(x, y, ang)
         q = s.stem(t(0), t(L * 0.5, L * bend), t(L * (0.78 if end else 0.9)), 0.9)
         for i in range(pairs):
             u = 0.45 + 0.5 * i / max(1, pairs - 1) if pairs > 1 else 0.9
             px, py = q.pt(u); a = q.ang(u); l = L * size
-            s.leaf(px, py, a - spread, l, b, fill, vein=True, lw=0.9)
-            s.leaf(px, py, a + spread, l, b, fill, vein=True, lw=0.9)
+            s.leaf(px, py, a - spread, l, b, fill, vein=True, lw=0.9, edge=edge)
+            s.leaf(px, py, a + spread, l, b, fill, vein=True, lw=0.9, edge=edge)
         if end:
-            ex, ey = q.pt(1); s.leaf(ex, ey, q.ang(1), L * size * 1.1, b, fill, vein=True, lw=0.9)
+            ex, ey = q.pt(1); s.leaf(ex, ey, q.ang(1), L * size * endk, b, fill, vein=True, lw=0.9, edge=edge)
         return q
 
     def flower(s, x, y, r, n=5, fill="white", centre="sun", b=0.5, start=-90, cr=None, lw=0.9):

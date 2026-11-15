@@ -1775,8 +1775,8 @@
      "label": "Winter"
     },
     {
-     "stage": "flower",
-     "label": "Blossom"
+     "stage": "growing",
+     "label": "In leaf"
     },
     {
      "stage": "set",
@@ -5053,7 +5053,7 @@
    "stages": [
     {
      "stage": "bulb",
-     "label": "Bulb"
+     "label": "Tuber"
     },
     {
      "stage": "shoots",
@@ -5138,7 +5138,7 @@
    "stages": [
     {
      "stage": "bulb",
-     "label": "Bulb"
+     "label": "Rhizome"
     },
     {
      "stage": "shoots",
