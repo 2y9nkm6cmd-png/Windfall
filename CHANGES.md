@@ -1,3 +1,14 @@
+# 15 November 2026, 12:35: a tag on two lines is a squircle, not a bulging pill
+
+**By the "search bar corners" chat, from William's phone. On the same branch, `eira-box-corners`. Not built.** William, 12:25, with a picture of a plant's page on the iPad: "The curvature around dynamic accumulator is too much, it should be more of a squircle."
+
+| File | What changed, and why |
+|---|---|
+| `Theme.swift`, new `Theme.tagShape` | One shape for a tag with words in it: a rectangle with corners of 18 in Apple's smooth curve (`style: .continuous`). On one line (about 36 points tall) the corners meet, so it still looks like a pill. On two lines the sides stay straight |
+| `PlantLibraryView.swift` | The three sets of tags on a plant's page use it in place of `.capsule`: a card's tags ("Pollinator plant", "Dynamic accumulator"), the "Add information" buttons ("Human Management", "Ecological Interactions") and "Plants that help with its pests". A capsule's ends are always full half circles, so a two-line tag had ends 30 points deep |
+
+**Not checked:** anything. Not built or seen. The filter buttons and the plant cards' chips are still capsules: they stay on one line.
+
 # 15 November 2026, 12:30: the box in Eira's chat has Windfall's rounded corners
 
 **By the "search bar corners" chat, from William's phone. Branch `eira-box-corners`, from `main` at `baf4a59`. Not built: written in Claude's cloud workspace, which has no Xcode.** William, 12:22, with a picture of Eira's chat in the panel in dark mode: "The curvature of this search bar doesn't match the curvature elsewhere."
