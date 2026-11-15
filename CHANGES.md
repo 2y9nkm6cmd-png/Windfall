@@ -1,3 +1,61 @@
+# 15 November 2026, 03:52: seven more branches joined into main
+
+**By the join chat.** William, 22:49 on 14 November: "In the morning when all the build work is finished on all versions, could you send me a list of jobs I need to do still. Could you also compile the iPhone, iPad and Mac versions when they've included all the changes and errors." The Mac had been quiet since 23:03: no build running, nothing unsaved in any copy of the code, no commit anywhere. The join was made in `~/Developer/windfall-join`, on the branch `join-15nov-morning`, from `main` at `17f0f0b`, and `main` moved only once it built and passed its tests.
+
+**What came in**, in this order:
+
+| Branch | What it is | Built before? |
+|---|---|---|
+| `today-scroll-iphone` | Today scrolls again on an iPhone and iPad: a card's press and hold is UIKit's long press there | No |
+| `job-title-keeps-in` | A job's name keeps a small word that belongs to it: "Put the raspberry cables in" | No |
+| `journal-send-keyboard`, which carries `journal-send-closes` | Sending a journal entry puts the keyboard and the panel away | Only inside the iPad mix |
+| `eira-put-away` | Eira's bar and keyboard put away by touch, and a swipe down on the panel's heading | For the iPhone, at 20:30 |
+| `photos-faster-entry-edit` | Photos show at once, and a journal entry can be changed | Yes |
+| `camera-option` | "Take a photo" on an iPhone and iPad, saved to Photos with its position, and in the seed packet scanner | No |
+| `garden-draw` | Drawing a garden on the plan, step by step, and three ways to set north, behind one chooser for trying out | Yes |
+
+**Left out:** `todo-cards-open`, which holds nothing `main` lacks (its last commit is a merge of `main`), and the three branches made for one device only, which say so in their last commits: `ipad-journal-mix`, `photos-faster-phone-mix` and `tile-grow-phone-mix`.
+
+## Where the branches met
+
+| File | The clash | Settled by |
+|---|---|---|
+| `CHANGES.md`, `Tools/checks/logic-files.txt`, `Tools/checks/known-false-alarms.txt` | Each branch added its own lines at the same spot | Keeping both |
+| `Tools/checks/LogicTests.swift` (with `garden-draw`) | Both sides added tests at the end | Keeping both, after checking that no name is declared twice |
+| `Windfall/EiraVision.swift` (with `camera-option`) | The Identify screen's row of buttons. The photo speed-up asked Photos for each photo as it is stored (`preferredItemEncoding: .current`). The camera branch put the buttons in a `ChipFlow`, which wraps them on a narrow screen, and added "Take a photo" | The camera branch's `ChipFlow` and button, with the speed-up's `preferredItemEncoding: .current` on the Photos button |
+
+## One thing that would not have built
+
+The photo speed-up made the Identify screen's `take(_:)` an `async` function: it waits while the photo is made smaller, away from the screen's own work. The camera branch, written before that, called `take(photo)` straight from the camera's closure, which is not allowed to wait. It now starts the work as a `Task`, as the screen's other ways in do:
+
+```swift
+.cameraPhoto(isPresented: $isTakingPhoto) { photo in
+    Task { await take(photo) }
+}
+```
+
+A `Task` is a piece of work Swift runs alongside the screen. `await` means "wait here for this to finish", which only code inside a `Task` or another `async` function may do.
+
+## Checked
+
+| Check | Result |
+|---|---|
+| Logic checks, Swift 6.3.1 for Linux in the join chat's cloud workspace | 122 files valid, type check passed, 30 record types and 30 in the schema, **833 logic tests pass, 0 fail** |
+| The Mac, unsigned | `jm1-mac.log`, 03:39: BUILD SUCCEEDED, at the first attempt |
+| The simulator, which also builds the widget program | `jm2-sim.log`, 03:43: BUILD SUCCEEDED |
+| Signed, for any iPhone or iPad | `jm3-ios.log`, 03:55: BUILD SUCCEEDED. Its signing profiles list both the iPhone and the iPad, and run out on 21 November at 21:37 |
+| A database made by the build of 20:34 opens in this one, and the other way round | Yes, on the iPad mini simulator with a database of its own (`join-migrate.sh Windfall-claude Windfall-join jmm`). No record type changed in the join |
+| Crash reports | None |
+| Pictures with the example garden, their words read by `read-picture.swift` | Today on an iPad mini and an iPhone 17 Pro Max, the Journal, Settings and tools, the garden drawing chooser and Garlic's page with its Life stages card. `shots/jmm-*.png` |
+
+The name-guessing check raised five false alarms: `other` (a touch recogniser in `TodayBoard.swift`), `step` (a compass offset in `GardenDrawing.swift`) and `card` (a view in `TodayBoard.swift`), each named like something else elsewhere. They are listed in `known-false-alarms.txt`. The builds are the proof they are false.
+
+## Not checked
+
+- **Nothing was tried by hand.** No press, drag, swipe or typing, and no photo taken: the simulator has no camera.
+- **Nobody looked at a picture.** The join chat could only read the words in them.
+- The garden drawing pages on the Mac, an iPad, in dark mode, and with a compass.
+
 # 14 November 2026, 22:39: snow and great heat in the corner drawing (branch `bee-asleep-at-night`)
 
 **By the "bee asleep" chat.** William, 22:31, of the preview page's Weather switch (Fine, Rain, Frost, Night): "There isn't a snow option in it or an extreme heat option." Both are now kinds of weather the corner draws, on Today from the real weather and in the preview by choice.
