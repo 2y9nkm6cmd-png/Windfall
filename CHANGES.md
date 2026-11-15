@@ -1,3 +1,20 @@
+# 15 November 2026, 17:40: the UK wildlife branch joined into main
+
+**By the "combine and deploy" chat, linked to the Mac.** William, 17:35: "Combine all current versions and deploy to all devices." Made on the branch `join-15nov-evening`, from `main` at `469e9a6`, in the copy `~/Developer/windfall-join2`.
+
+**What was waiting.** Every branch on GitHub and every copy of the code on the Mac was checked. One branch held work `main` lacked: `uk-wildlife-reference` (`984aa55`), described in the three entries below this one (17:25, 16:50 and 16:05). It carries `species-rows-open` inside it. The other branches not marked as merged (`ipad-journal-mix`, `photos-faster-phone-mix`, `tile-grow-phone-mix`, `todo-cards-open`, and on the Mac `ipad-fixes-leaf-flower` and `ipad-fixes-widget-colours`) are mixes made for one device: `git cherry` finds no change in them that `main` does not already hold. No copy of the code on the Mac had unsaved work.
+
+**Where the two sides met.** Only this file. Both had added entries at the top, and all are kept. `Tools/checks/LogicTests.swift` and `Tools/checks/logic-files.txt` joined by themselves, because the two sides had added to different places.
+
+**No Swift file was changed by the join.** It is the first time the wildlife branch's screens (`WildlifeBookViews.swift`, `PlantDiseaseViews.swift` and the changed `FaunaViews.swift`) have been through Xcode. They built at the first attempt with no warnings.
+
+**Checked.**
+
+- Windfall's own checks in the cloud workspace, Swift 6.3.1 for Linux: 130 files parse, the type check passes, the cross-file checks are clean, 929 logic tests pass.
+- Signed for any iPhone or iPad: BUILD SUCCEEDED 17:39 (`j3-1-ios.log`). Mac, unsigned: BUILD SUCCEEDED 17:40 (`j3-1-mac.log`).
+
+**Not checked when this was written.** Any of the new pages on a screen.
+
 # 15 November 2026, 17:25: the animals seen most often are drawn one by one, every insect has legs, and plant diseases get diagrams
 
 **By the "wildlife rows" chat, in a cloud workspace. Not built in Xcode.** On the branch `uk-wildlife-reference`, on top of the entry below. William, 16:08: "For the drawings there should be more images for the most common varieties." 16:49: "Some of the flying insects are lacking legs. The animals definitely require more detailed drawings and more specific drawings per species... more specific frogs and toads, birds, differentiate between foxes and cats". 17:16: "Include diagrams of the diseases too".
