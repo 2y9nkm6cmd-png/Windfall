@@ -381,7 +381,16 @@ enum FungusKeys {
     }
 
     /// The keys in this copy of the app, read once and then kept.
-    static let inApp: [Shelved] = shelf(loading: load)
+    ///
+    /// The files are read here first and only then handed to `shelf`.
+    /// Passing `load` itself would hand a main-thread function to code
+    /// that does not promise to stay on the main thread, which Swift
+    /// warns about.
+    static let inApp: [Shelved] = {
+        var files: [String: FungusKey] = [:]
+        for name in [ownFile, wrightFile, sampleFile] { files[name] = load(name) }
+        return shelf(loading: { files[$0] })
+    }()
 
     /// The key with this file name, if the app has it.
     static func key(named name: String) -> FungusKey? {
