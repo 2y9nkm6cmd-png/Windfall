@@ -79,6 +79,11 @@ struct KnownPlant: Equatable {
     /// How it reads in the app, such as "Lavender, Hidcote".
     var name: String
     var latin: String
+    /// The plain English name without the variety, such as "Sunflower".
+    /// Only Eira's second look uses it (EiraSecondLook.swift), to match a
+    /// plant that has no Latin name in your list. It has a starting
+    /// value, so code that makes one without it need not change.
+    var common: String? = nil
 }
 
 /// A species in your wildlife list.

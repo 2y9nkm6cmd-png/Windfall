@@ -83,9 +83,9 @@ struct ObservationListView: View {
                                     .growSource(observation.id, in: cardSpace)
                             }
                             .buttonStyle(.plain)
-                            .contextMenu {
-                                Button("Delete", role: .destructive) { context.delete(observation) }
-                            }
+                            // Swipe left for Delete, or a long press
+                            // (SwipeToDelete.swift).
+                            .swipeToDelete { context.delete(observation) }
                         }
                     }
                 }
@@ -226,6 +226,11 @@ struct ObservationEditor: View {
     @State private var pickerItems: [PhotosPickerItem] = []
     /// True while Eira's second look is under way (EiraSecondLook.swift).
     @State private var isLookingAgain = false
+    /// True while "Delete this sighting?" is being asked.
+    @State private var isAskingToDelete = false
+    /// True once the sighting has been deleted, so the page draws nothing
+    /// more from a record that is gone while it closes.
+    @State private var isGone = false
     @State private var speciesSearch = ""
     @State private var isLoadingPhotos = false
 
@@ -300,6 +305,23 @@ struct ObservationEditor: View {
             guard !items.isEmpty else { return }
             Task { await loadPhotos(items) }
         }
+        // A sighting saved before 15 November 2026 never took its place
+        // from its photo. Each kept photo still knows where it was taken
+        // (`Photo.latitude` and `longitude`), so an empty grid reference
+        // is filled from the first photo that does, when the page opens.
+        .onAppear {
+            guard observation.gridReference?.isEmpty ?? true,
+                  let placed = (observation.photos ?? []).first(where: { $0.latitude != nil && $0.longitude != nil }),
+                  let latitude = placed.latitude, let longitude = placed.longitude else { return }
+            observation.takePlace(latitude: latitude, longitude: longitude)
+        }
+        .confirmationDialog("Delete this sighting?", isPresented: $isAskingToDelete, titleVisibility: .visible) {
+            // `role: .destructive` draws the button red.
+            Button("Delete", role: .destructive) { deleteSighting() }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Its photos go with it. This cannot be undone.")
+        }
     }
 
     private var whenWords: String {
@@ -321,6 +343,24 @@ struct ObservationEditor: View {
             ProblemsCard(problems: observation.validationProblems,
                          footnote: "It can be saved as it is. These are only needed before it goes to iRecord.")
         }
+        // A new sighting has Cancel at the top, which throws it away, so
+        // only one already saved gets a Delete.
+        if !isNew {
+            SheetCard {
+                Button("Delete this sighting", role: .destructive) {
+                    isAskingToDelete = true
+                }
+                .buttonStyle(QuietGlassButton())
+            }
+        }
+    }
+
+    /// Deletes the sighting and closes its page. `isGone` is set first,
+    /// so the page stops reading the record before it disappears.
+    private func deleteSighting() {
+        isGone = true
+        context.delete(observation)
+        dismiss()
     }
 
     private var photosCard: some View {

@@ -52,9 +52,10 @@ enum EiraSecondLookRunner {
                                        plantNames: plants.map(\.entry.title))
 
         // 3. The rules (EiraSecondLook.swift).
-        let known: [KnownPlant] = yourPlants.compactMap { plant in
-            guard let latin = plant.latinName, !latin.isEmpty else { return nil }
-            return KnownPlant(name: plant.displayName, latin: latin)
+        // Every plant, with or without a Latin name: one without can
+        // still be matched by its English name.
+        let known: [KnownPlant] = yourPlants.map { plant in
+            KnownPlant(name: plant.displayName, latin: plant.latinName ?? "", common: plant.commonName)
         }
         observation.keep(EiraSecondLook.suggestion(plants: plants, seen: appleSaw, yourPlants: known))
     }
