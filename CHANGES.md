@@ -1,6 +1,6 @@
 # 15 November 2026, 22:26: the seed packet reader rewritten, and the scan sheet takes the front and the back
 
-**By the "packet reader" chat, started from William's phone. Written in Claude's cloud workspace: not built in Xcode and not seen running.** William, 21:57: "Improve the seed packet reader, doc 114". On the branch `packet-reader-rules`, from `main` at `becc0c9`, with `main` (`a525a93`) merged in. **Not in `main`**: the scan sheet is SwiftUI, which only a Mac can build.
+**By the "packet reader" chat, started from William's phone. Written in Claude's cloud workspace: not built in Xcode and not seen running.** William, 21:57: "Improve the seed packet reader, doc 114". On the branch `packet-reader-rules`, from `main` at `becc0c9`. **Put into `main` on 16 November at 06:50, at William's word ("Add this in to main so that it publishes on next issue of app"), before any build.** The scan sheet is SwiftUI, which only a Mac can build, so **the next chat to build `main` is the first to compile `SeedPacketScanner.swift` as it now is.** If that build fails there, the fault is in this change: put it right in that file, not by undoing the reader. The logic in `PacketReading.swift` and `Parsing.swift` is fully type-checked and tested.
 
 **Why.** William's first real packet (Linaria 'Fairy Bouquet Mixed', Country Value) filled 4 of about 16 things, 3 of them wrongly (doc 114, `Design/Reference/seed-packets`).
 

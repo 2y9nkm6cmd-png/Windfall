@@ -158,7 +158,7 @@ final class SeedPacketScanner {
             try handler.perform([request])
 
             let observations = request.results ?? []
-            linesBySide[side] = observations.compactMap { lineSeen in
+            linesBySide[side] = observations.compactMap { (lineSeen) -> PacketLine? in
                 guard let candidate = lineSeen.topCandidates(1).first else { return nil }
                 // Where the line sits, as shares of the photo from 0 to
                 // 1. Vision measures up from the bottom, and
