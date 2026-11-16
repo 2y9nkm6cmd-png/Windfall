@@ -1,3 +1,15 @@
+# 15 November 2026, 22:08: swipe a sighting to delete it, your own plant by English name, an old sighting's place from its photo, and the Species tile
+
+**By the "iPad changes" chat.** `a525a93`, on `main`. William, 22:02 to 22:05, from the iPad.
+
+- **New `SwipeToDelete.swift`**: `.swipeToDelete(onDelete:)` for rows that are not in a `List` (Apple's `.swipeActions` works only there). A sideways drag slides the row left to show a red Delete, which must be tapped; a tap on the open row closes it; a long press (right-click on a Mac) gives a menu with Delete; VoiceOver gets a Delete action. Used on Latest sightings (`HubScreens.swift`) and the Sightings list (`ObservationViews.swift`, in place of its long-press menu).
+- **The sighting's page** has "Delete this sighting" at its foot (not on a new one, which has Cancel), asking first, as the journal's entry does. `isGone` stops the page reading the record while it closes.
+- **Your own plant by English name** (`EiraSecondLook.yourPlant(for:common:among:)`, `englishNameFits`): William's Sunflower has no Latin name in his list. A plant with no Latin name now matches when its English name is the last whole words of the guide's ("Sunflower" fits "Common Sunflower"). `KnownPlant` has an optional `common`. ⚠️ CHECK: could match Parsley to Cow Parsley.
+- **An old sighting's place**: when its page opens with no grid reference and a photo that knows where it was taken (`Photo.latitude`, `longitude`), the grid reference is filled.
+- **The Species tile** reads "Your 21, and 4,180 UK animals" in place of "21 in the reference".
+
+**Checked.** 136 files parse, type check passes, cross-file checks clean, **981 logic tests pass** (3 new). Simulator and signed builds succeeded; a picture of the Wildlife page showed the new tile wording. Installed on the iPad (22:09:39) and iPhone (22:09:43). **Not seen:** a swipe.
+
 # 15 November 2026, 21:51: Eira's second look at a sighting's photo, for the plant it was on and what it was doing
 
 **By the "iPad changes" chat.** On `search-rests-as-glass`, then `main` moved to it (`02d1a97`). William, 21:39: "Eira should do a second pass of the photo for the plant and what it's doing. Install this version now."
