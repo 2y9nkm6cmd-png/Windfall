@@ -36,7 +36,8 @@ struct ObservationListView: View {
             if let groupFilter, observation.taxonGroup != groupFilter { return false }
             guard !search.isEmpty else { return true }
             let needle = search.lowercased()
-            return (observation.bestAvailableName?.lowercased().contains(needle) ?? false)
+            // By either name, English or Latin (WildlifeReference.swift).
+            return observation.shownNames(ukGuide: .shared).oneLine.lowercased().contains(needle)
                 || (observation.associatedPlantName?.lowercased().contains(needle) ?? false)
         }
     }
@@ -78,7 +79,18 @@ struct ObservationListView: View {
                                              count: geometry.size.width >= 840 ? 2 : 1),
                               spacing: 12) {
                         ForEach(filtered) { observation in
-                            NavigationLink(value: observation) {
+                            // The page to open is given here, as the
+                            // Wildlife page's links do. Until 16 November
+                            // 2026 these were `NavigationLink(value:)`
+                            // links answered by a `navigationDestination`
+                            // on this page, and a tap brought William back
+                            // to this same list. ⚠️ CHECK: the cause was
+                            // not proved, only that the Wildlife page's
+                            // links, written this way, open sightings.
+                            NavigationLink {
+                                ObservationEditor(observation: observation)
+                                    .growsFrom(observation.id, in: cardSpace)
+                            } label: {
                                 ObservationRow(observation: observation)
                                     .growSource(observation.id, in: cardSpace)
                             }
@@ -99,11 +111,12 @@ struct ObservationListView: View {
         // and opens when tapped. See `tuckedSearch` in CollapsingSearch.swift.
         .tuckedSearch(text: $search, prompt: "Search sightings")
         .navigationTitle("Sightings")
+        #if os(iOS)
+        // The page has its own large title (ScreenHeader), so the bar's
+        // is kept small, or "Sightings" shows twice.
+        .navigationBarTitleDisplayMode(.inline)
+        #endif
         .paperScreen()
-        .navigationDestination(for: WildlifeObservation.self) { observation in
-            ObservationEditor(observation: observation)
-                .growsFrom(observation.id, in: cardSpace)
-        }
         // The form brings its own title and buttons (SheetPage).
         .sheet(item: $newObservation) { observation in
             ObservationEditor(observation: observation, isNew: true)
@@ -161,14 +174,17 @@ private struct ObservationRow: View {
     let observation: WildlifeObservation
 
     var body: some View {
-        let name = observation.bestAvailableName ?? "Unidentified"
+        // The English name large, the Latin under it in italics
+        // (`shownNames`, in WildlifeReference.swift).
+        let names = observation.shownNames(ukGuide: .shared)
+        let name = names.title
         HStack(alignment: .top, spacing: 12) {
             if let photo = observation.photos?.first {
                 PhotoThumbnail(photo: photo, size: 52)
             } else {
                 // The app's own drawing: a butterfly, a bee or a
                 // ladybird if the name says so, otherwise binoculars.
-                WIconView(RecentRecord.picture(forSighting: name, group: observation.taxonGroup?.displayName), size: 30)
+                WIconView(RecentRecord.picture(forSighting: names.oneLine, group: observation.taxonGroup?.displayName), size: 30)
                     .foregroundStyle(Theme.leaf)
                     .frame(width: 52, height: 52)
             }
@@ -177,6 +193,12 @@ private struct ObservationRow: View {
                 Text(name)
                     .font(.body.weight(.medium))
                     .foregroundStyle(Theme.ink)
+                if let latin = names.latinBeside {
+                    Text(latin)
+                        .font(.subheadline)
+                        .italic()
+                        .foregroundStyle(Theme.inkSoft)
+                }
 
                 Text(observation.observedAt, format: .dateTime.weekday(.abbreviated).day().month(.wide))
                     .font(.footnote)
@@ -226,6 +248,15 @@ struct ObservationEditor: View {
     @State private var pickerItems: [PhotosPickerItem] = []
     /// True while Eira's second look is under way (EiraSecondLook.swift).
     @State private var isLookingAgain = false
+    /// The sighting's English and Latin names (WildlifeReference.swift).
+    private var pageNames: ShownNames { observation.shownNames(yourSpecies: fauna, ukGuide: .shared) }
+
+    /// The line over the title: the Latin name, when the title is the
+    /// English one, then when it was seen.
+    private var pageDetail: String {
+        [pageNames.latinBeside, whenWords].compactMap { $0 }.joined(separator: " · ")
+    }
+
     /// True while "Delete this sighting?" is being asked.
     @State private var isAskingToDelete = false
     /// True once the sighting has been deleted, so the page draws nothing
@@ -281,13 +312,13 @@ struct ObservationEditor: View {
                     SheetScroll { cards }
                 }
             } else if inSheet {
-                SheetPage(observation.bestAvailableName ?? "Sighting", detail: whenWords, dismissTitle: "Done") {
+                SheetPage(pageNames.english ?? pageNames.latin ?? "Sighting", detail: pageDetail, dismissTitle: "Done") {
                     SheetScroll { cards }
                 }
             } else {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 14) {
-                        ScreenHeader(title: observation.bestAvailableName ?? "Sighting", detail: whenWords)
+                        ScreenHeader(title: pageNames.english ?? pageNames.latin ?? "Sighting", detail: pageDetail)
                         cards
                     }
                     // A form reads best in a column, not across a wide window.

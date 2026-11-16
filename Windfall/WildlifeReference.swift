@@ -412,3 +412,117 @@ struct WildlifeReference {
         return said.joined(separator: ", ")
     }
 }
+
+// MARK: - A sighting's English and Latin names, both shown
+
+/// The two names a sighting is shown by: its English name as the title,
+/// and its Latin name beside or under it. William, 16 November 2026:
+/// "Include Latin name and common name." Until then a sighting showed
+/// whichever one name came first, often only the Latin.
+struct ShownNames: Equatable {
+    /// "Honey bee". Nil when no English name is known.
+    var english: String?
+    /// "Apis mellifera", without its author. Nil when none is known.
+    var latin: String?
+
+    /// What to put in large type: the English name, or the Latin when
+    /// that is all there is.
+    var title: String { english ?? latin ?? "Unidentified sighting" }
+
+    /// What to put under or after the title: the Latin, but only when
+    /// the title is the English name, so the Latin is never said twice.
+    var latinBeside: String? { english == nil ? nil : latin }
+
+    /// Both on one line, for places with room for one: "Honey bee
+    /// (Apis mellifera)".
+    var oneLine: String {
+        guard let latinBeside else { return title }
+        return "\(title) (\(latinBeside))"
+    }
+}
+
+extension SpeciesName {
+
+    /// A scientific name as it should be shown: the genus and the words
+    /// after it, without an author or year. "Bombus terrestris
+    /// (Linnaeus, 1758)" gives "Bombus terrestris". Nil for nothing.
+    ///
+    /// It stops at the first word, after the genus, that starts with a
+    /// capital letter, a bracket or a figure, because those begin the
+    /// author's name or the year.
+    nonisolated static func shown(_ name: String?) -> String? {
+        guard let name else { return nil }
+        var kept: [Substring] = []
+        for word in name.split(separator: " ") {
+            if let first = word.first, !kept.isEmpty,
+               first.isUppercase || first == "(" || first.isNumber {
+                break
+            }
+            kept.append(word)
+        }
+        let shown = kept.joined(separator: " ").trimmingCharacters(in: .whitespacesAndNewlines.union(.punctuationCharacters))
+        return shown.isEmpty ? nil : shown
+    }
+
+    /// True when a name is written as a scientific one: a capital first
+    /// word and a small second word ("Apis mellifera"). "Small
+    /// tortoiseshell" is not, nor is "Honey Bee".
+    nonisolated static func looksLatin(_ name: String) -> Bool {
+        let words = name.split(separator: " ")
+        guard words.count >= 2, let first = words[0].first, let second = words[1].first else { return false }
+        return first.isUppercase && second.isLowercase
+            && !englishFirstWords.contains(words[0].lowercased())
+    }
+
+    /// First words that make a two-word name English, not Latin, even
+    /// though the second word is small: "Small tortoiseshell", "Red
+    /// admiral". Only used by `looksLatin`.
+    private static let englishFirstWords: Set<String> = [
+        "small", "large", "common", "red", "white", "green", "great", "lesser", "garden",
+        "tree", "honey", "buff-tailed", "brown", "black", "blue", "yellow", "orange", "grey",
+        "harlequin", "seven-spot", "two-spot", "peacock", "comma", "painted", "holly", "speckled"
+    ]
+}
+
+extension WildlifeObservation {
+
+    /// The English and Latin names to show for this sighting.
+    ///
+    /// - The Latin is its accepted name, or the scientific name typed or
+    ///   suggested, or the confirmed name when that is a Latin one.
+    /// - The English is the name typed in its Common name box. Failing
+    ///   that, it is looked up by the Latin name: first among William's
+    ///   own species, then in the UK guide.
+    ///
+    /// `yourSpecies` and `ukGuide` are passed in rather than fetched here,
+    /// so this can be tested without the app's records.
+    func shownNames(yourSpecies: [Fauna] = [], ukGuide: WildlifeReference? = nil) -> ShownNames {
+        var latinSource = acceptedScientificName ?? scientificName
+        var englishSource = commonName?.isEmpty == false ? commonName : nil
+        if let confirmed = confirmedID, !confirmed.isEmpty {
+            if SpeciesName.looksLatin(confirmed) {
+                // A confirmed Latin name that differs from the one typed
+                // replaces it, and the English typed for the old one no
+                // longer fits.
+                if SpeciesName.key(confirmed) != SpeciesName.key(latinSource) {
+                    latinSource = confirmed
+                    englishSource = nil
+                }
+            } else if englishSource == nil {
+                englishSource = confirmed
+            }
+        }
+        let latin = SpeciesName.shown(latinSource)
+        var english = englishSource
+        if english == nil, let latin {
+            let key = SpeciesName.key(latin)
+            english = yourSpecies.first(where: { SpeciesName.key($0.scientificName) == key && !$0.commonName.isEmpty })?.commonName
+                ?? ukGuide?.animal(scientificName: latin)?.commonName
+        }
+        // An "English" name that is only the Latin again is no English name.
+        if let found = english, SpeciesName.key(found) == SpeciesName.key(latin), latin != nil {
+            english = nil
+        }
+        return ShownNames(english: english, latin: latin)
+    }
+}

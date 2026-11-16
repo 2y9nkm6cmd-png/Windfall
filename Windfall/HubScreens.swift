@@ -530,11 +530,13 @@ struct WildlifeTab: View {
     }
 
     private func sightingRow(_ sighting: WildlifeObservation) -> some View {
-        let name = sighting.bestAvailableName ?? "Unidentified sighting"
+        // The English name large, the Latin under it in italics
+        // (`shownNames`, in WildlifeReference.swift).
+        let names = sighting.shownNames(yourSpecies: species, ukGuide: .shared)
         // The same record shape Today uses, for its picture and its date.
         let record = RecentRecord(id: sighting.id, date: sighting.observedAt,
-                                  icon: RecentRecord.picture(forSighting: name, group: sighting.schemeGroupName),
-                                  title: name, kind: "Sighting",
+                                  icon: RecentRecord.picture(forSighting: names.oneLine, group: sighting.schemeGroupName),
+                                  title: names.title, kind: "Sighting",
                                   detail: sighting.associatedPlantName.map { "On \($0)" }, sighting: sighting)
         return HStack(alignment: .top, spacing: 12) {
             WIconView(record.icon, size: 30)
@@ -543,6 +545,13 @@ struct WildlifeTab: View {
                 Text(record.title)
                     .font(.body.weight(.medium))
                     .foregroundStyle(Theme.ink)
+                if let latin = names.latinBeside {
+                    // Latin names are written in italics by custom.
+                    Text(latin)
+                        .font(.subheadline)
+                        .italic()
+                        .foregroundStyle(Theme.inkSoft)
+                }
                 Text([record.dateText, record.detail].compactMap { $0 }.joined(separator: " · "))
                     .font(.footnote)
                     .foregroundStyle(Theme.inkSoft)

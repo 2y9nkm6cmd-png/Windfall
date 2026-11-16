@@ -67,10 +67,11 @@ struct UniversalSearchView: View {
         }
 
         for observation in observations where
-            (observation.bestAvailableName?.lowercased().contains(needle) ?? false)
+            // By either name, English or Latin.
+            observation.shownNames(ukGuide: .shared).oneLine.lowercased().contains(needle)
             || (observation.notes?.lowercased().contains(needle) ?? false) {
             found.append(SearchResult(
-                kind: "Sighting", title: observation.bestAvailableName ?? "Sighting",
+                kind: "Sighting", title: observation.shownNames(ukGuide: .shared).oneLine,
                 detail: observation.observedAt.formatted(date: .abbreviated, time: .omitted),
                 symbol: "eye", destination: .observation(observation)))
         }

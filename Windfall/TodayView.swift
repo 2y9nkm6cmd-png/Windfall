@@ -1238,11 +1238,14 @@ struct TodayView: View {
                          detail: "\(survey.totalCount) counted", sighting: nil)
         }
         list += sightings.map { sighting in
-            let name = sighting.bestAvailableName ?? "Unidentified sighting"
-            let picture = RecentRecord.picture(forSighting: name, group: sighting.schemeGroupName)
+            // English name as the title, Latin first in the line under it
+            // (`shownNames`, in WildlifeReference.swift).
+            let names = sighting.shownNames(ukGuide: .shared)
+            let picture = RecentRecord.picture(forSighting: names.oneLine, group: sighting.schemeGroupName)
+            let under = [names.latinBeside, sighting.associatedPlantName.map { "On \($0)" }].compactMap { $0 }
             return RecentRecord(id: sighting.id, date: sighting.observedAt, icon: picture,
-                                title: name, kind: "Sighting",
-                                detail: sighting.associatedPlantName.map { "On \($0)" }, sighting: sighting)
+                                title: names.title, kind: "Sighting",
+                                detail: under.isEmpty ? nil : under.joined(separator: " · "), sighting: sighting)
         }
         list += diary.map { entry in
             RecentRecord(id: entry.id, date: entry.date, icon: .journalEntry,

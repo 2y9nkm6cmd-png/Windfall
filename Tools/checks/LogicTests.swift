@@ -1679,6 +1679,26 @@ struct LogicTests {
         check(byEnglish.plantName == "Sunflower — Giant single" && byEnglish.plantIsYours, "your Sunflower with no Latin name is matched to Common Sunflower by its English name: \(byEnglish)")
         check(EiraSecondLook.englishNameFits(yours: "Sunflower", theirs: "Common Sunflower") && !EiraSecondLook.englishNameFits(yours: "Rose", theirs: "Rosebay Willowherb") && !EiraSecondLook.englishNameFits(yours: "Sunflower", theirs: "Sunflower Common") && !EiraSecondLook.englishNameFits(yours: "", theirs: "Rose") && !EiraSecondLook.englishNameFits(yours: "Giant Sunflower", theirs: "Sunflower"), "an English name fits only as the whole last words")
         check(EiraSecondLook.yourPlant(for: "Helianthus annuus", common: "Common Sunflower", among: [KnownPlant(name: "Lavender", latin: "Lavandula angustifolia", common: "Sunflower")]) == nil, "a plant with a Latin name is never matched by English name alone")
+        // A sighting shows both its English and its Latin name (16 November 2026).
+        check(SpeciesName.shown("Bombus terrestris (Linnaeus, 1758)") == "Bombus terrestris" && SpeciesName.shown("Apis mellifera L.") == "Apis mellifera" && SpeciesName.shown("Harmonia axyridis") == "Harmonia axyridis" && SpeciesName.shown("Bombus") == "Bombus" && SpeciesName.shown("  ") == nil && SpeciesName.shown(nil) == nil, "a Latin name is shown without its author or year")
+        check(SpeciesName.looksLatin("Apis mellifera") && !SpeciesName.looksLatin("Small tortoiseshell") && !SpeciesName.looksLatin("Honey Bee") && !SpeciesName.looksLatin("Bombus") && !SpeciesName.looksLatin("Red admiral"), "a Latin name is told from an English one")
+        let honey = WildlifeObservation()
+        honey.scientificName = "Apis mellifera"; honey.confirmedID = "Apis mellifera"
+        let ownHoney = Fauna(); ownHoney.commonName = "Honeybee"; ownHoney.scientificName = "Apis mellifera Linnaeus, 1758"
+        let honeyNames = honey.shownNames(yourSpecies: [ownHoney])
+        check(honeyNames == ShownNames(english: "Honeybee", latin: "Apis mellifera") && honeyNames.title == "Honeybee" && honeyNames.latinBeside == "Apis mellifera" && honeyNames.oneLine == "Honeybee (Apis mellifera)", "a confirmed Latin name finds its English name among your species: \(honeyNames)")
+        let typed = WildlifeObservation()
+        typed.commonName = "Tree bumblebee"; typed.acceptedScientificName = "Bombus hypnorum (Linnaeus, 1758)"
+        check(typed.shownNames() == ShownNames(english: "Tree bumblebee", latin: "Bombus hypnorum"), "a typed English name and the accepted Latin name are shown together")
+        let latinOnly = WildlifeObservation()
+        latinOnly.scientificName = "Harmonia axyridis"
+        check(latinOnly.shownNames().title == "Harmonia axyridis" && latinOnly.shownNames().latinBeside == nil && latinOnly.shownNames().oneLine == "Harmonia axyridis", "with no English name known, the Latin is the title and is not said twice")
+        let englishConfirmed = WildlifeObservation()
+        englishConfirmed.confirmedID = "Small tortoiseshell"
+        check(englishConfirmed.shownNames() == ShownNames(english: "Small tortoiseshell", latin: nil) && WildlifeObservation().shownNames().title == "Unidentified sighting", "an English confirmed name is the title; with no names it is unidentified")
+        let changed = WildlifeObservation()
+        changed.commonName = "Buff-tailed bumblebee"; changed.scientificName = "Bombus terrestris"; changed.confirmedID = "Bombus lucorum"
+        check(changed.shownNames() == ShownNames(english: nil, latin: "Bombus lucorum"), "a confirmed Latin name that differs drops the English typed for the old one")
         // More than one image model.
         let huge = EyeModel.describing(folder: "bioclip2", modelFile: "bioclip2_image_f16.aimodel", label: Data(#"{"name":"BioCLIP 2.5 Huge","note":"1.2GB","order":1}"#.utf8))
         let small = EyeModel.describing(folder: "bioclip2-original", modelFile: "m.aimodel", label: Data(#"{"name":"BioCLIP 2","order":2}"#.utf8))

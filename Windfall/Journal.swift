@@ -309,7 +309,8 @@ extension Survey: TimelineEntry {
 extension WildlifeObservation: TimelineEntry {
     var timelineDate: Date { observedAt }
     var timelineKind: TimelineKind { .sighting }
-    var timelineTitle: String { bestAvailableName ?? "Unidentified sighting" }
+    /// "Honey bee (Apis mellifera)": both names (WildlifeReference.swift).
+    var timelineTitle: String { shownNames(ukGuide: .shared).oneLine }
     var timelineDetail: String? {
         [associatedPlantName.map { "on \($0)" }, interaction, notes]
             .compactMap { $0 }.joined(separator: " · ")
