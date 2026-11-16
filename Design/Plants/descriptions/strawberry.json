@@ -1,0 +1,46 @@
+{
+ "kind": "strawberry",
+ "name": "Strawberry",
+ "latin": "Fragaria × ananassa",
+ "family": "Rosaceae, the rose family",
+ "grown_as": "The garden strawberry, a perennial fruit kept by planting its runners. William's variety is not known; varieties differ little in leaf and flower.",
+ "habit": "A low clump about 15 to 25 cm high and 30 to 45 cm across, from a short woody crown at ground level. No upright stem: every leaf and flower stalk rises straight from the crown. In summer it sends out long, thin, reddish runners along the ground, each rooting at a node to make a new plant.",
+ "leaf": {
+  "arrangement": "A loose rosette from the crown",
+  "type": "Compound: three leaflets (trifoliate) from the top of one long stalk",
+  "leaflets": "The middle leaflet on a very short stalk of its own and symmetrical; the two side leaflets with almost no stalk and lopsided, the outer half wider than the inner. The three meet neatly at the top of the stalk and touch or overlap a little at their bases.",
+  "outline": "Each leaflet broadly oval to obovate (widest a little above the middle), 4 to 8 cm long, rounded at the tip",
+  "base": "Each leaflet tapers to a wedge at its base",
+  "tip": "Rounded, ending in a tooth as long as or longer than its neighbours",
+  "margin": "Coarse, sharp teeth like a saw blade, pointing forward, along the upper two-thirds of each leaflet. The tapering base has no teeth.",
+  "veins": "A midrib and 8 to 12 straight, parallel side veins on each side, each running out into a tooth. Deeply pressed in, so the leaflet looks pleated along them.",
+  "surface": "Rich green and a little glossy above, paler and silky-hairy beneath",
+  "stalk": "Long (10 to 20 cm), upright then arching, hairy, green or reddish",
+  "colour": "Mid to dark green; some turn red in autumn and winter"
+ },
+ "flower": {
+  "form": "A flat open flower like a small wild rose",
+  "petals": "Five, free, white, round, not overlapping much",
+  "colour": "White",
+  "centre": "A raised yellow-green dome (the receptacle that becomes the fruit) dotted with tiny green pistils, ringed by about twenty yellow stamens",
+  "behind": "Ten green pointed sepals in two rings (five large, five small), showing between the petals",
+  "carried": "In small loose clusters on branched stalks from the crown, held among or just above the leaves, the flowers facing up or out",
+  "size": "2 to 3 cm across",
+  "season": "May to June; some varieties again in late summer"
+ },
+ "fruit": "The red swollen receptacle, cone-shaped to round, 2 to 5 cm, its surface covered in small yellow seeds (achenes) sitting in shallow pits. A ruff of green sepals at the top where it joins the stalk. Unripe fruit is white-green. The fruit hangs on its stalk, often resting on the ground or straw.",
+ "seedling": "Not drawn: grown from runners or bought plants",
+ "winter": "Evergreen in mild winters: a smaller rosette of a few leaves, the older ones turning red and brown, the crown showing at the soil.",
+ "palette": {"leaf": "leaf", "flower": "white", "centre": "primrose", "fruit": "berry"},
+ "must_show": {
+  "leaf": ["three leaflets from the top of one stalk", "each leaflet oval, widest above the middle, tapering to a wedge base", "sharp teeth on the upper two-thirds only, none at the base", "side leaflets lopsided", "straight parallel side veins running into the teeth"],
+  "bloom": ["five round white petals", "green sepals showing between them", "a domed yellow-green centre ringed with yellow stamens"],
+  "young": ["no stem: leaves on long stalks from a crown at the soil", "each leaf the three-leaflet leaf of the close-up"],
+  "flower": ["white flowers in small clusters on stalks from the crown, among the leaves", "three-leaflet leaves"],
+  "crop": ["red cone-shaped fruit with seeds on the surface and a green ruff", "fruit hanging down to the soil on stalks", "three-leaflet leaves"],
+  "runner": ["a thin stalk running along the ground from the parent", "a new small plant rooting where it touches down"],
+  "dormant": ["a small low rosette of a few three-leaflet leaves, some reddened"]
+ },
+ "look_alikes": "Wild strawberry (Fragaria vesca) is smaller in every part with small fruit held above the leaves. Barren strawberry (Potentilla sterilis) has blue-green leaflets whose end tooth is shorter than its neighbours, petals with gaps between them, and dry fruit. Cinquefoils have five leaflets.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge and UK iNaturalist photos of wild and garden strawberry leaves. ⚠️ CHECK"
+}

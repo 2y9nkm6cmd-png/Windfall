@@ -42,6 +42,10 @@ def LF(a, kind, x, y, ang, L, fill):
       lb     how fat each leaflet of a leaf of three is (0.72 if not given)"""
     if L < 2.5:
         return
+    if kind in RD.LF:   # a leaf shape added in the redraw of 16 November 2026 (redraw/)
+        return RD.LF[kind](a, x, y, ang, L, fill)
+    if kind == "own":   # the kind's own close-up leaf, drawn small (see own_leaf below)
+        return own_leaf(a, x, y, ang, L, fill)
     t = T(x, y, ang); edge = NOW.get("edge")
     if kind == "simple": a.leaf(x, y, ang, L, 0.44, fill, edge=edge)
     elif kind == "lance": a.leaf(x, y, ang, L, 0.2, fill)
@@ -77,6 +81,8 @@ def LF(a, kind, x, y, ang, L, fill):
 @on_layer(BLOOM)
 def FL(a, kind, x, y, r, col, cen="sun", ang=-90):
     """One flower of the named kind, r across (roughly), facing along ang."""
+    if kind in RD.FL:   # a flower shape added in the redraw of 16 November 2026 (redraw/)
+        return RD.FL[kind](a, x, y, r, col, cen, ang)
     t = T(x, y, ang)
     if kind == "daisy" and NOW.get("rayless"):   # pineappleweed: a greenish-yellow dome and no rays
         a.oval(x, y - r * 0.25, r * 0.5, r * 0.66, 0, "pear", 0.8)
@@ -1029,11 +1035,79 @@ SKIPPED = ["Herb mix", "Overwinter mix", "Overwinter Mix", "Wildflower1", "Wildf
 SAMPLE_ALSO = {"carrot": ["Carrots", "Flowering carrot"], "leek": ["Leeks"], "apple": ["Apple (Cider)", "Apple (Culinary)"]}
 
 
+# ======================================= the redraw of 16 November 2026
+# Each plant's written description (Design/Plants/descriptions/<kind>.json)
+# and each group's changes (redraw/<group>.py). See redraw/__init__.py.
+import redraw as RD
+COLOURS.update(RD.COLOURS)
+DESC_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "Design", "Plants", "descriptions")
+
+
+def description(slug):
+    """The kind's written description, or {} if it has none yet."""
+    p = os.path.join(DESC_DIR, f"{slug}.json")
+    if not os.path.exists(p):
+        return {}
+    with open(p, encoding="utf-8") as fh:
+        return json.load(fh)
+
+
+def palette(slug):
+    """The colours the description gives the kind, by name from COLOURS:
+    leaf, flower, centre (the middle of the flower) and fruit. These are the
+    ONE place a kind's colours are set: the close-ups and every life stage
+    take them from here, so the two can never drift apart again."""
+    return description(slug).get("palette", {})
+
+
+def apply_palette(d, pal):
+    if pal.get("leaf"): d["lc"] = pal["leaf"]
+    if pal.get("flower") and d.get("fl"): d["fc"] = pal["flower"]
+    if pal.get("centre"): d["cen"] = pal["centre"]
+    if pal.get("fruit") and d.get("fruit"): d["fruit"] = (d["fruit"][0], pal["fruit"], d["fruit"][2])
+
+
+for _slug, _name, _d, _names in KINDS:
+    _d["_slug"] = _slug
+    _d.update(RD.KIND.get(_slug, {}))
+    apply_palette(_d, palette(_slug))
+
+
+_OWN = {}
+
+
+def own_leaf(a, x, y, ang, L, fill):
+    """The kind's own close-up leaf (leaves_flowers.py), drawn L long at x,y
+    pointing along ang: so the leaf on the whole plant is the same leaf as
+    the close-up. A kind uses it with leaf="own" on its settings."""
+    import leaves_flowers as LFW
+    slug = NOW.get("_slug")
+    if slug not in _OWN:
+        _OWN[slug] = LFW.own_leaf(slug)
+    src, own_fill = _OWN[slug]
+    recol = {own_fill: fill} if fill != own_fill else None
+    a.place(src, x, y, ang, L / 92, lw=0.85 if L < 16 else 1.0, detail=L >= 13, fills=recol)
+
+
+
+def by_hand(slug, sts):
+    """Puts in the stages a group of the redraw drew by hand (redraw/, STAGE).
+    A STAGE entry is a function, or (label, function) to change the label too."""
+    mine = RD.STAGE.get(slug, {})
+    out = []
+    for st, lb, fn in sts:
+        if st in mine:
+            v = mine[st]
+            lb, fn = v if isinstance(v, tuple) else (lb, v)
+        out.append((st, lb, fn))
+    return out
+
+
 def all_plants():
     """Every kind as (slug, name, [(stage, label, drawing function)], names in the library)."""
-    out = [(slug, name, st, [name] + SAMPLE_ALSO.get(slug, [])) for slug, name, st in S10.PLANTS]
+    out = [(slug, name, by_hand(slug, st), [name] + SAMPLE_ALSO.get(slug, [])) for slug, name, st in S10.PLANTS]
     for slug, name, s, names in KINDS:
-        out.append((slug, name, [(st, label(s, st), (lambda s=s, st=st: make(s, st))) for st in stages(s)], names))
+        out.append((slug, name, by_hand(slug, [(st, label(s, st), (lambda s=s, st=st: make(s, st))) for st in stages(s)]), names))
     return sorted(out, key=lambda p: p[1].lower())
 
 
@@ -1057,6 +1131,9 @@ def sheet(plants, mode, cell=120, cols=7):
 if __name__ == "__main__":
     out = sys.argv[1] if len(sys.argv) > 1 else "out_all"
     plants = all_plants(); n = 0
+    only = sys.argv[2].split(",") if len(sys.argv) > 2 else None   # e.g. strawberry,raspberry: just those kinds
+    if only:
+        plants = [p for p in plants if p[0] in only]
     for mode, look in enumerate(("light", "dark")):
         os.makedirs(os.path.join(out, look), exist_ok=True)
         for slug, name, sts, _ in plants:
@@ -1067,8 +1144,9 @@ if __name__ == "__main__":
         for i in range(0, len(plants), per):
             with open(os.path.join(out, f"sheet-{look}-{i // per + 1:02d}.svg"), "w", encoding="utf-8") as fh:
                 fh.write(sheet(plants[i:i + per], mode))
-    index = {"kinds": [{"slug": slug, "name": name, "stages": [{"stage": st, "label": lb} for st, lb, _ in sts], "libraryNames": names}
-                       for slug, name, sts, names in plants], "notDrawn": SKIPPED}
-    with open(os.path.join(out, "plant-drawings.json"), "w", encoding="utf-8") as fh:
-        json.dump(index, fh, indent=1, ensure_ascii=False)
+    if not only:   # the index lists every kind, so it is written only when every kind is drawn
+        index = {"kinds": [{"slug": slug, "name": name, "stages": [{"stage": st, "label": lb} for st, lb, _ in sts], "libraryNames": names}
+                           for slug, name, sts, names in plants], "notDrawn": SKIPPED}
+        with open(os.path.join(out, "plant-drawings.json"), "w", encoding="utf-8") as fh:
+            json.dump(index, fh, indent=1, ensure_ascii=False)
     print(len(plants), "kinds,", n // 2, "drawings, each in light and dark, written to", out)

@@ -1406,6 +1406,8 @@ def leaf_spec(slug, s):
     if h == "tree" and lf == "simple":
         sp.update(teeth=34, td=0.05)
     sp.update(LEAFX.get(slug, {}))
+    pal = PA.palette(slug)   # the colours from the kind's description win (redraw of 16 November 2026)
+    if pal.get("leaf"): sp["fill"] = pal["leaf"]
     return sp
 
 
@@ -1436,6 +1438,9 @@ def bloom_spec(slug, s):
         if kind == "pea" and s.get("arr") == "spire": sp["spike"] = True
         if kind == "lip" and h == "mound" and s.get("arr") == "spire": sp["dense"] = True
     sp.update(BLOOMX.get(slug) or {})
+    pal = PA.palette(slug)   # the colours from the kind's description win (redraw of 16 November 2026)
+    if pal.get("flower"): sp["fc"] = pal["flower"]
+    if pal.get("centre"): sp["cen"] = pal["centre"]
     return sp
 
 
@@ -1690,6 +1695,29 @@ BLOOMX = {
 
 
 # ============================================================ and the files
+# ---- the redraw of 16 November 2026: each group's changes (redraw/<group>.py) on top
+import redraw as RD
+LEAFX.update(RD.LEAFX); BLOOMX.update(RD.BLOOMX); LEAF_DRAW.update(RD.LEAF_DRAW); BLOOM_DRAW.update(RD.BLOOM_DRAW)
+
+
+def settings(slug):
+    """The settings a kind's close-ups are worked out from."""
+    for k_slug, name, s in all_kinds():
+        if k_slug == slug:
+            return s
+    raise KeyError(slug)
+
+
+def own_leaf(slug):
+    """The kind's close-up leaf as an Art, with the point its stalk starts
+    from and the way it points, so plants_all.py can draw it small on the
+    whole plant (Art.place). Returns (art, the colour name of its fill)."""
+    sp = leaf_spec(slug, settings(slug))
+    a = LEAF_DRAW[sp["kind"]](Art(), sp)
+    a.anchor, a.anchor_ang = BASE, ANG
+    return a, sp["fill"]
+
+
 def parts(slug, s):
     """The close-ups for one kind as (part, label, drawing function)."""
     out = []
@@ -1746,8 +1774,9 @@ if __name__ == "__main__":
         for i in range(0, len(kinds), per):
             with open(os.path.join(out, f"parts-{look}-{i // per + 1:02d}.svg"), "w", encoding="utf-8") as fh:
                 fh.write(sheet(kinds[i:i + per], mode))
-    index = {"kinds": [{"slug": slug, "name": name, "parts": [{"part": pt, "label": lb} for pt, lb, _ in parts(slug, s)]}
-                       for slug, name, s in kinds]}
-    with open(os.path.join(out, "plant-parts.json"), "w", encoding="utf-8") as fh:
-        json.dump(index, fh, indent=1, ensure_ascii=False)
+    if not only:   # the index lists every kind, so it is written only when every kind is drawn
+        index = {"kinds": [{"slug": slug, "name": name, "parts": [{"part": pt, "label": lb} for pt, lb, _ in parts(slug, s)]}
+                           for slug, name, s in kinds]}
+        with open(os.path.join(out, "plant-parts.json"), "w", encoding="utf-8") as fh:
+            json.dump(index, fh, indent=1, ensure_ascii=False)
     print(len(kinds), "kinds,", n // 2, "close-ups, each in light and dark, written to", out)

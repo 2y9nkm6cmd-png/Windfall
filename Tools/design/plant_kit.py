@@ -187,6 +187,58 @@ class Art:
     def _add(s, item):
         s.items.append(item); s.lay.append(s.layer)
 
+    def place(s, src, x, y, ang, scale, lw=None, detail=True, fills=None):
+        """Copies every mark of another drawing (src, an Art) into this one,
+        turned, shrunk and moved, so a close-up leaf can be used small in a
+        whole-plant drawing. The close-up's own base point is (bx, by) on
+        src.anchor, its own direction src.anchor_ang: those land at x, y
+        pointing along ang. scale shrinks it (0.3 is about a third).
+        lw, if given, is the outline width to use; faint lines (veins) keep
+        their own width shrunk, and with detail=False they are left out.
+        fills, if given, swaps colours by name ({"leaf": "straw"} for a dry leaf).
+        Added 16 November 2026 so a plant's leaf in the life-stage drawings
+        is the same leaf as its close-up."""
+        bx, by = getattr(src, "anchor", (0, 0)); a0 = getattr(src, "anchor_ang", 0)
+        th = math.radians(ang - a0); c, sn = math.cos(th), math.sin(th)
+
+        def pt(px, py):
+            dx, dy = (px - bx) * scale, (py - by) * scale
+            return x + dx * c - dy * sn, y + dx * sn + dy * c
+
+        def vec(px, py):
+            dx, dy = px * scale, py * scale
+            return dx * c - dy * sn, dx * sn + dy * c
+
+        def move(d):
+            out = []
+            for cmd, nums in re.findall(r"([MLCQTZmlcqtz])([^MLCQTZmlcqtz]*)", d):
+                v = [float(n) for n in re.findall(r"-?\d*\.?\d+(?:e-?\d+)?", nums)]
+                fn = vec if cmd.islower() else pt
+                q = []
+                for i in range(0, len(v) - 1, 2):
+                    q += list(fn(v[i], v[i + 1]))
+                out.append(cmd + " ".join(f(n) for n in q))
+            return " ".join(out)
+
+        for item, layer in zip(src.items, src.lay):
+            old = s.layer; s.layer = max(s.layer, layer)
+            if item[0] == "dot":
+                _, px, py, r, fill = item
+                fill = (fills or {}).get(fill, fill)
+                if detail or r * scale >= 0.45:
+                    s.dot(*pt(px, py), max(0.3, r * scale), fill)
+            else:
+                _, d, fill, w, la, col, fa = item
+                fill = (fills or {}).get(fill, fill)
+                faint = w and la < 0.8 and not fill
+                if faint and not detail:
+                    s.layer = old; continue
+                if w:
+                    w = max(0.35, w * scale * 1.6) if faint else (lw if lw is not None else w)
+                s._add(("path", move(d), fill, w, la, col, fa))
+            s.layer = old
+        return s
+
     # ----- the two basic marks -----
     def shape(s, d, fill=None, lw=LW, la=0.85, col="line", fa=1):
         s._add(("path", d, fill, lw, la, col, fa)); return s
