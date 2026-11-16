@@ -1,0 +1,44 @@
+{
+ "kind": "hydrangea",
+ "name": "Hydrangea",
+ "latin": "Hydrangea serrata",
+ "family": "Hydrangeaceae, the hydrangea family",
+ "grown_as": "A compact ornamental shrub, William's is 'Euphoria Pink'. The wild species and most of its varieties carry flat lacecap heads, which the description follows; some newer varieties carry rounder heads with double florets. Colour depends on the soil: pink in neutral or limy soil, blue in acid soil. ⚠️ CHECK whether 'Euphoria Pink' has lacecap or round heads",
+ "habit": "A compact, rounded deciduous shrub, 0.8 to 1.2 m, with many upright, unbranched stems from the base.",
+ "leaf": {
+  "arrangement": "Opposite, in pairs",
+  "type": "Simple",
+  "outline": "Lance-shaped to narrowly oval, 5 to 12 cm long, narrower and thinner than the common big-leaved hydrangea",
+  "base": "Wedge-shaped",
+  "tip": "Drawn out to a long point",
+  "margin": "Sharp, regular teeth like a saw (hence serrata) from about a third of the way up to the tip; the base untoothed",
+  "veins": "A midrib and six to eight pairs of side veins curving forward, pressed in",
+  "surface": "Matt, slightly rough mid green above; paler beneath with hairs on the veins",
+  "stalk": "1 to 2 cm",
+  "colour": "Mid green, often reddening in autumn"
+ },
+ "flower": {
+  "form": "A flat-topped lacecap head: a dome of tiny fertile flowers in the middle, ringed by a few large showy florets",
+  "petals": "Each showy outer floret has three to five (usually four) broad, petal-like sepals, rounded or toothed at the tip; the tiny inner flowers have five minute petals",
+  "colour": "Pink (blue in acid soil); the centre a deeper pink, the outer florets paler",
+  "centre": "Many tiny fertile flowers like beads, opening into a fuzz of stamens",
+  "behind": "Nothing showing; the head sits on branched stalks",
+  "carried": "One head at the tip of each stem, held flat and upright",
+  "size": "Head 6 to 10 cm across; outer florets 2 to 3 cm",
+  "season": "July to September; the heads dry papery and red-green with age and stay on through winter"
+ },
+ "fruit": "Tiny dry capsules in the old heads; the dried outer florets stay round them.",
+ "seedling": "Not drawn: grown as bought plants",
+ "winter": "Bare upright stems with fat paired buds near the top; the dry, papery, brown flower heads left on as frost protection.",
+ "palette": {"leaf": "leaf", "flower": "pink", "centre": "mauve"},
+ "must_show": {
+  "leaf": ["simple lance-shaped leaf with a long pointed tip", "sharp saw teeth on the upper two-thirds, none at the base", "curving side veins pressed in"],
+  "bloom": ["a flat head of tiny bead-like flowers in the centre", "a ring of larger florets round it, each of four broad petal-like sepals"],
+  "young": ["several upright stems from the base", "pointed toothed leaves in opposite pairs"],
+  "dormant": ["bare upright stems with paired buds", "dry papery brown flower heads left on top"],
+  "flower": ["a flat pink lacecap head on top of each stem", "opposite lance-shaped leaves"],
+  "growing": ["a rounded bush of upright stems", "opposite pointed leaves, no flowers yet"]
+ },
+ "look_alikes": "Big-leaved hydrangea (Hydrangea macrophylla) has larger, broader, glossier leaves and usually round mophead heads. Viburnum lacecaps (such as guelder rose) are white, with lobed or rounded leaves and red berries. Climbing hydrangea has white lacecaps and climbs by roots.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge and iNaturalist photos. ⚠️ CHECK"
+}

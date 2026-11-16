@@ -1,0 +1,45 @@
+{
+ "kind": "pear",
+ "name": "Pear",
+ "latin": "Pyrus communis",
+ "family": "Rosaceae, the rose family",
+ "grown_as": "Fruit trees on rootstocks: dessert pears ('Williams' (dwarf), 'Doyenné du Comice', 'Cornishgold', 'Zoete Brederode', 'Strawberry Pear') and perry pears ('Beetroot Wick Court Alex', 'Merrylegs', 'Dead Boy', 'Green Horse'), which share the drawing. Perry pear trees grow far taller and their fruit is often small and rounder.",
+ "habit": "A deciduous tree with a narrower, more upright crown than an apple, the branches rising steeply; 3 to 5 m on Quince rootstock, perry pear standards 10 to 15 m or more. Bark grey-brown, breaking into small square plates on older trees. Fruits on spurs like apple.",
+ "leaf": {
+  "arrangement": "Alternate; in tufts on the spurs",
+  "type": "Simple",
+  "outline": "Broadly oval to almost round, 5 to 8 cm long",
+  "base": "Rounded",
+  "tip": "A short, abrupt point",
+  "margin": "Very finely and bluntly toothed all round, the teeth so small the edge can look smooth",
+  "veins": "A pale midrib and 5 to 8 pairs of fine side veins curving forward",
+  "surface": "Glossy, smooth and hairless when grown; paler and duller beneath",
+  "stalk": "Long and slender, 2 to 5 cm, often as long as half the blade, so the leaves flutter",
+  "colour": "Rich, shiny dark green; yellow to red or black-purple in autumn"
+ },
+ "flower": {
+  "form": "An open flat flower, smaller and flatter than apple blossom",
+  "petals": "Five, free, round, with a short claw, not touching",
+  "colour": "Pure white, no pink",
+  "centre": "About twenty stamens with dark red-purple anthers (turning blackish when spent), around five free pale styles",
+  "behind": "Five small pointed sepals",
+  "carried": "In rounded clusters of five to ten on longish stalks at the spur tips, opening just before or with the leaves",
+  "size": "2 to 3.5 cm across",
+  "season": "April, a week or two before apple"
+ },
+ "fruit": "A pome, pear-shaped: broad at the bottom and narrowing towards a long stalk that is not sunk in a hollow; the dried sepals at the bottom. 6 to 12 cm on dessert pears (perry pears 3 to 6 cm and often round). Green ripening yellow-green, often with brown russet patches or a red blush ('Williams' yellow with a faint blush, 'Comice' yellow-green with russet). Hangs on its long stalk. Ripe August to October. Fruit set: small green fruitlets on long stalks in clusters, the sepals at the tip.",
+ "seedling": "Not drawn: grown as grafted trees",
+ "winter": "Bare tree with steeply rising branches. Spurs carry plump, pointed, shiny brown flower buds; buds on the shoots slender, pointed and standing away from the stem.",
+ "palette": {"leaf": "deep", "flower": "white", "centre": "beet", "fruit": "pear"},
+ "must_show": {
+  "leaf": ["roundish oval leaf on a long slender stalk", "glossy surface", "margin very finely toothed, almost smooth"],
+  "bloom": ["five round pure white petals with gaps between", "dark red-purple anthers in the centre"],
+  "young": ["upright tree, branches rising steeply", "glossy oval leaves on long stalks"],
+  "dormant": ["bare upright branches with spurs", "pointed buds"],
+  "flower": ["clusters of pure white blossom with dark centres on the spurs", "flowers with or just before the leaves"],
+  "set": ["small green fruitlets in clusters at the spur tips", "each on a long slender stalk, dried sepals at the tip", "glossy roundish leaves around them"],
+  "crop": ["pear-shaped fruit narrowing to the stalk", "fruit hanging on long stalks, yellow-green with russet or a blush"]
+ },
+ "look_alikes": "Apple blossom is pink-backed with yellow anthers, its leaves downy beneath on shorter stalks. Wild pear (Pyrus pyraster) is thorny with small hard fruit. Quince has single large pale pink flowers and woolly leaves with smooth edges.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge and iNaturalist photos (mostly wild pear trees). ⚠️ CHECK"
+}

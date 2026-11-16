@@ -1,0 +1,75 @@
+{
+ "kind": "wallflower",
+ "name": "Wallflower",
+ "latin": "Erysimum cheiri",
+ "family": "Brassicaceae, the cabbage family",
+ "grown_as": "The garden wallflower 'Fire King', grown as a biennial: sown in summer, planted out in autumn, flowering the next spring. 'Fire King' has bright orange-red flowers; the wild plant is yellow.",
+ "habit": "A bushy, upright, rounded plant 30 to 45 cm tall, stems woody at the base and branched, densely leafy, each branch ending in a cluster of flowers.",
+ "leaf": {
+  "arrangement": "Alternate, crowded up the stems",
+  "type": "Simple",
+  "outline": "Narrowly lance-shaped, 5 to 10 cm long and under 1.5 cm wide",
+  "base": "Tapering gradually",
+  "tip": "Pointed",
+  "margin": "Smooth, untoothed",
+  "veins": "Only the midrib clear",
+  "surface": "Flat, with fine flattened hairs that give a slightly dull, greyish sheen",
+  "stalk": "Very short or none",
+  "colour": "Deep green"
+ },
+ "flower": {
+  "form": "A cross-shaped flower, four petals spread flat from a short tube",
+  "petals": "Four, free, broad and rounded, narrowing to a claw hidden in the sepals",
+  "colour": "Bright orange-red, often with darker veining; very fragrant",
+  "centre": "A small greenish centre with the tips of yellow stamens",
+  "behind": "Four narrow upright sepals pressed close together into a tube below the petals",
+  "carried": "In a dense rounded cluster at each stem tip that lengthens into a short spike as the lower flowers open, facing up and out",
+  "size": "2 to 2.5 cm across",
+  "season": "March to May"
+ },
+ "fruit": "Long narrow pods 3 to 7 cm, slightly flattened and four-angled, held upright along the lengthening stem, green ripening pale brown and splitting from the bottom. Seeds flat, oval, light brown, about 2 to 3 mm.",
+ "seedling": "Two small, smooth, round-oval seed leaves on short stalks, then narrow pointed true leaves",
+ "winter": "Planted out in autumn; through winter a bushy leafy plant of narrow deep green leaves with flower buds forming at the tips.",
+ "palette": {
+  "leaf": "deep",
+  "flower": "carrot",
+  "centre": "pear",
+  "fruit": "seed"
+ },
+ "palette_wish": {
+  "flower": "orange-red, about #E0532B"
+ },
+ "must_show": {
+  "leaf": [
+   "narrow lance-shaped leaf with no teeth",
+   "only the midrib showing",
+   "short stalk or none"
+  ],
+  "bloom": [
+   "four rounded petals in a cross",
+   "orange-red",
+   "sepals pressed together in a tube behind"
+  ],
+  "seed": [
+   "flat oval light brown seeds"
+  ],
+  "seedling": [
+   "two small smooth round-oval seed leaves",
+   "first true leaves narrow and pointed"
+  ],
+  "young": [
+   "a bushy upright plant of many narrow deep green leaves",
+   "no flowers yet"
+  ],
+  "flower": [
+   "a bushy plant with dense clusters of orange-red four-petalled flowers at every stem tip",
+   "narrow leaves crowded below"
+  ],
+  "seedhead": [
+   "long narrow upright pods along the stem tips",
+   "pods green to pale brown"
+  ]
+ },
+ "look_alikes": "Siberian wallflower (Erysimum × marshallii) is bright orange with narrower leaves. Perennial wallflowers such as 'Bowles's Mauve' have grey leaves and mauve flowers. Stocks (Matthiola) have grey felty leaves and pink or purple flowers. Wild wallflower on old walls is yellow.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

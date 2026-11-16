@@ -1,0 +1,46 @@
+{
+ "kind": "mangelwurzel",
+ "name": "Mangelwurzel",
+ "latin": "Beta vulgaris subsp. vulgaris (Crassa Group)",
+ "family": "Amaranthaceae, the amaranth family (formerly Chenopodiaceae, the goosefoot family)",
+ "grown_as": "The mangold or mangel, a fodder beet grown for its very large root, traditionally for cattle and for Somerset mangold hurling. Drawn as an old red-orange 'Mammoth' type. Varieties can be orange-red, golden yellow, pinkish or white, and long or round. ⚠️ CHECK: William's variety and its root colour.",
+ "habit": "Year 1: a large rosette of leaves 40 to 60 cm high from the top of a huge root, two-thirds or more of which stands above the soil like a barrel. Year 2: a leafy, branched flowering stem 1 to 1.5 m with long slender flower spikes.",
+ "leaf": {
+  "arrangement": "A rosette from the top of the root",
+  "type": "Simple",
+  "outline": "Large, oval to long oval, 20 to 40 cm long",
+  "base": "Rounded to wedge-shaped, running a little down the stalk",
+  "tip": "Blunt to rounded",
+  "margin": "Entire, no teeth, wavy",
+  "veins": "A broad pale midrib with side veins running towards the edge; veins pale green, cream or pinkish, not deep red as in beetroot",
+  "surface": "Smooth, hairless, glossy, puckered between the veins",
+  "stalk": "Thick, fleshy, broad, pale green, cream or flushed pink to red according to variety",
+  "colour": "Mid to dark glossy green"
+ },
+ "flower": {
+  "form": "Tiny green petal-less flowers in small clusters along long slender spikes, as in beetroot",
+  "petals": "None: five small green fleshy segments curved over the centre",
+  "colour": "Green",
+  "centre": "Five small yellowish stamens",
+  "behind": "A small leafy bract under each cluster",
+  "carried": "In clusters of two to four along long branching spikes that form a loose plume",
+  "size": "Flowers 2 to 3 mm; spikes 20 to 50 cm",
+  "season": "June to August of the second year"
+ },
+ "fruit": "Corky, knobbly brown seed clusters 4 to 6 mm, each holding several seeds, along the dry brown spikes.",
+ "seedling": "Two narrow oblong seed leaves on a reddish or pale stem; seedlings come up in small clumps from each corky cluster.",
+ "winter": "Roots lifted and clamped before hard frost. A plant left to flower overwinters as a small rosette on the root top.",
+ "palette": {"leaf": "leaf", "flower": "unripe", "centre": "pear", "fruit": "bark", "root": "rust"},
+ "must_show": {
+  "leaf": ["one large simple oval leaf, untoothed and wavy", "a thick pale or pinkish fleshy stalk and pale midrib", "glossy and puckered"],
+  "bloom": ["tiny green flowers with no petals in small clusters", "clusters spaced along a slender spike"],
+  "seed": ["a corky, knobbly, irregular brown lump"],
+  "seedling": ["two narrow seed leaves", "seedlings in small clumps"],
+  "young": ["a rosette of large oval leaves on thick pale stalks", "the root top starting to swell above the soil"],
+  "crop": ["a very large barrel- or tankard-shaped root, most of it standing above the soil", "orange-red skin above, paler where it was underground", "a big rosette of leaves from the top, a thin tail root below"],
+  "flower": ["a tall leafy stem with long slender green flower spikes"],
+  "seedhead": ["dry brown spikes lined with corky seed clusters"]
+ },
+ "look_alikes": "Beetroot is the same species with a smaller, round, deep red root and red-veined leaves. Sugar beet has a white, cone-shaped root mostly underground. Swede has grey-green lobed leaves and a neck of leaf scars.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

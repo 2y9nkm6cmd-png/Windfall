@@ -1,0 +1,45 @@
+{
+ "kind": "bristol-whitebeam",
+ "name": "Bristol Whitebeam",
+ "latin": "Karpatiosorbus bristoliensis",
+ "family": "Rosaceae, the rose family",
+ "grown_as": "A native tree found wild only in the Avon Gorge, Bristol (formerly Sorbus bristoliensis). Grown here as a young garden tree.",
+ "habit": "A small deciduous tree, 6 to 10 m when old, with a compact, rounded crown on upright branches. Smooth grey bark. In a garden, a young tree with a single straight stem.",
+ "leaf": {
+  "arrangement": "Alternate",
+  "type": "Simple, shallowly lobed",
+  "outline": "Obovate to diamond-shaped (rhombic), widest at or a little above the middle, 6 to 9 cm long, about two-thirds as wide",
+  "base": "A long, untoothed wedge",
+  "tip": "Blunt or a short point",
+  "margin": "Shallow, forward-pointing lobes, deepest around the middle of the leaf and fading out towards the tip; each lobe edged with small sharp teeth. The wedge base has no lobes or teeth",
+  "veins": "A midrib and 7 to 9 pairs of straight, parallel side veins, each running out to a lobe",
+  "surface": "Glossy bright green above; grey-green felt beneath (greyer and thinner than the snow-white felt of common whitebeam)",
+  "stalk": "1 to 2 cm, felted",
+  "colour": "Bright green above, grey-green beneath; yellow-brown in autumn"
+ },
+ "flower": {
+  "form": "Small open flowers in a flat-topped head",
+  "petals": "Five, free, round to oval, spreading",
+  "colour": "White to cream",
+  "centre": "About twenty stamens with cream to pinkish anthers around two or three styles",
+  "behind": "Five small triangular woolly sepals",
+  "carried": "Many together in dense, flat-topped, branched clusters (corymbs) 6 to 10 cm across at the ends of short shoots, held upright above the leaves",
+  "size": "1 to 1.5 cm across",
+  "season": "May"
+ },
+ "fruit": "Small pomes, round to slightly oval, 8 to 12 mm, ripening bright orange (some orange-pink), with a few small pale dots (lenticels) and the dried sepals at the tip. In upright to drooping bunches on felted stalks. September to October. Fruit set: bunches of small green berries in the old flower heads.",
+ "seedling": "Not drawn: grown as a bought tree",
+ "winter": "Bare tree with smooth grey bark. Fat, egg-shaped green buds with brown-edged scales and a tuft of grey wool at the tip.",
+ "palette": {"leaf": "leaf", "flower": "white", "centre": "primrose", "fruit": "carrot"},
+ "must_show": {
+  "leaf": ["leaf widest about the middle with a long untoothed wedge base", "shallow toothed lobes deepest at the middle, fading to the tip", "7 to 9 pairs of straight parallel veins", "grey-green felt beneath if the back shows"],
+  "bloom": ["five white petals", "a cluster of pale stamens in the centre", "part of a flat-topped head of many flowers"],
+  "young": ["a single straight stem", "shallowly lobed leaves with grey undersides"],
+  "dormant": ["bare tree with smooth grey bark", "fat green buds with brown-edged scales"],
+  "flower": ["flat-topped white flower heads at the shoot tips", "heads held up above shallowly lobed leaves"],
+  "set": ["bunches of small green berries in the old flower heads", "lobed leaves with grey-felted backs"],
+  "crop": ["bunches of small bright orange berries", "lobed leaves with grey-felted backs"]
+ },
+ "look_alikes": "Common whitebeam (Sorbus aria) has unlobed leaves with snow-white undersides and scarlet berries. Swedish whitebeam (Scandosorbus intermedia) has more deeply lobed leaves with yellow-grey felt and red berries. The Avon Gorge has several other rare whitebeams, such as Wilmott's and Leigh Woods whitebeams, which differ in leaf shape, felt colour and fruit colour; Bristol whitebeam is the one with orange fruit. Wild service tree has deeply and sharply lobed leaves that are green beneath, with brown fruit. Rowan has feather-like compound leaves.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge and one UK iNaturalist photo. ⚠️ CHECK"
+}

@@ -1,0 +1,76 @@
+{
+ "kind": "tomato",
+ "name": "Tomato",
+ "latin": "Solanum lycopersicum",
+ "family": "Solanaceae, the nightshade family",
+ "grown_as": "A tender annual, sown indoors in early spring and grown in a greenhouse or outdoors after frost. Most UK gardeners grow tall 'cordon' tomatoes tied to a cane with side shoots pinched out; bush and trailing types exist. Fruit size and colour vary by variety, which is not known: drawn as a cordon with round red fruit. ⚠️ CHECK",
+ "habit": "Cordon: a single upright stem 1.5 to 2 m tied to a cane, with leaves and flower trusses all the way up. Bush types: sprawling, 40 to 90 cm. The whole plant is covered in sticky glandular hairs and has a strong, sharp smell.",
+ "leaf": {
+  "arrangement": "Alternate",
+  "type": "Compound, pinnate but irregular: 5 to 9 large leaflets with small leaflets in between them along the stalk, and one at the tip",
+  "leaflets": "Large leaflets on short stalks of their own, in near-opposite pairs, often lopsided at the base; tiny leaflets set between the pairs",
+  "outline": "Each large leaflet oval, 3 to 8 cm, often with a few deep lobes near its base; whole leaf 20 to 40 cm",
+  "base": "Lopsided, rounded to wedge",
+  "tip": "Pointed",
+  "margin": "Irregularly and coarsely toothed or lobed all round",
+  "veins": "Pinnate, deeply pressed in, so the leaflets look puckered",
+  "surface": "Hairy and slightly sticky, a little wrinkled; strong smell when touched",
+  "stalk": "Hairy, 3 to 6 cm",
+  "colour": "Mid to dark green, paler beneath"
+ },
+ "flower": {
+  "form": "A small yellow star with the petals swept back, the stamens forming a pointed cone in the centre",
+  "petals": "Five or six, joined at the base, narrow and pointed, bent back toward the stalk",
+  "colour": "Bright yellow",
+  "centre": "Yellow stamens joined into a narrow pointed cone (beak) sticking forward",
+  "behind": "Five or six narrow, hairy green sepals, as long as the petals, staying on as the green star on top of the fruit",
+  "carried": "In clusters (trusses) of 4 to 12 on a branched stalk that comes from the stem between leaves, not from a leaf joint; the flowers nod",
+  "size": "1.5 to 2.5 cm across",
+  "season": "June to September"
+ },
+ "fruit": "A round, smooth, glossy berry 3 to 7 cm (cherry types 2 cm), green ripening red, hanging in trusses with the green star of sepals at the top. Seeds flat, rounded, pale buff, about 3 mm, covered in fine hairs.",
+ "seedling": "Two narrow, lance-shaped seed leaves 2 to 3 cm on a hairy, often purplish stem; the first true leaves small, with a few toothed leaflets, and the tomato smell already there.",
+ "winter": "Nothing: killed by frost",
+ "palette": {
+  "leaf": "deep",
+  "flower": "sun",
+  "centre": "amber",
+  "fruit": "berry"
+ },
+ "must_show": {
+  "leaf": [
+   "pinnate leaf with large toothed leaflets and small leaflets between them",
+   "puckered surface",
+   "coarse irregular teeth"
+  ],
+  "bloom": [
+   "five or six narrow yellow petals swept back",
+   "a pointed yellow cone of stamens in the centre",
+   "long green sepals"
+  ],
+  "seed": [
+   "small flat rounded seed, pale buff",
+   "fine hairs on the surface",
+   "about 3 mm"
+  ],
+  "seedling": [
+   "two narrow lance-shaped seed leaves",
+   "a small leaf of toothed leaflets"
+  ],
+  "young": [
+   "an upright hairy stem with pinnate leaves",
+   "tied to a cane"
+  ],
+  "flower": [
+   "trusses of nodding yellow flowers with swept-back petals",
+   "trusses coming from the stem between leaves, not from leaf joints",
+   "pinnate toothed leaves on a caned stem"
+  ],
+  "crop": [
+   "trusses of round red and green fruit, each with a green star at the top",
+   "cordon stem tied to a cane"
+  ]
+ },
+ "look_alikes": "Potato leaves are similar but less toothed and smell less, and potato flowers are white or purple. Woody nightshade (Solanum dulcamara) has purple flowers with the same yellow cone but simple leaves.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

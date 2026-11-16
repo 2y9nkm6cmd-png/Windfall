@@ -1,0 +1,46 @@
+{
+ "kind": "spinach-beet",
+ "name": "Spinach Beet",
+ "latin": "Beta vulgaris subsp. vulgaris (Cicla Group)",
+ "family": "Amaranthaceae, the amaranth and goosefoot family",
+ "grown_as": "Perpetual spinach: a leaf beet with thin green stalks, picked like spinach over a long season. William's records give no variety.",
+ "habit": "An upright rosette 30 to 50 cm tall and 30 to 40 cm across from a thick crown on a tough taproot. A biennial: in the second year a leafy, branched flowering stem 1 to 1.2 m.",
+ "leaf": {
+  "arrangement": "A rosette from the crown",
+  "type": "Simple",
+  "outline": "Oval to slightly triangular, 10 to 20 cm long",
+  "base": "Broadly wedge-shaped to rounded, running a little way down the stalk",
+  "tip": "Blunt, rounded",
+  "margin": "Smooth, no teeth, gently wavy",
+  "veins": "A narrow pale green midrib about 5 mm wide; side veins few and curving",
+  "surface": "Glossy and hairless, slightly puckered",
+  "stalk": "Long, slender and green, about as long as the blade, slightly flattened",
+  "colour": "Mid to dark green"
+ },
+ "flower": {
+  "form": "Tiny green star-shaped flowers without petals, in clusters along long thin spikes",
+  "petals": "None: five small green tepals, curved inwards",
+  "colour": "Green, sometimes tinged red",
+  "centre": "Five short stamens with yellow anthers round a low green centre",
+  "behind": "A small narrow green bract under each cluster",
+  "carried": "Stalkless in clusters of two or three, spaced along long, slender, leafy spikes that branch from a tall stem; the spikes arch and droop at the tips",
+  "size": "3 to 5 mm across",
+  "season": "June to August of the second year"
+ },
+ "fruit": "The flowers in each cluster fuse as they ripen into a hard, corky, knobbly 'seed' (a seed ball) 3 to 5 mm across, light brown, holding two to four true seeds. One seed ball sown gives a clump of seedlings.",
+ "seedling": "Seedlings come up in little clumps from each seed ball. Two narrow strap-shaped glossy seed leaves, often on a reddish stem, then oval true leaves on green stalks.",
+ "winter": "Usually lasts through winter as a smaller rosette and crops again in spring before it flowers.",
+ "palette": {"leaf": "deep", "flower": "unripe", "centre": "pear", "fruit": "bark"},
+ "must_show": {
+  "leaf": ["an oval glossy blade with smooth edges", "a slender green stalk about as long as the blade", "a narrow pale midrib, not the broad one of chard"],
+  "bloom": ["tiny green flowers with no petals", "stalkless in small clusters along a thin spike"],
+  "seed": ["a knobbly corky brown seed ball 3 to 5 mm", "several seeds in one"],
+  "seedling": ["two narrow strap-shaped seed leaves", "in a small clump"],
+  "young": ["an upright rosette of oval glossy leaves on green stalks", "no stem, leaves from the crown"],
+  "crop": ["a rosette of many oval glossy leaves on slender green stalks", "smooth edges, slightly puckered"],
+  "flower": ["a tall leafy stem branching into long thin arching spikes", "tiny green flowers along them"],
+  "seedhead": ["long spikes crowded with brown knobbly seed balls", "plant drying brown"]
+ },
+ "look_alikes": "Spinach has narrow seed leaves too but a softer, darker leaf and bolts in its first summer. Swiss chard has broad coloured stalks and midribs.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

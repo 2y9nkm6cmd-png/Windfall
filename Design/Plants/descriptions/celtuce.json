@@ -1,0 +1,46 @@
+{
+ "kind": "celtuce",
+ "name": "Celtuce",
+ "latin": "Lactuca sativa var. augustana",
+ "family": "Asteraceae, the daisy family",
+ "grown_as": "Stem lettuce, grown for its thick, crisp stem, which is peeled and eaten; the young leaves are eaten too. William's records give no named variety ('stem lettuce').",
+ "habit": "A single upright, thick, unbranched stem 30 to 60 cm tall and 3 to 5 cm thick, pale green, set with leaves all the way up and crowned with a loose tuft of leaves at the top, like a small palm. Bolts to 1 m or more and branches at the top to flower.",
+ "leaf": {
+  "arrangement": "Alternate, spiralling up the thick stem, crowded into a tuft at the top; the lower ones are stripped or fall as the stem grows",
+  "type": "Simple",
+  "outline": "Long and narrow, lance-shaped, 15 to 30 cm long and 4 to 8 cm wide",
+  "base": "Broad and stalkless, joined straight onto the stem",
+  "tip": "Pointed",
+  "margin": "Smooth or very finely toothed, gently wavy",
+  "veins": "A pale midrib running the length of the leaf; side veins slanting forward, faint",
+  "surface": "Smooth, hairless and a little shiny, slightly crinkled near the midrib",
+  "stalk": "None",
+  "colour": "Light to mid green, sometimes flushed red at the top of the plant"
+ },
+ "flower": {
+  "form": "A small head like a little dandelion, made only of strap-shaped florets, opening flat in the morning and closing by midday",
+  "petals": "No true petals to count: about 10 to 25 strap-shaped florets, each a single ray with five tiny teeth across its squared-off tip, laid out like the rays of a dandelion",
+  "colour": "Pale yellow",
+  "centre": "No separate eye: the inner florets are shorter and the forked yellow styles stand up in the middle",
+  "behind": "A slim cylindrical cup (involucre) of narrow green bracts overlapping like roof tiles, longer than wide, sometimes tinged purple",
+  "carried": "Many heads on short stalks in a wide, branched, flat-topped spray at the top of a tall bolted stem, the heads facing up",
+  "size": "1 to 1.5 cm across",
+  "season": "July to September, after the plant bolts"
+ },
+ "fruit": "Each floret makes one seed (achene): slim, flattened, 3 to 4 mm, with fine lengthwise ribs, narrowing at the top into a thin beak carrying a tuft of soft white hairs (pappus). Seed colour is white-cream, grey, brown or black depending on variety. The heads open into small white fluffy clocks, much smaller and looser than a dandelion clock. The plant has milky sap.",
+ "seedling": "Two smooth oval seed leaves, then narrow, pointed true leaves, longer than a lettuce's.",
+ "winter": "Nothing: grown as an annual.",
+ "palette": {"leaf": "leaf", "flower": "primrose", "centre": "primrose", "fruit": "white"},
+ "must_show": {
+  "leaf": ["long, narrow, pointed lance-shaped leaf", "no stalk, a broad base", "a pale midrib the full length, smooth wavy edge"],
+  "bloom": ["a small pale yellow head of strap-shaped florets, like a little dandelion", "a slim cup of overlapping green bracts behind"],
+  "seed": ["slim, flat, ribbed seed 3 to 4 mm, narrowing to a point", "cream, grey or black"],
+  "seedling": ["two smooth oval seed leaves", "the first true leaf narrow and pointed"],
+  "young": ["an upright rosette of long, narrow, pointed leaves", "the stem just starting to lift it off the soil"],
+  "crop": ["a thick, pale green, upright stem 30 to 60 cm", "long pointed leaves up the stem and a tuft at the top", "leaf scars on the lower stem where leaves are gone"],
+  "flower": ["the thick stem grown taller, branching at the top", "small pale yellow heads in a spray"],
+  "seedhead": ["small white fluffy clocks at the branch tips", "the tall dried stem, branched at the top"]
+ },
+ "look_alikes": "Ordinary lettuce that has bolted has a thinner stem and broader, rounder leaves. Kohlrabi and other stem crops are brassicas with waxy grey leaves.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

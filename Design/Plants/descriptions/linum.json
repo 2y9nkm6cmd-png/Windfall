@@ -1,0 +1,67 @@
+{
+ "kind": "linum",
+ "name": "Linum",
+ "latin": "Linum grandiflorum 'Rubrum'",
+ "family": "Linaceae, the flax family",
+ "grown_as": "Scarlet flax, a hardy annual. William's packet names it Linum usitatissimum, but that is the blue common flax; scarlet flax is Linum grandiflorum 'Rubrum'.",
+ "habit": "A slender, upright, airy annual 30 to 45 cm, thin stems branching near the top, each branch ending in a flower.",
+ "leaf": {
+  "arrangement": "Alternate, evenly spaced up the stems",
+  "type": "Simple",
+  "outline": "Narrowly lance-shaped, 1.5 to 3 cm long and a few millimetres wide",
+  "base": "Stalkless",
+  "tip": "Pointed",
+  "margin": "Smooth, untoothed",
+  "veins": "One to three faint parallel veins",
+  "surface": "Smooth and hairless",
+  "stalk": "None",
+  "colour": "Grey-green"
+ },
+ "flower": {
+  "form": "An open shallow saucer, satiny",
+  "petals": "Five, free, broad and rounded at the tip (wider at the outer end), overlapping",
+  "colour": "Scarlet to crimson",
+  "centre": "A small dark, almost black, eye with five stamens and five styles",
+  "behind": "Five narrow pointed green sepals, mostly hidden",
+  "carried": "Alone at the tips of the thin branches, in a loose open spray, facing up; each flower lasts a day, the petals dropping by afternoon",
+  "size": "3 to 4 cm across",
+  "season": "June to September"
+ },
+ "fruit": "Round capsules about 6 to 8 mm with a short point, in ten segments, green ripening straw-coloured. Seeds flat, oval, pointed at one end, glossy brown, about 3 mm.",
+ "seedling": "Two small oval, smooth, bluish seed leaves, then narrow pointed true leaves up a thin stem",
+ "winter": "None: an annual.",
+ "palette": {
+  "leaf": "sage",
+  "flower": "berry",
+  "centre": "dark",
+  "fruit": "straw"
+ },
+ "must_show": {
+  "leaf": [
+   "narrow pointed stalkless leaf",
+   "untoothed, smooth, grey-green"
+  ],
+  "bloom": [
+   "five broad overlapping scarlet petals in a saucer",
+   "a small dark eye"
+  ],
+  "seed": [
+   "flat oval glossy brown seeds pointed at one end"
+  ],
+  "seedling": [
+   "two small oval seed leaves",
+   "narrow true leaves up a thin stem"
+  ],
+  "young": [
+   "thin upright stems with many small narrow grey-green leaves"
+  ],
+  "flower": [
+   "slender airy stems with single scarlet flowers at the branch tips"
+  ],
+  "seedhead": [
+   "small round pointed capsules on the thin branch tips"
+  ]
+ },
+ "look_alikes": "Common flax (Linum usitatissimum) and perennial flax (L. perenne) have sky-blue flowers. Fairy flax (L. catharticum) is tiny and white with opposite leaves. Corn poppy has four petals and cut leaves.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

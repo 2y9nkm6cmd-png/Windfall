@@ -1,0 +1,78 @@
+{
+ "kind": "crocus",
+ "name": "Crocus",
+ "latin": "Crocus vernus",
+ "family": "Iridaceae, the iris family",
+ "grown_as": "The Dutch (large-flowered) spring crocus. William's is 'Grand Maître', a large lilac-violet Dutch crocus, so it is drawn violet. ⚠️ CHECK the shade.",
+ "habit": "Low tufts 8 to 12 cm high in flower: a few grass-like leaves and one or two goblet flowers rising straight from the ground. Leaves lengthen to 20 to 30 cm after flowering. Clumps widen as corms multiply.",
+ "leaf": {
+  "arrangement": "Two to four leaves from each corm, upright, wrapped together at the base in white papery sheaths",
+  "type": "Simple, grass-like (linear)",
+  "outline": "Very narrow, 4 to 8 mm wide, 10 cm at flowering and up to 30 cm later, even width",
+  "base": "Inside the white sheath",
+  "tip": "Pointed to blunt",
+  "margin": "Smooth, the edges turned under a little",
+  "veins": "One clear silvery-white stripe down the middle of the upper side; ridged (keeled) beneath",
+  "surface": "Smooth, dark green either side of the white stripe",
+  "stalk": "None",
+  "colour": "Dark green with a white central stripe"
+ },
+ "flower": {
+  "form": "An upright goblet of six petals, opening to a wide star in sun and closing in dull weather",
+  "petals": "Six tepals, three outer and three inner, nearly equal, oval and rounded at the tip, joined at the bottom into a long thin white tube that runs down into the ground",
+  "colour": "Lilac-violet (variety), often darker at the base and veined",
+  "centre": "Three yellow stamens and a bright orange style split into three frilly branches, standing up in the middle",
+  "behind": "No green sepals or stalk: the flower rises from a white papery sheath at soil level",
+  "carried": "Alone, upright, one or two per corm, among the leaves",
+  "size": "Tepals 3 to 5 cm long; 7 to 9 cm across when wide open",
+  "season": "February to March"
+ },
+ "fruit": "An oval capsule about 1.5 cm pushed up to soil level among the leaves in late spring, opening into three to release round red-brown seeds.",
+ "seedling": "Not drawn. A single grass-like leaf; three years to flower.",
+ "winter": "Nothing above ground until the leaf tips show in late January or February.",
+ "palette": {
+  "leaf": "deep",
+  "flower": "lilac",
+  "centre": "carrot",
+  "fruit": "unripe"
+ },
+ "palette_wish": {
+  "flower": "rich lilac-violet, about #8A6CC8"
+ },
+ "must_show": {
+  "leaf": [
+   "a very narrow grass-like leaf",
+   "a silvery-white stripe down the middle",
+   "dark green, edges turned under"
+  ],
+  "bloom": [
+   "six equal rounded tepals in a goblet",
+   "three yellow stamens and a frilly orange style in the middle",
+   "a long white tube below, no green sepals or flower stalk"
+  ],
+  "bulb": [
+   "a corm, not a bulb: round and flattened, about 2.5 cm",
+   "covered in a brown fibrous net-like skin",
+   "one or more pointed shoots on top and roots from a flat base"
+  ],
+  "shoots": [
+   "narrow leaves with white stripes coming up in a tuft inside white papery sheaths",
+   "the flower bud rising from the middle of the tuft"
+  ],
+  "flower": [
+   "goblet flowers rising straight from the ground with no stalk",
+   "grass-like leaves with white stripes, about as tall as the flowers",
+   "a low tuft"
+  ],
+  "seedhead": [
+   "long leaves, now taller than the flowers were",
+   "an oval pod at soil level among them"
+  ],
+  "dormant": [
+   "nothing above the soil, or a few yellow leaves",
+   "the corm below ground"
+  ]
+ },
+ "look_alikes": "Autumn crocus or meadow saffron (Colchicum) flowers in autumn without leaves and has six stamens; its broad leaves come in spring. Crocus tommasinianus is slimmer and paler, silvery outside. Leaves alone look like grass but the white stripe gives them away.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

@@ -1,0 +1,45 @@
+{
+ "kind": "anise",
+ "name": "Anise",
+ "latin": "Pimpinella anisum",
+ "family": "Apiaceae, the carrot family (umbellifers)",
+ "grown_as": "An annual herb grown for its aniseed-flavoured seed. Rare in UK gardens; it needs a long warm summer to ripen seed.",
+ "habit": "A slender branched annual 30 to 60 cm tall, with a round grooved stem finely downy all over. The leaves change shape from the base to the top.",
+ "leaf": {
+  "arrangement": "Basal leaves in a small rosette; stem leaves alternate",
+  "type": "Three kinds up the plant. Basal leaves simple and undivided. Middle leaves pinnate with three to five leaflets. Upper leaves two or three times pinnate, with narrow line-like segments.",
+  "outline": "Basal leaves round to kidney-shaped, 2 to 5 cm; middle leaflets wedge- to fan-shaped; upper segments thread-like",
+  "base": "Basal leaves heart-shaped at the base",
+  "tip": "Rounded on basal leaves; pointed on upper segments",
+  "margin": "Basal leaves coarsely toothed and shallowly lobed all round; middle leaflets toothed on the outer edge",
+  "veins": "Palmate on basal leaves, not prominent",
+  "surface": "Finely downy, soft",
+  "stalk": "Basal leaves on long stalks; upper leaves on short sheathing bases",
+  "colour": "Mid green"
+ },
+ "flower": {
+  "form": "Small loose compound umbels",
+  "petals": "Five tiny white petals per flower, notched with an inturned tip",
+  "colour": "White",
+  "centre": "Tiny pale stamens",
+  "behind": "No bracts or one; bracteoles one or none",
+  "carried": "At the ends of stems and branches, facing up, on 7 to 15 slender downy rays",
+  "size": "Umbels 3 to 5 cm across",
+  "season": "July to August"
+ },
+ "fruit": "Egg-shaped seeds 3 to 5 mm, slightly flattened, with fine ribs and short close hairs, greyish-brown with a greenish tint",
+ "seedling": "Two narrow oval seed leaves, then first true leaves round and toothed",
+ "winter": "Nothing: an annual",
+ "palette": {"leaf": "leaf", "flower": "white", "fruit": "seed"},
+ "must_show": {
+  "leaf": ["a basal leaf rounded to kidney-shaped and coarsely toothed", "upper leaves finely cut, so the change of shape up the stem shows"],
+  "bloom": ["white umbel of 7 to 15 rays", "tiny white flowers", "no bracts"],
+  "seed": ["small egg-shaped ribbed seed, downy, greyish-brown"],
+  "seedling": ["two narrow oval seed leaves", "first true leaf rounded and toothed"],
+  "young": ["rounded toothed basal leaves on long stalks", "first finely cut leaves on the rising stem"],
+  "flower": ["slender stem with white umbels", "rounded lower leaves and feathery upper ones"],
+  "seedhead": ["umbels of small grey-brown egg-shaped seeds", "dried stem"]
+ },
+ "look_alikes": "Burnet-saxifrage (Pimpinella saxifraga), a wild perennial, has pinnate basal leaves. Coriander has hairless leaves and round seeds. Star anise is an unrelated tree spice.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. No UK iNaturalist photos had been downloaded for this group when it was written. ⚠️ CHECK"
+}

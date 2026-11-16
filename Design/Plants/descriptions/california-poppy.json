@@ -1,0 +1,70 @@
+{
+ "kind": "california-poppy",
+ "name": "California Poppy",
+ "latin": "Eschscholzia californica",
+ "family": "Papaveraceae, the poppy family",
+ "grown_as": "A hardy annual from the seed mix 'Californian Superb Mix': orange, yellow, cream, pink, scarlet and red. Drawn in the typical orange. ⚠️ CHECK the colour William wants drawn.",
+ "habit": "A low, loose, sprawling mound 20 to 30 cm tall and 20 to 30 cm across of feathery blue-grey leaves, with flowers held just above on bare stalks.",
+ "leaf": {
+  "arrangement": "Mostly from the base, a few alternate up the stems",
+  "type": "Finely divided two or three times into many narrow segments, feathery like a carrot leaf",
+  "outline": "Triangular to oval overall, 5 to 15 cm long including the stalk",
+  "base": "The stalk widens a little where it meets the stem",
+  "tip": "Each segment narrow, ending blunt or in a small point",
+  "margin": "Smooth: the segments themselves are the cut",
+  "veins": "One fine vein in each segment",
+  "surface": "Hairless, with a waxy bloom",
+  "stalk": "Long, thin",
+  "colour": "Blue-grey green"
+ },
+ "flower": {
+  "form": "A silky cup opening to a saucer, closing at night and in dull weather",
+  "petals": "Four, free, broad, fan-shaped, overlapping",
+  "colour": "Bright orange, deeper at the base (mix: also yellow, cream, pink and red)",
+  "centre": "Many orange-yellow stamens around a slender style",
+  "behind": "A flat, pinkish rim (the swollen top of the stalk) under the petals. The sepals form a pointed pale cap over the bud that is pushed off as it opens.",
+  "carried": "Alone on long bare stalks, facing up",
+  "size": "5 to 7 cm across",
+  "season": "June to September"
+ },
+ "fruit": "A long, thin, ribbed pod 5 to 8 cm, straight or slightly curved, held up on the stalk; green ripening pale brown and splitting with a snap. Seeds round, about 1.5 mm, grey-brown, finely netted.",
+ "seedling": "Two long, narrow, grey-green seed leaves, each split into two at the tip, then small feathery true leaves",
+ "winter": "None: grown as an annual. Autumn-sown seedlings sit over winter as small grey feathery tufts.",
+ "palette": {
+  "leaf": "sage",
+  "flower": "carrot",
+  "centre": "amber",
+  "fruit": "straw"
+ },
+ "must_show": {
+  "leaf": [
+   "leaf finely cut into many narrow segments, feathery",
+   "blue-grey, hairless",
+   "long stalk"
+  ],
+  "bloom": [
+   "four broad silky orange petals in a cup",
+   "many orange-yellow stamens",
+   "a flat pinkish rim under the petals"
+  ],
+  "seed": [
+   "small round grey-brown seeds"
+  ],
+  "seedling": [
+   "two long narrow seed leaves split at the tips",
+   "first true leaves feathery"
+  ],
+  "young": [
+   "a low mound of feathery blue-grey leaves"
+  ],
+  "flower": [
+   "a low sprawling mound of blue-grey feathery leaves",
+   "orange cup-shaped flowers held alone on bare stalks above"
+  ],
+  "seedhead": [
+   "long, thin, ribbed pods standing up from the mound"
+  ]
+ },
+ "look_alikes": "Welsh poppy (Papaver cambricum) is yellow or orange with broader, greener leaves and a nodding bud. Common poppy has bristly leaves and a round seed box. Marigolds have daisy flowers.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

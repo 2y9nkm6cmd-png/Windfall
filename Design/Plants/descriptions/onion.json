@@ -1,0 +1,45 @@
+{
+ "kind": "onion",
+ "name": "Onion",
+ "latin": "Allium cepa",
+ "family": "Amaryllidaceae, the daffodil family (onion subfamily)",
+ "grown_as": "The bulb onion, a biennial grown as an annual from sets (small bulbs) for its single round bulb. William has 'Autumn Champion' and 'Red Winter' (red skin, blue-green leaves). Drawn with golden-brown skin. ⚠️ CHECK: should the drawing be golden or red?",
+ "habit": "Year 1: a fan of 6 to 10 upright hollow leaves 30 to 50 cm from a single round bulb that swells at the soil surface. Year 2: one or more tall, hollow flower stems 60 to 120 cm, swollen like a long balloon below the middle, each with a round head.",
+ "leaf": {
+  "arrangement": "In two ranks from the neck of the bulb, wrapping one inside the next",
+  "type": "Simple, tubular",
+  "outline": "Long, hollow, round to half-round tube, 30 to 50 cm by 1 to 2 cm, a little flattened on the upper side",
+  "base": "A sheath wrapping the neck",
+  "tip": "Tapering to a blunt point",
+  "margin": "Entire",
+  "veins": "Fine parallel veins, faint",
+  "surface": "Smooth, waxy, hollow inside",
+  "stalk": "None",
+  "colour": "Blue-green to grey-green"
+ },
+ "flower": {
+  "form": "A round ball of many small star-shaped flowers",
+  "petals": "Six tepals, free, oval, spreading into a small star",
+  "colour": "Greenish-white to white, each tepal with a green midstripe",
+  "centre": "Six stamens sticking out well beyond the tepals, with green-yellow anthers; a green ovary",
+  "behind": "A papery spathe of two or three short lobes, splitting and folding back under the head",
+  "carried": "Hundreds of flowers on thin stalks from one point, in a dense round umbel at the top of a tall hollow stem that is swollen below the middle",
+  "size": "Flowers 4 to 6 mm; heads 4 to 8 cm across",
+  "season": "June to August of the second year"
+ },
+ "fruit": "A dry round head of three-lobed capsules that split to show black, angular, wrinkled seeds.",
+ "seedling": "Not drawn as a seedling: grown from sets. (From seed: one thin seed leaf bent like a hairpin, as in leek.)",
+ "winter": "Bulbs are lifted and dried in summer and stored. Autumn-planted sets overwinter as a few thin upright leaves.",
+ "palette": {"leaf": "sage", "flower": "white", "centre": "pear", "fruit": "straw", "root": "amber"},
+ "must_show": {
+  "leaf": ["a long hollow round tube, not flat", "smooth waxy blue-green with no teeth"],
+  "bloom": ["a round ball of many small greenish-white star-shaped flowers", "stamens sticking out", "a papery spathe folded back below"],
+  "set": ["a small onion bulb 1 to 2 cm with golden papery skin", "a pointed neck and a flat root plate"],
+  "young": ["a few upright hollow blue-green leaves from a small bulb at the soil", "short white roots"],
+  "crop": ["a round bulb with golden-brown papery skin sitting half on top of the soil", "leaves yellowing and fallen over at the neck", "a tuft of white roots below"],
+  "flower": ["a tall hollow flower stem swollen below the middle", "a round greenish-white head on top"],
+  "seedhead": ["a dry round head of papery capsules with black seeds"]
+ },
+ "look_alikes": "Shallot is the same species making a cluster of smaller bulbs. Leek and garlic have flat solid leaves. Welsh onion (Allium fistulosum) has hollow leaves but little or no bulb. Chives have much thinner leaves and pink-purple heads.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

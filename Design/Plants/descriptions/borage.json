@@ -1,0 +1,74 @@
+{
+ "kind": "borage",
+ "name": "Borage",
+ "latin": "Borago officinalis",
+ "family": "Boraginaceae, the borage family",
+ "grown_as": "A hardy annual herb that seeds itself about.",
+ "habit": "A coarse, bushy, branched annual 40 to 90 cm, the thick hollow stems covered in stiff white bristles, with drooping clusters of blue stars at the top.",
+ "leaf": {
+  "arrangement": "A rosette at first, then alternate up the stem",
+  "type": "Simple",
+  "outline": "Oval to oblong-lance-shaped, 5 to 20 cm long",
+  "base": "Lower leaves narrow into a winged stalk; upper leaves stalkless, half-clasping the stem",
+  "tip": "Blunt to bluntly pointed",
+  "margin": "Smooth, untoothed, wavy",
+  "veins": "A network pressed in from above, making the leaf wrinkled",
+  "surface": "Rough, covered in stiff white bristly hairs, dull",
+  "stalk": "Lower leaves on a broad winged stalk; upper leaves none",
+  "colour": "Dull mid to dark green, greyish from the hairs"
+ },
+ "flower": {
+  "form": "A flat five-pointed star, hanging face down",
+  "petals": "Five, joined only at the very base, spreading flat, each a pointed triangle",
+  "colour": "Bright clear blue; pink in bud and sometimes pinkish as they fade; rarely white",
+  "centre": "A cone of near-black anthers pointing forward from the middle, with a small ring of white scales at its base",
+  "behind": "Five narrow, pointed, bristly green sepals showing between the petals",
+  "carried": "In loose, branched, drooping clusters at the tops of the stems, the flowers nodding down on hairy stalks",
+  "size": "2 to 2.5 cm across",
+  "season": "June to September"
+ },
+ "fruit": "Four nutlets inside the persistent bristly calyx, which closes up and hangs down. Seeds oblong, ridged and wrinkled, dark brown to black, about 5 mm, with a pale collar at one end.",
+ "seedling": "Two large, broad oval seed leaves on short stalks, slightly hairy, then oval bristly first leaves",
+ "winter": "None: an annual, killed by hard frost.",
+ "palette": {
+  "leaf": "deep",
+  "flower": "blue",
+  "centre": "dark",
+  "fruit": "dark"
+ },
+ "palette_wish": {
+  "flower": "strong mid blue, about #3D6FD1"
+ },
+ "must_show": {
+  "leaf": [
+   "oval leaf, untoothed and wavy-edged",
+   "rough with stiff white bristles",
+   "wrinkled surface, winged stalk on lower leaves"
+  ],
+  "bloom": [
+   "a flat five-pointed star of bright blue petals",
+   "a black cone of anthers in the middle",
+   "narrow bristly green sepals showing between the petals"
+  ],
+  "seed": [
+   "oblong ridged dark brown-black seeds with a pale collar"
+  ],
+  "seedling": [
+   "two large broad oval seed leaves",
+   "first true leaves oval and bristly"
+  ],
+  "young": [
+   "a rosette of large rough bristly oval leaves"
+  ],
+  "flower": [
+   "a coarse bristly branched plant",
+   "drooping clusters of blue star flowers facing down",
+   "pink buds among the blue flowers"
+  ],
+  "seedhead": [
+   "drooping clusters of closed bristly calyces holding dark seeds"
+  ]
+ },
+ "look_alikes": "Comfrey has hanging tubular bells, not stars. Green alkanet (Pentaglottis sempervirens) is perennial with smaller, deep blue flowers with a white eye and no black cone. Viper's-bugloss has narrow leaves and funnel-shaped flowers in spikes.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

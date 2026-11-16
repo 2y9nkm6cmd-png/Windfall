@@ -1,0 +1,75 @@
+{
+ "kind": "aster",
+ "name": "Aster",
+ "latin": "Symphyotrichum Dumosus Group (the 'Aster dumosus' of gardens)",
+ "family": "Asteraceae, the daisy family",
+ "grown_as": "William's library has two asters. 'Aster dumosus' Pink is a dwarf Michaelmas daisy, a hardy perennial from the New York aster (Symphyotrichum novi-belgii) and bushy aster (S. dumosum) group; this kind's dormant stage fits it, so it is described here, with pink flowers. ⚠️ CHECK: the library also lists China aster 'Carpet Ball Mixed' (Callistephus chinensis), a 20 cm half-hardy annual with broad toothed leaves and big double heads, which is a different plant and would need its own description if it is meant here.",
+ "habit": "A compact, bushy, rounded clump 25 to 45 cm high, spreading slowly by short underground stems. Many thin, wiry, branched stems, smothered in small flowers in autumn.",
+ "leaf": {
+  "arrangement": "Alternate, close together up the stems",
+  "type": "Simple",
+  "outline": "Narrow lance-shaped, 3 to 8 cm long; much smaller on the flowering branches",
+  "base": "Stalkless, the base slightly clasping the stem",
+  "tip": "Pointed",
+  "margin": "Smooth or with a few tiny teeth",
+  "veins": "Only the midrib shows clearly",
+  "surface": "Smooth and hairless, a little glossy",
+  "stalk": "None",
+  "colour": "Dark green"
+ },
+ "flower": {
+  "form": "A small single daisy with many thin rays",
+  "petals": "About 20 to 40 very narrow, thin, strap-like ray florets, in one or two rows",
+  "colour": "Pink (lilac-pink to rose)",
+  "centre": "A small yellow disc, turning brownish-purple as it ages",
+  "behind": "Narrow green bracts in overlapping rows, their tips a little spreading",
+  "carried": "Many together in loose, leafy sprays on wiry branches, so the whole clump is covered, facing up and out",
+  "size": "2 to 3 cm across",
+  "season": "September to October"
+ },
+ "fruit": "Small, fluffy, grey-white seed heads where the flowers were. Each seed is tiny, narrow, flattened and brown with a tuft of fine white to buff hairs.",
+ "seedling": "Usually grown from divisions or bought plants. Seedlings have two tiny round seed leaves, then narrow smooth leaves.",
+ "winter": "The stems die and are cut down; low tufts of small green shoots sit at the soil surface over winter.",
+ "palette": {
+  "leaf": "deep",
+  "flower": "pink",
+  "centre": "sun",
+  "fruit": "white"
+ },
+ "must_show": {
+  "leaf": [
+   "narrow lance-shaped leaf with a pointed tip and no stalk",
+   "smooth edge or a few tiny teeth",
+   "smooth dark green"
+  ],
+  "bloom": [
+   "many (20 or more) thin narrow pink rays",
+   "small yellow centre",
+   "narrow green bracts behind"
+  ],
+  "seed": [
+   "tiny brown seed with a tuft of white hairs"
+  ],
+  "seedling": [
+   "two tiny round seed leaves",
+   "then narrow smooth leaves"
+  ],
+  "young": [
+   "clump of upright leafy shoots with narrow alternate leaves"
+  ],
+  "flower": [
+   "low rounded clump smothered in many small pink daisies",
+   "flowers on branched wiry stems"
+  ],
+  "seedhead": [
+   "small fluffy grey-white seed heads where the flowers were",
+   "stems browning"
+  ],
+  "dormant": [
+   "old stems cut down or dead",
+   "low tufts of small green shoots at the soil"
+  ]
+ },
+ "look_alikes": "China aster (Callistephus chinensis) is an annual with broad, coarsely toothed leaves and single large heads. New England aster is taller with hairy, clasping leaves. Fleabanes (Erigeron) have far more, even finer rays and flower in early summer. Sea aster has fleshy leaves and grows by the sea.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. No reference photos had been downloaded for this group yet, so nothing was checked against photographs. ⚠️ CHECK"
+}

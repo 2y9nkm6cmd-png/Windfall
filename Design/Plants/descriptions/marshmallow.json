@@ -1,0 +1,73 @@
+{
+ "kind": "marshmallow",
+ "name": "Marshmallow",
+ "latin": "Althaea officinalis",
+ "family": "Malvaceae, the mallow family",
+ "grown_as": "The wild marsh-mallow, a hardy perennial of damp ground, grown from seed.",
+ "habit": "An upright perennial 1 to 1.5 m (up to 2 m), several stiff, little-branched stems from the base; the whole plant softly velvety and grey.",
+ "leaf": {
+  "arrangement": "Alternate",
+  "type": "Simple, often shallowly three- to five-lobed",
+  "outline": "Oval to triangular, 3 to 8 cm long, the lobes shallow",
+  "base": "Rounded to broadly wedge-shaped, sometimes slightly heart-shaped",
+  "tip": "Pointed",
+  "margin": "Irregular, rather blunt teeth all round",
+  "veins": "Three to five main veins spreading from the base like a hand, pressed in",
+  "surface": "Thick and velvety with soft star-shaped hairs on both sides; often slightly folded",
+  "stalk": "Short, 1 to 2 cm",
+  "colour": "Grey-green"
+ },
+ "flower": {
+  "form": "A shallow saucer like a small hollyhock",
+  "petals": "Five, free, broad, slightly notched at the outer edge",
+  "colour": "Pale pink to almost white",
+  "centre": "A short column of joined stamens with purplish-red anthers",
+  "behind": "A velvety green calyx of five pointed lobes, with a ring of six to nine narrow pointed extra lobes (the epicalyx) beneath it",
+  "carried": "In small clusters on short stalks in the upper leaf joints and at the top of the stems, facing up and out",
+  "size": "2.5 to 4 cm across",
+  "season": "July to September"
+ },
+ "fruit": "A flat round ring of segments like a small cheese, sitting in the persistent calyx, green ripening brown. Each segment holds one kidney-shaped brown seed, about 2 mm.",
+ "seedling": "Two rounded to heart-shaped seed leaves on stalks, then round, toothed, velvety first leaves",
+ "winter": "Dies down to the ground; the dead stems may stand brown.",
+ "palette": {
+  "leaf": "sage",
+  "flower": "pink",
+  "centre": "beet",
+  "fruit": "seed"
+ },
+ "must_show": {
+  "leaf": [
+   "oval to triangular, shallowly lobed leaf with irregular teeth",
+   "velvety grey-green",
+   "veins spreading from the base"
+  ],
+  "bloom": [
+   "five broad pale pink petals in a saucer",
+   "a short central column of stamens with purplish anthers",
+   "narrow extra calyx lobes beneath"
+  ],
+  "seed": [
+   "small kidney-shaped brown seeds"
+  ],
+  "seedling": [
+   "two rounded to heart-shaped seed leaves",
+   "first true leaves round and toothed"
+  ],
+  "young": [
+   "upright stems of velvety grey-green lobed leaves"
+  ],
+  "flower": [
+   "tall stiff velvety grey stems",
+   "pale pink flowers in clusters in the upper leaf joints"
+  ],
+  "seedhead": [
+   "flat round cheese-like fruits in the dry calyces up the stems"
+  ],
+  "dormant": [
+   "bare ground or brown dead stems"
+  ]
+ },
+ "look_alikes": "Common mallow (Malva sylvestris) has larger purple-pink flowers with dark stripes and greener, deeper-lobed leaves. Hollyhock (Alcea rosea) is much taller with big flowers in a spike. Tree-mallow is woody with dark-centred flowers.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

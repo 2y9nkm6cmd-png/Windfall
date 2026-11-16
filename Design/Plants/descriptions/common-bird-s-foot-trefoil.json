@@ -1,0 +1,77 @@
+{
+ "kind": "common-bird-s-foot-trefoil",
+ "name": "Common bird's-foot-trefoil",
+ "latin": "Lotus corniculatus",
+ "family": "Fabaceae, the pea family",
+ "grown_as": "A native perennial wild flower of short grassland, lawns and banks; a key food plant for common blue butterflies",
+ "habit": "Low and sprawling, 10 to 40 cm, many thin solid stems spreading from a woody base, the tips turning up. Mostly hairless.",
+ "leaf": {
+  "arrangement": "Alternate",
+  "type": "Compound: five leaflets, three at the tip of a short stalk and two at its base, close to the stem, which look like stipules",
+  "leaflets": "All unstalked; the top three spread like a small fan; the lower two often lopsided",
+  "outline": "Each leaflet small, oval to obovate, 3 to 10 mm",
+  "base": "Wedge-shaped",
+  "tip": "Pointed or blunt",
+  "margin": "Entire",
+  "veins": "Faint",
+  "surface": "Hairless, slightly blue-green beneath",
+  "stalk": "Very short; real stipules are just tiny brown dots",
+  "colour": "Mid to slightly blue-green"
+ },
+ "flower": {
+  "form": "Pea flowers held in a ring at the top of a stalk, like a small crown",
+  "petals": "Five: standard, wings and keel",
+  "colour": "Bright yellow; buds and the backs of the standards often red or orange-streaked (the 'eggs and bacon' look)",
+  "centre": "Hidden",
+  "behind": "A small calyx, the two upper teeth bent toward each other; a three-part leafy bract under the flower head",
+  "carried": "2 to 7 flowers spreading in a ring at the top of a long stalk from the leaf joints, well above the leaves",
+  "size": "Each flower 1 to 1.5 cm",
+  "season": "May to September"
+ },
+ "fruit": "Straight, thin, cylindrical pods 1.5 to 3 cm, spreading from the stalk top like the toes of a bird's foot, green turning brown-black and twisting as they split. Seeds tiny, round, brown.",
+ "seedling": "Two small oval seed leaves, then small three-leaflet leaves before the full five-leaflet leaves",
+ "winter": "Dies back to a few low, short shoots at the woody base, sometimes reddened",
+ "palette": {
+  "leaf": "leaf",
+  "flower": "sun",
+  "centre": "carrot",
+  "fruit": "dark"
+ },
+ "must_show": {
+  "leaf": [
+   "five small oval leaflets: three at the tip, two down at the base by the stem",
+   "no teeth"
+  ],
+  "bloom": [
+   "a ring of 2 to 7 yellow pea flowers on a long stalk",
+   "red-orange tints on buds or standards"
+  ],
+  "seed": [
+   "a tiny round seed",
+   "brown"
+  ],
+  "seedling": [
+   "two small oval seed leaves",
+   "small leaves of three leaflets"
+  ],
+  "young": [
+   "a low sprawling mat of thin stems",
+   "small leaves of five leaflets"
+  ],
+  "flower": [
+   "yellow flower crowns on long stalks",
+   "red-tinged buds",
+   "a low sprawling plant beneath"
+  ],
+  "seedhead": [
+   "slender straight dark pods",
+   "spread from the stalk top like a bird's foot"
+  ],
+  "dormant": [
+   "a few short low shoots at a woody base",
+   "sometimes reddened"
+  ]
+ },
+ "look_alikes": "Greater bird's-foot-trefoil (Lotus pedunculatus) is taller and hairier with hollow stems and more flowers per head, in damp places. Meadow vetchling has tendrils and only two narrow leaflets. Horseshoe vetch has many pairs of leaflets and wavy, segmented pods. Black medick has tiny yellow balls.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

@@ -1,0 +1,47 @@
+{
+ "kind": "chervil",
+ "name": "Chervil",
+ "latin": "Anthriscus cerefolium",
+ "family": "Apiaceae, the carrot family (umbellifers)",
+ "grown_as": "An annual herb sown for its delicate aniseed-flavoured leaves, best in cool weather and light shade",
+ "habit": "A soft, lacy, bright green plant 30 to 60 cm tall, much branched. Stem slender, finely grooved, hairy just above the nodes.",
+ "leaf": {
+  "arrangement": "Lower leaves in a loose rosette; stem leaves alternate",
+  "type": "Compound, two or three times pinnate, fern-like",
+  "leaflets": "Small, deeply cut into narrow lobes with blunt-pointed tips",
+  "outline": "Triangular, 5 to 15 cm long, flat and lacy",
+  "base": "Leaflets narrowing into short stalks",
+  "tip": "Blunt-pointed lobes",
+  "margin": "Deeply cut into lobes and a few teeth all round each leaflet",
+  "veins": "Fine and not prominent",
+  "surface": "Soft and thin, finely downy beneath",
+  "stalk": "Lower leaves on long stalks with a sheathing base; upper leaves on the sheath alone",
+  "colour": "Bright fresh pale green, often turning purplish in cold or drought"
+ },
+ "flower": {
+  "form": "Small loose umbels of tiny flowers",
+  "petals": "Five tiny white petals per flower, a little unequal",
+  "colour": "White",
+  "centre": "Tiny white stamens",
+  "behind": "No bracts; two to five small bracteoles on one side under each small umbel, turned down",
+  "carried": "Opposite the leaves, on very short stalks or none, with 3 to 6 downy rays",
+  "size": "Umbels 2 to 4 cm; flowers about 2 mm",
+  "season": "May to July"
+ },
+ "fruit": "Long narrow seeds 7 to 10 mm in pairs, smooth, with a short beak at the tip; green then dark brown to black",
+ "seedling": "Two long narrow seed leaves, then a first true leaf already lacy",
+ "winter": "Nothing in most gardens: an annual, though autumn sowings can survive a mild winter as small plants",
+ "palette": {"leaf": "leaf", "flower": "white", "fruit": "dark"},
+ "must_show": {
+  "leaf": ["fern-like leaf divided two or three times", "small leaflets deeply cut into blunt lobes", "bright pale green"],
+  "bloom": ["small umbel of 3 to 6 rays", "tiny white flowers", "short or no stalk under the umbel"],
+  "seed": ["long narrow smooth seed with a short beak", "dark brown to black"],
+  "seedling": ["two long narrow seed leaves", "first true leaf lacy"],
+  "young": ["a small rosette of lacy bright green leaves"],
+  "crop": ["a soft lacy clump of fern-like leaves, no flowers"],
+  "flower": ["small white umbels sitting close to the leaves", "lacy leaves", "plant under 60 cm"],
+  "seedhead": ["long narrow beaked seeds in pairs", "dried stems"]
+ },
+ "look_alikes": "Cow parsley (Anthriscus sylvestris) is a taller perennial with umbels on long stalks and darker leaves. Fool's parsley (Aethusa cynapium, poisonous) has long hanging bracteoles and an unpleasant smell. Hemlock has purple-blotched stems. Its own aniseed smell is the best test.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. No UK iNaturalist photos had been downloaded for this group when it was written. ⚠️ CHECK"
+}

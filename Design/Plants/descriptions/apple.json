@@ -1,0 +1,45 @@
+{
+ "kind": "apple",
+ "name": "Apple",
+ "latin": "Malus domestica",
+ "family": "Rosaceae, the rose family",
+ "grown_as": "Fruit trees on rootstocks, both eating, cooking and cider apples ('Spartan', 'Jonagold', 'Rode Boskoop', 'Bramley's Seedling', 'Fair Maid of Devon', 'Slack-ma-Girdle', 'Dufflin', 'Pendragon' and others in William's list). They differ in fruit colour and tree vigour; leaf and blossom are much the same. 'Pendragon' has red-tinged leaves, bark and flowers.",
+ "habit": "A small deciduous tree with a rounded, spreading crown; 2 to 4 m on dwarfing rootstocks, 6 to 9 m as a standard orchard tree. Grey-brown bark, smooth when young, later scaly. Fruit and flowers come from short, knobbly spurs along the older branches.",
+ "leaf": {
+  "arrangement": "Alternate on long shoots; in tufts of three to six on the spurs, with the flowers",
+  "type": "Simple",
+  "outline": "Oval to elliptic, 5 to 10 cm long, about half as wide",
+  "base": "Rounded or broadly wedge-shaped",
+  "tip": "A short, abrupt point",
+  "margin": "Finely and bluntly toothed (small rounded or slightly pointed teeth) all the way round, never lobed",
+  "veins": "A midrib and 4 to 7 pairs of side veins that curve forward towards the tip, lightly pressed in",
+  "surface": "Dull mid green above, a little downy at first; paler, grey-green and softly woolly beneath, the felt clearest on young leaves",
+  "stalk": "1.5 to 3 cm, downy, with two tiny thread-like stipules at its base",
+  "colour": "Mid green above, grey-green beneath; yellow in autumn"
+ },
+ "flower": {
+  "form": "An open, shallow cup like a large wild rose",
+  "petals": "Five, free, broad and rounded, slightly cupped, narrowing to a short claw",
+  "colour": "White inside, flushed pink on the back; the buds are deep pink and the flowers fade whiter as they age",
+  "centre": "About twenty stamens with yellow anthers around five pale green styles joined at the base",
+  "behind": "Five narrow, pointed, woolly grey-green sepals, turned back",
+  "carried": "In clusters of four to six at the tip of each spur, among a tuft of young leaves; the middle (king) flower opens first, the others on longer stalks around it, facing up and out",
+  "size": "3 to 5 cm across",
+  "season": "Late April to mid May"
+ },
+ "fruit": "A pome: round to slightly flattened, 5 to 10 cm (cider apples often 3 to 5 cm), with the stalk sunk in a hollow at the top and the dried sepals forming a little crown (the eye) in a hollow at the bottom. Colour by variety: green ('Bramley's Seedling'), yellow, or flushed and striped red over yellow-green. Hangs on a short stalk, singly or two or three together. Ripe September to October. Fruit set: small green fruitlets in clusters at the spur tips, upright at first, each with the dried sepals at its tip; some drop in June.",
+ "seedling": "Not drawn: grown as grafted trees",
+ "winter": "Bare tree. Grey-brown branches with short knobbly spurs; fat, rounded, downy buds on the spurs (flower buds) and smaller pointed buds pressed against the shoots. Young shoots grey and woolly at the tips.",
+ "palette": {"leaf": "leaf", "flower": "white", "centre": "primrose", "fruit": "berry"},
+ "must_show": {
+  "leaf": ["simple oval leaf with a short pointed tip, not lobed", "fine blunt teeth all round the edge", "curving side veins", "paler, woolly underside if the back shows"],
+  "bloom": ["five broad rounded petals, white with a pink flush on the back", "a deep pink bud beside it", "yellow anthers in the centre", "woolly sepals behind"],
+  "young": ["a single straight trunk with a few spreading branches", "simple oval leaves, alternate"],
+  "dormant": ["bare branches with short knobbly spurs", "fat buds on the spurs"],
+  "flower": ["clusters of pink-backed white blossom with pink buds on the spurs", "flowers open with the young leaves, not before them"],
+  "set": ["small green fruitlets in clusters at the spur tips", "dried sepals visible at the tip of each fruitlet"],
+  "crop": ["round apples with the stalk in a hollow, hanging on short stalks", "red-flushed fruit among simple oval leaves"]
+ },
+ "look_alikes": "Pear blossom is pure white with dark red-purple anthers, and the leaves are glossy, rounder and on longer stalks. Crab apple (Malus sylvestris) has smaller sour fruit, 2 to 3 cm, and leaves that lose their hairs. Plum and cherry flowers have a single style in the centre, not five, and come in small bunches straight from the wood.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge and UK iNaturalist photos. ⚠️ CHECK"
+}

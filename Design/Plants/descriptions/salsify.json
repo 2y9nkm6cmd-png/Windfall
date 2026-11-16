@@ -1,0 +1,47 @@
+{
+ "kind": "salsify",
+ "name": "Salsify",
+ "latin": "Tragopogon porrifolius",
+ "family": "Asteraceae, the daisy family",
+ "grown_as": "Salsify (oyster plant), a biennial grown for its long thin root, lifted in its first autumn and winter. Plants left in flower the next spring; the flower buds and young shoots are eaten too.",
+ "habit": "Year 1: an upright tuft of long grass-like grey-green leaves 30 to 45 cm. Year 2: a smooth, little-branched flowering stem 60 to 120 cm with grass-like leaves clasping it, each branch ending in one flower head. Milky sap in all parts.",
+ "leaf": {
+  "arrangement": "A tuft from the root top; alternate up the stem",
+  "type": "Simple, grass-like",
+  "outline": "Long and narrow (linear), 20 to 40 cm by 0.5 to 1.5 cm, widest at the base and tapering steadily to a long fine point",
+  "base": "Broad, wrapping and clasping the stem or crown",
+  "tip": "Long, very fine point, often curling",
+  "margin": "Entire, no teeth, smooth",
+  "veins": "Parallel veins along the leaf, with a pale keel down the middle",
+  "surface": "Smooth, hairless, with a grey waxy bloom; folded a little along the midrib",
+  "stalk": "None",
+  "colour": "Grey-green to blue-green (glaucous)"
+ },
+ "flower": {
+  "form": "A dandelion-like head made only of strap-shaped florets, with long narrow green bracts sticking out well beyond the florets like the points of a star",
+  "petals": "Many strap-shaped florets, each ending in five tiny teeth",
+  "colour": "Dull purple to violet-mauve",
+  "centre": "The inner florets darker; dark purple-brown anther tubes",
+  "behind": "8 (sometimes 5 to 10) long narrow green bracts in one row, 1.5 to 2 times as long as the florets",
+  "carried": "One head at the tip of each stem, facing up, on a stalk that is swollen and club-shaped just below the head. Open in the morning, closed by midday",
+  "size": "4 to 6 cm across including the bracts",
+  "season": "May to July of the second year"
+ },
+ "fruit": "A very large, round 'clock' 8 to 12 cm across, like a giant dandelion clock, of long-beaked seeds each topped by a feathery pale brown parachute whose hairs are interwoven into a web.",
+ "seedling": "Two long, narrow, grass-like seed leaves 3 to 6 cm, grey-green, then grass-like true leaves.",
+ "winter": "The leaves die back in hard frost to a small tuft at the crown; roots are left in the ground and lifted as needed. New leaves appear in early spring.",
+ "palette": {"leaf": "sage", "flower": "mauve", "centre": "plum", "fruit": "straw", "root": "seed"},
+ "palette_wish": {"flower": "dull violet-purple, about #8A5A9E"},
+ "must_show": {
+  "leaf": ["long narrow grass-like leaf tapering to a fine point", "clasping base, no stalk", "smooth grey-green with parallel veins"],
+  "bloom": ["a head of purple strap-shaped florets only, no central disc", "long narrow green bracts reaching well beyond the florets in a star", "a swollen stalk just below the head"],
+  "seed": ["a long slim ribbed brown seed with a long beak, 2 to 3 cm", "a feathery parachute on the beak, or bare if rubbed off"],
+  "seedling": ["two long grass-like seed leaves"],
+  "young": ["an upright tuft of grey-green grass-like leaves"],
+  "crop": ["a long thin pale cream-brown root, 2 to 3 cm thick and 20 to 30 cm long", "many fine side rootlets along it", "a tuft of grass-like leaves on top"],
+  "flower": ["a tall smooth stem with clasping grass-like leaves", "purple flower heads, one per branch tip, with long star-like bracts"],
+  "seedhead": ["a large round clock of feathery parachutes on long beaks", "the green bracts spread or turned down below"]
+ },
+ "look_alikes": "Goat's-beard (Tragopogon pratensis) is the wild cousin, with yellow heads. Scorzonera has broader leaves, yellow heads with short bracts and a black root. Grasses and leeks lack the milky sap.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

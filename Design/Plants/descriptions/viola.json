@@ -1,0 +1,71 @@
+{
+ "kind": "viola",
+ "name": "Viola",
+ "latin": "Viola × wittrockiana",
+ "family": "Violaceae, the violet family",
+ "grown_as": "William's seed is 'Cool Summer Breeze', given on the packet as Viola × wittrockiana, the garden pansy, 20 cm tall. Flower colour and size depend on the variety and are not known. Drawn as a small-flowered garden pansy, violet-blue with a yellow eye and dark lines. ⚠️ CHECK the variety's colour and whether it is a pansy or a smaller viola.",
+ "habit": "A low bushy plant 15 to 20 cm tall and about 20 cm across, the leafy stems spreading and branching, flowers held above on long stalks.",
+ "leaf": {
+  "arrangement": "Alternate along the stems",
+  "type": "Simple, with large leafy stipules at the base of each stalk",
+  "outline": "Lower leaves oval to heart-shaped, upper leaves longer and oblong; 2 to 5 cm",
+  "base": "Rounded to slightly heart-shaped on lower leaves; tapering on upper ones",
+  "tip": "Blunt",
+  "margin": "Shallow, rounded teeth (scalloped) all round",
+  "veins": "A midrib and a few side veins",
+  "surface": "Smooth to slightly hairy, a little glossy",
+  "stalk": "Present, with a pair of leafy stipules at its base, each deeply cut into finger-like lobes, the middle lobe largest and leaf-like",
+  "colour": "Mid green"
+ },
+ "flower": {
+  "form": "A flat, open, face-like flower facing sideways",
+  "petals": "Five, free and unequal: two upper petals overlapping, two side petals and one broad lower petal with a short spur behind",
+  "colour": "Variety unknown; drawn violet-blue, with dark lines (whiskers) or a dark blotch on the lower three petals",
+  "centre": "A small yellow eye at the throat, the stigma showing as a tiny knob",
+  "behind": "Five small, pointed green sepals showing behind the petals; the short spur poking back from the lower petal",
+  "carried": "Alone on a long stalk from a leaf joint, the stalk bent like a hook at the top so the flower faces out",
+  "size": "3 to 6 cm across",
+  "season": "July to September from a spring sowing; summer and autumn sowings flower in winter and spring"
+ },
+ "fruit": "A three-sided egg-shaped capsule that splits into three boat-shaped valves, which squeeze the seeds out. Seeds oval, smooth, glossy, tan to brown, about 1.5 to 2 mm.",
+ "seedling": "Two small round seed leaves on stalks, then rounded scalloped first leaves",
+ "winter": "A low tuft of small leaves; may keep flowering in mild spells.",
+ "palette": {
+  "leaf": "leaf",
+  "flower": "lilac",
+  "centre": "sun",
+  "fruit": "pale"
+ },
+ "must_show": {
+  "leaf": [
+   "oval leaf with rounded teeth all round",
+   "on a stalk with large leafy stipules cut into finger-like lobes"
+  ],
+  "bloom": [
+   "five unequal petals: two upper, two side, one broad lower",
+   "a yellow eye with dark lines on the lower petals",
+   "facing sideways from a hooked stalk"
+  ],
+  "seed": [
+   "small oval smooth glossy tan seeds"
+  ],
+  "seedling": [
+   "two small round seed leaves",
+   "first true leaves rounded and scalloped"
+  ],
+  "young": [
+   "a low bushy tuft of oval scalloped leaves with lobed stipules"
+  ],
+  "flower": [
+   "a low bushy plant with flat face-like flowers held above on long hooked stalks"
+  ],
+  "seedhead": [
+   "three-sided capsules upright on their stalks, some split into three boat-shaped valves"
+  ],
+  "dormant": [
+   "a low tuft of small leaves"
+  ]
+ },
+ "look_alikes": "Wild pansy (Viola tricolor) is smaller (1.5 to 2.5 cm) and often three-coloured. Horned violet (Viola cornuta) has a long slender spur. Dog-violets grow from a rosette, have heart-shaped leaves and narrow, unlobed stipules.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

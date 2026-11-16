@@ -1,0 +1,72 @@
+{
+ "kind": "melon",
+ "name": "Melon",
+ "latin": "Cucumis melo",
+ "family": "Cucurbitaceae, the gourd family",
+ "grown_as": "A tender annual grown in a greenhouse or cold frame in the UK, usually a small cantaloupe such as 'Sweetheart' or 'Ogen', trained up strings or let to trail. Fruit look depends on the variety, which is not known: drawn as a small round cantaloupe with lightly netted yellow-green skin. ⚠️ CHECK",
+ "habit": "A trailing or climbing vine 1.5 to 3 m with softly hairy, ridged stems and simple (unbranched) tendrils. Trained up a support under glass or left to sprawl in a frame.",
+ "leaf": {
+  "arrangement": "Alternate, one at each joint, with a tendril beside it",
+  "type": "Simple, shallowly lobed",
+  "outline": "Rounded to kidney-shaped, 8 to 15 cm across, with 3 to 7 shallow, rounded lobes, often hardly lobed at all",
+  "base": "Deeply heart-shaped",
+  "tip": "Rounded or bluntly pointed",
+  "margin": "Small, shallow teeth all round, often wavy",
+  "veins": "Palmate, five main veins from the stalk top",
+  "surface": "Softly to roughly hairy, slightly wrinkled between the veins",
+  "stalk": "Long (5 to 12 cm), hairy",
+  "colour": "Mid green"
+ },
+ "flower": {
+  "form": "A small open yellow star or shallow bell",
+  "petals": "Five, joined at the base, rounded to bluntly pointed, spreading",
+  "colour": "Bright yellow",
+  "centre": "Small yellow stamens (male) or a short three-lobed stigma (female)",
+  "behind": "Five narrow green sepals; the female flower sits on a small hairy oval ovary, the young melon",
+  "carried": "In the leaf joins: males in small clusters, females singly on the side shoots",
+  "size": "2 to 3 cm across",
+  "season": "June to August"
+ },
+ "fruit": "Round, 10 to 15 cm, on a short stalk; skin pale green ripening yellow-green to buff, often with faint ribs and a fine raised net. Ripe fruit smells sweet and cracks around the stalk. Under glass the fruit hang in nets on the support. Seeds narrow, flat, cream, 8 to 10 mm, like cucumber seeds but smaller.",
+ "seedling": "Two smooth oval seed leaves with rounded tips; first true leaf small, rounded and hairy with shallow lobes.",
+ "winter": "Nothing: killed by cold and cleared",
+ "palette": {
+  "leaf": "leaf",
+  "flower": "sun",
+  "centre": "amber",
+  "fruit": "pear"
+ },
+ "must_show": {
+  "leaf": [
+   "a rounded or kidney-shaped leaf with shallow blunt lobes",
+   "heart-shaped base",
+   "small teeth all round"
+  ],
+  "bloom": [
+   "small yellow five-petalled star",
+   "for a female, a small hairy oval swelling behind it"
+  ],
+  "seed": [
+   "a narrow flat cream seed",
+   "pointed oval, smaller than a cucumber seed"
+  ],
+  "seedling": [
+   "two smooth oval seed leaves",
+   "a small rounded true leaf"
+  ],
+  "young": [
+   "a young vine of a few rounded, shallowly lobed leaves",
+   "simple coiling tendrils at the joints"
+  ],
+  "flower": [
+   "small yellow star flowers at the leaf joints",
+   "rounded leaves and tendrils on a trained or trailing vine"
+  ],
+  "crop": [
+   "round melons on short stalks, skin yellow-green with a fine net",
+   "rounded leaves and tendrils"
+  ]
+ },
+ "look_alikes": "Cucumber leaves are more triangular with sharper, angular lobes. Courgette and squash leaves are much larger and flowers far bigger.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

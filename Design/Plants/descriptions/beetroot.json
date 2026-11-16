@@ -1,0 +1,46 @@
+{
+ "kind": "beetroot",
+ "name": "Beetroot",
+ "latin": "Beta vulgaris subsp. vulgaris (Conditiva Group)",
+ "family": "Amaranthaceae, the amaranth family (formerly Chenopodiaceae, the goosefoot family)",
+ "grown_as": "The garden beetroot, a biennial grown as an annual for its round deep red root. Drawn as a typical red globe variety such as 'Boltardy'. Some varieties are golden, white or ringed red and white ('Chioggia'), and some have dark red leaves ('Bull's Blood'). ⚠️ CHECK: William's variety.",
+ "habit": "Year 1: a rosette of upright to spreading leaves 25 to 40 cm high from the top of a swollen round root that sits half out of the soil. Year 2: a leafy, branched, ridged flowering stem 60 to 120 cm high, the branches long, slender and spike-like.",
+ "leaf": {
+  "arrangement": "A rosette from the top of the root",
+  "type": "Simple",
+  "outline": "Oval to long heart-shaped, 10 to 20 cm long, the blade often longer than wide",
+  "base": "Rounded to slightly heart-shaped or running a little down the stalk",
+  "tip": "Blunt to rounded",
+  "margin": "Entire, no teeth, but wavy and often crinkled",
+  "veins": "A broad red midrib with red side veins running out towards the edge, very plain on the green blade",
+  "surface": "Smooth, hairless, glossy; often puckered between the veins",
+  "stalk": "Fleshy, as long as or longer than the blade, grooved above, deep red to red-purple",
+  "colour": "Dark glossy green flushed with red, the veins and stalk red"
+ },
+ "flower": {
+  "form": "Tiny green flowers with no petals, in small tight clusters spaced along long slender spikes",
+  "petals": "None: five small green fleshy sepals (perianth segments) curved inwards over the centre",
+  "colour": "Green",
+  "centre": "Five stamens, small and yellowish, half hidden",
+  "behind": "A small leafy bract under each cluster, smaller towards the spike tip",
+  "carried": "In clusters of two to four along long, branching, leafy spikes that make a loose tall plume, the spikes upright to arching",
+  "size": "Flowers 2 to 3 mm; spikes 20 to 50 cm",
+  "season": "June to August of the second year"
+ },
+ "fruit": "Each flower cluster ripens into a hard, corky, irregular, knobbly brown lump 3 to 6 mm (the 'seed'), which holds two to four true seeds. These lumps line the dry brown spikes.",
+ "seedling": "Two strap-shaped to narrow oblong seed leaves 1.5 to 2.5 cm, on a red stem; the first true leaves oval with red stalks. Because each 'seed' holds several seeds, seedlings often come up in small clumps.",
+ "winter": "Roots lifted before hard frost. A plant left in shrinks to a small rosette on the root top and may rot in wet cold; it flowers the next summer.",
+ "palette": {"leaf": "deep", "flower": "unripe", "centre": "pear", "fruit": "bark", "root": "beet"},
+ "must_show": {
+  "leaf": ["one simple oval leaf, untoothed but wavy", "a red stalk and a red midrib with red side veins", "glossy and puckered between the veins"],
+  "bloom": ["tiny green flowers with no petals in small tight clusters", "clusters spaced along a slender spike, a small leaf under each"],
+  "seed": ["a corky, knobbly, irregular brown lump, not a smooth seed"],
+  "seedling": ["two narrow strap-shaped seed leaves on a red stem", "often two or three seedlings from one spot"],
+  "young": ["a rosette of oval leaves on red stalks", "the red top of the root beginning to swell at the soil"],
+  "crop": ["a round deep red-purple root sitting half above the soil", "a thin tail root below it", "red-stalked leaves from the top"],
+  "flower": ["a tall leafy stem with long slender green spikes", "flowers in small green clusters, no petals"],
+  "seedhead": ["dry brown spikes lined with corky seed clusters"]
+ },
+ "look_alikes": "Chard and leaf beet are the same species with thin roots and broader stalks. Mangelwurzel is the same species with a much larger root, often orange, yellow or pink, mostly above ground. Sea beet, the wild form, has a thin woody root and small glossy leaves. Turnip and radish have rough lobed leaves.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

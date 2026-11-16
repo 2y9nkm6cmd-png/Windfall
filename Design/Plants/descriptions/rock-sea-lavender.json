@@ -1,0 +1,71 @@
+{
+ "kind": "rock-sea-lavender",
+ "name": "Rock Sea Lavender",
+ "latin": "Limonium britannicum",
+ "family": "Plumbaginaceae, the thrift family",
+ "grown_as": "William's plant is entered as Limonium britannicum, a Cornish rock sea-lavender of North Cornwall cliffs, one of a group of very similar small species once all called Limonium binervosum. Grown in the rockery in sand.",
+ "habit": "A low, tough cushion: a rosette of leathery leaves at the base, 10 to 15 cm across, with many wiry, zig-zag branched flowering stems 10 to 30 cm tall.",
+ "leaf": {
+  "arrangement": "A rosette at the base; the flowering stems leafless",
+  "type": "Simple",
+  "outline": "Spoon-shaped to narrowly oval, 2 to 6 cm long, widest towards the tip",
+  "base": "Tapering into a long narrow winged stalk",
+  "tip": "Rounded to blunt, sometimes with a tiny point",
+  "margin": "Smooth, untoothed",
+  "veins": "A midrib with a fainter vein either side running up from the base",
+  "surface": "Thick, leathery, hairless, waxy",
+  "stalk": "Narrow and winged, merging into the blade",
+  "colour": "Blue-green"
+ },
+ "flower": {
+  "form": "A tiny five-petalled flower sitting in a funnel-shaped papery calyx",
+  "petals": "Five, free, small and rounded",
+  "colour": "Pale violet to lilac-pink",
+  "centre": "Tiny; not seen at drawing scale",
+  "behind": "A small funnel-shaped calyx, papery and pale, with small papery bracts at the base of each flower group",
+  "carried": "In short, dense, one-sided spikes along the upper side of the branches of the wiry, zig-zag flowering stems; the lowest branches often bare",
+  "size": "Each flower 4 to 8 mm across",
+  "season": "July to September"
+ },
+ "fruit": "The papery calyces stay on the dry branched stems, fading to straw colour, each holding one small, narrow brown seed about 2 mm.",
+ "seedling": "Two small oval seed leaves, then small spoon-shaped leaves in a rosette",
+ "winter": "An evergreen rosette of leathery blue-green leaves, often with the old dry flower stems still standing.",
+ "palette": {
+  "leaf": "sage",
+  "flower": "lilac",
+  "fruit": "straw"
+ },
+ "must_show": {
+  "leaf": [
+   "spoon-shaped leaf tapering into a long winged stalk",
+   "leathery, untoothed, blue-green",
+   "rounded tip"
+  ],
+  "bloom": [
+   "tiny pale violet five-petalled flowers in papery calyces",
+   "packed in a short one-sided spike along a branch"
+  ],
+  "seed": [
+   "small narrow brown seeds, often still in a papery calyx"
+  ],
+  "seedling": [
+   "two small oval seed leaves",
+   "first true leaves spoon-shaped"
+  ],
+  "young": [
+   "a low rosette of leathery spoon-shaped blue-green leaves"
+  ],
+  "flower": [
+   "a rosette of leathery leaves with many wiry zig-zag branched stems above",
+   "short one-sided spikes of lilac flowers along the branches"
+  ],
+  "seedhead": [
+   "dry branched stems holding straw-coloured papery calyces"
+  ],
+  "dormant": [
+   "an evergreen rosette of blue-green leaves, old dry stems above"
+  ]
+ },
+ "look_alikes": "Common sea-lavender (Limonium vulgare) of saltmarshes has bigger, broader leaves with side veins and dense flat-topped heads. Lax-flowered sea-lavender has looser spikes. Statice (Limonium sinuatum) has wavy-lobed leaves and winged stems. Thrift has grass-like leaves and round pink heads.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

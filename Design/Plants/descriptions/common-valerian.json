@@ -1,0 +1,47 @@
+{
+ "kind": "common-valerian",
+ "name": "Common Valerian",
+ "latin": "Valeriana officinalis",
+ "family": "Caprifoliaceae, the honeysuckle family (formerly the valerian family, Valerianaceae)",
+ "grown_as": "A native perennial wild flower of damp grassland and stream banks, also grown as a herb and pollinator plant",
+ "habit": "An upright plant 1 to 1.5 m tall, from a short rootstock. Stems grooved, hollow, little branched below the flower heads. Leaves in opposite pairs.",
+ "leaf": {
+  "arrangement": "Opposite pairs up the stem; larger leaves from the base",
+  "type": "Compound, once pinnate, with 7 to 25 leaflets",
+  "leaflets": "Narrow lance-shaped, 3 to 8 cm, stalkless; the end leaflet like the side ones",
+  "outline": "Oblong overall, 15 to 30 cm",
+  "base": "Leaflets narrowing to the midrib, the bases running along it a little",
+  "tip": "Pointed",
+  "margin": "Irregularly toothed or almost untoothed, often a few coarse teeth on each side",
+  "veins": "A midrib and faint side veins",
+  "surface": "Hairless above, a little hairy beneath",
+  "stalk": "Long on basal leaves; short or none on stem leaves",
+  "colour": "Mid to dark green"
+ },
+ "flower": {
+  "form": "Tiny funnel-shaped flowers massed into rounded domed clusters",
+  "petals": "Joined into a small tube with five spreading, slightly unequal lobes; the tube a little swollen at the base",
+  "colour": "Pale pink to white",
+  "centre": "Three stamens sticking out beyond the lobes",
+  "behind": "Calyx rolled inwards and hidden at flowering",
+  "carried": "In branched rounded clusters at the top of the stem, upright; sweet scent",
+  "size": "Each flower 3 to 5 mm; clusters 5 to 10 cm",
+  "season": "June to August"
+ },
+ "fruit": "Small oblong flattened seeds 2.5 to 5 mm, each topped with a feathery white parachute (the calyx unrolled)",
+ "seedling": "Two small rounded seed leaves, then first true leaves simple and oval, later pinnate",
+ "winter": "Dies down to a small rosette or bare crown; dead hollow stems may stand",
+ "palette": {"leaf": "leaf", "flower": "pink", "fruit": "straw"},
+ "must_show": {
+  "leaf": ["once pinnate with many narrow lance-shaped leaflets", "leaves in opposite pairs on the stem", "irregular teeth or none"],
+  "bloom": ["rounded cluster of tiny tubular five-lobed flowers", "pale pink to white", "stamens sticking out"],
+  "seed": ["small flat seed with a feathery white parachute"],
+  "seedling": ["two small rounded seed leaves", "first true leaf simple and oval"],
+  "young": ["basal leaves pinnate with narrow leaflets"],
+  "flower": ["tall stem with opposite pinnate leaves", "rounded pale pink flower clusters at the top"],
+  "seedhead": ["clusters of seeds with feathery parachutes"],
+  "dormant": ["small low rosette or bare crown", "dead stems"]
+ },
+ "look_alikes": "Red valerian (Centranthus ruber) has undivided grey-green leaves and red, pink or white spurred flowers. Hemp-agrimony has leaves of three to five lobes and pink fuzzy flowers. Marsh valerian is smaller with undivided basal leaves.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. No UK iNaturalist photos had been downloaded for this group when it was written. ⚠️ CHECK"
+}

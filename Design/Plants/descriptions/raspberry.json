@@ -1,0 +1,45 @@
+{
+ "kind": "raspberry",
+ "name": "Raspberry",
+ "latin": "Rubus idaeus",
+ "family": "Rosaceae, the rose family",
+ "grown_as": "Cane fruit tied to wires. William grows summer-fruiting 'Glen Ample' and 'Malling Minerva' (fruit on last year's canes) and autumn-fruiting 'Heritage', 'Autumn Bliss' and 'Allgold' (fruit on the tops of this year's canes). 'Allgold' has yellow fruit; the rest red. The drawing shows a red summer raspberry.",
+ "habit": "Upright, little-branched canes 1.5 to 2 m tall from a spreading root that sends up suckers. New canes green with a pale waxy bloom and fine, weak, bristly prickles (some varieties, like 'Glen Ample', nearly spineless); second-year canes woody, brown, with fruiting side shoots. Each cane dies after it fruits.",
+ "leaf": {
+  "arrangement": "Alternate",
+  "type": "Compound, pinnate: five leaflets (sometimes seven) on strong new canes, three on fruiting side shoots",
+  "leaflets": "The end leaflet on a stalk 1 to 3 cm long and the largest, symmetrical; side leaflets in opposite pairs, almost stalkless, a little lopsided",
+  "outline": "Each leaflet oval, 5 to 10 cm long",
+  "base": "End leaflet rounded to slightly heart-shaped; side leaflets rounded",
+  "tip": "Drawn out to a long point",
+  "margin": "Sharp, irregular, double teeth all round",
+  "veins": "A midrib and straight parallel side veins, pressed in so the leaflet looks pleated",
+  "surface": "Green and slightly wrinkled above; white or silver-felted beneath",
+  "stalk": "Long, grooved, with a few small prickles",
+  "colour": "Mid green above, white beneath"
+ },
+ "flower": {
+  "form": "A small cup of sepals with small petals standing up inside, never opening flat like a rose",
+  "petals": "Five, free, white, small and narrow (spoon-shaped), held upright and soon falling; shorter than the sepals",
+  "colour": "White",
+  "centre": "A rounded dome of many pale green pistils, ringed by many white stamens",
+  "behind": "Five grey-green downy pointed sepals, longer than the petals, spreading or turned back",
+  "carried": "In small loose clusters at the tips of the side shoots and in the leaf angles, nodding",
+  "size": "About 1 cm across",
+  "season": "June for summer types; August to September for autumn types"
+ },
+ "fruit": "Round to short-conical, 1.5 to 2.5 cm, made of many small, juicy, slightly hairy drupelets. Ripens red ('Allgold' golden yellow) and pulls off the white core, so the picked fruit is a hollow cup. Green sepals behind. Hangs on drooping stalks in clusters. July (summer types) or August to October (autumn types).",
+ "seedling": "Not drawn: grown from canes or suckers",
+ "winter": "Summer types: a row of brown second-year canes tied to wires, with buds along them, after the old fruited canes are cut out. Autumn types: cut to the ground; nothing above soil.",
+ "palette": {"leaf": "leaf", "flower": "white", "centre": "pale", "fruit": "berry"},
+ "must_show": {
+  "leaf": ["five or three leaflets in a pinnate leaf, the end one on its own longer stalk", "each leaflet oval with a long point and sharp double teeth all round", "white underside if the back shows"],
+  "bloom": ["small white upright petals shorter than the sepals, the flower NOT flat and rose-like", "grey-green pointed sepals spread or turned back", "a dome of green pistils ringed by white stamens", "nodding on its stalk"],
+  "young": ["upright, unbranched green canes", "pinnate leaves of five leaflets with white backs"],
+  "dormant": ["a row of upright brown canes tied to wires", "no leaves"],
+  "flower": ["small nodding cup-shaped white flowers in loose clusters on side shoots", "pinnate leaves with white backs"],
+  "crop": ["red rounded fruit of many drupelets hanging in clusters", "upright canes"]
+ },
+ "look_alikes": "Blackberry flowers are larger and open flat; its leaflets all spread from one point and the fruit turns black and keeps its core. Loganberry and tayberry have long dark red fruit that keeps its core, on trailing canes. Japanese wineberry is covered in red bristles.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge and UK iNaturalist photos. ⚠️ CHECK"
+}

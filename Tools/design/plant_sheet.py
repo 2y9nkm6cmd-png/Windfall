@@ -77,9 +77,9 @@ def sheet(photos, out, kind, before):
         pd = os.path.join(photos, kind)
         if os.path.isdir(pd):
             fs = sorted(x for x in os.listdir(pd) if x.endswith(".jpg"))
-            order = ["species", "leaf", "winter", "flower", "fruit"]
+            order = ["species", "leaf", "any", "winter", "flower", "fruit"]
             fs.sort(key=lambda x: (order.index(x.split("-")[0].split(".")[0]) if x.split("-")[0].split(".")[0] in order else 9, x))
-            a = [(x[:-4], photo(os.path.join(pd, x))) for x in fs if x.split("-")[0].split(".")[0] in ("species", "leaf", "winter")]
+            a = [(x[:-4], photo(os.path.join(pd, x))) for x in fs if x.split("-")[0].split(".")[0] in ("species", "leaf", "any", "winter")]
             b = [(x[:-4], photo(os.path.join(pd, x))) for x in fs if x.split("-")[0] in ("flower", "fruit")]
             rows += [("PHOTOS: leaves and habit", row(a)), ("PHOTOS: flowers and fruit", row(b))]
         W = max(r.width for _, r in rows) + 10

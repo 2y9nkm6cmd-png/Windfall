@@ -1,0 +1,82 @@
+{
+ "kind": "lupin",
+ "name": "Lupin",
+ "latin": "Lupinus polyphyllus",
+ "family": "Fabaceae, the pea family",
+ "grown_as": "A hardy perennial border plant. Garden lupins are Russell hybrids (L. polyphyllus crosses, sometimes called Lupinus × regalis). The library has 'Gallery Blue', a compact variety about 50 cm with blue and white flowers: drawn as that. ⚠️ CHECK",
+ "habit": "An upright clump: a mound of long-stalked leaves 40 to 60 cm across, with stiff upright flower spikes. 'Gallery' types 50 to 60 cm tall in flower; others up to 1.2 m. Grows from a deep taproot and woody crown; dies down in winter.",
+ "leaf": {
+  "arrangement": "Mostly from the base on long stalks, a few up the flower stems",
+  "type": "Compound, palmate: 9 to 17 leaflets radiating from the top of the stalk like the spokes of a wheel",
+  "leaflets": "All unstalked, alike and symmetrical, spread in a full circle or a little more than a half circle",
+  "outline": "Each leaflet narrow lance-shaped, 4 to 12 cm",
+  "base": "Narrowed",
+  "tip": "Pointed",
+  "margin": "Entire",
+  "veins": "A clear midrib; the leaflets often folded slightly along it",
+  "surface": "Hairless or nearly so above, with flat silky hairs beneath; holds a drop of water at the centre after rain",
+  "stalk": "Long (10 to 30 cm), stiff",
+  "colour": "Mid green"
+ },
+ "flower": {
+  "form": "Many pea flowers in a long dense upright spike",
+  "petals": "Five: standard, wings and a curved pointed keel",
+  "colour": "'Gallery Blue': mid violet-blue wings and keel with a white or white-marked standard. Other garden lupins in many colours.",
+  "centre": "Hidden",
+  "behind": "A small two-lipped calyx; small bracts that fall early",
+  "carried": "In a tall dense spike 15 to 40 cm, the flowers in rings (whorls) round the stem, opening from the bottom up so buds are at the top, standing above the leaves",
+  "size": "Each flower 1.2 to 1.5 cm; spike 15 to 40 cm",
+  "season": "May to July"
+ },
+ "fruit": "Hairy pods 3 to 5 cm, standing out from the spike, green turning black, which twist and burst to throw out round, mottled grey-brown seeds 3 to 4 mm. Seeds poisonous.",
+ "seedling": "Two thick, oval, fleshy seed leaves raised on a short stem, then a first true leaf already palmate with 5 to 7 small leaflets.",
+ "winter": "Dies down to a crown at soil level, sometimes with a small tuft of new leaves",
+ "palette": {
+  "leaf": "leaf",
+  "flower": "blue",
+  "centre": "white",
+  "fruit": "dark"
+ },
+ "palette_wish": {
+  "flower": "violet-blue, about #5E6CC8"
+ },
+ "must_show": {
+  "leaf": [
+   "9 to 17 narrow leaflets radiating from one point like wheel spokes",
+   "a long stalk",
+   "no teeth"
+  ],
+  "bloom": [
+   "a tall dense spike of pea flowers in rings",
+   "blue wings with a white-marked standard",
+   "buds at the top"
+  ],
+  "seed": [
+   "a round, slightly flattened seed",
+   "mottled grey-brown"
+  ],
+  "seedling": [
+   "two thick oval seed leaves",
+   "a small palmate first leaf"
+  ],
+  "young": [
+   "a mound of long-stalked leaves",
+   "each leaf a wheel of narrow leaflets"
+  ],
+  "flower": [
+   "tall dense upright flower spikes",
+   "standing above the mound of palmate leaves",
+   "blue flowers with white-marked standards"
+  ],
+  "seedhead": [
+   "spikes of hairy pods standing out from the stem",
+   "pods turning black, some twisted open"
+  ],
+  "dormant": [
+   "a crown at soil level",
+   "little or nothing green above ground"
+  ]
+ },
+ "look_alikes": "Tree lupin (Lupinus arboreus) is a shrub with yellow flowers. Wild Russell lupins along roads and rivers are the same plant gone wild. Hemp and horse chestnut leaves are palmate too but toothed.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

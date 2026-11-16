@@ -1,0 +1,46 @@
+{
+ "kind": "leek",
+ "name": "Leek",
+ "latin": "Allium ampeloprasum (Porrum Group)",
+ "family": "Amaryllidaceae, the daffodil family (onion subfamily)",
+ "grown_as": "The garden leek, a biennial grown as an annual for its long white shank, lifted from autumn through to spring. William has 'Musselburgh' (broad, mid to dark green leaves) and 'Blue Green Autumn Neptune' (blue-green leaves). Drawn with blue-green leaves. ⚠️ CHECK",
+ "habit": "Year 1: a single upright stem-like shank of tightly wrapped leaf bases, 15 to 30 cm long and 2 to 5 cm thick, with flat leaves fanning out from its top to 40 to 60 cm. No true bulb. Year 2: one stout, solid, round flower stem 1 to 1.5 m with a large round head.",
+ "leaf": {
+  "arrangement": "In two opposite ranks, so the leaves fan out flat in one plane like a hand of cards",
+  "type": "Simple",
+  "outline": "Long, flat strap, 30 to 60 cm by 2 to 5 cm, parallel-sided",
+  "base": "A long sheath wrapping the shank, white below where it was in the dark",
+  "tip": "Narrowing to a blunt point; tips often arch over and droop",
+  "margin": "Entire, no teeth",
+  "veins": "Many fine parallel veins along the leaf",
+  "surface": "Folded in a V along a keel (solid, NOT hollow), smooth, with a waxy bloom",
+  "stalk": "None: the sheaths make the shank",
+  "colour": "Blue-green to dark grey-green; the shank white, turning pale green where the leaves part"
+ },
+ "flower": {
+  "form": "A large round ball of many small cup-shaped flowers",
+  "petals": "Six tepals, free, oval, pointed, held in a cup",
+  "colour": "Pale pink to lilac or white, the midvein sometimes darker",
+  "centre": "Six stamens with yellow-purple anthers sticking out beyond the tepals",
+  "behind": "A papery spathe with a long tapering beak, wrapping the whole head in bud, splitting and falling as it opens",
+  "carried": "Hundreds of flowers on long thin stalks from one point, forming a dense round umbel at the top of a tall stem, held upright",
+  "size": "Flowers 4 to 6 mm; heads 7 to 10 cm across",
+  "season": "June to August of the second year"
+ },
+ "fruit": "The head dries to a straw-brown ball of papery three-lobed capsules that split to show black angular seeds. Some heads carry small bulbils among the flowers.",
+ "seedling": "A single thin grass-like seed leaf, first bent double like a hairpin with the black seed case on one end (the 'crook'), then straightening; then thin flat true leaves, two-ranked from the start.",
+ "winter": "Hardy: stands in the ground all winter, the outer leaves yellowing and the tips flopping, the shank lifted as needed.",
+ "palette": {"leaf": "sage", "flower": "lilac", "centre": "plum", "fruit": "straw", "root": "white"},
+ "must_show": {
+  "leaf": ["a long flat strap folded in a V along a keel, solid not hollow", "parallel veins, no teeth", "a white sheath at the base"],
+  "bloom": ["a round dense ball of many small cup-shaped pale lilac-pink flowers", "stamens sticking out", "a papery beaked spathe falling from below"],
+  "seed": ["a black, angular, wrinkled seed, about 3 mm"],
+  "seedling": ["one thin grass-like seed leaf bent like a hairpin with the black seed case on its tip"],
+  "young": ["a thin upright shank with flat leaves fanned out in one plane", "pencil-thick, ready to plant out"],
+  "crop": ["a long thick white shank with no bulb, a little swollen at the base", "flat blue-green leaves fanned out in one plane from its top", "a mass of white roots from a flat base"],
+  "flower": ["one tall, stout, solid, round stem", "a large round pale lilac head on top"],
+  "seedhead": ["a dry straw-brown round head of papery capsules", "black seeds showing"]
+ },
+ "look_alikes": "Wild leek and the Bristol onion (Allium sphaerocephalon) have small heads and thin leaves. Onion has hollow round leaves and a bulb. Garlic leaves are flat but narrower and also two-ranked, and garlic makes a bulb of cloves. Elephant garlic is the same species, grown for its large cloves.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

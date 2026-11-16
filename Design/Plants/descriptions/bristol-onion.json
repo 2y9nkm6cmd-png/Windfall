@@ -1,0 +1,45 @@
+{
+ "kind": "bristol-onion",
+ "name": "Bristol Onion",
+ "latin": "Allium sphaerocephalon",
+ "family": "Amaryllidaceae, the daffodil family (onion subfamily)",
+ "grown_as": "Round-headed leek, known locally as the Bristol onion: a perennial bulb, native in Britain only on the limestone of the Avon Gorge (and on Jersey). William's seed is from Bristol Botanic Garden. Also sold as the 'drumstick allium' for borders.",
+ "habit": "A slender, upright plant: a few thin leaves from the bulb that are withering by flowering time, and one wiry stem 40 to 90 cm topped by a small tight head. Plants often in small groups from offset bulbs.",
+ "leaf": {
+  "arrangement": "Two to six from the bulb, their sheaths wrapping the lowest third of the flower stem",
+  "type": "Simple",
+  "outline": "Thin, half-round, 15 to 40 cm by 2 to 4 mm",
+  "base": "A sheath round the lower stem",
+  "tip": "Tapering to a fine point",
+  "margin": "Entire",
+  "veins": "Faint parallel veins",
+  "surface": "Hollow, smooth, with a shallow groove along the upper side",
+  "stalk": "None",
+  "colour": "Grey-green; yellow and brown by flowering time"
+ },
+ "flower": {
+  "form": "A dense, egg-shaped to round head packed with small bell-shaped flowers",
+  "petals": "Six oval tepals forming a small upright bell",
+  "colour": "Deep red-purple to maroon; buds at the base of the head still green when the top is open, so a young head is two-toned",
+  "centre": "Six stamens sticking out beyond the tepals, with purple anthers",
+  "behind": "A short papery spathe of two valves, shorter than the head",
+  "carried": "One head of 40 to 100 or more flowers on short stalks at the top of a slender, smooth, upright stem; the head opens from the top downwards",
+  "size": "Flowers 4 to 5 mm; head 2 to 3.5 cm long",
+  "season": "June to August"
+ },
+ "fruit": "The head dries to a tight brown egg of papery three-lobed capsules with small black seeds. Some heads carry small bulbils among the flowers.",
+ "seedling": "Not drawn: drawn from a bulb. (From seed: one thin grass-like leaf, taking two or three years to flower.)",
+ "winter": "Thin grey-green leaves come up in autumn and stand through winter into spring. ⚠️ CHECK: Claude believes the leaves are winter-green, as in many Mediterranean alliums.",
+ "palette": {"leaf": "sage", "flower": "beet", "centre": "plum", "fruit": "bark"},
+ "must_show": {
+  "leaf": ["a thin half-round hollow leaf with a groove on the upper side", "grey-green, no teeth"],
+  "bloom": ["a dense egg-shaped head of small deep red-purple bells", "stamens sticking out", "the lowest buds still green"],
+  "set": ["a small round to egg-shaped bulb, 1 to 2 cm, with papery brown skin", "small offset bulblets at its base"],
+  "young": ["a few thin grey-green leaves from the bulb"],
+  "flower": ["one slender upright stem with a small tight red-purple egg-shaped head", "leaves withered at the base"],
+  "seedhead": ["a tight brown egg-shaped head of dry capsules on a straw-coloured stem"],
+  "dormant": ["a few thin grey-green leaves at ground level"]
+ },
+ "look_alikes": "Wild onion (crow garlic, Allium vineale) has heads mostly of bulbils with a long spathe and few pinkish flowers. Wild leek (Allium ampeloprasum) is much larger with flat leaves and a big round pale head. Chives have pink-purple pompoms and fine hollow leaves, flowering earlier.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

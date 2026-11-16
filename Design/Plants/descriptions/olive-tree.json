@@ -1,0 +1,45 @@
+{
+ "kind": "olive-tree",
+ "name": "Olive Tree",
+ "latin": "Olea europaea",
+ "family": "Oleaceae, the olive family",
+ "grown_as": "An evergreen Mediterranean tree, in Britain usually kept in a large pot or a warm, sheltered spot. William's variety is not known; varieties differ mostly in fruit size.",
+ "habit": "A small evergreen tree with a dense rounded head of silvery-grey foliage, 1.5 to 4 m in a garden. Trunk smooth and grey when young, later gnarled and twisted. Fine, square-ish young twigs.",
+ "leaf": {
+  "arrangement": "Opposite, in pairs up the twig",
+  "type": "Simple",
+  "outline": "Long and narrow, lance-shaped, 3 to 8 cm long and 1 to 1.5 cm wide",
+  "base": "Tapering gradually into the stalk",
+  "tip": "Pointed, ending in a tiny sharp point",
+  "margin": "Smooth (no teeth), slightly rolled under",
+  "veins": "Only the midrib shows; side veins hidden",
+  "surface": "Leathery and stiff; dull dark grey-green above, silvery-white beneath from tiny scales",
+  "stalk": "Very short, about 5 mm",
+  "colour": "Grey-green above, silver beneath"
+ },
+ "flower": {
+  "form": "A tiny four-pointed star",
+  "petals": "Four, joined at the base into a very short tube, the lobes spreading flat",
+  "colour": "Creamy white",
+  "centre": "Two stamens with large yellow anthers standing up from the middle",
+  "behind": "A tiny green four-toothed cup",
+  "carried": "In short, loose, branching sprays (panicles) of ten to thirty, from the leaf angles on last year's shoots, held out or up among the leaves",
+  "size": "5 to 6 mm across; the spray 3 to 5 cm long",
+  "season": "June, earlier under glass; sweetly scented"
+ },
+ "fruit": "A drupe: oval, 1 to 3 cm, smooth and shiny, green at first, ripening through purple to black. Hangs on a short stalk, singly or a few together, among the leaves. Rarely ripens fully outdoors in Britain. Fruit set: tiny green ovals on the old flower sprays, most of which drop.",
+ "seedling": "Not drawn: grown as bought plants",
+ "winter": "Evergreen, unchanged",
+ "palette": {"leaf": "sage", "flower": "white", "centre": "primrose", "fruit": "dark"},
+ "must_show": {
+  "leaf": ["long narrow leaf with a smooth edge, no teeth", "grey-green above, silver beneath", "only the midrib showing"],
+  "bloom": ["a tiny flower with four creamy-white lobes", "two yellow stamens standing up from the middle"],
+  "young": ["a small grey trunk with a head of twigs", "narrow silver-grey leaves in opposite pairs"],
+  "growing": ["a rounded evergreen head of narrow silvery leaves", "grey trunk"],
+  "flower": ["small branching sprays of tiny cream flowers from the leaf angles", "narrow grey-green opposite leaves"],
+  "set": ["small green olives on the old flower sprays", "narrow grey-green leaves"],
+  "crop": ["oval olives, green, purple and black together, hanging on short stalks", "narrow grey-green leaves, silver beneath"]
+ },
+ "look_alikes": "Sea buckthorn and Elaeagnus have narrow silvery leaves but set alternately, with orange or silvery berries. Silver willow leaves are alternate and toothed. Phillyrea, a relative, has darker, glossier, often toothed leaves.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge and iNaturalist photos. ⚠️ CHECK"
+}

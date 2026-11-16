@@ -1,0 +1,45 @@
+{
+ "kind": "potatoes",
+ "name": "Potatoes",
+ "latin": "Solanum tuberosum",
+ "family": "Solanaceae, the nightshade family",
+ "grown_as": "The potato, a perennial grown as an annual from seed tubers. William grows many heritage varieties, and flower colour, tuber shape and skin colour all depend on the variety. Drawn with white flowers and round to oval cream tubers as a typical variety. ⚠️ CHECK: which variety the drawing should follow; many have pink, lilac or purple flowers and red, purple or blue skins.",
+ "habit": "A bushy clump 50 to 80 cm high of several leafy, angled, somewhat sprawling stems (the haulm) from one seed tuber. Underground, white stolons run out from the stem base and swell at their tips into tubers.",
+ "leaf": {
+  "arrangement": "Alternate on the stems",
+  "type": "Compound: pinnate with an end leaflet, made of 3 or 4 pairs of large leaflets with pairs of much smaller leaflets set between them (interrupted pinnate)",
+  "leaflets": "Large leaflets on short stalks, opposite or nearly so; small leaflets 1 to 2 cm between them on the main stalk; one large end leaflet",
+  "outline": "Whole leaf 15 to 30 cm; large leaflets oval, 4 to 10 cm",
+  "base": "Leaflets rounded to slightly heart-shaped at the base, often lopsided",
+  "tip": "Pointed",
+  "margin": "Entire, no teeth, slightly wavy",
+  "veins": "Netted, pressed in so the leaflet looks wrinkled",
+  "surface": "Dark green, finely hairy, wrinkled, dull above; paler beneath. Smell of potato when crushed",
+  "stalk": "Short to medium, hairy, with small wings where it meets the stem",
+  "colour": "Mid to dark green"
+ },
+ "flower": {
+  "form": "A flat five-pointed star (wheel-shaped)",
+  "petals": "Five, joined into a flat, broad, pentagonal star with five short pointed tips and folds between them",
+  "colour": "White; in other varieties pink, lilac, purple or white with a purple centre",
+  "centre": "Five bright yellow anthers pressed together into a pointed cone standing up in the middle, with the green style poking out of its tip",
+  "behind": "Five small pointed green sepals joined at the base",
+  "carried": "In loose clusters of 5 to 15 on long branched stalks at the top of the stems, held above the leaves, facing out and up",
+  "size": "2.5 to 4 cm across",
+  "season": "June to August"
+ },
+ "fruit": "Small round green berries 1 to 3 cm, like unripe cherry tomatoes, sometimes streaked purple, in hanging clusters. Poisonous. They hold true seed, used for breeding. Many varieties seldom set berries.",
+ "seedling": "Not drawn as a seedling: grown from tubers. (From true seed: two small oval seed leaves, then simple then pinnate leaves.)",
+ "winter": "Nothing above ground: the haulm dies down in late summer or autumn or is killed by frost or blight. Tubers left in the soil sprout the next spring as volunteers.",
+ "palette": {"leaf": "deep", "flower": "white", "centre": "sun", "fruit": "unripe", "root": "straw"},
+ "must_show": {
+  "leaf": ["pinnate: 3 or 4 pairs of large oval leaflets and an end leaflet", "small leaflets set between the large pairs", "untoothed, pointed, wrinkled leaflets"],
+  "bloom": ["five joined petals forming a flat five-pointed star", "a pointed cone of bright yellow anthers in the centre"],
+  "tuber": ["an oval tuber with shallow eyes", "short stubby sprouts from the eyes (chitted), green or purple"],
+  "young": ["leafy shoots from the soil, the leaves pinnate", "soil drawn up round the stems (earthed up)"],
+  "flower": ["a bushy leafy clump", "clusters of star-shaped flowers on long stalks held above the leaves"],
+  "crop": ["the haulm yellowing and dying back", "tubers in the soil on white stolons from the stem base", "the old seed tuber shrivelled"]
+ },
+ "look_alikes": "Tomato has toothed, more cut leaflets, yellow flowers and a strong smell. Bittersweet (woody nightshade) has purple star flowers with a yellow cone, but simple leaves with two ear-lobes and red berries. Black nightshade has small white flowers, simple leaves and black berries.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

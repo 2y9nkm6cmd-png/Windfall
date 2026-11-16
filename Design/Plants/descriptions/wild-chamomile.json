@@ -1,0 +1,70 @@
+{
+ "kind": "wild-chamomile",
+ "name": "Wild chamomile",
+ "latin": "Matricaria discoidea",
+ "family": "Asteraceae, the daisy family",
+ "grown_as": "William's library gives Matricaria discoidea, which is pineappleweed: a wild annual with no white rays, common on paths and trodden ground, and it is in his kitchen garden. Described here as that. ⚠️ CHECK: the name 'wild chamomile' is more often used for Matricaria chamomilla (scented mayweed or German chamomile), which has white rays round a hollow yellow cone. If that is what was sown, this file and the drawings need redoing.",
+ "habit": "A low, bushy, much-branched annual 5 to 30 cm, often flattened where trodden. Smells strongly of pineapple when crushed.",
+ "leaf": {
+  "arrangement": "Alternate",
+  "type": "Simple but divided two or three times (pinnately) into very narrow, thread-like segments",
+  "outline": "Oblong overall, 1 to 5 cm, feathery",
+  "base": "Stalkless, the base slightly clasping",
+  "tip": "Segments with a fine point",
+  "margin": "Segments smooth-edged",
+  "veins": "None visible beyond the midrib",
+  "surface": "Hairless, a little fleshy",
+  "stalk": "None",
+  "colour": "Bright green"
+ },
+ "flower": {
+  "form": "A small, rounded to egg-shaped cone of tiny florets with no white rays at all",
+  "petals": "None that show: all the florets are tiny tubes with four teeth",
+  "colour": "Greenish yellow",
+  "centre": "The whole head is a solid dome of florets on a hollow cone-shaped base",
+  "behind": "Short green bracts with broad pale papery edges, much shorter than the head",
+  "carried": "Alone at the tips of short branches, many to a plant, facing up",
+  "size": "5 to 10 mm across",
+  "season": "May to October"
+ },
+ "fruit": "The heads turn brown and crumble. Seeds tiny, about 1.5 mm, pale brown and ribbed, with a narrow papery rim at the top; they stick to wet shoes and tyres.",
+ "seedling": "Two tiny oval seed leaves. The first true leaves are already finely divided and feathery.",
+ "winter": "Nothing, or small seedlings over winter in mild spells.",
+ "palette": {
+  "leaf": "leaf",
+  "flower": "pear",
+  "centre": "pear",
+  "fruit": "bark"
+ },
+ "must_show": {
+  "leaf": [
+   "leaf divided two or three times into thread-like segments, feathery",
+   "bright green and hairless"
+  ],
+  "bloom": [
+   "no white rays",
+   "a rounded cone of tiny greenish-yellow florets",
+   "short bracts with broad pale papery edges round the base"
+  ],
+  "seed": [
+   "tiny pale brown ribbed seed"
+  ],
+  "seedling": [
+   "two tiny oval seed leaves",
+   "first leaves divided and feathery"
+  ],
+  "young": [
+   "small low tuft of bright green feathery leaves"
+  ],
+  "flower": [
+   "low bushy plant 10 to 30 cm",
+   "many small greenish-yellow cone heads on short stalks",
+   "no white rays anywhere"
+  ],
+  "seedhead": [
+   "heads turned brown, cone-shaped and crumbling"
+  ]
+ },
+ "look_alikes": "Scented mayweed (Matricaria chamomilla) has white rays that turn down round a hollow cone. Scentless mayweed has white rays and a solid disc. Tansy has button heads without rays but is a tall perennial with broad toothed leaflets. Corn chamomile has white rays and grey downy leaves.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. No reference photos had been downloaded for this group yet, so nothing was checked against photographs. ⚠️ CHECK"
+}

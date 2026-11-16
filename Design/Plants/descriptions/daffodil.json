@@ -1,0 +1,76 @@
+{
+ "kind": "daffodil",
+ "name": "Daffodil",
+ "latin": "Narcissus (garden hybrids, from N. pseudonarcissus and others)",
+ "family": "Amaryllidaceae, the daffodil family",
+ "grown_as": "Drawn as the classic golden yellow trumpet daffodil of UK gardens. ⚠️ CHECK: William's library has three daffodils, none of them a plain trumpet: 'Tête-à-tête' (dwarf, all yellow, often two or three flowers to a stem), 'Golden Echo' (several flowers to a stem, white petals and a long yellow cup) and 'Delnashaugh' (a double, white with apricot-pink). He also has the wild daffodil, N. pseudonarcissus, in the orchard, which is smaller with pale yellow petals and a deeper yellow trumpet. Which of these the drawing should be is for William.",
+ "habit": "Clumps of upright grey-green leaves 20 to 40 cm high, each bulb with one leafless flower stem about as tall as the leaves. Clumps widen year by year as bulbs divide.",
+ "leaf": {
+  "arrangement": "Two to four leaves from the base of each bulb, upright then arching, wrapped at the bottom in a papery sheath",
+  "type": "Simple, strap-shaped (linear)",
+  "outline": "Long and narrow, 20 to 40 cm by 8 to 15 mm, the same width nearly all the way",
+  "base": "Running down into the sheath at soil level",
+  "tip": "Blunt and rounded",
+  "margin": "Smooth, no teeth",
+  "veins": "Fine parallel veins along the length",
+  "surface": "Flat or shallowly channelled, smooth, grey-green with a waxy bloom",
+  "stalk": "None",
+  "colour": "Grey-green"
+ },
+ "flower": {
+  "form": "A trumpet (the corona) sticking out from a flat star of six petals, held sideways",
+  "petals": "Six tepals, joined at the base into a short tube, spreading flat or swept slightly forward, oval and pointed, overlapping a little. The trumpet in the middle is as long as the tepals or longer, with a frilled, flared rim.",
+  "colour": "Golden yellow; the trumpet the same or a shade deeper",
+  "centre": "Inside the trumpet six stamens and a style, hidden from the side. Behind the tepals the green swollen ovary.",
+  "behind": "A thin brown papery spathe (sheath) at the bend where the stem turns",
+  "carried": "One flower per stem, held sideways or a little nodding, at the top of a leafless, flattened, two-edged stem that bends just below the flower",
+  "size": "6 to 10 cm across",
+  "season": "February to April"
+ },
+ "fruit": "A green, three-sided swelling behind the dead petals, about 1.5 to 2 cm, ripening to a brown papery capsule that splits into three and drops round black seeds. Usually removed by deadheading.",
+ "seedling": "Not drawn. A single grass-like leaf; five years or more to flower.",
+ "winter": "Nothing above ground until the blunt leaf tips appear in January or February.",
+ "palette": {
+  "leaf": "sage",
+  "flower": "sun",
+  "centre": "amber",
+  "fruit": "unripe"
+ },
+ "must_show": {
+  "leaf": [
+   "one long strap-shaped leaf, even width",
+   "blunt rounded tip, smooth margin",
+   "grey-green, fine parallel veins"
+  ],
+  "bloom": [
+   "six pointed tepals in a flat star",
+   "a long trumpet with a frilled rim in the middle, as long as the tepals",
+   "yellow all over, the trumpet a shade deeper",
+   "a papery brown sheath at the bend of the stem behind it"
+  ],
+  "bulb": [
+   "a large teardrop bulb 4 to 6 cm with a pointed nose",
+   "smooth brown papery skin",
+   "roots from a flat base plate, often a side bulb attached"
+  ],
+  "shoots": [
+   "blunt grey-green leaf tips coming up in a tight bunch",
+   "a fat flower bud in a papery sheath rising between them"
+  ],
+  "flower": [
+   "upright grey-green strap leaves",
+   "one sideways-facing trumpet flower per stem, about as tall as the leaves",
+   "a clump of several stems"
+  ],
+  "seedhead": [
+   "green swollen pods behind withered papery petals",
+   "leaves still green, starting to flop"
+  ],
+  "dormant": [
+   "yellowing, flopped leaves or nothing above the soil",
+   "the bulb below ground"
+  ]
+ },
+ "look_alikes": "Other kinds of daffodil differ in the cup (short in large-cupped and jonquil types) or flowers to a stem. Wild daffodil is smaller with pale petals and a darker trumpet. Leaves alone look like bluebell (glossy, darker green, hooded tip) or snowdrop (much narrower).",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

@@ -1,0 +1,46 @@
+{
+ "kind": "swede",
+ "name": "Swede",
+ "latin": "Brassica napus var. napobrassica",
+ "family": "Brassicaceae, the cabbage family",
+ "grown_as": "The swede (rutabaga), a biennial grown as an annual for its large yellow-fleshed root, sown in late spring and lifted from autumn through winter. Drawn as a purple-topped variety such as 'Marian'; some are green- or bronze-topped. ⚠️ CHECK: William's variety.",
+ "habit": "Year 1: a rosette of leaves 30 to 50 cm high from the top of a large round root with a distinct neck. Year 2: a branched, smooth, waxy flowering stem 60 to 120 cm.",
+ "leaf": {
+  "arrangement": "A rosette at the top of the neck; alternate on the flowering stem",
+  "type": "Simple, deeply lobed: lyre-shaped, a large end lobe and several pairs of smaller side lobes",
+  "outline": "Long oblong, 20 to 40 cm",
+  "base": "Tapering into the stalk with small lobes. Upper stem leaves undivided and clasping the stem with rounded ears",
+  "tip": "Broad and rounded",
+  "margin": "Wavy and bluntly, irregularly toothed",
+  "veins": "A broad pale midrib, side veins netted",
+  "surface": "Smooth, hairless (a few hairs on the youngest leaves only), with a waxy bloom that rubs off",
+  "stalk": "Fleshy, grooved, pale grey-green",
+  "colour": "Blue-grey green (glaucous), like a cabbage"
+ },
+ "flower": {
+  "form": "A four-petalled cross",
+  "petals": "Four, free, oval on claws",
+  "colour": "Pale to buff yellow, paler than turnip",
+  "centre": "Six stamens (four long, two short) round a green style",
+  "behind": "Four narrow sepals held half upright",
+  "carried": "In elongated clusters at the branch tips, the unopened buds level with or standing above the open flowers",
+  "size": "1.5 to 2 cm across",
+  "season": "April to May of the second year"
+ },
+ "fruit": "Slender cylindrical pods 5 to 10 cm with a short beak, held up on spreading stalks, splitting to release small round dark brown to black seeds.",
+ "seedling": "Two kidney-shaped seed leaves notched at the tip, a little grey-green; first true leaves smooth and grey-green.",
+ "winter": "Very hardy: roots stand in the ground all winter, the outer leaves yellowing and dying back while a few small grey-green leaves remain on the neck.",
+ "palette": {"leaf": "sage", "flower": "primrose", "centre": "sun", "fruit": "straw", "root": "pear"},
+ "must_show": {
+  "leaf": ["lyre-shaped with a large end lobe and smaller side lobes", "smooth and waxy blue-grey green, not bristly", "blunt wavy teeth"],
+  "bloom": ["four pale yellow petals in a cross", "buds level with or above the open flowers"],
+  "seed": ["a tiny round dark brown to black seed"],
+  "seedling": ["two kidney-shaped seed leaves notched at the tip, a little grey-green"],
+  "young": ["a rosette of smooth grey-green lobed leaves", "the root starting to swell at the soil"],
+  "crop": ["a large round root, purple above the soil and creamy yellow below", "a distinct neck at the top ringed with leaf scars, the leaves from its tip", "a tail root and side roots below"],
+  "flower": ["a smooth grey-green branched stem with clasping upper leaves", "pale yellow cross-shaped flowers"],
+  "seedhead": ["slender upright beaked pods along the stems"]
+ },
+ "look_alikes": "Turnip has bristly bright green leaves, white flesh and no neck. Kohlrabi's swelling is the stem above ground, with leaves from its sides. Oilseed rape is the same species with no swollen root.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

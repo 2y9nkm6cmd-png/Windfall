@@ -1,0 +1,45 @@
+{
+ "kind": "fig",
+ "name": "Fig",
+ "latin": "Ficus carica",
+ "family": "Moraceae, the mulberry family",
+ "grown_as": "'Brown Turkey', the hardiest common fig in the UK, kept small in a large pot or with its roots restricted in a sunny spot. It sets fruit without pollination (there is no fig wasp in Britain).",
+ "habit": "A deciduous, many-stemmed shrub or small tree, 2 to 4 m, spreading wider than tall, with thick, stubby, smooth grey branches. Every part bleeds white milky sap when cut. Often seen wild on walls and riverbanks in British towns.",
+ "leaf": {
+  "arrangement": "Alternate, crowded towards the shoot tips",
+  "type": "Simple, palmately lobed",
+  "outline": "Large, 10 to 25 cm long and about as wide, cut into three to five (sometimes seven) deep lobes like a spread hand; the lobes widen towards their blunt, rounded ends and are separated by rounded gaps (sinuses)",
+  "base": "Heart-shaped, the two lower lobes curving back towards the stalk",
+  "tip": "Each lobe blunt or broadly rounded; the middle lobe the longest",
+  "margin": "Wavy, with irregular shallow blunt teeth, mostly towards the lobe ends",
+  "veins": "Three to five main veins fanning from the top of the stalk, one running into each lobe, pale yellow-green and raised beneath, with a net of smaller veins between",
+  "surface": "Thick and rough like fine sandpaper above (short stiff hairs); paler and softly hairy beneath",
+  "stalk": "Stout, 5 to 10 cm",
+  "colour": "Mid to dark green, often with a grey cast above; pale yellow-green veins; butter yellow in autumn"
+ },
+ "flower": {
+  "form": "Never seen from outside: hundreds of tiny flowers line the inside of a hollow, fleshy, pear-shaped case (the young fig, a syconium). Only a cut fig shows them",
+  "petals": "None that show; each tiny female flower is a little stalked knob with a thread-like style pointing inwards",
+  "colour": "Cream to pink inside, ripening to deep pink-red; the outer skin green",
+  "centre": "A hollow middle; at the top a small opening (the eye) closed by overlapping tiny scales",
+  "behind": "Three small green bracts where the fig joins its short stalk",
+  "carried": "Singly in the angle between leaf stalk and shoot, held upright or angled out",
+  "size": "The young fig 1 to 3 cm; each flower about 2 mm",
+  "season": "Through the summer; in Britain the figs that ripen are the pea-sized ones formed at the shoot tips the summer before"
+ },
+ "fruit": "The whole fig swells into a pear- or top-shaped fruit, 4 to 7 cm, narrowing to a short stalk, with the eye at the broad end. 'Brown Turkey' ripens purple-brown, the skin sometimes splitting; inside, soft red-pink flesh full of tiny seeds. Ripe figs droop on their stalks. August to September. Fruit set: small hard green figs in the leaf angles, upright.",
+ "seedling": "Not drawn: grown from cuttings or bought plants",
+ "winter": "Bare, thick, smooth grey branches with a pointed green-brown bud at each tip, often with small pea-sized embryo figs just below it; large pale leaf scars.",
+ "palette": {"leaf": "leaf", "flower": "unripe", "centre": "pink", "fruit": "plum"},
+ "must_show": {
+  "leaf": ["three to five deep lobes like a spread hand, widening to blunt rounded ends", "heart-shaped base", "main veins fanning from the stalk, one into each lobe", "wavy edge with blunt teeth, not sharp ones"],
+  "bloom": ["a fig cut in half lengthways, the hollow inside lined with many tiny flowers pointing inwards", "the eye at the broad end", "green skin outside, pink inside"],
+  "young": ["thick grey stems", "a few very large deeply lobed leaves on stout stalks"],
+  "dormant": ["bare thick stubby grey branches", "pointed tip buds with small embryo figs below them"],
+  "growing": ["a spreading many-stemmed bush", "large hand-shaped lobed leaves crowded at the shoot tips"],
+  "set": ["small green figs held upright where the leaf stalks meet the shoot", "large lobed leaves"],
+  "crop": ["pear-shaped purple-brown figs drooping on short stalks from the leaf angles", "large lobed leaves"]
+ },
+ "look_alikes": "Plane and sycamore leaves are thinner and smooth with pointed lobes and sharp teeth; neither tree bears figs. Mulberry has some lobed leaves but the fruit is a blackberry-like cluster.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge and UK iNaturalist photos. ⚠️ CHECK"
+}

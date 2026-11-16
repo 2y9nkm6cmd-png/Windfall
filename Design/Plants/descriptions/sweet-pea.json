@@ -1,0 +1,75 @@
+{
+ "kind": "sweet-pea",
+ "name": "Sweet pea",
+ "latin": "Lathyrus odoratus",
+ "family": "Fabaceae, the pea family",
+ "grown_as": "A hardy annual climbing flower grown for cutting and scent, usually a Spencer variety with large wavy petals. Colour depends on the variety, which is not known: drawn mauve-pink. ⚠️ CHECK",
+ "habit": "A climbing annual 1.5 to 2 m up canes or netting, the whole plant softly hairy. The stem has two narrow green wings running down it. Climbs by branched tendrils.",
+ "leaf": {
+  "arrangement": "Alternate",
+  "type": "Compound: a single pair of leaflets on a winged stalk that ends in a branched tendril",
+  "leaflets": "One pair, unstalked, opposite, symmetrical",
+  "outline": "Each leaflet oval to elliptic, 2.5 to 6 cm",
+  "base": "Rounded to wedge-shaped",
+  "tip": "Pointed or with a tiny point",
+  "margin": "Entire",
+  "veins": "Three to five veins running lengthways from the base",
+  "surface": "Softly hairy, dull",
+  "stalk": "Short and winged; at its base two narrow, pointed, half arrow-shaped stipules, much smaller than the leaflets",
+  "colour": "Mid green to grey-green"
+ },
+ "flower": {
+  "form": "A pea flower: an upright back petal (the standard), two side petals (the wings) and two lower petals joined into a boat-shaped keel between the wings, the standard large and frilly",
+  "petals": "Five: a large upright, broad, wavy-edged standard; two wings held forward; a small curved keel",
+  "colour": "Varies: white, pink, mauve, purple, crimson, often two-toned. Drawn mauve-pink.",
+  "centre": "Hidden in the keel",
+  "behind": "A green hairy calyx with five pointed teeth",
+  "carried": "In sprays of 2 to 5 on long, stiff, upright stalks (15 to 30 cm) from the leaf joints, held well above the leaves",
+  "size": "3 to 5 cm across",
+  "season": "June to September, strongly scented"
+ },
+ "fruit": "Hairy pods 5 to 7 cm, green turning pale brown; they twist open to drop round, dark brown or mottled seeds about 5 mm. The seeds are poisonous.",
+ "seedling": "The seed leaves stay in the seed underground. A stem with small scale leaves comes up, then leaves of one pair of narrow leaflets with a tendril.",
+ "winter": "Nothing: an annual (autumn-sown plants overwinter under cover as small plants)",
+ "palette": {
+  "leaf": "leaf",
+  "flower": "mauve",
+  "centre": "pink",
+  "fruit": "straw"
+ },
+ "must_show": {
+  "leaf": [
+   "one pair of oval leaflets",
+   "a branched tendril at the tip",
+   "a winged stalk and stem",
+   "small narrow stipules"
+  ],
+  "bloom": [
+   "a big upright frilly standard",
+   "two wings held forward",
+   "a small keel"
+  ],
+  "seed": [
+   "a round seed about 5 mm",
+   "dark brown or mottled"
+  ],
+  "seedling": [
+   "a thin shoot with a pair of narrow leaflets and a tendril",
+   "no seed leaves above ground"
+  ],
+  "young": [
+   "a climbing stem with paired leaflets and branched tendrils",
+   "winged stem"
+  ],
+  "flower": [
+   "sprays of large frilly flowers on long upright stalks above the leaves",
+   "climbing a support"
+  ],
+  "seedhead": [
+   "hairy pods 5 to 7 cm, pale brown",
+   "some pods twisted open"
+  ]
+ },
+ "look_alikes": "Everlasting pea (Lathyrus latifolius) is a perennial with broader-winged stems, unscented magenta flowers in longer sprays and big stipules. Garden pea has huge stipules and is hairless and blue-green.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

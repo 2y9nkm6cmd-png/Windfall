@@ -1,0 +1,46 @@
+{
+ "kind": "mustard",
+ "name": "Mustard",
+ "latin": "Sinapis alba",
+ "family": "Brassicaceae, the cabbage family",
+ "grown_as": "White mustard, sown as a quick green manure (as in William's records) and for 'mustard and cress' seedlings. ⚠️ CHECK: William's records also list 'Red Frills' as a salad leaf under Sinapis alba, but Red Frills is Brassica juncea, a different plant with deeply cut, frilly, red-purple leaves. Drawn as white mustard.",
+ "habit": "An upright, branched annual 30 to 80 cm (to 1 m or more as a green manure), fast-growing, the stems with stiff, downward-pointing bristles.",
+ "leaf": {
+  "arrangement": "Alternate, all on stalks; a loose rosette when young",
+  "type": "Simple but deeply lobed (pinnately lobed, like a lyre): a large end lobe and two to four pairs of smaller side lobes",
+  "outline": "Oval to oblong, 5 to 15 cm long, the end lobe broad and rounded and much the biggest",
+  "base": "Narrowing into the stalk, the lowest lobes small",
+  "tip": "Rounded to bluntly pointed",
+  "margin": "Coarsely and irregularly toothed all round, on every lobe",
+  "veins": "A pale midrib and side veins running into the lobes",
+  "surface": "Rough with scattered stiff bristly hairs on both sides",
+  "stalk": "Short to medium, bristly",
+  "colour": "Mid green"
+ },
+ "flower": {
+  "form": "A cross-shaped flower of four petals",
+  "petals": "Four, free, oval with a short claw, spreading flat",
+  "colour": "Bright yellow",
+  "centre": "Six stamens with yellow anthers",
+  "behind": "Four narrow green sepals spreading out flat between the petals",
+  "carried": "In spikes at the tops of the stems and branches, opening from the bottom up",
+  "size": "1.5 to 2 cm across",
+  "season": "June to August (about six weeks after sowing)"
+ },
+ "fruit": "Pods 2 to 4 cm spreading out from the stem, bristly-hairy, swollen over two to four seeds on each side, ending in a long, flat, sword-shaped beak as long as or longer than the seed-bearing part. Seeds round, 2 to 2.5 mm, pale yellow.",
+ "seedling": "Two kidney-shaped seed leaves on short stalks, broader than long with a notch at the tip, like a heart with the stalk at its point, large for the seed; the first true leaves hairy and lobed.",
+ "winter": "Nothing: an annual, killed by hard frost; as a green manure it is cut down or dug in before winter.",
+ "palette": {"leaf": "leaf", "flower": "sun", "centre": "sun", "fruit": "straw"},
+ "must_show": {
+  "leaf": ["a lyre-shaped lobed leaf with a large rounded end lobe", "coarse irregular teeth all round", "rough bristly hairs"],
+  "bloom": ["four bright yellow petals in a cross", "narrow sepals spreading out flat between them"],
+  "seed": ["round pale yellow seed 2 mm", "smooth, about the size of a pinhead"],
+  "seedling": ["two kidney-shaped seed leaves notched at the tip", "the first true leaf hairy and lobed"],
+  "young": ["a small upright plant of lobed, toothed, bristly leaves", "leaves on stalks up a short stem"],
+  "crop": ["leafy upright plants of lobed, toothed leaves", "thickly sown, covering the ground"],
+  "flower": ["an upright branched plant with bright yellow flowers in spikes at the tops", "lobed leaves up the stem"],
+  "seedhead": ["bristly pods spreading out from the stem", "each with a long flat beak as long as the rest of the pod"]
+ },
+ "look_alikes": "Charlock (Sinapis arvensis) has less lobed upper leaves and pods with a shorter beak. Oilseed rape and turnip have smooth blue-green clasping stem leaves. Rocket has cream, purple-veined flowers. Brassica juncea mustards have smooth or frilly leaves and slender pods with a short beak.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

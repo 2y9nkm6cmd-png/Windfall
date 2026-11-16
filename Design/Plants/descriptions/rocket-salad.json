@@ -1,0 +1,46 @@
+{
+ "kind": "rocket-salad",
+ "name": "Rocket salad",
+ "latin": "Eruca vesicaria subsp. sativa",
+ "family": "Brassicaceae, the cabbage family",
+ "grown_as": "Salad rocket, an annual sown in rows and picked young for its peppery leaves (William's records list it as Eruca sativa, the older name).",
+ "habit": "A loose rosette 15 to 25 cm high when picked. It bolts quickly in summer into an upright branched stem 40 to 80 cm with flowers at the top.",
+ "leaf": {
+  "arrangement": "A rosette; alternate on the flowering stem",
+  "type": "Simple but deeply lobed, like a lyre: a large end lobe and smaller side lobes",
+  "outline": "Oblong, 8 to 15 cm long; a large rounded to oval end lobe and two to five pairs of smaller, oblong side lobes with gaps between them, getting smaller towards the base",
+  "base": "Narrowing into a short stalk, the smallest lobes running down it",
+  "tip": "The end lobe rounded and blunt",
+  "margin": "The lobes smooth or with a few blunt shallow teeth",
+  "veins": "A pale midrib, a side vein running into each lobe",
+  "surface": "Smooth, slightly fleshy, hairless or with a few scattered bristles",
+  "stalk": "Short, pale, merging into the lobed blade",
+  "colour": "Mid green"
+ },
+ "flower": {
+  "form": "A cross-shaped flower of four petals",
+  "petals": "Four, free, oval to spoon-shaped with a long narrow claw, the outer part spreading",
+  "colour": "Cream to pale yellowish white with clear dark purple-brown veins running along each petal",
+  "centre": "Six stamens with yellow-cream anthers, close round a green style",
+  "behind": "Four narrow upright sepals, green tinged purple, hugging the petal claws",
+  "carried": "In loose spikes at the tips of the stems, opening from the bottom up, the spike lengthening as it flowers",
+  "size": "1.5 to 2 cm across",
+  "season": "May to September"
+ },
+ "fruit": "Upright pods 1.5 to 2.5 cm held close against the stem, plump and cylindrical, ending in a flat, sword-shaped beak about a third of the pod's length. Green, drying straw-brown, with two rows of small seeds. Seeds oval and slightly flattened, 1.5 to 2 mm, pale yellow-brown.",
+ "seedling": "Two kidney-shaped seed leaves on short stalks, broader than long with a notch at the tip, like a heart with the stalk at its point, then oval true leaves with wavy edges; the lobes come on later leaves.",
+ "winter": "Nothing: an annual, though autumn sowings carry on under cover.",
+ "palette": {"leaf": "leaf", "flower": "white", "centre": "primrose", "fruit": "straw"},
+ "must_show": {
+  "leaf": ["a large rounded end lobe and smaller oblong side lobes in pairs, gaps between them", "the side lobes getting smaller towards the base", "a pale midrib, smooth or bluntly toothed lobes"],
+  "bloom": ["four cream petals in a cross", "dark purple veins along each petal", "narrow upright purplish sepals"],
+  "seed": ["small oval slightly flattened seed 1.5 to 2 mm", "pale yellow-brown"],
+  "seedling": ["two kidney-shaped seed leaves notched at the tip", "the first true leaf oval and wavy, not yet lobed"],
+  "young": ["a loose rosette of lobed leaves, large end lobes", "no stem showing"],
+  "crop": ["a loose rosette of lyre-shaped lobed leaves 8 to 15 cm", "no flowering stem yet"],
+  "flower": ["an upright branched stem with lobed leaves", "cream purple-veined four-petalled flowers in loose spikes at the top"],
+  "seedhead": ["short plump pods pressed upright against the stem", "each pod with a flat beak at its tip", "stems drying straw-brown"]
+ },
+ "look_alikes": "Wild rocket (Diplotaxis tenuifolia) is a perennial with narrower, more deeply cut leaves, bright yellow flowers and long flat pods without the broad beak. White mustard and charlock have yellow flowers and bristly leaves. Radish leaves are rough and hairy with purple-veined white or mauve flowers.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

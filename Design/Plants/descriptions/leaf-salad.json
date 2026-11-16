@@ -1,0 +1,46 @@
+{
+ "kind": "leaf-salad",
+ "name": "Leaf salad",
+ "latin": "Lactuca sativa",
+ "family": "Asteraceae, the daisy family",
+ "grown_as": "A loose-leaf lettuce mix sown thickly and picked as young leaves, cut and come again (William's records: 'Lettuce mix', picked at 12 to 15 cm). No heart forms. Mixes hold frilly, oakleaf and smooth leaves in green and red; drawn as a mix of frilly green and red-edged leaves. ⚠️ CHECK the mix: some salad mixes also hold rocket, mustard or mizuna.",
+ "habit": "Thick tufts of upright leaves 10 to 20 cm tall, each plant an open rosette with no heart. If left uncut the stem bolts to 60 to 90 cm.",
+ "leaf": {
+  "arrangement": "An open, upright rosette from a very short stem",
+  "type": "Simple; in oakleaf kinds deeply lobed",
+  "outline": "Oblong to obovate, 8 to 15 cm long when picked; oakleaf kinds cut into rounded lobes like an oak leaf",
+  "base": "Narrowing into a broad, flat, pale midrib",
+  "tip": "Rounded",
+  "margin": "Frilled, crimped and wavy all round in Lollo kinds; smooth and wavy in others; no sharp teeth",
+  "veins": "A pale midrib with branching side veins",
+  "surface": "Soft, thin, hairless and slightly puckered",
+  "stalk": "None, the base is the pale midrib",
+  "colour": "A mix: fresh green leaves and green leaves flushed or edged with bronze-red"
+ },
+ "flower": {
+  "form": "A small head like a little dandelion, made only of strap-shaped florets, opening flat in the morning and closing by midday",
+  "petals": "No true petals to count: about 10 to 25 strap-shaped florets, each a single ray with five tiny teeth across its squared-off tip, laid out like the rays of a dandelion",
+  "colour": "Pale yellow",
+  "centre": "No separate eye: the inner florets are shorter and the forked yellow styles stand up in the middle",
+  "behind": "A slim cylindrical cup (involucre) of narrow green bracts overlapping like roof tiles, longer than wide, sometimes tinged purple",
+  "carried": "Many heads on short stalks in a wide, branched, flat-topped spray at the top of a tall bolted stem, the heads facing up",
+  "size": "1 to 1.5 cm across",
+  "season": "July to September, after the plant bolts"
+ },
+ "fruit": "Each floret makes one seed (achene): slim, flattened, 3 to 4 mm, with fine lengthwise ribs, narrowing at the top into a thin beak carrying a tuft of soft white hairs (pappus). Seed colour is white-cream, grey, brown or black depending on variety. The heads open into small white fluffy clocks, much smaller and looser than a dandelion clock. The plant has milky sap.",
+ "seedling": "Two smooth oval seed leaves, then oblong true leaves, sown thickly so the seedlings come up in a crowded row.",
+ "winter": "Nothing: grown as an annual.",
+ "palette": {"leaf": "leaf", "flower": "primrose", "centre": "primrose", "fruit": "white"},
+ "must_show": {
+  "leaf": ["an oblong leaf narrowing into a pale midrib, no stalk", "frilled or crimped wavy edge, no sharp teeth", "red-bronze flush on some leaves"],
+  "bloom": ["a small pale yellow head of strap-shaped florets, like a little dandelion", "a slim cup of overlapping green bracts behind"],
+  "seed": ["slim, flat, ribbed seed 3 to 4 mm", "cream, grey or black"],
+  "seedling": ["two smooth oval seed leaves", "seedlings crowded together, thickly sown"],
+  "young": ["an open upright tuft of loose leaves", "no heart"],
+  "crop": ["loose upright leaves 10 to 20 cm, frilly and some red-edged", "open rosettes with no heart", "cut leaves regrowing from the centre"],
+  "flower": ["a tall branched stem with small clasping leaves", "small pale yellow heads in a spray at the top"],
+  "seedhead": ["small white fluffy clocks at the branch tips", "dried brown branched stem"]
+ },
+ "look_alikes": "Heading lettuce makes a firm heart. Rocket and mustard leaves in a mix are lobed and peppery. Prickly lettuce (Lactuca serriola) is the wild relative: a row of prickles under the midrib and leaves often turned edge-on to the sun. Endive and chicory have blue flowers and bitter leaves. Sow-thistles have spiny-edged, clasping leaves and larger yellow heads.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

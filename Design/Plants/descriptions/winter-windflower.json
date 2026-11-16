@@ -1,0 +1,77 @@
+{
+ "kind": "winter-windflower",
+ "name": "Winter windflower",
+ "latin": "Anemonoides blanda (formerly Anemone blanda)",
+ "family": "Ranunculaceae, the buttercup family",
+ "grown_as": "A spring bulb (in fact a tuber) grown in drifts. Usually blue, but William's is pink, so it is drawn pink. ⚠️ CHECK the shade of pink.",
+ "habit": "Low carpets 10 to 15 cm high of ferny divided leaves with daisy-like flowers held just above them.",
+ "leaf": {
+  "arrangement": "One or two leaves from the tuber on long stalks; on each flower stem a whorl of three smaller, stalked, divided leaves (the bracts) about halfway up",
+  "type": "Compound: divided into three main parts, each deeply cut again into lobed, toothed segments",
+  "outline": "Rounded to triangular overall, 3 to 6 cm across",
+  "base": "The three main divisions meet at the top of the stalk",
+  "tip": "Segments blunt to slightly pointed",
+  "margin": "Deeply cut; the segments with a few coarse, rounded teeth near their tips",
+  "veins": "Palmate: from the top of the stalk into each division",
+  "surface": "Smooth or slightly hairy, paler beneath",
+  "stalk": "Long, 5 to 10 cm, thin",
+  "colour": "Dark green"
+ },
+ "flower": {
+  "form": "A flat daisy-like flower",
+  "petals": "Nine to fifteen narrow, oblong, petal-like tepals with rounded tips, spreading flat in a single ring",
+  "colour": "Rose-pink (variety; most plants are mid blue, some white), paler or white towards the base",
+  "centre": "A ring of many yellow stamens round a small green knob of pistils, with a paler ring round it",
+  "behind": "No green sepals: the whorl of three divided leaf-bracts sits on the stem below the flower",
+  "carried": "Alone, facing upwards, on a slender stem just above the leaves; closes in dull weather",
+  "size": "2.5 to 4 cm across",
+  "season": "February to April"
+ },
+ "fruit": "A small round knob of beaked seeds (achenes), green turning brown, on the stem, which bends over as it ripens.",
+ "seedling": "Not drawn. Two small oval seed leaves, then a three-lobed leaf.",
+ "winter": "Nothing above ground until February.",
+ "palette": {
+  "leaf": "deep",
+  "flower": "pink",
+  "centre": "sun",
+  "fruit": "unripe"
+ },
+ "palette_wish": {
+  "flower": "rose-pink, about #E58AB0"
+ },
+ "must_show": {
+  "leaf": [
+   "a leaf divided into three main parts on a long stalk",
+   "each part deeply cut into lobed segments with a few blunt teeth",
+   "dark green"
+  ],
+  "bloom": [
+   "nine to fifteen narrow pink tepals in a flat ring",
+   "a yellow centre of many stamens round a green knob",
+   "a paler ring between the pink and the yellow"
+  ],
+  "bulb": [
+   "a tuber: an irregular knobbly dark brown-black lump 1 to 3 cm, like a bit of dry wood",
+   "no papery skin, no clear top or bottom",
+   "a few buds and roots"
+  ],
+  "shoots": [
+   "divided leaves unfolding from the soil",
+   "flower buds on bent stems with their three leaf-bracts"
+  ],
+  "flower": [
+   "a low carpet of ferny divided leaves",
+   "flat daisy-like pink flowers held just above them, each with a whorl of three leaf-bracts below"
+  ],
+  "seedhead": [
+   "a small round knob of seeds on a bending stem",
+   "divided leaves still green round it"
+  ],
+  "dormant": [
+   "nothing above the soil",
+   "the knobbly tuber below ground"
+  ]
+ },
+ "look_alikes": "Wood anemone (Anemonoides nemorosa) has six or seven broader white tepals and leaves less finely cut. Anemone apennina is very similar but its leaves are hairy beneath. Lesser celandine has glossy heart-shaped leaves and yellow flowers.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

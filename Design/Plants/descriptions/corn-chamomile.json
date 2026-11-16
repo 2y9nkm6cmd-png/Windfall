@@ -1,0 +1,73 @@
+{
+ "kind": "corn-chamomile",
+ "name": "Corn chamomile",
+ "latin": "Anthemis arvensis",
+ "family": "Asteraceae, the daisy family",
+ "grown_as": "A wild annual of arable fields, sown from a wild-flower packet in William's upper orchard, 20 to 50 cm.",
+ "habit": "A branched annual 20 to 50 cm, sprawling at the base and then upright, greyish and softly downy, with only a faint smell.",
+ "leaf": {
+  "arrangement": "Alternate",
+  "type": "Simple but deeply divided once or twice (pinnately) into short, narrow, flat lobes",
+  "outline": "Oblong overall, 2 to 5 cm; lobes 1 to 2 mm wide, short and flat (not hair-thin), each ending in a tiny bristle point",
+  "base": "Stalkless",
+  "tip": "Lobes with a tiny bristle point",
+  "margin": "Lobes smooth-edged",
+  "veins": "Only a midrib visible",
+  "surface": "Softly downy, more woolly beneath",
+  "stalk": "None",
+  "colour": "Grey-green"
+ },
+ "flower": {
+  "form": "A small single daisy whose centre becomes domed with age",
+  "petals": "About 12 to 20 white ray florets, oblong with a small notched tip",
+  "colour": "White rays",
+  "centre": "A yellow disc, flat at first then rising into a low cone; between the florets are tiny pointed scales (seen if the head is pulled apart)",
+  "behind": "Downy green bracts with pale papery edges",
+  "carried": "Alone at the tips of long branch stalks that thicken a little under the head, facing up",
+  "size": "2 to 3 cm across",
+  "season": "June to August"
+ },
+ "fruit": "Rays wither; the disc forms a brownish-yellow cone. Seeds tiny, straw-brown, four-angled and ribbed, with a small raised rim at the top and no fluff.",
+ "seedling": "Two small oval seed leaves. The first true leaves are already cut into a few narrow lobes and are downy.",
+ "winter": "Nothing, or small self-sown seedlings that sometimes overwinter.",
+ "palette": {
+  "leaf": "sage",
+  "flower": "white",
+  "centre": "sun",
+  "fruit": "straw"
+ },
+ "must_show": {
+  "leaf": [
+   "leaf divided once or twice into short narrow flat lobes, not hair-thin",
+   "grey-green and downy",
+   "alternate on the stem"
+  ],
+  "bloom": [
+   "12 to 20 white rays",
+   "yellow centre domed, not flat",
+   "bracts behind with pale papery edges"
+  ],
+  "seed": [
+   "tiny pale ribbed seed",
+   "no fluff"
+  ],
+  "seedling": [
+   "two small oval seed leaves",
+   "first leaves divided and downy"
+  ],
+  "young": [
+   "low spreading branched plant",
+   "grey-green feathery leaves"
+  ],
+  "flower": [
+   "many small white daisies, one on each branch tip",
+   "sprawling bushy plant 20 to 50 cm"
+  ],
+  "seedhead": [
+   "rays gone or hanging down",
+   "cone-shaped brownish-yellow disc"
+  ]
+ },
+ "look_alikes": "Scentless mayweed has hairless, hair-thin leaf segments, a solid domed disc without scales and is more often seen. Scented mayweed (German chamomile) has a hollow cone, rays that turn down and a sweet smell. Stinking chamomile smells foul and has nearly hairless leaves. Chamomile (Chamaemelum nobile) is a low perennial mat smelling of apples.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. No reference photos had been downloaded for this group yet, so nothing was checked against photographs. ⚠️ CHECK"
+}

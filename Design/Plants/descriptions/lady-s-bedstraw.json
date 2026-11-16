@@ -1,0 +1,70 @@
+{
+ "kind": "lady-s-bedstraw",
+ "name": "Lady's bedstraw",
+ "latin": "Galium verum",
+ "family": "Rubiaceae, the bedstraw family",
+ "grown_as": "A wild perennial of dry grassland and banks.",
+ "habit": "A sprawling to upright perennial 15 to 80 cm, many thin wiry four-angled stems, leafy all the way up, topped by a froth of tiny yellow flowers; spreads by creeping stems.",
+ "leaf": {
+  "arrangement": "In whorls (rings) of 8 to 12 round the stem, the whorls evenly spaced",
+  "type": "Simple",
+  "outline": "Very narrow, needle-like, 1 to 2.5 cm long and 1 to 2 mm wide",
+  "base": "Stalkless",
+  "tip": "Ending in a tiny sharp point",
+  "margin": "Smooth, rolled under",
+  "veins": "One vein, the midrib",
+  "surface": "Shiny above, paler and finely hairy beneath",
+  "stalk": "None",
+  "colour": "Dark green"
+ },
+ "flower": {
+  "form": "A tiny four-pointed star",
+  "petals": "Four lobes, joined at the base, spreading flat, pointed",
+  "colour": "Bright golden yellow; honey-scented",
+  "centre": "Four tiny stamens",
+  "behind": "No sepals show",
+  "carried": "Hundreds together in dense, branched, frothy clusters at the tops of the stems and in the upper leaf whorls, making a long leafy plume",
+  "size": "2 to 4 mm across",
+  "season": "June to September"
+ },
+ "fruit": "Tiny paired smooth round nutlets, about 1 mm, green turning black. The plant dries and blackens after flowering.",
+ "seedling": "Two small oval seed leaves on short stalks, then the first small whorl of narrow leaves",
+ "winter": "Dies back to low creeping shoots at the base; old stems turn black-brown.",
+ "palette": {
+  "leaf": "deep",
+  "flower": "sun",
+  "fruit": "dark"
+ },
+ "must_show": {
+  "leaf": [
+   "needle-like narrow leaves in a whorl of 8 to 12 round the stem",
+   "edges rolled under, tiny point at the tip"
+  ],
+  "bloom": [
+   "tiny four-pointed yellow stars",
+   "many packed into a dense branched cluster"
+  ],
+  "seed": [
+   "tiny paired round dark nutlets"
+  ],
+  "seedling": [
+   "two small oval seed leaves",
+   "the first whorl of narrow leaves"
+  ],
+  "young": [
+   "thin stems with evenly spaced whorls of needle-like leaves"
+  ],
+  "flower": [
+   "wiry stems with whorls of needle-like leaves",
+   "frothy dense plumes of tiny yellow flowers at the top"
+  ],
+  "seedhead": [
+   "stems turning black-brown with tiny dark paired fruits"
+  ],
+  "dormant": [
+   "low creeping shoots at the base, old dark stems"
+  ]
+ },
+ "look_alikes": "Hedge bedstraw (Galium album) has white flowers and broader leaves in whorls of six to eight. Cleavers is sticky and clings, with white flowers. Crosswort (Cruciata laevipes) has four broader hairy leaves in each whorl and yellow flowers in the leaf joints.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

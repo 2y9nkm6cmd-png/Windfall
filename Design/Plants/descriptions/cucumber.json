@@ -1,0 +1,73 @@
+{
+ "kind": "cucumber",
+ "name": "Cucumber",
+ "latin": "Cucumis sativus",
+ "family": "Cucurbitaceae, the gourd family",
+ "grown_as": "A tender annual climber, in the UK usually grown in a greenhouse up a string or cane (smooth long all-female varieties), or outdoors as a shorter, bumpy 'ridge' cucumber. William's variety is not known: drawn as a greenhouse cucumber trained up a support. ⚠️ CHECK",
+ "habit": "A climbing or scrambling vine 2 to 3 m, its stems four- or five-angled and roughly hairy, climbing by simple (unbranched) coiling tendrils, one at each leaf joint. In a greenhouse it is trained up one string as a single tall stem with short side shoots.",
+ "leaf": {
+  "arrangement": "Alternate, one at each joint, with a tendril beside it",
+  "type": "Simple, shallowly lobed",
+  "outline": "Broadly triangular to heart-shaped, 10 to 20 cm, with 3 to 5 shallow, angular, pointed lobes; the end lobe is the largest and pointed",
+  "base": "Heart-shaped with a deep notch",
+  "tip": "Pointed",
+  "margin": "Small sharp teeth all round",
+  "veins": "Palmate, three to five main veins from the stalk top",
+  "surface": "Rough, with stiff short bristles on both sides, sandpapery",
+  "stalk": "Long (5 to 15 cm), bristly",
+  "colour": "Mid to dark green"
+ },
+ "flower": {
+  "form": "A small open yellow star or shallow bell",
+  "petals": "Five, joined only at the very base, oval with pointed tips, a little wrinkled, spreading",
+  "colour": "Bright yellow",
+  "centre": "Male: three short stamens, yellow, close together. Female: a short three-lobed stigma.",
+  "behind": "Five narrow pointed green sepals. The female flower sits on top of a tiny prickly cucumber.",
+  "carried": "In the leaf joins: males in small clusters on short stalks, females singly; all-female greenhouse varieties have only females",
+  "size": "2 to 4 cm across",
+  "season": "June to September"
+ },
+ "fruit": "Greenhouse types: long (25 to 40 cm), slim, straight cylinder, dark green, smooth and glossy, hanging from the leaf joints. Ridge types: 10 to 20 cm, stouter, paler, covered in small bumps with soft spines. Left too long they turn yellow. Seeds narrow, flat, cream-white, pointed oval, 8 to 10 mm.",
+ "seedling": "Two smooth, oblong to oval seed leaves 3 to 4 cm with rounded tips; the first true leaf small, rough and angular-lobed.",
+ "winter": "Nothing: killed by cold and cleared",
+ "palette": {
+  "leaf": "deep",
+  "flower": "sun",
+  "centre": "amber",
+  "fruit": "marrow"
+ },
+ "must_show": {
+  "leaf": [
+   "a triangular heart-shaped leaf with 3 to 5 shallow angular pointed lobes",
+   "end lobe largest and pointed",
+   "toothed edge",
+   "rough bristly surface"
+  ],
+  "bloom": [
+   "small yellow star of five petals joined only at the base",
+   "for a female, a tiny prickly cucumber behind the flower"
+  ],
+  "seed": [
+   "a narrow flat cream seed",
+   "pointed oval, 8 to 10 mm"
+  ],
+  "seedling": [
+   "two smooth oblong seed leaves",
+   "a small rough angular true leaf"
+  ],
+  "young": [
+   "a young vine with a few angular heart-shaped leaves",
+   "a simple unbranched tendril coiling round a support"
+  ],
+  "flower": [
+   "a tall vine up a support with simple coiling tendrils",
+   "small yellow flowers at the leaf joints"
+  ],
+  "crop": [
+   "long slim dark green cucumbers hanging from the leaf joints",
+   "angular heart-shaped leaves and tendrils"
+  ]
+ },
+ "look_alikes": "Melon leaves are rounder with blunt shallow lobes and are softer. Courgette leaves and flowers are far larger. Wild white bryony (Bryonia dioica) has deeply cut ivy-like leaves, small greenish-white flowers and red berries.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

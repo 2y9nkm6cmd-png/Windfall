@@ -1,0 +1,76 @@
+{
+ "kind": "tulip",
+ "name": "Tulip",
+ "latin": "Tulipa gesneriana (garden tulips)",
+ "family": "Liliaceae, the lily family",
+ "grown_as": "Drawn as a red single garden tulip, the most typical. ⚠️ CHECK: William's library has 'Apeldoorn's Elite' (a tall Darwin hybrid, red-orange feathered with yellow), 'Vampire' (very dark) and the small species Tulipa kolpakowskiana (yellow, flushed red outside, with narrow wavy leaves). The 'Late Tulip' in the library is Tulipa tarda, which also uses this drawing but looks quite different: low, with three to five open white stars with large yellow centres on each stem and a flat rosette of narrow leaves. William may want T. tarda drawn separately.",
+ "habit": "One upright, stout stem 30 to 60 cm tall from each bulb, with two to four broad leaves near its base and a single flower on top.",
+ "leaf": {
+  "arrangement": "Two to four leaves, alternate, low on the stem, the lowest largest, each clasping the stem at its base",
+  "type": "Simple",
+  "outline": "Broad lance-shaped to oval, 15 to 30 cm long and 5 to 12 cm wide on the lowest leaf, the upper leaves narrower",
+  "base": "Wide, wrapping round the stem",
+  "tip": "Pointed, often a little hooded",
+  "margin": "Smooth, no teeth; sometimes slightly wavy",
+  "veins": "Many fine parallel veins, faint",
+  "surface": "Thick, smooth, with a grey waxy bloom; a shallow channel down the middle, the leaf often arching outwards",
+  "stalk": "None: stalkless and clasping",
+  "colour": "Grey-green (blue-green)"
+ },
+ "flower": {
+  "form": "An upright cup or goblet of six petals, opening wide in sun",
+  "petals": "Six tepals, free, in two rings of three, broad and rounded with a blunt or slightly pointed tip, the inner three overlapped by the outer three",
+  "colour": "Red (variety dependent), often with a black or yellow blotch at the base inside",
+  "centre": "Six dark, nearly black stamens standing round a green three-sided ovary topped with a three-lobed stigma",
+  "behind": "No sepals: the stem goes straight to the flower",
+  "carried": "Alone, upright, at the top of a bare stem",
+  "size": "The cup 5 to 8 cm tall; 10 to 12 cm across when open wide",
+  "season": "April to May"
+ },
+ "fruit": "An upright, three-sided oblong capsule 3 to 5 cm on top of the stem, green, ripening straw-brown and splitting at the top into three to show stacks of flat brown seeds. Usually deadheaded.",
+ "seedling": "Not drawn. One narrow grass-like leaf; five to seven years to flower.",
+ "winter": "Nothing above ground until the leaf tips appear in February or March.",
+ "palette": {
+  "leaf": "sage",
+  "flower": "berry",
+  "centre": "dark",
+  "fruit": "unripe"
+ },
+ "must_show": {
+  "leaf": [
+   "a broad lance-shaped leaf with a wide base that wraps round the stem",
+   "smooth margin, pointed tip",
+   "grey-green with a waxy bloom, faint parallel veins"
+  ],
+  "bloom": [
+   "six broad rounded tepals forming an upright cup",
+   "no sepals behind",
+   "dark stamens round a three-lobed stigma inside",
+   "red, with a darker blotch at the base inside"
+  ],
+  "bulb": [
+   "a pear- or teardrop-shaped bulb 3 to 5 cm, pointed at the top, flat on one side",
+   "shiny chestnut-brown papery skin, often split to show cream flesh",
+   "roots from a flat base"
+  ],
+  "shoots": [
+   "a broad grey-green leaf coming up rolled round itself, then unrolling",
+   "a cluster of two or three leaves, the bud hidden inside"
+  ],
+  "flower": [
+   "one upright stem with one cup-shaped flower on top",
+   "two to four broad grey-green leaves low on the stem",
+   "the stem bare above the leaves"
+  ],
+  "seedhead": [
+   "an upright three-sided pod on top of the stem",
+   "leaves yellowing"
+  ],
+  "dormant": [
+   "nothing above the soil",
+   "the bulb below ground"
+  ]
+ },
+ "look_alikes": "Species tulips are smaller: Tulipa tarda has starry white flowers with big yellow centres; wild tulip (T. sylvestris) has nodding yellow buds. Leaves alone could be taken for lily-of-the-valley or ramsons, which are thinner, brighter green and stalked.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

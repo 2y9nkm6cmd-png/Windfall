@@ -1,0 +1,44 @@
+{
+ "kind": "grape",
+ "name": "Grape",
+ "latin": "Vitis vinifera",
+ "family": "Vitaceae, the grape vine family",
+ "grown_as": "Grape vines on wires, a wall or under glass. William grows 'Pinot Noir', 'Cardinal', 'Red Globe', 'Boskoop Glory' and 'Venus' ('Venus' and 'Boskoop Glory' are hybrids with American vines, which look much the same). Most have black or red fruit; the drawing shows black grapes.",
+ "habit": "A woody climbing vine, pruned to a short framework of trunk and rods, 2 to 3 m on wires (unpruned 10 m or more). Old bark brown and shaggy, peeling in long strips. Climbs by forked tendrils, each standing opposite a leaf.",
+ "leaf": {
+  "arrangement": "Alternate, with a tendril or a flower cluster opposite most leaves",
+  "type": "Simple, palmately lobed",
+  "outline": "Roundish, 10 to 20 cm across, with three to five lobes (shallow to deep by variety)",
+  "base": "Deeply heart-shaped, with a narrow notch where the stalk joins",
+  "tip": "Each lobe pointed",
+  "margin": "Coarse, sharp, irregular teeth all round",
+  "veins": "Five main veins from the top of the stalk, one into each lobe, with straight side veins running into the teeth",
+  "surface": "Smooth mid green above; paler beneath, smooth or with cobweb-like hairs",
+  "stalk": "Long, 5 to 10 cm, often reddish",
+  "colour": "Mid green; yellow, or red in black-fruited varieties, in autumn"
+ },
+ "flower": {
+  "form": "A tiny flower whose petals never open: they stay joined at the tips and fall off together as a little cap",
+  "petals": "Five, green, joined at the tips into a cap that drops at flowering",
+  "colour": "Pale yellow-green",
+  "centre": "Five stamens with yellow anthers spreading out round a small green ovary",
+  "behind": "A tiny green rim of sepals",
+  "carried": "Many together in dense, branched, cone-shaped clusters (panicles) 5 to 15 cm long, opposite the leaves, upright at first then hanging",
+  "size": "About 5 mm",
+  "season": "June; sweetly scented"
+ },
+ "fruit": "Round to oval berries, 1 to 2.5 cm, in hanging cone-shaped bunches 10 to 25 cm long. Green and hard at first, then (in black varieties) turning blue-black to purple with a pale bloom; 'Red Globe' and 'Cardinal' ripen red. September to October.",
+ "seedling": "Not drawn: grown as bought plants",
+ "winter": "Bare, pruned framework: a gnarled trunk with shaggy peeling bark and short spurs or one or two long brown rods along a wire, each with buds at the nodes.",
+ "palette": {"leaf": "leaf", "flower": "pale", "centre": "primrose", "fruit": "plum"},
+ "must_show": {
+  "leaf": ["roundish leaf with three to five pointed lobes", "deeply heart-shaped base with a narrow notch at the stalk", "coarse sharp teeth all round", "five main veins from the stalk"],
+  "bloom": ["a tiny green flower with stamens spread out and the petal cap lifting off", "part of a dense branched cluster"],
+  "young": ["a single woody stem on a support", "lobed leaves with tendrils opposite them"],
+  "dormant": ["a bare pruned framework with peeling bark on wires", "buds at the nodes"],
+  "flower": ["dense green flower clusters opposite the leaves", "tendrils"],
+  "crop": ["hanging cone-shaped bunches of round dark blue-black grapes with a bloom", "lobed leaves"]
+ },
+ "look_alikes": "Virginia creeper has leaves of five separate leaflets. Hop leaves are rough and opposite, and the plant twines without tendrils. Ornamental vines (Vitis coignetiae) have huge, barely lobed leaves.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge and iNaturalist photos. ⚠️ CHECK"
+}

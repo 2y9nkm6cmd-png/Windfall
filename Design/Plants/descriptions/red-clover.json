@@ -1,0 +1,77 @@
+{
+ "kind": "red-clover",
+ "name": "Red clover",
+ "latin": "Trifolium pratense",
+ "family": "Fabaceae, the pea family",
+ "grown_as": "A native short-lived perennial of meadows and grassland, also sown as green manure",
+ "habit": "Upright to sprawling, 20 to 60 cm, several hairy stems from a crown. Does not root along its stems.",
+ "leaf": {
+  "arrangement": "Alternate up the stem, plus long-stalked leaves from the base",
+  "type": "Compound: three leaflets (trifoliate)",
+  "leaflets": "All three almost stalkless and alike",
+  "outline": "Each leaflet oval to elliptic, 1.5 to 3 cm, longer than wide",
+  "base": "Rounded to wedge-shaped",
+  "tip": "Rounded or bluntly pointed, not notched",
+  "margin": "Entire or with very faint teeth",
+  "veins": "Fine side veins",
+  "surface": "Softly hairy, especially beneath; usually a pale whitish crescent mark on each leaflet",
+  "stalk": "Base leaves long-stalked, upper ones short; triangular stipules with a long bristle tip, pale with purple-red veins",
+  "colour": "Mid green with a pale crescent"
+ },
+ "flower": {
+  "form": "A round to egg-shaped head of many tubular pea flowers",
+  "petals": "Each flower narrow, a long tube with a small standard",
+  "colour": "Pink-purple",
+  "centre": "None",
+  "behind": "Hairy calyces; the head sits directly on a pair of leaves, cupped by them",
+  "carried": "Heads at the stem tips with no stalk, set on top of the last pair of leaves",
+  "size": "Heads 2 to 3 cm across",
+  "season": "May to September"
+ },
+ "fruit": "Tiny pods in the brown dry head; small kidney-shaped seeds, yellow to purple-brown",
+ "seedling": "Two small oval seed leaves, then a single round first leaf, then hairy three-leaflet leaves",
+ "winter": "A low rosette of hairy three-leaflet leaves at the base",
+ "palette": {
+  "leaf": "leaf",
+  "flower": "mauve",
+  "fruit": "bark"
+ },
+ "must_show": {
+  "leaf": [
+   "three oval leaflets longer than wide",
+   "a pale crescent mark on each",
+   "hardly any teeth",
+   "a bristle-tipped stipule"
+  ],
+  "bloom": [
+   "a round pink-purple head of many tubular flowers",
+   "the head sitting on a pair of leaves with no stalk"
+  ],
+  "seed": [
+   "a tiny kidney-shaped seed",
+   "yellow to purple-brown"
+  ],
+  "seedling": [
+   "two small oval seed leaves",
+   "a single round first leaf"
+  ],
+  "young": [
+   "an upright hairy clump",
+   "three oval leaflets with pale crescents"
+  ],
+  "flower": [
+   "pink-purple round heads at the stem tips",
+   "each head sitting on a pair of leaves, no stalk"
+  ],
+  "seedhead": [
+   "dry brown heads at the stem tips",
+   "browning stems and leaves"
+  ],
+  "dormant": [
+   "a low rosette of hairy three-leaflet leaves",
+   "no upright stems"
+  ]
+ },
+ "look_alikes": "Zigzag clover (Trifolium medium) has narrower leaflets, zigzag stems and a short stalk under the head. White clover creeps and roots, with white heads on long stalks. Hare's-foot clover has soft grey fluffy heads.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

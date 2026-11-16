@@ -1,0 +1,74 @@
+{
+ "kind": "cat-nip",
+ "name": "Cat nip",
+ "latin": "Nepeta cataria",
+ "family": "Lamiaceae, the mint family",
+ "grown_as": "Catnip, a hardy perennial loved by cats, white-flowered and grey-leaved. Garden catmint (Nepeta × faassenii and its kin), much more often grown in borders, is different: lower, with small narrow leaves and lavender-blue flowers. Drawn as true catnip. ⚠️ CHECK which William grows.",
+ "habit": "An upright, branched, bushy clump 40 to 100 cm high, on square, grey, downy stems.",
+ "leaf": {
+  "arrangement": "Opposite, in pairs, each pair at right angles to the one below",
+  "type": "Simple",
+  "outline": "Oval to triangular-oval, 3 to 7 cm long, widest near the base",
+  "base": "Heart-shaped or cut straight across",
+  "tip": "Pointed",
+  "margin": "Coarse, rather blunt teeth all round from base to tip",
+  "veins": "Side veins pressed in, a little wrinkled",
+  "surface": "Soft and downy all over, grey-green above, whitish-woolly beneath",
+  "stalk": "1 to 3 cm",
+  "colour": "Grey-green"
+ },
+ "flower": {
+  "form": "A small two-lipped tube",
+  "petals": "Joined; a short, straight upper lip and a larger, spreading lower lip whose broad middle lobe is cupped with a scalloped edge",
+  "colour": "White, the lower lip dotted with small purple-pink spots",
+  "centre": "Stamens tucked under the upper lip",
+  "behind": "A downy, ribbed, tube-shaped green calyx with five pointed teeth",
+  "carried": "In crowded rings at the top of each stem, making a dense spike-like head 2 to 8 cm long, the lowest rings a little apart",
+  "size": "7 to 10 mm long",
+  "season": "July to September"
+ },
+ "fruit": "Four smooth dark brown nutlets in each dry calyx, the heads drying brown. Seeds: small oval dark brown seeds, about 1.5 mm, with a small pale mark at one end.",
+ "seedling": "Two small rounded seed leaves on stalks; then heart-shaped, toothed, grey-downy true leaves in a pair.",
+ "winter": "Dies down; a low tuft of small grey leaves often stays at the base.",
+ "palette": {
+  "leaf": "sage",
+  "flower": "white",
+  "centre": "mauve",
+  "fruit": "seed"
+ },
+ "must_show": {
+  "leaf": [
+   "an oval leaf with a heart-shaped base and pointed tip",
+   "coarse teeth all round",
+   "soft grey-green downy surface, paler beneath",
+   "a clear stalk"
+  ],
+  "bloom": [
+   "small white two-lipped flowers",
+   "purple-pink spots on the lower lip",
+   "crowded into a dense head at the stem top"
+  ],
+  "seed": [
+   "small oval dark brown seeds"
+  ],
+  "seedling": [
+   "two small round seed leaves",
+   "first true leaves heart-shaped, toothed and grey"
+  ],
+  "young": [
+   "a clump of grey-green, heart-shaped, toothed leaves in opposite pairs"
+  ],
+  "flower": [
+   "dense spiky heads of small white flowers at the stem tops",
+   "grey-green leaves in pairs below"
+  ],
+  "seedhead": [
+   "dry brown heads of calyces on the old stems"
+  ],
+  "dormant": [
+   "a low tuft of small grey leaves at the soil"
+  ]
+ },
+ "look_alikes": "Garden catmint has small, narrow grey leaves and lavender-blue flowers. Lemon balm is green, not grey, and carries its flowers in the leaf joints. White dead-nettle has bigger white flowers in spaced rings and green leaves. Black horehound has purple flowers and dark green, bad-smelling leaves.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

@@ -1,0 +1,46 @@
+{
+ "kind": "yarrow",
+ "name": "Yarrow",
+ "latin": "Achillea millefolium",
+ "family": "Asteraceae, the daisy family",
+ "grown_as": "A native perennial wild flower of grassland and lawns, also grown in gardens; garden varieties come in pinks, reds and yellows. Drawn as the wild white form. ⚠️ CHECK if William grows a coloured variety.",
+ "habit": "A spreading patch from creeping roots, with low feathery leaves and upright, tough, woolly flowering stems 20 to 60 cm, unbranched until the flower heads",
+ "leaf": {
+  "arrangement": "Basal tuft; alternate up the stem",
+  "type": "Compound, two or three times pinnately divided into very many narrow segments",
+  "outline": "Long and narrow, strap- to lance-shaped, 5 to 15 cm long and 1 to 3 cm wide, feathery and three-dimensional",
+  "base": "Narrowing to a short stalk; stem leaves stalkless, clasping",
+  "tip": "Rounded to pointed",
+  "margin": "Every segment ends in a fine point; no teeth as such",
+  "veins": "A midrib only",
+  "surface": "Soft, with scattered woolly hairs; aromatic when crushed",
+  "stalk": "Short on basal leaves, none on stem leaves",
+  "colour": "Dark green"
+ },
+ "flower": {
+  "form": "Many tiny daisy flower heads packed into a flat-topped cluster",
+  "petals": "Each head has about five broad ray florets (the petals), each with three small teeth at the tip",
+  "colour": "White, sometimes pink",
+  "centre": "A small disc of cream to yellowish florets, turning grey-brown",
+  "behind": "Overlapping green bracts with brown papery edges under each head",
+  "carried": "In dense flat-topped or slightly domed clusters at the top of the stems",
+  "size": "Each head 4 to 6 mm; the cluster 5 to 10 cm across",
+  "season": "June to November"
+ },
+ "fruit": "Tiny flat grey-brown seeds with no pappus, in heads that dry to brown flat clusters",
+ "seedling": "Two small oval seed leaves, then first true leaves narrow and toothed, soon feathery",
+ "winter": "Green feathery leaves stay through winter; dead brown flower stems with flat seed heads stand",
+ "palette": {"leaf": "deep", "flower": "white", "centre": "straw", "fruit": "bark"},
+ "must_show": {
+  "leaf": ["long narrow feathery leaf, finely divided two or three times", "many tiny segments on both sides of the midrib"],
+  "bloom": ["flat-topped cluster of many tiny heads", "each head with about five broad white rays", "cream centres"],
+  "seed": ["tiny flat grey-brown seed with no parachute"],
+  "seedling": ["two small oval seed leaves", "first true leaf narrow, toothed or feathery"],
+  "young": ["low tuft of long narrow feathery leaves"],
+  "flower": ["upright stems topped with flat white clusters", "feathery leaves up the stem"],
+  "seedhead": ["flat brown dried clusters on stiff stems"],
+  "dormant": ["green feathery basal leaves", "dead brown stems with flat heads"]
+ },
+ "look_alikes": "Sneezewort (Achillea ptarmica) has undivided toothed leaves and fewer, larger heads. Umbellifers like cow parsley have broader leaflets and umbels of tiny five-petalled flowers, not daisy heads. Mayweeds have single larger daisy heads.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. No UK iNaturalist photos had been downloaded for this group when it was written. ⚠️ CHECK"
+}

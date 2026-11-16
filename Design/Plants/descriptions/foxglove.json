@@ -1,0 +1,74 @@
+{
+ "kind": "foxglove",
+ "name": "Foxglove",
+ "latin": "Digitalis purpurea",
+ "family": "Plantaginaceae, the plantain family (once placed in the figwort family)",
+ "grown_as": "The wild foxglove, a biennial: a rosette of leaves in the first year, a tall flower spike in the second, then it dies after seeding. William's library also has the variety 'Dalmatian Peach', which flowers in its first year, is shorter (60 to 90 cm) and has soft peach-pink flowers. Drawn as the wild purple-pink foxglove. ⚠️ CHECK which one to draw.",
+ "habit": "First year: a flat rosette of soft leaves about 30 to 50 cm across. Second year: one stiff, unbranched, downy stem 1 to 1.5 m tall (up to 2 m), leafy low down, carrying a long spike of hanging bells over its top half.",
+ "leaf": {
+  "arrangement": "A rosette at the base, then alternate up the stem, getting smaller towards the spike",
+  "type": "Simple",
+  "outline": "Long oval to lance-shaped, 10 to 30 cm long, widest a little below the middle",
+  "base": "Narrows gradually into a winged stalk",
+  "tip": "Bluntly pointed",
+  "margin": "Small, rounded, shallow teeth (scalloped) all the way round, fading out near the base",
+  "veins": "A pale midrib and a fine network of veins pressed in from above, raised below, so the leaf looks quilted",
+  "surface": "Soft and finely downy above; grey and woolly beneath",
+  "stalk": "Rosette leaves on a broad winged stalk a third to half the length of the blade; upper stem leaves stalkless",
+  "colour": "Mid to slightly greyish green above, much greyer beneath"
+ },
+ "flower": {
+  "form": "A hanging tubular bell like the finger of a glove, wide-mouthed and slightly flattened, the lower lip longer than the upper",
+  "petals": "Five petals joined into one tube; the mouth has a short upper lip and a longer lower lip with three shallow rounded lobes",
+  "colour": "Pinkish purple outside; paler inside, the floor of the tube spotted dark purple, each spot ringed with white, with long white hairs among the spots",
+  "centre": "Four cream stamens lie against the top of the tube, hidden from the side",
+  "behind": "Five small pointed green sepals at the base of the bell",
+  "carried": "In a long one-sided spike, the bells hanging down and all facing the same way; they open from the bottom of the spike upwards, so open bells sit below tight green buds at the top",
+  "size": "4 to 5.5 cm long",
+  "season": "June to August"
+ },
+ "fruit": "An egg-shaped, pointed capsule about 1 cm long, held up the old spike with the sepals still at its base; green, ripening brown and splitting in two. Seeds tiny (under 1 mm), oblong, brown, like dust, thousands to a plant.",
+ "seedling": "Two tiny round-oval seed leaves on short stalks, then oval, softly hairy true leaves with small rounded teeth, soon lying flat as a small rosette",
+ "winter": "The first-year rosette stays green through winter. After flowering in the second year the plant dies; the brown dead spike can stand into winter.",
+ "palette": {
+  "leaf": "sage",
+  "flower": "mauve",
+  "centre": "dark",
+  "fruit": "bark"
+ },
+ "must_show": {
+  "leaf": [
+   "long oval leaf narrowing into a winged stalk",
+   "small rounded teeth all along the edge",
+   "netted veins pressed in so the surface looks quilted",
+   "soft downy, greyer underside"
+  ],
+  "bloom": [
+   "a hanging tubular bell, not an open flat flower",
+   "longer lower lip with dark spots ringed white inside",
+   "pinkish purple outside"
+  ],
+  "seed": [
+   "tiny brown oblong seeds like dust, many together"
+  ],
+  "seedling": [
+   "two tiny round seed leaves",
+   "first true leaves oval and downy, lying flat"
+  ],
+  "young": [
+   "a flat rosette of soft, quilted, grey-green leaves on winged stalks",
+   "no stem yet"
+  ],
+  "flower": [
+   "one tall upright stem with a long one-sided spike of hanging bells",
+   "open bells low down, green buds at the top",
+   "rosette leaves at the base, smaller leaves up the stem"
+  ],
+  "seedhead": [
+   "a tall brown stalk lined with pointed egg-shaped capsules",
+   "capsules held upright, split at the tip"
+  ]
+ },
+ "look_alikes": "Comfrey leaves can be taken for foxglove rosettes (a known poisoning risk): comfrey leaves are rough and bristly rather than soft and have no scalloped teeth. Great mullein rosettes are thicker and woolly on both sides with no teeth. Primrose leaves are smaller and stalkless. Garden foxgloves (Digitalis × mertonensis, D. grandiflora) differ in colour.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

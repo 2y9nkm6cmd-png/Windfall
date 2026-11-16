@@ -23,8 +23,15 @@ A group's file may hold any of these. Each is optional.
   FL = {name: fn(a, x, y, r, col, cen, ang)}        new flower shapes for life stages
   COLOURS = {name: (light, dark)}                   new colours
 
+New names in LEAF_DRAW, BLOOM_DRAW, LF, FL and COLOURS start with the
+group's name (fruit_pea, bulbs_cup) so two groups cannot choose the same one.
+
 This file reads every group's file and gathers them into the tables below,
 which plants_all.py and leaves_flowers.py read.
+
+While the groups were being worked on, REDRAW_ONLY=<group> made the scripts
+read that one group's file and no other, so one group's half-finished work
+could not stop another's drawings being made. Left unset, every group is read.
 """
 import importlib, os, pkgutil
 
@@ -33,19 +40,20 @@ LEAF_DRAW, BLOOM_DRAW, LF, FL, COLOURS = {}, {}, {}, {}, {}
 GROUPS = []
 
 _here = os.path.dirname(__file__)
+_only = os.environ.get("REDRAW_ONLY")
 for _m in sorted(pkgutil.iter_modules([_here]), key=lambda m: m.name):
-    if _m.name.startswith("_"):
+    if _m.name.startswith("_") or (_only and _m.name not in _only.split(",")):
         continue
     mod = importlib.import_module(f"redraw.{_m.name}")
     GROUPS.append(_m.name)
     for name, table in (("LEAFX", LEAFX), ("BLOOMX", BLOOMX), ("KIND", KIND), ("LEAF_DRAW", LEAF_DRAW),
                         ("BLOOM_DRAW", BLOOM_DRAW), ("LF", LF), ("FL", FL), ("COLOURS", COLOURS)):
         for k, v in getattr(mod, name, {}).items():
-            if k in table and table[k] is not v and name not in ("KIND",):
-                raise SystemExit(f"redraw: {name}[{k!r}] is set by two groups ({mod.__name__} and another)")
             if name == "KIND":
                 table.setdefault(k, {}).update(v)
-            else:
-                table[k] = v
+                continue
+            if k in table and table[k] != v:
+                raise SystemExit(f"redraw: {name}[{k!r}] is set by two groups ({mod.__name__} and another)")
+            table[k] = v
     for k, v in getattr(mod, "STAGE", {}).items():
         STAGE.setdefault(k, {}).update(v)

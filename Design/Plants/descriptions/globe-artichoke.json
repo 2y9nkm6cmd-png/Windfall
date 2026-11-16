@@ -1,0 +1,83 @@
+{
+ "kind": "globe-artichoke",
+ "name": "Globe artichoke",
+ "latin": "Cynara cardunculus",
+ "family": "Asteraceae, the daisy family",
+ "grown_as": "A hardy perennial vegetable grown for its flower buds; the edible artichoke is the Scolymus Group of Cynara cardunculus (also called Cynara scolymus). Often left to flower for bees.",
+ "habit": "A big fountain-shaped clump of arching silver-grey leaves about 1 m high and across, with thick, ribbed, upright flower stems to 1.5 m in summer.",
+ "leaf": {
+  "arrangement": "A rosette from the crown, plus a few up the flower stems",
+  "type": "Simple but deeply cut (pinnately lobed)",
+  "outline": "Long, 50 cm to 1 m, cut almost to the midrib into many lobes, which are themselves lobed and toothed; looks like a giant thistle leaf",
+  "base": "Narrowed onto a broad flattened stalk",
+  "tip": "Pointed",
+  "margin": "Lobed and toothed; garden kinds have few or no spines",
+  "veins": "A very thick pale midrib, white-felted beneath",
+  "surface": "Grey-green above with a fine silvery down, thickly white-woolly beneath",
+  "stalk": "Short, broad, grooved, felted",
+  "colour": "Silver-grey to grey-green"
+ },
+ "flower": {
+  "form": "A thistle head: a big globe of overlapping scale-like bracts with a dome of many thin tubular florets bursting out of the top",
+  "petals": "None in the usual sense: hundreds of narrow tubular florets with long thread-like tips",
+  "colour": "Florets bright violet to blue-purple",
+  "centre": "The whole head is florets; no separate centre",
+  "behind": "Broad, thick, fleshy, overlapping bracts in many rows, green tinged purple, each with a notched or short-pointed tip",
+  "carried": "One large head at the top of each thick stem, with smaller heads on side branches, all upright",
+  "size": "Heads 8 to 15 cm across",
+  "season": "July to September; buds cut for eating from June"
+ },
+ "fruit": "After flowering the head dries brown and opens into a mass of silky white plumes (pappus), each carrying a grey-brown, mottled, oblong seed about 6 to 8 mm.",
+ "seedling": "Two thick, oval seed leaves; the first true leaves simple, oval, toothed and grey-downy, becoming more deeply lobed as the plant grows.",
+ "winter": "Often keeps a smaller clump of grey leaves in mild winters; in hard winters dies back to the crown. Old flower stems cut down.",
+ "palette": {
+  "leaf": "sage",
+  "flower": "mauve",
+  "centre": "deep",
+  "fruit": "straw"
+ },
+ "palette_wish": {
+  "flower": "bright violet-blue purple, about #7448C8"
+ },
+ "must_show": {
+  "leaf": [
+   "a long leaf cut nearly to the midrib into many toothed lobes",
+   "silver-grey above, white-woolly beneath",
+   "thick pale midrib"
+  ],
+  "bloom": [
+   "a dome of violet-blue thread-like florets",
+   "rising from a globe of overlapping green-purple bracts"
+  ],
+  "seed": [
+   "an oblong seed, 6 to 8 mm",
+   "mottled grey-brown"
+  ],
+  "seedling": [
+   "two thick oval seed leaves",
+   "a simple toothed grey first leaf"
+  ],
+  "young": [
+   "a fountain of large arching leaves",
+   "leaves deeply cut and silver-grey"
+  ],
+  "crop": [
+   "tight green globe buds of overlapping fleshy bracts on thick upright stems",
+   "silver-grey leaves below"
+  ],
+  "flower": [
+   "open violet thistle heads on tall thick stems",
+   "heads held above the silver-grey leaves"
+  ],
+  "seedhead": [
+   "dried brown heads",
+   "white fluffy plumes bursting from the top"
+  ],
+  "dormant": [
+   "a low clump of grey leaves or a bare crown",
+   "old flower stems cut down"
+  ]
+ },
+ "look_alikes": "Cardoon is the same species with spinier leaves and smaller, spiny heads. Spear thistle and other thistles are spiny and far smaller. Onopordum (Scotch thistle) has spiny winged stems.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

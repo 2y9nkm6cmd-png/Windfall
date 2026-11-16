@@ -1,0 +1,76 @@
+{
+ "kind": "lemon-balm",
+ "name": "Lemon Balm",
+ "latin": "Melissa officinalis",
+ "family": "Lamiaceae, the mint family",
+ "grown_as": "A hardy perennial herb grown for its lemon-scented leaves. Plain green form; a golden-leaved variety exists. ⚠️ CHECK",
+ "habit": "A bushy clump 30 to 80 cm high and as wide, of many upright, branched, square, slightly hairy stems from a woody crown. Seeds itself freely.",
+ "leaf": {
+  "arrangement": "Opposite, in pairs, each pair at right angles to the one below",
+  "type": "Simple",
+  "outline": "Broadly oval, 3 to 7 cm long, almost as wide near the base, the lower leaves the broadest",
+  "base": "Rounded to cut straight across, sometimes faintly heart-shaped",
+  "tip": "Blunt to shortly pointed",
+  "margin": "Coarse, even, rounded teeth all round from just above the base to the tip",
+  "veins": "Side veins and a fine net of smaller veins all pressed in, so the leaf is deeply quilted",
+  "surface": "Wrinkled, matt, thinly hairy; paler beneath",
+  "stalk": "1 to 4 cm, longest on the lower leaves",
+  "colour": "Fresh light green, a little yellowish"
+ },
+ "flower": {
+  "form": "A small two-lipped tube",
+  "petals": "Joined; a short notched upper lip and a three-lobed lower lip",
+  "colour": "White, pale yellow in bud, sometimes tinged pale pink or lilac",
+  "centre": "Four stamens hidden under the upper lip",
+  "behind": "A hairy, two-lipped, bell-shaped green calyx, larger than the flower looks",
+  "carried": "In small loose clusters in the joints of the upper leaves, half hidden among them, often all on one side of the stem; not in a spike",
+  "size": "About 1 cm long",
+  "season": "June to September"
+ },
+ "fruit": "Four small dark brown nutlets in each dry calyx, left in clusters up the old stems. Seeds: tiny shiny dark brown seeds about 1.5 mm long, oval with one end narrower.",
+ "seedling": "Two small round to oval seed leaves on short stalks; then rounded true leaves with round teeth, opposite.",
+ "winter": "Dies down to the ground; in mild winters a low tuft of small leaves stays at the crown.",
+ "palette": {
+  "leaf": "leaf",
+  "flower": "white",
+  "fruit": "seed"
+ },
+ "must_show": {
+  "leaf": [
+   "a broad oval leaf on a clear stalk",
+   "even rounded teeth all round the edge",
+   "deeply quilted surface with a net of pressed-in veins",
+   "light yellowish green"
+  ],
+  "bloom": [
+   "small white two-lipped flowers in a cluster at a leaf joint",
+   "a hairy green calyx behind each"
+  ],
+  "seed": [
+   "tiny shiny dark brown oval seeds"
+  ],
+  "seedling": [
+   "two small round seed leaves",
+   "first true leaves rounded with round teeth"
+  ],
+  "young": [
+   "a low clump of broad round-toothed leaves in opposite pairs on stalks"
+  ],
+  "crop": [
+   "a bushy clump of upright branched stems thick with broad quilted leaves",
+   "leaves in opposite pairs"
+  ],
+  "flower": [
+   "small white flowers in clusters at the upper leaf joints, among the leaves",
+   "no flower spike"
+  ],
+  "seedhead": [
+   "clusters of brown dry calyces in the leaf joints of the old stems"
+  ],
+  "dormant": [
+   "cut down or dead stems with a low tuft of small leaves at the crown, or bare soil"
+  ]
+ },
+ "look_alikes": "Mint has narrower, sharply toothed leaves and flowers in end spikes. Catnip is grey and downy with flowers in end spikes. White dead-nettle has larger white flowers in rings and hairier, more pointed leaves. Stinging nettle has longer, sharply toothed, stinging leaves. Crushed lemon balm smells of lemon.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

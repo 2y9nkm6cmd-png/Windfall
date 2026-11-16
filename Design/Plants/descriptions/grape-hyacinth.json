@@ -1,0 +1,76 @@
+{
+ "kind": "grape-hyacinth",
+ "name": "Grape Hyacinth",
+ "latin": "Muscari armeniacum",
+ "family": "Asparagaceae, the asparagus family (the hyacinth group)",
+ "grown_as": "The common garden grape hyacinth, deep blue. ⚠️ CHECK: William's is 'Ocean Magic', listed as Muscari aucheri: its spikes are mid blue below and white at the top, and M. aucheri has fewer, broader, often grey-green leaves. Drawn here as the common M. armeniacum.",
+ "habit": "Tufts of floppy narrow leaves with upright flower stems 10 to 20 cm tall. Spreads quickly into mats by offsets and seed.",
+ "leaf": {
+  "arrangement": "Three to six leaves from the base of each bulb, arching and lying on the soil",
+  "type": "Simple, narrow strap (linear)",
+  "outline": "15 to 30 cm long by 3 to 6 mm wide, even width; often longer than the flower stems",
+  "base": "Pale at soil level",
+  "tip": "Blunt",
+  "margin": "Smooth, no teeth",
+  "veins": "Fine parallel veins, hardly seen",
+  "surface": "Fleshy and soft, deeply channelled (grooved) along the upper side",
+  "stalk": "None",
+  "colour": "Mid green, often yellowing at the tips by flowering time"
+ },
+ "flower": {
+  "form": "A dense cone-shaped spike of tiny round bells, like a bunch of grapes upside down",
+  "petals": "Six tepals joined into a small urn-shaped bell, swollen in the middle and pinched at the mouth, with six tiny white teeth turned back round the rim",
+  "colour": "Deep cobalt blue; the top few flowers paler",
+  "centre": "Not seen: the mouth is a tiny white-rimmed hole",
+  "behind": "Very small, not seen",
+  "carried": "Twenty to forty bells packed tightly in an egg- or cone-shaped spike 2 to 4 cm long at the top of a bare stem, pointing down and outward",
+  "size": "Each bell 4 to 6 mm long",
+  "season": "March to May"
+ },
+ "fruit": "Inflated, papery capsules with three rounded flat wings, about 1 cm, green ripening to straw, along the stem; black seeds.",
+ "seedling": "Not drawn. A single fine grass-like leaf.",
+ "winter": "Leaves come up in autumn and sprawl on the soil through winter, a clear sign of the plant.",
+ "palette": {
+  "leaf": "leaf",
+  "flower": "blue",
+  "centre": "white",
+  "fruit": "unripe"
+ },
+ "palette_wish": {
+  "flower": "deep cobalt blue, about #3B4FB0"
+ },
+ "must_show": {
+  "leaf": [
+   "a narrow fleshy leaf grooved down the upper side",
+   "blunt tip, smooth margin",
+   "floppy, arching"
+  ],
+  "bloom": [
+   "many tiny round bells packed in a cone-shaped spike",
+   "each bell pinched at the mouth with a white rim of tiny teeth",
+   "deep blue, paler at the top"
+  ],
+  "bulb": [
+   "a small round bulb 1.5 to 2 cm with pale brown papery skin",
+   "often with several small offset bulbs round it"
+  ],
+  "shoots": [
+   "narrow grooved leaves already up in autumn, lying over the soil",
+   "no flower spike yet: leaves only, which stay through winter"
+  ],
+  "flower": [
+   "dense blue spikes on short bare stems",
+   "floppy narrow leaves round the base, often as long as the stems"
+  ],
+  "seedhead": [
+   "papery three-winged pods along the stem",
+   "leaves dying back"
+  ],
+  "dormant": [
+   "nothing above the soil in summer",
+   "small bulbs below ground"
+  ]
+ },
+ "look_alikes": "Bluebell has larger bells hanging down one side of the stem. Muscari latifolium has one broad leaf and a two-tone spike. Spanish bluebell leaves are much broader. Young leaves look like grass or chives but are fleshy and grooved, and chives smell of onion.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

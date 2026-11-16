@@ -1,0 +1,80 @@
+{
+ "kind": "alfalfa",
+ "name": "Alfalfa",
+ "latin": "Medicago sativa",
+ "family": "Fabaceae, the pea family",
+ "grown_as": "A deep-rooted perennial grown as green manure, fodder or sprouting seed; also found wild on field edges. Also called lucerne. Flowers range from lilac to deep violet.",
+ "habit": "An upright, bushy perennial 30 to 90 cm, many stems from a woody crown, from a very deep taproot. Stems smooth to slightly downy. Dies back to the crown in winter.",
+ "leaf": {
+  "arrangement": "Alternate",
+  "type": "Compound: three leaflets (trifoliate)",
+  "leaflets": "The middle leaflet on a short stalk of its own, the two side ones almost stalkless. All roughly symmetrical.",
+  "outline": "Each leaflet narrowly obovate to oblong, 1 to 3 cm, widest toward the tip",
+  "base": "Wedge-shaped",
+  "tip": "Squared off or slightly notched, with a tiny point",
+  "margin": "Small sharp teeth only near the tip; the lower part of each leaflet without teeth",
+  "veins": "Straight side veins running into the teeth",
+  "surface": "Hairless above, slightly hairy beneath",
+  "stalk": "Short (1 to 2 cm); narrow pointed stipules, toothed at their base",
+  "colour": "Mid green to slightly blue-green"
+ },
+ "flower": {
+  "form": "Small pea flowers packed into a short dense spike",
+  "petals": "Five: standard, wings and keel",
+  "colour": "Violet to purple, sometimes lilac or bluish",
+  "centre": "Hidden",
+  "behind": "A small downy calyx with five narrow teeth",
+  "carried": "10 to 40 flowers in a short oblong head 1 to 4 cm on a stalk from the leaf joints, held up above the leaves",
+  "size": "Each flower 7 to 11 mm",
+  "season": "June to September"
+ },
+ "fruit": "A small downy pod coiled into a flat spiral of 2 to 3 turns with a hole in the middle, like a tiny snail shell, green ripening brown-black. Seeds tiny, kidney-shaped, yellow-brown, about 2 mm.",
+ "seedling": "Two small oval seed leaves on short stalks, then a first true leaf with a single rounded leaflet, then three-leaflet leaves.",
+ "winter": "Dies back to a woody crown at the soil; dead stems may stand",
+ "palette": {
+  "leaf": "leaf",
+  "flower": "lilac",
+  "fruit": "dark"
+ },
+ "palette_wish": {
+  "flower": "violet-purple, about #7A5CC0"
+ },
+ "must_show": {
+  "leaf": [
+   "three narrow leaflets, the middle one on a short stalk",
+   "teeth only near the leaflet tips",
+   "squared or notched tips"
+  ],
+  "bloom": [
+   "a short dense oblong head of small pea flowers",
+   "violet to purple",
+   "on a stalk from a leaf joint"
+  ],
+  "seed": [
+   "a tiny kidney-shaped seed, about 2 mm",
+   "yellow-brown"
+  ],
+  "seedling": [
+   "two small oval seed leaves",
+   "a single rounded first leaf"
+  ],
+  "young": [
+   "an upright leafy clump of many stems",
+   "three-leaflet leaves with narrow leaflets"
+  ],
+  "flower": [
+   "short violet flower heads held just above the leaves",
+   "an upright bushy plant"
+  ],
+  "seedhead": [
+   "small pods coiled in a flat spiral of 2 to 3 turns",
+   "brown to black"
+  ],
+  "dormant": [
+   "a woody crown at the soil",
+   "dead stem stubs, little or nothing green"
+  ]
+ },
+ "look_alikes": "Black medick (Medicago lupulina) is low and sprawling with tiny yellow heads and black kidney pods. Clovers have round heads and leaflets toothed all round, with no stalk on the middle leaflet. Sickle medick (M. falcata) has yellow flowers and sickle-shaped pods.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

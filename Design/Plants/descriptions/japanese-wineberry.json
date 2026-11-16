@@ -1,0 +1,45 @@
+{
+ "kind": "japanese-wineberry",
+ "name": "Japanese Wineberry",
+ "latin": "Rubus phoenicolasius",
+ "family": "Rosaceae, the rose family",
+ "grown_as": "An ornamental and fruiting cane plant, trained up a support. No named variety.",
+ "habit": "Arching canes 1.5 to 2.5 m, densely clothed in soft, sticky, red-purple glandular bristles mixed with a few small prickles, so the stems glow red, especially in winter. Canes fruit in their second year.",
+ "leaf": {
+  "arrangement": "Alternate",
+  "type": "Compound: three leaflets",
+  "leaflets": "The end leaflet much the largest, broad and roundish, on its own stalk; the two side leaflets smaller, almost stalkless and lopsided",
+  "outline": "End leaflet broadly oval to almost round, 4 to 10 cm",
+  "base": "End leaflet rounded to heart-shaped",
+  "tip": "A short point",
+  "margin": "Coarse, uneven teeth, sometimes shallowly lobed",
+  "veins": "Straight side veins pressed in",
+  "surface": "Fresh green, slightly wrinkled above; brilliant white-felted beneath",
+  "stalk": "Covered in red bristles like the canes",
+  "colour": "Fresh green above, white beneath; yellow in autumn"
+ },
+ "flower": {
+  "form": "A small, star-like flower half hidden in a cup of hairy sepals",
+  "petals": "Five, small, narrow, white to pale pink, upright, shorter than the sepals",
+  "colour": "White to pale pink; the sepals red",
+  "centre": "Many white stamens round a green dome of pistils",
+  "behind": "Five long, pointed sepals thickly covered in red sticky bristles; before and after flowering they close over the fruit like a hairy cage",
+  "carried": "In loose clusters at the ends of the shoots and side shoots",
+  "size": "About 1 cm across",
+  "season": "June to July"
+ },
+ "fruit": "A small, round, glossy berry of drupelets, 1 to 1.5 cm, ripening from orange to bright scarlet, sticky. It grows inside the bristly red sepals, which open back as it ripens. Pulls off its core like a raspberry. July to August.",
+ "seedling": "Not drawn: grown as bought plants",
+ "winter": "Bare arching canes covered in red bristles, very showy.",
+ "palette": {"leaf": "leaf", "flower": "white", "centre": "beet", "fruit": "berry"},
+ "must_show": {
+  "leaf": ["three leaflets, the end one large and roundish on its own stalk", "coarse uneven teeth", "white underside if the back shows"],
+  "bloom": ["small white upright petals in a cup of long sepals", "sepals covered in red bristles"],
+  "young": ["arching canes covered in red bristles", "three-leaflet leaves"],
+  "dormant": ["bare arching canes", "canes glowing red with dense bristles"],
+  "flower": ["clusters of red bristly buds and small white flowers at the shoot tips", "three-leaflet leaves"],
+  "crop": ["bright scarlet glossy berries sitting in opened bristly red sepals", "three-leaflet leaves with white backs"]
+ },
+ "look_alikes": "Raspberry has no red bristles, five leaflets on strong canes and larger fruit. Blackberry canes have hooked prickles and the fruit ripens black.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge and iNaturalist photos. ⚠️ CHECK"
+}

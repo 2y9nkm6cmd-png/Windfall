@@ -1,0 +1,47 @@
+{
+ "kind": "celery",
+ "name": "Celery",
+ "latin": "Apium graveolens var. dulce",
+ "family": "Apiaceae, the carrot family (umbellifers)",
+ "grown_as": "Garden celery, a biennial grown as an annual for its fleshy leaf stalks. Trench celery is earthed up to blanch it; self-blanching varieties are paler and grown in blocks. ⚠️ CHECK which kind; drawn as green self-blanching celery. Celeriac (var. rapaceum) is the same species grown for its swollen base.",
+ "habit": "First year an upright tight bunch of thick leaf stalks 40 to 60 cm tall with leaves at the top. If left, a second-year branched, grooved flowering stem 60 to 100 cm.",
+ "leaf": {
+  "arrangement": "A tight upright rosette from a short base",
+  "type": "Compound, once pinnate, with 2 to 3 pairs of leaflets and an end leaflet",
+  "leaflets": "Broadly wedge- to diamond-shaped, 2 to 6 cm, deeply three-lobed",
+  "outline": "Oblong overall, carried at the top of the long stalk",
+  "base": "Leaflets wedge-shaped, untoothed at the base",
+  "tip": "Lobes pointed to blunt",
+  "margin": "Coarse blunt to sharp teeth on the outer edges of the lobes only",
+  "veins": "Fine, palmate-looking in each leaflet",
+  "surface": "Smooth, hairless, glossy",
+  "stalk": "Long (20 to 35 cm), thick and fleshy, crescent-shaped in section, with strong ribs on the outer side and a groove on the inner; packed tightly together. Pale green to green.",
+  "colour": "Mid green leaves on paler stalks"
+ },
+ "flower": {
+  "form": "Small flat umbels of tiny flowers",
+  "petals": "Five tiny petals per flower",
+  "colour": "Greenish-white",
+  "centre": "Tiny pale stamens",
+  "behind": "No bracts or bracteoles",
+  "carried": "Often stalkless or short-stalked, opposite leaves and at the ends of branches, on 4 to 12 short rays",
+  "size": "Umbels 2 to 4 cm",
+  "season": "June to August of the second year"
+ },
+ "fruit": "Tiny round-oval seeds 1.5 to 2 mm with fine pale ribs, brown when ripe",
+ "seedling": "Two small oval seed leaves, then first true leaves three-lobed and toothed; slow to grow",
+ "winter": "Nothing in most gardens: harvested by late autumn. Left plants can survive mild winters and flower the next year.",
+ "palette": {"leaf": "leaf", "flower": "pale", "fruit": "bark"},
+ "must_show": {
+  "leaf": ["once pinnate with a few broad three-lobed leaflets", "teeth on the outer edges only", "thick ribbed stalk"],
+  "bloom": ["small umbel of few short rays", "greenish-white tiny flowers", "no bracts"],
+  "seed": ["tiny round-oval ribbed brown seed"],
+  "seedling": ["two small oval seed leaves", "first true leaf three-lobed"],
+  "young": ["upright stalks with divided leaves, the bunch starting to form"],
+  "crop": ["tight upright bunch of thick ribbed pale stalks", "leaves only at the top"],
+  "flower": ["branched second-year stem with small greenish-white umbels close to the leaves"],
+  "seedhead": ["small umbels of tiny brown seeds", "dried branched stem"]
+ },
+ "look_alikes": "Lovage is much taller, with a bigger glossier leaf and yellow-green umbels with bracts. Flat-leaved parsley has thin stalks and twice-divided leaves. Wild celery, the same species, has thin stalks.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. No UK iNaturalist photos had been downloaded for this group when it was written. ⚠️ CHECK"
+}

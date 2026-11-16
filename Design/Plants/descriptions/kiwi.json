@@ -1,0 +1,44 @@
+{
+ "kind": "kiwi",
+ "name": "Kiwi",
+ "latin": "Actinidia arguta",
+ "family": "Actinidiaceae, the kiwi family",
+ "grown_as": "Hardy kiwi (kiwiberry), William's is 'Issai', a compact self-fertile variety. It is not the shop kiwi fruit (Actinidia deliciosa, with big furry brown fruit), which the iNaturalist photos were searched under: hardy kiwi has small, smooth, green, grape-sized fruit eaten skin and all. ⚠️ CHECK",
+ "habit": "A deciduous twining climber with no tendrils, 3 to 4 m for 'Issai' (other varieties far more), trained on wires or a pergola. Smooth reddish-brown young stems twisting round their supports; older bark grey-brown.",
+ "leaf": {
+  "arrangement": "Alternate",
+  "type": "Simple",
+  "outline": "Broadly oval to almost round, 8 to 12 cm long",
+  "base": "Rounded or slightly heart-shaped",
+  "tip": "Abruptly narrowed to a short sharp point",
+  "margin": "Fine, sharp, bristle-tipped teeth all round",
+  "veins": "A midrib and 6 to 8 pairs of curving side veins, pressed in",
+  "surface": "Smooth and hairless, glossy dark green above; paler beneath with tufts of hair in the vein angles",
+  "stalk": "3 to 8 cm, often red",
+  "colour": "Glossy dark green on red stalks; yellow in autumn"
+ },
+ "flower": {
+  "form": "A rounded open cup, facing down",
+  "petals": "Five (sometimes four or six), free, round, thick",
+  "colour": "White to cream",
+  "centre": "Many stamens with dark purple-black anthers, round a white ovary topped with a star of thread-like white styles",
+  "behind": "Five small rounded green sepals",
+  "carried": "One to three together on short stalks from the leaf angles of the new shoots, hanging beneath the leaves",
+  "size": "1.5 to 2 cm across",
+  "season": "June; sweetly scented"
+ },
+ "fruit": "Small, smooth, hairless berries, oval, 2 to 3 cm, like large grapes; bright green, sometimes flushed red on the sunny side, with a dry tuft at the tip. Hanging in small clusters along the stems under the leaves. September to October.",
+ "seedling": "Not drawn: grown as bought plants",
+ "winter": "Bare, twisting, reddish-brown to grey stems wound round their supports, with small buds sunk in the leaf scars.",
+ "palette": {"leaf": "deep", "flower": "white", "centre": "dark", "fruit": "unripe"},
+ "must_show": {
+  "leaf": ["broad oval leaf with an abrupt short point", "fine sharp bristle teeth all round", "glossy surface on a red stalk"],
+  "bloom": ["five round white petals in a downward-facing cup", "dark purple-black anthers", "a star of white styles in the middle"],
+  "young": ["a twining stem wound round a support, no tendrils", "broad glossy leaves on red stalks"],
+  "dormant": ["bare reddish-brown stems", "stems twisted round wires or posts, no tendrils"],
+  "flower": ["white cup flowers hanging under the leaves in ones to threes", "broad glossy leaves on red stalks"],
+  "crop": ["small smooth green grape-sized fruit hanging along the stems", "no fuzz or brown skin"]
+ },
+ "look_alikes": "Shop kiwi (Actinidia deliciosa) has large heart-shaped leaves, hairy stems and furry brown fruit. Actinidia kolomikta has smaller leaves splashed white and pink. Grapes climb by tendrils and have lobed leaves.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. The iNaturalist photos are of the wrong species (Actinidia deliciosa). ⚠️ CHECK"
+}

@@ -1,0 +1,47 @@
+{
+ "kind": "wild-angelica",
+ "name": "Wild angelica",
+ "latin": "Angelica sylvestris",
+ "family": "Apiaceae, the carrot family (umbellifers)",
+ "grown_as": "A native wild flower of damp meadows, woods and ditches, a strong pollinator plant. Short-lived perennial.",
+ "habit": "A tall upright plant 1 to 2 m with a stout hollow stem, usually purplish with a whitish bloom and nearly hairless. Big umbels held high above a leafy base.",
+ "leaf": {
+  "arrangement": "Large leaves from the base; alternate up the stem",
+  "type": "Compound, two or three times pinnate",
+  "leaflets": "Oval to lance-shaped, 2 to 8 cm, all on short stalks or none; the end leaflet sometimes three-lobed; side leaflets often lopsided at the base",
+  "outline": "The whole leaf broadly triangular, up to 60 cm",
+  "base": "Leaflets rounded to wedge-shaped, often uneven",
+  "tip": "Pointed",
+  "margin": "Finely and sharply toothed all round each leaflet, teeth pointing forward",
+  "veins": "Pinnate, fine",
+  "surface": "Smooth, mostly hairless",
+  "stalk": "Long, channelled on the upper side. On the upper leaves the stalk base swells into a large inflated purplish pouch around the stem, which holds the young umbel.",
+  "colour": "Mid green"
+ },
+ "flower": {
+  "form": "Large domed compound umbels",
+  "petals": "Five tiny petals per flower, tips turned in",
+  "colour": "White, often flushed pink",
+  "centre": "Small pale stamens",
+  "behind": "No bracts or one to three; a few bristle-like bracteoles",
+  "carried": "At the top of the stem and branches on long stalks, facing up; 15 to 40 downy rays",
+  "size": "Umbels 3 to 15 cm, sometimes 20 cm",
+  "season": "July to September"
+ },
+ "fruit": "Oval flattened seeds 4 to 5 mm in pairs with broad thin papery wings at the edges, pale brown",
+ "seedling": "Two long narrow seed leaves, then first true leaves three-lobed and toothed",
+ "winter": "Dead hollow stems with seed umbels stand into winter; the plant is dormant as a root",
+ "palette": {"leaf": "leaf", "flower": "white", "fruit": "straw"},
+ "must_show": {
+  "leaf": ["leaf divided two or three times into oval pointed leaflets", "fine sharp teeth all round each leaflet", "an inflated pouch at the base of the stalk"],
+  "bloom": ["large domed umbel of many rays", "white flowers flushed pink", "no or few bracts"],
+  "seed": ["oval flat seed with broad papery wings"],
+  "seedling": ["two long narrow seed leaves", "first true leaf three-lobed and toothed"],
+  "young": ["large divided leaves from the base on long channelled stalks"],
+  "flower": ["tall purplish stem with a pale bloom", "domed white to pink umbels", "inflated pouches at the leaf bases"],
+  "seedhead": ["umbels of flat winged seeds", "browning purplish stem"],
+  "dormant": ["dead hollow stems standing, nothing green", "old umbels with a few seeds left"]
+ },
+ "look_alikes": "Hogweed has rough hairy stems, large lobed leaflets and flat umbels with enlarged outer petals. Garden angelica (Angelica archangelica) has a green stem and greenish rounded umbels. Hemlock has purple blotches, not an even purple flush, and finely cut fern-like leaves.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. No UK iNaturalist photos had been downloaded for this group when it was written. ⚠️ CHECK"
+}

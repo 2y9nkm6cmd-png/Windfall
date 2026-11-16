@@ -1,0 +1,81 @@
+{
+ "kind": "tufted-vetch",
+ "name": "Tufted vetch",
+ "latin": "Vicia cracca",
+ "family": "Fabaceae, the pea family",
+ "grown_as": "A native wild flower of hedges, field edges and rough grassland, perennial",
+ "habit": "A scrambling, climbing perennial 1 to 2 m, clambering through grass and hedges by branched tendrils. Stems thin, angled, slightly downy. Dies down to the ground in winter.",
+ "leaf": {
+  "arrangement": "Alternate",
+  "type": "Compound, pinnate: 6 to 15 pairs of leaflets, the central stalk ending in a branched tendril",
+  "leaflets": "Many pairs, unstalked, close-set along the stalk, symmetrical",
+  "outline": "Each leaflet narrow, oblong to lance-shaped, 1 to 2.5 cm by 2 to 5 mm",
+  "base": "Rounded",
+  "tip": "Blunt or pointed, ending in a tiny bristle point",
+  "margin": "Entire",
+  "veins": "Midrib only visible",
+  "surface": "Softly downy, dull",
+  "stalk": "Very short; small, narrow, half arrow-shaped untoothed stipules at its base",
+  "colour": "Mid green to greyish green"
+ },
+ "flower": {
+  "form": "Small pea flowers packed into a long dense one-sided spike",
+  "petals": "Five: standard, wings and keel, each flower narrow and pointing down",
+  "colour": "Bluish violet, fading to purple",
+  "centre": "Hidden",
+  "behind": "Small calyx",
+  "carried": "10 to 40 flowers in a dense spike 2 to 10 cm, all on one side of the stalk and hanging down; the spike on a long stalk from the leaf joint, about as long as the leaf",
+  "size": "Each flower 8 to 12 mm",
+  "season": "June to August"
+ },
+ "fruit": "Flat hairless pods 1 to 2.5 cm, green turning brown, each with 2 to 6 small round dark seeds 2 to 3 mm",
+ "seedling": "The seed leaves stay underground. The first leaves have a few pairs of narrow leaflets and a simple tendril.",
+ "winter": "Dies back: dead brown stems tangled in the grass, new shoots from the roots in spring",
+ "palette": {
+  "leaf": "leaf",
+  "flower": "lilac",
+  "fruit": "bark"
+ },
+ "palette_wish": {
+  "flower": "bluish violet, about #6A5FC8"
+ },
+ "must_show": {
+  "leaf": [
+   "6 to 15 pairs of narrow leaflets",
+   "a branched tendril at the tip",
+   "small narrow stipules"
+  ],
+  "bloom": [
+   "a dense one-sided spike of small bluish-violet pea flowers",
+   "flowers hanging down from one side of the stalk"
+  ],
+  "seed": [
+   "a small round seed, 2 to 3 mm",
+   "dark brown to black"
+  ],
+  "seedling": [
+   "a thin shoot with a few pairs of narrow leaflets",
+   "a simple tendril at the leaf tip",
+   "no seed leaves above ground"
+  ],
+  "young": [
+   "a scrambling stem with many-leafleted leaves",
+   "branched tendrils gripping grass and stems"
+  ],
+  "flower": [
+   "dense one-sided spikes of bluish-violet flowers",
+   "spikes on long stalks from the leaf joints",
+   "a tangle of fine pinnate leaves"
+  ],
+  "seedhead": [
+   "small flat brown pods, 1 to 2.5 cm",
+   "pods on the old flower stalks"
+  ],
+  "dormant": [
+   "dead brown stems lying in grass",
+   "nothing green above ground"
+  ]
+ },
+ "look_alikes": "Bush vetch (Vicia sepium) has fewer, broader leaflets and only 2 to 6 dull purple flowers in a short cluster. Common vetch (V. sativa) has 1 or 2 pink-purple flowers in the leaf joints. Fodder vetch (V. villosa) has longer flowers with a pouched calyx base.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

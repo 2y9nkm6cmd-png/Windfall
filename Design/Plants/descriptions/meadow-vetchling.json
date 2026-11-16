@@ -1,0 +1,77 @@
+{
+ "kind": "meadow-vetchling",
+ "name": "Meadow vetchling",
+ "latin": "Lathyrus pratensis",
+ "family": "Fabaceae, the pea family",
+ "grown_as": "A native wild flower of meadows, verges and hedge banks, perennial",
+ "habit": "A scrambling perennial 30 cm to 1 m, leaning on grass and other plants. Stems angled (four-cornered) but not winged, slightly hairy. Spreads by creeping roots; dies down in winter.",
+ "leaf": {
+  "arrangement": "Alternate",
+  "type": "Compound: a single pair of leaflets on a short stalk ending in a tendril (simple or branched)",
+  "leaflets": "One pair, unstalked, symmetrical",
+  "outline": "Each leaflet narrow lance-shaped, 1 to 3 cm by 2 to 8 mm",
+  "base": "Narrowed",
+  "tip": "Pointed",
+  "margin": "Entire",
+  "veins": "Three to five parallel veins running lengthways",
+  "surface": "Finely downy, dull",
+  "stalk": "Short; at its base a pair of large leaf-like stipules shaped like arrowheads, 1 to 2.5 cm, nearly as big as the leaflets",
+  "colour": "Mid to grey-green"
+ },
+ "flower": {
+  "form": "Pea flowers in a loose spike",
+  "petals": "Five: standard, wings and keel",
+  "colour": "Clear yellow, the standard with faint darker lines",
+  "centre": "Hidden",
+  "behind": "A small green calyx with five teeth",
+  "carried": "4 to 12 flowers in a loose spike at the end of a long stalk from the leaf joint, the stalk longer than the leaf, so the flowers stand clear",
+  "size": "Each flower 1 to 1.8 cm",
+  "season": "May to August"
+ },
+ "fruit": "Flat pods 2.5 to 3.5 cm, slightly downy, green turning black when ripe, twisting open to scatter small brown seeds",
+ "seedling": "The seed leaves stay underground. First leaves have one pair of narrow leaflets and a short tendril.",
+ "winter": "Dies back to the roots; nothing green",
+ "palette": {
+  "leaf": "leaf",
+  "flower": "sun",
+  "fruit": "dark"
+ },
+ "must_show": {
+  "leaf": [
+   "one pair of narrow pointed leaflets",
+   "a tendril at the tip",
+   "a pair of big arrowhead-shaped stipules at the base"
+  ],
+  "bloom": [
+   "a loose head of 4 to 12 yellow pea flowers",
+   "on a long stalk, longer than the leaf"
+  ],
+  "seed": [
+   "a small round seed",
+   "brown"
+  ],
+  "seedling": [
+   "a thin shoot with one pair of narrow leaflets",
+   "no seed leaves above ground"
+  ],
+  "young": [
+   "a scrambling angled stem with paired narrow leaflets",
+   "big arrowhead stipules at each joint",
+   "tendrils at the leaf tips"
+  ],
+  "flower": [
+   "yellow flower heads on long stalks",
+   "held above a tangle of grass and leaves"
+  ],
+  "seedhead": [
+   "flat pods turning black",
+   "some twisted open"
+  ],
+  "dormant": [
+   "nothing green",
+   "dead stems lying among grass"
+  ]
+ },
+ "look_alikes": "Common bird's-foot-trefoil also has yellow pea flowers but five small leaflets, no tendrils and pods spread like a bird's foot. Yellow vetchling (Lathyrus aphaca) is a rare annual with no leaflets, just huge stipules and single flowers.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

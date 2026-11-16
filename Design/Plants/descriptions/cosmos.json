@@ -1,0 +1,76 @@
+{
+ "kind": "cosmos",
+ "name": "Cosmos",
+ "latin": "Cosmos bipinnatus",
+ "family": "Asteraceae, the daisy family",
+ "grown_as": "A half-hardy annual raised under cover and planted out after frost. William's library lists 'Fizzy Rose Picotee': semi-double flowers, mainly white, the petals edged and stained dark pinkish-red, about 0.9 m. Drawn as that. ⚠️ CHECK",
+ "habit": "A tall, airy, branched annual 0.6 to 1.2 m high, the stems thin, smooth and often reddish, the whole plant light and feathery.",
+ "leaf": {
+  "arrangement": "Opposite",
+  "type": "Compound: twice divided (bipinnate) into many very fine, thread-like segments, like a feather or fennel",
+  "outline": "The whole leaf broadly oval to triangular, 10 to 20 cm long; each segment 1 mm wide and 1 to 4 cm long",
+  "base": "The leaf sits almost straight on the stem",
+  "tip": "Each segment ends in a fine point",
+  "margin": "Segments smooth-edged, no teeth",
+  "veins": "Only a midrib in each segment",
+  "surface": "Smooth and hairless",
+  "stalk": "Very short or none",
+  "colour": "Bright mid green"
+ },
+ "flower": {
+  "form": "An open, flat to shallow-bowled daisy. 'Fizzy' types are semi-double: a ring of broad outer rays with a frilly tuft of extra short rays round the centre",
+  "petals": "Eight broad outer rays (in a single flower), wedge-shaped, overlapping a little, the broad tip with three or more small uneven teeth and fine parallel lines along each ray",
+  "colour": "Mainly white, edged and streaked dark pinkish-red (picotee). The species is pink, magenta or white",
+  "centre": "A small yellow disc of tubular florets, slightly domed; partly hidden by the frill in semi-double flowers",
+  "behind": "Two rows of bracts: the outer narrow, pointed and green, spreading; the inner broad, thin and pale with brown lines, pressed to the head",
+  "carried": "Alone on long, thin, bare stalks held high above the leaves, facing up or outwards",
+  "size": "6 to 10 cm across",
+  "season": "July to the first frosts"
+ },
+ "fruit": "A loose starburst of long, narrow seeds pointing outwards from the top of the stalk, each dark brown to black, about 1 cm, with two or three short barbed bristles at the tip.",
+ "seedling": "Two long, narrow, strap-shaped seed leaves. The first true leaves are already cut into narrow lobes, feathery from the start.",
+ "winter": "Nothing: killed by the first frost.",
+ "palette": {
+  "leaf": "leaf",
+  "flower": "white",
+  "centre": "sun",
+  "fruit": "dark"
+ },
+ "palette_wish": {
+  "flower_edge": "dark pinkish-red picotee edge, about #C2335E"
+ },
+ "must_show": {
+  "leaf": [
+   "leaf cut twice into thread-like segments, feathery",
+   "segments smooth-edged, no teeth",
+   "leaves in opposite pairs"
+  ],
+  "bloom": [
+   "broad wedge-shaped rays with small teeth at the tips",
+   "white rays edged dark pinkish-red",
+   "a frill of short extra rays round a small yellow centre (semi-double)",
+   "narrow pointed outer bracts behind"
+  ],
+  "seed": [
+   "long, slender, dark seed",
+   "two or three short bristles at the top"
+  ],
+  "seedling": [
+   "two long narrow seed leaves",
+   "first true leaves already divided and feathery"
+  ],
+  "young": [
+   "upright branching plant with fine feathery foliage",
+   "leaves in opposite pairs"
+  ],
+  "flower": [
+   "flowers held singly on long bare stalks well above the feathery foliage",
+   "tall airy plant about 1 m"
+  ],
+  "seedhead": [
+   "a starburst of narrow dark seeds pointing outwards from the stalk tip"
+  ]
+ },
+ "look_alikes": "Cosmos sulphureus is orange or yellow with broader leaf segments. Single dahlias have broad leaflets. Coreopsis is yellow with narrow but flatter leaf lobes. Mayweeds have thread-like leaves but small white daisies with large yellow centres.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. No reference photos had been downloaded for this group yet, so nothing was checked against photographs. ⚠️ CHECK"
+}

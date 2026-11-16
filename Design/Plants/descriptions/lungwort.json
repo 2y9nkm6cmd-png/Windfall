@@ -1,0 +1,62 @@
+{
+ "kind": "lungwort",
+ "name": "Lungwort",
+ "latin": "Pulmonaria officinalis",
+ "family": "Boraginaceae, the borage family",
+ "grown_as": "A hardy perennial for shade by the pond, flowering in early spring.",
+ "habit": "A low clump: short upright flowering stems 20 to 30 cm in early spring, then a mound of large spotted leaves 30 to 45 cm across through the summer.",
+ "leaf": {
+  "arrangement": "Large leaves from the base; smaller alternate leaves on the flowering stems",
+  "type": "Simple",
+  "outline": "Basal leaves oval to heart-shaped, 7 to 15 cm long; stem leaves smaller and oval",
+  "base": "Basal leaves abruptly rounded to heart-shaped where they meet the stalk; stem leaves stalkless and half-clasping",
+  "tip": "Pointed",
+  "margin": "Smooth, untoothed",
+  "veins": "A midrib and a few side veins, not deeply pressed in",
+  "surface": "Rough with short bristly hairs; scattered with pale green to whitish spots",
+  "stalk": "Basal leaves on long stalks, about as long as the blade; stem leaves none",
+  "colour": "Mid to dark green with pale spots"
+ },
+ "flower": {
+  "form": "A small funnel: a narrow tube opening to five rounded lobes",
+  "petals": "Five, joined into the tube, the lobes spreading",
+  "colour": "Pink when they open, turning violet then blue as they age, so pink and blue flowers sit together on one plant",
+  "centre": "A small throat with tufts of hairs, stamens hidden",
+  "behind": "A tubular, five-angled, hairy green calyx about half the length of the tube",
+  "carried": "In loose clusters at the tops of short leafy stems, the flowers nodding to facing out",
+  "size": "About 1 cm across",
+  "season": "March to May"
+ },
+ "fruit": "Small nutlets inside the calyx; not usually noticed.",
+ "seedling": "Not drawn: grown from bought plants or division",
+ "winter": "In mild winters a few spotted leaves remain; otherwise only the crown with the new flower shoots appearing in late winter.",
+ "palette": {
+  "leaf": "deep",
+  "flower": "blue"
+ },
+ "must_show": {
+  "leaf": [
+   "oval leaf with an abruptly rounded or heart-shaped base on a long stalk",
+   "pale spots scattered over the surface",
+   "untoothed edge, rough hairs"
+  ],
+  "bloom": [
+   "small funnel-shaped flowers with five lobes",
+   "pink and blue flowers in the same cluster",
+   "a tubular hairy calyx"
+  ],
+  "young": [
+   "a clump of large spotted leaves on long stalks"
+  ],
+  "flower": [
+   "short leafy stems with clusters of pink and blue flowers",
+   "spotted leaves at the base"
+  ],
+  "dormant": [
+   "a few spotted leaves or just the crown at the soil",
+   "new flower shoots in late winter"
+  ]
+ },
+ "look_alikes": "Other lungworts: narrow-leaved lungwort (Pulmonaria longifolia) has long narrow leaves; Pulmonaria saccharata has larger, more heavily silvered leaves. Comfrey is much larger and unspotted. Green alkanet has unspotted leaves and pure blue flowers with a white eye.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

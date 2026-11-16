@@ -1,0 +1,72 @@
+{
+ "kind": "common-evening-primrose",
+ "name": "Common evening-primrose",
+ "latin": "Oenothera biennis",
+ "family": "Onagraceae, the willowherb family",
+ "grown_as": "A wild flower of the wildlife fringe, a biennial: a rosette in the first year, a tall flowering stem in the second.",
+ "habit": "First year: a flat rosette 20 to 30 cm across. Second year: a stiff upright stem 0.5 to 1.5 m, usually unbranched or with a few side branches, leafy all the way up to a leafy flower spike at the top.",
+ "leaf": {
+  "arrangement": "A rosette at the base, then alternate and crowded up the stem",
+  "type": "Simple",
+  "outline": "Lance-shaped to narrowly oval, 5 to 15 cm on the stem, up to 20 cm in the rosette",
+  "base": "Tapers gradually",
+  "tip": "Pointed",
+  "margin": "A few small, widely spaced teeth or almost smooth, often a little wavy",
+  "veins": "A broad pale midrib, often pink or red, with fine side veins curving forward",
+  "surface": "Flat, finely hairy, not glossy",
+  "stalk": "Rosette leaves on short stalks; stem leaves almost stalkless",
+  "colour": "Mid green, the midrib pale or red; rosettes often red-tinged in winter"
+ },
+ "flower": {
+  "form": "An open shallow cup to flat flower, opening in the evening and fading by the next afternoon",
+  "petals": "Four, free, broad, overlapping, each wider than long with a shallow notch at the tip, so the flower looks almost square",
+  "colour": "Clear pale to mid yellow",
+  "centre": "Eight yellow stamens around a stigma split into four arms in an X",
+  "behind": "Four green sepals, folded right back down against the long, slender green flower tube (3 to 4 cm) that looks like a stalk",
+  "carried": "In a leafy spike at the top of the stem, a few opening at a time, facing up and out, with buds above and young pods below",
+  "size": "3 to 5 cm across",
+  "season": "June to September"
+ },
+ "fruit": "Long narrow pods 2 to 3.5 cm, four-angled, held stiffly upright and pressed close to the stem all down the old spike; green, ripening brown and splitting at the top into four. Seeds tiny (1 to 2 mm), angular and irregular, reddish brown.",
+ "seedling": "Two small round-oval seed leaves on stalks, then narrow oval true leaves with a pale midrib, making a flat rosette",
+ "winter": "The first-year rosette stays flat and green, often flushed red, through winter. Dead brown seed stems stand into winter with their split pods.",
+ "palette": {
+  "leaf": "leaf",
+  "flower": "primrose",
+  "centre": "sun",
+  "fruit": "bark"
+ },
+ "must_show": {
+  "leaf": [
+   "lance-shaped leaf with a broad pale or reddish midrib",
+   "few small distant teeth or none",
+   "pointed tip, tapering base"
+  ],
+  "bloom": [
+   "four broad notched yellow petals, flower looking almost square",
+   "an X-shaped four-armed stigma in the middle",
+   "green sepals folded back down a long slender tube"
+  ],
+  "seed": [
+   "tiny angular reddish-brown seeds"
+  ],
+  "seedling": [
+   "two small round seed leaves",
+   "first true leaves narrow with a pale midrib"
+  ],
+  "young": [
+   "a flat rosette of lance-shaped leaves with pale midribs, no stem"
+  ],
+  "flower": [
+   "one stiff upright leafy stem",
+   "pale yellow four-petalled flowers at the top of a leafy spike",
+   "upright narrow pods already forming below the flowers"
+  ],
+  "seedhead": [
+   "a tall brown stem lined with long, narrow, upright pods pressed to it",
+   "pods split into four at the tips"
+  ]
+ },
+ "look_alikes": "Large-flowered evening-primrose (Oenothera glazioviana), the commonest one in Britain, has bigger flowers (6 to 10 cm), red-striped sepals and red-based hairs on the stem. Small-flowered evening-primrose (O. cambrica) has smaller flowers and red-striped sepals. Rosettes can be confused with foxglove (softer, scalloped) or great willowherb.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

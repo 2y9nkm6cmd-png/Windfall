@@ -1,0 +1,79 @@
+{
+ "kind": "broad-bean",
+ "name": "Broad bean",
+ "latin": "Vicia faba",
+ "family": "Fabaceae, the pea family",
+ "grown_as": "A hardy annual vegetable, sown in autumn or early spring, grown for its green beans. Most varieties have white flowers with black blotches; a few (such as 'Crimson Flowered') are red. Drawn as the usual white-flowered kind. ⚠️ CHECK",
+ "habit": "Upright, stiff, unbranched or with a few stems from the base, 60 cm to 1.2 m. The stem is square, hollow and hairless. No tendrils, so it does not climb; tall plants are held up with string. Leaves all along the stem, flowers clustered in the upper leaf joints.",
+ "leaf": {
+  "arrangement": "Alternate up the square stem",
+  "type": "Compound, pinnate: 2 to 6 leaflets (usually 2 or 3 pairs) on a short central stalk, which ends in a tiny soft point, not a tendril",
+  "leaflets": "Leaflets with no stalks of their own, arranged in near-opposite pairs, the end pair larger. Each symmetrical.",
+  "outline": "Each leaflet oval to elliptic, 4 to 8 cm long, broadest about the middle",
+  "base": "Narrowed to a wedge",
+  "tip": "Rounded or blunt, sometimes with a tiny point",
+  "margin": "Entire: no teeth at all",
+  "veins": "Midrib with faint side veins looping near the edge; leaf looks smooth and fleshy",
+  "surface": "Hairless, somewhat fleshy, with a grey-green waxy bloom",
+  "stalk": "Short; at its base a pair of small, half arrow-shaped toothed stipules, each with a dark purple-black nectar spot",
+  "colour": "Grey-green (blue-green)"
+ },
+ "flower": {
+  "form": "A pea flower: an upright back petal (the standard), two side petals (the wings) and two lower petals joined into a boat-shaped keel between the wings",
+  "petals": "Five: a broad standard folded back, two wings and a keel hidden between them",
+  "colour": "White. Each wing petal has a large velvety black blotch; the standard has fine brown-purple lines toward its base.",
+  "centre": "Hidden inside the keel",
+  "behind": "A green bell-shaped calyx tube with five short teeth",
+  "carried": "In short clusters of 2 to 6 on very short stalks in the upper leaf joints, all facing out to one side, close against the stem",
+  "size": "2 to 3 cm long",
+  "season": "April to June (autumn sowings earlier); strongly scented"
+ },
+ "fruit": "Pods held upright at first, then leaning and hanging under their weight: thick, fleshy, 10 to 25 cm, green, slightly downy, lumpy over the beans, lined inside with white wool. Each holds 3 to 8 large flat beans. Ripe dry pods turn black and leathery. Seed: a large, flat, oblong bean 2 to 3 cm, buff or pale green, with a black or pale scar (hilum) along one end.",
+ "seedling": "The seed leaves stay inside the bean underground. A thick square shoot comes up with a couple of small scale-like leaves, then the first leaves of one or two pairs of grey-green oval leaflets.",
+ "winter": "Autumn-sown plants stand through winter as short young plants 10 to 20 cm with a few grey-green leaves; otherwise nothing.",
+ "palette": {
+  "leaf": "sage",
+  "flower": "white",
+  "centre": "dark",
+  "fruit": "leaf"
+ },
+ "must_show": {
+  "leaf": [
+   "2 to 3 pairs of oval leaflets on a short stalk",
+   "no teeth and no tendril; the stalk ends in a tiny point",
+   "grey-green, smooth and fleshy"
+  ],
+  "bloom": [
+   "a pea flower with a white standard and wings",
+   "a large black blotch on each wing",
+   "fine dark lines on the standard"
+  ],
+  "seed": [
+   "a large flat oblong bean, buff or pale green",
+   "a long dark scar (hilum) across one end"
+  ],
+  "seedling": [
+   "a thick shoot with grey-green oval leaflets",
+   "no seed leaves above ground"
+  ],
+  "young": [
+   "an upright square stem with grey-green pinnate leaves",
+   "no tendrils"
+  ],
+  "flower": [
+   "white and black flowers in short clusters in the upper leaf joints",
+   "a stiff upright plant"
+  ],
+  "crop": [
+   "thick green pods held upright or hanging from the leaf joints",
+   "grey-green leaves"
+  ],
+  "seedhead": [
+   "pods turned black and leathery, hanging or leaning",
+   "the plant browning and dying back",
+   "square stem still upright"
+  ]
+ },
+ "look_alikes": "Field bean is the same species with smaller beans. Peas have huge leafy stipules and tendrils. Runner and French beans have three-leaflet leaves and twining stems.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

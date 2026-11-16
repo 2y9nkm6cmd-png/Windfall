@@ -1,0 +1,75 @@
+{
+ "kind": "scabiosa",
+ "name": "Scabiosa",
+ "latin": "Scabiosa incisa",
+ "family": "Caprifoliaceae, the honeysuckle family (the scabious group, once its own family, Dipsacaceae, the teasel family)",
+ "grown_as": "A pincushion flower. William's library lists Scabiosa incisa 'Kudo Pink': a compact perennial about 30 cm high and wide with bright pink pincushion flowers from spring to late autumn. Described as that, not as the taller annual sweet scabious (Scabiosa atropurpurea). ⚠️ CHECK the leaf shape against William's plant.",
+ "habit": "A compact, mounded clump 25 to 35 cm high and as wide, with leaves mostly near the base and many slender, nearly bare flower stems above.",
+ "leaf": {
+  "arrangement": "Basal leaves in a loose rosette; stem leaves in opposite pairs",
+  "type": "Simple but deeply cut (pinnately) into narrow lobes",
+  "outline": "Oblong to lance-shaped overall, 5 to 12 cm; stem leaves smaller and more finely cut",
+  "base": "Tapering into the stalk",
+  "tip": "Pointed",
+  "margin": "Each lobe with a few teeth",
+  "veins": "A clear midrib",
+  "surface": "Softly hairy",
+  "stalk": "Basal leaves stalked; stem leaves stalkless",
+  "colour": "Grey-green"
+ },
+ "flower": {
+  "form": "A pincushion: a domed head of many small florets with a frilly ring of larger florets round the edge",
+  "petals": "Each floret's petals are joined into a small tube with five lobes. The outer florets are much larger and lopsided, their outward-facing lobes enlarged and frilled, so together they make a ring of 'petals'",
+  "colour": "Bright pink to mauve-pink",
+  "centre": "A dome of small, closed inner florets studded with long pale stamens like pins in a cushion",
+  "behind": "A ring of narrow, pointed, hairy green bracts under the head, shorter than the outer florets",
+  "carried": "Alone on long, slender, wiry, bare stalks well above the leaves, facing up",
+  "size": "3 to 5 cm across",
+  "season": "May to October"
+ },
+ "fruit": "A round, straw-coloured ball like a drumstick head. Each seed sits in a papery, ribbed, funnel-shaped collar with a star of five dark bristles at its centre, so the ball looks spiky and starry.",
+ "seedling": "Two small oval smooth seed leaves on short stalks. The first true leaves are oval and toothed; later leaves become lobed.",
+ "winter": "Semi-evergreen: a low clump of grey-green basal leaves stays at the soil.",
+ "palette": {
+  "leaf": "sage",
+  "flower": "mauve",
+  "centre": "white",
+  "fruit": "straw"
+ },
+ "must_show": {
+  "leaf": [
+   "basal leaf deeply cut into narrow toothed lobes",
+   "grey-green and softly hairy",
+   "stem leaves in opposite pairs, smaller and finer"
+  ],
+  "bloom": [
+   "domed pincushion of tiny florets studded with pale stamens",
+   "outer ring of larger frilly florets, lopsided outwards",
+   "narrow green bracts underneath",
+   "pink"
+  ],
+  "seed": [
+   "small seed with a papery funnel collar",
+   "a star of five dark bristles at the top, like a shuttlecock"
+  ],
+  "seedling": [
+   "two small oval seed leaves",
+   "first leaves oval and toothed"
+  ],
+  "young": [
+   "low clump of grey-green cut leaves"
+  ],
+  "flower": [
+   "compact mound about 30 cm",
+   "many slender bare stems each topped by one pink pincushion"
+  ],
+  "seedhead": [
+   "round straw-coloured balls of seeds with bristly stars"
+  ],
+  "dormant": [
+   "low clump of grey-green leaves at the soil"
+  ]
+ },
+ "look_alikes": "Small scabious (Scabiosa columbaria) is the wild chalk-grassland plant, lilac with finer leaves. Sweet scabious (Scabiosa atropurpurea) is a taller annual, often deep maroon. Field scabious (Knautia arvensis) has four-lobed florets, bristly stems and seeds without a funnel collar. Devil's-bit scabious has undivided leaves and all florets the same size.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. No reference photos had been downloaded for this group yet, so nothing was checked against photographs. ⚠️ CHECK"
+}

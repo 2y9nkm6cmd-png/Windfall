@@ -1,0 +1,44 @@
+{
+ "kind": "gooseberry",
+ "name": "Gooseberry",
+ "latin": "Ribes uva-crispa",
+ "family": "Grossulariaceae, the currant family",
+ "grown_as": "A fruit bush, usually on a short leg. William grows 'Hinnonmäki Red' and 'Hinnonmäki Green', both mildew-resistant Finnish varieties; they differ only in fruit colour. The drawing shows the red one. ⚠️ CHECK which colour to draw",
+ "habit": "A spreading, rather untidy deciduous shrub, 1 to 1.5 m, with arching branches. Sharp spines, one to three together, just below each leaf or leaf cluster. Fruit on spurs and at the base of last year's shoots.",
+ "leaf": {
+  "arrangement": "Alternate on young shoots; in small clusters on the spurs",
+  "type": "Simple, palmately lobed",
+  "outline": "Small and roundish, 2 to 5 cm across, with three to five rounded lobes",
+  "base": "Straight across to slightly heart-shaped",
+  "tip": "Lobes rounded",
+  "margin": "Large, rounded, blunt teeth (scalloped) along the outer part of each lobe",
+  "veins": "Three to five main veins fanning from the stalk",
+  "surface": "Slightly downy, dull to faintly glossy mid green; paler beneath",
+  "stalk": "1 to 3 cm, downy",
+  "colour": "Mid green, often yellowish in autumn"
+ },
+ "flower": {
+  "form": "A small hanging bell with its five sepals swept back",
+  "petals": "Five small upright whitish petals inside, shorter than the sepals; the five sepals, joined into a short tube then curled sharply back, make the show",
+  "colour": "Sepals reddish-purple to pink-flushed green; petals white",
+  "centre": "Five stamens and a two-lobed style poking out from the mouth",
+  "behind": "A green, often bristly, rounded ovary above the bell, which becomes the berry",
+  "carried": "One to three together, hanging below the shoot on short stalks from the leaf clusters",
+  "size": "About 1 cm long",
+  "season": "March to April"
+ },
+ "fruit": "A round to oval berry, 1.5 to 3 cm, translucent, with pale lines running from end to end, smooth or with a few bristles and with a dry brown tuft of old flower at the tip. 'Hinnonmäki Red' ripens dark red; 'Hinnonmäki Green' stays green to yellow-green. Hangs singly or in twos under the branches. June to July.",
+ "seedling": "Not drawn: grown from cuttings or bought plants",
+ "winter": "Bare arching grey-brown stems with sharp spines at each node and small pointed buds.",
+ "palette": {"leaf": "leaf", "flower": "beet", "centre": "white", "fruit": "berry"},
+ "must_show": {
+  "leaf": ["small roundish leaf with three to five rounded lobes", "large blunt scalloped teeth", "veins fanning from the stalk"],
+  "bloom": ["a small hanging flower with reddish sepals swept sharply back", "small white petals and stamens poking from the mouth", "the green bristly ovary above"],
+  "young": ["arching spiny stems", "small rounded lobed leaves"],
+  "dormant": ["bare arching grey-brown stems", "sharp spines at each node"],
+  "flower": ["small flowers hanging singly or in twos below the shoots", "reddish swept-back sepals", "small lobed leaves and spines"],
+  "crop": ["veined translucent berries hanging singly under spiny branches", "small lobed leaves"]
+ },
+ "look_alikes": "Currants have no spines and carry their flowers and fruit on long strings. Jostaberry is spineless with bigger leaves and black fruit in small clusters.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge and UK iNaturalist photos. ⚠️ CHECK"
+}

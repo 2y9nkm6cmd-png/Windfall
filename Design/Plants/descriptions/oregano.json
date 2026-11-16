@@ -1,0 +1,77 @@
+{
+ "kind": "oregano",
+ "name": "Oregano",
+ "latin": "Origanum vulgare",
+ "family": "Lamiaceae, the mint family",
+ "grown_as": "Oregano, the same plant as our native wild marjoram, a hardy perennial. The library also lists Marjoram and Wild marjoram; sweet marjoram (Origanum majorana) is a different, tender plant with grey leaves and white flowers. Golden oregano ('Aureum') has yellow leaves. Drawn as the green, pink-flowered plant. ⚠️ CHECK",
+ "habit": "A bushy clump 30 to 60 cm high of upright, reddish, hairy, square stems that branch near the top, from a creeping, woody-based rootstock.",
+ "leaf": {
+  "arrangement": "Opposite, in pairs, each pair at right angles to the one below",
+  "type": "Simple",
+  "outline": "Small, broadly oval, 1 to 4 cm long",
+  "base": "Rounded",
+  "tip": "Blunt or shortly pointed",
+  "margin": "Smooth, or with a few very small shallow teeth",
+  "veins": "A midrib and 3 to 4 faint side veins each side",
+  "surface": "Softly hairy, dotted with tiny oil glands (seen against the light); paler beneath",
+  "stalk": "Short, 2 to 10 mm",
+  "colour": "Dark green, often tinged purple"
+ },
+ "flower": {
+  "form": "A tiny two-lipped tube",
+  "petals": "Joined; short upper lip, three-lobed lower lip",
+  "colour": "Pale pink-purple",
+  "centre": "Stamens sticking out of the tube",
+  "behind": "Each flower sits against an oval, overlapping bract, dark red-purple, so the heads look purple even before they open",
+  "carried": "In dense short spikes gathered into a loose, flat-topped or domed, branched head at the top of each stem",
+  "size": "Flowers 4 to 7 mm; the head 3 to 10 cm across",
+  "season": "July to September"
+ },
+ "fruit": "The heads dry brown with the bracts still on, holding tiny nutlets. Seeds: tiny brown seeds, round to oval, about 0.5 mm, like dust.",
+ "seedling": "Two tiny round seed leaves; then tiny oval, opposite, softly hairy true leaves.",
+ "winter": "The flowering stems die back; a low mat of small rounded leaves, often purple-tinged, stays at the base.",
+ "palette": {
+  "leaf": "deep",
+  "flower": "mauve",
+  "centre": "plum",
+  "fruit": "seed"
+ },
+ "must_show": {
+  "leaf": [
+   "a small broad oval leaf on a short stalk",
+   "edge smooth or with only tiny shallow teeth",
+   "soft hairy surface, dark green"
+  ],
+  "bloom": [
+   "many tiny pink-purple flowers in dense short spikes",
+   "dark red-purple bracts showing among them",
+   "spikes gathered into a flat-topped head"
+  ],
+  "seed": [
+   "tiny dust-like brown seeds"
+  ],
+  "seedling": [
+   "two tiny round seed leaves",
+   "tiny oval opposite true leaves"
+  ],
+  "young": [
+   "a low leafy clump of small oval leaves in pairs"
+  ],
+  "crop": [
+   "a bushy clump of upright reddish stems with small oval leaves in pairs",
+   "no flowers or only buds"
+  ],
+  "flower": [
+   "flat-topped branched heads of pink-purple flowers with dark purple bracts on top of the stems",
+   "small oval leaves below"
+  ],
+  "seedhead": [
+   "dry brown flat-topped heads on the old stems"
+  ],
+  "dormant": [
+   "a low mat of small rounded leaves, some purple-tinged, at the soil"
+  ]
+ },
+ "look_alikes": "Sweet marjoram has grey hairy leaves and white flowers in small knot-like heads. Thyme has much smaller, narrower leaves on woody stems. Wild basil (Clinopodium vulgare) carries its pink flowers in separated rings with bristly calyces, not in a flat head.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

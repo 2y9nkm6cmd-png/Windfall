@@ -1,0 +1,67 @@
+{
+ "kind": "hyssop",
+ "name": "Hyssop",
+ "latin": "Hyssopus officinalis",
+ "family": "Lamiaceae, the mint family",
+ "grown_as": "Hyssop, a small, nearly evergreen shrubby herb. Drawn blue-flowered, the usual form; pink and white forms exist. ⚠️ CHECK",
+ "habit": "A neat, bushy, upright small shrub 30 to 60 cm high, many straight stems from a woody base, green above and woody below.",
+ "leaf": {
+  "arrangement": "Opposite, in pairs, often with small tufts of younger leaves in the joints",
+  "type": "Simple",
+  "outline": "Narrow, lance-shaped to strap-shaped, 1.5 to 4 cm long and 3 to 8 mm wide",
+  "base": "Tapering",
+  "tip": "Pointed",
+  "margin": "Smooth, no teeth, sometimes slightly rolled under",
+  "veins": "Only the midrib shows",
+  "surface": "Smooth or nearly so, dotted with tiny glands, slightly glossy",
+  "stalk": "None",
+  "colour": "Dark green"
+ },
+ "flower": {
+  "form": "A two-lipped tube with long stamens sticking well out",
+  "petals": "Joined; a short notched upper lip and a three-lobed lower lip with a large, notched middle lobe",
+  "colour": "Deep violet-blue",
+  "centre": "Four long stamens spreading out beyond the lips",
+  "behind": "A green or purple-tinged tube-shaped calyx with five teeth",
+  "carried": "In clusters in the upper leaf joints, together making a dense, upright spike 5 to 15 cm long at the top of each stem, the flowers mostly turned to one side",
+  "size": "About 1 cm long",
+  "season": "July to September"
+ },
+ "fruit": "Small brown nutlets in the dry calyces.",
+ "seedling": "Not drawn.",
+ "winter": "Nearly evergreen: a twiggy bush with some leaves left; best cut back in spring.",
+ "palette": {
+  "leaf": "deep",
+  "flower": "plum",
+  "fruit": "seed"
+ },
+ "palette_wish": {
+  "flower": "deep violet-blue, about #5B4FB8"
+ },
+ "must_show": {
+  "leaf": [
+   "a narrow lance-shaped leaf with a pointed tip",
+   "smooth edge, no teeth",
+   "no stalk",
+   "dark green"
+  ],
+  "bloom": [
+   "deep violet-blue two-lipped flowers",
+   "long stamens sticking well out",
+   "in a dense spike, mostly facing one way"
+  ],
+  "young": [
+   "a small upright bush of straight stems with narrow dark leaves in opposite pairs"
+  ],
+  "crop": [
+   "a neat bushy shrub of many straight stems clothed in narrow dark green leaves",
+   "woody at the base"
+  ],
+  "flower": [
+   "dense one-sided violet-blue spikes at the top of every stem",
+   "narrow leaves running right up to the spikes"
+  ]
+ },
+ "look_alikes": "Lavender has grey felted leaves and its flower spikes on long bare stalks above the bush. Rosemary has leathery leaves white beneath and flowers in the leaf joints in spring. Winter savory is lower, with white or pale lilac flowers. Anise hyssop (Agastache) has broad toothed leaves.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

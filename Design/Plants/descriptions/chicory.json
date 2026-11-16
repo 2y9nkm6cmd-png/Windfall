@@ -1,0 +1,48 @@
+{
+ "kind": "chicory",
+ "name": "Chicory",
+ "latin": "Cichorium intybus",
+ "family": "Asteraceae, the daisy family",
+ "grown_as": "Witloof (Belgian) chicory: William's records list 'De Bruxelles'. The roots are grown in summer, lifted in autumn and forced in the dark to make chicons, tight pale spindle-shaped heads. Drawn with the chicon as the crop. ⚠️ CHECK: if a leafy chicory (radicchio or sugarloaf) is meant, the crop is a red or green head in the field instead.",
+ "habit": "In the first year a big upright rosette of long leaves 30 to 40 cm tall on a thick, carrot-like white taproot. A perennial: if left, in the next year it sends up stiff, branched, wiry stems 60 to 120 cm tall with few leaves, studded with blue flowers.",
+ "leaf": {
+  "arrangement": "A rosette from the crown; on the flowering stem alternate and few",
+  "type": "Simple",
+  "outline": "Rosette leaves long and oblong to lance-shaped, 15 to 30 cm, widest above the middle; witloof leaves mostly unlobed, but some lower leaves are cut into backward-pointing lobes like a dandelion's. Stem leaves small and lance-shaped",
+  "base": "Tapering into a broad winged stalk; stem leaves clasp the stem with small pointed ears",
+  "tip": "Blunt to pointed",
+  "margin": "Wavy with scattered shallow teeth, or lobed near the base",
+  "veins": "A broad pale (often reddish at the base) midrib; side veins faint",
+  "surface": "Matt, with a few rough hairs on the underside of the midrib",
+  "stalk": "A winged, flattened stalk, pale",
+  "colour": "Mid green. The forced chicon is creamy white with pale yellow leaf tips"
+ },
+ "flower": {
+  "form": "A flat open flower head like a daisy with no eye, made only of strap-shaped florets, opening in the morning and closing by early afternoon",
+  "petals": "No true petals: 15 to 20 strap-shaped florets, each with five small teeth across its squared-off tip",
+  "colour": "Clear sky blue; rarely white or pink",
+  "centre": "No separate eye: blue styles and dark blue anthers stand up in the middle, the same colour as the florets",
+  "behind": "Two rows of green bracts: an inner row of upright long ones and an outer row of short ones turned out",
+  "carried": "Stalkless, singly or in clusters of two or three along stiff, branched, nearly leafless stems, facing out",
+  "size": "3 to 4 cm across",
+  "season": "July to October"
+ },
+ "fruit": "Small angular seeds (achenes) 2 to 3 mm, pale brown, topped with a tiny crown of scales but no fluffy hairs: chicory makes no clock. The seeds sit in the dried, closed bract cups along the brown wiry stems.",
+ "seedling": "Two oval to spoon-shaped seed leaves on short stalks, then oblong true leaves with a few teeth, slightly hairy beneath.",
+ "winter": "The leaves die back and the crown sits at the soil on its thick taproot, sometimes with a few small leaves. Witloof roots are lifted in autumn and forced under cover in the dark over winter.",
+ "palette": {"leaf": "leaf", "flower": "blue", "centre": "blue", "fruit": "seed"},
+ "palette_wish": {"flower": "clear sky blue, about #6E94E0"},
+ "must_show": {
+  "leaf": ["a long oblong leaf narrowing into a winged pale stalk", "a broad pale midrib", "wavy edge with scattered shallow teeth or backward-pointing lobes near the base"],
+  "bloom": ["clear sky-blue head of strap-shaped florets with squared, toothed tips", "blue styles in the middle, no yellow eye", "green bracts behind, the outer short ones turned out"],
+  "seed": ["small angular pale brown seed 2 to 3 mm", "no fluffy hairs"],
+  "seedling": ["two oval seed leaves", "the first true leaf oblong, a little toothed"],
+  "young": ["an upright rosette of long, oblong leaves", "pale broad midribs"],
+  "crop": ["a tight, pointed, spindle-shaped chicon 12 to 15 cm long", "creamy white leaves closely wrapped, pale yellow tips", "on its thick lifted root"],
+  "flower": ["stiff, branched, wiry stems with few small leaves", "sky-blue flowers stalkless along the stems in ones to threes"],
+  "seedhead": ["bare brown wiry stems", "small closed brown bract cups along them, no clocks"],
+  "dormant": ["a bare crown at the soil on a thick white taproot", "leaves gone or a few small ones"]
+ },
+ "look_alikes": "Endive (Cichorium endivia) is an annual with curly or broad, frilly leaves and the same blue flowers. Dandelion has yellow heads and hollow stalks with milky sap. Cornflower has a blue flower but with funnel-shaped, frilled outer florets and grey narrow leaves.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

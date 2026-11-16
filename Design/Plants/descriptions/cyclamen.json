@@ -1,0 +1,74 @@
+{
+ "kind": "cyclamen",
+ "name": "Cyclamen",
+ "latin": "Cyclamen hederifolium",
+ "family": "Primulaceae, the primrose family",
+ "grown_as": "The hardy autumn-flowering cyclamen, ivy-leaved sowbread. William has a pink one and a white one in the rockery; drawn pink.",
+ "habit": "A low mound 10 to 15 cm high. In late summer the flowers come up on their own from a bare tuber at the soil surface; the marbled leaves follow and stay all winter, dying away in early summer.",
+ "leaf": {
+  "arrangement": "Many leaves, each on its own long stalk from the top of the tuber, forming a low mound",
+  "type": "Simple",
+  "outline": "Heart-shaped to triangular, often with a few shallow angular lobes like an ivy leaf, 4 to 12 cm long; very variable",
+  "base": "Heart-shaped (cordate), deeply notched where the stalk joins",
+  "tip": "Pointed to bluntly pointed",
+  "margin": "Smooth or with small, shallow, widely spaced teeth",
+  "veins": "Palmate from the stalk; not prominent",
+  "surface": "Dark green above, marbled with a silver-grey pattern (often a band shaped like an arrowhead or a ring); underside often reddish-purple",
+  "stalk": "Long, thin, reddish, curving up from the tuber",
+  "colour": "Dark green with silver marbling"
+ },
+ "flower": {
+  "form": "A nodding flower with its petals swept straight back upwards, like a shuttlecock",
+  "petals": "Five petals, joined at the base into a short tube, the lobes long and narrow, bent sharply back up and slightly twisted",
+  "colour": "Pale to mid pink",
+  "centre": "At the mouth a deeper magenta V-shaped mark on each petal, and small ear-like flaps (auricles) at each petal base; the mouth points down",
+  "behind": "Small green sepals, mostly hidden",
+  "carried": "Alone on a thin stalk 10 to 15 cm from the tuber, the stalk curving over at the top so the flower hangs, its petals pointing up",
+  "size": "Petals 1.5 to 2.5 cm long",
+  "season": "August to October, before or with the first leaves"
+ },
+ "fruit": "After flowering the stalk coils like a spring from the top down, pulling the round capsule (about 1 cm) to the soil under the leaves. It opens the next summer to show sticky seeds that ants carry away.",
+ "seedling": "Not drawn. One small round seed leaf above a tiny tuber.",
+ "winter": "At its best: a mound of marbled leaves all winter.",
+ "palette": {
+  "leaf": "marrow",
+  "flower": "pink",
+  "centre": "beet",
+  "fruit": "bark"
+ },
+ "must_show": {
+  "leaf": [
+   "heart-shaped to ivy-shaped, with a deep notch at the base",
+   "dark green with a silver-grey marbled pattern",
+   "a long thin reddish stalk"
+  ],
+  "bloom": [
+   "five petals swept straight back upwards from a hanging flower",
+   "a deep magenta V at the mouth of each petal",
+   "small ear-like flaps at the base of the petals"
+  ],
+  "bulb": [
+   "a tuber, not a bulb: a flattened, corky brown disc, often large",
+   "roots from the top and sides as well as below",
+   "shoots from the middle of the top"
+  ],
+  "shoots": [
+   "flower stalks coming up from the bare tuber before the leaves",
+   "young leaves unrolling from the top of the tuber"
+  ],
+  "flower": [
+   "pink shuttlecock flowers on thin stalks over a low mound",
+   "marbled heart-shaped leaves round them, or not yet up"
+  ],
+  "seedhead": [
+   "flower stalks coiled like springs",
+   "round seed pods pulled down to the soil under the leaves"
+  ],
+  "dormant": [
+   "no leaves",
+   "the top of the bare tuber showing at the soil surface"
+  ]
+ },
+ "look_alikes": "Cyclamen coum flowers in winter, with short rounded petals, no ear-like flaps at the base and round, unlobed leaves. Florists' cyclamen (C. persicum) is much bigger and not hardy. The leaves can be taken for ivy, but ivy climbs and has woody stems.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

@@ -1,0 +1,77 @@
+{
+ "kind": "snake-s-head-fritillary",
+ "name": "Snake's head fritillary",
+ "latin": "Fritillaria meleagris",
+ "family": "Liliaceae, the lily family",
+ "grown_as": "The wild species, grown by William both in a bed and by the pond. Drawn in its usual chequered purple form; about one plant in ten is white.",
+ "habit": "Slender, upright single stems 15 to 40 cm tall with a few narrow leaves up them and one hanging bell at the top. Grassy and easily lost among grass until it flowers.",
+ "leaf": {
+  "arrangement": "Three to six leaves, alternate and spaced up the stem (not in a basal rosette)",
+  "type": "Simple, narrow (linear)",
+  "outline": "6 to 12 cm long by 3 to 8 mm wide, tapering gradually to the tip",
+  "base": "Stalkless, half clasping the stem",
+  "tip": "Pointed",
+  "margin": "Smooth, no teeth",
+  "veins": "Fine parallel veins",
+  "surface": "Smooth, channelled, with a grey waxy bloom",
+  "stalk": "None",
+  "colour": "Grey-green"
+ },
+ "flower": {
+  "form": "A large square-shouldered hanging bell, like a little lantern",
+  "petals": "Six tepals, free, oblong, held together in a bell that is wide at the top (squarish shoulders) and slightly narrower at the mouth",
+  "colour": "Chequered: a regular pattern of dark maroon-purple squares on a paler pinkish-lilac ground, like a chessboard. White form: white with faint green chequers.",
+  "centre": "Hidden inside: six yellow anthers and a three-branched style. A green nectar groove at the base of each tepal inside.",
+  "behind": "No sepals or bracts",
+  "carried": "Usually one (sometimes two) per stem, hanging from the arching tip of the stem",
+  "size": "3 to 4.5 cm long",
+  "season": "April to May"
+ },
+ "fruit": "The stem straightens and the capsule stands upright: oblong, three-sided with rounded angles, about 2 cm, green turning straw, splitting at the top to shake out flat brown seeds.",
+ "seedling": "Not drawn. A single grass-like leaf; three to four years to flower.",
+ "winter": "Nothing above ground until shoots appear in March.",
+ "palette": {
+  "leaf": "sage",
+  "flower": "beet",
+  "fruit": "unripe"
+ },
+ "palette_wish": {
+  "flower": "dull maroon-purple, about #6E2F55, with the paler squares pink-lilac"
+ },
+ "must_show": {
+  "leaf": [
+   "a narrow grass-like leaf tapering to a point",
+   "stalkless, grey-green, smooth edge",
+   "fine parallel veins"
+  ],
+  "bloom": [
+   "a hanging bell with square shoulders",
+   "a chequerboard of dark purple squares on a paler pink-lilac ground",
+   "six tepals"
+  ],
+  "bulb": [
+   "a small bulb 1 to 2 cm of two or three fleshy white scales",
+   "no papery skin",
+   "often split into two halves"
+  ],
+  "shoots": [
+   "a thin grey-green stem with narrow leaves on it, like grass",
+   "a single bud hanging at the tip"
+  ],
+  "flower": [
+   "a slender stem with a few narrow leaves spaced up it",
+   "one chequered bell hanging from the top",
+   "the bell large for the thin stem"
+  ],
+  "seedhead": [
+   "an upright oblong pod on a straightened stem",
+   "leaves yellowing"
+  ],
+  "dormant": [
+   "nothing above the soil",
+   "the small bulb below ground"
+  ]
+ },
+ "look_alikes": "Nothing else in the UK has the chequered bell. Before flowering it looks like grass or a young bluebell, but its leaves are on the stem, not from the base. Other fritillaries (F. uva-vulpis, F. michailovskyi) are smaller, with unchequered bells.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

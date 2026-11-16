@@ -1,0 +1,46 @@
+{
+ "kind": "purple-orach",
+ "name": "Purple Orach",
+ "latin": "Atriplex hortensis var. rubra",
+ "family": "Amaranthaceae, the amaranth and goosefoot family",
+ "grown_as": "Red garden orache, an annual grown for its young leaves (eaten like spinach) and as a tall ornamental. Often self-sows. William's records give no variety.",
+ "habit": "A tall, upright, branched annual 1 to 1.8 m with a stout purple stem, narrow and spire-like. Picked young as a leafy plant 20 to 40 cm.",
+ "leaf": {
+  "arrangement": "Alternate (the lowest sometimes opposite)",
+  "type": "Simple",
+  "outline": "Triangular to arrow-shaped, 5 to 15 cm long, smaller and narrower up the stem",
+  "base": "Straight across or arrow-shaped, the two lower corners pointing outwards",
+  "tip": "Pointed to blunt",
+  "margin": "Smooth to slightly wavy, sometimes with a few shallow irregular teeth",
+  "veins": "A midrib and few side veins, not prominent",
+  "surface": "Soft and thin; young leaves with a fine glistening mealiness, later matt",
+  "stalk": "Short to medium, purple",
+  "colour": "Deep red-purple on both sides"
+ },
+ "flower": {
+  "form": "Tiny flowers without petals in long branched spikes; the female flowers sit between two flat, round bracts which become the showy seed discs",
+  "petals": "None",
+  "colour": "Red-purple, like the leaves",
+  "centre": "Tiny stamens on the male flowers",
+  "behind": "A pair of flat, round, papery bracts round each female flower, growing to 1 to 1.5 cm",
+  "carried": "In long, slender, branched spikes at the top of the plant and in the upper leaf joints, upright then arching",
+  "size": "Flowers about 1 mm; the bract pairs 1 to 1.5 cm",
+  "season": "July to September"
+ },
+ "fruit": "Dense hanging spikes of flat, round, papery discs like small coins, each a pair of bracts round a single seed, purple fading to buff-brown. The seed inside is flat and round, 2 to 3 mm, brown or black.",
+ "seedling": "Two narrow strap-shaped seed leaves, purple, then small triangular purple true leaves.",
+ "winter": "Nothing: an annual. Dead brown seed spires stand into winter and drop self-sown seed.",
+ "palette": {"leaf": "beet", "flower": "beet", "fruit": "plum"},
+ "must_show": {
+  "leaf": ["a triangular to arrow-shaped leaf", "deep red-purple all over", "smooth or slightly wavy edge"],
+  "bloom": ["tiny flowers without petals", "each female flower between two flat round purple bracts"],
+  "seed": ["a flat round papery disc about 1 cm with a seed in the middle", "the seed itself flat, round, brown or black"],
+  "seedling": ["two narrow strap-shaped purple seed leaves", "the first true leaves triangular and purple"],
+  "young": ["a small upright purple plant with triangular leaves", "no flowers yet"],
+  "crop": ["a leafy upright plant 20 to 40 cm, deep purple all over", "triangular to arrow-shaped leaves"],
+  "flower": ["a tall narrow spire 1 to 1.8 m with a purple stem", "long branched purple spikes at the top"],
+  "seedhead": ["long drooping spikes crowded with flat round papery discs", "purple fading to buff-brown"]
+ },
+ "look_alikes": "Green orache is the same plant without the purple. Fat hen has mealy, toothed, grey-green leaves and no seed discs. Red amaranth has oval leaves and furry tassel-like flower heads. Beetroot leaves are purple-veined but glossy and on a swollen root.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

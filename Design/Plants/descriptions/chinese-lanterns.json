@@ -1,0 +1,77 @@
+{
+ "kind": "chinese-lanterns",
+ "name": "Chinese lanterns",
+ "latin": "Alkekengi officinarum",
+ "family": "Solanaceae, the nightshade family",
+ "grown_as": "A hardy perennial grown for its orange autumn 'lanterns', used in dried flower arrangements. Also sold as Physalis alkekengi (the garden form var. franchetii). Spreads strongly by underground stems.",
+ "habit": "Upright, unbranched stems 40 to 60 cm, in a spreading patch from creeping underground stems. Dies down in winter.",
+ "leaf": {
+  "arrangement": "Alternate, often in pairs of unequal size near the top",
+  "type": "Simple",
+  "outline": "Broadly oval to diamond-shaped, 5 to 12 cm",
+  "base": "Wedge-shaped, running down into the stalk",
+  "tip": "Pointed",
+  "margin": "Entire or with a few shallow, wavy, blunt teeth",
+  "veins": "Pinnate, 4 to 6 pairs of side veins",
+  "surface": "Thin, nearly hairless",
+  "stalk": "1 to 4 cm",
+  "colour": "Mid green"
+ },
+ "flower": {
+  "form": "A small open star or wheel, nodding",
+  "petals": "Five, joined, with five broad shallow pointed lobes",
+  "colour": "Creamy white",
+  "centre": "Greenish-yellow centre with five yellow stamens",
+  "behind": "A small green five-toothed calyx that grows after flowering into the lantern",
+  "carried": "Singly on curved stalks from the leaf joints, hanging down beneath the leaves",
+  "size": "1.5 to 2 cm across",
+  "season": "June to August"
+ },
+ "fruit": "The calyx swells into a papery, five-angled lantern 4 to 6 cm, with a pointed tip and a sunken base, green turning bright orange-red in autumn and hanging from the stem in a row. Inside is a round orange-red berry about 1.5 cm. Over winter the lantern skin rots away to a lacy net of veins round the berry. Seeds tiny, flat, pale.",
+ "seedling": "Two small oval seed leaves; first true leaves simple and oval. Usually grown from divisions, not seed.",
+ "winter": "Stems die back; dead brown stems may stand with skeleton lanterns of lacy veins showing the berry inside. New shoots from underground stems in spring.",
+ "palette": {
+  "leaf": "leaf",
+  "flower": "white",
+  "centre": "pear",
+  "fruit": "carrot"
+ },
+ "must_show": {
+  "leaf": [
+   "a broad oval pointed simple leaf",
+   "base running into the stalk",
+   "edge entire or with a few wavy teeth"
+  ],
+  "bloom": [
+   "a small creamy white five-lobed star, nodding",
+   "greenish-yellow centre"
+  ],
+  "seed": [
+   "a tiny flat seed",
+   "pale"
+  ],
+  "seedling": [
+   "two small oval seed leaves",
+   "a simple oval first leaf"
+  ],
+  "young": [
+   "upright unbranched leafy stems",
+   "growing as a patch from underground stems"
+  ],
+  "flower": [
+   "small creamy white flowers",
+   "hanging singly beneath the leaves on curved stalks"
+  ],
+  "crop": [
+   "bright orange-red papery lanterns hanging along the upper stem",
+   "each lantern five-angled with a pointed tip",
+   "leaves often fading or fallen"
+  ],
+  "dormant": [
+   "bare stems with lacy skeleton lanterns",
+   "a red berry showing inside the net of veins"
+  ]
+ },
+ "look_alikes": "Tomatillo has yellow flowers with dark blotches and green husks filled by the fruit. Cape gooseberry has a smaller brown husk and is soft-hairy.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

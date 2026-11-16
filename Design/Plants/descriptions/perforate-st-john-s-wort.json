@@ -1,0 +1,74 @@
+{
+ "kind": "perforate-st-john-s-wort",
+ "name": "Perforate st John's-wort",
+ "latin": "Hypericum perforatum",
+ "family": "Hypericaceae, the St John's-wort family",
+ "grown_as": "A wild perennial of grassland, banks and waste ground.",
+ "habit": "An upright perennial 30 to 80 cm (up to 1 m), stiff stems branching in the upper part, with a broad, flat-topped spread of golden flowers. Spreads by short creeping runners at the base.",
+ "leaf": {
+  "arrangement": "Opposite pairs, stalkless; the stem round with two thin raised lines running down it, one each side between the leaf pairs",
+  "type": "Simple",
+  "outline": "Oblong to narrowly oval, 1 to 3 cm long",
+  "base": "Rounded, stalkless",
+  "tip": "Blunt",
+  "margin": "Smooth, untoothed, with a few tiny black dots on the edge underneath",
+  "veins": "A midrib and a few faint side veins",
+  "surface": "Hairless. Held up to the light it is peppered with many tiny clear dots like pinpricks (the 'perforations')",
+  "stalk": "None",
+  "colour": "Mid green, paler beneath"
+ },
+ "flower": {
+  "form": "A flat, open, five-pointed star with a fluffy centre",
+  "petals": "Five, free, oval and a little lopsided, with tiny black dots along the edges",
+  "colour": "Bright golden yellow",
+  "centre": "A burst of many long yellow stamens in three bundles around three styles, giving a fluffy look",
+  "behind": "Five narrow, pointed green sepals, showing a little between the petals",
+  "carried": "Many together in branched, broad, flat-topped to rounded clusters at the tops of the stems, facing up",
+  "size": "2 to 2.5 cm across",
+  "season": "June to September"
+ },
+ "fruit": "Egg-shaped, pointed capsules about 6 to 8 mm, with three styles at the tip, ripening reddish brown in the branched head; the dead stems stand brown into winter. Seeds tiny (about 1 mm), cylindrical, dark brown, finely pitted.",
+ "seedling": "Two tiny oval seed leaves, then opposite pairs of small oval leaves",
+ "winter": "Low leafy shoots and runners at the base, often reddish, with the old brown flower stems standing above.",
+ "palette": {
+  "leaf": "leaf",
+  "flower": "sun",
+  "centre": "amber",
+  "fruit": "rust"
+ },
+ "must_show": {
+  "leaf": [
+   "small oblong stalkless leaf, untoothed, blunt",
+   "many tiny clear dots in the leaf",
+   "in opposite pairs"
+  ],
+  "bloom": [
+   "five golden yellow petals in a star",
+   "a fluffy burst of many long stamens",
+   "tiny black dots on the petal edges"
+  ],
+  "seed": [
+   "tiny cylindrical dark brown seeds"
+  ],
+  "seedling": [
+   "two tiny oval seed leaves",
+   "first true leaves small opposite ovals"
+  ],
+  "young": [
+   "upright stems with opposite pairs of small oblong leaves"
+  ],
+  "flower": [
+   "stiff upright stems branching at the top",
+   "broad flat-topped clusters of golden star flowers",
+   "small opposite leaves below"
+  ],
+  "seedhead": [
+   "branched heads of pointed reddish-brown capsules on stiff stems"
+  ],
+  "dormant": [
+   "low leafy shoots at the base with old brown stems above"
+  ]
+ },
+ "look_alikes": "Imperforate St John's-wort (Hypericum maculatum) has a square stem with four raised lines and few or no clear dots. Square-stalked St John's-wort (H. tetrapterum) has winged square stems and smaller paler flowers. Hairy St John's-wort is downy. Ragwort has daisy flowers and cut leaves.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

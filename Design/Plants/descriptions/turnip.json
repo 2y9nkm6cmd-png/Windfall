@@ -1,0 +1,46 @@
+{
+ "kind": "turnip",
+ "name": "Turnip",
+ "latin": "Brassica rapa subsp. rapa",
+ "family": "Brassicaceae, the cabbage family",
+ "grown_as": "The garden turnip, a biennial grown as an annual for its white root, drawn as a white globe with a purple top like 'Purple Top Milan'. Some varieties are all white ('Snowball') or yellow-fleshed ('Golden Ball'). ⚠️ CHECK: William's variety.",
+ "habit": "Year 1: an upright rosette of leaves 25 to 40 cm high from the top of a round root that sits half above the soil. Year 2: a branched flowering stem 50 to 100 cm, its upper leaves clasping the stem.",
+ "leaf": {
+  "arrangement": "A rosette from the top of the root; alternate on the flowering stem",
+  "type": "Simple, deeply lobed: lyre-shaped (lyrate), a large rounded end lobe and 2 to 4 pairs of smaller side lobes on the lower part",
+  "outline": "Long oblong, 20 to 40 cm, widest near the tip",
+  "base": "Tapering into the stalk, small lobes along it. Upper stem leaves undivided, clasping the stem with two rounded ear-like lobes",
+  "tip": "Broad and rounded",
+  "margin": "Wavy and irregularly, bluntly toothed all round",
+  "veins": "A broad pale midrib with netted side veins",
+  "surface": "Rough with stiff bristly hairs, especially on the young leaves and stalks; NOT waxy",
+  "stalk": "Fleshy, grooved, bristly, green",
+  "colour": "Bright grass green, not grey"
+ },
+ "flower": {
+  "form": "A four-petalled cross",
+  "petals": "Four, free, oval on short claws, in a cross",
+  "colour": "Bright golden yellow",
+  "centre": "Six stamens (four long, two short) round a green style",
+  "behind": "Four narrow green-yellow sepals spreading or held out from the petals",
+  "carried": "In a flat-topped cluster at the tip of each branch, the open flowers standing ABOVE the unopened buds; the spike lengthens as pods form below",
+  "size": "1 to 1.5 cm across",
+  "season": "March to May of the second year"
+ },
+ "fruit": "Slender cylindrical pods 4 to 7 cm long, with a thin beak 1 to 2 cm, held up on spreading stalks; they split lengthwise to release small round dark red-brown to black seeds.",
+ "seedling": "Two kidney- to heart-shaped seed leaves, notched at the tip, on short stalks, bright green; the first true leaves rough-hairy, oval and toothed.",
+ "winter": "Roots lifted in autumn or left in the ground in mild spells; tops die back in hard frost. Spring greens (turnip tops) come from roots left in.",
+ "palette": {"leaf": "leaf", "flower": "sun", "centre": "sun", "fruit": "straw", "root": "white"},
+ "must_show": {
+  "leaf": ["lyre-shaped with a large rounded end lobe and smaller side lobes below", "bristly-hairy and grass green, not waxy grey", "blunt teeth all round"],
+  "bloom": ["four bright yellow petals in a cross", "open flowers held above the buds at the cluster tip"],
+  "seed": ["a tiny round dark red-brown to black seed, about 1.5 mm"],
+  "seedling": ["two kidney-shaped seed leaves notched at the tip"],
+  "young": ["a rosette of rough lobed green leaves", "a white root starting to swell at the soil"],
+  "crop": ["a round, slightly flattened root sitting half out of the soil", "white below, purple where it was in the light above the soil", "no neck: leaves rise straight from the top", "a thin tail root"],
+  "flower": ["a branched stem with clasping upper leaves", "bright yellow cross-shaped flowers in flat-topped clusters"],
+  "seedhead": ["slender upright beaked pods along the stems"]
+ },
+ "look_alikes": "Swede has smooth, waxy, grey-green leaves, a neck of leaf scars on the root and yellow flesh; its buds stand above its open flowers. Kohlrabi is a swollen stem above ground with leaves rising from its sides. Radish has a smaller root and pale lilac flowers. Oilseed rape is like a swede, not a turnip.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

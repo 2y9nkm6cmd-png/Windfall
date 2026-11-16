@@ -1,0 +1,79 @@
+{
+ "kind": "pea",
+ "name": "Pea",
+ "latin": "Pisum sativum",
+ "family": "Fabaceae, the pea family",
+ "grown_as": "A hardy annual vegetable sown in spring, grown up twigs or netting: shelling peas, mangetout (flat pods eaten whole) and sugar snap (round pods eaten whole). Most have white flowers; some mangetout have purple flowers. Some modern varieties are 'semi-leafless', with tendrils in place of leaflets. Drawn as an ordinary leafy white-flowered pea. ⚠️ CHECK",
+ "habit": "A climbing annual 45 cm to 1.5 m (dwarf to tall), hairless, the whole plant blue-green. Weak round stem climbing by branched tendrils at the ends of the leaves; the very large leafy stipules at each joint look like the main leaves.",
+ "leaf": {
+  "arrangement": "Alternate",
+  "type": "Compound, pinnate: 1 to 3 pairs of leaflets, the central stalk ending in a branched tendril",
+  "leaflets": "Leaflets in pairs, unstalked, symmetrical. At the base of each leaf a pair of huge leafy stipules, larger than the leaflets, clasping the stem.",
+  "outline": "Leaflets oval, 2 to 6 cm. Stipules broad and half heart-shaped, wrapping round the stem.",
+  "base": "Leaflets rounded; stipules with a rounded lobe below the joint",
+  "tip": "Rounded or with a tiny point",
+  "margin": "Leaflets entire or with a few faint teeth; stipules toothed along their lower edge",
+  "veins": "Faint; netted",
+  "surface": "Hairless with a grey waxy bloom; stipules often with whitish mottling",
+  "stalk": "Short, ending in the branched tendril",
+  "colour": "Blue-green to grey-green"
+ },
+ "flower": {
+  "form": "A pea flower: an upright back petal (the standard), two side petals (the wings) and two lower petals joined into a boat-shaped keel between the wings",
+  "petals": "Five: a large rounded upright standard, two wings and a small keel",
+  "colour": "White (in some mangetout, a pink-purple standard with deep purple wings)",
+  "centre": "Hidden in the keel",
+  "behind": "A green calyx with five pointed teeth, the upper two broader",
+  "carried": "One to three on a stalk from the leaf joint, the flowers facing out",
+  "size": "2 to 3 cm long",
+  "season": "May to July"
+ },
+ "fruit": "Pods hanging from the leaf joints: shelling peas 6 to 10 cm, plump, smooth, green, with 4 to 9 round peas; mangetout flat with the peas barely showing; sugar snap round and fleshy. Dry pods go pale buff and papery. Seed: a round pea 5 to 8 mm, smooth or wrinkled, green to cream when dry.",
+ "seedling": "The seed leaves stay in the pea underground. A pale shoot comes up with small scale leaves, then leaves of one pair of leaflets with a simple tendril and the big stipules.",
+ "winter": "Nothing: an annual, cleared after cropping",
+ "palette": {
+  "leaf": "sage",
+  "flower": "white",
+  "centre": "pear",
+  "fruit": "leaf"
+ },
+ "must_show": {
+  "leaf": [
+   "1 to 3 pairs of oval leaflets ending in a branched tendril",
+   "a pair of big leafy stipules clasping the stem, bigger than the leaflets",
+   "blue-green colour"
+  ],
+  "bloom": [
+   "a pea flower: large round standard, two wings, keel",
+   "white",
+   "green toothed calyx"
+  ],
+  "seed": [
+   "a round pea, smooth or wrinkled",
+   "green to cream",
+   "5 to 8 mm"
+  ],
+  "seedling": [
+   "a thin shoot with small paired leaflets and a first tendril",
+   "no seed leaves above ground"
+  ],
+  "young": [
+   "a weak stem climbing a support with tendrils",
+   "big stipules at each joint"
+  ],
+  "flower": [
+   "white pea flowers in ones to threes from leaf joints on a climbing plant",
+   "tendrils gripping the support"
+  ],
+  "crop": [
+   "smooth green pods hanging from the leaf joints",
+   "blue-green leaves and tendrils"
+  ],
+  "seedhead": [
+   "dry pale buff papery pods hanging from the joints",
+   "plant yellowing and dying back"
+  ]
+ },
+ "look_alikes": "Sweet pea has a winged hairy stem, only one pair of leaflets and narrow stipules. Vetches have many pairs of narrow leaflets and small stipules. Broad bean has no tendrils.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

@@ -1,0 +1,50 @@
+{
+ "kind": "senecio-angel-wings",
+ "name": "Senecio 'Angel Wings'",
+ "latin": "Senecio candicans 'Senaw' (sold as Angel Wings)",
+ "family": "Asteraceae, the daisy family",
+ "grown_as": "A foliage plant grown for its large silver leaves, in William's upper orchard. William's library names it 'Senecio canc Angel Wings', which is Senecio candicans Angel Wings, a coastal plant from southern South America. It is only borderline hardy in the UK: it needs a sunny, sheltered, well-drained spot or a pot brought under cover in hard frost. Bought as a plant; not grown from seed.",
+ "habit": "A low, rounded, slightly succulent plant 25 to 40 cm high and as wide, the big leaves crowded on short, thick stems.",
+ "leaf": {
+  "arrangement": "Crowded in a loose rosette on short stems",
+  "type": "Simple",
+  "outline": "Large and broad: rounded to broadly oval or heart-shaped, 8 to 15 cm long and nearly as wide",
+  "base": "Narrowing into a short broad stalk, sometimes slightly heart-shaped",
+  "tip": "Rounded",
+  "margin": "Wavy, with small shallow teeth",
+  "veins": "Mostly hidden by the felt; the midrib shows as a faint groove",
+  "surface": "Thick and soft, covered on both sides in dense white felt, velvety to touch",
+  "stalk": "Short and broad",
+  "colour": "Silvery white"
+ },
+ "flower": null,
+ "fruit": "Not drawn. Rarely flowers in a UK garden; if it does, small yellow button heads in clusters on a tall stalk, best cut off to keep the leaves full.",
+ "seedling": "Not drawn: bought as a young plant.",
+ "winter": "Evergreen where it survives, but smaller: fewer leaves, the outer ones yellowing or browning after frost or wet. Often kept in a pot under cover.",
+ "palette": {
+  "leaf": "sage"
+ },
+ "palette_wish": {
+  "leaf": "silvery white felt, about #DCE3DE"
+ },
+ "must_show": {
+  "leaf": [
+   "big broad rounded leaf with a wavy, shallow-toothed edge",
+   "thick and silver-white felted all over",
+   "short broad stalk; veins scarcely visible"
+  ],
+  "young": [
+   "low rosette of a few broad silver-white leaves"
+  ],
+  "crop": [
+   "full mound 30 to 40 cm of large overlapping silver-white leaves",
+   "no flowers"
+  ],
+  "dormant": [
+   "smaller rosette of silver leaves",
+   "a few outer leaves browned or collapsed"
+  ]
+ },
+ "look_alikes": "Silver ragwort or dusty miller (Jacobaea maritima) has smaller leaves deeply cut into lobes. Lamb's ears (Stachys byzantina) has narrow, oblong, very soft leaves and purple flower spikes. Plectranthus argentatus has toothed, pointed leaves in opposite pairs.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. No reference photos had been downloaded for this group yet, so nothing was checked against photographs. ⚠️ CHECK"
+}

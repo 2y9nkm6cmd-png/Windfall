@@ -1,0 +1,73 @@
+{
+ "kind": "sweetcorn",
+ "name": "Sweetcorn",
+ "latin": "Zea mays",
+ "family": "Poaceae, the grass family",
+ "grown_as": "A tender annual grass grown for its cobs, sown in May under cover and planted out in a block (not a row) so the wind pollinates it. Kernel colour depends on the variety, usually yellow.",
+ "habit": "A tall, upright, single stem 1.5 to 2 m, thick, solid and jointed like bamboo, with prop roots at the base. Long leaves arch out in two rows. A branched tassel at the very top; one or two cobs part-way up the stem.",
+ "leaf": {
+  "arrangement": "Alternate in two opposite rows, one leaf at each joint",
+  "type": "Simple: a long grass blade",
+  "outline": "Long and strap-shaped, 50 to 100 cm by 5 to 10 cm, widest near the middle",
+  "base": "A long sheath wrapping round the stem, with a small papery collar (ligule) where the blade bends away",
+  "tip": "Tapering to a long point, often drooping",
+  "margin": "Entire, finely rough, the edges often crinkled and wavy",
+  "veins": "Parallel, running the length of the leaf, with a broad pale midrib down the centre",
+  "surface": "Slightly hairy above, smooth beneath",
+  "stalk": "None: the sheath takes its place",
+  "colour": "Mid green, the midrib pale"
+ },
+ "flower": {
+  "form": "Two kinds on one plant: a branched male tassel at the top, and female silks hanging from the tip of the cob below",
+  "petals": "None",
+  "colour": "Tassel straw-yellow to purple-tinged; silks pale yellow-green, turning pink-brown",
+  "centre": "Tassel: many small spikelets on spreading branches, the stamens dangling and shedding pollen",
+  "behind": "The female cob wrapped in green leafy husks",
+  "carried": "The tassel standing above the top leaf. The cobs in the leaf joints halfway up the stem, wrapped in husks, a tuft of long silky threads hanging from each tip.",
+  "size": "Tassel 20 to 40 cm; silks 10 to 20 cm",
+  "season": "July to August"
+ },
+ "fruit": "A cob 15 to 20 cm in green husks, the silks at the tip dry and brown when ready. Inside: straight rows of plump, shiny, pale to golden yellow kernels packed on the core. Seed: a flattened wedge-shaped kernel, shrivelled and wrinkled in sweetcorn, yellow, about 8 to 10 mm.",
+ "seedling": "A single rolled spear, then narrow grass-like leaves with blunt rounded tips; no seed leaves to be seen.",
+ "winter": "Nothing: killed by frost and cleared",
+ "palette": {
+  "leaf": "leaf",
+  "flower": "straw",
+  "centre": "pear",
+  "fruit": "sun"
+ },
+ "must_show": {
+  "leaf": [
+   "a long strap-shaped blade with parallel veins",
+   "a pale midrib",
+   "a sheath wrapping the stem"
+  ],
+  "bloom": [
+   "a branched tassel with dangling stamens",
+   "or silks hanging from the tip of a husk-wrapped cob"
+  ],
+  "seed": [
+   "a flattened wedge-shaped kernel",
+   "shrivelled and wrinkled",
+   "yellow"
+  ],
+  "seedling": [
+   "a single narrow grass-like leaf with a blunt tip",
+   "no seed leaves"
+  ],
+  "young": [
+   "an upright stem",
+   "long arching strap leaves in two rows"
+  ],
+  "flower": [
+   "a tassel at the top of the stem",
+   "silks from cobs in the leaf joints"
+  ],
+  "crop": [
+   "husk-wrapped cobs with brown silks on a tall stem",
+   "rows of yellow kernels where a husk is pulled back"
+  ]
+ },
+ "look_alikes": "Young sweetcorn can be taken for a big grass. Sorghum has its seeds in a head at the top, not in cobs.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

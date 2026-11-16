@@ -1,0 +1,45 @@
+{
+ "kind": "rose",
+ "name": "Rose",
+ "latin": "Rosa (garden hybrid roses)",
+ "family": "Rosaceae, the rose family",
+ "grown_as": "Garden shrub roses: William lists Rosa 'Well-Being' ('Harjangle'), a small white rose and a small red rose. These are modern hybrids, not the wild Rosa gallica that the photos were searched under. Flower colour and the number of petals depend on the variety; the drawing shows a pink semi-double rose as the most typical. ⚠️ CHECK which colour to draw, and whether the hips stage suits these roses (fully double roses often set few hips)",
+ "habit": "A bushy deciduous shrub, 0.5 to 1.2 m, with several upright, arching green to reddish stems from a woody base, armed with scattered hooked prickles.",
+ "leaf": {
+  "arrangement": "Alternate",
+  "type": "Compound, pinnate: five (sometimes seven) leaflets, one at the end and two or three pairs opposite each other along the stalk",
+  "leaflets": "The end leaflet on a short stalk of its own and the largest; the side leaflets in opposite pairs, almost stalkless, getting smaller towards the base",
+  "outline": "Each leaflet oval, 2 to 5 cm long",
+  "base": "Rounded",
+  "tip": "Pointed",
+  "margin": "Finely and sharply toothed all round each leaflet",
+  "veins": "A midrib and fine side veins, lightly pressed in",
+  "surface": "Smooth, often glossy, dark green above; paler beneath",
+  "stalk": "Leaf stalk with a pair of narrow leafy wings (stipules) joined along its base, their tips free and pointed; often a few small prickles beneath",
+  "colour": "Dark green, young leaves often red-tinged"
+ },
+ "flower": {
+  "form": "A cup-shaped to open bowl-shaped flower, semi-double (two or three rings of petals) to fully double",
+  "petals": "Many, free, broad and rounded, often with a shallow notch at the tip, the outer ones opening out and the inner ones cupped",
+  "colour": "Depends on variety: pink drawn; also white, red, apricot or yellow",
+  "centre": "In semi-double flowers, a ring of many golden-yellow stamens round the styles; hidden in fully double ones",
+  "behind": "Five long pointed green sepals, some with feathery side lobes, turned back below the flower",
+  "carried": "Singly or in small clusters at the ends of the shoots, upright, opening from pointed, swirled buds",
+  "size": "5 to 10 cm across",
+  "season": "June to September, in flushes"
+ },
+ "fruit": "Hips: round to urn-shaped, 1.5 to 3 cm, smooth and shiny, ripening orange-red to scarlet, with the dried sepals or a scar on top. Singly or in small bunches at the shoot tips. September to winter.",
+ "seedling": "Not drawn: grown as bought plants",
+ "winter": "Bare, or with a few old leaves: upright green to reddish-brown prickly stems, often with hips left on; small red buds above the leaf scars.",
+ "palette": {"leaf": "deep", "flower": "pink", "centre": "sun", "fruit": "berry"},
+ "must_show": {
+  "leaf": ["five (or seven) leaflets, one at the end and the rest in opposite pairs", "each leaflet oval and sharply toothed all round", "a pair of leafy wings joined to the base of the leaf stalk"],
+  "bloom": ["many broad rounded petals in rings, the inner ones cupped", "a ring of yellow stamens in the centre if semi-double", "long pointed sepals turned back below"],
+  "young": ["upright prickly stems", "compound leaves of five leaflets"],
+  "dormant": ["bare upright stems with hooked prickles", "a few hips left on, if the variety sets them"],
+  "flower": ["roses at the shoot tips, upright, with swirled buds beside them", "compound leaves"],
+  "crop": ["round to urn-shaped orange-red hips at the shoot tips", "dried sepals or a scar on top of each hip"]
+ },
+ "look_alikes": "Dog rose (Rosa canina) has single pale pink five-petalled flowers and oval hips. Bramble leaves have three or five leaflets all spreading from one point, and blackberry fruit. Potentilla shrubs have small single yellow or white flowers and no prickles.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge and iNaturalist photos of wild Rosa gallica, which show the leaf, sepals and hips but not William's double garden roses. ⚠️ CHECK"
+}

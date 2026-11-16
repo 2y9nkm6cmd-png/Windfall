@@ -1,0 +1,69 @@
+{
+ "kind": "aubrieta",
+ "name": "Aubrieta",
+ "latin": "Aubrieta × cultorum",
+ "family": "Brassicaceae, the cabbage family",
+ "grown_as": "Garden aubrieta from the seed mix 'Cascade Mix' for the rockery: evergreen, low and trailing, in mixed purple, blue and red. Drawn in the typical purple. ⚠️ CHECK the colour William wants drawn.",
+ "habit": "A low, dense, evergreen mat or cushion 5 to 10 cm tall and 30 to 60 cm across, spilling over stones and walls, covered in flowers in spring.",
+ "leaf": {
+  "arrangement": "Alternate, crowded into small rosettes at the ends of short trailing stems",
+  "type": "Simple",
+  "outline": "Spoon-shaped to narrowly oval, 1 to 2.5 cm long",
+  "base": "Tapering to a wedge",
+  "tip": "Rounded to blunt",
+  "margin": "One to three coarse teeth on each side near the tip, smooth lower down; some leaves untoothed",
+  "veins": "Only the midrib shows",
+  "surface": "Soft, covered in tiny star-shaped hairs, slightly felty",
+  "stalk": "Very short, merging with the tapering base",
+  "colour": "Grey-green"
+ },
+ "flower": {
+  "form": "A flat cross-shaped flower",
+  "petals": "Four, free, rounded blades on long claws hidden in the sepals",
+  "colour": "Purple to violet (mix: also blue, red-purple and pink)",
+  "centre": "A small pale yellow-green centre with stamen tips",
+  "behind": "Four narrow upright sepals pressed together into a tube",
+  "carried": "In short, loose clusters of a few flowers on short stalks, so thick they hide the mat",
+  "size": "1.5 to 2 cm across",
+  "season": "April to June"
+ },
+ "fruit": "Small, oval to oblong, hairy pods 1 to 2 cm, held upright, with a beak left by the style; green ripening pale brown. Seeds small, oval, light brown.",
+ "seedling": "Not drawn: two small round seed leaves, then tiny grey-green spoon-shaped leaves",
+ "winter": "An evergreen grey-green mat of small leaves, looser after cutting back.",
+ "palette": {
+  "leaf": "sage",
+  "flower": "mauve",
+  "centre": "primrose",
+  "fruit": "seed"
+ },
+ "palette_wish": {
+  "flower": "rich purple-violet, about #8A4FB8"
+ },
+ "must_show": {
+  "leaf": [
+   "small spoon-shaped leaf with a few teeth near the tip only",
+   "soft, grey-green, hairy",
+   "tapering wedge base"
+  ],
+  "bloom": [
+   "four rounded petals in a flat cross",
+   "purple to violet",
+   "narrow sepals in a tube behind"
+  ],
+  "young": [
+   "a low spreading mat of small grey-green leaves in rosettes"
+  ],
+  "flower": [
+   "a low mat smothered in purple four-petalled flowers",
+   "spilling over a stone or edge"
+  ],
+  "seedhead": [
+   "small upright hairy pods with a beak above the mat"
+  ],
+  "dormant": [
+   "a low evergreen grey-green mat of small leaves"
+  ]
+ },
+ "look_alikes": "Arabis (rock cress) is white-flowered with greyer leaves. Phlox subulata has needle-like leaves and five-petalled flowers. Aurinia (gold dust) is yellow. Purple rock cress is another name for aubrieta.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

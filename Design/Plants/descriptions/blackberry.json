@@ -1,0 +1,45 @@
+{
+ "kind": "blackberry",
+ "name": "Blackberry",
+ "latin": "Rubus fruticosus agg.",
+ "family": "Rosaceae, the rose family",
+ "grown_as": "Cane fruit trained on wires: William grows two thornless 'Thornfree' plants, a garden hybrid without prickles. Wild brambles, which the photos show, are very variable (hundreds of microspecies) and covered in hooked prickles.",
+ "habit": "Long, arching to trailing canes 2 to 4 m, rooting at the tip where they touch the ground. Canes ridged, green to purple-red. 'Thornfree' has smooth canes; wild brambles have strong hooked prickles. Canes fruit in their second year then die. Semi-evergreen.",
+ "leaf": {
+  "arrangement": "Alternate",
+  "type": "Compound, palmate: three or five leaflets all spreading from the top of the stalk (in fives, the lowest pair stalked from the bases of the middle pair)",
+  "leaflets": "The end leaflet the largest, on a stalk of its own 2 to 4 cm long; side leaflets on short stalks, a little lopsided",
+  "outline": "Each leaflet oval to almost round, 4 to 10 cm long",
+  "base": "Rounded or slightly heart-shaped",
+  "tip": "A short, sharp, often drawn-out point",
+  "margin": "Sharp, irregular teeth all round",
+  "veins": "A midrib and straight side veins running into the teeth",
+  "surface": "Dark green, smooth to slightly hairy above; paler, often grey-felted beneath",
+  "stalk": "4 to 8 cm; with small hooked prickles on wild plants, smooth on 'Thornfree'",
+  "colour": "Dark green; turning purple-red in autumn and winter"
+ },
+ "flower": {
+  "form": "An open flat flower like a small wild rose, often looking crumpled",
+  "petals": "Five, free, oval, crinkled",
+  "colour": "White to pale pink",
+  "centre": "A tuft of many stamens with white or pale pink filaments around a green dome of pistils",
+  "behind": "Five grey downy sepals, turned back",
+  "carried": "In loose, elongated clusters at the ends of the side shoots, open flowers mixed with buds; facing out",
+  "size": "2 to 3 cm across",
+  "season": "June to August"
+ },
+ "fruit": "A cluster of glossy drupelets, round to short-oblong, 1.5 to 3 cm, turning from green to red to shining black. Keeps its core when picked. Fruits on the same cluster ripen over weeks, so green, red and black berries show together. August to September.",
+ "seedling": "Not drawn: grown as bought plants",
+ "winter": "Long arching canes tied to wires, often still with some purplish leaves.",
+ "palette": {"leaf": "deep", "flower": "white", "centre": "pale", "fruit": "dark"},
+ "must_show": {
+  "leaf": ["three or five leaflets all spreading from the top of one stalk", "end leaflet the largest, on its own stalk, with a sharp point", "sharp teeth all round each leaflet"],
+  "bloom": ["five crinkled white to pale pink petals, open flat", "a tuft of many stamens round a green centre", "grey sepals turned back"],
+  "young": ["long arching canes, smooth on 'Thornfree'", "leaves of three or five leaflets spreading from one point"],
+  "dormant": ["long arching canes tied to wires", "a few purplish leaves left on"],
+  "flower": ["loose clusters of white or pale pink flowers at the ends of side shoots", "buds and open flowers together"],
+  "crop": ["clusters of glossy black berries with red and green ones among them", "palmate leaves"]
+ },
+ "look_alikes": "Raspberry has pinnate leaves white beneath, small upright petals and red fruit that leaves its core behind. Dewberry (Rubus caesius) has blue-bloomed fruit with few drupelets. Loganberry and tayberry have long red to purple fruit.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge and UK iNaturalist photos. ⚠️ CHECK"
+}

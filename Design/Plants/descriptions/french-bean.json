@@ -1,0 +1,81 @@
+{
+ "kind": "french-bean",
+ "name": "French bean",
+ "latin": "Phaseolus vulgaris",
+ "family": "Fabaceae, the pea family",
+ "grown_as": "A tender annual vegetable sown after frost: dwarf (bush) varieties 40 to 50 cm, and climbing varieties 2 m or more up canes. Flower colour (white, lilac or purple) and pod colour (green, yellow, purple) depend on the variety, which is not known: drawn as a dwarf bean with white flowers and green pods. ⚠️ CHECK",
+ "habit": "Dwarf types: a bushy little plant 40 to 50 cm high. Climbing types: a slender stem twining round a cane anticlockwise, 2 to 3 m. Both slightly hairy, with leaves held well spaced on long stalks.",
+ "leaf": {
+  "arrangement": "Alternate (but the first pair of true leaves opposite)",
+  "type": "Compound: three leaflets (trifoliate)",
+  "leaflets": "The middle leaflet on a longer stalk of its own (1 to 3 cm), symmetrical; the two side leaflets on short stalks and lopsided, the outer half wider. Tiny stipels at the base of each leaflet stalk.",
+  "outline": "Each leaflet broadly oval to triangular-oval, 6 to 12 cm, widest below the middle",
+  "base": "Broad and rounded to squared",
+  "tip": "Tapering to a sharp point",
+  "margin": "Entire: no teeth",
+  "veins": "A midrib and 4 to 6 curved side veins each side",
+  "surface": "Thin, slightly rough with fine hairs, a little puckered",
+  "stalk": "Long (5 to 15 cm), grooved, swollen at the base",
+  "colour": "Mid green"
+ },
+ "flower": {
+  "form": "A small pea flower, the keel coiled into a tight spiral",
+  "petals": "Five: a broad standard, two wings spreading sideways and a spiral keel",
+  "colour": "White (in some varieties pale lilac or purple)",
+  "centre": "Hidden in the coiled keel",
+  "behind": "A small green cup-shaped calyx with two small bracts at its base",
+  "carried": "In short loose clusters of 2 to 8 on a stalk from the leaf joints, among or under the leaves",
+  "size": "1 to 1.5 cm long",
+  "season": "July to September"
+ },
+ "fruit": "Slim pods 10 to 20 cm, round or slightly flat in section, smooth, green, ending in a thin curved beak, hanging in bunches from the leaf joints. Dry pods turn pale straw-buff and papery with the beans showing as bumps. Seed: a kidney-shaped bean 1 to 1.5 cm, its colour varying with variety (white, black, brown, mottled), with a small white scar on the inner curve.",
+ "seedling": "The bean pushes up out of the soil as a hooked stem pulling up two thick, fleshy seed leaves (the bean's two halves). Between them opens the first pair of true leaves: simple, opposite, heart-shaped and pointed. Only after these do the three-leaflet leaves come.",
+ "winter": "Nothing: killed by the first frost",
+ "palette": {
+  "leaf": "leaf",
+  "flower": "white",
+  "centre": "pear",
+  "fruit": "leaf"
+ },
+ "must_show": {
+  "leaf": [
+   "three leaflets, the middle one on a longer stalk",
+   "each leaflet broad oval with a sharp pointed tip",
+   "no teeth",
+   "side leaflets lopsided"
+  ],
+  "bloom": [
+   "a small pea flower with a coiled keel",
+   "white",
+   "small green calyx"
+  ],
+  "seed": [
+   "a kidney-shaped bean",
+   "a small white scar on the inner curve",
+   "colour by variety: white, black, brown or mottled"
+  ],
+  "seedling": [
+   "two thick fleshy bean halves on the stem",
+   "a pair of opposite heart-shaped pointed simple leaves above them"
+  ],
+  "young": [
+   "a small bushy plant of three-leaflet leaves on long stalks",
+   "leaflets broad with pointed tips"
+  ],
+  "flower": [
+   "small white pea flowers in loose clusters at the leaf joints",
+   "flowers partly hidden under the three-leaflet leaves"
+  ],
+  "crop": [
+   "slim smooth green pods hanging in bunches",
+   "three-leaflet leaves"
+  ],
+  "seedhead": [
+   "dry straw-coloured papery pods",
+   "the beans showing as bumps through the pod",
+   "a thin beak at the end of each pod"
+  ]
+ },
+ "look_alikes": "Runner bean (Phaseolus coccineus) has bigger, rougher leaves, scarlet flowers in long spikes held clear of the leaves and coarse broad pods; its seed leaves stay underground. Broad bean has pinnate grey-green leaves.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

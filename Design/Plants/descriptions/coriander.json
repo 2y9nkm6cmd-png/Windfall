@@ -1,0 +1,47 @@
+{
+ "kind": "coriander",
+ "name": "Coriander",
+ "latin": "Coriandrum sativum",
+ "family": "Apiaceae, the carrot family (umbellifers)",
+ "grown_as": "An annual herb sown for its leaves (cilantro) and seed. Leaf varieties such as 'Calypso' or 'Leisure' are slow to bolt; all look alike.",
+ "habit": "At first a low leafy tuft 15 to 25 cm high; when it bolts a slender branched stem 40 to 60 cm, its leaves becoming finer as it rises. Stem smooth, solid, often flushed red-purple at the base. The leaves have the familiar strong coriander smell.",
+ "leaf": {
+  "arrangement": "Lower leaves in a loose rosette; stem leaves alternate",
+  "type": "Two kinds. Lower leaves once pinnate with 3 to 7 broad leaflets, or simply three-lobed. Upper stem leaves two or three times pinnate, cut into narrow thread-like segments.",
+  "leaflets": "On lower leaves: fan-shaped to round, 1 to 3 cm, the end leaflet largest and often three-lobed",
+  "outline": "Lower leaves broad and flat, like flat-leaved parsley but softer and rounder; upper leaves feathery",
+  "base": "Lower leaflets wedge-shaped at the base",
+  "tip": "Lower leaflets rounded, lobed",
+  "margin": "Lower leaflets with blunt rounded lobes and teeth all round the outer edge, none at the narrow base",
+  "veins": "Fine and fan-like, not prominent",
+  "surface": "Thin, smooth, hairless, a little glossy",
+  "stalk": "Lower leaves on long thin stalks with a narrow sheath at the base",
+  "colour": "Bright mid green"
+ },
+ "flower": {
+  "form": "Small loose umbels with a ragged edge, because the outer flowers have their outer petals much enlarged",
+  "petals": "Five per flower; in the outer flowers the outward-facing petals are 3 to 4 times larger and two-lobed, the inner ones tiny",
+  "colour": "White or pale pink to mauve",
+  "centre": "Tiny pale stamens and a pale stylopodium",
+  "behind": "No bracts or one; a few narrow bracteoles under each small umbel",
+  "carried": "At the ends of stems and branches on longish stalks, facing up; 2 to 5 rays only, so the umbel is small and open",
+  "size": "Umbels 1.5 to 3 cm across; outer flowers about 3 to 5 mm",
+  "season": "June to August, earlier when it bolts in heat"
+ },
+ "fruit": "Hard round balls 3 to 5 mm across, two halves joined, with fine wavy ribs and a tiny crown of sepals at the top. Green, ripening straw-brown. Sold as coriander seed.",
+ "seedling": "Two long, narrow, strap-shaped seed leaves (about 2 to 3 cm), then first true leaves round to fan-shaped, lobed and toothed",
+ "winter": "Nothing: an annual",
+ "palette": {"leaf": "leaf", "flower": "white", "fruit": "straw"},
+ "must_show": {
+  "leaf": ["a lower leaf with broad fan-shaped lobed leaflets", "blunt teeth round the outer edge, none at the wedge base", "not feathery"],
+  "bloom": ["small umbel of few rays", "outer flowers with much larger outer petals, giving a ragged edge", "white to pale pink"],
+  "seed": ["round hard ball with fine ribs", "straw-brown"],
+  "seedling": ["two long strap-shaped seed leaves", "first true leaf rounded and lobed"],
+  "young": ["low tuft of broad lobed leaves on thin stalks"],
+  "crop": ["leafy tuft of broad lobed leaves, no flower stem"],
+  "flower": ["slender branched stem with fine feathery upper leaves", "small white or pale pink umbels with enlarged outer petals"],
+  "seedhead": ["clusters of round straw-brown seeds on few rays", "dried stem"]
+ },
+ "look_alikes": "Flat-leaved parsley has firmer, darker, glossier leaflets with sharp teeth and never thread-like upper leaves. Chervil leaves are fern-like and soft. Anise lower leaves are similar but the plant is downy and its fruit egg-shaped.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. No UK iNaturalist photos had been downloaded for this group when it was written. ⚠️ CHECK"
+}

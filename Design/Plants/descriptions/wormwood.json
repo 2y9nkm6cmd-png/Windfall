@@ -1,0 +1,67 @@
+{
+ "kind": "wormwood",
+ "name": "Wormwood",
+ "latin": "Artemisia absinthium",
+ "family": "Asteraceae, the daisy family",
+ "grown_as": "Wormwood (absinthe), a hardy perennial grown for its silver leaves. Drawn as the plain species; 'Lambrook Silver' is similar. ⚠️ CHECK",
+ "habit": "An upright, bushy clump 60 to 120 cm high, many ribbed, silvery stems from a woody base, branching above into leafy flower sprays.",
+ "leaf": {
+  "arrangement": "Alternate, singly along the stem",
+  "type": "Simple but deeply cut: two or three times divided, feather-like",
+  "outline": "Broadly oval to triangular overall, 5 to 10 cm long on the lower leaves, cut almost to the midrib into many narrow, oblong segments 2 to 4 mm wide; upper leaves smaller and less cut, the top ones narrow and whole",
+  "base": "Narrowing into the stalk",
+  "tip": "Each segment blunt and rounded",
+  "margin": "The segments smooth-edged, no teeth",
+  "veins": "Hidden under the hairs; only the midribs show",
+  "surface": "Covered in fine silky hairs on both sides, a little whiter beneath",
+  "stalk": "Long on the lower leaves, short or none on the upper",
+  "colour": "Silvery grey-green"
+ },
+ "flower": {
+  "form": "Tiny round, button-like heads, with no petals",
+  "petals": "None to see: each head is a ball of tiny tube flowers",
+  "colour": "Dull pale yellow",
+  "centre": "The whole head is the centre",
+  "behind": "A cup of grey, hairy bracts",
+  "carried": "Many heads, nodding on short stalks, along the branches of a loose, leafy, upright pyramid-shaped spray",
+  "size": "3 to 5 mm across",
+  "season": "July to August"
+ },
+ "fruit": "Tiny brown seeds with no fluff; the heads dry grey-brown.",
+ "seedling": "Not drawn.",
+ "winter": "Dies back to a woody base, often with a low tuft of silver leaves.",
+ "palette": {
+  "leaf": "sage",
+  "flower": "primrose",
+  "fruit": "seed"
+ },
+ "palette_wish": {
+  "leaf": "silvery grey, about #C9D0C2"
+ },
+ "must_show": {
+  "leaf": [
+   "a leaf deeply cut two or three times into many narrow segments",
+   "each segment blunt with a smooth edge",
+   "silvery grey silky surface",
+   "a stalk on the lower leaf"
+  ],
+  "bloom": [
+   "tiny round yellow heads with no petals",
+   "nodding on short stalks",
+   "grey hairy bracts round each"
+  ],
+  "young": [
+   "a low clump of silvery, deeply cut leaves"
+  ],
+  "growing": [
+   "an upright bushy clump of silver stems and feathery silver leaves",
+   "leaves set singly, not in pairs"
+  ],
+  "flower": [
+   "tall leafy sprays covered in tiny nodding yellow balls",
+   "silver deeply cut leaves below, smaller and less cut above"
+  ]
+ },
+ "look_alikes": "Mugwort has leaves dark green above and white beneath with pointed lobes, and upright reddish-brown heads on purple stems. Southernwood has thread-fine green segments. Artemisia 'Powis Castle' is finer cut and rarely flowers.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

@@ -1,0 +1,77 @@
+{
+ "kind": "sunflower",
+ "name": "Sunflower",
+ "latin": "Helianthus annuus",
+ "family": "Asteraceae, the daisy family",
+ "grown_as": "A tall annual grown from seed. William's library lists 'Giant Single', 1.5 to 3 m: one stem and one huge head. Described here as that type.",
+ "habit": "One stout, upright, unbranched stem 1.5 to 3 m tall, rough with stiff hairs, about 3 to 5 cm thick at the base. Big leaves all the way up, drooping on their stalks. One very large head at the top.",
+ "leaf": {
+  "arrangement": "Opposite in the lowest few pairs, alternate higher up the stem",
+  "type": "Simple",
+  "outline": "Broadly heart-shaped to broadly oval, 10 to 30 cm long, the lower leaves the largest",
+  "base": "Heart-shaped or cut straight across, then running briefly down into the stalk",
+  "tip": "Narrowing to a sharp point",
+  "margin": "Coarse, uneven, forward-pointing teeth all round the edge from the base to the tip",
+  "veins": "Three strong veins from the base (one midrib and two big side veins), with a net of smaller veins between",
+  "surface": "Very rough, like sandpaper, with short stiff hairs on both sides; paler beneath",
+  "stalk": "Long, 5 to 20 cm, grooved and hairy; the leaves hang from it",
+  "colour": "Mid to dark green"
+ },
+ "flower": {
+  "form": "A huge flat daisy head: one ring of yellow rays round a very broad dark disc",
+  "petals": "Not true petals: 30 to 50 ray florets in one or two rows, long, narrow-oval and pointed, flat or slightly twisted",
+  "colour": "Golden yellow rays",
+  "centre": "A broad flat disc, a third to half the width of the whole head, packed with hundreds of tiny tubular florets in crossing spirals. Dark brown to purple-brown, opening in rings from the outside in, the open ring dusted yellow with pollen",
+  "behind": "Several rows of broad green bracts with long, leafy, pointed, hairy tips, showing as a fringe round the back and edge of the head",
+  "carried": "Alone at the very top of the stem. The young head faces up and turns with the sun; the open head faces sideways (often east) and tilts further down as it gets heavier",
+  "size": "20 to 35 cm across in giant types",
+  "season": "July to September"
+ },
+ "fruit": "The seeds (achenes) fill the whole disc in tight spirals. Each is a flattened tear-drop 1 to 1.5 cm long, striped black and grey-white or all black. The ripe head droops face down, the rays shrivel, the back turns yellow-brown and the bracts dry and curl.",
+ "seedling": "Two large, thick, smooth, oblong seed leaves with rounded tips on a stout stem, often still wearing the seed case. The first true leaves come as an opposite pair, oval and pointed, rough and finely toothed.",
+ "winter": "Nothing living: an annual. The dead stalk and head may stand into winter for the birds.",
+ "palette": {
+  "leaf": "deep",
+  "flower": "sun",
+  "centre": "dark",
+  "fruit": "dark"
+ },
+ "must_show": {
+  "leaf": [
+   "large heart-shaped leaf with a sharp tip",
+   "coarse teeth all round the edge",
+   "three main veins from the base",
+   "long stalk"
+  ],
+  "bloom": [
+   "one ring of long pointed golden-yellow rays",
+   "a broad dark brown disc at least a third of the head's width, with a spiral pattern",
+   "leafy pointed green bracts showing round the edge"
+  ],
+  "seed": [
+   "flattened tear-drop seed, pointed at one end",
+   "striped black and grey-white"
+  ],
+  "seedling": [
+   "two thick smooth oblong seed leaves on a stout stem",
+   "first pair of rough, opposite, toothed true leaves"
+  ],
+  "young": [
+   "one stout unbranched hairy stem",
+   "big heart-shaped leaves on long stalks, opposite low down and alternate above",
+   "a single bud at the top wrapped in leafy bracts"
+  ],
+  "flower": [
+   "one huge head at the top of a single very tall stem",
+   "head facing sideways or tilted, not flat to the sky",
+   "big drooping heart-shaped leaves all up the stem"
+  ],
+  "seedhead": [
+   "head hanging face down, rays shrivelled",
+   "face packed with seeds in spirals",
+   "brown dry bracts and browning leaves"
+  ]
+ },
+ "look_alikes": "Perennial sunflowers (such as Helianthus 'Lemon Queen') and Jerusalem artichoke carry many small heads 5 to 10 cm across with yellow, not dark, discs. Rudbeckia has a raised dark cone and hairy, narrow leaves and is far smaller. Heliopsis has opposite leaves throughout and a yellow-brown cone.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. No reference photos had been downloaded for this group yet, so nothing was checked against photographs. ⚠️ CHECK"
+}

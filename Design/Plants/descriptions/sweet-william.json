@@ -1,0 +1,70 @@
+{
+ "kind": "sweet-william",
+ "name": "Sweet William",
+ "latin": "Dianthus barbatus",
+ "family": "Caryophyllaceae, the pink family",
+ "grown_as": "A short-lived perennial grown as a biennial, from the seed mix 'Double Mix': mixed colours (crimson, red, pink, white and bicolours), many flowers with extra petals. Drawn single to semi-double in crimson with a darker eye ring and a pale edge, the most typical look. ⚠️ CHECK the colour William wants drawn.",
+ "habit": "An upright clump 30 to 50 cm tall of stiff, unbranched, jointed stems with swollen joints, each topped by one dense flat head of flowers. A low tuft of leaves in the first year.",
+ "leaf": {
+  "arrangement": "Opposite pairs, the two leaf bases joined around the swollen stem joint",
+  "type": "Simple",
+  "outline": "Lance-shaped, 4 to 10 cm long and 1 to 2 cm wide, broader than most pinks",
+  "base": "Stalkless, narrowing a little then joining its partner round the stem",
+  "tip": "Pointed",
+  "margin": "Smooth, untoothed",
+  "veins": "A clear midrib, the side veins hardly showing, so the leaf looks parallel-veined",
+  "surface": "Smooth, hairless, flat",
+  "stalk": "None",
+  "colour": "Mid to dark green, not grey like most pinks, sometimes purple-tinged"
+ },
+ "flower": {
+  "form": "A small flat flower, many packed tightly into a flat-topped head",
+  "petals": "Five, free, on long hidden claws; the spreading blades broad with a toothed (pinked) outer edge. Double forms have extra rows of petals.",
+  "colour": "Mixed: crimson, red, pink, white, often with a darker ring round the eye and a white edge or white speckles",
+  "centre": "A darker eye ring; two curled white styles and small stamens poke out",
+  "behind": "A narrow tubular calyx; at its base green bracts with long thread-like points (the 'beard'), which show between the flowers in the head",
+  "carried": "In a dense, flat-topped head 8 to 12 cm across at the top of each stem, facing up",
+  "size": "Each flower 1.5 to 2 cm across",
+  "season": "June to August"
+ },
+ "fruit": "A narrow capsule inside the dried calyx, opening at the top with four small teeth. Seeds flat, black, oval to round, 2 to 3 mm, slightly rough.",
+ "seedling": "Two small, smooth, narrow oval seed leaves, then opposite pairs of narrow pointed true leaves",
+ "winter": "The first-year plant stays green over winter as a low leafy tuft.",
+ "palette": {
+  "leaf": "deep",
+  "flower": "berry",
+  "centre": "beet",
+  "fruit": "straw"
+ },
+ "must_show": {
+  "leaf": [
+   "lance-shaped untoothed leaf, no stalk",
+   "midrib only, parallel look",
+   "green, not grey"
+  ],
+  "bloom": [
+   "a dense flat-topped head of many small flowers",
+   "each flower five-petalled with a toothed outer edge",
+   "a darker eye ring, green thread-like bracts between flowers"
+  ],
+  "seed": [
+   "flat black oval seeds"
+  ],
+  "seedling": [
+   "two small narrow oval seed leaves",
+   "first true leaves an opposite pair, narrow and pointed"
+  ],
+  "young": [
+   "a low tuft of opposite lance-shaped green leaves joined round the stem"
+  ],
+  "flower": [
+   "stiff upright stems with swollen joints and opposite leaves",
+   "each stem topped by one flat dense head of flowers"
+  ],
+  "seedhead": [
+   "flat heads of brown dried calyces with narrow capsules opening at the tips"
+  ]
+ },
+ "look_alikes": "Garden pinks and carnations have grey, narrow leaves and flowers alone or few together. Carthusian pink (Dianthus carthusianorum) has small heads of pink flowers on thin stems with narrow leaves. Sweet William catchfly (Silene armeria) has sticky stems and no bearded bracts.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

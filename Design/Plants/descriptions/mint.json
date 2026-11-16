@@ -1,0 +1,71 @@
+{
+ "kind": "mint",
+ "name": "Mint",
+ "latin": "Mentha spicata",
+ "family": "Lamiaceae, the mint family",
+ "grown_as": "Garden mint (spearmint), a hardy perennial that spreads by runners and is often kept in a pot. The library also lists Applemint, a different mint with round, soft, woolly leaves. Drawn here as spearmint. ⚠️ CHECK which mint William grows, or whether two drawings are wanted.",
+ "habit": "A spreading patch of upright, unbranched or little-branched square stems 30 to 80 cm high, rising from white or pale runners just under or along the soil surface.",
+ "leaf": {
+  "arrangement": "Opposite, in pairs, each pair at right angles to the one below",
+  "type": "Simple",
+  "outline": "Lance-shaped, long and narrow, 4 to 9 cm long and 1.5 to 3 cm wide, widest near the base",
+  "base": "Rounded",
+  "tip": "Pointed",
+  "margin": "Sharp, forward-pointing, irregular saw teeth along almost the whole edge, from near the base to the tip",
+  "veins": "A midrib and 5 to 8 side veins each side, pressed in so the leaf looks wrinkled",
+  "surface": "Smooth or almost so, matt to slightly shiny, wrinkled",
+  "stalk": "None or almost none: the leaf sits right on the stem",
+  "colour": "Bright mid green"
+ },
+ "flower": {
+  "form": "Tiny, almost regular, four-lobed funnels",
+  "petals": "Joined; four nearly equal lobes, the top one a little broader",
+  "colour": "Pale lilac to pink, sometimes white",
+  "centre": "Four stamens sticking out beyond the petals",
+  "behind": "A small green bell-shaped calyx with five narrow teeth",
+  "carried": "In many crowded rings that make a slender, tapering, upright spike 3 to 10 cm long at the top of each stem, the lower rings a little apart; smaller spikes from the upper leaf joints",
+  "size": "About 3 mm long; the spike about 1 cm thick",
+  "season": "July to September"
+ },
+ "fruit": "Rarely sets seed; the spikes dry brown with tiny nutlets in the calyces.",
+ "seedling": "Not drawn: grown from runners or bought plants.",
+ "winter": "Dies down to the ground. Runners lie at or just under the surface, sometimes with a few small leafy shoots showing in mild winters.",
+ "palette": {
+  "leaf": "leaf",
+  "flower": "lilac",
+  "fruit": "seed"
+ },
+ "must_show": {
+  "leaf": [
+   "a long narrow lance-shaped leaf, much longer than wide",
+   "no stalk or almost none",
+   "sharp saw teeth along almost the whole edge",
+   "wrinkled surface with pressed-in veins"
+  ],
+  "bloom": [
+   "a slender tapering spike made of many crowded rings of tiny flowers",
+   "flowers pale lilac with stamens sticking out"
+  ],
+  "young": [
+   "upright square stems with narrow stalkless leaves in opposite pairs",
+   "shoots rising from runners, not a single crown"
+  ],
+  "crop": [
+   "a dense patch of upright stems thick with narrow toothed stalkless leaves",
+   "each pair of leaves at right angles to the next"
+  ],
+  "flower": [
+   "slender pale lilac spikes at the stem tops",
+   "narrow toothed leaves in pairs below"
+  ],
+  "seedhead": [
+   "dry brown slender spikes on the old stems"
+  ],
+  "dormant": [
+   "bare soil with pale runners at the surface",
+   "a few small shoots or none"
+  ]
+ },
+ "look_alikes": "Applemint has round, soft, grey-woolly leaves. Peppermint has darker leaves on short stalks, purple-tinged stems and thicker, blunter spikes. Water mint has stalked oval leaves and round heads of flowers. Lemon balm has broad stalked leaves with round teeth and flowers in the leaf joints.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

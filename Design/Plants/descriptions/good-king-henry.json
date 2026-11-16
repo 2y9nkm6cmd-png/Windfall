@@ -1,0 +1,47 @@
+{
+ "kind": "good-king-henry",
+ "name": "Good King Henry",
+ "latin": "Blitum bonus-henricus",
+ "family": "Amaranthaceae, the amaranth and goosefoot family",
+ "grown_as": "A hardy perennial pot-herb: young shoots eaten like asparagus in spring, leaves like spinach later. Long called Chenopodium bonus-henricus, as William's records give it. No variety.",
+ "habit": "A leafy clump 30 to 60 cm tall and about 45 cm across from a thick fleshy rootstock, with upright, little-branched stems.",
+ "leaf": {
+  "arrangement": "Alternate up the stems and in a loose cluster from the base",
+  "type": "Simple",
+  "outline": "Triangular to broadly arrow-shaped, 5 to 10 cm long",
+  "base": "Broad and arrow-shaped, with two short pointed lobes spreading outwards",
+  "tip": "Pointed",
+  "margin": "Smooth or slightly wavy, no teeth",
+  "veins": "A midrib with a few side veins running out towards the base lobes",
+  "surface": "Slightly fleshy; young leaves mealy and a little sticky, especially beneath, so they look frosted; older leaves smoother above",
+  "stalk": "Long, often as long as the blade",
+  "colour": "Dark green above, paler and mealy beneath"
+ },
+ "flower": {
+  "form": "Tiny green flowers without petals, packed into narrow upright spikes",
+  "petals": "None: four or five small green tepals",
+  "colour": "Green",
+  "centre": "Four or five tiny yellow stamens",
+  "behind": "Nothing showy",
+  "carried": "In dense clusters making narrow, leafless, upright, tapering spikes at the stem tips and in the upper leaf joints",
+  "size": "2 to 3 mm; spikes 5 to 15 cm",
+  "season": "May to August"
+ },
+ "fruit": "A tiny, round, glossy black seed about 2 mm, held in the dried flower. The spikes turn dull red-brown as they ripen.",
+ "seedling": "Two narrow oblong seed leaves, mealy, then small triangular true leaves on long stalks, mealy beneath.",
+ "winter": "Dies right down to the ground. In late winter fat pinkish-green shoots push up from the crown.",
+ "palette": {"leaf": "deep", "flower": "unripe", "centre": "pear", "fruit": "bark"},
+ "must_show": {
+  "leaf": ["a triangular, arrow-shaped leaf with two short lobes spreading out at the base", "smooth edges, no teeth", "a long stalk; a mealy, frosted look beneath"],
+  "bloom": ["tiny green flowers without petals", "packed into a narrow upright spike"],
+  "seed": ["tiny round glossy black seed", "about 2 mm"],
+  "seedling": ["two narrow mealy seed leaves", "the first true leaves small and triangular"],
+  "young": ["a low clump of long-stalked triangular leaves", "young leaves mealy"],
+  "crop": ["a leafy clump 30 to 60 cm of dark green arrow-shaped leaves", "young shoots at the top for picking"],
+  "flower": ["narrow, leafless, upright spikes of green flowers at the stem tips", "arrow-shaped leaves below"],
+  "seedhead": ["the spikes turned dull red-brown", "leaves yellowing"],
+  "dormant": ["bare soil over the crown", "fat pinkish-green shoots just pushing up in late winter"]
+ },
+ "look_alikes": "Fat hen (Chenopodium album) is an annual with grey mealy, diamond-shaped, toothed leaves and leafy flower spikes. Oraches have toothed or hooked leaf bases and flat discs round the seeds. Lords-and-ladies has a glossy arrow-shaped leaf but no mealiness and a net of veins.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

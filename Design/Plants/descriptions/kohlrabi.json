@@ -1,0 +1,46 @@
+{
+ "kind": "kohlrabi",
+ "name": "Kohlrabi",
+ "latin": "Brassica oleracea (Gongylodes Group)",
+ "family": "Brassicaceae, the cabbage family",
+ "grown_as": "Kohlrabi, a biennial grown as an annual for its swollen stem, cut when the size of a tennis ball. Drawn as a pale green variety such as 'Superschmelz' or 'Logo'; purple varieties ('Azur Star', 'Purple Vienna') have a purple ball and purple-stalked leaves. ⚠️ CHECK: William's variety.",
+ "habit": "A short stem swollen into a ball 5 to 10 cm across just above the soil, with long-stalked leaves rising from all over its surface, the plant 30 to 45 cm high. Year 2: a branched flowering stem up to 1 m from the top of the ball.",
+ "leaf": {
+  "arrangement": "Alternate and spirally set around the ball, each on a long upright stalk",
+  "type": "Simple; sometimes with one or two small lobes on the stalk below the blade",
+  "outline": "Oval to oblong, 10 to 20 cm long",
+  "base": "Narrowing into the stalk, sometimes with small lobes or wings",
+  "tip": "Rounded",
+  "margin": "Wavy, with irregular blunt teeth",
+  "veins": "A pale broad midrib and netted side veins",
+  "surface": "Smooth, hairless, with a waxy grey bloom like cabbage",
+  "stalk": "Long (10 to 20 cm), slender, upright, rising from the side of the ball and leaving a crescent-shaped scar when it falls",
+  "colour": "Blue-grey green (glaucous); stalks purple in purple varieties"
+ },
+ "flower": {
+  "form": "A four-petalled cross",
+  "petals": "Four, free, oval on claws",
+  "colour": "Pale yellow",
+  "centre": "Six stamens round a green style",
+  "behind": "Four narrow upright sepals",
+  "carried": "In long loose spikes at the branch tips, the buds above the open flowers",
+  "size": "2 to 2.5 cm across",
+  "season": "April to June of the second year"
+ },
+ "fruit": "Slender cylindrical pods 5 to 10 cm with a short beak, splitting to release small round dark brown seeds.",
+ "seedling": "Two kidney-shaped seed leaves notched at the tip, grey-green; stem purple in purple varieties.",
+ "winter": "Not usually overwintered; harvested from summer to autumn before frost. A plant kept to flower overwinters as a ball with a few leaves.",
+ "palette": {"leaf": "sage", "flower": "primrose", "centre": "sun", "fruit": "straw", "root": "unripe"},
+ "must_show": {
+  "leaf": ["one simple oval leaf on a long stalk", "smooth and waxy grey-green", "wavy, bluntly toothed edge"],
+  "bloom": ["four pale yellow petals in a cross", "upright narrow sepals behind"],
+  "seed": ["a tiny round dark brown seed"],
+  "seedling": ["two kidney-shaped seed leaves notched at the tip"],
+  "young": ["a short stem starting to swell above the soil", "long-stalked grey-green leaves"],
+  "crop": ["a round pale green ball sitting ON the soil, not in it", "long leaf stalks rising from all over the ball's surface", "scars where lower leaves have fallen", "a short stem and roots below"],
+  "flower": ["a flowering stem from the top of the ball", "pale yellow cross-shaped flowers in long spikes"],
+  "seedhead": ["slender upright beaked pods along the stems"]
+ },
+ "look_alikes": "Turnip and swede swell at the root, partly underground, with leaves only from the top. Cabbage and kale have the same grey leaves but no swollen stem.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

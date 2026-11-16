@@ -1,0 +1,47 @@
+{
+ "kind": "sorrel",
+ "name": "Sorrel",
+ "latin": "Rumex acetosa",
+ "family": "Polygonaceae, the dock family",
+ "grown_as": "Common or garden sorrel, a perennial picked for its sharp, lemony leaves. ⚠️ CHECK which plant is meant: William's records list two sorrels that are other species, 'Volare' (given as Rumex patientia, patience dock: large, long, lance-shaped leaves, 1 m or more) and 'Red Lava' (Rumex sanguineus, bloody dock: oblong green leaves with deep red veins). Drawn as common sorrel, which looks unlike either.",
+ "habit": "A leafy clump 20 to 40 cm tall from a short rootstock. In early summer slender, upright, little-leaved flowering stems 50 to 100 cm, turning red.",
+ "leaf": {
+  "arrangement": "A loose rosette from the base; a few alternate leaves on the flowering stem",
+  "type": "Simple",
+  "outline": "Oblong to arrow-shaped, 7 to 15 cm long, two to four times as long as wide",
+  "base": "Arrow-shaped: two pointed lobes pointing backwards, down along the stalk, not out to the sides",
+  "tip": "Blunt to bluntly pointed",
+  "margin": "Smooth, no teeth, sometimes slightly wavy",
+  "veins": "A midrib and a net of fine side veins, not prominent",
+  "surface": "Smooth, hairless, slightly fleshy, matt to faintly shiny",
+  "stalk": "Rosette leaves on long stalks, as long as the blade or longer; upper stem leaves stalkless and clasping, with a thin papery sheath round the stem where the stalk joins",
+  "colour": "Mid green, sometimes flushed red, especially in winter"
+ },
+ "flower": {
+  "form": "Tiny flowers without petals, in whorled clusters along slender branched spikes; male and female flowers on separate plants",
+  "petals": "None: six small tepals",
+  "colour": "Green flushed red, the whole spike turning rusty red",
+  "centre": "Male flowers: six yellowish stamens; female flowers: tufted red feathery stigmas",
+  "behind": "Nothing showy",
+  "carried": "In loose upright, branched, leafless spikes at the top of the stem, the flowers in small spaced whorls",
+  "size": "3 to 4 mm",
+  "season": "May to July"
+ },
+ "fruit": "Three inner tepals grow into rounded papery wings 3 to 4 mm round a three-sided, glossy dark brown nut about 2 mm, each wing with a tiny wart at its base. The spikes go from red to rusty brown.",
+ "seedling": "Two narrow oblong-oval seed leaves on short stalks, then small rounded to oval true leaves; the arrow-shaped base appears on later leaves.",
+ "winter": "A small low rosette of a few leaves, often reddened, or bare crown in hard winters.",
+ "palette": {"leaf": "leaf", "flower": "rust", "centre": "rust", "fruit": "rust"},
+ "must_show": {
+  "leaf": ["an oblong leaf with an arrow-shaped base", "the two base lobes pointing back down along the stalk", "smooth edges and a long stalk"],
+  "bloom": ["tiny red-flushed flowers without petals", "in small spaced whorls along a slender spike"],
+  "seed": ["a small three-sided glossy dark brown nut", "inside rounded papery wings"],
+  "seedling": ["two narrow oblong seed leaves", "the first true leaves rounded on stalks"],
+  "young": ["a clump of long-stalked oblong leaves with arrow-shaped bases", "no flowering stem"],
+  "crop": ["a leafy clump of arrow-based oblong leaves on long stalks", "smooth edges, mid green"],
+  "flower": ["slender upright red-tinged spikes rising above the leaf clump", "few small clasping leaves on the flowering stem"],
+  "seedhead": ["rusty red to brown branched spikes crowded with small papery fruits", "the leaf clump below"],
+  "dormant": ["a small low rosette of a few leaves, some reddened", "low to the soil, no stems"]
+ },
+ "look_alikes": "Sheep's sorrel (Rumex acetosella) is smaller, with base lobes spreading out to the sides. French sorrel (Rumex scutatus) has shield-shaped grey-green leaves. Docks have larger leaves without the arrow base. Take care with lords-and-ladies (Arum maculatum, poisonous): its glossy arrow-shaped leaf has a net of veins and lobes that spread out and down.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

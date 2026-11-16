@@ -1,0 +1,74 @@
+{
+ "kind": "yellow-iris",
+ "name": "Yellow Iris",
+ "latin": "Iris pseudacorus",
+ "family": "Iridaceae, the iris family",
+ "grown_as": "The native yellow flag, grown wild at William's pond edge.",
+ "habit": "Tall clumps of upright sword leaves 60 to 120 cm high in fans from creeping rhizomes in mud or shallow water, with branched flower stems about as tall as the leaves. Spreads into large stands.",
+ "leaf": {
+  "arrangement": "In flat fans, each leaf folded at the base and sitting astride the next",
+  "type": "Simple, sword-shaped",
+  "outline": "50 to 90 cm (up to 150 cm) long by 1 to 3 cm wide, narrowing gradually to the tip",
+  "base": "Overlapping in the fan, pale or pinkish",
+  "tip": "Long-pointed",
+  "margin": "Smooth, no teeth, flat (not wavy)",
+  "veins": "A clear raised midrib down the middle on both faces, with fine parallel veins either side",
+  "surface": "Smooth, slightly glossy",
+  "stalk": "None",
+  "colour": "Mid green, sometimes slightly grey"
+ },
+ "flower": {
+  "form": "An iris with three broad drooping falls and three small upright standards; no beard",
+  "petals": "Six tepals: three broad, rounded falls hanging down; three standards, small and narrow, upright, much shorter than the falls. Three yellow, petal-like style arms arch over the falls.",
+  "colour": "Bright yellow",
+  "centre": "Fine brown-purple veins on each fall round a deeper orange-yellow patch; no beard",
+  "behind": "A green, leaf-like spathe at the base of each flower",
+  "carried": "Several flowers on a branched stem, opening one after another, upright",
+  "size": "7 to 10 cm across",
+  "season": "May to July"
+ },
+ "fruit": "A large three-sided green capsule 4 to 8 cm, hanging, splitting into three in autumn to show neat stacks of flat brown seeds like piles of coins.",
+ "seedling": "Not drawn. A narrow sword leaf; spreads mostly by rhizome.",
+ "winter": "Leaves die back brown and flattened; short green shoots at the base; rhizomes in the mud.",
+ "palette": {
+  "leaf": "leaf",
+  "flower": "sun",
+  "centre": "amber",
+  "fruit": "unripe"
+ },
+ "must_show": {
+  "leaf": [
+   "a long sword-shaped leaf narrowing to a point",
+   "a raised midrib down the middle",
+   "smooth flat margin"
+  ],
+  "bloom": [
+   "three broad drooping yellow falls with fine brown veins",
+   "three small narrow upright standards",
+   "no beard"
+  ],
+  "bulb": [
+   "a thick creeping, branching rhizome in mud, brownish-pink",
+   "fans of leaves from its tips and roots beneath"
+  ],
+  "shoots": [
+   "fans of green sword leaves at the water's edge",
+   "each leaf with a raised midrib, the fans in one flat plane"
+  ],
+  "flower": [
+   "tall fans of sword leaves",
+   "branched stems with bright yellow flowers among the leaves",
+   "at the edge of water"
+  ],
+  "seedhead": [
+   "large hanging three-sided green pods",
+   "some split open showing stacked brown seeds"
+  ],
+  "dormant": [
+   "brown dead leaves flattened over the rhizomes",
+   "maybe short green shoots at the base"
+  ]
+ },
+ "look_alikes": "Stinking iris (Iris foetidissima) has dark evergreen leaves, dull purplish or yellowish flowers and orange seeds. Sweet flag (Acorus calamus) has similar leaves with a wavy edge that smell of tangerine when crushed. Bur-reeds have three-sided leaves at the base and spiky ball flowers.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

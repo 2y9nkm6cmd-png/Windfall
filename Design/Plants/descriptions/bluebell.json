@@ -1,0 +1,77 @@
+{
+ "kind": "bluebell",
+ "name": "Bluebell",
+ "latin": "Hyacinthoides non-scripta",
+ "family": "Asparagaceae, the asparagus family (the hyacinth group)",
+ "grown_as": "The native English bluebell, grown wild in William's orchard from seed.",
+ "habit": "Clumps of floppy, glossy strap leaves 20 to 45 cm long lying out from the bulb, with a flower stem 20 to 50 cm tall that droops over at the top. Forms carpets in woods.",
+ "leaf": {
+  "arrangement": "Three to six leaves from the base of each bulb, arching over and lying out",
+  "type": "Simple, strap-shaped (linear)",
+  "outline": "Long and narrow, 20 to 45 cm by 7 to 15 mm, even width, narrowing only at the tip",
+  "base": "Pale where it leaves the soil",
+  "tip": "Blunt and hooded",
+  "margin": "Smooth, no teeth",
+  "veins": "Fine parallel veins, faint",
+  "surface": "Glossy, smooth and fleshy, channelled along the middle",
+  "stalk": "None",
+  "colour": "Glossy mid to dark green"
+ },
+ "flower": {
+  "form": "Narrow hanging bells along one side of a stem that arches over at the tip",
+  "petals": "Six tepals, joined only at the base into a narrow tube, their tips curled back",
+  "colour": "Violet-blue",
+  "centre": "Creamy white anthers just inside the mouth",
+  "behind": "A pair of narrow bluish bracts at the base of each short flower stalk",
+  "carried": "Five to fifteen flowers hanging down one side of the stem, which bends over at the top so the spike droops",
+  "size": "Each bell 1.5 to 2 cm long and narrow",
+  "season": "April to May"
+ },
+ "fruit": "Oval three-sided green capsules about 1.5 cm, held upright on their stalks along the stem, which straightens. They ripen straw-coloured and split into three to release black seeds. The dry stem stands into summer.",
+ "seedling": "Not drawn. A single grass-like leaf; about five years to flower.",
+ "winter": "Leaf tips come up from January; nothing above ground in late summer and autumn.",
+ "palette": {
+  "leaf": "deep",
+  "flower": "blue",
+  "centre": "white",
+  "fruit": "unripe"
+ },
+ "palette_wish": {
+  "flower": "violet-blue, about #5A58C0"
+ },
+ "must_show": {
+  "leaf": [
+   "a long narrow strap leaf, even width",
+   "glossy, channelled down the middle",
+   "blunt hooded tip, smooth margin"
+  ],
+  "bloom": [
+   "a narrow tubular bell with six tepal tips curled back",
+   "violet-blue with cream anthers",
+   "hanging down"
+  ],
+  "bulb": [
+   "a white, rounded bulb about 2 to 3 cm with no papery brown skin",
+   "roots from the base"
+  ],
+  "shoots": [
+   "glossy strap leaves coming up in a bunch",
+   "the flower spike rising with its tip hooked over"
+  ],
+  "flower": [
+   "bells hanging along one side of the stem only",
+   "the top of the stem drooping over",
+   "long glossy leaves lying out round the base"
+  ],
+  "seedhead": [
+   "oval pods held upright along a straightened stem",
+   "leaves going yellow"
+  ],
+  "dormant": [
+   "nothing above the soil",
+   "the white bulb deep below ground"
+  ]
+ },
+ "look_alikes": "Spanish bluebell (Hyacinthoides hispanica) and the common hybrid have upright stems with flowers all round, wider open bells with spreading tips, blue anthers, broader leaves (to 3.5 cm) and no scent. Grape hyacinths have tiny bead-like bells in a dense spike.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

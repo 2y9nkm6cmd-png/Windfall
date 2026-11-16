@@ -1,0 +1,45 @@
+{
+ "kind": "whitecurrant",
+ "name": "Whitecurrant",
+ "latin": "Ribes rubrum",
+ "family": "Grossulariaceae, the currant family",
+ "grown_as": "A fruit bush, 'White Versailles', the white-fruited form of redcurrant. Usually grown on a short leg (a clear stem of 10 to 15 cm) as an open goblet, or as a cordon.",
+ "habit": "An upright, spineless deciduous shrub, 1 to 1.5 m, on a short single trunk branching into an open cup of stems. Not aromatic. Fruits on short spurs on older wood and at the base of last year's shoots.",
+ "leaf": {
+  "arrangement": "Alternate",
+  "type": "Simple, palmately lobed",
+  "outline": "Roundish, 4 to 7 cm across, with three to five broad lobes",
+  "base": "Heart-shaped to almost straight across",
+  "tip": "Each lobe broad and bluntly pointed",
+  "margin": "Coarse, rounded to bluntly pointed teeth all round",
+  "veins": "Three to five main veins from the top of the stalk, one into each lobe",
+  "surface": "Smooth, mid green, slightly glossy above; paler and smooth or faintly downy beneath; no glands or smell",
+  "stalk": "Long, 3 to 6 cm",
+  "colour": "Mid green"
+ },
+ "flower": {
+  "form": "A tiny flat saucer",
+  "petals": "Five tiny petals hardly seen; the visible flower is five broad sepals spread flat",
+  "colour": "Pale yellow-green, sometimes with a purplish-brown ring in the centre",
+  "centre": "A raised ring (disc) with five short stamens and a two-branched style",
+  "behind": "A small green ovary behind the saucer, which becomes the berry",
+  "carried": "Ten to twenty on long hanging strings (strigs) 5 to 10 cm, several from each spur among the young leaves",
+  "size": "5 to 6 mm across",
+  "season": "April"
+ },
+ "fruit": "Round, translucent berries, 8 to 10 mm, pearly white to pale cream-yellow when ripe, the pale lines of veins and the seeds showing faintly through the skin, each with a tiny brown dry tip. Ten to twenty on long hanging strigs, ripest at the top. July.",
+ "seedling": "Not drawn: grown from cuttings or bought plants",
+ "winter": "Bare open goblet on a short leg: pale grey-brown stems, with short spurs and pointed brown buds standing away from the stem.",
+ "palette": {"leaf": "leaf", "flower": "pear", "centre": "plum", "fruit": "white"},
+ "palette_wish": {"fruit": "translucent pearly cream, about #F3EBC8"},
+ "must_show": {
+  "leaf": ["roundish leaf with three to five broad lobes", "blunt teeth all round", "main veins fanning from a long stalk"],
+  "bloom": ["a tiny flat pale green saucer flower", "part of a long hanging string"],
+  "young": ["a bush on a short single trunk, branching into an open cup", "lobed leaves"],
+  "dormant": ["bare open goblet of pale stems on a short single trunk", "short spurs with pointed buds"],
+  "flower": ["long hanging strings of tiny pale green saucer flowers", "young lobed leaves around them"],
+  "crop": ["long hanging strings of round translucent pearly-white berries", "lobed leaves"]
+ },
+ "look_alikes": "Redcurrant is the same plant with red berries. Blackcurrant leaves are bigger, more pointed and smell strongly, with bell flowers and black berries. Gooseberry has spines and berries borne singly.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

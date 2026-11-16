@@ -1,0 +1,46 @@
+{
+ "kind": "cress",
+ "name": "Cress",
+ "latin": "Lepidium sativum",
+ "family": "Brassicaceae, the cabbage family",
+ "grown_as": "Garden cress, 'Plain' in William's records, sown thickly indoors and cut as seedlings about 5 cm tall; it can also be grown on to a full plant.",
+ "habit": "As a crop, a dense green mat of thin pale stems topped with seed leaves. Grown on, an upright, branched, hairless annual 20 to 60 cm, slender, grey-green.",
+ "leaf": {
+  "arrangement": "Alternate; a loose rosette at first",
+  "type": "Lower leaves divided once or twice into narrow lobes (pinnately cut); upper stem leaves simple",
+  "outline": "Lower leaves 5 to 10 cm, cut into narrow, oblong to strap-like lobes; upper leaves narrow and strap-shaped, 2 to 4 cm",
+  "base": "Lower leaves narrowing into a long stalk; upper leaves stalkless",
+  "tip": "Lobes blunt to bluntly pointed",
+  "margin": "Lobes smooth or with a few teeth; upper leaves smooth",
+  "veins": "A midrib, one vein into each lobe",
+  "surface": "Smooth and hairless",
+  "stalk": "Long on the lower leaves, none on the upper",
+  "colour": "Grey-green to mid green"
+ },
+ "flower": {
+  "form": "A tiny cross-shaped flower of four petals",
+  "petals": "Four, free, spoon-shaped",
+  "colour": "White, sometimes tinged pink",
+  "centre": "Six (sometimes fewer) tiny stamens with yellow anthers",
+  "behind": "Four small green sepals, often with white edges",
+  "carried": "In crowded spikes at the tips of the stems, lengthening as they flower",
+  "size": "3 to 4 mm across",
+  "season": "June to August"
+ },
+ "fruit": "Small, flat, round to oval pods 5 to 6 mm with a narrow wing round the top and a small notch at the tip, held upright and pressed close to the stem on curved stalks; two seeds in each. Green drying straw-brown. Seeds oblong, 2 to 3 mm, red-brown, slimy when wet.",
+ "seedling": "Two seed leaves, each deeply cut into three lobes like a small trident, on a long thin pale stem; then the first true leaves narrow and toothed.",
+ "winter": "Nothing: an annual, sown indoors all year for seedlings.",
+ "palette": {"leaf": "leaf", "flower": "white", "centre": "primrose", "fruit": "pear"},
+ "must_show": {
+  "leaf": ["a lower leaf cut into narrow lobes along a long stalk", "smooth, hairless, grey-green", "upper leaves narrow, strap-shaped and stalkless"],
+  "bloom": ["four tiny white spoon-shaped petals in a cross", "in a crowded spike"],
+  "seed": ["oblong red-brown seed 2 to 3 mm", "tiny, about 2 mm"],
+  "seedling": ["two seed leaves each cut into three lobes", "a long thin pale stem"],
+  "young": ["a small rosette of narrowly lobed leaves", "the three-lobed seed leaves still at the base"],
+  "crop": ["a dense mat of thin pale stems about 5 cm tall", "each topped by a pair of three-lobed seed leaves"],
+  "flower": ["a slender upright branched plant with narrow upper leaves", "tiny white flowers in spikes"],
+  "seedhead": ["small flat round notched pods pressed upright against the stem", "crowded along long spikes"]
+ },
+ "look_alikes": "Mustard seedlings (sold with cress) have broad kidney-shaped seed leaves, not three-lobed ones. Watercress (Nasturtium officinale) grows in water with leaves of rounded leaflets and long pods. Land cress (Barbarea verna) has glossy lobed leaves and yellow flowers.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

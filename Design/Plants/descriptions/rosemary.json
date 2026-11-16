@@ -1,0 +1,64 @@
+{
+ "kind": "rosemary",
+ "name": "Rosemary",
+ "latin": "Salvia rosmarinus",
+ "family": "Lamiaceae, the mint family",
+ "grown_as": "Rosemary, an evergreen shrub. Drawn upright with pale blue flowers, the usual form; there are prostrate forms and white, pink and deep blue flowered ones. ⚠️ CHECK",
+ "habit": "An upright, bushy, evergreen shrub 60 to 150 cm high, with stiff, woody stems, grey-brown and peeling with age, densely clothed in needle-like leaves.",
+ "leaf": {
+  "arrangement": "Opposite, in pairs, but so crowded they look like a brush around the stem",
+  "type": "Simple",
+  "outline": "Needle-like, long and very narrow, 1.5 to 4 cm long and 2 to 4 mm wide",
+  "base": "Narrowed",
+  "tip": "Blunt",
+  "margin": "Smooth, no teeth, rolled under so strongly the leaf looks like a thick needle",
+  "veins": "A groove down the middle above; the midrib raised beneath",
+  "surface": "Leathery, a little glossy and wrinkled above; white woolly beneath, the white showing either side of the midrib",
+  "stalk": "None",
+  "colour": "Dark green above, white beneath"
+ },
+ "flower": {
+  "form": "A two-lipped flower with a hooded top and a hanging lower lip",
+  "petals": "Joined; the upper lip a hood, notched at the tip; the lower lip three-lobed, its large middle lobe cupped and hanging",
+  "colour": "Pale blue to lilac-blue, the lower lip spotted darker",
+  "centre": "Two long stamens and the style arching up and out of the upper lip",
+  "behind": "A small green or purple-tinged, two-lipped, bell-shaped calyx, finely hairy",
+  "carried": "In short clusters of 2 to 10 in the leaf joints along the upper part of the shoots, sitting among the leaves; no separate spike",
+  "size": "About 1 to 1.2 cm long",
+  "season": "March to May, and odd flowers through the year"
+ },
+ "fruit": "Four small brown nutlets in each calyx; rarely noticed.",
+ "seedling": "Not drawn.",
+ "winter": "Evergreen: unchanged, often with a few flowers.",
+ "palette": {
+  "leaf": "marrow",
+  "flower": "blue",
+  "fruit": "seed"
+ },
+ "must_show": {
+  "leaf": [
+   "a long needle-like leaf with a blunt tip",
+   "edges rolled right under",
+   "dark green above, white beneath",
+   "no stalk"
+  ],
+  "bloom": [
+   "a pale blue two-lipped flower",
+   "hooded upper lip, hanging lower lip spotted darker",
+   "long stamens arching up out of the hood"
+  ],
+  "young": [
+   "a small upright woody plant densely clothed in needle-like leaves"
+  ],
+  "crop": [
+   "an upright woody evergreen bush",
+   "stems thick with dark green needle-like leaves"
+  ],
+  "flower": [
+   "pale blue flowers in small clusters among the leaves along the upper shoots",
+   "no separate flower spikes"
+  ]
+ },
+ "look_alikes": "Lavender has grey felted leaves and flowers in spikes on long bare stalks. Hyssop has flat, soft leaves green on both sides and dense violet-blue spikes in late summer. Westringia, sometimes sold as Australian rosemary, has leaves in rings of four and white flowers.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

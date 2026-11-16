@@ -1,0 +1,77 @@
+{
+ "kind": "courgette",
+ "name": "Courgette",
+ "latin": "Cucurbita pepo",
+ "family": "Cucurbitaceae, the gourd family",
+ "grown_as": "A summer squash grown as a tender annual, sown under cover in April and planted out after the last frost. Most garden courgettes are bush varieties with dark green fruit; yellow-fruited and trailing kinds exist. William's variety is not known: drawn as a green bush courgette. ⚠️ CHECK",
+ "habit": "A big, open bush about 60 to 90 cm high and 1 to 1.2 m across. A short, thick, bristly main stem lies along the ground or leans, with all the leaves crowded near its tip on long, upright stalks, so the plant looks like a fountain of huge leaves. Flowers and fruit sit in the middle, low down, near the stem. Tendrils are few and weak on bush types.",
+ "leaf": {
+  "arrangement": "Alternate, but crowded together at the end of the short stem so they seem to rise from one point",
+  "type": "Simple, deeply lobed like a hand",
+  "outline": "Broadly triangular to rounded, 25 to 40 cm across, cut into 3 to 5 main lobes; the lobes are pointed and the cuts between them go about halfway to the stalk or deeper",
+  "base": "Deeply heart-shaped, with a notch where the stalk joins",
+  "tip": "Each lobe pointed",
+  "margin": "Irregular small teeth all round, and the lobes themselves wavy-edged",
+  "veins": "Palmate: three to five strong veins spread from the top of the stalk, one into each lobe, with a net of smaller veins between",
+  "surface": "Rough and bristly to touch, with stiff short prickles on the veins beneath. Many courgettes have silvery-white blotches along the main veins on the upper side; this is natural, not mildew.",
+  "stalk": "Long (30 to 50 cm), hollow, thick, five-angled and covered in stiff prickly bristles",
+  "colour": "Mid to dark green, often with silver-white patches along the veins"
+ },
+ "flower": {
+  "form": "A large deep trumpet or bell, flaring at the mouth",
+  "petals": "Joined into one funnel, splitting at the mouth into five broad lobes with pointed tips that spread and curl back a little",
+  "colour": "Bright yellow-orange inside and out, with green veins on the outside",
+  "centre": "Male flowers: a single thick yellow column of joined stamens. Female flowers: a short, thick, orange-yellow stigma with three to five lobes.",
+  "behind": "Five small narrow green sepals. A female flower sits on top of a tiny courgette, which is the giveaway.",
+  "carried": "Singly, from the leaf joins near the centre of the plant. Males on long thin stalks held up among the leaf stalks; females on short thick stalks, low down, the tiny fruit behind the flower. Open in the morning, closed by afternoon.",
+  "size": "10 to 15 cm long and about as wide across the mouth",
+  "season": "June to September"
+ },
+ "fruit": "Picked young: a long, straight cylinder 10 to 20 cm, dark green and glossy, often finely speckled or faintly striped paler, with the flower or its withered remains at the tip. The fruit stalk is hard, five-angled and ridged, flaring where it meets the fruit. Left on the plant it swells into a marrow 30 cm or more with a harder skin. Seeds are flat, oval, cream to pale buff, 12 to 15 mm, with a thin raised rim.",
+ "seedling": "Two large, thick, smooth, oblong to oval seed leaves (4 to 6 cm) with rounded tips and pale veins, on a stout stem; the first true leaf between them is small, rough and already lobed with the toothed edge.",
+ "winter": "Nothing: killed by the first frost and cleared",
+ "palette": {
+  "leaf": "deep",
+  "flower": "sun",
+  "centre": "amber",
+  "fruit": "marrow"
+ },
+ "must_show": {
+  "leaf": [
+   "one large leaf deeply cut into 3 to 5 pointed lobes like a hand",
+   "deep heart-shaped notch at the stalk",
+   "toothed wavy edge all round",
+   "silver blotches along the main veins",
+   "long thick bristly stalk"
+  ],
+  "bloom": [
+   "a big yellow-orange trumpet with five pointed lobes at the mouth",
+   "a single thick column or lobed stigma in the middle",
+   "for a female flower, a small green courgette behind it"
+  ],
+  "seed": [
+   "flat oval seed, cream to pale buff",
+   "a thin raised rim round the edge",
+   "about 12 to 15 mm, pointed at one end"
+  ],
+  "seedling": [
+   "two big smooth oblong seed leaves",
+   "a small rough lobed true leaf between them"
+  ],
+  "young": [
+   "a low bush of a few large lobed leaves on long upright stalks from a short stem",
+   "no climbing; leaves rise from the centre"
+  ],
+  "flower": [
+   "yellow trumpets low in the centre of the bush among the leaf stalks",
+   "big lobed leaves above them"
+  ],
+  "crop": [
+   "long straight dark green fruit lying in the centre of the bush",
+   "the fruit on a short hard stalk from the main stem, flower remains at the tip",
+   "big lobed leaves above"
+  ]
+ },
+ "look_alikes": "Winter squash (Cucurbita maxima) has rounder, barely lobed, soft-hairy leaves and long trailing vines. Cucumber leaves are smaller, triangular, with shallow angular lobes, and its flowers are much smaller (2 to 3 cm). Pumpkins are the same species as courgette and look alike in leaf; they trail and carry round orange fruit.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

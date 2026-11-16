@@ -1,0 +1,76 @@
+{
+ "kind": "ox-eye-daisy",
+ "name": "Ox-eye Daisy",
+ "latin": "Leucanthemum vulgare",
+ "family": "Asteraceae, the daisy family",
+ "grown_as": "A native wild flower and perennial of meadows and verges, grown in William's lower orchard. Height in his library 0.3 to 0.9 m.",
+ "habit": "A clump-forming perennial with a basal rosette and upright, slender, little-branched stems 30 to 60 cm (to 90 cm), each usually ending in a single head.",
+ "leaf": {
+  "arrangement": "A rosette at the base; alternate and well spaced up the stem",
+  "type": "Simple",
+  "outline": "Basal leaves spoon-shaped (round blade on a long narrow stalk), 4 to 10 cm; stem leaves oblong to narrow, getting smaller up the stem",
+  "base": "Basal leaves narrow into the stalk; stem leaves stalkless, clasping the stem with small ear-like lobes",
+  "tip": "Rounded on basal leaves, blunt on stem leaves",
+  "margin": "Basal leaves with rounded teeth or shallow lobes all round the blade; stem leaves with regular teeth along both sides, larger near the base",
+  "veins": "A clear midrib; side veins faint",
+  "surface": "Hairless or nearly so, slightly glossy and a little fleshy",
+  "stalk": "Basal leaves on a stalk as long as the blade or longer; stem leaves none",
+  "colour": "Dark green"
+ },
+ "flower": {
+  "form": "A large, flat, single daisy",
+  "petals": "About 15 to 35 white ray florets in one row, strap-shaped, the tips blunt with two or three tiny teeth",
+  "colour": "White rays",
+  "centre": "A flat to slightly domed bright yellow disc, 1 to 2 cm across",
+  "behind": "Several rows of overlapping green bracts with narrow dark brown papery edges",
+  "carried": "Alone at the top of a long, mostly bare stem, facing up",
+  "size": "3 to 6 cm across",
+  "season": "May to September, at its best in June"
+ },
+ "fruit": "The rays wither and fall; the disc dries brownish to grey-yellow on the stalk. Seeds tiny, about 2 mm, cylindrical, dark with about ten pale ribs and no fluff.",
+ "seedling": "Two small round to oval seed leaves on short stalks. The first true leaf is spoon-shaped with a few rounded teeth.",
+ "winter": "Evergreen: a low rosette of dark green, spoon-shaped, toothed leaves.",
+ "palette": {
+  "leaf": "deep",
+  "flower": "white",
+  "centre": "sun",
+  "fruit": "bark"
+ },
+ "must_show": {
+  "leaf": [
+   "basal leaf spoon-shaped on a long stalk, with rounded teeth",
+   "stem leaf narrow, stalkless, toothed and clasping the stem",
+   "dark green"
+  ],
+  "bloom": [
+   "one row of 20 or more white rays with blunt tips",
+   "flat bright yellow disc",
+   "green bracts with dark brown edges behind"
+  ],
+  "seed": [
+   "tiny ribbed seed, dark with pale stripes",
+   "no fluff"
+  ],
+  "seedling": [
+   "two small round seed leaves",
+   "first spoon-shaped true leaf with a few teeth"
+  ],
+  "young": [
+   "flat rosette of dark green spoon-shaped leaves on stalks"
+  ],
+  "flower": [
+   "slim stems each with one large white daisy",
+   "few small toothed leaves up the stem",
+   "rosette at the base"
+  ],
+  "seedhead": [
+   "rays gone",
+   "brownish flat to domed disc on the stem"
+  ],
+  "dormant": [
+   "green rosette of spoon-shaped toothed leaves at the soil"
+  ]
+ },
+ "look_alikes": "Shasta daisy is larger with glossier, longer leaves. Scentless mayweed and corn chamomile have finely divided leaves. Daisy (Bellis) is a small rosette plant with heads on leafless stalks. Feverfew has small heads in clusters and lobed yellow-green leaves.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. No reference photos had been downloaded for this group yet, so nothing was checked against photographs. ⚠️ CHECK"
+}

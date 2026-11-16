@@ -1,0 +1,78 @@
+{
+ "kind": "oxford-rampion",
+ "name": "Oxford rampion",
+ "latin": "Phyteuma scheuchzeri",
+ "family": "Campanulaceae, the bellflower family",
+ "grown_as": "A perennial rock-garden plant from the Alps, named for the old walls of Oxford where it grows wild. William's library gives Phyteuma scheuchzeri, which is the plant called Oxford rampion or horned rampion. Described as that.",
+ "habit": "A low, tufted perennial 20 to 40 cm from a thick root, the leafy stems upright to arching.",
+ "leaf": {
+  "arrangement": "A tuft of basal leaves; alternate up the stem",
+  "type": "Simple",
+  "outline": "Basal leaves narrow lance-shaped (sometimes broader), 5 to 15 cm; stem leaves narrow, almost grass-like, getting smaller upwards",
+  "base": "Basal leaves tapering into a long stalk; stem leaves stalkless",
+  "tip": "Pointed",
+  "margin": "Smooth or with small, fine, uneven teeth",
+  "veins": "A midrib only",
+  "surface": "Smooth, hairless, slightly glossy",
+  "stalk": "Long on basal leaves; none on stem leaves",
+  "colour": "Dark green"
+ },
+ "flower": {
+  "form": "A round ball of 15 to 30 small flowers packed together",
+  "petals": "Five narrow petals joined at the tip into a curved, claw-like tube in bud; later they split apart from the base into five thin strips",
+  "colour": "Deep violet-blue",
+  "centre": "Long styles stick out of the flowers, each ending in two or three curled stigma lobes",
+  "behind": "Several long, narrow, leafy bracts under the head, longer than the head and spreading like horns",
+  "carried": "Alone at the tip of each stem, upright or nodding a little",
+  "size": "Head 1.5 to 2.5 cm across",
+  "season": "May to July"
+ },
+ "fruit": "Small dry capsules in a brownish head, the long horn-like bracts still sticking out. Seeds tiny, oval, flattened and shiny brown.",
+ "seedling": "Two tiny round seed leaves. The first true leaves are oval and stalked.",
+ "winter": "Dies down to the thick root; a few small leaves may stay at the base.",
+ "palette": {
+  "leaf": "deep",
+  "flower": "plum",
+  "centre": "lilac",
+  "fruit": "bark"
+ },
+ "palette_wish": {
+  "flower": "deep violet-blue, about #4B4FB0"
+ },
+ "must_show": {
+  "leaf": [
+   "narrow lance-shaped leaf on a long stalk",
+   "smooth or finely toothed edge",
+   "smooth dark green"
+  ],
+  "bloom": [
+   "round ball of many narrow, curved, claw-like flowers",
+   "deep violet-blue",
+   "long narrow bracts sticking out beneath the head like horns",
+   "styles with curled tips sticking out"
+  ],
+  "seed": [
+   "tiny shiny brown seed"
+  ],
+  "seedling": [
+   "two tiny round seed leaves",
+   "first oval stalked leaf"
+  ],
+  "young": [
+   "low tuft of narrow, long-stalked leaves"
+  ],
+  "flower": [
+   "low arching leafy stems 20 to 40 cm",
+   "each stem topped by one round blue ball with horn-like bracts beneath"
+  ],
+  "seedhead": [
+   "brown dried head with the long bracts still sticking out"
+  ],
+  "dormant": [
+   "little or nothing above ground",
+   "perhaps a small tuft of leaves at the base"
+  ]
+ },
+ "look_alikes": "Round-headed rampion (Phyteuma orbiculare), wild on southern chalk downs, has short bracts that do not stick out beyond the head. Spiked rampion (Phyteuma spicatum) has a long cylindrical spike of cream flowers. Sheep's-bit has flat heads of tiny star-shaped flowers and no horns. Devil's-bit scabious has opposite leaves and a fuzzy dome.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. No reference photos had been downloaded for this group yet, so nothing was checked against photographs. ⚠️ CHECK"
+}

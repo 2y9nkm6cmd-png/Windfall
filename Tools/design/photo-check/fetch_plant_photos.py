@@ -15,6 +15,7 @@ For each kind in plant-names.tsv it writes OUT_FOLDER/<kind>/:
     flower-N.jpg     records marked "flowering"
     fruit-N.jpg      records marked "fruiting": fruit and seed heads
     winter-N.jpg     records from December to February with no flowers
+    any-N.jpg        records not marked either way (many garden plants are not)
     credits.tsv      each photo's record, photographer and licence
 
 Records from Great Britain come first (place 6857); if there are too few,
@@ -25,7 +26,8 @@ import json, os, sys, time, urllib.parse, urllib.request
 
 API = "https://api.inaturalist.org/v1/"
 PARTS = [("leaf", "&term_id=12&term_value_id=21", 4), ("flower", "&term_id=12&term_value_id=13", 4),
-         ("fruit", "&term_id=12&term_value_id=14", 3), ("winter", "&term_id=12&term_value_id=21&month=12,1,2", 2)]
+         ("fruit", "&term_id=12&term_value_id=14", 3), ("winter", "&term_id=12&term_value_id=21&month=12,1,2", 2),
+         ("any", "", 3)]   # records with no annotation at all: garden plants are often not marked
 LIC = "cc0,cc-by,cc-by-nc,cc-by-sa,cc-by-nc-sa,cc-by-nd,cc-by-nc-nd"
 _last = [0.0]
 

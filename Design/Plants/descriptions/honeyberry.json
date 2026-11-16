@@ -1,0 +1,45 @@
+{
+ "kind": "honeyberry",
+ "name": "Honeyberry",
+ "latin": "Lonicera caerulea",
+ "family": "Caprifoliaceae, the honeysuckle family",
+ "grown_as": "A hardy fruit bush (also called haskap or blue honeysuckle). William grows one listed as 'Kamtschatica' (Lonicera caerulea var. kamtschatica) and one of unknown variety. Two are needed for pollination.",
+ "habit": "A compact, upright, rounded deciduous shrub, 1 to 1.5 m. Older stems with light brown bark peeling in long strips; young shoots reddish-purple.",
+ "leaf": {
+  "arrangement": "Opposite, in pairs",
+  "type": "Simple",
+  "outline": "Oblong to elliptic, 3 to 7 cm long",
+  "base": "Rounded",
+  "tip": "Blunt to rounded, sometimes a small point",
+  "margin": "Smooth, with a fringe of fine hairs",
+  "veins": "A midrib and a few faint side veins",
+  "surface": "Softly downy, matt; paler beneath",
+  "stalk": "Very short, 2 to 4 mm",
+  "colour": "Grey-green to mid green; yellow in autumn"
+ },
+ "flower": {
+  "form": "A narrow funnel opening into five near-equal lobes",
+  "petals": "Five, joined into the funnel, the lobes short and spreading",
+  "colour": "Pale creamy yellow",
+  "centre": "Five stamens and a style poking just beyond the mouth",
+  "behind": "Small bracts; the two flowers of a pair share joined ovaries",
+  "carried": "In pairs, side by side, from the angle of each leaf pair on short stalks, hanging or angled downward",
+  "size": "1.2 to 2 cm long",
+  "season": "February to April, among the first flowers of spring and frost-proof"
+ },
+ "fruit": "An oblong, slightly cylindrical berry, 1.5 to 2.5 cm, dark blue with a pale grey-blue bloom, often a little angled or kinked, formed from the two joined ovaries of a pair of flowers. Hangs singly from the leaf angles. May to June, the earliest fruit of the garden.",
+ "seedling": "Not drawn: grown as bought plants",
+ "winter": "Bare, upright stems with light brown peeling bark and small paired buds.",
+ "palette": {"leaf": "sage", "flower": "primrose", "fruit": "blue"},
+ "palette_wish": {"fruit": "dusky blue under a grey-blue bloom, about #4E6390"},
+ "must_show": {
+  "leaf": ["simple oblong leaf with a smooth edge", "blunt rounded tip and rounded base", "very short stalk"],
+  "bloom": ["a pale creamy-yellow funnel flower with five short spreading lobes", "stamens poking out", "a second flower beside it as a pair"],
+  "young": ["upright stems", "oblong leaves in opposite pairs"],
+  "dormant": ["bare upright stems", "light brown bark peeling in strips"],
+  "flower": ["pairs of pale yellow funnel flowers hanging from the leaf pairs", "early: leaves only half open"],
+  "crop": ["long oval blue berries with a pale bloom hanging singly", "opposite oblong leaves"]
+ },
+ "look_alikes": "Blueberry has alternate leaves, white urn flowers and round berries with a crown. Other shrubby honeysuckles (such as Lonicera fragrantissima) have white winter flowers and red berries. Snowberry has pink bell flowers and white berries.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge and iNaturalist photos. ⚠️ CHECK"
+}

@@ -1403,6 +1403,8 @@ def leaf_spec(slug, s):
     elif lf == "palm": sp.update(kind="palmate")
     elif lf == "strap": sp.update(kind="strap", W=11)
     elif lf == "fan": sp.update(kind="fan")
+    elif lf == "own" or "kind" not in sp:   # "own": the life stages use this close-up leaf; LEAFX gives its shape
+        sp.update(kind="blade", prof="ovate", W=0.52)
     if h == "tree" and lf == "simple":
         sp.update(teeth=34, td=0.05)
     sp.update(LEAFX.get(slug, {}))

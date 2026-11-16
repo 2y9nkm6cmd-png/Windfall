@@ -1,0 +1,68 @@
+{
+ "kind": "lavender",
+ "name": "Lavender",
+ "latin": "Lavandula angustifolia",
+ "family": "Lamiaceae, the mint family",
+ "grown_as": "English lavender, an evergreen shrub. Drawn as a typical violet-purple English lavender such as 'Munstead' or 'Hidcote'. The library also lists Lavandula × allardii 'Meerlo', which looks quite different: a tall plant with broader, toothed, cream-edged leaves and long pale spikes. ⚠️ CHECK which lavender William grows, and whether 'Meerlo' needs its own drawing.",
+ "habit": "A rounded, dome-shaped evergreen shrub 40 to 80 cm high and as wide, woody at the base, with many upright, leafless flower stalks rising above the leafy mound in summer.",
+ "leaf": {
+  "arrangement": "Opposite, in pairs, crowded on the shoots, with small tufts of leaves in the joints",
+  "type": "Simple",
+  "outline": "Long and very narrow, 2 to 5 cm long and 2 to 5 mm wide",
+  "base": "Tapering",
+  "tip": "Blunt",
+  "margin": "Smooth, no teeth, rolled under",
+  "veins": "Only the midrib shows",
+  "surface": "Covered in fine grey felt, whiter on young shoots",
+  "stalk": "None",
+  "colour": "Grey-green"
+ },
+ "flower": {
+  "form": "A small two-lipped tube",
+  "petals": "Joined; a larger two-lobed upper lip and a three-lobed lower lip",
+  "colour": "Violet-purple",
+  "centre": "Stamens hidden inside the tube",
+  "behind": "A hairy, ribbed, tube-shaped calyx, grey-purple, which carries much of the colour and stays after the flower falls; small brown papery bracts under each ring",
+  "carried": "In rings of 6 to 10 packed into a slender spike 2 to 8 cm long at the top of a long, bare, square, unbranched stalk 10 to 30 cm long, held well above the leaves; the lowest ring often a little apart",
+  "size": "Flowers about 1 cm long; spikes about 1 cm thick",
+  "season": "June to August"
+ },
+ "fruit": "Small brown nutlets inside the dry calyces; the spikes fade to grey-brown.",
+ "seedling": "Not drawn.",
+ "winter": "Evergreen: a grey mound of leafy shoots, the old flower stalks cut off or left grey and dry.",
+ "palette": {
+  "leaf": "sage",
+  "flower": "lilac",
+  "fruit": "seed"
+ },
+ "palette_wish": {
+  "flower": "lavender violet-purple, about #7D62B5"
+ },
+ "must_show": {
+  "leaf": [
+   "a long very narrow leaf with a blunt tip",
+   "smooth edge rolled under",
+   "grey felted surface",
+   "no stalk"
+  ],
+  "bloom": [
+   "a slender spike of rings of small violet-purple flowers",
+   "grey-purple ribbed calyces showing",
+   "the spike on top of a long bare stalk"
+  ],
+  "young": [
+   "a small grey-green bushy mound of narrow leaves in pairs"
+  ],
+  "crop": [
+   "a rounded grey-green evergreen mound",
+   "woody base",
+   "narrow grey leaves"
+  ],
+  "flower": [
+   "many long bare stalks rising well above a grey mound",
+   "each ending in a slender violet-purple spike"
+  ]
+ },
+ "look_alikes": "Lavandin (Lavandula × intermedia) is bigger, with longer, often branched stalks and longer, paler, pointed spikes. French lavender (Lavandula stoechas) has short fat heads topped by purple 'ears'. Rosemary has dark green leaves white beneath and flowers in the leaf joints. Hyssop has green leaves and blue spikes among the leaves.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

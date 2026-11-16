@@ -1,0 +1,74 @@
+{
+ "kind": "african-daisy",
+ "name": "African Daisy",
+ "latin": "Dimorphotheca ecklonis (syn. Osteospermum ecklonis)",
+ "family": "Asteraceae, the daisy family",
+ "grown_as": "A tender perennial from South Africa, in the UK grown as a summer annual or kept under glass in winter. William's library lists Osteospermum ecklonis 'Pink Sun'. Drawn with pink rays and a dark blue-purple centre. ⚠️ CHECK the colour: the wild species is white with a blue centre, and no description of 'Pink Sun' could be found.",
+ "habit": "A low, mounded to spreading plant 30 to 60 cm high, woody at the base, the stems and leaves slightly sticky.",
+ "leaf": {
+  "arrangement": "Alternate",
+  "type": "Simple",
+  "outline": "Oblong to spoon-shaped (widest beyond the middle), 4 to 10 cm",
+  "base": "Narrowing to the stem without a proper stalk",
+  "tip": "Pointed to blunt",
+  "margin": "A few widely spaced, coarse teeth, or smooth",
+  "veins": "A clear midrib; side veins faint",
+  "surface": "Slightly fleshy, finely hairy and a little sticky",
+  "stalk": "None",
+  "colour": "Mid green"
+ },
+ "flower": {
+  "form": "A flat, open, single daisy",
+  "petals": "About 12 to 20 broad, oblong ray florets with rounded tips, slightly glossy, spreading flat; the backs often darker",
+  "colour": "Pink",
+  "centre": "A dark blue-purple to navy disc dotted with yellow pollen",
+  "behind": "One or two rows of narrow, pointed green bracts",
+  "carried": "Alone on long stalks above the leaves, facing up; closes at night and in dull weather",
+  "size": "5 to 8 cm across",
+  "season": "June to the first frosts"
+ },
+ "fruit": "Only the outer (ray) florets make seed, so a ring of hard seeds forms at the edge of the closed, withered head. Seeds bony, ridged and warty, grey-brown, 5 to 7 mm.",
+ "seedling": "Two oblong seed leaves. The first true leaves are oblong with a few teeth.",
+ "winter": "Usually lost to frost outdoors in the UK; may survive a mild winter in a sheltered spot.",
+ "palette": {
+  "leaf": "leaf",
+  "flower": "pink",
+  "centre": "plum",
+  "fruit": "bark"
+ },
+ "palette_wish": {
+  "centre": "deep blue-purple, about #3B2F6E"
+ },
+ "must_show": {
+  "leaf": [
+   "simple oblong to spoon-shaped leaf",
+   "a few widely spaced coarse teeth",
+   "no stalk"
+  ],
+  "bloom": [
+   "one ring of broad rays with rounded tips",
+   "dark blue-purple centre with yellow pollen dots",
+   "narrow green bracts behind"
+  ],
+  "seed": [
+   "hard, ridged, warty grey-brown seed"
+  ],
+  "seedling": [
+   "two oblong seed leaves",
+   "first oblong toothed leaf"
+  ],
+  "young": [
+   "low spreading leafy plant"
+  ],
+  "flower": [
+   "low mound of leafy stems",
+   "many daisies on long stalks above, facing up"
+  ],
+  "seedhead": [
+   "heads closed, rays withered",
+   "a ring of hard seeds at the edge"
+  ]
+ },
+ "look_alikes": "Cape marigold (Dimorphotheca sinuata) is a smaller annual, usually orange. Gazania has rays with dark rings near the base and leaves white beneath. Ox-eye daisy has a yellow centre.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. No reference photos had been downloaded for this group yet, so nothing was checked against photographs. ⚠️ CHECK"
+}

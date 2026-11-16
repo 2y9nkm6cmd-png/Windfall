@@ -1,0 +1,46 @@
+{
+ "kind": "cauliflower",
+ "name": "Cauliflower",
+ "latin": "Brassica oleracea (Botrytis Group)",
+ "family": "Brassicaceae, the cabbage family",
+ "grown_as": "Cauliflower, cut for its white curd. William's records list 'All the Year Round' (white), 'Romanesco' (lime-green pointed spirals) and 'Di Sicilia Violetto' (purple). Drawn white, the most typical. ⚠️ CHECK.",
+ "habit": "An upright plant 45 to 60 cm tall with long leaves held upright round a single domed white curd 15 to 20 cm across at the top of a thick short stem. Left uncut, the curd loosens and grows into a branched flowering stem 1 m or more.",
+ "leaf": {
+  "arrangement": "Alternate, spiralling on the stem, close together; the inner ones curve up and over the curd",
+  "type": "Simple",
+  "outline": "Long and oblong to elliptic, 40 to 60 cm, more upright, longer and narrower than a cabbage leaf",
+  "base": "Narrowing into a short, thick stalk",
+  "tip": "Rounded to bluntly pointed",
+  "margin": "Wavy, shallowly scalloped, no sharp teeth",
+  "veins": "A thick pale midrib and pale side veins",
+  "surface": "Hairless, smooth, with a waxy grey bloom",
+  "stalk": "Short and thick",
+  "colour": "Blue-green to grey-green"
+ },
+ "flower": {
+  "form": "A cross-shaped flower of four petals",
+  "petals": "Four, free, broad and rounded with a long narrow claw, spreading flat",
+  "colour": "Pale sulphur yellow",
+  "centre": "Six stamens, four long and two short, with yellow anthers, round a green style",
+  "behind": "Four narrow upright green sepals hugging the petal claws",
+  "carried": "In long, loose spikes on a tall branched stem; the closed buds stay above the open flowers at the top of each spike",
+  "size": "2 to 2.5 cm across",
+  "season": "April to June"
+ },
+ "fruit": "Long, slender pods 5 to 10 cm, cylindrical with slight bumps over the seeds, ending in a short beak 0.5 to 1 cm, spreading upwards along the stems. Green, drying straw-brown and splitting from the bottom to show a pale papery partition. Seeds round, 2 mm, dark red-brown to grey-black.",
+ "seedling": "Two kidney-shaped seed leaves on short stalks, broader than long with a notch at the tip, like a heart with the stalk at its point, waxy grey-green; the first true leaves oval to round on long stalks, waxy blue-green with wavy edges.",
+ "winter": "Winter-heading varieties stand through the cold; most are cut by late autumn.",
+ "palette": {"leaf": "sage", "flower": "primrose", "centre": "primrose", "fruit": "straw"},
+ "must_show": {
+  "leaf": ["a long oblong blade with a wavy edge, no sharp teeth", "a thick pale midrib", "waxy blue-green"],
+  "bloom": ["four pale yellow rounded petals in a cross", "narrow upright sepals hugging the claws", "closed buds above the open flowers"],
+  "seed": ["round dark red-brown to grey-black seed 2 mm", "smooth and shiny"],
+  "seedling": ["two kidney-shaped seed leaves notched at the tip", "waxy grey-green"],
+  "young": ["an upright plant of long waxy blue-green leaves", "no curd yet"],
+  "crop": ["a dense domed creamy-white curd with a knobbly surface of tight florets", "long upright blue-green leaves around it, the inner ones curving over it"],
+  "flower": ["the curd loosened and grown into branching stems", "pale yellow four-petalled flowers in loose spikes"],
+  "seedhead": ["long slender pods with short beaks along tall stems", "drying straw-brown"]
+ },
+ "look_alikes": "Broccoli has a green head of separate tiny flower buds rather than a smooth curd. Romanesco has pointed spiralling cones. All the cabbage-family crops (cabbage, cauliflower, broccoli, sprouts, kale) are one species and share the waxy blue-green leaf; they differ in what is eaten. Swede and oilseed rape have bluish clasping stem leaves but their young leaves are hairy. Turnip and pak choi (Brassica rapa) have bright yellow flowers held above their buds.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

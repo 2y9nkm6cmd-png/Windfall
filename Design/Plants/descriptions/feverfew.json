@@ -1,0 +1,74 @@
+{
+ "kind": "feverfew",
+ "name": "Feverfew",
+ "latin": "Tanacetum parthenium",
+ "family": "Asteraceae, the daisy family",
+ "grown_as": "A short-lived perennial herb that self-seeds freely, in William's herbs. The ordinary single white form is described; double and golden-leaved forms exist. ⚠️ CHECK which William has.",
+ "habit": "A bushy, upright, branched clump 30 to 60 cm high, the stems ridged. The whole plant has a strong bitter smell when touched.",
+ "leaf": {
+  "arrangement": "Alternate",
+  "type": "Simple but deeply cut (pinnately) into about 3 to 7 pairs of oblong lobes, each lobe itself cut into rounded teeth or smaller lobes",
+  "outline": "Broadly oval to triangular overall, 4 to 10 cm",
+  "base": "Narrowing into the stalk",
+  "tip": "Blunt",
+  "margin": "Rounded teeth and small lobes on every lobe",
+  "veins": "A clear midrib running into each lobe",
+  "surface": "Soft, slightly hairy",
+  "stalk": "Present, 1 to 4 cm",
+  "colour": "Yellow-green"
+ },
+ "flower": {
+  "form": "A small button-like daisy",
+  "petals": "About 10 to 20 short, broad white rays, square-ended with small teeth, no longer than the disc is wide",
+  "colour": "White rays",
+  "centre": "A large, flat, button-like yellow disc, 5 to 8 mm across",
+  "behind": "Hairy green bracts with narrow papery edges",
+  "carried": "Many together in loose, flat-topped clusters at the tops of the stems, facing up",
+  "size": "1.5 to 2.5 cm across",
+  "season": "June to September"
+ },
+ "fruit": "Clusters of dry brown button heads. Seeds tiny, about 1.5 mm, pale brown and ribbed, with a short toothed crown at the top.",
+ "seedling": "Two small round to oval seed leaves. The first true leaves are already lobed and yellow-green.",
+ "winter": "Semi-evergreen: a low clump of lobed leaves at the base, the old flowering stems dead or cut away.",
+ "palette": {
+  "leaf": "unripe",
+  "flower": "white",
+  "centre": "sun",
+  "fruit": "bark"
+ },
+ "must_show": {
+  "leaf": [
+   "yellow-green leaf deeply cut into pairs of oblong lobes",
+   "every lobe itself with rounded teeth",
+   "leaf on a stalk"
+  ],
+  "bloom": [
+   "small daisy with short broad white rays",
+   "large flat yellow button centre",
+   "rays no longer than the disc is wide"
+  ],
+  "seed": [
+   "tiny pale ribbed seed with a small crown"
+  ],
+  "seedling": [
+   "two small round seed leaves",
+   "first true leaf lobed and yellow-green"
+  ],
+  "young": [
+   "compact bushy clump of yellow-green lobed leaves"
+  ],
+  "flower": [
+   "many small white daisies in flat-topped clusters",
+   "over a bushy yellow-green plant 30 to 60 cm"
+  ],
+  "seedhead": [
+   "dried brown button heads in clusters"
+  ],
+  "dormant": [
+   "low clump of lobed green leaves at the base",
+   "old stems dead or cut back"
+  ]
+ },
+ "look_alikes": "Scentless mayweed has thread-like leaves and larger single heads. Ox-eye daisy has much larger single heads and undivided leaves. Tansy has rayless yellow buttons and long, fern-like leaves. Corn chamomile is grey and downy with heads borne singly.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. No reference photos had been downloaded for this group yet, so nothing was checked against photographs. ⚠️ CHECK"
+}

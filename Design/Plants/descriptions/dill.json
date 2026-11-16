@@ -1,0 +1,46 @@
+{
+ "kind": "dill",
+ "name": "Dill",
+ "latin": "Anethum graveolens",
+ "family": "Apiaceae, the carrot family (umbellifers)",
+ "grown_as": "An annual herb sown in spring for its leaves and later its seed. Varieties (such as 'Bouquet' or 'Fernleaf') differ mainly in height.",
+ "habit": "A single slender upright stem 60 to 120 cm tall, branching only near the top, the whole plant airy and see-through. Stem hollow, smooth, blue-green with fine pale stripes and a dusty bloom. Smells strongly of dill when touched.",
+ "leaf": {
+  "arrangement": "Alternate up the stem; the first leaves in a loose tuft from the base",
+  "type": "Compound, three or four times pinnate: divided again and again into very fine thread-like segments",
+  "outline": "Triangular overall, 10 to 30 cm long, the threads spreading mostly in one flat plane like a feather",
+  "base": "The leaf stalk widens into a broad sheath that wraps the stem, with pale papery edges",
+  "tip": "Each thread ends in a fine soft point",
+  "margin": "No teeth: the segments are threads 1 to 2 cm long and well under 1 mm wide",
+  "veins": "Not seen: each thread is a single vein",
+  "surface": "Smooth, hairless, a little waxy",
+  "stalk": "Short above the sheath; upper leaves sit almost straight on their sheaths",
+  "colour": "Blue-green to grey-green, paler than fennel"
+ },
+ "flower": {
+  "form": "Flat-topped compound umbels like an open umbrella, made of many tiny flowers",
+  "petals": "Five tiny yellow petals per flower, their tips rolled inwards so each flower looks like a dot",
+  "colour": "Bright yellow, slightly greenish",
+  "centre": "Each tiny flower has a yellow swollen base (stylopodium) and five yellow stamens",
+  "behind": "No bracts under the umbel and no bracteoles under the small umbels: the rays are bare",
+  "carried": "At the top of the stem and its branches, facing up. The main umbel 10 to 15 cm across with 15 to 40 rays of unequal length, each ending in a small round umbel",
+  "size": "Each flower about 1 to 2 mm; the whole umbel up to 15 cm",
+  "season": "July to August"
+ },
+ "fruit": "Flat oval seeds 3 to 5 mm long in pairs, brown with three fine ribs on the face and a pale flat wing round the edge. They ripen from green to brown on the open umbrella of rays and fall easily.",
+ "seedling": "Two long, very narrow seed leaves (2 to 3 cm, like green needles), then first true leaves already cut into threads",
+ "winter": "Nothing: an annual that dies after seeding",
+ "palette": {"leaf": "sage", "flower": "sun", "fruit": "seed"},
+ "must_show": {
+  "leaf": ["divided three or four times into fine threads", "a broad sheath with pale edges where the stalk meets the stem", "blue-green colour"],
+  "bloom": ["a flat umbrella of many rays with no bracts at their base", "tiny yellow flowers in small round umbels at the ray tips", "flowers read as dots, not as petalled flowers"],
+  "seed": ["flat oval seed, brown, with a pale wing round the edge", "fine ribs on the face"],
+  "seedling": ["two long needle-like seed leaves", "first true leaf already thread-like"],
+  "young": ["one upright stem with feathery thread-like leaves", "blue-green colour", "sheathing leaf bases on the stem"],
+  "crop": ["a single tall stem with airy blue-green feathery leaves", "no flowers yet"],
+  "flower": ["flat yellow umbrellas at the top of a single slender stem", "fine thread-like leaves below", "no bracts under the umbels"],
+  "seedhead": ["brown umbrella of stiff rays with flat winged seeds in pairs", "stem and leaves yellowing or dead"]
+ },
+ "look_alikes": "Fennel is a perennial with several stems, more three-dimensional leaves with longer threads and seeds without a wing. Chamomiles and mayweeds have thread-like leaves but daisy flowers.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. No UK iNaturalist photos had been downloaded for this group when it was written. ⚠️ CHECK"
+}

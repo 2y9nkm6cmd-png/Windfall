@@ -1,0 +1,74 @@
+{
+ "kind": "rhubarb",
+ "name": "Rhubarb",
+ "latin": "Rheum × hybridum",
+ "family": "Polygonaceae, the dock family",
+ "grown_as": "A hardy perennial grown for its red leaf stalks, which are pulled from April to July, often forced early under a pot. Varieties differ in stalk colour from green to deep red: drawn red. ⚠️ CHECK",
+ "habit": "A big clump of huge leaves about 1 m high and 1 to 1.5 m across, rising on thick stalks straight from a crown at the soil. A tall flower stem to 2 m may come up in late spring.",
+ "leaf": {
+  "arrangement": "A rosette from the crown",
+  "type": "Simple",
+  "outline": "Huge, 30 to 60 cm or more across, broadly heart-shaped to rounded-triangular, slightly wider than long",
+  "base": "Deeply heart-shaped, the two lobes either side of the stalk",
+  "tip": "Blunt or rounded",
+  "margin": "Entire but strongly wavy and crimped",
+  "veins": "Palmate: five to seven thick pale veins spreading from the top of the stalk, branching outward",
+  "surface": "Puckered and blistered between the veins, slightly glossy above, faintly hairy beneath",
+  "stalk": "Very thick and fleshy, 30 to 60 cm, flat or grooved on top and rounded beneath, red to pink-green, with a papery brown sheath at the base",
+  "colour": "Mid to dark green, the veins paler or reddish"
+ },
+ "flower": {
+  "form": "A huge branched plume of tiny flowers",
+  "petals": "Six small tepals",
+  "colour": "Creamy white, sometimes greenish or pink-tinged",
+  "centre": "Nine tiny stamens",
+  "behind": "Papery sheaths at the stem joints",
+  "carried": "In dense branched clusters (panicles) on a thick, hollow, upright stem 1.5 to 2 m, held high above the leaves",
+  "size": "Each flower 2 to 3 mm; the plume 50 cm or more",
+  "season": "May to June; gardeners usually cut the stem off"
+ },
+ "fruit": "Crop: the red leaf stalks. After flowering: masses of flat, three-winged dry fruits about 1 cm, green turning red-brown.",
+ "seedling": "Not drawn: grown from divided crowns",
+ "winter": "Leaves die and collapse in autumn; the bare crown sits at the soil with large rounded pink-red buds",
+ "palette": {
+  "leaf": "deep",
+  "flower": "white",
+  "centre": "primrose",
+  "fruit": "berry"
+ },
+ "must_show": {
+  "leaf": [
+   "a huge heart-shaped leaf with a strongly wavy crimped edge",
+   "five to seven thick veins spreading from the stalk",
+   "puckered surface",
+   "thick red stalk"
+  ],
+  "bloom": [
+   "a big branched plume",
+   "many tiny creamy white flowers"
+  ],
+  "crown": [
+   "a knobbly woody crown at the soil",
+   "fat rounded pink-red buds"
+  ],
+  "young": [
+   "crumpled leaves unfolding from the crown",
+   "short red stalks"
+  ],
+  "crop": [
+   "thick red stalks rising straight from the crown",
+   "huge wavy heart-shaped leaves on top"
+  ],
+  "flower": [
+   "a tall stout stem rising above the leaves",
+   "a creamy plume of flowers at the top"
+  ],
+  "dormant": [
+   "a bare crown at the soil",
+   "large red buds",
+   "no leaves"
+  ]
+ },
+ "look_alikes": "Butterbur (Petasites hybridus) has big round leaves but they are toothed and grey-downy beneath, with pinkish flower spikes in early spring. Burdock leaves are greyer, woolly beneath with hollow green stalks. Gunnera is far bigger with prickly stalks.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

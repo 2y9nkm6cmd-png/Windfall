@@ -1,0 +1,63 @@
+{
+ "kind": "savory",
+ "name": "Savory",
+ "latin": "Satureja montana",
+ "family": "Lamiaceae, the mint family",
+ "grown_as": "Winter savory, a small, nearly evergreen shrubby perennial. Summer savory (Satureja hortensis) is an annual with softer grey leaves; the drawings have no seed stages, so winter savory is assumed. ⚠️ CHECK which William grows.",
+ "habit": "A compact, low bush 20 to 40 cm high, many upright or spreading stems from a woody base.",
+ "leaf": {
+  "arrangement": "Opposite, in pairs, often with tufts of small leaves in the joints",
+  "type": "Simple",
+  "outline": "Narrow, lance-shaped to strap-shaped, 1 to 3 cm long and 2 to 5 mm wide",
+  "base": "Tapering",
+  "tip": "Sharply pointed",
+  "margin": "Smooth, no teeth; fine hairs along the edge near the base",
+  "veins": "Only the midrib shows",
+  "surface": "Stiff, leathery, glossy, dotted with tiny glands",
+  "stalk": "None",
+  "colour": "Dark green"
+ },
+ "flower": {
+  "form": "A small two-lipped tube",
+  "petals": "Joined; a notched upper lip and a three-lobed lower lip",
+  "colour": "White to pale lilac, the lower lip spotted purple",
+  "centre": "Stamens just showing",
+  "behind": "A green bell-shaped calyx with five pointed teeth",
+  "carried": "In small clusters of 3 to 7 in the joints of the upper leaves, making loose leafy spikes",
+  "size": "6 to 12 mm long",
+  "season": "July to October"
+ },
+ "fruit": "Tiny brown nutlets in the dry calyces.",
+ "seedling": "Not drawn.",
+ "winter": "Nearly evergreen: a twiggy bush with some dark leaves left.",
+ "palette": {
+  "leaf": "deep",
+  "flower": "white",
+  "centre": "mauve",
+  "fruit": "seed"
+ },
+ "must_show": {
+  "leaf": [
+   "a narrow leaf with a sharp point",
+   "smooth edge, no teeth",
+   "no stalk",
+   "glossy dark green"
+  ],
+  "bloom": [
+   "small white to pale lilac two-lipped flowers",
+   "purple spots on the lower lip",
+   "in small clusters in the leaf joints"
+  ],
+  "young": [
+   "a small upright plant with narrow pointed leaves in opposite pairs"
+  ],
+  "crop": [
+   "a compact low bush of many stems clothed in narrow, glossy dark green leaves"
+  ],
+  "flower": [
+   "small white or pale lilac flowers clustered in the upper leaf joints along leafy spikes"
+  ]
+ },
+ "look_alikes": "Summer savory is an annual with soft, greyish, narrower leaves and pale pink flowers. Thyme has much smaller leaves and flowers in tight heads. Hyssop is bigger with violet-blue spikes.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

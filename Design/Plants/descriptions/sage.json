@@ -1,0 +1,66 @@
+{
+ "kind": "sage",
+ "name": "Sage",
+ "latin": "Salvia officinalis",
+ "family": "Lamiaceae, the mint family",
+ "grown_as": "Common sage, an evergreen shrubby herb. Drawn as the plain grey-green form. Purple sage ('Purpurascens'), gold ('Icterina') and three-coloured ('Tricolor') forms differ in leaf colour; broad-leaved forms rarely flower. ⚠️ CHECK",
+ "habit": "A low, spreading, evergreen shrub 40 to 70 cm high and wider, woody at the base, the soft upper shoots square and downy.",
+ "leaf": {
+  "arrangement": "Opposite, in pairs",
+  "type": "Simple, sometimes with one or two small ear-like lobes at the base of the blade",
+  "outline": "Oblong to narrowly oval, 3 to 8 cm long and 1 to 3 cm wide, sides almost parallel",
+  "base": "Rounded or tapering",
+  "tip": "Blunt, rounded",
+  "margin": "Very finely round-toothed all round, the teeth tiny",
+  "veins": "A fine net of veins all pressed in, so the whole surface looks pebbled",
+  "surface": "Thick, soft, finely felted; whiter and more woolly beneath",
+  "stalk": "1 to 3 cm",
+  "colour": "Grey-green"
+ },
+ "flower": {
+  "form": "A large two-lipped flower with a helmet-like upper lip",
+  "petals": "Joined; the upper lip straight or gently curved like a helmet; the lower lip three-lobed with a broad middle lobe",
+  "colour": "Violet-blue to lilac-purple",
+  "centre": "Stamens and style tucked under the helmet, the style tip just showing",
+  "behind": "A bell-shaped, two-lipped calyx, purple-tinged and sticky-hairy",
+  "carried": "In spaced rings of 4 to 8 up an upright spike 15 to 30 cm long at the shoot tips, held above the leaves",
+  "size": "2 to 3 cm long",
+  "season": "May to July"
+ },
+ "fruit": "Round dark brown nutlets in the dry calyces.",
+ "seedling": "Not drawn.",
+ "winter": "Evergreen: a low grey mound, some leaves browning.",
+ "palette": {
+  "leaf": "sage",
+  "flower": "lilac",
+  "fruit": "seed"
+ },
+ "palette_wish": {
+  "flower": "violet-lilac, about #9A86D6"
+ },
+ "must_show": {
+  "leaf": [
+   "an oblong leaf with a rounded tip on a clear stalk",
+   "pebbled surface from a net of pressed-in veins",
+   "tiny round teeth along the edge",
+   "soft grey-green"
+  ],
+  "bloom": [
+   "a two-lipped violet-blue flower with a helmet-shaped upper lip",
+   "broad lower lip",
+   "purple-tinged calyx behind"
+  ],
+  "young": [
+   "a small grey-green plant with oblong pebbled leaves in opposite pairs"
+  ],
+  "crop": [
+   "a low spreading grey-green bush, woody at the base",
+   "oblong pebbled leaves in pairs"
+  ],
+  "flower": [
+   "upright spikes with spaced rings of violet-blue flowers held above the grey leaves"
+  ]
+ },
+ "look_alikes": "Meadow clary has green leaves in a ground rosette and bigger, strongly hooked flowers. Lamb's ears is far woollier and whiter with pink-purple flowers. Clary sage has huge leaves and pale pink-lilac flowers with large coloured bracts.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

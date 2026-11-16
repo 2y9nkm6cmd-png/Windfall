@@ -1,0 +1,48 @@
+{
+ "kind": "meadowsweet",
+ "name": "Meadowsweet",
+ "latin": "Filipendula ulmaria",
+ "family": "Rosaceae, the rose family",
+ "grown_as": "A native perennial wild flower of damp meadows, ditches and riversides, also grown for its scent and pollinators",
+ "habit": "An upright clump 60 to 150 cm tall with stiff, angled, reddish stems and leafy lower half, topped by frothy flower heads",
+ "leaf": {
+  "arrangement": "Alternate",
+  "type": "Compound, pinnate, with 2 to 5 pairs of large leaflets and tiny leaflets in between",
+  "leaflets": "Large leaflets oval, 2 to 8 cm, pointed; tiny ones (1 to 4 mm) between each pair; end leaflet larger and palmately three- to five-lobed",
+  "outline": "Oblong overall, 10 to 30 cm",
+  "base": "Leaflets rounded at the base",
+  "tip": "Pointed",
+  "margin": "Doubly toothed all round each leaflet, sharp teeth",
+  "veins": "Deeply pressed in above, raised beneath",
+  "surface": "Dark green above, whitish-downy beneath (some plants green beneath)",
+  "stalk": "Reddish, with leafy toothed stipules at the base",
+  "colour": "Dark green above, pale beneath"
+ },
+ "flower": {
+  "form": "Many tiny flowers in a frothy, irregular branched cluster",
+  "petals": "Five (sometimes six), free, rounded, creamy white",
+  "colour": "Creamy white",
+  "centre": "20 to 40 long stamens, longer than the petals, giving a fuzzy look",
+  "behind": "Five small downy sepals, turned back",
+  "carried": "In dense irregular branched sprays at the top of the stems, side branches overtopping the centre; sweet scent",
+  "size": "Each flower 4 to 8 mm; clusters 10 to 20 cm",
+  "season": "June to September"
+ },
+ "fruit": "5 to 10 small seeds (achenes) twisted together in a tight spiral, green turning brown",
+ "seedling": "Two small round seed leaves, then first true leaves rounded and toothed, then three-lobed",
+ "winter": "Dies right down; dead brown stems with twisted seed clusters may stand",
+ "palette": {"leaf": "deep", "flower": "white", "centre": "primrose", "fruit": "bark"},
+ "palette_wish": {"flower": "creamy white, about #F5EDCF"},
+ "must_show": {
+  "leaf": ["pinnate with large toothed leaflets and tiny ones between", "end leaflet bigger and three- to five-lobed", "pale beneath, deep veins"],
+  "bloom": ["five rounded creamy petals", "long fuzzy stamens", "flowers massed in a frothy spray"],
+  "seed": ["small seeds twisted into a spiral cluster"],
+  "seedling": ["two small round seed leaves", "first true leaf rounded and toothed"],
+  "young": ["leafy clump of pinnate leaves on reddish stalks"],
+  "flower": ["upright reddish stems", "frothy creamy flower heads", "pinnate leaves with tiny leaflets between big ones"],
+  "seedhead": ["twisted brown seed clusters on dry branched heads"],
+  "dormant": ["nothing green above ground or dead brown stems only"]
+ },
+ "look_alikes": "Dropwort (Filipendula vulgaris) grows on dry grassland with many small leaflets and pink-tinged buds. Elder flowers are on a woody shrub. Umbellifers have flat umbels, not irregular sprays.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. No UK iNaturalist photos had been downloaded for this group when it was written. ⚠️ CHECK"
+}

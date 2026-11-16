@@ -1,0 +1,71 @@
+{
+ "kind": "yellow-rattle",
+ "name": "Yellow-rattle",
+ "latin": "Rhinanthus minor",
+ "family": "Orobanchaceae, the broomrape family",
+ "grown_as": "A wild annual of hay meadows, sown in the grass to weaken it: it is half a parasite, taking water and food from grass roots.",
+ "habit": "A stiff upright annual 10 to 50 cm, the stem single or with a few side branches, often streaked or spotted black, standing up among the grass.",
+ "leaf": {
+  "arrangement": "Opposite pairs",
+  "type": "Simple",
+  "outline": "Narrowly oblong to lance-shaped, 1 to 5 cm long",
+  "base": "Rounded and stalkless",
+  "tip": "Pointed",
+  "margin": "Regular, coarse, forward-pointing teeth all along both sides",
+  "veins": "A few veins pressed in",
+  "surface": "Rough to the touch",
+  "stalk": "None",
+  "colour": "Dark green, often tinged bronze or purple"
+ },
+ "flower": {
+  "form": "A small two-lipped tube: a hooded upper lip, flattened side to side, over a smaller three-lobed lower lip",
+  "petals": "Joined into one tube, opening into the two lips; two tiny violet teeth at the tip of the hood",
+  "colour": "Yellow, with the two small violet teeth",
+  "centre": "Hidden inside the hood",
+  "behind": "A large, flattened, inflated green calyx, almost round, from which the yellow tube pokes",
+  "carried": "In a leafy spike at the stem tops, all turned to one side, each flower above a triangular bract with long sharp teeth",
+  "size": "1.3 to 1.5 cm long",
+  "season": "May to August"
+ },
+ "fruit": "The calyx dries to a round, flat, papery straw-brown purse around a round flat capsule; the ripe seeds rattle inside when shaken. Seeds flat, round, 3 to 5 mm, brown, with a papery wing all round.",
+ "seedling": "Comes up in late winter or early spring after the seed has had weeks of cold. Two narrow oval seed leaves, then opposite pairs of small toothed leaves.",
+ "winter": "None: an annual, gone by late summer.",
+ "palette": {
+  "leaf": "deep",
+  "flower": "sun",
+  "centre": "plum",
+  "fruit": "straw"
+ },
+ "must_show": {
+  "leaf": [
+   "narrow stalkless leaf with coarse regular teeth all along",
+   "dark green, rough"
+  ],
+  "bloom": [
+   "a yellow two-lipped flower with a hood",
+   "two tiny violet teeth on the hood",
+   "a large flat inflated green calyx behind"
+  ],
+  "seed": [
+   "flat round brown seeds with a papery wing all round"
+  ],
+  "seedling": [
+   "two narrow oval seed leaves",
+   "first true leaves an opposite pair, toothed"
+  ],
+  "young": [
+   "an upright stem with opposite pairs of narrow toothed leaves",
+   "standing among grass"
+  ],
+  "flower": [
+   "upright stems with a leafy spike of yellow hooded flowers on one side",
+   "flat inflated calyces",
+   "growing among grass"
+  ],
+  "seedhead": [
+   "stiff brown stems carrying flat round papery straw-coloured purses"
+  ]
+ },
+ "look_alikes": "Greater yellow-rattle (Rhinanthus angustifolius) is rarer and larger, with a longer, curved flower tube. Common cow-wheat (Melampyrum pratense) has narrow untoothed leaves, flowers in pairs and no inflated calyx. Red bartsia has pink flowers.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

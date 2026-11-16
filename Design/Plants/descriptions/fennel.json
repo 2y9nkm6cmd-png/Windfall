@@ -1,0 +1,47 @@
+{
+ "kind": "fennel",
+ "name": "Fennel",
+ "latin": "Foeniculum vulgare",
+ "family": "Apiaceae, the carrot family (umbellifers)",
+ "grown_as": "Herb fennel, a long-lived perennial grown for its leaves and seed (not Florence fennel, the bulb vegetable, which is an annual). Bronze fennel ('Purpureum') is also common in gardens, with bronze-purple young leaves. ⚠️ CHECK which William grows; drawn as the green form.",
+ "habit": "A tall clump of several upright stems 1.5 to 2.5 m high and about 60 cm across, branching widely above, from a thick root. Stems smooth, glossy, finely striped, blue-green, solid with white pith when young. Strong aniseed smell.",
+ "leaf": {
+  "arrangement": "Alternate up the stems; large leaves at the base in spring",
+  "type": "Compound, three or four times pinnate, cut into hair-fine thread-like segments",
+  "outline": "Triangular overall, up to 30 cm or more, the threads pointing in all directions so the leaf is a soft three-dimensional plume, not flat",
+  "base": "A long conspicuous sheath, several cm, wrapping the stem",
+  "tip": "Each thread ends in a fine point",
+  "margin": "No teeth: threads 1 to 5 cm long (longer than dill's), very narrow",
+  "veins": "Not seen",
+  "surface": "Smooth, hairless, waxy",
+  "stalk": "Short above the sheath",
+  "colour": "Grey-green to blue-green; in bronze fennel bronze-purple, greening with age"
+ },
+ "flower": {
+  "form": "Flat to slightly domed compound umbels of tiny flowers",
+  "petals": "Five tiny yellow petals per flower, tips turned inwards",
+  "colour": "Bright yellow",
+  "centre": "Yellow stamens and a swollen yellow base to the styles",
+  "behind": "No bracts or bracteoles",
+  "carried": "On long stalks at the ends of stems and branches, facing up; each umbel 4 to 8 cm across with 12 to 25 rays, many umbels open together",
+  "size": "Flowers 1 to 2 mm; umbels 4 to 8 cm",
+  "season": "July to October"
+ },
+ "fruit": "Oblong seeds 4 to 6 mm long, in pairs, with five strong pale ribs and no wing. Green ripening to grey-brown. Umbels of seed stand into winter.",
+ "seedling": "Two long narrow seed leaves, then first true leaves divided into threads",
+ "winter": "Dies down to the ground. Dead hollow brown stems often stand with their seed umbels. Fresh feathery shoots appear at the crown from late winter.",
+ "palette": {"leaf": "sage", "flower": "sun", "fruit": "seed"},
+ "must_show": {
+  "leaf": ["hair-fine threads spreading in all directions, a soft plume", "long sheath clasping the stem", "grey-green colour"],
+  "bloom": ["yellow umbel of many rays, no bracts", "tiny yellow flowers in small umbels at the ray tips"],
+  "seed": ["oblong ribbed seed with strong pale ribs", "no wing round the edge"],
+  "seedling": ["two long narrow seed leaves", "first true leaf thread-like"],
+  "young": ["a clump of feathery grey-green plumes from the ground", "sheathing leaf bases"],
+  "crop": ["a dense clump of tall feathery grey-green foliage", "several stems from one base"],
+  "flower": ["tall branched stems over 1.5 m with many yellow umbels", "fine feathery leaves", "several stems from one clump"],
+  "seedhead": ["umbels of ribbed grey-brown seeds on stiff rays", "tall browning stems"],
+  "dormant": ["dead brown stems standing, some with seed umbels", "small feathery new shoots at the base"]
+ },
+ "look_alikes": "Dill is an annual with one stem, flatter leaves and flat winged seeds. Florence fennel has a swollen white bulb at the base. Hemlock and other white umbellifers have flat, divided but not thread-like leaflets and white flowers.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. No UK iNaturalist photos had been downloaded for this group when it was written. ⚠️ CHECK"
+}

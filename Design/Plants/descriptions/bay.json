@@ -1,0 +1,64 @@
+{
+ "kind": "bay",
+ "name": "Bay",
+ "latin": "Laurus nobilis",
+ "family": "Lauraceae, the laurel family",
+ "grown_as": "Sweet bay, an evergreen shrub or small tree, in gardens often a clipped bush or a standard in a pot. Male and female flowers are on separate plants: only females bear berries, and clipped plants may not flower. William's plant's sex is not known. ⚠️ CHECK",
+ "habit": "A dense, upright evergreen shrub or small tree, usually kept 1 to 3 m but up to 10 m if left; smooth grey bark; young shoots green or reddish.",
+ "leaf": {
+  "arrangement": "Alternate, singly along the stem",
+  "type": "Simple",
+  "outline": "Narrowly oval to lance-shaped, 5 to 10 cm long and 2 to 4 cm wide, widest about the middle",
+  "base": "Tapering to a wedge",
+  "tip": "Pointed",
+  "margin": "Smooth, no teeth, often slightly wavy, with a thin pale edge",
+  "veins": "A pale, raised midrib and fine side veins joined in a net, faint above",
+  "surface": "Thick, stiff and leathery; glossy above, matt and paler beneath",
+  "stalk": "Short, 5 to 10 mm, often reddish",
+  "colour": "Dark green"
+ },
+ "flower": {
+  "form": "Small fluffy star-like flowers",
+  "petals": "Four small pale tepals (no true petals and sepals)",
+  "colour": "Creamy yellow to pale yellow-green",
+  "centre": "Male flowers have 8 to 12 stamens, making them fluffy; female flowers are smaller with a green ovary",
+  "behind": "Each small cluster sits in a cup of rounded bud scales",
+  "carried": "In small clusters of 4 to 6 in the leaf joints along the shoots, close to the stem, among the leaves",
+  "size": "About 1 cm across",
+  "season": "March to April"
+ },
+ "fruit": "On female plants only: an oval berry 1 to 1.5 cm long, green ripening to glossy black in autumn, single or in small clusters in the leaf joints.",
+ "seedling": "Not drawn.",
+ "winter": "Evergreen: unchanged, though hard frost and cold wind can brown the leaves.",
+ "palette": {
+  "leaf": "marrow",
+  "flower": "primrose",
+  "centre": "sun",
+  "fruit": "dark"
+ },
+ "must_show": {
+  "leaf": [
+   "a narrow oval leaf, pointed at both ends",
+   "smooth, often slightly wavy edge, no teeth",
+   "glossy dark green, leathery",
+   "a short, often reddish stalk"
+  ],
+  "bloom": [
+   "small creamy yellow fluffy flowers with four tepals and many stamens",
+   "in a small cluster in a leaf joint"
+  ],
+  "young": [
+   "a small upright shrub with glossy dark green leaves set singly"
+  ],
+  "growing": [
+   "a dense upright evergreen shrub or clipped bush",
+   "glossy pointed leaves set singly"
+  ],
+  "flower": [
+   "small creamy yellow clusters tucked in the leaf joints all along the shoots",
+   "glossy dark leaves around them"
+  ]
+ },
+ "look_alikes": "Cherry laurel is much larger in leaf, finely toothed, brighter green and poisonous: never cook with it. Portugal laurel has red stalks and finely toothed leaves. Spotted laurel (Aucuba) has coarsely toothed, often yellow-spotted leaves in opposite pairs.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

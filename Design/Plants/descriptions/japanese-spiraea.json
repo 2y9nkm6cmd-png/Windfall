@@ -1,0 +1,44 @@
+{
+ "kind": "japanese-spiraea",
+ "name": "Japanese Spiraea",
+ "latin": "Spiraea japonica",
+ "family": "Rosaceae, the rose family",
+ "grown_as": "A low ornamental shrub, William's is 'Magic Carpet' ('Walbuma'), grown for its coloured leaves: young shoots bright copper-red, maturing to golden yellow. The plain species has green leaves; photos of the species will not show the gold.",
+ "habit": "A low, dense, spreading mound, 40 to 60 cm high and 60 to 80 cm wide, of many thin, upright, brown twiggy stems.",
+ "leaf": {
+  "arrangement": "Alternate",
+  "type": "Simple",
+  "outline": "Lance-shaped to narrowly oval, small, 2 to 5 cm long",
+  "base": "Wedge-shaped",
+  "tip": "Pointed",
+  "margin": "Sharp, forward-pointing teeth, often double, on the upper two-thirds; the base untoothed",
+  "veins": "A midrib and a few side veins running forward",
+  "surface": "Smooth, slightly glossy; paler beneath",
+  "stalk": "Very short, 2 to 5 mm",
+  "colour": "'Magic Carpet': copper-red when young, golden yellow when grown, so tips are red over a gold mound; orange-red again in autumn"
+ },
+ "flower": {
+  "form": "A flat-topped head of many tiny flowers, fluffy with stamens",
+  "petals": "Five, free, tiny and round",
+  "colour": "Deep rose-pink to pink-purple",
+  "centre": "Many long stamens sticking out well beyond the petals, giving the fuzzy look",
+  "behind": "Five tiny sepals",
+  "carried": "In dense flat-topped heads (corymbs) 4 to 8 cm across at the tips of the shoots, held upright above the leaves",
+  "size": "Each flower 4 to 6 mm; head 4 to 8 cm",
+  "season": "June to August"
+ },
+ "fruit": "Tiny dry brown pods (follicles) in clusters of five, making a rusty-brown star-studded head that stays on into winter.",
+ "seedling": "Not drawn: grown as bought plants",
+ "winter": "A low twiggy mound of thin brown stems, many still topped with flat rusty-brown seed heads; small reddish buds.",
+ "palette": {"leaf": "primrose", "flower": "mauve", "centre": "pink", "fruit": "rust"},
+ "must_show": {
+  "leaf": ["small lance-shaped leaf with sharp teeth on the upper part only", "golden yellow, with red on young leaves"],
+  "bloom": ["a flat head of many tiny pink five-petalled flowers", "long stamens making it look fluffy"],
+  "young": ["a low clump of thin upright stems", "small pointed leaves, red at the tips, gold below"],
+  "dormant": ["a low twiggy mound of thin brown stems", "flat brown seed heads left on top"],
+  "flower": ["flat pink heads on top of the shoots", "a low mound of golden leaves beneath"],
+  "growing": ["a low dense mound of golden leaves", "copper-red young leaves at the shoot tips"]
+ },
+ "look_alikes": "Spiraea 'Goldflame' and 'Goldmound' are close relatives with similar gold leaves. Bridal wreath spiraeas have white flowers in spring along arching stems. Pink yarrow has flat heads too but feathery leaves and is not woody.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge and iNaturalist photos. ⚠️ CHECK"
+}

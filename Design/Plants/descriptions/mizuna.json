@@ -1,0 +1,46 @@
+{
+ "kind": "mizuna",
+ "name": "Mizuna",
+ "latin": "Brassica rapa subsp. nipposinica",
+ "family": "Brassicaceae, the cabbage family",
+ "grown_as": "Japanese mustard greens, picked young as cut and come again or as a whole clump. William's records give no variety; green mizuna is drawn (red kinds exist).",
+ "habit": "A dense fountain-like clump of many feathery leaves 20 to 30 cm tall and 30 cm across from a short stem. Bolts to 60 to 90 cm in flower.",
+ "leaf": {
+  "arrangement": "A crowded rosette of dozens of leaves; on the flowering stem alternate, clasping",
+  "type": "Simple but deeply and finely cut (pinnately divided) almost to the midrib",
+  "outline": "Long and narrow, 15 to 30 cm, cut into many narrow, jagged lobes in pairs along the midrib, the end lobe narrow; feathery overall",
+  "base": "Narrowing into a slender stalk",
+  "tip": "A narrow, toothed end lobe",
+  "margin": "Every lobe edged with sharp, irregular teeth, giving a fringed look",
+  "veins": "A slender pale midrib, one vein into each lobe",
+  "surface": "Smooth, hairless, glossy",
+  "stalk": "Slender, round, crisp, white to pale green, half the leaf's length",
+  "colour": "Bright mid green; stalks white. Stem leaves bluish-green, smooth, clasping with rounded ears"
+ },
+ "flower": {
+  "form": "A cross-shaped flower of four petals",
+  "petals": "Four, free, oval with a narrow claw, spreading flat",
+  "colour": "Bright yellow",
+  "centre": "Six stamens, four long and two short, with yellow anthers",
+  "behind": "Four narrow green sepals, half-spreading",
+  "carried": "In spikes at the top of the branched bolted stem; the newly opened flowers are held above the closed buds, so the top of each spike is flat",
+  "size": "1 to 1.5 cm across",
+  "season": "March to May from overwintered plants, or in summer when it bolts"
+ },
+ "fruit": "Slender pods 3 to 6 cm, cylindrical with a slight bump over each seed, ending in a thin beak 1 to 2 cm, held upright-spreading on stalks along the stem. Green, drying straw-brown and splitting from the bottom to show a pale papery partition. Seeds round, 1.5 mm, red-brown to dark brown.",
+ "seedling": "Two kidney-shaped seed leaves on short stalks, broader than long with a notch at the tip, like a heart with the stalk at its point, then true leaves already toothed and soon deeply cut.",
+ "winter": "Hardy: carries on as a smaller clump through a mild winter and flowers in spring.",
+ "palette": {"leaf": "leaf", "flower": "sun", "centre": "sun", "fruit": "straw"},
+ "must_show": {
+  "leaf": ["a long narrow leaf deeply cut into many narrow, jagged lobes", "sharp teeth on every lobe", "a slender white stalk and midrib"],
+  "bloom": ["four bright yellow petals in a cross", "open flowers held above the closed buds"],
+  "seed": ["tiny round seed 1.5 mm", "red-brown to dark brown"],
+  "seedling": ["two kidney-shaped seed leaves notched at the tip", "the first true leaves toothed"],
+  "young": ["a small tuft of feathery, deeply cut leaves on white stalks", "no stem showing"],
+  "crop": ["a dense fountain of many feathery, finely cut leaves", "white stalks gathered at the base"],
+  "flower": ["branched stems with clasping bluish leaves", "bright yellow four-petalled flowers in spikes, flat-topped"],
+  "seedhead": ["slender beaked pods upright along the stems", "drying straw-brown"]
+ },
+ "look_alikes": "Mibuna, its close relative, has long strap-shaped unlobed leaves. Wild rocket has deeply cut leaves but is perennial and smells strongly. Frilly mustards (Brassica juncea 'Red Frills', 'Golden Frills') are hairy and usually red or yellow-green.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

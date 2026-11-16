@@ -1,0 +1,69 @@
+{
+ "kind": "nasturtium",
+ "name": "Nasturtium",
+ "latin": "Tropaeolum majus",
+ "family": "Tropaeolaceae, the nasturtium family",
+ "grown_as": "A tender annual flower, edible in leaf, flower and seed, sown in spring. Trailing and climbing kinds, and compact 'Tom Thumb' bush kinds. Colour varies from yellow to orange to deep red by variety: drawn orange. ⚠️ CHECK",
+ "habit": "Trailing or scrambling stems to 1 to 3 m, climbing by twisting leaf stalks; compact kinds a mound 30 cm. Succulent, smooth, hairless, slightly peppery-smelling.",
+ "leaf": {
+  "arrangement": "Alternate",
+  "type": "Simple, shield-shaped (peltate): the stalk joins the underside near the middle, not at the edge",
+  "outline": "Round, 5 to 15 cm across, sometimes slightly angular",
+  "base": "None: the leaf is a round disc with the stalk underneath, slightly off-centre",
+  "tip": "None: round",
+  "margin": "Entire, gently wavy, sometimes with shallow blunt points where the veins end",
+  "veins": "Eight or nine pale veins radiating from the stalk point like the spokes of a wheel, forking near the edge",
+  "surface": "Smooth, hairless, slightly waxy so water rolls off in beads; paler beneath",
+  "stalk": "Long (5 to 20 cm), fleshy, joining the centre of the leaf beneath",
+  "colour": "Mid green, a little blue-green"
+ },
+ "flower": {
+  "form": "A broad open trumpet with a long straight spur sticking out behind",
+  "petals": "Five, free: the upper two broad, rounded and marked with dark lines; the lower three narrower with fringed, hairy claws at their base",
+  "colour": "Orange (also yellow, red or cream), the throat with darker red streaks",
+  "centre": "Eight stamens around a three-lobed style, half hidden in the throat",
+  "behind": "Five coloured sepals, the upper one drawn out into a nectar spur 2 to 3 cm long",
+  "carried": "Singly on long stalks from the leaf joints, held level or facing out among or above the leaves",
+  "size": "4 to 6 cm across",
+  "season": "June until the first frost"
+ },
+ "fruit": "Three rounded, ridged and wrinkled seeds joined in a cluster, green, turning pale buff and corky as they dry, about 1 cm each. Seed: a single wrinkled, ridged, roughly round segment, pale brown.",
+ "seedling": "The seed leaves stay in the seed in the soil. The first leaves above ground are already small round shields on long stalks.",
+ "winter": "Nothing: killed by the first frost, self-sown seeds sprouting the next spring",
+ "palette": {
+  "leaf": "leaf",
+  "flower": "carrot",
+  "centre": "berry",
+  "fruit": "unripe"
+ },
+ "must_show": {
+  "leaf": [
+   "a round shield-shaped leaf with the stalk joining underneath near the centre",
+   "eight or nine veins radiating like wheel spokes",
+   "smooth edge"
+  ],
+  "bloom": [
+   "five orange petals, the upper two broad, the lower three with fringed bases",
+   "a long straight spur behind",
+   "dark streaks in the throat"
+  ],
+  "seed": [
+   "a wrinkled, ridged, roughly round seed",
+   "pale brown, about 1 cm"
+  ],
+  "seedling": [
+   "small round shield leaves on long stalks",
+   "no seed leaves above ground"
+  ],
+  "young": [
+   "trailing stems",
+   "round shield leaves on long stalks"
+  ],
+  "flower": [
+   "orange spurred flowers held among the leaves",
+   "round shield leaves on long stalks"
+  ]
+ },
+ "look_alikes": "Pennywort (navelwort, Umbilicus rupestris) has small fleshy round leaves with the stalk in the middle, but grows in walls and has spikes of tiny greenish bells. Canary creeper (Tropaeolum peregrinum) has lobed leaves and small fringed yellow flowers.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

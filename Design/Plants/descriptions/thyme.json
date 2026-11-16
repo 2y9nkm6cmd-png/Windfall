@@ -1,0 +1,70 @@
+{
+ "kind": "thyme",
+ "name": "Thyme",
+ "latin": "Thymus vulgaris",
+ "family": "Lamiaceae, the mint family",
+ "grown_as": "Common garden thyme, a small evergreen shrub. The library also lists Wild thyme (in Britain Thymus drucei), a creeping mat with rounder leaves and purple-pink flowers; lemon and variegated thymes differ in colour. Drawn as garden thyme. ⚠️ CHECK",
+ "habit": "A low, dense, twiggy, evergreen bush 15 to 30 cm high, many thin, upright, woody stems, grey-brown and finely hairy.",
+ "leaf": {
+  "arrangement": "Opposite, in pairs, with tufts of smaller leaves in the joints, so the stems look crowded",
+  "type": "Simple",
+  "outline": "Tiny, narrowly oval to lance-shaped, 5 to 10 mm long and 1 to 3 mm wide",
+  "base": "Tapering",
+  "tip": "Blunt or slightly pointed",
+  "margin": "Smooth, rolled under",
+  "veins": "Only the midrib, faint",
+  "surface": "Dotted with tiny glands, finely hairy beneath",
+  "stalk": "None or very short",
+  "colour": "Grey-green"
+ },
+ "flower": {
+  "form": "A tiny two-lipped tube",
+  "petals": "Joined; a short upper lip and a three-lobed lower lip",
+  "colour": "Pale pink-lilac to almost white",
+  "centre": "Stamens sticking out",
+  "behind": "A hairy, two-lipped calyx, often purple-tinged",
+  "carried": "In small dense rounded or short oblong heads at the shoot tips, sometimes with a separate ring just below",
+  "size": "4 to 6 mm long; heads about 1 to 2 cm",
+  "season": "May to July"
+ },
+ "fruit": "Tiny brown nutlets in the dry calyces; the heads dry brown.",
+ "seedling": "Not drawn.",
+ "winter": "Evergreen: a small grey-green bush, the leaves darker or purple-tinged in cold weather.",
+ "palette": {
+  "leaf": "sage",
+  "flower": "pink",
+  "fruit": "seed"
+ },
+ "must_show": {
+  "leaf": [
+   "a tiny narrow leaf, under 1 cm",
+   "smooth edge rolled under",
+   "no stalk",
+   "grey-green"
+  ],
+  "bloom": [
+   "tiny pale pink-lilac two-lipped flowers",
+   "packed into a small rounded head",
+   "purple-tinged calyces"
+  ],
+  "young": [
+   "a small twiggy plant of thin stems crowded with tiny leaves"
+  ],
+  "crop": [
+   "a low dense twiggy bush, woody at the base",
+   "stems crowded with tiny grey-green leaves"
+  ],
+  "flower": [
+   "small rounded pale pink heads at the tips of almost every shoot",
+   "held just above the tiny leaves"
+  ],
+  "seedhead": [
+   "small dry brown heads on the shoot tips"
+  ],
+  "dormant": [
+   "the same small evergreen bush, leaves darker or purple-tinged"
+  ]
+ },
+ "look_alikes": "Wild thyme creeps flat in mats, with rounder leaves and deeper purple-pink flowers. Winter savory has longer, glossy, sharp-pointed leaves and flowers in the leaf joints. Oregano has broader soft leaves and flat-topped flower heads.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

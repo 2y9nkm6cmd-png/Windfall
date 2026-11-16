@@ -1,0 +1,44 @@
+{
+ "kind": "blackcurrant",
+ "name": "Blackcurrant",
+ "latin": "Ribes nigrum",
+ "family": "Grossulariaceae, the currant family",
+ "grown_as": "A fruit bush, 'Ben Conan', a compact Scottish variety with large berries. Grown as a stool: many stems from below the soil, no trunk.",
+ "habit": "A bushy, upright, spineless deciduous shrub, 1 to 1.5 m high and wide, with many stems rising from the base. The whole plant has a strong, sharp blackcurrant smell when touched, from tiny resin glands.",
+ "leaf": {
+  "arrangement": "Alternate",
+  "type": "Simple, palmately lobed",
+  "outline": "About as wide as long, 5 to 10 cm, with three main lobes and often two small extra lobes at the base",
+  "base": "Heart-shaped",
+  "tip": "Each lobe broadly triangular and pointed; the middle lobe largest",
+  "margin": "Coarse, irregular, fairly sharp teeth (often double) all round every lobe",
+  "veins": "Three to five main veins from the top of the stalk, one into each lobe, pressed in so the leaf looks a little puckered",
+  "surface": "Dull green and smooth above; paler and a little downy beneath, dotted with tiny yellow resin glands",
+  "stalk": "Long, 3 to 6 cm, downy, widening where it clasps the stem",
+  "colour": "Mid to dark green"
+ },
+ "flower": {
+  "form": "A small bell, open at the mouth",
+  "petals": "Five tiny whitish petals inside the bell, hardly seen; the bell itself is made of five sepals joined at the base, their tips curling back",
+  "colour": "Dull greenish-cream inside, flushed pinkish-purple and downy outside",
+  "centre": "Five short stamens and a style inside the bell",
+  "behind": "The swollen green ovary just above the bell, which becomes the berry",
+  "carried": "Five to ten on a hanging string (strig) 3 to 7 cm long, from the older wood where the leaves join it",
+  "size": "8 to 10 mm long",
+  "season": "April"
+ },
+ "fruit": "Round berries, 1 to 1.5 cm, glossy black when ripe (green, then reddish, then black), each with a dry brown tuft of old flower at its tip. Five to ten on a hanging strig, ripening together; 'Ben Conan' has large berries on short strigs. July.",
+ "seedling": "Not drawn: grown from cuttings or bought plants",
+ "winter": "Bare, upright pale brown to grey stems from the base, young ones paler tan; fat, pointed, pale buds with loose scales (swollen round ones are big bud mite).",
+ "palette": {"leaf": "deep", "flower": "pink", "centre": "pear", "fruit": "dark"},
+ "must_show": {
+  "leaf": ["three main pointed lobes, often two small ones at the base", "heart-shaped base on a long stalk", "coarse irregular teeth all round every lobe", "main veins fanning from the stalk"],
+  "bloom": ["a small bell-shaped flower with tips curling back, pinkish outside and greenish-cream within", "part of a hanging string of several flowers"],
+  "young": ["several upright stems from the soil, no trunk", "three-lobed toothed leaves"],
+  "dormant": ["bare upright stems from the base, no trunk", "fat pale pointed buds"],
+  "flower": ["short hanging strings of small bell flowers", "young three-lobed leaves just opening around them"],
+  "crop": ["hanging strings of glossy round black berries", "lobed leaves"]
+ },
+ "look_alikes": "Redcurrant and whitecurrant have smaller, less pointed leaves without the smell or glands, flat saucer flowers and longer strigs. Flowering currant (Ribes sanguineum) has bright pink flowers and bloomy blue-black berries. Jostaberry (a cross with gooseberry) is larger and less smelly, with glossier leaves.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge and UK iNaturalist photos. ⚠️ CHECK"
+}

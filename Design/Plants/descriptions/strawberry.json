@@ -3,7 +3,7 @@
  "name": "Strawberry",
  "latin": "Fragaria × ananassa",
  "family": "Rosaceae, the rose family",
- "grown_as": "The garden strawberry, a perennial fruit kept by planting its runners. William's variety is not known; varieties differ little in leaf and flower.",
+ "grown_as": "The garden strawberry, a perennial fruit kept by planting its runners. William grows several varieties: 'Elsanta', 'Fenella', 'Mieze Schindler', a pineberry (white fruit with red seeds) and 'Temptation' (a perpetual variety sown from seed, fruiting June to September); his alpine strawberry (Fragaria vesca) is a different, smaller species. Varieties differ little in leaf and flower; the drawing shows an ordinary red strawberry.",
  "habit": "A low clump about 15 to 25 cm high and 30 to 45 cm across, from a short woody crown at ground level. No upright stem: every leaf and flower stalk rises straight from the crown. In summer it sends out long, thin, reddish runners along the ground, each rooting at a node to make a new plant.",
  "leaf": {
   "arrangement": "A loose rosette from the crown",
@@ -29,7 +29,7 @@
   "season": "May to June; some varieties again in late summer"
  },
  "fruit": "The red swollen receptacle, cone-shaped to round, 2 to 5 cm, its surface covered in small yellow seeds (achenes) sitting in shallow pits. A ruff of green sepals at the top where it joins the stalk. Unripe fruit is white-green. The fruit hangs on its stalk, often resting on the ground or straw.",
- "seedling": "Not drawn: grown from runners or bought plants",
+ "seedling": "Not drawn: mostly grown from runners or bought plants ('Temptation' is sown from seed)",
  "winter": "Evergreen in mild winters: a smaller rosette of a few leaves, the older ones turning red and brown, the crown showing at the soil.",
  "palette": {"leaf": "leaf", "flower": "white", "centre": "primrose", "fruit": "berry"},
  "must_show": {

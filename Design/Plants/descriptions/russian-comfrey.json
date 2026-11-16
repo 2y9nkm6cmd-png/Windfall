@@ -1,0 +1,65 @@
+{
+ "kind": "russian-comfrey",
+ "name": "Russian comfrey",
+ "latin": "Symphytum × uplandicum 'Bocking 14'",
+ "family": "Boraginaceae, the borage family",
+ "grown_as": "Russian comfrey 'Bocking 14', a sterile hybrid perennial grown for cutting as mulch and liquid feed. It sets no viable seed and is spread only by root pieces.",
+ "habit": "A large clump 0.6 to 1.2 m tall and 0.6 to 1 m across: a mound of big rough leaves from a crown, then stout, branched, hairy flowering stems. After cutting it regrows quickly from the crown.",
+ "leaf": {
+  "arrangement": "Large leaves from the crown at the base, then alternate up the stem",
+  "type": "Simple",
+  "outline": "Broad oval to lance-shaped, basal leaves up to 25 to 35 cm long, stem leaves smaller",
+  "base": "Basal leaves taper or are rounded into the stalk; stem leaves run a short way down the stem as a narrow wing, but not to the next leaf",
+  "tip": "Pointed",
+  "margin": "Smooth, untoothed, slightly wavy",
+  "veins": "A strong midrib and a network of veins pressed in from above, raised beneath",
+  "surface": "Rough, with stiff bristly hairs; wrinkled",
+  "stalk": "Basal leaves on long, stout, channelled stalks; upper stem leaves short-stalked or stalkless",
+  "colour": "Mid to dark green"
+ },
+ "flower": {
+  "form": "A hanging tubular bell",
+  "petals": "Five joined into a tube, the mouth with five short turned-back teeth",
+  "colour": "Pink in bud, opening violet-blue to mauve-purple",
+  "centre": "Hidden inside the tube; the style just pokes out",
+  "behind": "Five narrow pointed green sepals at the base of each bell",
+  "carried": "In curled one-sided clusters at the stem tips that unroll as the flowers open, the bells hanging down",
+  "size": "1.2 to 1.8 cm long",
+  "season": "May to September"
+ },
+ "fruit": "None of use: the flowers fall without setting good seed.",
+ "seedling": "Not drawn: grown from root cuttings",
+ "winter": "Dies right down to the crown at soil level in late autumn; nothing above ground but perhaps a few small new leaves at the crown in mild spells.",
+ "palette": {
+  "leaf": "deep",
+  "flower": "mauve"
+ },
+ "must_show": {
+  "leaf": [
+   "large broad oval to lance-shaped leaf, untoothed",
+   "rough and bristly, wrinkled with netted veins",
+   "long channelled stalk on basal leaves"
+  ],
+  "bloom": [
+   "hanging tubular bells with short turned-back teeth",
+   "pink buds and violet-blue to mauve open bells",
+   "in a curled one-sided cluster"
+  ],
+  "young": [
+   "a mound of large rough leaves on long stalks from a crown at the soil"
+  ],
+  "crop": [
+   "a big leafy clump about knee high, before or just as flowering starts",
+   "large rough leaves, ready to cut"
+  ],
+  "flower": [
+   "stout branched hairy stems above the leaves",
+   "curled clusters of hanging pink-to-blue bells"
+  ],
+  "dormant": [
+   "bare soil with a crown at the surface, little or nothing above ground"
+  ]
+ },
+ "look_alikes": "Common comfrey (Symphytum officinale) has broad wings running the whole way down the stem between leaves and cream or purple flowers. Foxglove rosettes are soft and downy with scalloped edges (foxglove is poisonous). Borage has blue flat stars.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

@@ -1,0 +1,72 @@
+{
+ "kind": "asparagus",
+ "name": "Asparagus",
+ "latin": "Asparagus officinalis",
+ "family": "Asparagaceae, the asparagus family",
+ "grown_as": "A hardy perennial vegetable grown in a permanent bed from one-year-old crowns, cut for spears in April to June. Most modern varieties are all-male (no berries); drawn with berries on a female plant for the seed stage. ⚠️ CHECK whether William's plants are all-male.",
+ "habit": "In spring: separate spears pushing up from the soil. Left uncut, each spear grows into a tall, airy, much-branched feathery stem 1 to 1.5 m, the 'fern', like a soft green cloud. Dies down in autumn.",
+ "leaf": {
+  "arrangement": "The true leaves are tiny brown scales on the stem. What looks like foliage are clusters of 3 to 8 needle-like green branchlets (cladodes) set at each node along the fine side branches.",
+  "type": "Not true leaves: needle-like branchlets in tufts",
+  "outline": "Each needle 1 to 2.5 cm long, thread-thin, round, slightly curved",
+  "base": "All needles of a tuft rising from one point, above a tiny triangular brown scale",
+  "tip": "Fine point, soft not prickly",
+  "margin": "None to speak of: each needle is round",
+  "veins": "None visible",
+  "surface": "Smooth, soft",
+  "stalk": "None",
+  "colour": "Fresh mid green, turning yellow then straw-brown in autumn"
+ },
+ "flower": {
+  "form": "A tiny narrow bell, hanging",
+  "petals": "Six tepals joined into a narrow bell with the tips flaring slightly",
+  "colour": "Greenish-white to pale yellow-green",
+  "centre": "Six small stamens (male) or a small green ovary (female)",
+  "behind": "A slender jointed stalk",
+  "carried": "One or two at a node among the fern on thin, jointed stalks, hanging down. Male and female flowers on different plants.",
+  "size": "4 to 6 mm long",
+  "season": "June to July"
+ },
+ "fruit": "On female plants only: round berries 6 to 10 mm, green turning bright red, hanging singly from the fern on thin stalks, each with 1 to 6 black seeds. Seeds round, black, about 3 to 4 mm. The berries are poisonous.",
+ "seedling": "Not drawn: grown from crowns",
+ "winter": "Fern turns yellow, then brown, and is cut down to a few cm; nothing above ground but stubs and mulch",
+ "palette": {
+  "leaf": "leaf",
+  "flower": "primrose",
+  "centre": "pear",
+  "fruit": "berry"
+ },
+ "must_show": {
+  "leaf": [
+   "fine branches carrying tufts of 3 to 8 needle-like green branchlets",
+   "no broad leaves"
+  ],
+  "bloom": [
+   "a tiny narrow bell of six tepals",
+   "greenish-white",
+   "hanging on a thin jointed stalk"
+  ],
+  "crown": [
+   "a central crown with budded tips",
+   "many long thick fleshy roots spread out like a spider"
+  ],
+  "crop": [
+   "separate green spears coming straight out of the soil",
+   "tight scale leaves lapped at each tip, purple-tinged"
+  ],
+  "growing": [
+   "tall feathery much-branched green fern",
+   "a soft cloud-like look, no broad leaves"
+  ],
+  "seedhead": [
+   "round red berries hanging singly",
+   "among the green or yellowing fern"
+  ],
+  "dormant": [
+   "bare soil with short cut stubs",
+   "or yellow-brown dying fern before cutting"
+  ]
+ },
+ "look_alikes": "Wild asparagus by the sea (Asparagus prostratus) is low and sprawling. Asparagus 'fern' (Asparagus setaceus) is a houseplant with flat sprays. Fennel and dill have true feathery leaves with sheathing stalks and yellow umbels.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

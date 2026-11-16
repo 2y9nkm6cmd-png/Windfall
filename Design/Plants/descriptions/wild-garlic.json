@@ -1,0 +1,46 @@
+{
+ "kind": "wild-garlic",
+ "name": "Wild garlic",
+ "latin": "Allium ursinum",
+ "family": "Amaryllidaceae, the daffodil family (onion subfamily)",
+ "grown_as": "Ramsons, a native woodland bulb grown in damp shade (William's is in the Lower Orchard) for its leaves and flowers in spring. It spreads into carpets.",
+ "habit": "Each bulb sends up two or three broad leaves 20 to 40 cm and one leafless flower stem of about the same height. Many together make a dense carpet in spring, gone by midsummer.",
+ "leaf": {
+  "arrangement": "Two (sometimes one or three) from each bulb, rising from the ground",
+  "type": "Simple",
+  "outline": "Broad elliptic to lance-shaped, 10 to 25 cm by 2 to 7 cm, widest about the middle",
+  "base": "Narrowing gradually into the stalk",
+  "tip": "Pointed",
+  "margin": "Entire, no teeth, flat or a little wavy",
+  "veins": "Fine parallel veins running from base to tip, curving with the outline, with a pale midrib",
+  "surface": "Soft, thin, smooth and hairless, bright and slightly glossy; strong garlic smell when crushed",
+  "stalk": "5 to 20 cm, slender, twisted half a turn so the leaf is upside down: the dull paler underside faces up",
+  "colour": "Bright fresh green"
+ },
+ "flower": {
+  "form": "A loose, rounded to flat-topped umbel of open white stars",
+  "petals": "Six free, narrow, pointed tepals spreading flat into a six-pointed star",
+  "colour": "Pure bright white",
+  "centre": "Six white stamens with pale yellow anthers and a green three-lobed ovary",
+  "behind": "Two papery white bracts (the spathe) wrapping the bud, splitting and falling as it opens",
+  "carried": "6 to 20 flowers on stalks from one point at the top of a leafless, three-angled stem, facing up",
+  "size": "Flowers 1.5 to 2 cm across; heads 4 to 6 cm",
+  "season": "April to June"
+ },
+ "fruit": "Each flower ripens into a green, three-lobed capsule that turns yellowish and splits to show round black seeds; the head stands on a yellowing stem as the leaves collapse.",
+ "seedling": "Not drawn: grown from bulbs. (From seed: one thin grass-like leaf in the first year.)",
+ "winter": "Nothing above ground from midsummer until midwinter: the narrow white bulbs rest in the soil. New pointed leaf tips push through in January and February.",
+ "palette": {"leaf": "leaf", "flower": "white", "centre": "pear", "fruit": "unripe"},
+ "must_show": {
+  "leaf": ["a broad elliptic leaf, pointed, untoothed", "fine parallel veins curving from base to tip", "a long slender stalk"],
+  "bloom": ["six narrow pointed white tepals spreading flat into a star", "a loose umbel of such stars on stalks from one point", "a papery spathe falling from below"],
+  "set": ["a narrow white bulb, longer than wide, with a few roots"],
+  "young": ["pointed leaves pushing up through the soil, rolled at first"],
+  "crop": ["two or three broad bright green leaves on stalks from each bulb", "plants in a carpet"],
+  "flower": ["white star-flowered umbels on leafless three-angled stems among the broad leaves"],
+  "seedhead": ["green three-lobed capsules on the stems, the leaves yellowing and collapsing"],
+  "dormant": ["bare soil or leaf litter, nothing above ground"]
+ },
+ "look_alikes": "Lily-of-the-valley (poisonous) has leaves in a wrapped pair, no garlic smell and nodding white bells on one side of the stem. Lords-and-ladies (poisonous) has arrow-shaped leaves with netted veins. Autumn crocus (poisonous) has leaves in a tuft with no stalks. Three-cornered leek has narrow keeled leaves and nodding white bells with a green stripe. Always crush and smell.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

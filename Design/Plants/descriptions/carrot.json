@@ -1,0 +1,47 @@
+{
+ "kind": "carrot",
+ "name": "Carrot",
+ "latin": "Daucus carota subsp. sativus",
+ "family": "Apiaceae, the carrot family",
+ "grown_as": "The garden carrot, a biennial grown as an annual for its orange root. The library also lists 'Flowering carrot', and William has seed of 'Dara', an ornamental carrot grown for its flowers, which are deep wine-red, pink and white rather than the plain white of a crop carrot gone to seed. The flower is drawn white as a typical carrot. ⚠️ CHECK: should the flower drawings follow 'Dara' instead?",
+ "habit": "Year 1: a tuft of feathery leaves 25 to 40 cm high from the top of a single tapering root, with no stem. Year 2: a branched, ridged, bristly-hairy flowering stem 60 to 120 cm tall, the leaves on it smaller and more finely cut.",
+ "leaf": {
+  "arrangement": "A loose rosette from the crown at the top of the root",
+  "type": "Compound: two to three times pinnate, the leaf divided into pairs of leaflets, each divided again and again into fine segments",
+  "leaflets": "The leaf triangular to long-oval in outline, with 4 to 6 pairs of side divisions set opposite or nearly so along the central stalk, each division feathery and cut into many small lobes",
+  "outline": "The whole leaf long-triangular, 15 to 30 cm; the last segments narrow, 2 to 5 mm long, lance-shaped to linear",
+  "base": "The leaf stalk widens at the base into a sheath that wraps the crown",
+  "tip": "Each final segment ends in a small fine point",
+  "margin": "No teeth as such: the fineness comes from the deep cutting. The last segments are entire",
+  "veins": "Not visible as a pattern; each fine segment has a single midvein",
+  "surface": "Soft, finely hairy, matt; smells of carrot when crushed",
+  "stalk": "Long, slender, grooved, often a little hairy, green or flushed purple at the base",
+  "colour": "Mid to rather dark green"
+ },
+ "flower": {
+  "form": "A flat-topped lacy plate: a compound umbel made of many small umbels on spokes from one point",
+  "petals": "Each tiny flower has five free, white petals with their tips folded inwards so they look notched; the outer flowers at the rim of the umbel have the outer petals much larger",
+  "colour": "White, sometimes pinkish in bud",
+  "centre": "Often a single dark red-purple flower (or small cluster) at the very centre of the umbel",
+  "behind": "A ruff of long green bracts under the umbel, each split into three or more thread-like forks, often as long as the spokes: a key carrot feature",
+  "carried": "One large umbel 6 to 12 cm across at the top of each branch, held flat and facing up, with smaller umbels on side branches",
+  "size": "Single flowers 2 to 3 mm; umbels 6 to 12 cm across",
+  "season": "June to August of the second year"
+ },
+ "fruit": "As the seeds ripen the spokes of the umbel curl inwards and up so the head becomes a hollow cup like a bird's nest, turning brown. Each fruit is a small oval of two halves, 3 to 4 mm, ridged and covered in rows of hooked bristles. Seed bought in packets is often rubbed smooth of its bristles.",
+ "seedling": "Two long, very narrow, strap-like seed leaves 1 to 2.5 cm long, then a first true leaf already three-lobed and finely cut, held on a thin stalk. The fine feathery leaf is recognisable from the third leaf on.",
+ "winter": "Not usually left in: roots lifted by late autumn or left in the ground under the old leaves, which die back to a few green feathers. A plant left to flower overwinters as a small rosette.",
+ "palette": {"leaf": "deep", "flower": "white", "centre": "beet", "fruit": "seed", "root": "carrot"},
+ "must_show": {
+  "leaf": ["one leaf on a long stalk, finely divided two or three times into many small narrow segments", "pairs of divisions along the central stalk, the whole leaf triangular in outline", "a sheathing base to the stalk"],
+  "bloom": ["a flat lacy umbel of many tiny white flowers on spokes", "outer flowers of the rim with larger outer petals", "thread-like forked green bracts beneath", "a small dark purple flower at the centre"],
+  "seed": ["a small oval ridged seed, about 3 mm, pale brown", "rows of fine bristles along the ridges, or smooth if de-bristled"],
+  "seedling": ["two long, very narrow strap-like seed leaves", "a first true leaf already finely cut"],
+  "young": ["a tuft of feathery leaves from one point at the soil, no stem", "the orange shoulder of the root just showing at the soil"],
+  "crop": ["one orange root, long and cone-shaped, tapering to a point with a thin tail", "fine side rootlets and faint rings on the root", "a tuft of feathery leaves from the top"],
+  "flower": ["a tall branched ridged stem with smaller, finely cut leaves", "flat white umbels at the branch tips, the top one largest", "forked thread-like bracts under each umbel"],
+  "seedhead": ["umbels curled inwards and up into a brown hollow 'bird's nest'", "small bristly fruits packed in it"]
+ },
+ "look_alikes": "Wild carrot is the same species with a thin, white, woody root. Hemlock (Conium) and fool's parsley are poisonous: hemlock has a smooth purple-blotched stem, a mousy smell and no forked bracts; fool's parsley has long downward-hanging bracteoles on the outer side of each small umbel only. Hogweed has broad lobed leaves. Parsnip has yellow flowers and once-pinnate broad leaflets.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

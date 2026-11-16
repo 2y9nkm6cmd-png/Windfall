@@ -1,0 +1,77 @@
+{
+ "kind": "clover",
+ "name": "Clover",
+ "latin": "Trifolium repens",
+ "family": "Fabaceae, the pea family",
+ "grown_as": "White clover: a native perennial of lawns and grassland, also sown as green manure and for bees. 'Clover' in the library is taken to mean white clover; red clover has its own entry. ⚠️ CHECK",
+ "habit": "Low and creeping: stems run flat along the ground, rooting at each joint, making mats. Leaves and flower heads stand up 5 to 20 cm on long stalks straight from the runners. Hairless.",
+ "leaf": {
+  "arrangement": "Single leaves at each joint of the creeping stem, standing up on long stalks",
+  "type": "Compound: three leaflets (trifoliate) from the top of one stalk",
+  "leaflets": "All three almost stalkless and alike, meeting at one point",
+  "outline": "Each leaflet broadly oval to rounded-obovate, 1 to 3 cm, widest above the middle",
+  "base": "Wedge-shaped",
+  "tip": "Rounded, often with a small notch",
+  "margin": "Very fine teeth all round",
+  "veins": "Many fine straight side veins, clearer when held to the light",
+  "surface": "Hairless, slightly glossy, usually with a whitish V-shaped band (chevron) across each leaflet",
+  "stalk": "Long (5 to 20 cm), thin, hairless; papery pale stipules at the base wrapping the runner",
+  "colour": "Mid green with a pale chevron"
+ },
+ "flower": {
+  "form": "A round ball made of many tiny pea flowers",
+  "petals": "Each small flower a narrow pea flower, the standard longer than the rest",
+  "colour": "White or cream, often tinged pink; the older lower flowers turn brown",
+  "centre": "None; the head is the same all through",
+  "behind": "Tiny green calyces; no leaves under the head",
+  "carried": "Heads alone at the top of long leafless stalks from the runners, standing above the leaves. Each small flower on a short stalk and, once over, bends down so the head has a skirt of drooping brown flowers below the fresh white ones.",
+  "size": "Heads 1.5 to 2.5 cm across",
+  "season": "May to October; scented"
+ },
+ "fruit": "Small pods hidden in the dry, brown, drooping flowers of the old head; 3 to 4 tiny heart-shaped yellow to brown seeds",
+ "seedling": "Two small oval seed leaves, then a first true leaf with a single round leaflet (spade-shaped), then three-leaflet leaves.",
+ "winter": "Green all winter in mild areas: a low mat of small three-leaflet leaves on the creeping stems",
+ "palette": {
+  "leaf": "leaf",
+  "flower": "white",
+  "centre": "pink",
+  "fruit": "bark"
+ },
+ "must_show": {
+  "leaf": [
+   "three rounded leaflets from the top of one long stalk",
+   "a whitish V-shaped band on each leaflet",
+   "very fine teeth"
+  ],
+  "bloom": [
+   "a round white ball of many tiny pea flowers",
+   "older flowers turned down and brown at the bottom"
+  ],
+  "seed": [
+   "a tiny heart-shaped seed",
+   "yellow to brown"
+  ],
+  "seedling": [
+   "two small oval seed leaves",
+   "a single round first leaf"
+  ],
+  "young": [
+   "a creeping stem rooting at the joints",
+   "leaves standing up on long stalks"
+  ],
+  "flower": [
+   "round white heads on long leafless stalks",
+   "standing above a low mat of three-leaflet leaves"
+  ],
+  "seedhead": [
+   "heads of dry brown flowers bent downward",
+   "on the same long stalks"
+  ],
+  "dormant": [
+   "a low green mat of small three-leaflet leaves",
+   "creeping stems on the ground"
+  ]
+ },
+ "look_alikes": "Red clover is upright, hairy, with pink-purple heads sitting on a pair of leaves. Alsike clover (Trifolium hybridum) has pink-white heads but no chevron and does not root along its stems. Black medick has tiny yellow heads and a stalked middle leaflet. Wood sorrel has heart-shaped folding leaflets and single white flowers.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

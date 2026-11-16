@@ -1,0 +1,77 @@
+{
+ "kind": "devil-s-bit-scabious",
+ "name": "Devil's-bit scabious",
+ "latin": "Succisa pratensis",
+ "family": "Caprifoliaceae, the honeysuckle family (the scabious group, once its own family, Dipsacaceae, the teasel family)",
+ "grown_as": "A native perennial wild flower of damp meadows, by William's pond. The food plant of the marsh fritillary butterfly.",
+ "habit": "A clump-forming perennial with a basal rosette and slender, sparingly branched stems 30 to 80 cm (up to 1 m). The short rootstock ends abruptly, as if bitten off.",
+ "leaf": {
+  "arrangement": "A rosette at the base; a few opposite pairs up the stem",
+  "type": "Simple, undivided",
+  "outline": "Basal leaves oblong to elliptic or spoon-shaped, 5 to 25 cm; stem leaves narrow lance-shaped and small",
+  "base": "Narrowing into the stalk",
+  "tip": "Blunt to pointed",
+  "margin": "Smooth, or a few distant shallow teeth on the stem leaves",
+  "veins": "A strong pale midrib; side veins faint",
+  "surface": "Thinly hairy or nearly smooth, slightly firm",
+  "stalk": "Basal leaves on a short winged stalk; stem leaves stalkless",
+  "colour": "Dark green, often blotched or edged purple"
+ },
+ "flower": {
+  "form": "A small round dome (half a ball) of florets all about the same size, with no larger outer ring",
+  "petals": "Each floret a small tube with four lobes",
+  "colour": "Blue-violet to mauve-purple, now and then pink or white",
+  "centre": "None: the whole dome is florets. Long stamens with dark purple anthers stick out, giving a fuzzy look",
+  "behind": "Two or three rows of green, hairy bracts under the head",
+  "carried": "At the tips of long, slender stems, often in threes (one at the top and one on each of a pair of side branches), upright",
+  "size": "1.5 to 2.5 cm across",
+  "season": "July to October"
+ },
+ "fruit": "A small round brown seed head. Each seed is tiny and hairy, in a four-angled collar with five short bristles at the top.",
+ "seedling": "Two small oval seed leaves. The first true leaves are oval, undivided and stalked.",
+ "winter": "A flat rosette of dark green oblong leaves, often reddish-purple, stays at the soil.",
+ "palette": {
+  "leaf": "deep",
+  "flower": "lilac",
+  "centre": "plum",
+  "fruit": "bark"
+ },
+ "palette_wish": {
+  "flower": "blue-violet, about #6F5FB3"
+ },
+ "must_show": {
+  "leaf": [
+   "undivided oblong to spoon-shaped basal leaf",
+   "smooth edge, no lobes",
+   "dark green, often purple-tinged"
+  ],
+  "bloom": [
+   "round domed head with all florets the same size, no frilly outer ring",
+   "blue-violet",
+   "long stamens with dark anthers making it fuzzy",
+   "green bracts underneath"
+  ],
+  "seed": [
+   "tiny seed in a four-angled collar with short bristles"
+  ],
+  "seedling": [
+   "two small oval seed leaves",
+   "first leaves oval and undivided"
+  ],
+  "young": [
+   "flat rosette of oblong dark green leaves"
+  ],
+  "flower": [
+   "slender tall stems, branching in pairs, each with a round blue-violet head",
+   "few small narrow stem leaves in opposite pairs"
+  ],
+  "seedhead": [
+   "small round brown seed heads on bare stems"
+  ],
+  "dormant": [
+   "flat rosette of oblong dark green leaves, often purple-tinged"
+  ]
+ },
+ "look_alikes": "Field scabious (Knautia arvensis) has lobed leaves, bristly stems and flatter heads with larger outer florets. Small scabious has finely cut leaves and a frilly outer ring. Sheep's-bit (Jasione) is in the bellflower family, with alternate leaves and flatter heads of tiny star-shaped flowers. Round-headed rampion has alternate leaves and claw-like flowers.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. No reference photos had been downloaded for this group yet, so nothing was checked against photographs. ⚠️ CHECK"
+}

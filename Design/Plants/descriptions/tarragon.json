@@ -1,0 +1,48 @@
+{
+ "kind": "tarragon",
+ "name": "Tarragon",
+ "latin": "Artemisia dracunculus",
+ "family": "Asteraceae, the daisy family",
+ "grown_as": "French tarragon, a perennial herb that rarely flowers and sets no seed, so it is grown from cuttings or root division. Russian tarragon (grown from seed) is coarser and flowers. Drawn as French tarragon, with no flower. ⚠️ CHECK",
+ "habit": "A clump 60 to 90 cm high of slender, upright, branching stems, green turning brown and woody at the base, spreading slowly by underground runners. Loose and airy, leaning when tall.",
+ "leaf": {
+  "arrangement": "Alternate, singly along the stem",
+  "type": "Simple, not lobed (a few lower leaves sometimes split into three at the tip)",
+  "outline": "Long and very narrow, like a blade of grass with a midrib, 3 to 8 cm long and 3 to 10 mm wide",
+  "base": "Tapering",
+  "tip": "Pointed",
+  "margin": "Smooth, no teeth",
+  "veins": "Only the midrib shows",
+  "surface": "Smooth, without hairs, a little glossy",
+  "stalk": "None",
+  "colour": "Dark green"
+ },
+ "flower": null,
+ "fruit": "None: French tarragon does not set seed.",
+ "seedling": "Not drawn: grown from cuttings or division.",
+ "winter": "Dies to the ground; nothing but dead brown stems or bare soil over the roots.",
+ "palette": {
+  "leaf": "deep"
+ },
+ "must_show": {
+  "leaf": [
+   "a long, very narrow leaf with a pointed tip",
+   "smooth edge with no teeth",
+   "no stalk",
+   "only the midrib showing"
+  ],
+  "young": [
+   "slender upright shoots with narrow leaves set singly, not in pairs"
+  ],
+  "crop": [
+   "a loose clump of tall slender branched stems",
+   "many narrow, smooth, dark green leaves set singly along them",
+   "no flowers"
+  ],
+  "dormant": [
+   "bare soil or a few dead brown stems, nothing green"
+  ]
+ },
+ "look_alikes": "Russian tarragon is taller and coarser, paler, and bears loose sprays of tiny yellowish flower heads. Hyssop and rosemary have leaves in opposite pairs. Young toadflax shoots have narrow grey-green leaves but are more crowded and later bear yellow snapdragon flowers.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

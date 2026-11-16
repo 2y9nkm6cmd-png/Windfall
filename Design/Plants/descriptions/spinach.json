@@ -1,0 +1,46 @@
+{
+ "kind": "spinach",
+ "name": "Spinach",
+ "latin": "Spinacia oleracea",
+ "family": "Amaranthaceae, the amaranth and goosefoot family",
+ "grown_as": "Annual leaf spinach, picked leaf by leaf or cut young. William's records list 'Santa Cruz F1' (summer, smooth leaves) and 'Giant Winter' (large leaves, overwinters).",
+ "habit": "A low, spreading rosette 20 to 30 cm across and 15 to 25 cm high. In long summer days it bolts: a single upright stem 30 to 90 cm with smaller leaves and the flowers crowded in its leaf joints.",
+ "leaf": {
+  "arrangement": "A rosette from a short stem; alternate on the bolted stem",
+  "type": "Simple",
+  "outline": "Oval to broadly arrow-shaped, the blade 8 to 20 cm long",
+  "base": "Blunt to broadly wedge-shaped, in some leaves with two small rounded lobes making a slight arrow shape; stem leaves more clearly arrow-shaped and pointed",
+  "tip": "Rounded to bluntly pointed",
+  "margin": "Smooth, no teeth",
+  "veins": "A strong midrib (pale beneath) and a few curving side veins",
+  "surface": "Hairless and glossy, smooth to slightly blistered (savoyed) between the veins depending on variety, a little fleshy",
+  "stalk": "Fleshy, green, channelled on top, about as long as the blade on outer leaves",
+  "colour": "Dark green"
+ },
+ "flower": {
+  "form": "Tiny green flowers without petals in dense clusters; male and female flowers on separate plants",
+  "petals": "None: four or five small green sepal-like tepals on male flowers; female flowers just a green tube with fine styles",
+  "colour": "Green; male clusters yellow-green when the anthers open",
+  "centre": "Male: four or five yellow stamens; female: four or five white hair-like styles",
+  "behind": "Nothing showy",
+  "carried": "Male flowers in dense rounded clusters along leafless spikes at the stem top; female flowers in tight clusters in the leaf joints up the stem",
+  "size": "2 to 3 mm; clusters about 1 cm",
+  "season": "May to July, when the days are long"
+ },
+ "fruit": "Hard rounded seeds 3 to 4 mm, each inside the dried, closed flower, in clusters up the stem of female plants. Beige to grey-brown and smooth in modern varieties (older prickly-seeded kinds have two to four short horns).",
+ "seedling": "Two long, narrow, strap-like seed leaves 2 to 3 cm, clearly longer and narrower than the true leaves that follow, which are oval on stalks.",
+ "winter": "Winter varieties stay as a low rosette through the cold and grow again in spring; summer varieties are gone.",
+ "palette": {"leaf": "marrow", "flower": "unripe", "centre": "pear", "fruit": "seed"},
+ "must_show": {
+  "leaf": ["an oval to slightly arrow-shaped blade with no teeth", "a long fleshy stalk about as long as the blade", "dark glossy green, a strong midrib and few curving side veins"],
+  "bloom": ["tiny green flowers with no petals in a dense cluster", "yellow stamens showing on the male cluster"],
+  "seed": ["rounded hard seed 3 to 4 mm", "beige to grey-brown"],
+  "seedling": ["two long, narrow, strap-like seed leaves", "the first true leaves oval on stalks"],
+  "young": ["a low rosette of oval leaves on long stalks", "no stem showing"],
+  "crop": ["a rosette of dark glossy oval leaves on long fleshy stalks", "smooth edges, no teeth"],
+  "flower": ["one upright stem with smaller pointed arrow-shaped leaves", "small green flower clusters in the leaf joints and at the top", "no coloured petals"],
+  "seedhead": ["clusters of hard round seeds up the yellowing stem", "leaves dying off"]
+ },
+ "look_alikes": "Spinach beet and chard have thicker stalks and broader midribs. Good King Henry and fat hen have mealy, triangular leaves. New Zealand spinach is a sprawling plant with small thick triangular leaves.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

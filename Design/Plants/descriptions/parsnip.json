@@ -1,0 +1,47 @@
+{
+ "kind": "parsnip",
+ "name": "Parsnip",
+ "latin": "Pastinaca sativa subsp. sativa",
+ "family": "Apiaceae, the carrot family",
+ "grown_as": "The garden parsnip, a biennial grown as an annual for its long cream root, sown in spring and lifted from autumn through winter. Varieties differ little in leaf and flower.",
+ "habit": "Year 1: an upright tuft of large leaves 40 to 60 cm high from the top of one long root. Year 2: a stout, hollow, sharply ridged and grooved flowering stem 1 to 1.5 m tall, branched near the top. The sap can burn skin in sunlight.",
+ "leaf": {
+  "arrangement": "A rosette from the crown at the top of the root",
+  "type": "Compound: once pinnate, with 2 to 7 pairs of leaflets set opposite along the stalk and one at the end",
+  "leaflets": "Leaflets without stalks or on very short ones, set well apart. Each broadly oval, often cut into two or three lobes at the base; the end leaflet usually three-lobed",
+  "outline": "Whole leaf long-oval, 20 to 50 cm; leaflets 3 to 8 cm, oval to broadly oblong",
+  "base": "Leaflet bases rounded to blunt, often lopsided; the leaf stalk sheathing the crown at its base",
+  "tip": "Leaflets blunt to rounded at the tip",
+  "margin": "Lobed and coarsely, irregularly toothed all round the leaflet, the teeth blunt to rounded",
+  "veins": "A midrib with pinnate side veins, pressed in a little; netted",
+  "surface": "Rather rough with short hairs, especially beneath; dull. Smells of parsnip when crushed",
+  "stalk": "Long, grooved, hollow, hairy, widening to a sheath",
+  "colour": "Yellowish mid green, paler than carrot"
+ },
+ "flower": {
+  "form": "A flat or slightly domed compound umbel of many tiny yellow flowers",
+  "petals": "Five free, tiny, yellow petals with tips rolled inward, all the same size (no enlarged outer petals)",
+  "colour": "Golden to greenish-yellow",
+  "centre": "Five yellow stamens and a yellow swollen disc in each flower; no dark central flower",
+  "behind": "No bracts or bracteoles, or one or two that soon fall: the spokes rise bare",
+  "carried": "Umbels of 5 to 15 spokes at the stem and branch tips, facing up",
+  "size": "Flowers about 2 mm; umbels 5 to 10 cm across",
+  "season": "June to August of the second year"
+ },
+ "fruit": "Each pair of seeds a flat, oval to round, papery disc about 5 to 8 mm, with a narrow pale wing all round and a few dark thin oil lines running down the face. Straw-brown when ripe, held in an open umbel on bare spokes.",
+ "seedling": "Two narrow strap-shaped seed leaves, 2 to 3 cm, longer and broader than a carrot's, then a first true leaf that is a single lobed leaflet, then leaves with leaflets in pairs. Slow to come up, often 3 to 4 weeks.",
+ "winter": "The leaves die back and yellow in hard frost, leaving the crown at soil level with a few dead stalks; the roots are left in the ground and lifted as needed.",
+ "palette": {"leaf": "leaf", "flower": "sun", "centre": "sun", "fruit": "straw", "root": "white"},
+ "must_show": {
+  "leaf": ["once pinnate: pairs of broad lobed leaflets along one stalk and one at the end", "leaflets oval, coarsely toothed and lobed all round", "a long grooved stalk"],
+  "bloom": ["a flat umbel of tiny yellow flowers on bare spokes", "no forked bracts beneath", "all petals the same small size"],
+  "seed": ["a flat oval papery disc with a narrow pale wing", "thin dark lines running down the face"],
+  "seedling": ["two narrow strap-like seed leaves", "a first true leaf with broad lobes, not finely cut"],
+  "young": ["an upright tuft of pinnate leaves from one point, no stem", "leaflets broad and toothed"],
+  "crop": ["a long cream-white root with broad shoulders, tapering to a thin point", "a sunken crown at the top where the leaves arise", "faint rings and fine side roots"],
+  "flower": ["a tall grooved stem with pinnate leaves", "flat yellow umbels at the branch tips"],
+  "seedhead": ["open umbels of flat, round, straw-brown winged seeds", "no bird's-nest curl"]
+ },
+ "look_alikes": "Wild parsnip is the same species with a thin root. Carrot has finely cut feathery leaves and white flowers with forked bracts. Alexanders has glossy leaves divided in threes and yellow-green flowers. Hogweed has white flowers and much larger, rougher leaves. Celery and celeriac have glossy leaves and greenish-white flowers.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

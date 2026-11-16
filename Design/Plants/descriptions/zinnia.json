@@ -1,0 +1,76 @@
+{
+ "kind": "zinnia",
+ "name": "Zinnia",
+ "latin": "Zinnia × marylandica",
+ "family": "Asteraceae, the daisy family",
+ "grown_as": "A half-hardy annual. William's library lists Zinnia marylandica 'Raspberry Lemonade' (the Zahara Raspberry Lemonade mix): a low, disease-resistant hybrid of Z. elegans and Z. angustifolia, 30 to 45 cm, with single flowers in raspberry pink-red, yellow and 'Starlight Rose' (white with a rose band). Drawn in raspberry. ⚠️ CHECK the colour, and whether the drawing should show a mix.",
+ "habit": "A low, bushy, mounded annual 30 to 45 cm high and as wide, branching from the base, covered in flowers held just above the leaves.",
+ "leaf": {
+  "arrangement": "Opposite",
+  "type": "Simple",
+  "outline": "Lance-shaped to narrow oval, 4 to 8 cm long, narrower than the common zinnia",
+  "base": "Stalkless, the base rounded and sitting on or half-clasping the stem",
+  "tip": "Pointed",
+  "margin": "Smooth, no teeth",
+  "veins": "Three veins from the base, running up beside the midrib",
+  "surface": "Rough with short stiff hairs",
+  "stalk": "None",
+  "colour": "Mid to dark green"
+ },
+ "flower": {
+  "form": "A single, flat daisy with one ring of broad rays round a small raised centre",
+  "petals": "About 10 to 15 broad, flat, oblong ray florets with a small notch or two at the tip; the rays stay on and dry papery as the head ages",
+  "colour": "Raspberry pink-red (the mix also gives yellow, and white with a rose band at the base)",
+  "centre": "A small raised dark brown-red disc, ringed with tiny five-pointed yellow star-shaped florets",
+  "behind": "Rows of rounded, overlapping bracts with dark edges, making a neat cup",
+  "carried": "Alone at the tips of short branches, facing up, just above the leaves",
+  "size": "5 to 6 cm across",
+  "season": "July to the first frosts"
+ },
+ "fruit": "The head turns brown with the faded rays still attached and papery. Seeds flat, wedge- to arrowhead-shaped, grey-brown, about 1 cm, packed in a cone.",
+ "seedling": "Two rounded to oblong, smooth seed leaves on a short stem. The first true leaves come as an opposite pair, lance-shaped and rough.",
+ "winter": "Nothing: killed by the first frost.",
+ "palette": {
+  "leaf": "deep",
+  "flower": "beet",
+  "centre": "rust",
+  "fruit": "bark"
+ },
+ "palette_wish": {
+  "flower": "raspberry pink-red, about #D2386C"
+ },
+ "must_show": {
+  "leaf": [
+   "lance-shaped leaf with no stalk, the base meeting the stem",
+   "smooth edge, no teeth",
+   "three veins from the base",
+   "leaves in opposite pairs"
+  ],
+  "bloom": [
+   "one ring of broad flat rays with notched tips",
+   "small raised dark centre ringed with tiny yellow stars",
+   "rounded overlapping bracts behind making a cup"
+  ],
+  "seed": [
+   "flat wedge- or arrowhead-shaped grey-brown seed"
+  ],
+  "seedling": [
+   "two rounded smooth seed leaves",
+   "first opposite pair of lance-shaped leaves"
+  ],
+  "young": [
+   "low bushy plant branching from the base",
+   "pairs of narrow stalkless leaves"
+  ],
+  "flower": [
+   "compact mound 30 to 45 cm covered in single flowers",
+   "flowers just above the leaves on short stems"
+  ],
+  "seedhead": [
+   "dried brown head with papery faded rays still attached",
+   "cone of flat seeds"
+  ]
+ },
+ "look_alikes": "Common zinnia (Zinnia elegans) is taller with broader oval leaves and larger, often fully double heads. Zinnia angustifolia has very narrow leaves and small orange flowers. Rudbeckia has alternate hairy leaves and a big dark cone.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. No reference photos had been downloaded for this group yet, so nothing was checked against photographs. ⚠️ CHECK"
+}

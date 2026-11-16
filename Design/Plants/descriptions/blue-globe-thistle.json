@@ -1,0 +1,76 @@
+{
+ "kind": "blue-globe-thistle",
+ "name": "Blue globe thistle",
+ "latin": "Echinops ritro subsp. ruthenicus",
+ "family": "Asteraceae, the daisy family",
+ "grown_as": "A hardy perennial, by William's pond. His library gives Echinops ritro subsp. ruthenicus, about 0.9 m: a form with very narrow, glossy leaf lobes and bright steel-blue heads.",
+ "habit": "An upright clump 60 to 90 cm high from a deep taproot. Stiff, branched, white-woolly stems, each branch ending in a ball-shaped head.",
+ "leaf": {
+  "arrangement": "A rosette at the base, then alternate up the stems",
+  "type": "Simple but deeply cut (pinnately), nearly to the midrib, into narrow lobes",
+  "outline": "Oblong to lance-shaped overall, 10 to 20 cm; lobes very narrow",
+  "base": "Basal leaves narrowing to a short stalk; stem leaves stalkless and clasping",
+  "tip": "Every lobe ends in a sharp spine",
+  "margin": "Edged with small spines and rolled under",
+  "veins": "A pale midrib",
+  "surface": "Dark green and glossy above (sometimes faintly cobwebby); densely white-felted beneath",
+  "stalk": "Short on basal leaves; none on stem leaves",
+  "colour": "Dark green above, white beneath"
+ },
+ "flower": {
+  "form": "A perfect ball made of many tiny one-flowered heads packed together",
+  "petals": "Each tiny floret a slim tube with five narrow lobes curling back, so the ball looks like a cluster of small stars",
+  "colour": "Bright steel blue; metallic blue in bud",
+  "centre": "None: the whole ball is florets. Dark blue stamens stick out of the open florets",
+  "behind": "A few short, bristly bracts at the base of the ball, turned back",
+  "carried": "Alone at the tip of each stiff, white-woolly branch, upright",
+  "size": "3 to 5 cm across",
+  "season": "July to September"
+ },
+ "fruit": "The ball dries to a brown-grey bristly sphere. Each seed is long and cylindrical, 6 to 8 mm, covered in silky pale hairs with a short crown of bristles.",
+ "seedling": "Two oval smooth seed leaves. The first true leaves have wavy, spiny-toothed edges and are white beneath.",
+ "winter": "Dies down to the crown. Dead stems with brown balls may stand; a few spiny rosette leaves may stay at the base.",
+ "palette": {
+  "leaf": "deep",
+  "flower": "blue",
+  "fruit": "bark"
+ },
+ "palette_wish": {
+  "flower": "metallic steel blue, about #4F78C4"
+ },
+ "must_show": {
+  "leaf": [
+   "leaf cut deeply into narrow pointed lobes",
+   "spines at the lobe tips and along the edges",
+   "dark green above, white felted beneath"
+  ],
+  "bloom": [
+   "perfect sphere of tiny star-like blue florets",
+   "no flat face and no ray petals",
+   "on a stiff white-woolly stalk"
+  ],
+  "seed": [
+   "long cylindrical seed covered in silky pale hairs"
+  ],
+  "seedling": [
+   "two oval seed leaves",
+   "first true leaf spiny-edged and white beneath"
+  ],
+  "young": [
+   "rosette of deeply cut spiny dark green leaves, white beneath"
+  ],
+  "flower": [
+   "stiff upright branched stems each ending in one blue ball",
+   "spiny thistle-like leaves below"
+  ],
+  "seedhead": [
+   "brown-grey bristly balls on dry stems"
+  ],
+  "dormant": [
+   "dead upright stems with brown balls, or cut back to the crown",
+   "a few spiny leaves at the base"
+  ]
+ },
+ "look_alikes": "Echinops bannaticus is taller with greyer-blue heads; Echinops sphaerocephalus is taller with grey-white heads. Sea hollies (Eryngium) have a collar of spiny bracts under a domed head. True thistles have flat-topped tufted heads, not balls.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. No reference photos had been downloaded for this group yet, so nothing was checked against photographs. ⚠️ CHECK"
+}

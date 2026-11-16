@@ -1,0 +1,46 @@
+{
+ "kind": "spring-onion",
+ "name": "Spring onion",
+ "latin": "Allium cepa",
+ "family": "Amaryllidaceae, the daffodil family (onion subfamily)",
+ "grown_as": "Spring onions (salad onions), sown thickly and pulled young. Most sold in the UK, such as 'White Lisbon', are Allium cepa, a bulb onion pulled early; Japanese bunching types such as 'Ishikura' are Welsh onion, Allium fistulosum, with no bulb at all. They look much the same when pulled. ⚠️ CHECK: William's variety, which decides the Latin name.",
+ "habit": "Slim plants 20 to 40 cm high, each a straight white shank about 1 cm thick, slightly swollen at the base, with 3 to 6 upright hollow leaves. Year 2: a hollow flower stem 50 to 100 cm, swollen below the middle, with a round head.",
+ "leaf": {
+  "arrangement": "In two ranks from the top of the shank",
+  "type": "Simple, tubular",
+  "outline": "Long, narrow, hollow round tube, 15 to 35 cm by 0.5 to 1 cm",
+  "base": "A sheath wrapping the white shank",
+  "tip": "Tapering to a point",
+  "margin": "Entire",
+  "veins": "Faint parallel veins",
+  "surface": "Smooth, hollow, a little waxy",
+  "stalk": "None",
+  "colour": "Mid to blue-green"
+ },
+ "flower": {
+  "form": "A round ball of many small star-shaped flowers",
+  "petals": "Six free, oval tepals",
+  "colour": "Greenish-white to white (yellowish-white in Welsh onion)",
+  "centre": "Six stamens sticking out beyond the tepals",
+  "behind": "A short papery spathe folded back under the head",
+  "carried": "In a dense round umbel at the top of a hollow stem swollen below the middle",
+  "size": "Heads 3 to 6 cm",
+  "season": "June to July of the second year"
+ },
+ "fruit": "A dry round head of papery three-lobed capsules with black angular seeds.",
+ "seedling": "A single thin grass-like seed leaf bent like a hairpin, with the black seed case on its tip, then thin hollow leaves.",
+ "winter": "Winter-hardy types such as 'White Lisbon Winter Hardy' stand through winter as small upright tufts.",
+ "palette": {"leaf": "leaf", "flower": "white", "centre": "pear", "fruit": "straw", "root": "white"},
+ "must_show": {
+  "leaf": ["a long thin hollow round tube", "no teeth, smooth"],
+  "bloom": ["a round ball of small white star-shaped flowers with stamens sticking out", "a papery spathe below"],
+  "seed": ["a small black angular wrinkled seed"],
+  "seedling": ["one thin grass-like seed leaf bent like a hairpin, seed case on its tip"],
+  "young": ["a row of thin upright plants, each a few hollow leaves"],
+  "crop": ["a straight white shank, only slightly swollen at the base, with a tuft of white roots", "hollow green leaves from its top", "a bunch of several pulled together"],
+  "flower": ["a hollow flower stem swollen below the middle", "a round white head"],
+  "seedhead": ["a dry round head of papery capsules with black seeds"]
+ },
+ "look_alikes": "Leek seedlings have flat, folded leaves fanned in one plane. Chives are much thinner with pink-purple heads. Bulb onions are the same plant left to swell.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

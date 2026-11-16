@@ -1,0 +1,45 @@
+{
+ "kind": "blueberry",
+ "name": "Blueberry",
+ "latin": "Vaccinium corymbosum",
+ "family": "Ericaceae, the heather family",
+ "grown_as": "Highbush blueberry, in pots or beds of acid (ericaceous) soil. William grows 'Bluecrop', 'Goldtraube 71' and 'Pink Lemonade' (which ripens pink, not blue). The library's 'Wild blueberry' (lowbush, Vaccinium angustifolium, from seed) shares this drawing; it is a much lower plant, 20 to 40 cm, with smaller leaves and berries. ⚠️ CHECK whether wild blueberry needs its own drawing",
+ "habit": "An upright, bushy deciduous shrub, 1 to 1.5 m, with many stems from the base. Young shoots green turning red, finely warty, slightly zigzag.",
+ "leaf": {
+  "arrangement": "Alternate",
+  "type": "Simple",
+  "outline": "Elliptic to oval, 3 to 7 cm long",
+  "base": "Wedge-shaped",
+  "tip": "Pointed",
+  "margin": "Smooth, or with tiny, hardly visible teeth",
+  "veins": "A midrib and several faint side veins curving forward",
+  "surface": "Smooth and slightly glossy above, paler and sometimes blue-green beneath",
+  "stalk": "Very short, 2 to 3 mm",
+  "colour": "Fresh mid green, sometimes blue-green; brilliant red and orange in autumn"
+ },
+ "flower": {
+  "form": "A hanging urn or bell, narrowed at the mouth like a heather bell",
+  "petals": "Five, joined into the urn, with five tiny teeth turned back round the small mouth",
+  "colour": "White, often tinged pink",
+  "centre": "Hidden inside the urn",
+  "behind": "A small green or reddish cup of five short sepals",
+  "carried": "In short hanging clusters (racemes) of six to ten, along last year's shoots and at their tips, the urns pointing down",
+  "size": "8 to 10 mm long",
+  "season": "April to May"
+ },
+ "fruit": "Round berries, 1 to 2 cm, blue-black under a pale powder-blue bloom, each topped with a little five-pointed crown of old sepals around a sunken centre. In loose bunches that ripen unevenly, so green, pink and blue berries hang together. 'Pink Lemonade' ripens pink. July to September.",
+ "seedling": "Not drawn: grown as bought plants (wild blueberry from seed)",
+ "winter": "Bare bush of many upright stems; young twigs bright red, carrying fat rounded flower buds at their tips and small pointed leaf buds below.",
+ "palette": {"leaf": "leaf", "flower": "white", "fruit": "blue"},
+ "palette_wish": {"fruit": "dusky blue under a grey-blue bloom, about #4E6390"},
+ "must_show": {
+  "leaf": ["simple elliptic leaf with a pointed tip", "smooth edge, no visible teeth", "very short stalk"],
+  "bloom": ["a white urn-shaped flower narrowed at the mouth, hanging down", "five tiny teeth turned back at the mouth", "part of a hanging cluster"],
+  "young": ["several upright stems from the base", "small simple elliptic leaves"],
+  "dormant": ["bare upright stems with bright red twigs", "fat rounded flower buds at the twig tips"],
+  "flower": ["hanging clusters of small white urn flowers along the shoots", "small elliptic leaves opening around them"],
+  "crop": ["bunches of round blue berries with a pale bloom, some still green or pink", "a five-pointed crown on top of each berry"]
+ },
+ "look_alikes": "Bilberry (Vaccinium myrtillus) is a low wild shrub with green angled stems, single pinkish flowers and single berries. Blue honeysuckle (honeyberry) has paired yellow flowers and long oval berries. Lily of the valley bells are wider at the mouth and grow on a leafless stalk from the ground.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge and iNaturalist photos. ⚠️ CHECK"
+}

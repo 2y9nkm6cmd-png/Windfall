@@ -1,0 +1,75 @@
+{
+ "kind": "crown-imperial",
+ "name": "Crown imperial",
+ "latin": "Fritillaria imperialis",
+ "family": "Liliaceae, the lily family",
+ "grown_as": "A tall garden bulb. William's is 'William Rex', with deep orange-red bells flushed and veined darker. ⚠️ CHECK the colour; other varieties are orange or yellow.",
+ "habit": "A single stout, upright stem 70 to 100 cm tall, leafy in its lower half, bare in the middle and topped with a ring of hanging bells under a tuft of green leaves. The whole plant has a strong foxy smell.",
+ "leaf": {
+  "arrangement": "Many leaves in crowded whorls of three or four (or scattered) round the lower half of the stem; above the flowers a crown of 10 to 20 smaller leaf-like bracts",
+  "type": "Simple",
+  "outline": "Lance-shaped, 10 to 20 cm long by 2 to 4 cm wide",
+  "base": "Stalkless, joined straight to the stem",
+  "tip": "Pointed",
+  "margin": "Smooth, no teeth",
+  "veins": "Several parallel veins running the length",
+  "surface": "Glossy and smooth",
+  "stalk": "None",
+  "colour": "Bright, glossy mid green"
+ },
+ "flower": {
+  "form": "Large hanging bells in a ring, under a topknot of leaves like a pineapple",
+  "petals": "Six tepals, free, oblong, forming a broad bell",
+  "colour": "Deep orange-red with darker veins (variety)",
+  "centre": "Inside, at the base of each tepal, a large white nectary holding a drop of nectar; yellow anthers and the style hang just below the rim",
+  "behind": "No sepals; above the ring of bells the crown of green leafy bracts",
+  "carried": "Three to eight bells hanging in a single ring (umbel) at the top of the stem, all facing down, with the leafy crown standing above them",
+  "size": "Each bell about 5 cm long",
+  "season": "April"
+ },
+ "fruit": "The capsules turn to stand upright under the leafy crown: six-winged (six-ridged), about 3 to 4 cm, green ripening to brown and splitting to release flat brown seeds.",
+ "seedling": "Not drawn: grown from bought bulbs.",
+ "winter": "Nothing above ground until the fat shoots appear in February or March.",
+ "palette": {
+  "leaf": "leaf",
+  "flower": "rust",
+  "centre": "white",
+  "fruit": "unripe"
+ },
+ "must_show": {
+  "leaf": [
+   "a lance-shaped, stalkless, glossy leaf",
+   "smooth margin, pointed tip",
+   "parallel veins"
+  ],
+  "bloom": [
+   "a broad hanging bell of six tepals, orange-red with darker veins",
+   "white nectaries with drops showing inside the base",
+   "anthers and style just below the rim"
+  ],
+  "bulb": [
+   "a very large round bulb 8 to 12 cm of fleshy cream-yellow scales",
+   "no papery skin",
+   "a hole down the centre where last year's stem was"
+  ],
+  "shoots": [
+   "a thick fleshy shoot like a giant asparagus spear, often flushed purple",
+   "crowded leaves beginning to unfold"
+  ],
+  "flower": [
+   "a tall stout stem, leafy in the lower half and bare above",
+   "a ring of hanging orange-red bells at the top",
+   "a tuft of green leaves standing above the bells"
+  ],
+  "seedhead": [
+   "upright winged pods in a ring under the leafy crown",
+   "the leafy crown and leafy lower stem still green"
+  ],
+  "dormant": [
+   "the stem dying yellow and brown, or nothing above the soil",
+   "the large bulb below ground"
+  ]
+ },
+ "look_alikes": "Fritillaria persica has a spike of small dark purple bells and no leafy crown. Fritillaria raddeana is smaller with pale yellow bells. The young shoot can be mistaken for a lily, but lily leaves run the whole length of the stem.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

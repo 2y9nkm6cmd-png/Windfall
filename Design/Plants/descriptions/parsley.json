@@ -1,0 +1,47 @@
+{
+ "kind": "parsley",
+ "name": "Parsley",
+ "latin": "Petroselinum crispum",
+ "family": "Apiaceae, the carrot family (umbellifers)",
+ "grown_as": "A biennial herb grown as an annual for its leaves. Two common forms: flat-leaved (French or Italian) and curly (moss-curled). They look very different. ⚠️ CHECK which William grows; drawn as flat-leaved.",
+ "habit": "First year a tidy mound of upright leaves on long stalks, 20 to 35 cm high. Second year a branched, ridged flowering stem 60 to 100 cm.",
+ "leaf": {
+  "arrangement": "A rosette from the crown; alternate on the flowering stem",
+  "type": "Compound, two or three times pinnate",
+  "leaflets": "Flat-leaved: leaflets wedge-shaped to diamond-shaped, 1 to 3 cm, cut into three lobes. Curly: the leaflets tightly crisped and curled into a moss-like ruff.",
+  "outline": "Triangular overall, 10 to 20 cm long without the stalk",
+  "base": "Leaflets narrowing to a wedge base",
+  "tip": "Lobes pointed",
+  "margin": "Sharp forward-pointing teeth on the upper outer edges of each lobe; the wedge base untoothed",
+  "veins": "Fine, not prominent",
+  "surface": "Flat-leaved: smooth, hairless and glossy. Curly: crimped and dense.",
+  "stalk": "Long (10 to 20 cm), upright, grooved, with a short sheath at the base",
+  "colour": "Dark rich green"
+ },
+ "flower": {
+  "form": "Flat-topped compound umbels of tiny flowers",
+  "petals": "Five tiny petals per flower, tips turned in",
+  "colour": "Yellow-green to greenish-cream",
+  "centre": "Tiny yellow-green stamens",
+  "behind": "One to three small bracts under the umbel; five to eight thin bracteoles under each small umbel",
+  "carried": "At the top of the second-year stem and its branches, facing up; 8 to 20 rays",
+  "size": "Umbels 2 to 5 cm across",
+  "season": "June to August of the second year"
+ },
+ "fruit": "Small egg-shaped seeds 2 to 3 mm in pairs, with fine pale ribs, grey-brown when ripe",
+ "seedling": "Two narrow oblong seed leaves about 1 to 2 cm; the first true leaf rounded and three-lobed with teeth",
+ "winter": "Usually keeps a small rosette of green leaves through winter, then flowers the next year",
+ "palette": {"leaf": "deep", "flower": "pear", "fruit": "bark"},
+ "must_show": {
+  "leaf": ["leaf divided twice or more into wedge-shaped three-lobed leaflets", "sharp teeth on the outer edges, none at the base", "long grooved stalk"],
+  "bloom": ["flat umbel of many rays", "tiny yellow-green flowers", "small bracts and thin bracteoles under the umbels"],
+  "seed": ["small egg-shaped ribbed seed, grey-brown"],
+  "seedling": ["two narrow oblong seed leaves", "a first true leaf rounded and three-lobed"],
+  "young": ["a small rosette of divided leaves on long upright stalks"],
+  "crop": ["a full mound of glossy dark green divided leaves on long stalks"],
+  "flower": ["a tall branched stem with flat yellow-green umbels", "leafy base"],
+  "seedhead": ["umbels of small ribbed seeds on stiff rays", "browning stem"]
+ },
+ "look_alikes": "Fool's parsley (Aethusa cynapium, poisonous) has white flowers and long hanging bracteoles on the outer side of each small umbel. Coriander leaves are softer and rounder with a different smell. Celery leaves are once pinnate with broader leaflets and fleshy stalks.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. No UK iNaturalist photos had been downloaded for this group when it was written. ⚠️ CHECK"
+}

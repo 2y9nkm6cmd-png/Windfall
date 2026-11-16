@@ -1,0 +1,34 @@
+{
+ "kind": "gingko",
+ "name": "Gingko",
+ "latin": "Ginkgo biloba",
+ "family": "Ginkgoaceae, the ginkgo family (the only living species)",
+ "grown_as": "A slow-growing ornamental tree. Garden trees are usually male, grown from cuttings, so bear no fruit. The usual spelling is ginkgo; the library name spells it gingko.",
+ "habit": "A deciduous tree. Young trees are narrow and gaunt, with a straight leading shoot and a few stiff side branches standing out almost level; 2 to 4 m after many years, eventually 20 m or more. Grey-brown bark, later ridged. Two kinds of shoot: long shoots, and short, stubby, knobbly spur shoots along the older branches.",
+ "leaf": {
+  "arrangement": "Alternate and spaced out on long shoots; in tufts of three to five from the tips of the spur shoots",
+  "type": "Simple",
+  "outline": "Fan-shaped, like a maidenhair fern leaflet: 5 to 8 cm across the outer edge and about as long, narrowing to the stalk",
+  "base": "A long narrow wedge running into the stalk",
+  "tip": "The broad outer edge is wavy and irregularly nicked, usually split by a notch in the middle into two lobes (hence biloba); young trees often have deeper notches",
+  "margin": "Smooth along the two straight sides; wavy and nicked only along the outer edge",
+  "veins": "No midrib: many fine veins fan out from the base, forking again and again, running parallel to the outer edge",
+  "surface": "Smooth, hairless, leathery, the same on both sides",
+  "stalk": "Long, 3 to 8 cm, slender",
+  "colour": "Fresh light green; clear butter yellow in autumn, all falling within a few days"
+ },
+ "flower": null,
+ "fruit": "Female trees only (rare in gardens): plum-like seeds 2 to 3 cm, yellow-orange with a waxy bloom, hanging in pairs on long stalks from the spurs; the flesh smells foul when it falls. Not drawn.",
+ "seedling": "Not drawn: grown as a bought tree",
+ "winter": "Bare tree. Stiff, level branches studded with short, knobbly spur shoots, each ending in a small dome-shaped brown bud and ringed by old leaf scars.",
+ "palette": {"leaf": "leaf"},
+ "must_show": {
+  "leaf": ["fan-shaped leaf on a long stalk", "many fine forking veins fanning from the base, no midrib", "wavy outer edge with a central notch making two lobes"],
+  "young": ["a narrow, gaunt young tree with a straight leader and a few stiff level branches", "fan-shaped leaves"],
+  "dormant": ["bare stiff, almost level branches", "short knobbly spur shoots studding the branches, each with a small dome bud"],
+  "growing": ["fan-shaped leaves in tufts on the spurs along the branches", "light green colour"],
+  "autumn": ["every leaf clear butter yellow (sun)", "the same fan-shaped leaves in tufts", "a few fallen yellow fans on the ground"]
+ },
+ "look_alikes": "Nothing else has fan-shaped leaves with forking parallel veins. Maidenhair fern leaflets are similar in shape but tiny and on black wiry stalks.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

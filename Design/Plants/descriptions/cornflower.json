@@ -1,0 +1,74 @@
+{
+ "kind": "cornflower",
+ "name": "Cornflower",
+ "latin": "Centaurea cyanus",
+ "family": "Asteraceae, the daisy family",
+ "grown_as": "A hardy annual, once a cornfield weed. William's library has three: 'Blue Diadem' (large, very full blue heads), 'Double Mixed' (blue, pink, white, purple and maroon) and the wild field cornflower in the upper orchard. Drawn as the blue wild type. ⚠️ CHECK",
+ "habit": "A slender, upright annual 40 to 80 cm, the wiry stems branched in the upper half, the whole plant grey and cottony.",
+ "leaf": {
+  "arrangement": "Alternate",
+  "type": "Simple",
+  "outline": "Lower leaves lance-shaped, sometimes with a few narrow side lobes; upper leaves long, narrow and grass-like, 5 to 10 cm",
+  "base": "Upper leaves stalkless; lower leaves narrowing into a short stalk",
+  "tip": "Pointed",
+  "margin": "Smooth on the upper leaves; lower leaves with a few lobes or teeth",
+  "veins": "Only the midrib shows",
+  "surface": "Covered in white cobwebby wool, thickest beneath and on young growth",
+  "stalk": "None on upper leaves",
+  "colour": "Grey-green"
+ },
+ "flower": {
+  "form": "A head with an outer ring of large, spreading, funnel-shaped florets round a centre of smaller ones",
+  "petals": "Not strap-shaped rays: each outer floret is a separate little trumpet with five to seven jagged pointed teeth at its rim, roughly 6 to 12 of them spreading out round the head",
+  "colour": "Strong mid blue",
+  "centre": "Smaller, upright, tubular florets, darker blue-purple, with dark stamens",
+  "behind": "An egg- or urn-shaped cup of overlapping green bracts, each with a fringed edge of tiny dark brown and silvery teeth, like scales",
+  "carried": "Alone at the tips of long, wiry branched stems, upright, above the sparse leaves",
+  "size": "2.5 to 4 cm across (larger in 'Blue Diadem')",
+  "season": "June to August"
+ },
+ "fruit": "The bract cup stays closed and dries brown. Seeds oblong, smooth and shiny, pale grey, 3 to 4 mm, with a short brush of stiff reddish-brown bristles at one end.",
+ "seedling": "Two smooth, thickish, oval seed leaves. The first true leaves are narrow and lance-shaped, grey and woolly.",
+ "winter": "Nothing, or autumn-sown seedlings sitting as small grey rosettes.",
+ "palette": {
+  "leaf": "sage",
+  "flower": "blue",
+  "centre": "plum",
+  "fruit": "straw"
+ },
+ "palette_wish": {
+  "flower": "strong mid blue, about #3D6FD1"
+ },
+ "must_show": {
+  "leaf": [
+   "narrow lance to grass-like leaf, smooth-edged (lower leaves may have a few lobes)",
+   "grey-green and cottony",
+   "alternate and stalkless"
+  ],
+  "bloom": [
+   "outer ring of separate trumpet-shaped florets with jagged toothed rims, not flat strap petals",
+   "strong blue",
+   "egg-shaped cup of scaly green bracts with dark fringed edges behind"
+  ],
+  "seed": [
+   "smooth, shiny, pale grey oblong seed",
+   "short brush of brown bristles at one end"
+  ],
+  "seedling": [
+   "two oval smooth seed leaves",
+   "first narrow grey-green leaf"
+  ],
+  "young": [
+   "slender upright grey-green plant with narrow leaves"
+  ],
+  "flower": [
+   "slender wiry branched stems each with a blue head at the tip",
+   "sparse narrow leaves below the flowers"
+  ],
+  "seedhead": [
+   "closed, dry, scaly brown bract cups at the stem tips"
+  ]
+ },
+ "look_alikes": "Perennial cornflower (Centaurea montana) has broad leaves and a few widely spaced, very spidery outer florets. Knapweeds are purple without large outer florets (except greater knapweed, which has lobed leaves). Chicory has flat strap-shaped blue rays and flowers stuck along the stem.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. No reference photos had been downloaded for this group yet, so nothing was checked against photographs. ⚠️ CHECK"
+}

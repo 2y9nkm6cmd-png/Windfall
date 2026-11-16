@@ -1,0 +1,46 @@
+{
+ "kind": "scorzonera",
+ "name": "Scorzonera",
+ "latin": "Pseudopodospermum hispanicum (formerly Scorzonera hispanica)",
+ "family": "Asteraceae, the daisy family",
+ "grown_as": "Scorzonera (black salsify), a perennial usually grown as a biennial for its long black-skinned white-fleshed root. Roots can be lifted in the first autumn or left a second year to thicken, when the plant flowers.",
+ "habit": "Year 1: a rosette of long, lance-shaped leaves 30 to 50 cm. Year 2: a branched, leafy flowering stem 60 to 100 cm, each branch ending in one flower head. Milky sap.",
+ "leaf": {
+  "arrangement": "A rosette from the root top; alternate up the stem, smaller and narrower above",
+  "type": "Simple",
+  "outline": "Long lance-shaped, 20 to 40 cm by 2 to 5 cm, widest about the middle or above, broader than salsify",
+  "base": "Narrowing gradually into a winged stalk that clasps the stem",
+  "tip": "Long pointed",
+  "margin": "Entire, no teeth, often wavy",
+  "veins": "A pale midrib with several faint near-parallel veins running along the leaf",
+  "surface": "Smooth or with a few soft hairs when young, not waxy",
+  "stalk": "Short, winged, merging into the blade",
+  "colour": "Mid to dark green, not grey"
+ },
+ "flower": {
+  "form": "A dandelion-like head made only of strap-shaped florets",
+  "petals": "Many strap-shaped florets, each ending in five tiny teeth, the outer ones longest",
+  "colour": "Bright lemon to golden yellow",
+  "centre": "Inner florets shorter, the same yellow",
+  "behind": "Several rows of overlapping green bracts, pointed, much SHORTER than the florets, forming a narrow cup",
+  "carried": "One head at the tip of each branch, facing up, on a long stalk",
+  "size": "3 to 5 cm across",
+  "season": "May to July of the second year"
+ },
+ "fruit": "A round clock of pale, slim, ribbed seeds, each with a dirty-white feathery parachute, smaller than salsify's.",
+ "seedling": "Two long, narrow seed leaves, then lance-shaped true leaves broader than salsify's.",
+ "winter": "Leaves die back in hard frost to a small crown; roots are hardy and left in the ground to lift when needed.",
+ "palette": {"leaf": "leaf", "flower": "sun", "centre": "sun", "fruit": "straw", "root": "dark"},
+ "must_show": {
+  "leaf": ["a long lance-shaped leaf, broader than grass, pointed", "untoothed, often wavy edge", "base narrowing into a winged clasping stalk"],
+  "bloom": ["a head of yellow strap-shaped florets only, no disc", "overlapping green bracts shorter than the florets"],
+  "seed": ["a long slim ribbed pale seed, about 1.5 cm, with a parachute"],
+  "seedling": ["two long narrow seed leaves"],
+  "young": ["a rosette of long lance-shaped green leaves"],
+  "crop": ["a long straight root with near-black skin, about 2 cm thick and 25 to 40 cm long", "white flesh where cut or broken", "a rosette of lance-shaped leaves on top"],
+  "flower": ["a branched leafy stem with yellow dandelion-like heads, one per branch tip"],
+  "seedhead": ["a round clock of feathery parachutes"]
+ },
+ "look_alikes": "Salsify has grass-like grey leaves, purple heads with long star-like bracts and a pale root. Dandelion and cat's-ear have toothed or lobed leaves and hollow or leafless flower stalks. Viper's-grass (Scorzonera humilis) is a small wild relative.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

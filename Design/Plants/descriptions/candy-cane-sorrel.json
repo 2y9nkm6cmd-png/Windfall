@@ -1,0 +1,65 @@
+{
+ "kind": "candy-cane-sorrel",
+ "name": "Candy Cane Sorrel",
+ "latin": "Oxalis versicolor",
+ "family": "Oxalidaceae, the wood-sorrel family",
+ "grown_as": "A small South African bulb, not fully hardy in the UK; best in a well-drained sunny spot or a pot that can be moved under cover in hard frost. Not a true sorrel (Rumex).",
+ "habit": "A small tufted plant 5 to 15 cm tall from a tiny bulb, short thin stems carrying fine leaves, the flowers held on slender stalks just above.",
+ "leaf": {
+  "arrangement": "Clustered near the tops of short thin stems",
+  "type": "Compound: three leaflets spreading from the top of a thin stalk",
+  "leaflets": "Three, all alike, each very narrow, almost thread-like, notched into two at the tip; often folded along the midrib, and folding down at night",
+  "outline": "Each leaflet about 1 cm long and 1 to 2 mm wide",
+  "base": "Narrow, meeting the other two at the stalk top",
+  "tip": "Notched (two-lobed)",
+  "margin": "Smooth",
+  "veins": "Only the midrib",
+  "surface": "Hairless",
+  "stalk": "Thin, 1 to 3 cm",
+  "colour": "Mid green"
+ },
+ "flower": {
+  "form": "A funnel opening to a flat five-petalled face in sun; closed into a tight twisted spiral in dull weather and at night",
+  "petals": "Five, joined at the base, overlapping and twisted like a furled umbrella",
+  "colour": "White inside, each petal edged crimson red on the outside, so the closed bud is a red and white spiral like a candy cane",
+  "centre": "A yellow throat",
+  "behind": "Five small narrow green sepals",
+  "carried": "Alone on slender stalks just above the leaves, facing up",
+  "size": "2 to 3 cm across",
+  "season": "Late summer to early winter"
+ },
+ "fruit": "Rarely sets seed in Britain.",
+ "seedling": "Not drawn: grown from bulbs",
+ "winter": "The leaves die down after flowering (and are cut down by hard frost outdoors); the small bulbs rest below ground until new growth appears.",
+ "palette": {
+  "leaf": "leaf",
+  "flower": "white",
+  "centre": "primrose"
+ },
+ "must_show": {
+  "leaf": [
+   "three very narrow leaflets from the top of a thin stalk",
+   "each leaflet notched at the tip"
+  ],
+  "bloom": [
+   "five white petals open flat with a yellow throat",
+   "a red edge on the outside of each petal",
+   "a closed bud twisted into a red and white spiral"
+  ],
+  "set": [
+   "a tiny pointed brown bulb"
+  ],
+  "young": [
+   "a small tuft of short stems with fine three-leaflet leaves"
+  ],
+  "flower": [
+   "a low tuft of fine leaves",
+   "white flowers on slender stalks, with red-and-white spiral buds among them"
+  ],
+  "dormant": [
+   "little or nothing above ground: small brown bulbs in the soil"
+  ]
+ },
+ "look_alikes": "Other oxalis such as Oxalis tetraphylla or pink-sorrel (O. articulata) have broad heart-shaped leaflets and pink flowers. Wood-sorrel (O. acetosella) has broad leaflets and white flowers with lilac veins, no red edge. True sorrels (Rumex) are docks with arrow-shaped leaves.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

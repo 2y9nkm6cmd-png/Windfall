@@ -1,0 +1,45 @@
+{
+ "kind": "garlic",
+ "name": "Garlic",
+ "latin": "Allium sativum",
+ "family": "Amaryllidaceae, the daffodil family (onion subfamily)",
+ "grown_as": "Garlic, grown from single cloves planted in autumn or winter and lifted the next summer as a bulb of many cloves. William's is a softneck, which seldom flowers. Hardneck garlic sends up a flower stem (scape) in June of the same season, not in a second year, so the 'In flower (year 2)' drawing follows hardneck garlic. ⚠️ CHECK: the stage label, and whether a softneck needs a flower drawing at all.",
+ "habit": "A single upright false stem of wrapped leaf sheaths 30 to 60 cm, with flat leaves set alternately in two ranks up it. Hardnecks then send a stiff scape up through the middle that loops once or twice before straightening, ending in a beaked head.",
+ "leaf": {
+  "arrangement": "Alternate in two ranks up the false stem, each leaf rising from inside the one below",
+  "type": "Simple",
+  "outline": "Long flat strap, 20 to 45 cm by 1 to 2.5 cm, tapering gradually to the tip",
+  "base": "A long sheath forming the false stem",
+  "tip": "Long pointed",
+  "margin": "Entire, no teeth",
+  "veins": "Fine parallel veins",
+  "surface": "Flat or folded slightly along a keel, SOLID not hollow, smooth with a waxy bloom",
+  "stalk": "None",
+  "colour": "Grey-green to blue-green"
+ },
+ "flower": {
+  "form": "A small round head of tiny bulbils mixed with a few small star-shaped flowers, inside a long papery beaked spathe",
+  "petals": "Six tepals, free, narrow oval",
+  "colour": "Whitish-pink to pale purple, often green-tinged; many flowers wither in bud",
+  "centre": "Six stamens, not sticking out far",
+  "behind": "A papery spathe drawn out into a long thin beak 7 to 15 cm, wrapping the head, splitting and staying attached on one side",
+  "carried": "In a small umbel at the top of the scape, the flowers on long thin stalks above a cluster of purplish-green bulbils",
+  "size": "Flowers 3 to 5 mm; head 3 to 5 cm",
+  "season": "June to July (hardneck garlic)"
+ },
+ "fruit": "Seldom any seed. The head ripens into a cluster of small bulbils like tiny cloves, which can be planted.",
+ "seedling": "Not drawn: grown from cloves.",
+ "winter": "Autumn-planted cloves make a few short upright leaves 10 to 20 cm that stay green through winter.",
+ "palette": {"leaf": "sage", "flower": "pink", "centre": "mauve", "fruit": "straw", "root": "white"},
+ "must_show": {
+  "leaf": ["a long flat strap, keeled, solid not hollow", "parallel veins, no teeth, tapering to a long point"],
+  "bloom": ["a small head of pinkish-white flowers mixed with small bulbils", "a long papery beak from the spathe"],
+  "clove": ["a single curved wedge-shaped clove with a pointed tip", "a flat root plate at the base and a papery skin"],
+  "young": ["a single upright stem of flat leaves in two ranks"],
+  "crop": ["a round bulb of several cloves wrapped in white papery skin, sometimes purple-streaked", "lower leaves brown, upper ones still green", "a tuft of roots below"],
+  "flower": ["a scape that loops once before straightening, rising through the leaves", "a beaked spathe at its tip"],
+  "seedhead": ["a dry head of small bulbils, the spathe split and papery"]
+ },
+ "look_alikes": "Leek has broader flat leaves fanned in one plane and no cloves. Elephant garlic is a leek with large cloves and a big lilac flower head. Wild garlic has broad soft leaves on stalks. Three-cornered leek has a three-angled stem and nodding white bells.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

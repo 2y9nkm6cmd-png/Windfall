@@ -1,0 +1,73 @@
+{
+ "kind": "french-marigold",
+ "name": "French Marigold",
+ "latin": "Tagetes patula",
+ "family": "Asteraceae, the daisy family",
+ "grown_as": "A half-hardy annual raised under cover, often planted among crops. William's library lists 'Boy-O-Boy' mix: a dwarf, bushy type about 20 cm high with double, crested flowers in yellow, orange and red, some two-coloured. Drawn in orange. ⚠️ CHECK",
+ "habit": "A low, bushy, much-branched annual 15 to 30 cm high, the stems often purplish. The whole plant has a strong, sharp smell when touched.",
+ "leaf": {
+  "arrangement": "Opposite lower down, sometimes alternate near the top",
+  "type": "Compound: pinnate, with about 9 to 13 leaflets along a central stalk and one at the end",
+  "outline": "The whole leaf oblong, 4 to 9 cm; each leaflet narrow lance-shaped, 1 to 2.5 cm",
+  "base": "Leaflets stalkless on the central stalk",
+  "tip": "Each leaflet sharply pointed",
+  "margin": "Fine, sharp teeth all along each leaflet",
+  "veins": "A midrib in each leaflet; little else visible",
+  "surface": "Smooth and hairless, dotted near the edges with tiny clear oil glands that show against the light",
+  "stalk": "Short",
+  "colour": "Dark green"
+ },
+ "flower": {
+  "form": "A double, crested head: a ring of broad flat rays round a raised crest of short, frilled florets",
+  "petals": "Outer rays broad, rounded and wavy, often with a velvety red-brown blotch; the crest is a tight cushion of short frilly florets",
+  "colour": "Orange, yellow or gold, some red-brown with gold edges",
+  "centre": "The raised frilly crest, the same colour as the rays or darker",
+  "behind": "A smooth, slim green tube of bracts joined together, faintly ribbed, ending in five short points, dotted with oil glands",
+  "carried": "Alone at the tips of the stems on short stalks that swell under the head, facing up",
+  "size": "3 to 5 cm across",
+  "season": "June to the first frosts"
+ },
+ "fruit": "The bract tube dries brown, with a brush of seeds poking out of the top. Each seed is thin and needle-like, 6 to 10 mm, black with a straw-coloured bristly tip.",
+ "seedling": "Two narrow, oblong seed leaves on a purplish stem. The first true leaves are already cut into toothed leaflets and smell when touched.",
+ "winter": "Nothing: killed by the first frost.",
+ "palette": {
+  "leaf": "deep",
+  "flower": "carrot",
+  "centre": "amber",
+  "fruit": "dark"
+ },
+ "must_show": {
+  "leaf": [
+   "leaf divided into many narrow pointed leaflets along a central stalk",
+   "fine sharp teeth all along each leaflet",
+   "dark green and smooth"
+  ],
+  "bloom": [
+   "broad rounded wavy outer rays",
+   "raised frilly crest in the middle",
+   "smooth slim tube of joined bracts behind, with small points at the top"
+  ],
+  "seed": [
+   "thin black needle-like seed",
+   "straw-coloured bristly tip"
+  ],
+  "seedling": [
+   "two narrow seed leaves on a purplish stem",
+   "first leaves already divided into leaflets"
+  ],
+  "young": [
+   "low bushy plant with many stems",
+   "dark green, ferny, cut leaves"
+  ],
+  "flower": [
+   "compact low mound about 20 cm",
+   "many small double orange and yellow flowers just above the leaves"
+  ],
+  "seedhead": [
+   "dried brown bract tubes",
+   "tuft of black seeds with pale tips showing at the top"
+  ]
+ },
+ "look_alikes": "African marigold (Tagetes erecta) is taller with large ball-shaped heads. Signet marigold (Tagetes tenuifolia) has very fine leaves and tiny single flowers. Calendula has soft simple leaves, flat bracts and curled seeds.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. No reference photos had been downloaded for this group yet, so nothing was checked against photographs. ⚠️ CHECK"
+}

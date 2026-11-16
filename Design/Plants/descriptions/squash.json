@@ -1,0 +1,76 @@
+{
+ "kind": "squash",
+ "name": "Squash",
+ "latin": "Cucurbita maxima",
+ "family": "Cucurbitaceae, the gourd family",
+ "grown_as": "A winter squash grown as a tender annual: sown under cover in late spring, planted out after frost, the fruit stored for winter. Varieties differ most in fruit: drawn as an orange onion-shaped squash like 'Uchiki Kuri'; 'Crown Prince' is blue-grey. Butternut squash is a different species (Cucurbita moschata) with a five-angled stalk and a pear-shaped buff fruit. ⚠️ CHECK which squash William grows.",
+ "habit": "A long trailing vine, 3 to 5 m, running along the ground and rooting at its joints, with branched tendrils that grip anything nearby. Leaves stand up on long stalks above the vine, making a carpet 40 to 60 cm deep. Stems are round, soft-hairy and not prickly.",
+ "leaf": {
+  "arrangement": "Alternate along the running vine, one at each joint with a tendril and often a flower",
+  "type": "Simple",
+  "outline": "Nearly round to kidney-shaped, 20 to 35 cm across, unlobed or with five very shallow, rounded lobes",
+  "base": "Deeply heart-shaped, the two rounded lobes at the base often close together",
+  "tip": "Rounded or with a short blunt point",
+  "margin": "Small irregular teeth all round; edge gently wavy",
+  "veins": "Palmate: five main veins spreading from the stalk top, with a net of smaller veins",
+  "surface": "Soft-hairy, velvety, not prickly; usually no silver blotches",
+  "stalk": "Long (20 to 40 cm), round, hollow, soft-hairy",
+  "colour": "Mid green"
+ },
+ "flower": {
+  "form": "A large trumpet, wider and more open than a courgette's",
+  "petals": "Joined into a funnel splitting into five broad rounded lobes that flare out and curl back",
+  "colour": "Rich yellow to orange-yellow",
+  "centre": "Male: one thick yellow column of joined stamens. Female: a thick lobed orange stigma.",
+  "behind": "Five narrow green sepals. Female flowers sit on a small round swelling, the young squash.",
+  "carried": "Singly from the joints of the vine, males on long stalks, females on short stalks, facing up or out",
+  "size": "10 to 15 cm across",
+  "season": "July to September"
+ },
+ "fruit": "Large, heavy fruit lying on the ground along the vine, 1 to 5 kg. 'Uchiki Kuri' is teardrop or onion-shaped, 15 to 20 cm, smooth, bright red-orange with faint paler stripes. The fruit stalk is the clue to the species: round, thick, soft and corky, swelling and cracking as it ripens, not ridged. Seeds plump, white to tan, 15 to 25 mm, with a thin pale edge.",
+ "seedling": "Two large, thick, smooth, oval seed leaves on a stout stem, then a rounded, softly hairy first true leaf with a toothed edge.",
+ "winter": "Nothing: killed by the first frost. The harvested fruit are stored indoors.",
+ "palette": {
+  "leaf": "leaf",
+  "flower": "sun",
+  "centre": "amber",
+  "fruit": "carrot"
+ },
+ "must_show": {
+  "leaf": [
+   "one big rounded or kidney-shaped leaf, at most shallowly lobed",
+   "deep heart-shaped base",
+   "small teeth all round",
+   "five main veins spreading from the stalk"
+  ],
+  "bloom": [
+   "a large yellow-orange trumpet with five broad rounded lobes flared back",
+   "a thick column or lobed stigma in the centre"
+  ],
+  "seed": [
+   "a plump flat oval seed, white to tan",
+   "a thin pale edge",
+   "15 to 25 mm, bigger than a courgette seed"
+  ],
+  "seedling": [
+   "two big smooth oval seed leaves",
+   "a small rounded toothed true leaf"
+  ],
+  "young": [
+   "a vine starting to run along the ground",
+   "round leaves standing on long stalks",
+   "curling tendrils at the joints"
+  ],
+  "flower": [
+   "long trailing vines with tendrils",
+   "yellow trumpets among round leaves"
+  ],
+  "crop": [
+   "large orange squash lying on the ground along the vine",
+   "thick round corky fruit stalk",
+   "round leaves on long stalks above"
+  ]
+ },
+ "look_alikes": "Courgettes and pumpkins (Cucurbita pepo) have deeply lobed, prickly leaves and a hard five-angled fruit stalk. Butternut (C. moschata) has softer, slightly lobed leaves often with white patches and a five-angled stalk flaring at the fruit.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

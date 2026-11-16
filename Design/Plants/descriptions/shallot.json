@@ -1,0 +1,33 @@
+{
+ "kind": "shallot",
+ "name": "Shallot",
+ "latin": "Allium cepa (Aggregatum Group)",
+ "family": "Amaryllidaceae, the daffodil family (onion subfamily)",
+ "grown_as": "The shallot, grown from single bulbs (sets) each of which divides into a cluster of 4 to 12 bulbs. Drawn as a coppery-red-brown shallot such as 'Red Sun' or 'Longor'; others are golden ('Golden Gourmet'), grey or long ('Échalion'). ⚠️ CHECK: William's variety. Not drawn in flower: shallots seldom flower.",
+ "habit": "A clump of many upright hollow leaves 25 to 40 cm, from a cluster of bulbs joined at a common base at the soil surface.",
+ "leaf": {
+  "arrangement": "In two ranks from the neck of each bulb, many bulbs together making a clump",
+  "type": "Simple, tubular",
+  "outline": "Long, narrow, hollow, round to half-round tube, 20 to 40 cm by 0.5 to 1 cm, thinner than onion",
+  "base": "A sheath wrapping the neck of its bulb",
+  "tip": "Tapering to a point",
+  "margin": "Entire",
+  "veins": "Fine parallel veins, faint",
+  "surface": "Smooth, waxy, hollow",
+  "stalk": "None",
+  "colour": "Blue-green to mid green"
+ },
+ "flower": null,
+ "fruit": "Not drawn: shallots rarely flower; when they do it is a small round greenish-white head like an onion's.",
+ "seedling": "Not drawn: grown from bulbs.",
+ "winter": "Bulbs are lifted and dried in summer and stored. Sets planted in winter or early spring show a few thin leaves.",
+ "palette": {"leaf": "sage", "root": "rust"},
+ "must_show": {
+  "leaf": ["a long thin hollow round tube, not flat", "smooth waxy blue-green, no teeth"],
+  "set": ["one bulb, teardrop-shaped, taller than wide, with coppery-brown papery skin", "a pointed neck and a flat root plate"],
+  "young": ["several leaves from one bulb, the bulb already starting to split into two or three"],
+  "crop": ["a cluster of several teardrop-shaped coppery bulbs joined at one base, half on top of the soil", "leaves yellowing and falling over", "white roots below"]
+ },
+ "look_alikes": "Onion grows into one round bulb, not a cluster. Garlic makes a bulb of cloves under one shared skin, with flat leaves. Potato onions (multiplier onions) are the same group and look much the same.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

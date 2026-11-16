@@ -1,0 +1,78 @@
+{
+ "kind": "iris",
+ "name": "Iris",
+ "latin": "Iris germanica",
+ "family": "Iridaceae, the iris family",
+ "grown_as": "The bearded iris of cottage gardens. ⚠️ CHECK: William's library has two irises: 'Grandma's', 0.6 to 1 m tall in the Upper Orchard, which fits a bearded iris and is drawn here; and Iris reticulata 'Pauline', a dwarf iris 10 to 20 cm from a true bulb, violet-purple with a white mark on the falls, with narrow four-sided leaves, flowering in February. They look very different. The colour of 'Grandma's' is not known: drawn as the classic old purple bearded iris.",
+ "habit": "Clumps of stiff, flat fans of sword-shaped leaves 30 to 60 cm high, from thick rhizomes lying on the soil surface, with branched flower stems 60 to 100 cm tall above.",
+ "leaf": {
+  "arrangement": "In flat fans: each leaf folded lengthways and sitting astride the next (equitant), all in one plane",
+  "type": "Simple, sword-shaped",
+  "outline": "30 to 45 cm long by 2.5 to 4 cm wide, the sides straight and parallel, curving to the tip",
+  "base": "Overlapping in the fan, often tinged purple",
+  "tip": "Pointed",
+  "margin": "Smooth, no teeth",
+  "veins": "Many fine parallel veins, no strong midrib",
+  "surface": "Smooth, stiff, with a grey waxy bloom",
+  "stalk": "None",
+  "colour": "Grey-green"
+ },
+ "flower": {
+  "form": "Three falls hanging down, three standards upright, a fuzzy beard on each fall",
+  "petals": "Six tepals. Three outer 'falls', broad, hanging down and outwards. Three inner 'standards', upright and arching in over the centre. Three petal-like style arms arch over the base of each fall.",
+  "colour": "Violet-purple (variety): falls deeper red-purple, standards lighter violet",
+  "centre": "A beard of fuzzy hairs, yellow or white tipped yellow, down the middle of the upper part of each fall; veining at the base of the falls",
+  "behind": "A green and papery spathe at the base of each flower",
+  "carried": "Two to five flowers on a branched stem above the leaves, upright",
+  "size": "10 to 15 cm across and tall",
+  "season": "May to June"
+ },
+ "fruit": "Rarely set in gardens. When it is: a large three-sided green capsule 5 to 7 cm, splitting into three to show brown seeds.",
+ "seedling": "Not drawn: grown by dividing rhizomes.",
+ "winter": "Short fans of leaves, the outer ones brown and dead, on rhizomes showing at the soil surface.",
+ "palette": {
+  "leaf": "sage",
+  "flower": "lilac",
+  "centre": "sun",
+  "fruit": "unripe"
+ },
+ "palette_wish": {
+  "flower": "deep violet-purple, about #5E3C8F"
+ },
+ "must_show": {
+  "leaf": [
+   "a flat sword-shaped leaf with straight parallel sides",
+   "pointed tip, smooth margin",
+   "grey-green, fine parallel veins, no strong midrib"
+  ],
+  "bloom": [
+   "three broad falls hanging down and three standards upright",
+   "a fuzzy yellow beard on each fall",
+   "petal-like style arms arching over the falls"
+  ],
+  "bulb": [
+   "a rhizome, not a bulb: a thick knobbly brown stem lying flat on the soil, half above it",
+   "ringed with old leaf scars, roots underneath",
+   "a fan of leaves at its growing end"
+  ],
+  "shoots": [
+   "flat fans of grey-green sword leaves from the rhizome",
+   "leaves folded and sitting astride each other in one flat plane"
+  ],
+  "flower": [
+   "stiff fans of sword leaves",
+   "branched stems taller than the leaves with several bearded flowers",
+   "rhizomes showing at the soil"
+  ],
+  "seedhead": [
+   "a large three-sided pod on the stem",
+   "fans of leaves still green"
+  ],
+  "dormant": [
+   "short fans of leaves, outer ones brown",
+   "rhizomes on the soil surface"
+  ]
+ },
+ "look_alikes": "Yellow iris has no beard, small standards and green leaves with a raised midrib. Siberian iris has no beard and narrow grassy leaves. Iris reticulata is tiny, from a bulb, with four-sided leaves. Fans of leaves look like gladiolus or crocosmia, whose leaves are ribbed or pleated.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

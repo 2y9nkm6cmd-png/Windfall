@@ -1,0 +1,78 @@
+{
+ "kind": "basil",
+ "name": "Basil",
+ "latin": "Ocimum basilicum",
+ "family": "Lamiaceae, the mint family",
+ "grown_as": "Sweet basil, a tender annual grown from seed each year, under glass or outside in summer. Drawn as the common green large-leaved kind ('Genovese' type). Purple, Thai and small-leaved Greek basils look different; William's variety is not known. ⚠️ CHECK",
+ "habit": "A bushy upright annual 30 to 50 cm high, on square green stems that branch from each pair of leaves, more so when the tips are pinched out. Soft and fleshy, not woody.",
+ "leaf": {
+  "arrangement": "Opposite, in pairs, each pair at right angles to the one below",
+  "type": "Simple",
+  "outline": "Oval to broadly lance-shaped, 4 to 8 cm long (up to 10 cm), widest a little below the middle",
+  "base": "Tapering to a wedge and running down into the stalk",
+  "tip": "Pointed",
+  "margin": "Smooth or with a few very shallow, widely spaced teeth; often a little wavy",
+  "veins": "A pale midrib and 4 to 6 curving side veins on each side, pressed in so the blade bulges up between them",
+  "surface": "Smooth, without hairs, glossy and a little fleshy; the blade often cupped or spoon-shaped, the edges curving down",
+  "stalk": "1 to 3 cm, slender, green",
+  "colour": "Bright fresh green"
+ },
+ "flower": {
+  "form": "A small two-lipped tube, the lips spreading wide",
+  "petals": "Joined into a short tube; a broad upper lip with four small lobes and a single narrow lower lip that hangs down",
+  "colour": "White, sometimes tinged pink",
+  "centre": "Four white stamens and a style that lie along the lower lip and stick out beyond it",
+  "behind": "A green, two-lipped calyx with a broad rounded upper lobe, often tinged purple, which stays and grows after the petals fall",
+  "carried": "In tiers (whorls) of about six flowers, spaced along an upright spike 10 to 20 cm long at the top of each shoot, with a pair of small leaf-like bracts under each tier",
+  "size": "About 1 cm long",
+  "season": "July to September, if not pinched out"
+ },
+ "fruit": "Four small black nutlets held in each dry, brown, papery calyx, the calyces left in spaced tiers up the old spike. Seeds: small, oval, matt black seeds about 2 mm long. When wetted they grow a grey jelly coat.",
+ "seedling": "Two broad, smooth, fleshy seed leaves, wider than long and roughly kidney-shaped, on short stalks; then the first pair of true leaves, small, oval, glossy and opposite.",
+ "winter": "Nothing: an annual, killed by the first frost and unhappy below about 10 °C.",
+ "palette": {
+  "leaf": "leaf",
+  "flower": "white",
+  "fruit": "dark"
+ },
+ "must_show": {
+  "leaf": [
+   "a simple oval leaf with a pointed tip and wedge base running into the stalk",
+   "margin smooth or with only a few faint teeth",
+   "curved side veins pressed in, the blade puckered and slightly cupped",
+   "glossy bright green"
+  ],
+  "bloom": [
+   "a small white two-lipped flower",
+   "upper lip broad with four small lobes, lower lip single and hanging",
+   "stamens lying along the lower lip and sticking out",
+   "a green cup-like calyx behind"
+  ],
+  "seed": [
+   "small oval matt black seeds about 2 mm long"
+  ],
+  "seedling": [
+   "two broad, rounded, kidney-shaped seed leaves",
+   "a first pair of small oval true leaves between them"
+  ],
+  "young": [
+   "a small upright plant with leaves in opposite pairs",
+   "glossy oval leaves, each pair at right angles to the next"
+  ],
+  "crop": [
+   "a bushy, branched plant thick with glossy oval leaves in opposite pairs",
+   "square green stems, no flowers or only buds at the tips"
+  ],
+  "flower": [
+   "upright spikes at the shoot tips with flowers in spaced tiers",
+   "small white two-lipped flowers",
+   "opposite glossy leaves below"
+  ],
+  "seedhead": [
+   "old spikes with tiers of brown papery calyces",
+   "leaves fewer, yellowing"
+  ]
+ },
+ "look_alikes": "Thai basil has narrower leaves, purple stems and purple flower spikes. Purple basils have dark red-purple leaves. Perilla (shiso) has hairy, sharply toothed leaves. Mint and lemon balm have toothed, wrinkled, matt leaves.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

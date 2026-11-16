@@ -1,0 +1,77 @@
+{
+ "kind": "salvia",
+ "name": "Salvia",
+ "latin": "Salvia nemorosa",
+ "family": "Lamiaceae, the mint family",
+ "grown_as": "A hardy herbaceous salvia (Balkan clary). William's library holds three salvias under this name: Salvia nemorosa (entered as 'Royal Bumble Balkan Clary', 40 to 60 cm), Salvia microphylla (a shrubby salvia, 0.8 to 1.2 m, small red or pink flowers) and 'Salvia Amisiad', probably Salvia 'Amistad' (1 to 1.5 m, large deep purple flowers with near-black calyces). 'Royal Bumble' is the name of a red shrubby salvia, not a Balkan clary. Drawn as Salvia nemorosa. ⚠️ CHECK which salvia the drawing should be.",
+ "habit": "An upright clump 40 to 60 cm tall and 30 to 50 cm across, of many square stems, each topped by one or a few narrow upright flower spikes, so the clump looks like a crowd of violet candles.",
+ "leaf": {
+  "arrangement": "Opposite pairs on square stems, each pair at right angles to the last; a tuft of larger leaves at the base",
+  "type": "Simple",
+  "outline": "Narrowly oval to lance-shaped, 4 to 10 cm long",
+  "base": "Rounded to slightly heart-shaped",
+  "tip": "Blunt to bluntly pointed",
+  "margin": "Small, rounded, even teeth (scalloped) all the way round",
+  "veins": "A network pressed in from above, making the surface finely wrinkled",
+  "surface": "Wrinkled, finely hairy and slightly rough; aromatic when crushed; paler beneath",
+  "stalk": "Lower leaves on short stalks; upper leaves stalkless, almost clasping the stem",
+  "colour": "Mid to grey-green"
+ },
+ "flower": {
+  "form": "A small two-lipped flower: a hooded upper lip arching over a spreading three-lobed lower lip",
+  "petals": "Five petals joined into a short tube, opening into the two lips",
+  "colour": "Deep violet-blue",
+  "centre": "Two stamens hidden under the hood; the style pokes out a little",
+  "behind": "A purplish two-lipped calyx; at each whorl small, purple-tinted bracts that stay on after the petals drop, so the spike stays coloured",
+  "carried": "In whorls of a few flowers, stacked close together up dense, narrow, upright spikes 10 to 20 cm long at the stem tips",
+  "size": "Each flower about 1 cm long",
+  "season": "June to August, again in September if cut back after the first flush"
+ },
+ "fruit": "Four small nutlets sit in the bottom of each dry calyx, which turns brown on the spike. Seeds are round-oval, smooth, dark brown, about 1.5 to 2 mm.",
+ "seedling": "Two rounded seed leaves on short stalks, then opposite pairs of small, wrinkled, toothed true leaves",
+ "winter": "Dies down to a low tuft of small, grey-green, wrinkled leaves at the base, with the old stems cut back or standing brown.",
+ "palette": {
+  "leaf": "sage",
+  "flower": "plum",
+  "fruit": "bark"
+ },
+ "palette_wish": {
+  "flower": "deep violet-blue, about #5A3FA8"
+ },
+ "must_show": {
+  "leaf": [
+   "narrow oval leaf with small rounded teeth all round",
+   "wrinkled surface from pressed-in veins",
+   "grey-green, short stalk or none"
+  ],
+  "bloom": [
+   "small two-lipped flowers: a hood over a three-lobed lip",
+   "deep violet-blue",
+   "stacked in whorls up a narrow upright spike with purplish bracts"
+  ],
+  "seed": [
+   "small round-oval dark brown seeds"
+  ],
+  "seedling": [
+   "two rounded seed leaves",
+   "first true leaves in an opposite pair, wrinkled and toothed"
+  ],
+  "young": [
+   "a leafy clump of opposite grey-green wrinkled leaves",
+   "square stems just starting to rise"
+  ],
+  "flower": [
+   "an upright clump of many narrow violet spikes held above the leaves",
+   "opposite leaves on square stems"
+  ],
+  "seedhead": [
+   "spikes of brown dry calyces in whorls, petals gone"
+  ],
+  "dormant": [
+   "a low tuft of small grey-green leaves at the soil",
+   "old stems cut back or standing brown"
+  ]
+ },
+ "look_alikes": "Catmint (Nepeta) has softer, greyer, heart-shaped leaves and looser lavender-blue spikes with no coloured bracts. Lavender has narrow untoothed leaves on a woody bush. Meadow clary (Salvia pratensis) has much larger basal leaves and bigger flowers, 2 to 3 cm, in looser spikes. Salvia × sylvestris garden forms are almost the same.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

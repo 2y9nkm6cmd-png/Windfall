@@ -1,0 +1,45 @@
+{
+ "kind": "nectarine",
+ "name": "Nectarine",
+ "latin": "Prunus persica var. nucipersica",
+ "family": "Rosaceae, the rose family",
+ "grown_as": "A smooth-skinned peach, grown as a small tree, often fan-trained against a warm wall or kept in a pot, sometimes under glass. William grows 'Humboldt' and 'John Rivers'. Both have pink blossom; fruit colour varies a little between them.",
+ "habit": "A small open deciduous tree or wall fan, 2 to 4 m. Smooth reddish-brown young shoots, red on the sunny side. Fruits on shoots that grew the year before, not on spurs.",
+ "leaf": {
+  "arrangement": "Alternate",
+  "type": "Simple",
+  "outline": "Long and narrow, lance-shaped, 8 to 15 cm long and only 2 to 4 cm wide, often folded a little along the midrib and arching downward",
+  "base": "Wedge-shaped",
+  "tip": "Drawn out to a long fine point",
+  "margin": "Finely and sharply toothed all round",
+  "veins": "A strong pale midrib and many fine, close side veins",
+  "surface": "Smooth, hairless and glossy on both sides; often puckered, thickened and red-blistered where peach leaf curl strikes in spring",
+  "stalk": "Short, about 1 cm, with small glands near the blade",
+  "colour": "Bright mid green"
+ },
+ "flower": {
+  "form": "An open, slightly cupped flower sitting tight against the shoot",
+  "petals": "Five, free, rounded, slightly crinkled",
+  "colour": "Pink, deeper towards the centre",
+  "centre": "Twenty to thirty stamens with pink filaments and orange-red anthers around a single style, in a reddish cup",
+  "behind": "A reddish-brown cup with five small rounded sepals",
+  "carried": "Singly or in pairs on very short stalks, crowded along last year's bare shoots, well before the leaves",
+  "size": "2.5 to 4 cm across",
+  "season": "March to early April, early enough to need frost cover"
+ },
+ "fruit": "A drupe like a peach but with smooth, hairless, shiny skin: round, 5 to 7 cm, with a groove down one side. Pale yellow or greenish-white ground largely flushed crimson. A single deeply pitted stone. Sits almost stalkless against the shoot. Ripe August to September. Fruit set: small smooth green fruitlets tight against the shoot.",
+ "seedling": "Not drawn: grown as grafted trees",
+ "winter": "Bare fan or small tree: smooth reddish shoots with the buds in threes at many nodes, a fat round flower bud either side of a slim pointed leaf bud.",
+ "palette": {"leaf": "leaf", "flower": "pink", "centre": "rust", "fruit": "berry"},
+ "must_show": {
+  "leaf": ["long narrow lance-shaped leaf with a long fine point", "fine sharp teeth all round", "glossy, hairless, often folded and arching"],
+  "bloom": ["five rounded pink petals", "pink-stalked stamens with orange-red anthers around a single style", "flower stalkless against a bare shoot"],
+  "young": ["a small open tree or wall fan", "long narrow drooping leaves"],
+  "dormant": ["bare reddish shoots, a small open tree or wall fan", "buds in threes at the nodes"],
+  "flower": ["pink blossom crowded along bare shoots", "no leaves yet, or only tiny ones"],
+  "set": ["small smooth green fruitlets tight against the shoots", "long narrow young leaves around them"],
+  "crop": ["round smooth shiny fruit, red over yellow, no fuzz", "fruit sitting close against the shoot"]
+ },
+ "look_alikes": "Peach is the same plant with downy fruit. Almond has paler blossom and a flat, dry, downy fruit. Apricot has broad round leaves and white or pale pink flowers. Ornamental cherries carry their flowers on long stalks in bunches.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge and iNaturalist photos of peach. ⚠️ CHECK"
+}

@@ -1,0 +1,46 @@
+{
+ "kind": "lettuce",
+ "name": "Lettuce",
+ "latin": "Lactuca sativa",
+ "family": "Asteraceae, the daisy family",
+ "grown_as": "A hearting lettuce cut whole, drawn as a butterhead: a round head of soft, smooth leaves. William's records list several lettuces ('Marvel of Four Seasons', a butterhead with red-bronze outer leaves; 'Bronze Arrow', an oakleaf; Lollo rosso and blonda; a loose-leaf cutting mix), so the look depends on which is meant. Drawn green as the most typical. ⚠️ CHECK which lettuce the drawing should be.",
+ "habit": "A low rosette 20 to 30 cm across and 10 to 20 cm high on a very short stem hidden at its centre. The inner leaves fold over each other into a round, loose head. When it bolts the stem shoots up from the middle to 60 to 100 cm and branches at the top.",
+ "leaf": {
+  "arrangement": "A tight rosette, the leaves spiralling round a short central stem",
+  "type": "Simple",
+  "outline": "Broad and rounded to obovate (widest above the middle), 10 to 20 cm long and nearly as wide, cupped",
+  "base": "Narrowing into a broad, flat, pale midrib; no separate stalk",
+  "tip": "Broadly rounded",
+  "margin": "Smooth, without teeth, gently wavy and a little crimped at the edge",
+  "veins": "A broad pale midrib, widest at the base; side veins fanning out and branching into a fine net, pale and slightly raised",
+  "surface": "Soft, thin, smooth and hairless, softly puckered between the veins; not glossy",
+  "stalk": "None: the widened midrib does the work of a stalk",
+  "colour": "Fresh mid green, the heart paler yellow-green; red-flushed outer leaves in some varieties"
+ },
+ "flower": {
+  "form": "A small head like a little dandelion, made only of strap-shaped florets, opening flat in the morning and closing by midday",
+  "petals": "No true petals to count: about 10 to 25 strap-shaped florets, each a single ray with five tiny teeth across its squared-off tip, laid out like the rays of a dandelion",
+  "colour": "Pale yellow",
+  "centre": "No separate eye: the inner florets are shorter and the forked yellow styles stand up in the middle",
+  "behind": "A slim cylindrical cup (involucre) of narrow green bracts overlapping like roof tiles, longer than wide, sometimes tinged purple",
+  "carried": "Many heads on short stalks in a wide, branched, flat-topped spray at the top of a tall bolted stem, the heads facing up",
+  "size": "1 to 1.5 cm across",
+  "season": "July to September, after the plant bolts"
+ },
+ "fruit": "Each floret makes one seed (achene): slim, flattened, 3 to 4 mm, with fine lengthwise ribs, narrowing at the top into a thin beak carrying a tuft of soft white hairs (pappus). Seed colour is white-cream, grey, brown or black depending on variety. The heads open into small white fluffy clocks, much smaller and looser than a dandelion clock. The plant has milky sap.",
+ "seedling": "Two smooth, oval to spoon-shaped seed leaves about 1 cm long on short stalks, then rounded true leaves with softly wavy edges, one at a time, forming a little rosette.",
+ "winter": "Nothing: grown as an annual. Hardy winter varieties stay as small rosettes under cover.",
+ "palette": {"leaf": "leaf", "flower": "primrose", "centre": "primrose", "fruit": "white"},
+ "must_show": {
+  "leaf": ["a broad rounded blade with no separate stalk, narrowing into a wide pale midrib", "smooth wavy edge with no teeth", "side veins fanning from the midrib, the surface softly puckered"],
+  "bloom": ["a small pale yellow head of strap-shaped florets, like a little dandelion", "squared-off floret tips with tiny teeth", "a slim cup of overlapping green bracts behind"],
+  "seed": ["slim, flat seed 3 to 4 mm, narrowing to a point", "fine lengthwise ribs", "cream, grey or black"],
+  "seedling": ["two smooth oval seed leaves", "the first true leaf rounded, softly wavy"],
+  "young": ["a loose rosette of broad rounded leaves flat to the soil", "no stem showing"],
+  "crop": ["a round head of leaves folded over a paler heart", "outer leaves spreading, broad and wavy", "sitting on the soil, no stem showing"],
+  "flower": ["a tall stem from the centre, 60 to 100 cm, branching at the top", "small arrow-based leaves clasping the stem", "many small pale yellow heads in a spray at the top"],
+  "seedhead": ["small white fluffy clocks at the branch tips", "dried stem with the bracts closed round seeds"]
+ },
+ "look_alikes": "Prickly lettuce (Lactuca serriola) is the wild relative: a row of prickles under the midrib and leaves often turned edge-on to the sun. Endive and chicory have blue flowers and bitter leaves. Sow-thistles have spiny-edged, clasping leaves and larger yellow heads.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

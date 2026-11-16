@@ -1,0 +1,46 @@
+{
+ "kind": "lambs-lettuce",
+ "name": "Lambs Lettuce",
+ "latin": "Valerianella locusta",
+ "family": "Caprifoliaceae, the honeysuckle family (formerly the valerian family, Valerianaceae)",
+ "grown_as": "Corn salad, sown in late summer and picked as whole small rosettes through winter. William's records list the variety 'Vit', a long-leaved, glossy kind.",
+ "habit": "A neat, flat rosette 8 to 12 cm across and a few cm high. In spring it sends up a slender stem 15 to 30 cm that forks again and again in twos, each fork ending in a small flat cluster of tiny flowers.",
+ "leaf": {
+  "arrangement": "Rosette leaves in opposite pairs, crowded; on the flowering stem in opposite pairs at each fork",
+  "type": "Simple",
+  "outline": "Spoon-shaped to oblong (narrow at the base, widest near the rounded end), 2 to 7 cm long",
+  "base": "Tapering into a short, winged stalk",
+  "tip": "Rounded",
+  "margin": "Smooth, without teeth; stem leaves sometimes with one or two small teeth near the base",
+  "veins": "A single clear midrib; side veins faint",
+  "surface": "Smooth, hairless, a little glossy and slightly fleshy",
+  "stalk": "Short and winged, merging into the blade",
+  "colour": "Mid to dark green"
+ },
+ "flower": {
+  "form": "A tiny funnel-shaped flower opening into five spreading lobes",
+  "petals": "Five, joined into a short tube, with five rounded lobes",
+  "colour": "Very pale lilac-blue, almost white",
+  "centre": "Three tiny stamens",
+  "behind": "No sepals that show; small green bracts under each cluster",
+  "carried": "In small, dense, flat-topped clusters at the tips of the forked stems, facing up",
+  "size": "About 2 mm across; each cluster 1 to 2 cm",
+  "season": "April to June"
+ },
+ "fruit": "A tiny flattened, rounded nutlet 2 to 2.5 mm with a corky swelling on one side, pale brown, no hairs or plume. Each holds one seed.",
+ "seedling": "Two small oval to round seed leaves on short stalks, then a first opposite pair of spoon-shaped true leaves.",
+ "winter": "Winter is its season: a low green rosette that sits through frost and is picked whole.",
+ "palette": {"leaf": "deep", "flower": "blue", "centre": "blue", "fruit": "seed"},
+ "must_show": {
+  "leaf": ["a smooth spoon-shaped leaf with a rounded tip", "no teeth", "tapering to a short winged stalk"],
+  "bloom": ["a tiny pale lilac-blue flower with five rounded lobes", "in a small flat-topped cluster"],
+  "seed": ["a tiny rounded flattened pale brown seed 2 mm", "no plume"],
+  "seedling": ["two small oval seed leaves", "the first true leaves in an opposite pair"],
+  "young": ["a small flat rosette of spoon-shaped leaves", "leaves in opposite pairs"],
+  "crop": ["a neat flat rosette 8 to 12 cm across", "glossy, smooth, spoon-shaped dark green leaves"],
+  "flower": ["a slender stem forking again and again in twos", "pairs of narrow leaves at the forks", "tiny pale blue flowers in flat clusters at the tips"],
+  "seedhead": ["the forked stems drying yellow-brown", "tiny round seeds in small clusters at the tips"]
+ },
+ "look_alikes": "Other corn salads differ only in their tiny fruits. Seedlings of forget-me-not are hairy and alternate. Young lettuce leaves are thinner, paler and puckered.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

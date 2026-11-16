@@ -1,0 +1,73 @@
+{
+ "kind": "tomatillo",
+ "name": "Tomatillo",
+ "latin": "Physalis philadelphica",
+ "family": "Solanaceae, the nightshade family",
+ "grown_as": "A tender annual grown like a tomato, in a greenhouse or warm spot. Also sold as Physalis ixocarpa. Fruit green or purple by variety: drawn green. ⚠️ CHECK",
+ "habit": "A sprawling, branching bushy plant 60 cm to 1.2 m, wider than tall, with smooth angled stems. Needs a stake or cage.",
+ "leaf": {
+  "arrangement": "Alternate, often in unequal pairs",
+  "type": "Simple",
+  "outline": "Oval to lance-shaped, 4 to 8 cm",
+  "base": "Lopsided, tapering into the stalk",
+  "tip": "Pointed",
+  "margin": "A few coarse, irregular, uneven teeth, or nearly entire",
+  "veins": "Pinnate",
+  "surface": "Thin, nearly hairless",
+  "stalk": "Long, 2 to 6 cm",
+  "colour": "Mid green"
+ },
+ "flower": {
+  "form": "An open, shallow wheel or bowl, slightly nodding",
+  "petals": "Five, joined, with five shallow broad lobes",
+  "colour": "Bright yellow with five dark purple-brown blotches in the throat",
+  "centre": "Five stamens with blue-violet anthers",
+  "behind": "A small green calyx with five teeth, which grows after flowering into the papery husk",
+  "carried": "Singly on short stalks from the leaf joints, facing out or down",
+  "size": "1.5 to 3 cm across",
+  "season": "July to September"
+ },
+ "fruit": "A round berry 3 to 6 cm inside a papery husk (the swollen calyx), the husk pale green, often purple-veined, with five or ten ridges, hanging from the stems like small lanterns. The fruit fills and often splits the husk when ripe. Fruit green to yellow-green (purple in some), sticky under the husk. Seeds tiny, flat, pale buff.",
+ "seedling": "Two small oval seed leaves on a thin stem; first true leaves simple, oval and toothed.",
+ "winter": "Nothing: killed by frost. Self-sown seedlings may come next year.",
+ "palette": {
+  "leaf": "leaf",
+  "flower": "sun",
+  "centre": "plum",
+  "fruit": "unripe"
+ },
+ "must_show": {
+  "leaf": [
+   "a simple oval pointed leaf",
+   "a few coarse irregular teeth",
+   "long stalk"
+  ],
+  "bloom": [
+   "a yellow open bowl",
+   "five dark blotches in the throat",
+   "blue-violet anthers"
+  ],
+  "seed": [
+   "a tiny flat seed",
+   "pale buff"
+  ],
+  "seedling": [
+   "two small oval seed leaves",
+   "a simple toothed first leaf"
+  ],
+  "young": [
+   "a sprawling branching plant",
+   "simple pointed leaves with a few coarse teeth"
+  ],
+  "flower": [
+   "yellow bowl flowers with dark blotches in the throat",
+   "singly at the leaf joints"
+  ],
+  "crop": [
+   "green papery husks hanging like lanterns",
+   "round green fruit filling or splitting the husk"
+  ]
+ },
+ "look_alikes": "Cape gooseberry (Physalis peruviana) is soft-hairy with a smaller orange fruit in a brown husk that it does not fill. Chinese lanterns have white flowers and bright orange husks.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

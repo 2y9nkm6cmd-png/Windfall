@@ -1,0 +1,71 @@
+{
+ "kind": "helipterum-rosum",
+ "name": "Helipterum Rosum",
+ "latin": "Rhodanthe chlorocephala subsp. rosea (syn. Helipterum roseum, Acroclinium roseum)",
+ "family": "Asteraceae, the daisy family",
+ "grown_as": "An everlasting or paper daisy, a half-hardy annual from Western Australia grown for cutting and drying. William's library lists a 'Giant flower mix' in pinks, rose and white. Drawn in pink. ⚠️ CHECK",
+ "habit": "A slender upright annual 30 to 60 cm high, little-branched, the stems thin and wiry.",
+ "leaf": {
+  "arrangement": "Alternate",
+  "type": "Simple",
+  "outline": "Narrow, linear to narrow lance-shaped, 2 to 6 cm long",
+  "base": "Stalkless",
+  "tip": "Pointed, with a fine point",
+  "margin": "Smooth",
+  "veins": "A single midrib",
+  "surface": "Smooth and hairless",
+  "stalk": "None",
+  "colour": "Grey-green"
+ },
+ "flower": {
+  "form": "A stiff, papery daisy that stays the same when dried",
+  "petals": "Not rays: many rows of stiff, shiny, papery, pointed bracts that crackle to the touch",
+  "colour": "Pink or white (the mix also gives rose)",
+  "centre": "A yellow disc of tiny tubular florets, sometimes ringed by a narrow dark band of short inner bracts",
+  "behind": "Overlapping rows of papery bracts, the outer ones small, brownish or silvery",
+  "carried": "Alone at the tips of slender stems; the bud nods, then the open head faces up. Closes in dull weather",
+  "size": "3 to 5 cm across",
+  "season": "July to September"
+ },
+ "fruit": "A fluffy white seed head. Each seed is small and woolly with a ring of feathery white bristles.",
+ "seedling": "Two small oval seed leaves. The first true leaves are narrow and grey-green.",
+ "winter": "Nothing: an annual.",
+ "palette": {
+  "leaf": "sage",
+  "flower": "pink",
+  "centre": "sun",
+  "fruit": "white"
+ },
+ "must_show": {
+  "leaf": [
+   "narrow linear leaf, smooth-edged and stalkless",
+   "grey-green and smooth"
+  ],
+  "bloom": [
+   "many rows of stiff pointed papery bracts, not soft petals",
+   "pink or white",
+   "yellow centre, perhaps with a narrow dark ring"
+  ],
+  "seed": [
+   "small woolly seed with feathery white bristles"
+  ],
+  "seedling": [
+   "two small oval seed leaves",
+   "narrow grey-green first leaves"
+  ],
+  "young": [
+   "slender upright stems",
+   "narrow grey-green alternate leaves"
+  ],
+  "flower": [
+   "slender stems each topped by one papery pink or white daisy",
+   "some buds nodding before they open"
+  ],
+  "seedhead": [
+   "fluffy white seed head",
+   "dry papery bracts round it"
+  ]
+ },
+ "look_alikes": "Strawflower (Xerochrysum) is bigger and bushier with broader leaves and yellow, orange or red heads. Rhodanthe manglesii has broad, blue-green, stem-clasping leaves and nodding heads. Winged everlasting (Ammobium) is white with winged stems.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. No reference photos had been downloaded for this group yet, so nothing was checked against photographs. ⚠️ CHECK"
+}

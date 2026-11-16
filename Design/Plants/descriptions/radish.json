@@ -1,0 +1,46 @@
+{
+ "kind": "radish",
+ "name": "Radish",
+ "latin": "Raphanus sativus",
+ "family": "Brassicaceae, the cabbage family",
+ "grown_as": "The summer radish, a fast annual grown for its small crisp root, ready 4 to 6 weeks from sowing. Drawn as a round red radish with a white tip like 'Cherry Belle'. Others are long red with a white end ('French Breakfast'), white, purple or yellow, and winter radishes and mooli are much bigger. ⚠️ CHECK: William's variety. Left in the ground it bolts and flowers the same summer.",
+ "habit": "A small rosette of leaves 10 to 20 cm high on top of a small swollen root. Bolting plants send up a branched, leafy, often bristly flowering stem 50 to 100 cm tall.",
+ "leaf": {
+  "arrangement": "A rosette from the top of the root; alternate up the flowering stem",
+  "type": "Simple but deeply lobed: lyre-shaped (lyrate), with one large rounded end lobe and a few pairs of much smaller lobes down the lower part",
+  "outline": "Long and narrow overall, 8 to 20 cm, widest near the tip",
+  "base": "Tapering into the stalk, the lowest lobes small and widely spaced along it",
+  "tip": "The end lobe large, broad and rounded",
+  "margin": "Irregularly and bluntly toothed all round, on every lobe",
+  "veins": "A pale midrib with netted side veins, one into each lobe",
+  "surface": "Rough with scattered stiff bristly hairs, especially on the veins beneath and on the stalk; not waxy",
+  "stalk": "Short to medium, grooved, bristly, green or flushed red",
+  "colour": "Mid to bright green"
+ },
+ "flower": {
+  "form": "A small four-petalled cross",
+  "petals": "Four, free, each a rounded blade on a narrow claw, set in a cross",
+  "colour": "White to pale lilac or pale pink, with fine darker purple veins",
+  "centre": "Six stamens, four long and two short, with yellow anthers, round a green style",
+  "behind": "Four narrow upright sepals, green or purplish, close against the petal claws",
+  "carried": "In loose, lengthening spikes (racemes) at the stem tips, each flower on its own stalk, facing out and up",
+  "size": "1.5 to 2 cm across",
+  "season": "June to September, from bolting plants"
+ },
+ "fruit": "Fat, fleshy, pointed pods 3 to 7 cm long, green then straw-brown, with a long tapering beak, slightly waisted between the seeds and not splitting open. Young pods are edible.",
+ "seedling": "Two broad, heart- to kidney-shaped seed leaves, notched at the tip, on short stalks, bright green; then a first true leaf that is oval, rough-hairy and toothed. Up within 3 to 5 days.",
+ "winter": "Not grown over winter (summer radish); winter radishes stand in the ground into winter.",
+ "palette": {"leaf": "leaf", "flower": "white", "centre": "sun", "fruit": "unripe", "root": "berry"},
+ "must_show": {
+  "leaf": ["lyre-shaped: a large rounded end lobe and small widely spaced lobes lower down", "blunt teeth all round", "bristly hairs on the stalk and veins"],
+  "bloom": ["four rounded petals in a cross", "white to pale lilac with darker purple veins", "narrow upright sepals behind"],
+  "seed": ["a small round to slightly flattened pale brown seed, about 3 mm"],
+  "seedling": ["two broad heart-shaped seed leaves notched at the tip, on short stalks"],
+  "young": ["a small rosette of lobed rough leaves", "a red root top starting to swell at the soil"],
+  "crop": ["a round red root with a white base", "a thin white tail root below", "a short rosette of lobed leaves on top"],
+  "flower": ["a branched leafy stem with loose spikes of pale cross-shaped flowers", "fat green pods forming lower down the spikes"],
+  "seedhead": ["fat, beaked, straw-brown pods, waisted between seeds, not split open"]
+ },
+ "look_alikes": "Wild radish (Raphanus raphanistrum) has a thin root, yellow or white flowers and pods strongly beaded like a necklace. Turnip seedlings look similar but are smoother. Charlock has yellow flowers.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

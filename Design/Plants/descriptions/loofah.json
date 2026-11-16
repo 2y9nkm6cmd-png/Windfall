@@ -1,0 +1,73 @@
+{
+ "kind": "loofah",
+ "name": "Loofah",
+ "latin": "Luffa aegyptiaca",
+ "family": "Cucurbitaceae, the gourd family",
+ "grown_as": "A tender annual climber grown in a greenhouse or polytunnel in the UK, for its fibrous fruit (the bath sponge) or eaten young. Also listed as Luffa cylindrica.",
+ "habit": "A vigorous climbing vine 3 to 5 m or more, stems five-angled and nearly hairless, climbing by branched tendrils (split into 2 to 6 coiling arms). Trained up wires or the roof of a greenhouse so the long fruit hang down.",
+ "leaf": {
+  "arrangement": "Alternate, one at each joint, with a branched tendril beside it",
+  "type": "Simple, palmately lobed",
+  "outline": "Rounded in outline, 15 to 25 cm across, cut into 5 to 7 triangular, pointed lobes, the cuts about a third of the way in",
+  "base": "Deeply heart-shaped",
+  "tip": "Each lobe pointed",
+  "margin": "Small sharp teeth all round",
+  "veins": "Palmate, one main vein into each lobe, prominent beneath",
+  "surface": "Rough above with short stiff hairs, paler beneath",
+  "stalk": "Long (10 to 15 cm), angled",
+  "colour": "Mid to dark green"
+ },
+ "flower": {
+  "form": "A large flat open flower, like a yellow saucer",
+  "petals": "Five, joined only at the very base so they look free, broad and rounded, spreading flat, finely veined",
+  "colour": "Bright clear yellow",
+  "centre": "Male: three to five orange-yellow stamens in a small cluster. Female: a thick three-lobed stigma.",
+  "behind": "Five small pointed green sepals. Females sit on a long, slim, smooth ovary, the young loofah.",
+  "carried": "Males in long-stalked clusters (racemes) of 4 to 20 at the leaf joints, opening a few at a time; females singly on their own stalk at the same joint",
+  "size": "5 to 10 cm across",
+  "season": "July to September under glass"
+ },
+ "fruit": "A long, smooth, cylindrical fruit 30 to 60 cm by 5 to 8 cm, hanging from the vine, green with faint darker lengthways lines, a little thicker toward the far end. As it ripens it turns yellow then brown, the skin goes papery and peels off a dense network of pale fibres inside. Seeds flat, oval, black, about 12 mm, with a thin narrow wing-like rim; they rattle in the dried fruit.",
+ "seedling": "Two smooth, oblong seed leaves; the first true leaf rough and lobed.",
+ "winter": "Nothing: killed by cold. The dried fruit are peeled to make sponges.",
+ "palette": {
+  "leaf": "deep",
+  "flower": "sun",
+  "centre": "amber",
+  "fruit": "marrow"
+ },
+ "must_show": {
+  "leaf": [
+   "a rounded leaf cut into 5 to 7 pointed triangular lobes",
+   "heart-shaped base",
+   "small sharp teeth all round"
+  ],
+  "bloom": [
+   "five broad rounded yellow petals spread flat like a saucer",
+   "a small cluster of stamens in the centre"
+  ],
+  "seed": [
+   "a flat oval black seed",
+   "a thin rim round the edge",
+   "about 12 mm"
+  ],
+  "seedling": [
+   "two smooth oblong seed leaves",
+   "a small rough lobed true leaf"
+  ],
+  "young": [
+   "a climbing vine with leaves cut into 5 to 7 pointed lobes",
+   "branched tendrils with several coiling arms"
+  ],
+  "flower": [
+   "yellow saucer flowers in long-stalked clusters at the joints",
+   "lobed leaves and branched tendrils"
+  ],
+  "crop": [
+   "long smooth green cylindrical fruit hanging down from the vine",
+   "faint lengthways lines on the fruit"
+  ]
+ },
+ "look_alikes": "Angled loofah (Luffa acutangula) has fruit with ten sharp lengthways ridges. Cucumber has smaller flowers with joined petals and unbranched tendrils. Courgette leaves are prickly and its flowers are trumpets, not flat.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

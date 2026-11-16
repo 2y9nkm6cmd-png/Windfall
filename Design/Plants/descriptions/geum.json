@@ -1,0 +1,74 @@
+{
+ "kind": "geum",
+ "name": "Geum",
+ "latin": "Geum quellyon 'Mrs J. Bradshaw' (also sold as Geum chiloense)",
+ "family": "Rosaceae, the rose family",
+ "grown_as": "The garden geum 'Mrs Bradshaw' from seed: a hardy perennial with semi-double scarlet flowers. Not Geum coccineum, which is smaller with single orange-red flowers.",
+ "habit": "A clump of leaves 20 to 30 cm high and about 40 cm across, with thin, wiry, branched, hairy flower stems rising to 40 to 60 cm, the flowers dancing above the leaves.",
+ "leaf": {
+  "arrangement": "A rosette at the base; a few small leaves on the flower stems",
+  "type": "Compound, pinnate in a lyre shape: a very large rounded end leaflet with several pairs of much smaller, uneven leaflets down the stalk, small and tiny ones alternating",
+  "leaflets": "The end leaflet rounded to kidney-shaped, 5 to 10 cm across, shallowly three- to five-lobed; side leaflets small, oval, unequal. Stem leaves small, stalkless, three-lobed.",
+  "outline": "Long and narrow overall, 15 to 30 cm including the stalk, the end leaflet by far the biggest part",
+  "base": "End leaflet heart-shaped to rounded at its base",
+  "tip": "End leaflet rounded",
+  "margin": "Rounded teeth (scalloped) all round every leaflet and lobe",
+  "veins": "End leaflet with several main veins spreading from its base like a hand, pressed in",
+  "surface": "Softly hairy, slightly wrinkled",
+  "stalk": "Hairy, with the small leaflets spaced along it",
+  "colour": "Mid green"
+ },
+ "flower": {
+  "form": "An open bowl to saucer, semi-double",
+  "petals": "About 10 to 15 in two or three rows, free, rounded, slightly wavy",
+  "colour": "Scarlet",
+  "centre": "A green-yellow dome of carpels ringed by many yellow stamens",
+  "behind": "Five green pointed sepals with five tiny extra ones between them, showing behind the petals",
+  "carried": "A few in loose branched sprays at the tops of wiry stems, facing up or out, with round buds",
+  "size": "3 to 4 cm across",
+  "season": "June to August"
+ },
+ "fruit": "A round fluffy head of small hairy seeds, each with a long, hooked tail (the old style), green turning brown. Seeds small, flat, brown, with the bristly hooked tail.",
+ "seedling": "Two small round seed leaves on stalks, then rounded, scalloped first leaves on long stalks",
+ "winter": "A low, semi-evergreen rosette of leaves, the large end leaflets often bronzed.",
+ "palette": {
+  "leaf": "leaf",
+  "flower": "berry",
+  "centre": "primrose",
+  "fruit": "bark"
+ },
+ "must_show": {
+  "leaf": [
+   "a large rounded lobed end leaflet with much smaller uneven leaflets down the stalk",
+   "rounded teeth all round",
+   "softly hairy"
+  ],
+  "bloom": [
+   "semi-double scarlet bowl with two or three rows of rounded petals",
+   "a green-yellow centre ringed by yellow stamens",
+   "green pointed sepals behind"
+  ],
+  "seed": [
+   "small flat brown seeds each with a long hooked tail"
+  ],
+  "seedling": [
+   "two small round seed leaves",
+   "first true leaves rounded and scalloped"
+  ],
+  "young": [
+   "a low rosette of lyre-shaped leaves with big rounded end leaflets"
+  ],
+  "flower": [
+   "thin wiry branched stems holding scarlet flowers well above the leaves",
+   "a rosette of leaves at the base"
+  ],
+  "seedhead": [
+   "round heads of hooked tails on the wiry stems"
+  ],
+  "dormant": [
+   "a low rosette of leaves, some bronzed"
+  ]
+ },
+ "look_alikes": "Wood avens (Geum urbanum), a common weed, has small yellow flowers and three-lobed leaflets. Water avens (Geum rivale) has nodding pink-orange bells. Geum coccineum is smaller with single orange-red flowers. Potentillas have five-fingered leaves.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

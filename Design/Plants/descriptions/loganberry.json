@@ -1,0 +1,45 @@
+{
+ "kind": "loganberry",
+ "name": "Loganberry",
+ "latin": "Rubus × loganobaccus",
+ "family": "Rosaceae, the rose family",
+ "grown_as": "A hybrid berry between blackberry and raspberry, trained on wires. The library also gives this drawing to William's tayberry ('Buckingham', thornless) and tummelberry, which look much the same; tayberry fruit is longer and brighter red.",
+ "habit": "Long, trailing to arching canes, 2 to 3 m, trained on wires. Canes green to reddish, with scattered small prickles (some forms thornless). Canes fruit in their second year then die.",
+ "leaf": {
+  "arrangement": "Alternate",
+  "type": "Compound: three or five leaflets, pinnate like raspberry",
+  "leaflets": "The end leaflet the largest, on its own stalk; side leaflets almost stalkless",
+  "outline": "Each leaflet broadly oval, 5 to 10 cm long",
+  "base": "Rounded",
+  "tip": "Pointed",
+  "margin": "Coarse, sharp, double teeth all round",
+  "veins": "Straight side veins pressed in, so the leaflet looks pleated",
+  "surface": "Rich green above; paler and softly downy beneath, but not white",
+  "stalk": "Long, with small prickles",
+  "colour": "Mid to dark green"
+ },
+ "flower": {
+  "form": "An open flower, larger and flatter than raspberry",
+  "petals": "Five, free, white, oval",
+  "colour": "White",
+  "centre": "Many white stamens round a green dome of pistils",
+  "behind": "Five grey-green downy sepals",
+  "carried": "In small clusters at the ends of the side shoots",
+  "size": "2 to 3 cm across",
+  "season": "May to June"
+ },
+ "fruit": "Long, cone-shaped to cylindrical, 2.5 to 4 cm, of many hairy drupelets; dark red to deep red-purple when fully ripe. Keeps its core when picked. In small hanging clusters, unripe green and red ones beside ripe. July to August.",
+ "seedling": "Not drawn: grown as bought plants",
+ "winter": "Bare canes, green to reddish, tied along wires.",
+ "palette": {"leaf": "leaf", "flower": "white", "centre": "pale", "fruit": "beet"},
+ "must_show": {
+  "leaf": ["three or five leaflets, end leaflet on its own stalk", "broad oval leaflets with coarse double teeth", "pale green beneath, not white"],
+  "bloom": ["five white petals, open", "a ring of white stamens round a green centre"],
+  "young": ["long trailing canes", "leaves of three or five leaflets"],
+  "dormant": ["bare canes tied along wires", "small buds at the nodes"],
+  "flower": ["small clusters of white flowers at the ends of side shoots", "compound leaves"],
+  "crop": ["long cone-shaped dark red fruit hanging in small clusters", "green and red unripe fruit beside the ripe"]
+ },
+ "look_alikes": "Raspberry fruit is round and pulls off its core; its leaves are white beneath. Blackberry fruit ripens black and its leaflets spread from one point. Japanese wineberry is covered in red bristles.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge and iNaturalist photos. ⚠️ CHECK"
+}

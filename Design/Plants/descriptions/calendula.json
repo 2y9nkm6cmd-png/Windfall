@@ -1,0 +1,76 @@
+{
+ "kind": "calendula",
+ "name": "Calendula",
+ "latin": "Calendula officinalis",
+ "family": "Asteraceae, the daisy family",
+ "grown_as": "Pot marigold, a hardy annual sown each spring and often self-seeding. William's library lists 'Art Shades', a mix of soft apricot, peach, orange, cream and gold flowers, mostly double or semi-double. Drawn here in orange, the commonest shade. ⚠️ CHECK the colour William would like drawn.",
+ "habit": "A bushy, branched annual 30 to 60 cm high and about 30 cm across, upright to sprawling. The whole plant is softly hairy, slightly sticky and smells resinous when touched.",
+ "leaf": {
+  "arrangement": "Alternate",
+  "type": "Simple",
+  "outline": "Lower leaves spoon-shaped (widest near the tip), 5 to 15 cm; upper leaves narrower, oblong to lance-shaped",
+  "base": "Lower leaves narrow into a winged stalk; upper leaves stalkless, half-clasping the stem",
+  "tip": "Rounded or bluntly pointed",
+  "margin": "Smooth or with a few small, widely spaced teeth, often slightly wavy",
+  "veins": "A clear pale midrib; side veins faint",
+  "surface": "Soft and slightly sticky with short glandular hairs on both sides; a little fleshy",
+  "stalk": "None, or a short winged stalk on the lowest leaves",
+  "colour": "Pale to mid green"
+ },
+ "flower": {
+  "form": "A flat open daisy head; in 'Art Shades' mostly double or semi-double, with several rows of rays",
+  "petals": "Many strap-shaped ray florets, the tip cut square with two or three tiny teeth",
+  "colour": "Orange (the mix also gives apricot, peach, cream and gold)",
+  "centre": "A disc of small tubular florets, orange, yellow or dark brown; smaller and partly hidden in double flowers",
+  "behind": "One or two rows of narrow, pointed, equal green bracts, sticky-hairy",
+  "carried": "Alone at the tips of the branches on stout stalks that thicken under the head, facing up. Closes at night and in dull weather",
+  "size": "4 to 7 cm across",
+  "season": "June to the first frosts"
+ },
+ "fruit": "A ring of dry, strongly curved seeds where the flower was: the outer ones C-shaped or boat-shaped, knobbly and ridged on the back, the inner ones curled almost into rings. Beige to brown when ripe.",
+ "seedling": "Two oblong, thick, smooth seed leaves with rounded tips. The first true leaves are spoon-shaped, soft and slightly hairy.",
+ "winter": "An annual. In a mild winter some plants survive and flower on; self-sown seedlings may sit through winter as small rosettes.",
+ "palette": {
+  "leaf": "leaf",
+  "flower": "carrot",
+  "centre": "rust",
+  "fruit": "seed"
+ },
+ "must_show": {
+  "leaf": [
+   "simple spoon-shaped to oblong leaf, widest towards the rounded tip",
+   "edge smooth or with a few small far-spaced teeth",
+   "no proper stalk: the base narrows or clasps the stem",
+   "soft, slightly hairy look"
+  ],
+  "bloom": [
+   "many strap-shaped orange rays with square, finely notched tips",
+   "several rows of rays (double or semi-double)",
+   "narrow pointed green bracts behind",
+   "orange or brown centre"
+  ],
+  "seed": [
+   "strongly curved C-shaped seed",
+   "knobbly, ridged back, beige-brown"
+  ],
+  "seedling": [
+   "two oblong smooth-edged seed leaves",
+   "first spoon-shaped true leaf"
+  ],
+  "young": [
+   "bushy branching plant",
+   "alternate spoon-shaped leaves clasping the stem",
+   "buds at the branch tips"
+  ],
+  "flower": [
+   "many flat orange heads, one at each branch tip, held just above the leaves",
+   "low bushy plant 30 to 60 cm"
+  ],
+  "seedhead": [
+   "a ring of curled, hooked brown seeds where the flower was",
+   "rays gone, bracts drying back"
+  ]
+ },
+ "look_alikes": "French and African marigolds (Tagetes) have finely cut leaves, a strong pungent smell, a smooth tube of bracts and straight thin seeds. Field marigold (Calendula arvensis) has heads only 1 to 2 cm across. Corn marigold has lobed blue-green leaves and yellow heads.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. No reference photos had been downloaded for this group yet, so nothing was checked against photographs. ⚠️ CHECK"
+}

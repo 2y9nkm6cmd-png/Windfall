@@ -1,0 +1,48 @@
+{
+ "kind": "lovage",
+ "name": "Lovage",
+ "latin": "Levisticum officinale",
+ "family": "Apiaceae, the carrot family (umbellifers)",
+ "grown_as": "A long-lived perennial herb grown for its strong celery-flavoured leaves",
+ "habit": "A big leafy clump 1.5 to 2 m tall in flower and about 1 m across, from a stout crown. Stems thick, hollow, smooth, hairless, branching above. Strong smell of celery.",
+ "leaf": {
+  "arrangement": "Large leaves from the base; alternate and smaller up the stems",
+  "type": "Compound, two or three times pinnate, with broad leaflets",
+  "leaflets": "Broadly wedge- to diamond-shaped, 3 to 10 cm, often three-lobed",
+  "outline": "The whole leaf triangular to diamond-shaped, up to 60 cm or more",
+  "base": "Leaflets narrowing to an untoothed wedge base",
+  "tip": "Pointed lobes",
+  "margin": "A few coarse irregular teeth and shallow lobes on the upper half of each leaflet only; the lower wedge smooth",
+  "veins": "Pinnate, visible but not deeply pressed in",
+  "surface": "Smooth, hairless and glossy, like celery",
+  "stalk": "Long, stout, green, with a broad sheathing base",
+  "colour": "Dark glossy green; young spring shoots reddish-bronze"
+ },
+ "flower": {
+  "form": "Rounded to flat-topped compound umbels",
+  "petals": "Five tiny petals per flower, incurved",
+  "colour": "Yellow-green",
+  "centre": "Tiny yellowish stamens and a swollen base",
+  "behind": "Several narrow bracts under the umbel and bracteoles under each small umbel, turned down, with pale papery edges",
+  "carried": "At the top of tall stems and branches, facing up, on 12 to 20 rays",
+  "size": "Umbels 8 to 12 cm across",
+  "season": "June to August"
+ },
+ "fruit": "Oblong flattened seeds 5 to 7 mm in pairs, yellowish-brown, with ribs edged by narrow wings",
+ "seedling": "Two long narrow seed leaves, then first true leaves three-lobed and toothed",
+ "winter": "Dies right down to the crown. Reddish-bronze shoots push up in early spring. Dead hollow stems may stand.",
+ "palette": {"leaf": "deep", "flower": "pear", "fruit": "bark"},
+ "must_show": {
+  "leaf": ["large leaf divided two or three times into broad leaflets", "leaflets wedge-based with coarse teeth on the upper half only", "glossy dark green, celery-like"],
+  "bloom": ["yellow-green umbel of 12 to 20 rays", "bracts and bracteoles turned down under the umbels"],
+  "seed": ["oblong flat seed with winged ribs, yellowish-brown"],
+  "seedling": ["two long narrow seed leaves", "first true leaf three-lobed"],
+  "young": ["glossy celery-like leaves on long stalks from the crown"],
+  "crop": ["a big dense clump of glossy dark green divided leaves"],
+  "flower": ["tall stout stems to about 2 m", "yellow-green umbels", "large divided leaves at the base"],
+  "seedhead": ["umbels of brown winged seeds", "tall hollow stems browning"],
+  "dormant": ["nothing above ground or dead stems only", "reddish shoots at the crown in late winter"]
+ },
+ "look_alikes": "Celery has fleshy grooved stalks, smaller greenish-white umbels without bracts and is shorter. Garden angelica (Angelica archangelica) has rounder green umbels and leaflets toothed all round. Alexanders (Smyrnium olusatrum) has leaves in threes and black seeds.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. No UK iNaturalist photos had been downloaded for this group when it was written. ⚠️ CHECK"
+}

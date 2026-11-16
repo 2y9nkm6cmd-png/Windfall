@@ -1,0 +1,46 @@
+{
+ "kind": "broccoli",
+ "name": "Broccoli",
+ "latin": "Brassica oleracea (Italica Group)",
+ "family": "Brassicaceae, the cabbage family",
+ "grown_as": "Calabrese: one large green head cut in summer and autumn, then smaller side shoots. William's records list a green calabrese and 'Cezar'.",
+ "habit": "An upright plant 60 to 90 cm on a thick stem, the leaves round a single domed head of green flower buds 10 to 20 cm across at the top; side shoots follow from the leaf joints. Flowers the same year if not cut.",
+ "leaf": {
+  "arrangement": "Alternate, spiralling up the thick stem",
+  "type": "Simple, often with a few small lobes on the lower part of the blade (lyre-shaped)",
+  "outline": "Long and oblong to obovate, 30 to 50 cm, with one to three pairs of small lobes near the base",
+  "base": "Narrowing into a long stalk, the small lobes running down it",
+  "tip": "Rounded",
+  "margin": "Wavy, irregularly scalloped and slightly frilled, no sharp teeth",
+  "veins": "A thick pale midrib and strong pale side veins",
+  "surface": "Hairless, with a waxy grey bloom",
+  "stalk": "Long, thick and pale",
+  "colour": "Blue-green to grey-green"
+ },
+ "flower": {
+  "form": "A cross-shaped flower of four petals",
+  "petals": "Four, free, broad and rounded with a long narrow claw, spreading flat",
+  "colour": "Pale sulphur yellow",
+  "centre": "Six stamens, four long and two short, with yellow anthers, round a green style",
+  "behind": "Four narrow upright green sepals hugging the petal claws",
+  "carried": "In long, loose spikes on a tall branched stem; the closed buds stay above the open flowers at the top of each spike",
+  "size": "2 to 2.5 cm across",
+  "season": "April to June"
+ },
+ "fruit": "Long, slender pods 5 to 10 cm, cylindrical with slight bumps over the seeds, ending in a short beak 0.5 to 1 cm, spreading upwards along the stems. Green, drying straw-brown and splitting from the bottom to show a pale papery partition. Seeds round, 2 mm, dark red-brown to grey-black.",
+ "seedling": "Two kidney-shaped seed leaves on short stalks, broader than long with a notch at the tip, like a heart with the stalk at its point, waxy grey-green; the first true leaves oval to round on long stalks, waxy blue-green with wavy edges.",
+ "winter": "Nothing: grown as an annual and cleared by winter.",
+ "palette": {"leaf": "sage", "flower": "primrose", "centre": "primrose", "fruit": "straw"},
+ "must_show": {
+  "leaf": ["a long blade with wavy, scalloped edges and small lobes near the base", "a long thick pale stalk and midrib", "waxy blue-green"],
+  "bloom": ["four pale yellow rounded petals in a cross", "narrow upright sepals hugging the claws", "closed buds above the open flowers"],
+  "seed": ["round dark red-brown to grey-black seed 2 mm", "smooth and shiny"],
+  "seedling": ["two kidney-shaped seed leaves notched at the tip", "waxy grey-green"],
+  "young": ["an upright plant of long-stalked waxy blue-green leaves", "no head yet"],
+  "crop": ["one large domed head of tightly packed green flower buds on a thick stem", "long blue-green leaves around it", "the buds tiny and grainy, not a smooth curd"],
+  "flower": ["the head opened out into branching stems", "pale yellow four-petalled flowers", "a few green buds left"],
+  "seedhead": ["long slender pods with short beaks along tall stems", "drying straw-brown"]
+ },
+ "look_alikes": "Cauliflower has a white curd, not separate buds. Sprouting broccoli makes many small loose spears, usually purple. All the cabbage-family crops (cabbage, cauliflower, broccoli, sprouts, kale) are one species and share the waxy blue-green leaf; they differ in what is eaten. Swede and oilseed rape have bluish clasping stem leaves but their young leaves are hairy. Turnip and pak choi (Brassica rapa) have bright yellow flowers held above their buds.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

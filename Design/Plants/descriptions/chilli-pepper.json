@@ -1,0 +1,74 @@
+{
+ "kind": "chilli-pepper",
+ "name": "Chilli pepper",
+ "latin": "Capsicum annuum",
+ "family": "Solanaceae, the nightshade family",
+ "grown_as": "A tender annual (perennial in warmth) grown in a greenhouse or on a windowsill. Fruit shape, size, colour and whether it hangs or points up all depend on the variety, which is not known: drawn as a long tapering red cayenne-type chilli hanging down. ⚠️ CHECK",
+ "habit": "A bushy, branching plant 40 to 90 cm with smooth green stems that fork repeatedly; a flower or fruit sits in each fork.",
+ "leaf": {
+  "arrangement": "Alternate, often appearing in pairs of unequal size near the forks",
+  "type": "Simple",
+  "outline": "Oval to lance-shaped, 4 to 10 cm",
+  "base": "Tapering into the stalk",
+  "tip": "Tapering to a long point",
+  "margin": "Entire, sometimes slightly wavy",
+  "veins": "Pinnate, a pale midrib and 4 to 6 curving pairs of side veins",
+  "surface": "Smooth, hairless and glossy",
+  "stalk": "Slender, 1 to 4 cm",
+  "colour": "Mid to dark green"
+ },
+ "flower": {
+  "form": "A small white star, nodding",
+  "petals": "Five or six, joined at the base, pointed and spreading",
+  "colour": "White to greenish-white (purple in some varieties)",
+  "centre": "Five or six separate stamens with blue-violet anthers",
+  "behind": "A small green cup-shaped calyx with tiny teeth, which stays as a cap on the fruit",
+  "carried": "Singly (sometimes two) on a slender stalk at each fork of the stem or leaf joint, hanging down",
+  "size": "1 to 1.5 cm across",
+  "season": "June to September"
+ },
+ "fruit": "A hollow pod-like berry, here long and narrow, 8 to 15 cm, tapering to a point, often slightly curved or wrinkled, glossy, green ripening to bright red, hanging down from its stalk with a green cup at the top. Seeds flat, round to kidney-shaped, cream-yellow, 3 to 4 mm, clustered on a pale core inside.",
+ "seedling": "Two long, narrow, strap-shaped seed leaves 2 to 3 cm, hairless; the first true leaves simple, oval and glossy.",
+ "winter": "Nothing outdoors; plants can be kept indoors over winter",
+ "palette": {
+  "leaf": "deep",
+  "flower": "white",
+  "centre": "lilac",
+  "fruit": "berry"
+ },
+ "must_show": {
+  "leaf": [
+   "a simple oval to lance-shaped leaf with a long point",
+   "smooth glossy surface",
+   "no teeth"
+  ],
+  "bloom": [
+   "a small white five-pointed star, nodding",
+   "blue-violet anthers in the centre",
+   "small cup-shaped green calyx"
+  ],
+  "seed": [
+   "a flat round to kidney-shaped seed",
+   "cream-yellow, 3 to 4 mm"
+  ],
+  "seedling": [
+   "two long narrow strap-shaped seed leaves",
+   "a small oval glossy first leaf"
+  ],
+  "young": [
+   "a small bushy plant with forking stems",
+   "glossy simple pointed leaves"
+  ],
+  "flower": [
+   "small white nodding flowers",
+   "one at each fork of the stem",
+   "glossy simple leaves"
+  ],
+  "crop": [
+   "long tapering red and green chillies hanging down",
+   "a green cup at the top of each"
+  ]
+ },
+ "look_alikes": "Sweet pepper is the same species with big blocky fruit. Aubergine has felted wavy leaves and violet flowers. Black nightshade (Solanum nigrum) has white flowers with a yellow cone and small black berries.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

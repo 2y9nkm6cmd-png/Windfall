@@ -1,0 +1,47 @@
+{
+ "kind": "chives",
+ "name": "Chives",
+ "latin": "Allium schoenoprasum",
+ "family": "Amaryllidaceae, the daffodil family (onion subfamily)",
+ "grown_as": "Common chives, a hardy perennial herb grown in clumps and cut again and again. One of William's chives records names its variety as 'Garlic': garlic chives are a different plant (Allium tuberosum) with flat leaves and white starry flowers in late summer. These descriptions are for common chives. ⚠️ CHECK: which plant William grows.",
+ "habit": "A dense clump 20 to 40 cm high and 15 to 30 cm across of many fine upright leaves from small narrow bulbs packed together at the soil, with flower heads held at or just above leaf height.",
+ "leaf": {
+  "arrangement": "Many from each small bulb, packed into a dense clump",
+  "type": "Simple, tubular",
+  "outline": "Very thin hollow round tube, 15 to 35 cm by 2 to 4 mm, like a fine drinking straw",
+  "base": "A thin sheath round the bulb",
+  "tip": "Tapering to a fine point",
+  "margin": "Entire",
+  "veins": "Not visible",
+  "surface": "Smooth, hollow, a little waxy",
+  "stalk": "None",
+  "colour": "Mid to dark green, slightly blue-green"
+ },
+ "flower": {
+  "form": "A dense round to slightly egg-shaped pompom of 10 to 30 small upright bell-shaped flowers",
+  "petals": "Six free, narrow, pointed tepals forming an upright bell, papery",
+  "colour": "Pink-purple (mauve), each tepal with a darker purple midvein; rarely white or deep pink",
+  "centre": "Six stamens hidden inside the bell, shorter than the tepals",
+  "behind": "A papery, purplish, two-lobed spathe shorter than the head, under it",
+  "carried": "One head on each slender, smooth, solid stem as tall as the leaves, held upright",
+  "size": "Flowers about 1 cm long; heads 2 to 3 cm across",
+  "season": "May to July"
+ },
+ "fruit": "The heads dry pale papery brown, each flower holding a small three-lobed capsule that splits to show black seeds.",
+ "seedling": "A single thin grass-like seed leaf bent like a hairpin, then very fine hollow leaves, in a tuft.",
+ "winter": "Dies back to the ground in late autumn, leaving the clump of small bulbs at the soil, sometimes with a few dead straw-coloured leaves. New shoots appear in February to March.",
+ "palette": {"leaf": "deep", "flower": "mauve", "centre": "plum", "fruit": "straw"},
+ "must_show": {
+  "leaf": ["a very thin hollow round tube", "no teeth, tapering to a fine point"],
+  "bloom": ["a dense round pompom of many small upright pink-purple bells", "pointed tepals with darker midveins", "a papery spathe below"],
+  "seed": ["a small black angular seed"],
+  "seedling": ["one thin grass-like seed leaf bent like a hairpin, in a fine tuft"],
+  "young": ["a small tuft of very fine hollow leaves"],
+  "crop": ["a dense clump of fine upright hollow leaves", "some cut short and regrowing"],
+  "flower": ["pink-purple pompom heads at about leaf height on slender stems", "the dense clump of fine leaves around them"],
+  "seedhead": ["heads dried to pale papery brown, black seeds showing"],
+  "dormant": ["nothing green: the small bulbs at the soil, a few dead straw leaves"]
+ },
+ "look_alikes": "Garlic chives have flat leaves and white starry flowers. Spring onions and Welsh onions have thicker leaves and white heads. Wild onion (crow garlic) has few leaves and heads mostly of bulbils. Thrift has pink pompoms but solid grass-like leaves and no onion smell.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

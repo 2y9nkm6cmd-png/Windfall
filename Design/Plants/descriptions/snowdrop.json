@@ -1,0 +1,77 @@
+{
+ "kind": "snowdrop",
+ "name": "Snowdrop",
+ "latin": "Galanthus nivalis",
+ "family": "Amaryllidaceae, the daffodil family",
+ "grown_as": "The common snowdrop, naturalised in woods and orchards and planted in gardens. ⚠️ CHECK: William's library lists his snowdrop as Galanthus nivalis with the variety 'woronowii'. Galanthus woronowii is a separate species with broad, glossy, bright green leaves, not the narrow grey-green leaves of G. nivalis. The flowers are almost the same. This description is for G. nivalis; if the plant in the Lower Orchard is G. woronowii the leaf needs changing.",
+ "habit": "Small clumps of single bulbs, 10 to 15 cm high in flower. Each bulb sends up two leaves and one leafless flower stem between them. Clumps spread into drifts over years.",
+ "leaf": {
+  "arrangement": "Two (rarely three) leaves from the base of each bulb, wrapped together at the bottom in a short pale sheath",
+  "type": "Simple, strap-shaped (linear)",
+  "outline": "Long and narrow, 5 to 15 cm at flowering and up to 25 cm later, only 4 to 8 mm wide, the same width almost all the way",
+  "base": "Narrowing a little into the white sheath at soil level",
+  "tip": "Blunt and slightly hooded, often paler and hardened",
+  "margin": "Smooth, no teeth. The two leaves lie flat against each other in bud and come up face to face",
+  "veins": "Fine parallel veins, hardly visible; a faint keel beneath",
+  "surface": "Grey-green with a waxy bloom (glaucous), often a faint paler band down the middle",
+  "stalk": "None: the leaf runs straight down into the sheath",
+  "colour": "Grey-green"
+ },
+ "flower": {
+  "form": "A single hanging white bell, like a drop, with three long outer petals around a short inner cup",
+  "petals": "Six tepals in two rings. Three outer tepals, pure white, oblong and spoon-shaped, 1.5 to 2.5 cm long, hanging down or spreading wide in sun. Three inner tepals half as long, forming a short cup, white with a notch at the tip.",
+  "colour": "White, with green marks",
+  "centre": "Each inner tepal has one green mark like an upside-down V or U over the notch at its tip. Above the petals sits the green, rounded ovary like a small knob.",
+  "behind": "A green, papery spathe (two bracts joined) at the top of the stem, from which the thin flower stalk arches over",
+  "carried": "Alone, one per stem, hanging (nodding) from a hair-thin stalk that arches out of the spathe at the top of a 10 to 15 cm stem",
+  "size": "About 2 to 3 cm long",
+  "season": "January to March"
+ },
+ "fruit": "A rounded green capsule about 1 cm, swelling from the ovary. The stalk weakens and the capsule lies on the ground among the leaves. It splits into three to drop pale seeds with an oily tip that ants carry away. Many plants set little seed and spread by bulb division instead.",
+ "seedling": "Not drawn. A single grass-like seed leaf; takes three to five years to flower.",
+ "winter": "Its main season: leaves and flowers above ground from January. Nothing above ground from late May to December.",
+ "palette": {
+  "leaf": "sage",
+  "flower": "white",
+  "centre": "deep",
+  "fruit": "unripe"
+ },
+ "must_show": {
+  "leaf": [
+   "one narrow strap-shaped leaf, the same width nearly all the way",
+   "blunt slightly hooded tip",
+   "smooth margin, no teeth",
+   "grey-green with a waxy bloom"
+  ],
+  "bloom": [
+   "a single hanging white flower from a hair-thin arching stalk",
+   "three long white outer tepals around a short inner cup",
+   "a green upside-down V mark at the notched tip of each inner tepal",
+   "the green knob of the ovary above the petals and the green spathe above that"
+  ],
+  "bulb": [
+   "a small onion-shaped bulb about 2 cm, with a pointed nose",
+   "thin pale brown papery skin",
+   "a tuft of roots from a flat base"
+  ],
+  "shoots": [
+   "two grey-green leaves coming up pressed together, inside a pale sheath at the soil",
+   "the flower bud wrapped in its green spathe, rising between them"
+  ],
+  "flower": [
+   "two narrow grey-green leaves per bulb, shorter than or level with the flower",
+   "one hanging white flower per stem",
+   "a small clump of several bulbs"
+  ],
+  "seedhead": [
+   "round green capsules where the flowers were, the stalks bent so they rest near the ground",
+   "leaves now longer and starting to flop"
+  ],
+  "dormant": [
+   "nothing above the soil",
+   "the bulb below ground with roots dying back"
+  ]
+ },
+ "look_alikes": "Spring snowflake (Leucojum vernum) has six equal tepals each with a green tip, forming a wide bell, and broad shiny leaves. Giant snowdrop (Galanthus elwesii) has broad grey leaves, one wrapped round the other at the base, and two green marks on each inner tepal. Galanthus woronowii has broad glossy bright green leaves.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

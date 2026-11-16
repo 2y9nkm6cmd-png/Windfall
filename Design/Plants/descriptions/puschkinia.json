@@ -1,0 +1,75 @@
+{
+ "kind": "puschkinia",
+ "name": "Puschkinia",
+ "latin": "Puschkinia scilloides",
+ "family": "Asparagaceae, the asparagus family (the hyacinth group)",
+ "grown_as": "Striped squill. William's is Puschkinia scilloides var. libanotica, the usual garden form.",
+ "habit": "A small plant 10 to 20 cm high: two upright leaves and one flower stem from each bulb, spreading into small clumps.",
+ "leaf": {
+  "arrangement": "Usually two leaves from the base, upright, facing each other and wrapping the flower stem at the bottom",
+  "type": "Simple, strap-shaped",
+  "outline": "10 to 15 cm long by 5 to 15 mm wide, even width",
+  "base": "Wrapping the stem at soil level",
+  "tip": "Blunt",
+  "margin": "Smooth, no teeth",
+  "veins": "Fine parallel veins",
+  "surface": "Smooth, slightly fleshy, a shallow channel along the middle",
+  "stalk": "None",
+  "colour": "Bright mid green"
+ },
+ "flower": {
+  "form": "Small starry bells, opening flat or slightly cupped",
+  "petals": "Six tepals joined at the base into a short tube, pointed oval, spreading",
+  "colour": "Very pale blue to white, each tepal with a clear darker blue stripe down its middle",
+  "centre": "A tiny pale cup (corona) in the middle made by the joined stamen stalks, with yellow anthers inside",
+  "behind": "Small papery bracts, hardly seen",
+  "carried": "Four to ten flowers in a loose spike up the top of the stem, facing out and slightly nodding",
+  "size": "1 to 1.5 cm across",
+  "season": "March to April"
+ },
+ "fruit": "A rounded, three-lobed green capsule about 1 cm, ripening pale brown; the stem flops as it ripens.",
+ "seedling": "Not drawn. A single grass-like leaf.",
+ "winter": "Nothing above ground until late February.",
+ "palette": {
+  "leaf": "leaf",
+  "flower": "white",
+  "centre": "blue",
+  "fruit": "unripe"
+ },
+ "must_show": {
+  "leaf": [
+   "a strap-shaped leaf, blunt tip",
+   "smooth margin, bright green",
+   "fine parallel veins"
+  ],
+  "bloom": [
+   "six pale tepals each with a darker blue stripe down the middle",
+   "a small cup in the centre",
+   "starry, slightly nodding"
+  ],
+  "bulb": [
+   "a small onion-shaped bulb 1 to 2 cm",
+   "brown papery skin",
+   "roots from a flat base"
+  ],
+  "shoots": [
+   "two leaves coming up together, the flower bud between them",
+   "bright green, blunt-tipped strap leaves, short at first"
+  ],
+  "flower": [
+   "two leaves per stem",
+   "a loose spike of four to ten pale striped stars",
+   "a small plant under 20 cm"
+  ],
+  "seedhead": [
+   "round three-lobed pods along a flopping stem",
+   "the two strap leaves starting to yellow"
+  ],
+  "dormant": [
+   "nothing above the soil",
+   "the bulb below ground"
+  ]
+ },
+ "look_alikes": "Glory-of-the-snow (Scilla luciliae, once Chionodoxa) has upturned starry flowers, bluer, with a white eye and no cup. Siberian squill (Scilla siberica) has nodding deep blue bells. Both lack the stripe on each tepal.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

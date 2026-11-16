@@ -1,0 +1,46 @@
+{
+ "kind": "cabbage",
+ "name": "Cabbage",
+ "latin": "Brassica oleracea (Capitata Group)",
+ "family": "Brassicaceae, the cabbage family",
+ "grown_as": "Hearting cabbage. ⚠️ CHECK: William's records list two red ball cabbages ('Red Drumhead', 'Mammoth Red Rock') and a green pointed spring cabbage ('Durham Early'). Drawn as a green round-headed cabbage, the most typical; for red, the leaves would be purple-blue (plum) with a grey bloom.",
+ "habit": "A short, thick stem 10 to 20 cm with a ring of large, spreading outer leaves 50 to 70 cm across round a dense, firm, round head 15 to 20 cm. A biennial: the next spring the head splits and a branched flowering stem rises 1 to 1.5 m.",
+ "leaf": {
+  "arrangement": "Alternate, spiralling on the short stem; the inner leaves folded tightly over each other to make the head",
+  "type": "Simple",
+  "outline": "Outer leaves broad, rounded to obovate, 25 to 40 cm",
+  "base": "Narrowing into a thick stalk; the lower part of the blade sometimes with a few small lobes along the stalk",
+  "tip": "Broadly rounded",
+  "margin": "Smooth to shallowly scalloped and wavy, no sharp teeth",
+  "veins": "A thick pale midrib and strong pale side veins branching out, raised beneath",
+  "surface": "Hairless and smooth, with a waxy grey bloom that makes water bead up; the head leaves smooth and shiny",
+  "stalk": "Thick, pale and short on the outer leaves, none on the head leaves",
+  "colour": "Blue-green to grey-green; the head paler green"
+ },
+ "flower": {
+  "form": "A cross-shaped flower of four petals",
+  "petals": "Four, free, broad and rounded with a long narrow claw, spreading flat",
+  "colour": "Pale sulphur yellow",
+  "centre": "Six stamens, four long and two short, with yellow anthers, round a green style",
+  "behind": "Four narrow upright green sepals hugging the petal claws",
+  "carried": "In long, loose spikes on a tall branched stem; the closed buds stay above the open flowers at the top of each spike",
+  "size": "2 to 2.5 cm across",
+  "season": "April to June"
+ },
+ "fruit": "Long, slender pods 5 to 10 cm, cylindrical with slight bumps over the seeds, ending in a short beak 0.5 to 1 cm, spreading upwards along the stems. Green, drying straw-brown and splitting from the bottom to show a pale papery partition. Seeds round, 2 mm, dark red-brown to grey-black.",
+ "seedling": "Two kidney-shaped seed leaves on short stalks, broader than long with a notch at the tip, like a heart with the stalk at its point, waxy grey-green; the first true leaves oval to round on long stalks, waxy blue-green with wavy edges.",
+ "winter": "Winter and spring varieties stand through the cold as heads; others are cut before winter.",
+ "palette": {"leaf": "sage", "flower": "primrose", "centre": "primrose", "fruit": "straw"},
+ "must_show": {
+  "leaf": ["a broad rounded blade with a wavy, scalloped edge, no sharp teeth", "a thick pale midrib and strong pale side veins", "waxy blue-green"],
+  "bloom": ["four pale yellow rounded petals in a cross", "narrow upright sepals hugging the claws", "closed buds above the open flowers"],
+  "seed": ["round dark red-brown to grey-black seed 2 mm", "smooth and shiny"],
+  "seedling": ["two kidney-shaped seed leaves notched at the tip", "waxy grey-green", "the first true leaf oval on a stalk"],
+  "young": ["a short stem with broad rounded waxy leaves on stalks", "spreading, no head yet"],
+  "crop": ["a firm round head of tightly folded smooth leaves", "a ring of broad spreading blue-green outer leaves with pale veins", "on a short thick stem"],
+  "flower": ["a tall branched flowering stem rising from the split head", "pale yellow four-petalled flowers in long spikes", "small bluish leaves clasping the stem"],
+  "seedhead": ["long slender pods with short beaks along tall stems", "drying straw-brown"]
+ },
+ "look_alikes": "Savoy cabbage has deeply blistered leaves. Kale makes no head. All the cabbage-family crops (cabbage, cauliflower, broccoli, sprouts, kale) are one species and share the waxy blue-green leaf; they differ in what is eaten. Swede and oilseed rape have bluish clasping stem leaves but their young leaves are hairy. Turnip and pak choi (Brassica rapa) have bright yellow flowers held above their buds.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

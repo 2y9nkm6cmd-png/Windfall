@@ -1,0 +1,46 @@
+{
+ "kind": "swiss-chard",
+ "name": "Swiss Chard",
+ "latin": "Beta vulgaris subsp. vulgaris (Flavescens Group)",
+ "family": "Amaranthaceae, the amaranth and goosefoot family",
+ "grown_as": "Leaf beet grown for its big leaves and thick coloured stalks, picked from the outside over a long season. William's records list 'Rainbow Mix': stalks red, pink, orange, yellow or white from plant to plant. Drawn with a mix of stalk colours. ⚠️ CHECK the colours wanted.",
+ "habit": "A big upright rosette 40 to 60 cm tall and 30 to 45 cm across, from a thick crown on a tough taproot (not swollen like beetroot). A biennial: in the second year a leafy, branched flowering stem 1 to 1.5 m.",
+ "leaf": {
+  "arrangement": "A rosette from the crown",
+  "type": "Simple",
+  "outline": "Large, oval to oblong, 20 to 30 cm long",
+  "base": "Rounded to slightly heart-shaped, the blade running a little way down each side of the stalk",
+  "tip": "Blunt, rounded",
+  "margin": "Smooth, no teeth, wavy and often curled",
+  "veins": "A very broad, flat, fleshy midrib 2 to 5 cm wide carrying on straight from the stalk, in the stalk colour; side veins branching from it, often tinted the same colour",
+  "surface": "Glossy and hairless, strongly puckered and blistered between the veins",
+  "stalk": "Thick, fleshy, flattened and crisp, 15 to 30 cm, as wide as a finger or more, glossy red, pink, orange, yellow or white",
+  "colour": "Dark glossy green, or bronze-green over red stalks"
+ },
+ "flower": {
+  "form": "Tiny green star-shaped flowers without petals, in clusters along long thin spikes",
+  "petals": "None: five small green tepals, curved inwards",
+  "colour": "Green, sometimes tinged red",
+  "centre": "Five short stamens with yellow anthers round a low green centre",
+  "behind": "A small narrow green bract under each cluster",
+  "carried": "Stalkless in clusters of two or three, spaced along long, slender, leafy spikes that branch from a tall stem; the spikes arch and droop at the tips",
+  "size": "3 to 5 mm across",
+  "season": "June to August of the second year"
+ },
+ "fruit": "The flowers in each cluster fuse as they ripen into a hard, corky, knobbly 'seed' (a seed ball) 3 to 5 mm across, light brown, holding two to four true seeds. One seed ball sown gives a clump of seedlings.",
+ "seedling": "Seedlings come up in little clumps from each seed ball. Two narrow strap-shaped glossy seed leaves on a stem already coloured red, yellow or white, then oval true leaves on coloured stalks.",
+ "winter": "Often survives a mild winter as a smaller rosette of reddened leaves, growing again in spring before it flowers.",
+ "palette": {"leaf": "deep", "flower": "unripe", "centre": "pear", "fruit": "bark"},
+ "must_show": {
+  "leaf": ["a large glossy, strongly puckered blade with smooth wavy edges", "a very broad flat coloured midrib running on from the stalk", "a thick fleshy coloured stalk"],
+  "bloom": ["tiny green flowers with no petals", "stalkless in small clusters along a thin spike"],
+  "seed": ["a knobbly corky brown seed ball 3 to 5 mm", "several seeds in one, so one sown gives a clump"],
+  "seedling": ["two narrow strap-shaped seed leaves", "a coloured stem (red, yellow or white)", "in a small clump"],
+  "young": ["an upright rosette of glossy puckered leaves", "coloured stalks"],
+  "crop": ["a big upright rosette of large dark puckered leaves", "thick stalks in several colours (red, yellow, white)", "broad coloured midribs"],
+  "flower": ["a tall leafy stem branching into long thin arching spikes", "tiny green flowers along them"],
+  "seedhead": ["long spikes crowded with brown knobbly seed balls", "plant drying brown"]
+ },
+ "look_alikes": "Spinach beet has thin green stalks and smaller, smoother leaves. Rhubarb has red stalks but huge, rough, ragged-edged leaves and is poisonous in leaf. Beetroot leaves are smaller, on a swollen root.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

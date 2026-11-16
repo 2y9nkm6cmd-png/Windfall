@@ -1,0 +1,47 @@
+{
+ "kind": "hogweed",
+ "name": "Hogweed",
+ "latin": "Heracleum sphondylium",
+ "family": "Apiaceae, the carrot family (umbellifers)",
+ "grown_as": "A native wild flower of hedgerows, verges and rough grassland, very popular with insects. Biennial or short-lived perennial. Its sap can cause skin burns in sunlight.",
+ "habit": "A coarse upright plant 1 to 2 m with a thick, ridged, hollow stem covered in stiff downward hairs. Large rough leaves at the base and smaller ones up the stem.",
+ "leaf": {
+  "arrangement": "Large leaves from the base; alternate up the stem",
+  "type": "Compound, once pinnate with 3 to 9 leaflets (often 5)",
+  "leaflets": "Large and broad, 10 to 25 cm, each lobed into 3 to 5 broad lobes; the lowest pair on stalks, the upper ones stalkless",
+  "outline": "Whole leaf up to 60 cm, oblong",
+  "base": "Leaflets rounded or wedge-shaped at the base",
+  "tip": "Lobes pointed",
+  "margin": "Coarsely and irregularly toothed all round the lobes",
+  "veins": "Pinnate, prominent",
+  "surface": "Rough, with stiff hairs on both sides",
+  "stalk": "Hairy, with a broad sheath at the base that wraps the stem",
+  "colour": "Mid green to grey-green"
+ },
+ "flower": {
+  "form": "Large flat-topped compound umbels with a ragged edge",
+  "petals": "Five per flower, deeply notched; on the outer flowers the outward-facing petals are much larger (up to 10 mm)",
+  "colour": "White, sometimes pink-tinged",
+  "centre": "Small pale stamens and a greenish swollen base",
+  "behind": "Few or no bracts; several bristle-like bracteoles",
+  "carried": "At the top of the stem and branches on stout stalks, facing up; 7 to 25 rays",
+  "size": "Umbels 5 to 20 cm across",
+  "season": "May to October"
+ },
+ "fruit": "Flat round to oval seeds 7 to 10 mm in pairs, pale straw with a thin wing round the edge and 2 to 4 dark club-shaped lines running from the top halfway down each face",
+ "seedling": "Two narrow oval seed leaves, then first true leaves rounded to kidney-shaped, lobed and hairy",
+ "winter": "Dead hollow stems with seed umbels stand; some green leaves may remain at the base in a mild winter",
+ "palette": {"leaf": "leaf", "flower": "white", "fruit": "straw"},
+ "must_show": {
+  "leaf": ["once pinnate with a few large broad lobed leaflets", "coarse teeth all round", "rough hairy surface and sheathing stalk"],
+  "bloom": ["large flat umbel of many rays", "outer flowers with much larger notched outer petals", "white"],
+  "seed": ["flat round pale seed with a thin wing", "dark club-shaped lines from the top"],
+  "seedling": ["two narrow oval seed leaves", "first true leaf rounded and lobed"],
+  "young": ["large rough lobed leaves from the base"],
+  "flower": ["thick ridged hairy stem", "large flat white umbels", "broad lobed leaves"],
+  "seedhead": ["umbels of flat pale seeds", "dried ridged stem"],
+  "dormant": ["dead hollow stems standing with old umbels"]
+ },
+ "look_alikes": "Giant hogweed (Heracleum mantegazzianum) is 2 to 5 m tall with purple-blotched stems, huge sharply cut leaves and umbels to 50 cm; it is dangerous. Wild angelica has a smooth purplish stem, finely toothed leaflets and domed umbels. Cow parsley has fine fern-like leaves.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. No UK iNaturalist photos had been downloaded for this group when it was written. ⚠️ CHECK"
+}

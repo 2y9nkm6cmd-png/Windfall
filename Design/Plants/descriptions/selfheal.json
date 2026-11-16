@@ -1,0 +1,76 @@
+{
+ "kind": "selfheal",
+ "name": "Selfheal",
+ "latin": "Prunella vulgaris",
+ "family": "Lamiaceae, the mint family",
+ "grown_as": "A wild perennial of lawns and meadows.",
+ "habit": "A low creeping perennial: leafy stems run along the ground and root, sending up short upright flowering stems 5 to 30 cm, each topped with one dense head. In a mown lawn it flowers at only a few centimetres.",
+ "leaf": {
+  "arrangement": "Opposite pairs on square stems",
+  "type": "Simple",
+  "outline": "Oval, 2 to 5 cm long",
+  "base": "Rounded or narrowing to a short wedge",
+  "tip": "Blunt",
+  "margin": "Smooth or with a few very shallow, wavy teeth",
+  "veins": "A midrib and 3 to 5 side veins each side, a little pressed in",
+  "surface": "Thinly hairy",
+  "stalk": "Lower leaves on stalks 1 to 3 cm; one pair of stalkless leaves sits right under each flower head",
+  "colour": "Mid green, often tinged purple"
+ },
+ "flower": {
+  "form": "A small two-lipped flower: a hooded upper lip over a three-lobed lower lip, the middle lobe fringed",
+  "petals": "Five petals joined into a tube, opening into the two lips",
+  "colour": "Blue-violet, sometimes pinkish or white",
+  "centre": "Hidden under the hood",
+  "behind": "A two-lipped purplish calyx, and under each whorl a broad, rounded, pointed, hairy bract, purple-edged",
+  "carried": "In a dense, squarish, oblong head 2 to 4 cm long at the top of each stem, the flowers in whorls, only a ring or two open at once, sticking out sideways",
+  "size": "Each flower 1 to 1.5 cm long",
+  "season": "June to September"
+ },
+ "fruit": "The head turns brown and keeps its shape, like a small cone, the calyces closing over four nutlets each. Seeds oval, brown, about 1.5 to 2 mm, faintly lined.",
+ "seedling": "Two rounded seed leaves on stalks, then opposite pairs of oval true leaves",
+ "winter": "A low mat of small oval leaves, often purplish, along the creeping stems.",
+ "palette": {
+  "leaf": "leaf",
+  "flower": "lilac",
+  "centre": "plum",
+  "fruit": "bark"
+ },
+ "palette_wish": {
+  "flower": "blue-violet, about #6B55B5"
+ },
+ "must_show": {
+  "leaf": [
+   "oval leaf, smooth or barely toothed",
+   "blunt tip",
+   "on a stalk"
+  ],
+  "bloom": [
+   "a dense squarish head of small hooded blue-violet flowers",
+   "purplish rounded bracts between the whorls"
+  ],
+  "seed": [
+   "small oval brown seeds"
+  ],
+  "seedling": [
+   "two rounded seed leaves",
+   "first true leaves an opposite pair of ovals"
+  ],
+  "young": [
+   "a low mat of opposite oval leaves on creeping stems"
+  ],
+  "flower": [
+   "short upright stems each topped by one dense squarish violet head",
+   "a pair of stalkless leaves just under each head",
+   "low mat of oval leaves"
+  ],
+  "seedhead": [
+   "brown cone-like heads keeping their shape on short stems"
+  ],
+  "dormant": [
+   "a low mat of small oval leaves, often purple-tinged"
+  ]
+ },
+ "look_alikes": "Bugle (Ajuga reptans) has glossy leaves and long runners; its blue flowers sit in whorls up a leafy spike and have no hood. Ground-ivy has kidney-shaped toothed leaves and flowers in the leaf joints. Cut-leaved selfheal (Prunella laciniata) is creamy white with cut leaves.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

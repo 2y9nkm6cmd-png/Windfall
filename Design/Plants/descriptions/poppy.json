@@ -1,0 +1,75 @@
+{
+ "kind": "poppy",
+ "name": "Poppy",
+ "latin": "Papaver rhoeas",
+ "family": "Papaveraceae, the poppy family",
+ "grown_as": "The wild common poppy, a hardy annual of disturbed ground. William's library also has a poppy from Bristol Botanic Garden whose species is not given. ⚠️ CHECK what the Bristol Botanic Garden poppy is.",
+ "habit": "A branched annual 30 to 60 cm tall, the stems and stalks covered in stiff spreading hairs; a leafy base with long, thin, wavering flower stalks above. All parts bleed white milky sap when cut.",
+ "leaf": {
+  "arrangement": "A loose rosette at first, then alternate up the stem",
+  "type": "Simple but deeply cut: pinnately divided almost to the midrib into narrow, toothed lobes",
+  "outline": "Oblong to lance-shaped overall, 5 to 15 cm long",
+  "base": "Lower leaves narrow into a stalk; upper leaves stalkless",
+  "tip": "The end lobe longer and pointed",
+  "margin": "Each lobe edged with coarse, sharp, bristle-tipped teeth",
+  "veins": "A clear midrib running up the middle with a vein into each lobe",
+  "surface": "Bristly hairy, dull",
+  "stalk": "Lower leaves stalked, upper ones without",
+  "colour": "Mid green, slightly greyish"
+ },
+ "flower": {
+  "form": "A large open bowl of four papery, crumpled-looking petals",
+  "petals": "Four, free, very broad and rounded, overlapping: two large outer ones and two slightly smaller inner ones",
+  "colour": "Scarlet, often with a black blotch at the base of each petal",
+  "centre": "A flat-topped green seed box with a disc of 8 to 12 dark rays on top, ringed by a mass of dark purple-black stamens",
+  "behind": "No sepals show: the two hairy sepals fall as the flower opens",
+  "carried": "Alone at the top of a long, thin, hairy stalk; the hairy bud hangs down, then the stalk straightens and the flower faces up",
+  "size": "5 to 10 cm across",
+  "season": "June to August"
+ },
+ "fruit": "A smooth hairless capsule, round to broadly egg-shaped, 1 to 2 cm, with a flat lid of 8 to 12 rays; green ripening grey-brown, shaking out seed from a ring of small holes under the lid. Seeds tiny (about 1 mm), kidney-shaped, dark grey to black, with a fine net pattern.",
+ "seedling": "Two narrow strap-shaped, greyish seed leaves, then small spoon-shaped first leaves that soon become lobed and toothed",
+ "winter": "None: an annual. Autumn-sown seedlings sit as small rosettes over winter.",
+ "palette": {
+  "leaf": "leaf",
+  "flower": "berry",
+  "centre": "dark",
+  "fruit": "seed"
+ },
+ "palette_wish": {
+  "flower": "bright scarlet, about #E2302A"
+ },
+ "must_show": {
+  "leaf": [
+   "leaf deeply cut into narrow toothed lobes along a midrib",
+   "bristly hairs",
+   "end lobe pointed"
+  ],
+  "bloom": [
+   "four broad overlapping scarlet petals forming a bowl",
+   "black blotches at the petal bases",
+   "a green seed box with a rayed lid ringed by dark stamens"
+  ],
+  "seed": [
+   "tiny kidney-shaped dark grey seeds"
+  ],
+  "seedling": [
+   "two narrow strap-shaped seed leaves",
+   "first true leaves spoon-shaped, starting to lobe"
+  ],
+  "young": [
+   "a loose rosette of deeply cut, toothed, hairy leaves"
+  ],
+  "flower": [
+   "single scarlet flowers on long thin hairy stalks",
+   "a nodding hairy bud",
+   "cut leaves low down"
+  ],
+  "seedhead": [
+   "round smooth capsules with a flat rayed lid on tall thin stalks",
+   "grey-brown when ripe"
+  ]
+ },
+ "look_alikes": "Long-headed poppy (Papaver dubium) is paler orange-red without black blotches and has a long narrow capsule. Prickly poppy and rough poppy have bristly capsules. Opium poppy is grey and hairless with clasping leaves and big lilac or white flowers.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

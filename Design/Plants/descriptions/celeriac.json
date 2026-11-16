@@ -1,0 +1,47 @@
+{
+ "kind": "celeriac",
+ "name": "Celeriac",
+ "latin": "Apium graveolens var. rapaceum",
+ "family": "Apiaceae, the carrot family",
+ "grown_as": "Celeriac, a biennial grown as an annual for its swollen stem base, sown under cover in early spring and lifted in autumn and winter. Varieties differ little in look.",
+ "habit": "Year 1: a spreading rosette of glossy leaves 40 to 60 cm high from the top of a knobbly round swelling 8 to 15 cm across that sits half above the soil, with a dense tangle of roots beneath. Year 2: a branched, grooved flowering stem 60 to 100 cm.",
+ "leaf": {
+  "arrangement": "A rosette from the top of the swelling",
+  "type": "Compound: once pinnate, with 2 to 4 pairs of leaflets and one at the end (as celery)",
+  "leaflets": "Leaflets on short stalks or none, set well apart; each broad, roughly diamond- to wedge-shaped and deeply cut into three lobes",
+  "outline": "Whole leaf 20 to 40 cm; leaflets 3 to 6 cm, broadly wedge- to diamond-shaped",
+  "base": "Leaflets wedge-shaped at the base; leaf stalk widening into a sheath",
+  "tip": "Each lobe blunt to pointed",
+  "margin": "Lobed, the lobes coarsely toothed on their outer half; the wedge-shaped base untoothed",
+  "veins": "Fine, netted, not deeply sunken",
+  "surface": "Smooth, hairless and glossy; strong smell of celery when crushed",
+  "stalk": "Long, ribbed, solid to slightly hollow, thinner than celery's, green",
+  "colour": "Dark glossy green"
+ },
+ "flower": {
+  "form": "Small, loose compound umbels of tiny flowers",
+  "petals": "Five free, tiny petals, tips rolled in",
+  "colour": "Greenish-white to dull white",
+  "centre": "Five stamens and a small swollen disc",
+  "behind": "No bracts or bracteoles",
+  "carried": "Small umbels with 4 to 12 short unequal spokes, on very short stalks or none, set opposite the leaves along the stems as well as at the tips",
+  "size": "Flowers about 1 mm; umbels 2 to 5 cm across",
+  "season": "June to August of the second year"
+ },
+ "fruit": "Tiny round to oval paired seeds about 1.5 mm, ridged, brown, aromatic.",
+ "seedling": "Two small oval seed leaves on short stalks, then first true leaves rounded and three-lobed with toothed edges. Very slow and small at first.",
+ "winter": "Hardy to moderate frost; often left in the ground under straw or a mulch, the outer leaves dying back to a tuft of small inner leaves.",
+ "palette": {"leaf": "deep", "flower": "white", "centre": "pear", "fruit": "bark", "root": "seed"},
+ "must_show": {
+  "leaf": ["once pinnate: pairs of broad lobed leaflets along one stalk and one at the end", "leaflets wedge-shaped at the base, three-lobed and toothed on their outer half", "glossy dark green"],
+  "bloom": ["small loose umbels of tiny greenish-white flowers", "no bracts", "umbels on very short stalks"],
+  "seed": ["a tiny round ridged brown seed, about 1.5 mm"],
+  "seedling": ["two small oval seed leaves", "first true leaves rounded, three-lobed and toothed"],
+  "young": ["a rosette of glossy pinnate leaves", "the stem base starting to swell at the soil"],
+  "crop": ["a round knobbly cream-brown swelling sitting half above the soil", "a dense tangle of roots underneath it", "leaf stalks rising from its top, scars of old leaves on its shoulders"],
+  "flower": ["a branched grooved stem", "many small greenish-white umbels set along the stems"],
+  "seedhead": ["small umbels of tiny brown seeds on short spokes"]
+ },
+ "look_alikes": "Celery is the same species grown for its thick leaf stalks, without the swelling. Wild celery grows by the sea. Parsnip leaves are hairy and dull, its flowers yellow. Fool's water-cress has once pinnate leaves too, but lives in water.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

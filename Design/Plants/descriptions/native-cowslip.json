@@ -1,0 +1,73 @@
+{
+ "kind": "native-cowslip",
+ "name": "Native Cowslip",
+ "latin": "Primula veris",
+ "family": "Primulaceae, the primrose family",
+ "grown_as": "The wild cowslip, a hardy perennial of meadows and banks.",
+ "habit": "A low rosette of leaves 10 to 20 cm across, sending up in spring one or more leafless, downy stalks 10 to 30 cm tall, each topped by a drooping cluster of flowers.",
+ "leaf": {
+  "arrangement": "A rosette at the base",
+  "type": "Simple",
+  "outline": "Oblong-oval, 5 to 15 cm long",
+  "base": "Narrows suddenly into a broad winged stalk (more abruptly than a primrose)",
+  "tip": "Blunt, rounded",
+  "margin": "Shallow, irregular, rounded teeth, the edge often crinkled or wavy",
+  "veins": "A network deeply pressed in from above, raised beneath, making the leaf wrinkled",
+  "surface": "Wrinkled, finely downy, especially beneath",
+  "stalk": "A broad winged stalk about as long as the blade or shorter",
+  "colour": "Mid green, paler beneath"
+ },
+ "flower": {
+  "form": "A small cup-shaped bell that does not open flat, hanging from the top of the stalk",
+  "petals": "Five, joined into a tube; the five short lobes cupped, each with a small notch",
+  "colour": "Deep yellow with an orange spot at the base of each lobe",
+  "centre": "Five orange spots round a small throat",
+  "behind": "A large, pale green, inflated bell-shaped calyx with five short teeth, half hiding the tube",
+  "carried": "In a one-sided, drooping cluster (umbel) of 10 to 30 flowers at the top of a leafless downy stalk",
+  "size": "Each flower 1 to 1.5 cm across the mouth",
+  "season": "April to May"
+ },
+ "fruit": "An egg-shaped capsule inside the persistent pale calyx, which turns papery and straw-brown; the cluster turns upright as it ripens. Seeds small (1 to 2 mm), dark brown, angular and warty.",
+ "seedling": "Two tiny round seed leaves, then small spoon-shaped wrinkled first leaves forming a rosette",
+ "winter": "A small rosette of a few wrinkled leaves at the soil, or just resting buds in hard winters.",
+ "palette": {
+  "leaf": "leaf",
+  "flower": "sun",
+  "centre": "carrot",
+  "fruit": "straw"
+ },
+ "must_show": {
+  "leaf": [
+   "oblong-oval leaf narrowing suddenly into a winged stalk",
+   "deeply wrinkled surface",
+   "blunt tip, shallow crinkled teeth"
+  ],
+  "bloom": [
+   "small cup-shaped deep yellow flower, not flat",
+   "orange spots at the base of the lobes",
+   "pale green inflated calyx"
+  ],
+  "seed": [
+   "small dark brown angular seeds"
+  ],
+  "seedling": [
+   "two tiny round seed leaves",
+   "first true leaves spoon-shaped and wrinkled"
+  ],
+  "young": [
+   "a low rosette of wrinkled oblong leaves"
+  ],
+  "flower": [
+   "a leafless downy stalk from the rosette",
+   "a drooping one-sided cluster of yellow cups at the top"
+  ],
+  "seedhead": [
+   "upright clusters of pale papery calyces on bare stalks"
+  ],
+  "dormant": [
+   "a small rosette of a few wrinkled leaves at the soil"
+  ]
+ },
+ "look_alikes": "Primrose (Primula vulgaris) has pale yellow flat flowers each on its own stalk from the rosette and leaves that taper gradually. Oxlip (Primula elatior) and the common false oxlip hybrid have larger, paler, flatter flowers without orange spots or with faint ones.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+}

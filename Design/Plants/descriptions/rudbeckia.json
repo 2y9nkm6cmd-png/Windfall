@@ -1,0 +1,76 @@
+{
+ "kind": "rudbeckia",
+ "name": "Rudbeckia",
+ "latin": "Rudbeckia hirta",
+ "family": "Asteraceae, the daisy family",
+ "grown_as": "Black-eyed Susan, a short-lived perennial usually grown as an annual from seed. William's library lists 'Toto': a dwarf about 30 cm high with bright golden-yellow flowers about 8 cm across and a chocolate-brown cone.",
+ "habit": "A compact, bushy plant 25 to 40 cm high in 'Toto' (the species to 90 cm), the stems and leaves rough with stiff white hairs. Flowers nearly cover the leaves in late summer.",
+ "leaf": {
+  "arrangement": "A rosette of basal leaves in the first months, then alternate up the stems",
+  "type": "Simple",
+  "outline": "Basal leaves oval to spoon-shaped, 5 to 15 cm; stem leaves lance-shaped and smaller",
+  "base": "Basal leaves narrow into a winged stalk; stem leaves stalkless",
+  "tip": "Pointed to blunt",
+  "margin": "Smooth or with a few shallow, widely spaced teeth",
+  "veins": "A strong midrib with two or three main veins rising from near the base",
+  "surface": "Very bristly-hairy and rough to the touch on both sides",
+  "stalk": "Winged stalk on basal leaves; none on stem leaves",
+  "colour": "Mid green"
+ },
+ "flower": {
+  "form": "A single daisy with a raised dark dome in the middle",
+  "petals": "About 10 to 20 broad, strap-shaped ray florets in one row, the tip with two or three small notches, spreading flat or drooping a little",
+  "colour": "Bright golden yellow",
+  "centre": "A raised dome (low cone) of tiny dark florets, 1.5 to 2 cm across, chocolate to purple-brown, with a ring of yellow pollen where florets are open",
+  "behind": "Two or three rows of green, leafy, bristly-hairy bracts, spreading or turned back",
+  "carried": "Alone on stiff hairy stalks at the tips of the stems, facing up",
+  "size": "6 to 8 cm across",
+  "season": "July to October"
+ },
+ "fruit": "The rays fall and the cone stays on the bare stalk, growing a little taller and turning dark brown and dry. Seeds tiny, black, narrow and four-angled, with no fluff.",
+ "seedling": "Two small oval seed leaves on short stalks. The first true leaves are oval, hairy and form a small rosette.",
+ "winter": "Often dies after flowering. Plants that survive keep a flat rosette of hairy oval leaves at the soil. ⚠️ CHECK whether William's plants come back.",
+ "palette": {
+  "leaf": "leaf",
+  "flower": "sun",
+  "centre": "dark",
+  "fruit": "dark"
+ },
+ "must_show": {
+  "leaf": [
+   "simple lance-shaped to oval leaf",
+   "smooth edge or a few shallow teeth",
+   "covered in stiff bristly hairs",
+   "basal leaves on winged stalks"
+  ],
+  "bloom": [
+   "one row of broad golden-yellow rays with notched tips",
+   "raised dark brown dome in the middle",
+   "hairy green bracts showing behind"
+  ],
+  "seed": [
+   "tiny, black, narrow, four-angled seed",
+   "no fluff"
+  ],
+  "seedling": [
+   "two small oval seed leaves",
+   "first hairy oval true leaf"
+  ],
+  "young": [
+   "low rosette of hairy oval leaves, then short leafy stems"
+  ],
+  "flower": [
+   "compact dwarf plant about 30 cm",
+   "covered in golden flowers with dark domed centres"
+  ],
+  "seedhead": [
+   "rays gone",
+   "dark brown cone left on a bare stalk"
+  ],
+  "dormant": [
+   "flat rosette of hairy oval leaves at the soil, or only dead stems with dark cones"
+  ]
+ },
+ "look_alikes": "Rudbeckia fulgida is a spreading perennial with smaller heads and less hairy leaves. Echinacea has purple-pink drooping rays and a spiny orange-brown cone. Sunflower has a broad flat disc, not a dome, and big heart-shaped leaves. Gaillardia has rays banded red and yellow.",
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. No reference photos had been downloaded for this group yet, so nothing was checked against photographs. ⚠️ CHECK"
+}
