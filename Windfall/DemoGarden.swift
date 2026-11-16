@@ -112,6 +112,16 @@ enum DemoGarden {
         return SeedPacketStart(rawValue: way)
     }
 
+    /// A checking aid for the packet reader: `-demoPacketPhoto` and the
+    /// path of a picture file. The scan sheet then reads that picture
+    /// as the back of a packet as soon as it opens, with no tap. Used
+    /// with `-demoSeed -demoSeedAdd library`. In the simulator the path
+    /// is a path on the Mac, such as the test packet's `back.jpg`.
+    static var packetPhoto: Data? {
+        guard isRequested, let path = UserDefaults.standard.string(forKey: "demoPacketPhoto") else { return nil }
+        return FileManager.default.contents(atPath: path)
+    }
+
     /// True when the app was also started with `-demoWeatherDay`, which
     /// opens one day of weather in place of the Gardens page.
     static var opensWeatherDay: Bool {

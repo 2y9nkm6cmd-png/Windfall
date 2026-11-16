@@ -1,3 +1,31 @@
+# 15 November 2026, 22:26: the seed packet reader rewritten, and the scan sheet takes the front and the back
+
+**By the "packet reader" chat, started from William's phone. Written in Claude's cloud workspace: not built in Xcode and not seen running.** William, 21:57: "Improve the seed packet reader, doc 114". On the branch `packet-reader-rules`, from `main` at `becc0c9`. **Put into `main` on 16 November at 06:50, at William's word ("Add this in to main so that it publishes on next issue of app"), before any build.** The scan sheet is SwiftUI, which only a Mac can build, so **the next chat to build `main` is the first to compile `SeedPacketScanner.swift` as it now is.** If that build fails there, the fault is in this change: put it right in that file, not by undoing the reader. The logic in `PacketReading.swift` and `Parsing.swift` is fully type-checked and tested.
+
+**Why.** William's first real packet (Linaria 'Fairy Bouquet Mixed', Country Value) filled 4 of about 16 things, 3 of them wrongly (doc 114, `Design/Reference/seed-packets`).
+
+**What changed.**
+
+- **New `PacketReading.swift`** (a logic file, tested). Everything that decides what a packet's words mean, moved out of `SeedPacketScanner.swift` and rewritten. It is handed `PacketLine`s (words, confidence, place on the photo, side) and hands back `PacketFinding`s, at most one for each `PacketField`.
+  - Lines are joined back into sentences (`sentences(from:)`), so "Seedlings appear" / "14-21 days." is one sentence.
+  - The headings SOW, CARE, FLOWERS, HARVEST say what a block is about (`giveHeadings`). A heading may stand above its block or, as on Country Value, beside it and be read after it. Both ways are tried and the one that suits more sentences wins. Where the lines' places are known and the headings stand to the left, the places decide.
+  - Months go with the doing word before them in the sentence (sow, plant out, flowers, harvest), so one sentence can give two fields. A place word (indoors, outdoors) may come before its months or after them: "Sow October to November under glass or March to April outdoors". A heading printed on the same line as its words ("Harvest: July to October") is read as a heading. "sow" is matched as a whole word, not inside "sowings". "Sow by DEC 2028" is not a sowing month.
+  - New rules: variety, life cycle, sun, soil, sowing depth in words, spacing between rows, thinning, height, sowing again, sow-by month, supplier, barcode (with its check digit), Latin name only in brackets or on a line of its own.
+  - The name is the line that names a plant in the library, or failing that the tallest writing, front before back. A packet with nothing but slogans gives no name.
+  - `recordText(for:shown:)` turns what the sheet shows into the library's way: months `mar apr may`, spacing in metres, depth in millimetres. `note(for:on:)` puts what has no box (rows, sowing again, barcode) in the packet's note.
+- **`Parsing.swift`, `MonthParser`.** Reads a text a piece at a time (`spans(in:)`), so "March to May and August to September" keeps April. Month names are matched as whole words, so "Marjoram" is no longer March, and "may" the everyday word is not May. Every text in `StarterData.json` that holds real months reads as it did before (2,000 texts compared, old reader against new).
+- **`SeedPacketScanner.swift`.** The scanner hands Vision's lines, with their places, to `PacketReading`, and also asks Vision for a barcode (`VNDetectBarcodesRequest`). The sheet has a section for the back and one for the front, each with Photograph and Choose a photo, read into one list, and each row says which side it was read from. A row unticked or corrected is kept when the other side is read.
+- **"Which plant?"** A name that is not in the library says so and offers "Add ... as a new plant". Save waits for a tick: one of your plants, or the new one. Before, any unmatched name silently became a new plant on Save. A plant ticked by the reader only when there is no doubt (same name and variety, or one plant of that name with no variety).
+- **Save** writes through `PlantFacts.write`, so the boxes filled are noted as changed by hand, fills only empty boxes, and now also fills classification, sun or shade, soil, flowering and height. The packet gets its variety, supplier and sow-by date (the last day of the month, `lastDay(ofMonth:year:)`).
+- **A checking aid:** `-demoGarden -demoSeed -demoSeedAdd library -demoPacketPhoto <path to a picture>` opens the sheet and reads that picture as the back, with no tap.
+
+**Nothing saved has changed.** No record has a new field, so no database check is needed. The photos are not kept with the packet: that would need a new field.
+
+**⚠️ CHECK, Claude's choices.** The list of 28 UK suppliers (`PacketReading.suppliers`). "Sunny" written as "Full sun". "Hardy annual" into Classification, not Hardiness (doc 114 said hardiness). A new plant is given the type "Seeds". The camera still opens on the back when the sheet is started from the Seed page. Latin name left empty for Linaria.
+
+**Checked.** `Tools/checks/run-checks.sh` with Swift 6.3.1 for Linux: 137 files parse, the type check passes, cross-file checks clean, **1,021 logic tests pass** (40 new: the Linaria packet's lines, a carrot packet with headings above, front and back with sizes, headings placed beside, and the small parts).
+
+**Not checked.** Any build in Xcode. The sheet on any device. Vision's places and sizes for real lines (the name by size and the headings by place rest on these). The barcode request. A real front.
 # 15 November 2026, 22:08: swipe a sighting to delete it, your own plant by English name, an old sighting's place from its photo, and the Species tile
 
 **By the "iPad changes" chat.** `a525a93`, on `main`. William, 22:02 to 22:05, from the iPad.
