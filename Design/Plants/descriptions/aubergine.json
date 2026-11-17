@@ -3,8 +3,8 @@
  "name": "Aubergine",
  "latin": "Solanum melongena",
  "family": "Solanaceae, the nightshade family",
- "grown_as": "A tender annual grown in a greenhouse or warm sunny spot in the UK. Most varieties have dark purple oval fruit; some are white, striped or long and thin. Drawn as the usual dark purple oval kind. ⚠️ CHECK",
- "habit": "A bushy upright plant 60 to 90 cm, with branching, slightly woody, grey-felted stems, sometimes with a few prickles.",
+ "grown_as": "A tender annual grown in a greenhouse or a warm sunny spot. William grows 'Pinstripe' (AG 6), a compact variety. ⚠️ CHECK",
+ "habit": "A compact bushy upright plant 50 to 70 cm, with branching, slightly woody, grey-felted stems, sometimes with a few prickles.",
  "leaf": {
   "arrangement": "Alternate",
   "type": "Simple",
@@ -27,14 +27,14 @@
   "size": "3 to 5 cm across",
   "season": "July to September"
  },
- "fruit": "A large, glossy, oval to teardrop berry 10 to 20 cm, deep purple-black, hanging from the stem. The big green, felted, often prickly calyx covers its top like a cap. Seeds small, flat, rounded, pale buff, about 3 mm.",
+ "fruit": "'Pinstripe': small, glossy, oval to finger-shaped fruit 5 to 10 cm, purple striped with white, several to a plant, hanging from the stem. The big green, felted, often prickly calyx covers its top like a cap. Seeds small, flat, rounded, pale buff, about 3 mm. ⚠️ CHECK",
  "seedling": "Two oval seed leaves, broader and rounder than a tomato's; the first true leaf simple, oval and grey-felted.",
  "winter": "Nothing: killed by cold",
  "palette": {
   "leaf": "sage",
   "flower": "lilac",
   "centre": "sun",
-  "fruit": "veg_aubergine"
+  "fruit": "plum"
  },
  "palette_wish": {
   "fruit": "glossy deep purple-black, about #3B1E40"
@@ -68,10 +68,11 @@
    "big grey-green leaves"
   ],
   "crop": [
-   "glossy dark purple oval fruit hanging down, each with a green calyx cap",
+   "small glossy oval to finger-shaped fruit, purple striped with white, hanging down",
+   "a green calyx cap on each",
    "big grey-green leaves"
   ]
  },
  "look_alikes": "Potato and tomato flowers have the same stamen cone but smaller and the leaves are pinnate. Chilli pepper has smooth, glossy, untoothed leaves and white flowers.",
- "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK Palette fruit changed from plum to veg_aubergine on 16 November 2026 (veg redraw): the colour its palette_wish asked for, added as veg_aubergine."
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK Palette fruit changed from plum to veg_aubergine on 16 November 2026 (veg redraw): the colour its palette_wish asked for, added as veg_aubergine. Palette fruit changed from veg_aubergine to plum: 'Pinstripe' is a lighter purple with white stripes, not purple-black. Settled from William's spreadsheet, 17 November 2026."
 }

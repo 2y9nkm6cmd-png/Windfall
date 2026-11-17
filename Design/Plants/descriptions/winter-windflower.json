@@ -31,7 +31,7 @@
  "seedling": "Not drawn. Two small oval seed leaves, then a three-lobed leaf.",
  "winter": "Nothing above ground until February.",
  "palette": {
-  "leaf": "deep",
+  "leaf": "marrow",
   "flower": "bulbs_rose",
   "centre": "sun",
   "fruit": "unripe"
@@ -73,5 +73,5 @@
   ]
  },
  "look_alikes": "Wood anemone (Anemonoides nemorosa) has six or seven broader white tepals and leaves less finely cut. Anemone apennina is very similar but its leaves are hairy beneath. Lesser celandine has glossy heart-shaped leaves and yellow flowers.",
- "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK Palette flower set to bulbs_rose on 17 November 2026 (bulbs redraw): the rose-pink asked for in palette_wish."
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK Palette flower set to bulbs_rose on 17 November 2026 (bulbs redraw): the rose-pink asked for in palette_wish. Palette leaf set to marrow on 17 November 2026 after the independent check: 'deep' drew it mid green, and the leaves are dark green."
 }

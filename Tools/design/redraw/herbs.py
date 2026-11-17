@@ -54,10 +54,11 @@ So this file draws each herb's own parts, in four steps.
    flat_head()). The seeds and seedlings are drawn here too: basil's seed
    leaves with kidney(), wider than long.
 
-4. COLOURS. Four new ones, asked for in the descriptions: herbs_violet
-   (hyssop's deep violet-blue), herbs_lavender (lavender's violet-purple),
-   herbs_salvia (sage's violet-lilac) and herbs_silver (wormwood's silvery
-   leaves). Each has a light and a dark-mode value.
+4. COLOURS. Three new ones, asked for in the descriptions: herbs_lavender
+   (lavender's violet-purple), herbs_salvia (sage's violet-lilac) and
+   herbs_silver (wormwood's silvery leaves). Each has a light and a
+   dark-mode value. (Hyssop had a violet-blue of its own until William's
+   spreadsheet showed his is pink 'Roseus', 17 November.)
 
 Everything that could not be put fully right is listed, with why, in the
 results file that went with this work.
@@ -71,7 +72,6 @@ BASE = (20, 92)    # where a close-up leaf's stalk starts, as in leaves_flowers.
 ANG = -52          # the way a close-up leaf points
 
 COLOURS = {
-    "herbs_violet":   ("#5B4FB8", "#8379D6"),   # hyssop: deep violet-blue
     "herbs_lavender": ("#7D62B5", "#9C84D2"),   # lavender: violet-purple
     "herbs_salvia":   ("#9A86D6", "#8E7CCB"),   # sage: violet-lilac
     "herbs_silver":   ("#C9D0C2", "#8C978A"),   # wormwood: silvery grey-green
@@ -802,7 +802,7 @@ def shoot_with(a, sp, q, us, L, W, fill, pf, spread=48, tufts=False, **kw):
 
 
 def fl_hyssop(a, sp):
-    """Hyssop: deep violet-blue two-lipped flowers with long stamens sticking
+    """Hyssop ('Roseus'): pink two-lipped flowers with long stamens sticking
     well out, in clusters in the upper leaf joints, together a dense spike,
     the flowers mostly turned to one side; narrow leaves right up to it."""
     fc = sp["fc"]; lc = sp.get("lc", "deep")
@@ -1021,7 +1021,7 @@ LEAFX = {
                   veins=5, vang=0.2, pucker=True, gloss=True, cup=True),
 }
 BLOOMX = {
-    "hyssop": dict(kind="herbs_hyssop", fc="herbs_violet", lc="marrow", calc="plum"),
+    "hyssop": dict(kind="herbs_hyssop", fc="pink", lc="marrow", calc="plum"),   # pink: 'Roseus', settled 17 November
     "lavender": dict(kind="herbs_lavender", fc="herbs_lavender", calc="plum", stemc="sage"),
     "rosemary": dict(kind="herbs_rosemary", fc="blue", cen="plum", lc="marrow", calc="leaf"),
     "sage": dict(kind="herbs_sage", fc="herbs_salvia", calc="plum", stemc="sage"),
@@ -1681,7 +1681,7 @@ def shrub_leaves(a, qs, draw, L, us=None, spread=48, cross=False, tip=True, tuft
 
 
 def hyssop_stages():
-    k = "hyssop"; fc = pal(k).get("flower", "herbs_violet"); lc = pal(k).get("leaf", "deep")
+    k = "hyssop"; fc = pal(k).get("flower", "pink"); lc = pal(k).get("leaf", "deep")
     D = narrow_draw(lc, 0.2, "hyssop")
     T_ = lambda a, x, y, ang, L: nleaf(a, x, y, ang, L, L * 0.3, lc, "hyssop", mid=False, lw=0.5, shade=0)
 

@@ -32,7 +32,7 @@
  "winter": "Nothing above ground until the fat shoots appear in February or March.",
  "palette": {
   "leaf": "leaf",
-  "flower": "rust",
+  "flower": "bulbs_orangered",
   "centre": "white",
   "fruit": "unripe"
  },
@@ -71,5 +71,5 @@
   ]
  },
  "look_alikes": "Fritillaria persica has a spike of small dark purple bells and no leafy crown. Fritillaria raddeana is smaller with pale yellow bells. The young shoot can be mistaken for a lily, but lily leaves run the whole length of the stem.",
- "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK Palette flower set to bulbs_orangered on 17 November 2026 after the independent check: 'rust' read as brown, and 'William Rex' is a deep orange-red."
 }

@@ -3,7 +3,7 @@
  "name": "Radish",
  "latin": "Raphanus sativus",
  "family": "Brassicaceae, the cabbage family",
- "grown_as": "The summer radish, a fast annual grown for its small crisp root, ready 4 to 6 weeks from sowing. Drawn as a round red radish with a white tip like 'Cherry Belle'. Others are long red with a white end ('French Breakfast'), white, purple or yellow, and winter radishes and mooli are much bigger. ⚠️ CHECK: William's variety. Left in the ground it bolts and flowers the same summer.",
+ "grown_as": "The summer radish, a fast annual grown for its small crisp root, ready 4 to 6 weeks from sowing. William grows a Rainbow mix (AG 116) including 'Sparkler' (round, red with a white tip), which is the one drawn, and 'French Breakfast' (long red with a white end). Left in the ground it bolts and flowers the same summer.",
  "habit": "A small rosette of leaves 10 to 20 cm high on top of a small swollen root. Bolting plants send up a branched, leafy, often bristly flowering stem 50 to 100 cm tall.",
  "leaf": {
   "arrangement": "A rosette from the top of the root; alternate up the flowering stem",
@@ -42,5 +42,5 @@
   "seedhead": ["fat, beaked, straw-brown pods, waisted between seeds, not split open"]
  },
  "look_alikes": "Wild radish (Raphanus raphanistrum) has a thin root, yellow or white flowers and pods strongly beaded like a necklace. Turnip seedlings look similar but are smoother. Charlock has yellow flowers.",
- "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK Settled from William's spreadsheet, 17 November 2026: grown_as updated with William's variety."
 }

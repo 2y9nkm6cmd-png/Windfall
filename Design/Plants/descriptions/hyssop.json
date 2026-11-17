@@ -3,7 +3,7 @@
  "name": "Hyssop",
  "latin": "Hyssopus officinalis",
  "family": "Lamiaceae, the mint family",
- "grown_as": "Hyssop, a small, nearly evergreen shrubby herb. Drawn blue-flowered, the usual form; pink and white forms exist. ⚠️ CHECK",
+ "grown_as": "Pink hyssop, Hyssopus officinalis 'Roseus' (PG 50), a small, nearly evergreen shrubby herb; the only hyssop William grows.",
  "habit": "A neat, bushy, upright small shrub 30 to 60 cm high, many straight stems from a woody base, green above and woody below.",
  "leaf": {
   "arrangement": "Opposite, in pairs, often with small tufts of younger leaves in the joints",
@@ -20,7 +20,7 @@
  "flower": {
   "form": "A two-lipped tube with long stamens sticking well out",
   "petals": "Joined; a short notched upper lip and a three-lobed lower lip with a large, notched middle lobe",
-  "colour": "Deep violet-blue",
+  "colour": "Pink",
   "centre": "Four long stamens spreading out beyond the lips",
   "behind": "A green or purple-tinged tube-shaped calyx with five teeth",
   "carried": "In clusters in the upper leaf joints, together making a dense, upright spike 5 to 15 cm long at the top of each stem, the flowers mostly turned to one side",
@@ -32,11 +32,8 @@
  "winter": "Nearly evergreen: a twiggy bush with some leaves left; best cut back in spring.",
  "palette": {
   "leaf": "marrow",
-  "flower": "herbs_violet",
+  "flower": "pink",
   "fruit": "seed"
- },
- "palette_wish": {
-  "flower": "deep violet-blue, about #5B4FB8"
  },
  "must_show": {
   "leaf": [
@@ -46,7 +43,7 @@
    "dark green"
   ],
   "bloom": [
-   "deep violet-blue two-lipped flowers",
+   "pink two-lipped flowers",
    "long stamens sticking well out",
    "in a dense spike, mostly facing one way"
   ],
@@ -58,10 +55,10 @@
    "woody at the base"
   ],
   "flower": [
-   "dense one-sided violet-blue spikes at the top of every stem",
+   "dense one-sided pink spikes at the top of every stem",
    "narrow leaves running right up to the spikes"
   ]
  },
  "look_alikes": "Lavender has grey felted leaves and its flower spikes on long bare stalks above the bush. Rosemary has leathery leaves white beneath and flowers in the leaf joints in spring. Winter savory is lower, with white or pale lilac flowers. Anise hyssop (Agastache) has broad toothed leaves.",
- "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK Redraw of 16 November 2026: palette flower changed from \"plum\" to \"herbs_violet\", the colour asked for in palette_wish, added in Tools/design/redraw/herbs.py. Redraw check of 17 November 2026: palette leaf changed from \"deep\" to \"marrow\", because \"deep\" is a mid green and the description and photographs give dark green leaves."
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK Redraw of 16 November 2026: palette flower changed from \"plum\" to \"herbs_violet\", the colour asked for in palette_wish, added in Tools/design/redraw/herbs.py. Redraw check of 17 November 2026: palette leaf changed from \"deep\" to \"marrow\", because \"deep\" is a mid green and the description and photographs give dark green leaves. Settled from William's spreadsheet, 17 November 2026: 'Roseus', pink. (palette_wish for deep violet-blue removed; palette flower now \"pink\".)"
 }

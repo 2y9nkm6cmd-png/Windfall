@@ -28,12 +28,12 @@
   "size": "3 to 4 cm across",
   "season": "June to August"
  },
- "fruit": "A round fluffy head of small hairy seeds, each with a long, hooked tail (the old style), green turning brown. Seeds small, flat, brown, with the bristly hooked tail.",
+ "fruit": "A compact, round, bristly head of small hairy seeds, each with a short hooked tail (the old style), green ripening reddish brown, like a small burr. Seeds small, flat, brown, with the bristly hooked tail.",
  "seedling": "Two small round seed leaves on stalks, then rounded, scalloped first leaves on long stalks",
  "winter": "A low, semi-evergreen rosette of leaves, the large end leaflets often bronzed.",
  "palette": {
   "leaf": "leaf",
-  "flower": "berry",
+  "flower": "flowers_scarlet",
   "centre": "primrose",
   "fruit": "bark"
  },
@@ -63,12 +63,12 @@
    "a rosette of leaves at the base"
   ],
   "seedhead": [
-   "round heads of hooked tails on the wiry stems"
+   "compact round bristly reddish-brown burrs of hooked seeds on the wiry stems"
   ],
   "dormant": [
    "a low rosette of leaves, some bronzed"
   ]
  },
  "look_alikes": "Wood avens (Geum urbanum), a common weed, has small yellow flowers and three-lobed leaflets. Water avens (Geum rivale) has nodding pink-orange bells. Geum coccineum is smaller with single orange-red flowers. Potentillas have five-fingered leaves.",
- "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK 17 November 2026, flowers redraw: fruit changed from a round fluffy head to a compact bristly reddish-brown burr, as the photographs show. 17 November 2026, flowers redraw: palette flower changed from \"berry\" to \"flowers_scarlet\" to match the photographs and the description's colour (scarlet-orange), using a colour added in Tools/design/redraw/flowers.py."
 }

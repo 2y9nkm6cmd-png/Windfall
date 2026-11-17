@@ -32,7 +32,7 @@
  "winter": "None: an annual.",
  "palette": {
   "leaf": "sage",
-  "flower": "berry",
+  "flower": "flowers_scarlet",
   "centre": "dark",
   "fruit": "straw"
  },
@@ -63,5 +63,5 @@
   ]
  },
  "look_alikes": "Common flax (Linum usitatissimum) and perennial flax (L. perenne) have sky-blue flowers. Fairy flax (L. catharticum) is tiny and white with opposite leaves. Corn poppy has four petals and cut leaves.",
- "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK 17 November 2026, flowers redraw: palette flower changed from \"berry\" to \"flowers_scarlet\" to match the photographs and the description's colour (scarlet), using a colour added in Tools/design/redraw/flowers.py."
 }

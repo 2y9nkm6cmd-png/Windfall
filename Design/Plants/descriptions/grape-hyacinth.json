@@ -1,38 +1,38 @@
 {
  "kind": "grape-hyacinth",
  "name": "Grape Hyacinth",
- "latin": "Muscari armeniacum",
+ "latin": "Muscari aucheri 'Ocean Magic'",
  "family": "Asparagaceae, the asparagus family (the hyacinth group)",
- "grown_as": "The common garden grape hyacinth, deep blue. ⚠️ CHECK: William's is 'Ocean Magic', listed as Muscari aucheri: its spikes are mid blue below and white at the top, and M. aucheri has fewer, broader, often grey-green leaves. Drawn here as the common M. armeniacum.",
- "habit": "Tufts of floppy narrow leaves with upright flower stems 10 to 20 cm tall. Spreads quickly into mats by offsets and seed.",
+ "grown_as": "William's grape hyacinth is Muscari aucheri 'Ocean Magic' (PG 46 in his spreadsheet): a short grape hyacinth with mid sky-blue spikes whose top flowers are white, and two or three broader grey-green leaves. Drawn as that.",
+ "habit": "Small clumps 10 to 15 cm high: each bulb has two or three fairly broad, grey-green leaves and one upright flower stem, the spike standing a little above the leaves. ⚠️ CHECK: the height and how the leaves lie are from general knowledge of M. aucheri, not William's plants.",
  "leaf": {
-  "arrangement": "Three to six leaves from the base of each bulb, arching and lying on the soil",
-  "type": "Simple, narrow strap (linear)",
-  "outline": "15 to 30 cm long by 3 to 6 mm wide, even width; often longer than the flower stems",
+  "arrangement": "Two or three leaves from the base of each bulb, arching outwards, often lying partly on the soil",
+  "type": "Simple, strap-shaped (linear)",
+  "outline": "8 to 15 cm long by 5 to 15 mm wide, broader than most grape hyacinths, widest towards the blunt end. ⚠️ CHECK the size",
   "base": "Pale at soil level",
   "tip": "Blunt",
   "margin": "Smooth, no teeth",
   "veins": "Fine parallel veins, hardly seen",
-  "surface": "Fleshy and soft, deeply channelled (grooved) along the upper side",
+  "surface": "Smooth and a little fleshy, with a shallow channel along the upper side",
   "stalk": "None",
-  "colour": "Mid green, often yellowing at the tips by flowering time"
+  "colour": "Grey-green (glaucous)"
  },
  "flower": {
   "form": "A dense cone-shaped spike of tiny round bells, like a bunch of grapes upside down",
   "petals": "Six tepals joined into a small urn-shaped bell, swollen in the middle and pinched at the mouth, with six tiny white teeth turned back round the rim",
-  "colour": "Deep cobalt blue; the top few flowers paler",
+  "colour": "Mid sky-blue; the top few flowers (which are sterile) white",
   "centre": "Not seen: the mouth is a tiny white-rimmed hole",
   "behind": "Very small, not seen",
-  "carried": "Twenty to forty bells packed tightly in an egg- or cone-shaped spike 2 to 4 cm long at the top of a bare stem, pointing down and outward",
+  "carried": "Fifteen to thirty bells packed in an egg-shaped spike 2 to 3 cm long at the top of a bare stem, pointing down and outward",
   "size": "Each bell 4 to 6 mm long",
   "season": "March to May"
  },
  "fruit": "Inflated, papery capsules with three rounded flat wings, about 1 cm, green ripening to straw, along the stem; black seeds.",
  "seedling": "Not drawn. A single fine grass-like leaf.",
- "winter": "Leaves come up in autumn and sprawl on the soil through winter, a clear sign of the plant.",
+ "winter": "Nothing above ground until the leaves come up in late winter. ⚠️ CHECK: unlike the common M. armeniacum, M. aucheri is not known for sprawling autumn leaves.",
  "palette": {
-  "leaf": "leaf",
-  "flower": "bulbs_muscari",
+  "leaf": "sage",
+  "flower": "blue",
   "centre": "white",
   "fruit": "unripe"
  },
@@ -41,26 +41,26 @@
  },
  "must_show": {
   "leaf": [
-   "a narrow fleshy leaf grooved down the upper side",
+   "one strap-shaped leaf, broader than a common grape hyacinth's, with a shallow groove",
    "blunt tip, smooth margin",
-   "floppy, arching"
+   "grey-green"
   ],
   "bloom": [
-   "many tiny round bells packed in a cone-shaped spike",
-   "each bell pinched at the mouth with a white rim of tiny teeth",
-   "deep blue, paler at the top"
+   "many small round bells packed in an egg-shaped spike",
+   "each bell pinched at the mouth with a white rim",
+   "mid sky-blue below, the top flowers white"
   ],
   "bulb": [
    "a small round bulb 1.5 to 2 cm with pale brown papery skin",
    "often with several small offset bulbs round it"
   ],
   "shoots": [
-   "narrow grooved leaves already up in autumn, lying over the soil",
-   "no flower spike yet: leaves only, which stay through winter"
+   "two or three broad grey-green leaf tips coming up in late winter",
+   "the young flower spike, packed with tight buds, between them"
   ],
   "flower": [
-   "dense blue spikes on short bare stems",
-   "floppy narrow leaves round the base, often as long as the stems"
+   "sky-blue spikes with white tops on short bare stems",
+   "two or three broad grey-green leaves per bulb, lower than the spikes"
   ],
   "seedhead": [
    "papery three-winged pods along the stem",
@@ -72,5 +72,5 @@
   ]
  },
  "look_alikes": "Bluebell has larger bells hanging down one side of the stem. Muscari latifolium has one broad leaf and a two-tone spike. Spanish bluebell leaves are much broader. Young leaves look like grass or chives but are fleshy and grooved, and chives smell of onion.",
- "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK Palette flower set to bulbs_muscari on 17 November 2026 (bulbs redraw): the deep cobalt blue asked for in palette_wish."
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK Palette flower set to bulbs_muscari on 17 November 2026 (bulbs redraw): the deep cobalt blue asked for in palette_wish. Settled from William's spreadsheet, 17 November 2026: Muscari aucheri 'Ocean Magic' (latin, grown_as, habit, leaf, flower colour, palette and must_show changed to match; the drawings follow)."
 }

@@ -3,7 +3,7 @@
  "name": "Melon",
  "latin": "Cucumis melo",
  "family": "Cucurbitaceae, the gourd family",
- "grown_as": "A tender annual grown in a greenhouse or cold frame in the UK, usually a small cantaloupe such as 'Sweetheart' or 'Ogen', trained up strings or let to trail. Fruit look depends on the variety, which is not known: drawn as a small round cantaloupe with lightly netted yellow-green skin. ⚠️ CHECK",
+ "grown_as": "A tender annual grown in a greenhouse or cold frame, trained up strings or let to trail. William grows 'Blenheim Orange' (AG 92): a cantaloupe-type melon with netted skin and orange flesh.",
  "habit": "A trailing or climbing vine 1.5 to 3 m with softly hairy, ridged stems and simple (unbranched) tendrils. Trained up a support under glass or left to sprawl in a frame.",
  "leaf": {
   "arrangement": "Alternate, one at each joint, with a tendril beside it",
@@ -68,5 +68,5 @@
   ]
  },
  "look_alikes": "Cucumber leaves are more triangular with sharper, angular lobes. Courgette and squash leaves are much larger and flowers far bigger.",
- "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK Seed size corrected on 17 November 2026 (veg redraw, second pass): it said smaller than a cucumber's; melon seeds are usually about the same size or a little larger (8 to 12 mm)."
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK Seed size corrected on 17 November 2026 (veg redraw, second pass): it said smaller than a cucumber's; melon seeds are usually about the same size or a little larger (8 to 12 mm). Settled from William's spreadsheet, 17 November 2026."
 }

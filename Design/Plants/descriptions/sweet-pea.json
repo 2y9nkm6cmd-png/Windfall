@@ -3,7 +3,7 @@
  "name": "Sweet pea",
  "latin": "Lathyrus odoratus",
  "family": "Fabaceae, the pea family",
- "grown_as": "A hardy annual climbing flower grown for cutting and scent, usually a Spencer variety with large wavy petals. Colour depends on the variety, which is not known: drawn mauve-pink. ⚠️ CHECK",
+ "grown_as": "A climbing annual grown up canes or netting. William grows an 'Heirloom mix' (PG 209) of smaller-flowered grandiflora types, the old-fashioned strongly scented kind, in mixed colours including mauve-pink. Drawn mauve-pink.",
  "habit": "A climbing annual 1.5 to 2 m up canes or netting, the whole plant softly hairy. The stem has two narrow green wings running down it. Climbs by branched tendrils.",
  "leaf": {
   "arrangement": "Alternate",
@@ -19,13 +19,13 @@
   "colour": "Mid green to grey-green"
  },
  "flower": {
-  "form": "A pea flower: an upright back petal (the standard), two side petals (the wings) and two lower petals joined into a boat-shaped keel between the wings, the standard large and frilly",
-  "petals": "Five: a large upright, broad, wavy-edged standard; two wings held forward; a small curved keel",
+  "form": "A pea flower: an upright back petal (the standard), two side petals (the wings) and two lower petals joined into a boat-shaped keel between the wings. Grandiflora type: smaller flowers than the modern Spencer sweet peas, the standard plain-edged and rounded, not wavy or frilled.",
+  "petals": "Five: an upright, broad, plain-edged standard; two wings held forward; a small curved keel",
   "colour": "Varies: white, pink, mauve, purple, crimson, often two-toned. Drawn mauve-pink.",
   "centre": "Hidden in the keel",
   "behind": "A green hairy calyx with five pointed teeth",
   "carried": "In sprays of 2 to 5 on long, stiff, upright stalks (15 to 30 cm) from the leaf joints, held well above the leaves",
-  "size": "3 to 5 cm across",
+  "size": "2.5 to 3.5 cm across",
   "season": "June to September, strongly scented"
  },
  "fruit": "Hairy pods 5 to 7 cm, green turning pale brown; they twist open to drop round, dark brown or mottled seeds about 5 mm. The seeds are poisonous.",
@@ -45,9 +45,8 @@
    "small narrow stipules"
   ],
   "bloom": [
-   "a big upright frilly standard",
-   "two wings held forward",
-   "a small keel"
+   "a rounded upright standard with a plain edge, not frilled",
+   "two wings held forward; a small keel"
   ],
   "seed": [
    "a round seed about 5 mm",
@@ -71,5 +70,5 @@
   ]
  },
  "look_alikes": "Everlasting pea (Lathyrus latifolius) is a perennial with broader-winged stems, unscented magenta flowers in longer sprays and big stipules. Garden pea has huge stipules and is hairless and blue-green.",
- "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK Settled from William's spreadsheet, 17 November 2026."
 }

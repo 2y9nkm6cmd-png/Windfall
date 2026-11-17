@@ -43,7 +43,8 @@ So every drawing of every kind is now made here, in four steps.
    florets round its edge), the cup of bracts underneath, a frill of short
    rays (semi-double cosmos), a coloured edge (cosmos picotee) or a blotch
    (French marigold). bud_side() draws a bud from the side, so the bracts
-   the descriptions ask for can be seen. The heads that are not daisies
+   the descriptions ask for can be seen, and "rim" shows the tips of the
+   bracts between the bases of the rays on the open head. The heads that are not daisies
    have their own: cornflower_head() (jagged funnels on a scaly cup),
    globe_ball() (a ball of tiny star florets), pincushion() (scabious),
    ball_head() (devil's-bit), rampion_head() (claws and horns) and
@@ -53,15 +54,22 @@ So every drawing of every kind is now made here, in four steps.
    helpers: seedling() (roots, stem, two seed leaves and the first true
    leaves), shoot() (a stem with its leaves, alternate or in pairs),
    _bush() (several stems from one base), rosette() and the heads above.
+   The low bushy plants (zinnia, rudbeckia, marigold, feverfew, the
+   chamomiles) use mound(): stems curving out and up to points spread over
+   a dome (dome()), leafy all the way along, so the leaves build a rounded
+   mound and the flowers sit on its surface, not on long bare stalks.
    Each kind's seed has its own drawing (SEEDS), from the sunflower's
    striped tear-drop to the scabious's shuttlecock.
 
-4. COLOURS. Eight new ones, asked for in the descriptions ("palette_wish"):
-   daisies_picotee (cosmos edge), daisies_raspberry (zinnia), daisies_navy
-   (African daisy centre), daisies_cornblue (cornflower), daisies_steel
-   (globe thistle), daisies_violet (devil's-bit), daisies_rampion (Oxford
-   rampion) and daisies_silver (Senecio leaves). Each has a light and a
-   dark-mode value, and the descriptions' palettes now name them.
+4. COLOURS. Ten new ones. Eight were asked for in the descriptions
+   ("palette_wish"): daisies_picotee (cosmos edge), daisies_raspberry
+   (zinnia), daisies_navy (African daisy centre), daisies_cornblue
+   (cornflower), daisies_steel (globe thistle), daisies_violet (devil's-bit),
+   daisies_rampion (Oxford rampion) and daisies_silver (Senecio leaves).
+   Two were added after a check found the old tints too pale to read small:
+   daisies_scabious (Scabiosa's bright pink) and daisies_aster (a stronger
+   lilac-pink). Each has a light and a dark-mode value, and the
+   descriptions' palettes now name them.
 
 What could not be put fully right is listed, with why, in the results file
 that went with this work.
@@ -266,13 +274,15 @@ def lobe_tips(L, lobes, shear=0.5):
 
 
 def draw_leaf(a, x, y, ang, top, bot, fill, lw=1.0, shade=0.1, veins=(), mid=None, midw=0.8, vw=0.5, va=0.36,
-              M=None, veinc="line", midc="line", mida=0.55):
+              M=None, veinc="line", midc="line", mida=0.55, la=None):
     """Fills the outline made of two edges (each from the base to the tip),
     shades its upper half and draws the midrib and veins (lines measured
     along the leaf, like the edges)."""
     t = T(x, y, ang)
     mp = (lambda p: M(t(*p))) if M else (lambda p: t(*p))
-    a.shape(path([mp(p) for p in top] + [mp(p) for p in bot[::-1]]), fill, lw)
+    # a small leaf (life-stage size) gets a softer outline, a darker shade of
+    # its own colour, so the outline does not swamp a pale or grey-green leaf
+    a.shape(path([mp(p) for p in top] + [mp(p) for p in bot[::-1]]), fill, lw, la if la is not None else (0.85 if lw > 0.9 else 0.62))
     if shade:
         a.shape(path([mp(p) for p in top] + [mp((p[0], 0)) for p in top[::-1]]), "shade", 0, fa=shade)
     if mid:
@@ -310,7 +320,7 @@ def hairs(a, x, y, ang, edge, every=2.2, ln=1.1, M=None, col="line", la=0.6, lw=
 def thread(a, pts, fill, w=1.2, ow=0.6):
     """A thread-thin leaf segment: an outline line with a coloured line on top."""
     d = opath(pts) if len(pts) > 2 else f"M{P(pts[0])} L{P(pts[1])}"
-    a.line(d, w + ow, 0.9, "line"); a.line(d, w, 1.0, fill)
+    a.line(d, w + ow, 0.9 if ow > 0.45 else 0.62, "line"); a.line(d, w, 1.0, fill)
 
 
 def qpts(p0, c, p1, n=6):
@@ -559,7 +569,7 @@ def lf_feverfew(a, x, y, ang, L, fill, small=False):
     A = stalk_to(a, x, y, ang, pet, max(0.8, L * 0.024), max(0.6, L * 0.02), fill)
     lobes = []
     for i in range(4):   # each lobe cut almost to the midrib, and lobed again
-        u = 0.1 + 0.2 * i; ln = BL * (0.26 - 0.035 * i)
+        u = 0.1 + 0.2 * i; ln = BL * (0.32 - 0.04 * i)
         for sd, du in ((1, 0), (-1, 0.03)):
             if small:
                 lobes.append((u + du, 0.06, ln, "round", sd))
@@ -567,7 +577,7 @@ def lf_feverfew(a, x, y, ang, L, fill, small=False):
                 lobes += [(u + du - 0.035, 0.032, ln * 0.62, "round", sd), (u + du, 0.04, ln, "round", sd), (u + du + 0.032, 0.03, ln * 0.7, "round", sd)]
     lobes += [(0.86, 0.04, BL * 0.1, "round", 1), (0.86, 0.04, BL * 0.1, "round", -1), (0.93, 0.06, BL * 0.08, "round", 1), (0.93, 0.06, BL * 0.08, "round", -1)]
     wing = lambda u: BL * 0.022 * (1 - u * 0.3)
-    top, bot, hw = lobed_edges(BL, wing, lobes, shear=0.42)
+    top, bot, hw = lobed_edges(BL, wing, lobes, shear=0.3)
     if not small:
         sp = max(1.3, BL * 0.035); dp = max(0.5, BL * 0.012)
         msk = lambda px, py: 1.0 if abs(py) > BL * 0.06 else 0.0
@@ -756,9 +766,9 @@ def cl_sunflower(a, sp):
 
 
 def cl_calendula(a, sp):
-    stem_piece(a, (10, 81), (17, 88), (27, 98), 3.4, 3.0, sp["fill"])
+    stem_piece(a, (14, 100), (12, 60), (8, 6), 3.4, 2.6, sp["fill"])
     with a.on(LEAF):
-        lf_calendula(a, 18, 89, ANG, 94, sp["fill"])
+        lf_calendula(a, 13, 86, -46, 92, sp["fill"])
     return a
 
 
@@ -823,9 +833,10 @@ def cl_aster(a, sp):
 
 
 def cl_african(a, sp):
-    stem_piece(a, (6, 80), (16, 88), (30, 100), 3.4, 3.0, "bark")
+    stem_piece(a, (14, 100), (12, 60), (8, 6), 3.4, 2.6, "leaf")
+    a.ribbon((14, 100), (13.6, 96), (13.4, 92), 3.6, 3.4, "bark", lw=0.9)   # woody at the foot
     with a.on(LEAF):
-        lf_african(a, 18, 90, ANG, 94, sp["fill"])
+        lf_african(a, 13, 86, -46, 92, sp["fill"])
     return a
 
 
@@ -1025,7 +1036,7 @@ def _plane_ray(a, V, ph, r0, L, W, fill, shape, lw, teeth=3, droop=0.0, picotee=
     q = [X(p) for p in pts]
     if W < 2.6:
         lw = min(lw, 0.45)
-    a.shape(path(q), fill, lw)
+    a.shape(path(q), fill, lw, 0.85 if lw > 0.5 else 0.6)
     if blotch:   # a dark blotch at the base of the ray (French marigold)
         bq = [X(p) for p in ray_pts(L * 0.42, W * 0.7, "oblong")]
         a.shape(path(bq), blotch, 0, fa=0.85)
@@ -1083,30 +1094,24 @@ HEADS = {
                       bracts=dict(n=17, l=0.5, w=0.13, col="leaf", off=0.25), cup=dict(rc=1.08, h=0.22, rows=2, n=10, col="leaf"),
                       jit=1, smallk=0.7),
     "calendula": dict(n=16, rows=3, rowstep=0.24, shape="strap", rw=0.18, teeth=3, disc=0.24, dots="amber", jit=1,
-                      rim=dict(n=16, l=0.1, w=0.045, front=True, r0=1.0),
                       cup=dict(rc=1.25, h=0.7, rows=2, n=9, sw=0.32, col="leaf")),
     "cosmos": dict(n=8, rows=1, shape="wedge", rw=0.56, teeth=4, disc=0.13, dome=0.4, dots="amber", lines=3, r0=0.6, jit=1, smallk=1,
                    inner=dict(n=16, l=0.27, w=0.15, shape="wedge", rise=0.3, teeth=3), bracts=dict(n=8, l=0.3, w=0.05, col="leaf"),
                    cup=dict(rc=1.3, h=0.6, rows=1, n=6, sw=0.4, col="leaf")),
     "zinnia": dict(n=13, rows=1, shape="strap", rw=0.3, teeth=2, disc=0.25, dome=0.55, dots="rust", ring="sun", ringat=0.5, rings=0.17, nd=40, jit=1,
-                   rim=dict(n=13, l=0.1, w=0.07, front=True, r0=1.0),
                    cup=dict(rc=1.35, h=0.9, rows=3, n=7, sw=0.9, shape="oblong", edge="dark", col="leaf"), smallk=0.8),
     "rudbeckia": dict(n=14, rows=1, shape="strap", rw=0.25, teeth=3, disc=0.3, dome=0.75, droop=0.22, dots="rust", nd=60, ring="sun", ringat=0.8,
-                      rim=dict(n=14, l=0.12, w=0.06, front=True, r0=1.0, droop=0.5),
                       jit=1, cup=dict(rc=1.4, h=0.8, rows=2, n=8, sw=0.45, col="leaf"), smallk=0.8),
     "french-marigold": dict(n=8, rows=1, shape="oblong", rw=0.5, disc=0.4, dome=0.9, crest=True, nd=24, blotch="rust", jit=1, smallk=1),
     "ox-eye-daisy": dict(n=24, rows=1, shape="strap", rw=0.14, teeth=3, disc=0.28, dome=0.1, dots="amber", jit=1,
-                         rim=dict(n=24, l=0.08, w=0.05, front=True, r0=1.0),
                          cup=dict(rc=1.15, h=0.6, rows=3, n=8, sw=0.75, shape="oblong", edge="bark", col="leaf"), smallk=0.55),
     "corn-chamomile": dict(n=16, rows=1, shape="strap", rw=0.16, teeth=2, disc=0.34, dome=0.7, dots="amber", jit=1,
                            cup=dict(rc=1.15, h=0.6, rows=2, n=8, sw=0.55, edge="white", col="sage"), smallk=0.6),
     "feverfew": dict(n=13, rows=1, shape="strap", rw=0.3, teeth=3, disc=0.48, dome=0.15, dots="amber", jit=1,
                      cup=dict(rc=1.05, h=0.5, rows=2, n=7, sw=0.55, edge="white", col="leaf"), smallk=0.7),
     "aster": dict(n=34, rows=1, shape="narrow", rw=0.075, disc=0.25, dots="amber", jit=1, smallk=0.5,
-                  rim=dict(n=17, l=0.1, w=0.05, front=True, r0=1.0),
                   cup=dict(rc=1.2, h=0.7, rows=3, n=9, sw=0.32, col="leaf")),
     "african-daisy": dict(n=16, rows=1, shape="oblong", rw=0.2, disc=0.24, dots="sun", nd=26, dr=0.45, smalldots=4, lines=1, jit=1,
-                          rim=dict(n=16, l=0.1, w=0.05, front=True, r0=1.0),
                           cup=dict(rc=1.2, h=0.6, rows=2, n=9, sw=0.35, col="leaf"), smallk=0.7),
     "helipterum-rosum": dict(n=13, rows=4, shape="bract", rw=0.2, disc=0.3, dots="amber", lines=1, jit=1, smallk=0.7,
                              cup=dict(rc=1.3, h=0.7, rows=2, n=8, sw=0.6, col="straw")),
@@ -1181,7 +1186,7 @@ def bl_sunflower(a, sp):
 def bl_calendula(a, sp):
     stalk_line(a, (54, 100), (54, 80), (50, 56), 3.0, 3.6, "leaf", hairy=True)   # the stalk thickens under the head
     stalk_line(a, (60, 100), (66, 86), (80, 76), 1.9, 1.6, "leaf")
-    bud_side(a, 81, 72, 6, "calendula", -70, 0.4, sp["fc"])
+    bud_side(a, 80, 76, 7, "calendula", -50, 0.4, sp["fc"])
     head(a, 48, 40, 34, opts("calendula", sp["fc"], sp.get("cen")), k=0.7)
     return a
 
@@ -1257,8 +1262,8 @@ def bl_african(a, sp):
 def bl_helipterum(a, sp):
     stalk_line(a, (54, 100), (56, 80), (50, 60), 1.5, 1.3, "sage")
     stalk_line(a, (55, 92), (70, 80), (78, 68), 1.2, 1.0, "sage")
-    a.ribbon((78, 68), (80, 66), (80, 70), 1.0, 1.0, "sage", lw=0.5)
-    bud_side(a, 79, 75, 5, "helipterum-rosum", 100, 0.5, sp["fc"])   # the bud nods before it opens
+    a.line("M78,68 Q81,64 82,70", 1.0, 0.85)
+    bud_side(a, 82, 69.5, 6, "helipterum-rosum", 96, 0.5, sp["fc"])   # the bud nods before it opens
     o = opts("helipterum-rosum", sp["fc"], sp.get("cen"))
     V = head(a, 48, 42, 34, o, k=0.74)
     rd = 34 * o["disc"]   # the narrow dark ring of short inner bracts round the yellow middle
@@ -1523,7 +1528,7 @@ def bl_devilsbit(a, sp):
     a.line("M50,72 Q38,68 28,58", 1.3, 0.85); a.line("M50,72 Q62,68 72,58", 1.3, 0.85)
     for sd in (1, -1):   # the pair of small leaves where the stem forks
         a.leaf(50, 72, -90 + sd * 70, 9, 0.22, pal("devil-s-bit-scabious", "leaf", "deep"), lw=0.6)
-    ball_head(a, 28, 52, 9, fc, anth); ball_head(a, 72, 52, 9, fc, anth)
+    ball_head(a, 28, 52, 9, fc, "plum"); ball_head(a, 72, 52, 9, fc, "plum")
     ball_head(a, 50, 36, 15, fc, anth)
     return a
 
@@ -1875,7 +1880,7 @@ def sf_seedhead():
                 lf_sunflower(a, x, y, ang if sd > 0 else 180 - ang, L, "straw" if u > 0.3 else "bark", small=True)
         with a.on(BLOOM):   # the heavy head hangs face down, its rays shrivelled, its face packed with seed
             head(a, 64, 40, 15, opts("sunflower", fc="straw", cen="dark", rw=0.07, n=14, rows=1, disc=0.72, dots="bark", spiral="bark", ring=None, rim=None, nd=40, dr=0.45,
-                                     bracts=dict(n=14, l=0.32, w=0.09, col="bark"), cup=dict(rc=1.05, h=0.25, rows=1, n=8, col="straw")),
+                                     bracts=dict(n=14, l=0.32, w=0.09, col="bark"), cup=dict(rc=1.05, h=0.25, rows=1, n=8, col="bark")),
                  k=0.5, ang=125)
     return a
 
@@ -2281,7 +2286,7 @@ def as_plant(stage):
                 x, y = q.pt(u)
                 e = (x + sd * 6, y - 4) if sd else (x, y)
                 if sd:
-                    a.line(f"M{f(x)},{f(y)} L{P(e)}", 0.6, 0.85)
+                    a.line(f"M{f(x)},{f(y)} L{P(e)}", 0.6, 0.85, "bark" if dry else "line")
                 heads.append(e)
         with a.on(BLOOM):
             for x, y in sorted(heads, key=lambda p: p[1]):
@@ -2344,7 +2349,7 @@ def hl_plant(stage):
             for j, (q, stm) in enumerate(zip(qs, st)):
                 e = q.pt(1)
                 if stage == "flower" and j == 3:   # a bud, nodding before it opens
-                    a.line(f"M{P(e)} q2,-3 4,0", 0.8, 0.85); bud_side(a, e[0] + 4, e[1], 4, "helipterum-rosum", 100, 0.6)
+                    a.line(f"M{P(e)} q2,-3 4,0", 0.8, 0.85); bud_side(a, e[0] + 4, e[1] - 0.4, 4, "helipterum-rosum", 96, 0.6)
                 elif stage == "flower":
                     head(a, e[0], e[1] - 1, 10, opts("helipterum-rosum"), k=0.55, small=True)
                 else:   # a fluffy white seed head in a ring of dry papery bracts
@@ -2535,7 +2540,7 @@ STAGE = {
     "rudbeckia": {"seed": sown("rudbeckia"), "seedling": seedling(("oval", 8, 5), 10, true=lambda a, x, y: [lf_rudbeckia(a, x, y, g, L, _lc("rudbeckia"), small=True) for g, L in ((-100, 10), (-66, 7))]),
                   "young": rud_young, "flower": rud_flower, "seedhead": lambda: rud_flower(True), "dormant": rud_dormant},
     "french-marigold": {"seed": sown("french-marigold"),
-                        "seedling": seedling(("narrow", 9, 3.2), 12, stemw=2.0, stemc="plum", true=lambda a, x, y: [lf_marigold(a, x, y, g, 9, _lc("french-marigold"), small=True) for g in (-112, -68)]),
+                        "seedling": seedling(("narrow", 9, 3.2), 12, stemw=2.2, stemc="mauve", true=lambda a, x, y: [lf_marigold(a, x, y, g, 9, _lc("french-marigold"), small=True) for g in (-112, -68)]),
                         "young": mari_young, "flower": mari_flower, "seedhead": lambda: mari_flower(True)},
     "ox-eye-daisy": {"seed": sown("ox-eye-daisy"), "seedling": seedling(("round", 6.5, 5.6), 9, true=lambda a, x, y: lf_oxeye(a, x, y, -86, 11, _lc("ox-eye-daisy"), small=True)),
                      "young": lambda: ox_plant("young"), "flower": lambda: ox_plant("flower"), "seedhead": lambda: ox_plant("seedhead"),

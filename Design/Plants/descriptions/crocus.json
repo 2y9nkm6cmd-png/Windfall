@@ -27,11 +27,11 @@
   "size": "Tepals 3 to 5 cm long; 7 to 9 cm across when wide open",
   "season": "February to March"
  },
- "fruit": "An oval capsule about 1.5 cm pushed up to soil level among the leaves in late spring, opening into three to release round red-brown seeds.",
+ "fruit": "An oval capsule about 1.5 cm, pushed up on a short stalk to a few centimetres above the soil among the leaves in late spring, opening into three to release round red-brown seeds.",
  "seedling": "Not drawn. A single grass-like leaf; three years to flower.",
  "winter": "Nothing above ground until the leaf tips show in late January or February.",
  "palette": {
-  "leaf": "deep",
+  "leaf": "marrow",
   "flower": "bulbs_crocus",
   "centre": "carrot",
   "fruit": "unripe"
@@ -66,7 +66,7 @@
   ],
   "seedhead": [
    "long leaves, now taller than the flowers were",
-   "an oval pod at soil level among them"
+   "an oval pod raised a few centimetres above the soil among them"
   ],
   "dormant": [
    "nothing above the soil, or a few yellow leaves",
@@ -74,5 +74,5 @@
   ]
  },
  "look_alikes": "Autumn crocus or meadow saffron (Colchicum) flowers in autumn without leaves and has six stamens; its broad leaves come in spring. Crocus tommasinianus is slimmer and paler, silvery outside. Leaves alone look like grass but the white stripe gives them away.",
- "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK Palette flower set to bulbs_crocus on 17 November 2026 (bulbs redraw): the rich lilac-violet asked for in palette_wish."
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK Palette flower set to bulbs_crocus on 17 November 2026 (bulbs redraw): the rich lilac-violet asked for in palette_wish. Corrected 17 November 2026 after the independent check: the seed pod is raised a few centimetres above the soil on a short stalk, not held at soil level. Palette leaf set to marrow on 17 November 2026 after the independent check: 'deep' drew the leaf a light green, and a crocus leaf is dark green."
 }

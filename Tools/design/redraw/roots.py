@@ -338,7 +338,7 @@ def leaf_tube(a, sp):
         a.ribbon((46, 93), (46, 78), top, W * 1.7, W * 1.45, "white", lw=0.9)
         a.shape(f"M{f(46 - W * 0.72)},{f(top[1] + 6)} L{f(46 + W * 0.72)},{f(top[1] + 6)} L{f(46 + W * 0.7)},{f(top[1])} L{f(46 - W * 0.7)},{f(top[1])} Z", "pale", 0)
         white_roots(a, 46, 93, 5, 4, 100)
-    elif base in ("amber", "rust"):   # the neck of the bulb the leaves come from
+    elif base in ("amber", "rust", "roots_copper"):   # the neck of the bulb the leaves come from
         a.shape(f"M{f(foot[0] - W * 1.1)},{f(foot[1] + 2)} Q{f(foot[0] - W * 1.2)},{f(foot[1] - 4)} {f(foot[0] - W * 0.7)},{f(foot[1] - 8)} "
                 f"L{f(foot[0] + W * 0.9)},{f(foot[1] - 8)} Q{f(foot[0] + W * 1.4)},{f(foot[1] - 4)} {f(foot[0] + W * 1.3)},{f(foot[1] + 2)} Z", base, 0.9)
         for o in (-0.5, 0.2, 0.8):
@@ -1308,10 +1308,12 @@ def mangel_crop():
 
 
 # ------------------------------------------------- radish, turnip, swede, kohlrabi
-def crucifer_seedling(cot, true_leaf):
+def crucifer_seedling(cot, true_leaf, stem=None):
     def draw():
         a = Art(); soil(a, 72); a.roots(50, 72, 3, 11, 44)
         top = cotyledons(a, 50, 72, "kidney", cot, L=11, h=10)
+        if stem:   # a coloured seedling stem (purple in 'Purple Vienna' kohlrabi)
+            a.ribbon((50, 72), (49.4, 67), top, 1.5, 1.2, stem, lw=0.8)
         if true_leaf:   # the first true leaf: oval, rough and toothed
             a.line(f"M{P(top)} L{f(top[0] + 0.6)},{f(top[1] - 5)}", 0.8)
             a.leaf(top[0] + 0.6, top[1] - 5, -84, 10, 0.4, true_leaf, lw=0.8, edge="scallop")
@@ -1370,25 +1372,27 @@ def swede_crop():
 
 
 def kohlrabi_young():
+    kc = pal("kohlrabi", "root", "unripe")   # the swollen stem: purple in 'Purple Vienna'
     a = Art(); soil(a, 82); a.roots(50, 83, 4, 7, 100)
-    a.ribbon((50, 83), (50, 80), (50, 77), 2.4, 2.4, "unripe", lw=0.8)
+    a.ribbon((50, 83), (50, 80), (50, 77), 2.4, 2.4, kc, lw=0.8)
     for g, L in ((-150, 24), (-118, 30), (-90, 32), (-62, 30), (-30, 24)):
         put(a, "kohlrabi", 50 + math.cos(math.radians(g)) * 3, 74 + math.sin(math.radians(g)) * 2.4, g, L)
-    a.oval(50, 74, 5, 4, 0, "unripe", 0.9)
+    a.oval(50, 74, 5, 4, 0, kc, 0.9)
     return a
 
 
 def kohlrabi_crop():
+    kc = pal("kohlrabi", "root", "unripe")
     a = Art(); soil(a, 86); a.roots(50, 87, 5, 9, 110)
-    a.ribbon((50, 87), (50, 85), (50, 82), 3.4, 3.2, "unripe", lw=0.9)   # the short stem under the ball
+    a.ribbon((50, 87), (50, 85), (50, 82), 3.4, 3.2, kc, lw=0.9)   # the short stem under the ball
     c = (50, 68); R = 15
     for g, L in ((-168, 30), (-140, 38), (-112, 42), (-90, 44), (-68, 42), (-40, 38), (-12, 30)):
         st = (c[0] + R * 0.8 * math.cos(math.radians(g)), c[1] + R * 0.8 * math.sin(math.radians(g)))
         put(a, "kohlrabi", st[0], st[1], g * 0.85 - 13, L)
-    a.polar(c[0], c[1], lambda h: 1 + 0.02 * math.cos(3 * h), R, R * 0.95, 0, "unripe")
+    a.polar(c[0], c[1], lambda h: 1 + 0.02 * math.cos(3 * h), R, R * 0.95, 0, kc)
     for g in (-150, -110, -70, -30):   # the stalk bases on the ball
         b = (c[0] + R * 0.8 * math.cos(math.radians(g)), c[1] + R * 0.8 * math.sin(math.radians(g)))
-        a.oval(b[0], b[1], 1.5, 1.2, g, "sage", 0.6)
+        a.oval(b[0], b[1], 1.5, 1.2, g, "plum", 0.6)
     for dx, dy in ((-9, 6), (7, 8), (-1, 11), (11, 1), (-12, -2)):   # crescent scars where lower leaves fell
         a.line(f"M{f(c[0] + dx - 1.8)},{f(c[1] + dy)} q1.8,1.4 3.6,0", 0.7, 0.65)
     return a
@@ -1509,14 +1513,14 @@ LEAFX = {
                   lobes=[(0.07, 0.04, 6, 1), (0.088, 0.04, 5.7, -1), (0.19, 0.05, 9.5, 1), (0.208, 0.05, 9.0, -1), (0.32, 0.055, 12.5, 1), (0.338, 0.055, 11.9, -1)],
                   midc="white"),
     "kohlrabi": dict(kind="roots_simple", fill="sage", petiole=0.44, W=36, tipk=0.55, basek=0.9, wave=0.7, waven=6, teeth=11, td=1.6,
-                     palemid=True, stalklobe=True, sw=2.2),
+                     palemid=True, stalklobe=True, sw=2.2, stalkc="plum"),   # 'Purple Vienna': purple stalks
     "scorzonera": dict(kind="roots_simple", fill="leaf", winged=True, W=25, tipk=1.1, basek=1.0, wave=0.7, waven=5, near=True, palemid=True),
     "salsify": dict(kind="roots_grass", fill="sage"),
     "wild-garlic": dict(kind="roots_wildgarlic", fill="leaf", W=22),
     # onion: two or three thick tubes from the golden neck of the bulb
     "onion": dict(kind="roots_tube", fill="sage", W=9, base="amber"),
     # shallot: more, thinner tubes from a coppery neck
-    "shallot": dict(kind="roots_tube", fill="sage", W=5, base="rust", tipk=0.4,
+    "shallot": dict(kind="roots_tube", fill="sage", W=5, base="roots_copper", tipk=0.4,
                     ends=[((42, 88), (30, 60), (14, 30)), ((43, 88), (36, 50), (34, 12)), ((45, 88), (54, 50), (64, 10)), ((46, 88), (60, 60), (86, 30))],
                     cutleaf=((45, 88), (54, 76), (70, 66))),
     # spring onion: a long straight white shank, a few tubes from its top
@@ -1755,10 +1759,10 @@ def crucifer_tall(slug, stage, fc, mode, pods="slim", stemc="leaf", base=None, c
 
 def kohlrabi_base(a, seed):
     a.roots(50, 89, 4, 7, 100)
-    a.ribbon((50, 89), (50, 87), (50, 85), 3.0, 3.0, "unripe", lw=0.8)
+    a.ribbon((50, 89), (50, 87), (50, 85), 3.0, 3.0, pal("kohlrabi", "root", "unripe"), lw=0.8)
     for g, L in ((-160, 20), (-20, 20)):
         put(a, "kohlrabi", 50 + 10 * math.cos(math.radians(g)), 76 + 8 * math.sin(math.radians(g)), g, L, dry=seed)
-    a.polar(50, 76, lambda h: 1, 11, 10, 0, "straw" if seed else "unripe")
+    a.polar(50, 76, lambda h: 1, 11, 10, 0, "straw" if seed else pal("kohlrabi", "root", "unripe"))
     for dx, dy in ((-6, 4), (5, 5), (8, -3), (-8, -3)):
         a.line(f"M{f(50 + dx - 1.4)},{f(76 + dy)} q1.4,1.1 2.8,0", 0.6, 0.65)
     return 67
@@ -2085,29 +2089,48 @@ def onion_tall(slug, seed, fc, body, leafc):
 
 
 # ------------------------------------------------------------------- shallot
-def shallot_set():
-    a = Art(); a.ground(38, marks=False); below(a, 40)
-    bulb(a, 50, 82, 20, 34, "rust", neck=2.0, tear=True)
+def torpedo(a, x, y, w, h, fill, neck=1.8):
+    """A banana shallot's bulb standing on its root plate at x,y: long,
+    torpedo-shaped, widest a little below the middle, tapering to a neck."""
+    hw = w / 2
+    d = (f"M{f(x - neck / 2)},{f(y - h)} C{f(x - neck / 2)},{f(y - h * 0.8)} {f(x - hw)},{f(y - h * 0.62)} {f(x - hw)},{f(y - h * 0.38)} "
+         f"C{f(x - hw)},{f(y - h * 0.1)} {f(x - hw * 0.55)},{f(y)} {f(x)},{f(y)} C{f(x + hw * 0.55)},{f(y)} {f(x + hw)},{f(y - h * 0.1)} {f(x + hw)},{f(y - h * 0.38)} "
+         f"C{f(x + hw)},{f(y - h * 0.62)} {f(x + neck / 2)},{f(y - h * 0.8)} {f(x + neck / 2)},{f(y - h)} Z")
+    a.shape(d, fill)
+    a.shape(f"M{f(x + neck / 2)},{f(y - h)} C{f(x + neck / 2)},{f(y - h * 0.8)} {f(x + hw)},{f(y - h * 0.62)} {f(x + hw)},{f(y - h * 0.38)} "
+            f"C{f(x + hw)},{f(y - h * 0.1)} {f(x + hw * 0.55)},{f(y)} {f(x)},{f(y)} C{f(x + hw * 0.6)},{f(y - h * 0.3)} {f(x + hw * 0.5)},{f(y - h * 0.6)} {f(x + neck / 2)},{f(y - h)} Z", "shade", 0, fa=0.1)
+    for o in (-0.5, 0.45):   # the lines of the papery skin
+        a.line(f"M{f(x)},{f(y - h * 0.95)} Q{f(x + o * hw * 1.4)},{f(y - h * 0.45)} {f(x + o * hw * 0.5)},{f(y - 0.6)}", 0.55, 0.4)
+    a.shape(f"M{f(x - hw * 0.45)},{f(y - 0.6)} L{f(x + hw * 0.45)},{f(y - 0.6)} L{f(x + hw * 0.35)},{f(y + 1)} L{f(x - hw * 0.35)},{f(y + 1)} Z", "bark", 0.6)
+
+
+def shallot_seedling():
+    """'Simiane' is grown from seed: hairpin seed leaves, then thin tubes."""
+    a = Art(); soil(a, 72)
+    for x, h, kind in ((38, 22, "pin"), (54, 30, "up"), (66, 26, "pin")):
+        a.line(f"M{f(x)},72 Q{f(x + 1)},78 {f(x)},84", 0.8, 0.85, "soil")
+        if kind == "pin":
+            hairpin(a, x, 72, h, "sage")
+        else:   # a little older: the seed leaf straight, a first true leaf beside it
+            for dx, hh in ((0, h), (1.6, h * 0.7)):
+                d = f"M{f(x)},72 Q{f(x - 1 + dx)},{f(72 - hh * 0.5)} {f(x + 1 + dx)},{f(72 - hh)}"
+                a.line(d, 2.2, 0.9); a.line(d, 1.1, 1.0, "sage")
     return a
 
 
 def shallot_young():
     a = Art(); soil(a, 72); white_roots(a, 50, 77, 6, 7, 120)
-    tubes(a, 47, 64, [(34, 30), (42, 24)], "sage", w=2.0)
-    tubes(a, 53, 64, [(58, 22), (66, 30)], "sage", w=2.0)
-    bulb(a, 46.5, 77, 8, 13, "rust", neck=2.0, tear=True)    # already splitting into two
-    bulb(a, 53.5, 77, 8, 13, "rust", neck=2.0, tear=True)
+    tubes(a, 50, 62, [(36, 30), (44, 22), (56, 22), (64, 30)], "sage", w=2.0)
+    torpedo(a, 50, 77, 7, 16, pal("shallot", "root", "rust"), neck=2.2)   # one bulb, already long
     return a
 
 
 def shallot_crop():
     a = Art(); soil(a, 64)
-    white_roots(a, 50, 76, 9, 9, 150)
-    for x, e, c in ((40, (14, 56), "straw"), (60, (86, 58), "straw"), (44, (24, 34), "pear"), (56, (78, 36), "sage"), (50, (52, 24), "sage")):
-        tube_leaf(a, (x, 50), ((x + e[0]) / 2, min(50, e[1]) - 8), e, 1.9, c, tipk=0.2)
-    for x, h, s_ in ((36, 22, 0.85), (64, 22, 0.85), (43, 26, 1.0), (57, 26, 1.0), (50, 28, 1.0)):   # several teardrop bulbs on one base
-        bulb(a, x, 76, 13 * s_, h, "rust", neck=1.8, tear=True, plate=False)
-    a.shape("M40,75.4 L60,75.4 L58,77.4 L42,77.4 Z", "bark", 0.6)
+    white_roots(a, 50, 82, 8, 9, 140)
+    for e, c in (((16, 58), "straw"), ((84, 60), "straw"), ((26, 34), "pear"), ((74, 36), "sage"), ((52, 22), "sage")):
+        tube_leaf(a, (50, 46), ((50 + e[0]) / 2, min(46, e[1]) - 8), e, 2.0, c, tipk=0.2)
+    torpedo(a, 50, 82, 15, 38, pal("shallot", "root", "rust"), neck=3.0)   # one long torpedo bulb, half above the soil
     return a
 
 
@@ -2395,7 +2418,7 @@ STAGE = {
     "swede": {"seed": seed_art(lambda a, x, y: round_seeds(a, x, y, "dark", r=4.2)), "seedling": crucifer_seedling("sage", "sage"),
               "young": swede_young, "crop": swede_crop, "flower": crucifer_tall("swede", "flower", "primrose", "level", stemc="sage"),
               "seedhead": crucifer_tall("swede", "seedhead", "primrose", "level", stemc="sage")},
-    "kohlrabi": {"seed": seed_art(lambda a, x, y: round_seeds(a, x, y, "dark", r=4.2)), "seedling": crucifer_seedling("sage", None),
+    "kohlrabi": {"seed": seed_art(lambda a, x, y: round_seeds(a, x, y, "dark", r=4.2)), "seedling": crucifer_seedling("sage", None, stem="plum"),
                  "young": kohlrabi_young, "crop": kohlrabi_crop,
                  "flower": crucifer_tall("kohlrabi", "flower", "primrose", "level", stemc="sage", base=kohlrabi_base),
                  "seedhead": crucifer_tall("kohlrabi", "seedhead", "primrose", "level", stemc="sage", base=kohlrabi_base)},
@@ -2412,7 +2435,7 @@ STAGE.update({
     "leek": {"seed": seed_art(onion_seed), "young": leek_young, "crop": leek_crop, "flower": leek_tall(False), "seedhead": leek_tall(True)},
     "onion": {"set": onion_set, "young": onion_young(), "crop": onion_crop, "flower": onion_tall("onion", False, "white", "pale", "sage"),
               "seedhead": onion_tall("onion", True, "white", "pale", "sage")},
-    "shallot": {"set": shallot_set, "young": shallot_young, "crop": shallot_crop},
+    "shallot": {"set": ("Seedling", shallot_seedling), "young": shallot_young, "crop": shallot_crop},
     "garlic": {"clove": garlic_clove, "young": garlic_young, "crop": garlic_crop, "flower": ("In flower", garlic_tall(False)),
                "seedhead": garlic_tall(True)},
     "spring-onion": {"seed": seed_art(onion_seed), "seedling": allium_seedling("leaf"), "young": spring_young, "crop": spring_crop,
@@ -2428,4 +2451,5 @@ COLOURS = {
     "roots_violet": ("#8A5A9E", "#9C74B4"),      # salsify's dull violet-purple (its description's palette_wish)
     "roots_yellow": ("#F5D22E", "#E6C42C"),      # a clear golden yellow: parsnip, turnip, scorzonera ("sun" read ochre-orange)
     "roots_lilacpale": ("#E4D6EE", "#A897C2"),   # leek flowers: pale pink-lilac, as in the photographs
+    "roots_copper": ("#C9705E", "#B8695B"),      # 'Simiane' shallot skin: coppery pink-red
 }

@@ -3,7 +3,7 @@
  "name": "Beetroot",
  "latin": "Beta vulgaris subsp. vulgaris (Conditiva Group)",
  "family": "Amaranthaceae, the amaranth family (formerly Chenopodiaceae, the goosefoot family)",
- "grown_as": "The garden beetroot, a biennial grown as an annual for its round deep red root. Drawn as a typical red globe variety such as 'Boltardy'. Some varieties are golden, white or ringed red and white ('Chioggia'), and some have dark red leaves ('Bull's Blood'). ⚠️ CHECK: William's variety.",
+ "grown_as": "The garden beetroot, a biennial grown as an annual for its round root. William grows a Rainbow mix (AG 10): 'Albina Vereduna' (white), 'Burpee's Golden', 'Chioggia' (ringed red and white) and 'Detroit' (red globe), which is the one drawn.",
  "habit": "Year 1: a rosette of upright to spreading leaves 25 to 40 cm high from the top of a swollen round root that sits half out of the soil. Year 2: a leafy, branched, ridged flowering stem 60 to 120 cm high, the branches long, slender and spike-like.",
  "leaf": {
   "arrangement": "A rosette from the top of the root",
@@ -42,5 +42,5 @@
   "seedhead": ["dry brown spikes lined with corky seed clusters"]
  },
  "look_alikes": "Chard and leaf beet are the same species with thin roots and broader stalks. Mangelwurzel is the same species with a much larger root, often orange, yellow or pink, mostly above ground. Sea beet, the wild form, has a thin woody root and small glossy leaves. Turnip and radish have rough lobed leaves.",
- "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK 17 November 2026, redraw check: flower 'behind' and the bloom must_show corrected: the leafy bracts are under the lower clusters only, not every cluster."
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK 17 November 2026, redraw check: flower 'behind' and the bloom must_show corrected: the leafy bracts are under the lower clusters only, not every cluster. Settled from William's spreadsheet, 17 November 2026: grown_as updated with William's variety."
 }

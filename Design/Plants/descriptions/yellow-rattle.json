@@ -23,7 +23,7 @@
   "colour": "Yellow, with the two small violet teeth",
   "centre": "Hidden inside the hood",
   "behind": "A large, flattened, inflated green calyx, almost round, from which the yellow tube pokes",
-  "carried": "In a leafy spike at the stem tops, all turned to one side, each flower above a triangular bract with long sharp teeth",
+  "carried": "In a dense leafy spike at the stem tops, the flowers in pairs, one in the joint of each of a pair of opposite triangular bracts with long sharp teeth",
   "size": "1.3 to 1.5 cm long",
   "season": "May to August"
  },
@@ -58,7 +58,7 @@
    "standing among grass"
   ],
   "flower": [
-   "upright stems with a leafy spike of yellow hooded flowers on one side",
+   "upright stems with a dense leafy spike of yellow hooded flowers in opposite pairs",
    "flat inflated calyces",
    "growing among grass"
   ],
@@ -67,5 +67,5 @@
   ]
  },
  "look_alikes": "Greater yellow-rattle (Rhinanthus angustifolius) is rarer and larger, with a longer, curved flower tube. Common cow-wheat (Melampyrum pratense) has narrow untoothed leaves, flowers in pairs and no inflated calyx. Red bartsia has pink flowers.",
- "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK 17 November 2026, flowers redraw: \"carried\" and must_show changed from a one-sided spike to a dense spike with the flowers paired in opposite bracts, as the photographs show."
 }

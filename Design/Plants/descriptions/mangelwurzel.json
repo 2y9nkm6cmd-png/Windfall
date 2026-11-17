@@ -3,7 +3,7 @@
  "name": "Mangelwurzel",
  "latin": "Beta vulgaris subsp. vulgaris (Crassa Group)",
  "family": "Amaranthaceae, the amaranth family (formerly Chenopodiaceae, the goosefoot family)",
- "grown_as": "The mangold or mangel, a fodder beet grown for its very large root, traditionally for cattle and for Somerset mangold hurling. Drawn as an old red-orange 'Mammoth' type. Varieties can be orange-red, golden yellow, pinkish or white, and long or round. ⚠️ CHECK: William's variety and its root colour.",
+ "grown_as": "The mangold or mangel, a fodder beet grown for its very large root, traditionally for cattle and for Somerset mangold hurling. William grows 'Mammoth Red' (AG 84), drawn as a red-orange barrel-shaped root.",
  "habit": "Year 1: a large rosette of leaves 40 to 60 cm high from the top of a huge root, two-thirds or more of which stands above the soil like a barrel. Year 2: a leafy, branched flowering stem 1 to 1.5 m with long slender flower spikes.",
  "leaf": {
   "arrangement": "A rosette from the top of the root",
@@ -42,5 +42,5 @@
   "seedhead": ["dry brown spikes lined with corky seed clusters"]
  },
  "look_alikes": "Beetroot is the same species with a smaller, round, deep red root and red-veined leaves. Sugar beet has a white, cone-shaped root mostly underground. Swede has grey-green lobed leaves and a neck of leaf scars.",
- "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK 17 November 2026, redraw check: palette leaf changed from 'leaf' (pale yellow-green) to 'deep', to match the text (mid to dark glossy green) and the photographs. 17 November 2026, redraw check: flower 'behind' corrected as for beetroot (same species): bracts under the lower clusters only."
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK 17 November 2026, redraw check: palette leaf changed from 'leaf' (pale yellow-green) to 'deep', to match the text (mid to dark glossy green) and the photographs. 17 November 2026, redraw check: flower 'behind' corrected as for beetroot (same species): bracts under the lower clusters only. Settled from William's spreadsheet, 17 November 2026: grown_as updated with William's variety."
 }

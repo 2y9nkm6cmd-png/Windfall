@@ -3,7 +3,7 @@
  "name": "Basil",
  "latin": "Ocimum basilicum",
  "family": "Lamiaceae, the mint family",
- "grown_as": "Sweet basil, a tender annual grown from seed each year, under glass or outside in summer. Drawn as the common green large-leaved kind ('Genovese' type). Purple, Thai and small-leaved Greek basils look different; William's variety is not known. ⚠️ CHECK",
+ "grown_as": "'Sweet Genovese' (PG 153)",
  "habit": "A bushy upright annual 30 to 50 cm high, on square green stems that branch from each pair of leaves, more so when the tips are pinched out. Soft and fleshy, not woody.",
  "leaf": {
   "arrangement": "Opposite, in pairs, each pair at right angles to the one below",
@@ -74,5 +74,5 @@
   ]
  },
  "look_alikes": "Thai basil has narrower leaves, purple stems and purple flower spikes. Purple basils have dark red-purple leaves. Perilla (shiso) has hairy, sharply toothed leaves. Mint and lemon balm have toothed, wrinkled, matt leaves.",
- "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK Settled from William's spreadsheet, 17 November 2026: 'Sweet Genovese'."
 }

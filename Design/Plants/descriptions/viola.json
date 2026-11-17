@@ -32,7 +32,7 @@
  "winter": "A low tuft of small leaves; may keep flowering in mild spells.",
  "palette": {
   "leaf": "leaf",
-  "flower": "lilac",
+  "flower": "flowers_selfheal",
   "centre": "sun",
   "fruit": "pale"
  },
@@ -67,5 +67,5 @@
   ]
  },
  "look_alikes": "Wild pansy (Viola tricolor) is smaller (1.5 to 2.5 cm) and often three-coloured. Horned violet (Viola cornuta) has a long slender spur. Dog-violets grow from a rosette, have heart-shaped leaves and narrow, unlobed stipules.",
- "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK 17 November 2026, flowers redraw: palette flower changed from \"lilac\" to \"flowers_selfheal\" to match the photographs and the description's colour (violet-blue), using a colour added in Tools/design/redraw/flowers.py."
 }

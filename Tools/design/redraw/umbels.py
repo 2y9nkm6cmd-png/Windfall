@@ -403,7 +403,7 @@ def close_thread(a, sp):
     """Dill or fennel close up: the stem piece, the sheath with its papery
     edges wrapping it, and the leaf."""
     fill = sp["fill"]; fen = sp.get("style") == "fennel"
-    stem_stub(a, 24, 100, -100, 30, 5.4, "sage" if fill == "sage" else fill, ridges=3)
+    stem_stub(a, 24, 100, -100, 30, 5.4, "sage", ridges=3)
     t = T(*BASE, ANG)
     L0 = 18 if fen else 11   # fennel's sheath is long
     feather(a, *t(L0 - 2), ANG, 96 - L0, fill, False, sp.get("style", "dill"))
@@ -1263,6 +1263,9 @@ COLOURS = {
     # dill's and fennel's bright greenish yellow: the stock "sun" was amber
     # beside the photographs (independent check, 17 November 2026)
     "umbels_yellow": ("#E4D93C", "#D9CE3E"),
+    # bronze fennel's foliage, bronze-purple to bronze-green (settled from
+    # William's spreadsheet, 17 November 2026: all his fennel is 'Purpureum')
+    "umbels_bronze": ("#985546", "#B47A64"),
 }
 
 LEAF_DRAW = {
