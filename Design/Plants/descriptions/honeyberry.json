@@ -30,7 +30,7 @@
  "fruit": "An oblong, slightly cylindrical berry, 1.5 to 2.5 cm, dark blue with a pale grey-blue bloom, often a little angled or kinked, formed from the two joined ovaries of a pair of flowers. Hangs singly from the leaf angles. May to June, the earliest fruit of the garden.",
  "seedling": "Not drawn: grown as bought plants",
  "winter": "Bare, upright stems with light brown peeling bark and small paired buds.",
- "palette": {"leaf": "sage", "flower": "primrose", "fruit": "blue"},
+ "palette": {"leaf": "sage", "flower": "primrose", "fruit": "fruit_dusk"},
  "palette_wish": {"fruit": "dusky blue under a grey-blue bloom, about #4E6390"},
  "must_show": {
   "leaf": ["simple oblong leaf with a smooth edge", "blunt rounded tip and rounded base", "very short stalk"],
@@ -41,5 +41,5 @@
   "crop": ["long oval blue berries with a pale bloom hanging singly", "opposite oblong leaves"]
  },
  "look_alikes": "Blueberry has alternate leaves, white urn flowers and round berries with a crown. Other shrubby honeysuckles (such as Lonicera fragrantissima) have white winter flowers and red berries. Snowberry has pink bell flowers and white berries.",
- "checked": "Written 16 November 2026 by Claude from field-guide knowledge and iNaturalist photos. ⚠️ CHECK"
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge and iNaturalist photos. ⚠️ CHECK 16 November 2026, fruit redraw: palette fruit changed from 'blue' to 'fruit_dusk', a new colour made for the dusky blue the palette_wish asked for."
 }

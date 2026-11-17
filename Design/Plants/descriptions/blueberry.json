@@ -30,7 +30,7 @@
  "fruit": "Round berries, 1 to 2 cm, blue-black under a pale powder-blue bloom, each topped with a little five-pointed crown of old sepals around a sunken centre. In loose bunches that ripen unevenly, so green, pink and blue berries hang together. 'Pink Lemonade' ripens pink. July to September.",
  "seedling": "Not drawn: grown as bought plants (wild blueberry from seed)",
  "winter": "Bare bush of many upright stems; young twigs bright red, carrying fat rounded flower buds at their tips and small pointed leaf buds below.",
- "palette": {"leaf": "leaf", "flower": "white", "fruit": "blue"},
+ "palette": {"leaf": "leaf", "flower": "white", "fruit": "fruit_dusk"},
  "palette_wish": {"fruit": "dusky blue under a grey-blue bloom, about #4E6390"},
  "must_show": {
   "leaf": ["simple elliptic leaf with a pointed tip", "smooth edge, no visible teeth", "very short stalk"],
@@ -41,5 +41,5 @@
   "crop": ["bunches of round blue berries with a pale bloom, some still green or pink", "a five-pointed crown on top of each berry"]
  },
  "look_alikes": "Bilberry (Vaccinium myrtillus) is a low wild shrub with green angled stems, single pinkish flowers and single berries. Blue honeysuckle (honeyberry) has paired yellow flowers and long oval berries. Lily of the valley bells are wider at the mouth and grow on a leafless stalk from the ground.",
- "checked": "Written 16 November 2026 by Claude from field-guide knowledge and iNaturalist photos. ⚠️ CHECK"
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge and iNaturalist photos. ⚠️ CHECK 16 November 2026, fruit redraw: palette fruit changed from 'blue' to 'fruit_dusk', a new colour made for the dusky blue the palette_wish asked for."
 }

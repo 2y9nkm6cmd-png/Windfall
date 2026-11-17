@@ -30,7 +30,7 @@
  "fruit": "Round, translucent berries, 8 to 10 mm, pearly white to pale cream-yellow when ripe, the pale lines of veins and the seeds showing faintly through the skin, each with a tiny brown dry tip. Ten to twenty on long hanging strigs, ripest at the top. July.",
  "seedling": "Not drawn: grown from cuttings or bought plants",
  "winter": "Bare open goblet on a short leg: pale grey-brown stems, with short spurs and pointed brown buds standing away from the stem.",
- "palette": {"leaf": "leaf", "flower": "pear", "centre": "plum", "fruit": "white"},
+ "palette": {"leaf": "leaf", "flower": "pear", "centre": "plum", "fruit": "fruit_pearl"},
  "palette_wish": {"fruit": "translucent pearly cream, about #F3EBC8"},
  "must_show": {
   "leaf": ["roundish leaf with three to five broad lobes", "blunt teeth all round", "main veins fanning from a long stalk"],
@@ -41,5 +41,5 @@
   "crop": ["long hanging strings of round translucent pearly-white berries", "lobed leaves"]
  },
  "look_alikes": "Redcurrant is the same plant with red berries. Blackcurrant leaves are bigger, more pointed and smell strongly, with bell flowers and black berries. Gooseberry has spines and berries borne singly.",
- "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK 16 November 2026, fruit redraw: palette fruit changed from 'white' to 'fruit_pearl', a new colour made for the translucent pearly cream the palette_wish asked for."
 }
