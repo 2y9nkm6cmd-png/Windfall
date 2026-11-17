@@ -8,7 +8,7 @@
 
 - **A description for each of the 172 kinds** (`Design/Plants/descriptions/`), written from field-guide knowledge and UK iNaturalist photos, with a `must_show` list for every drawing. ⚠️ CHECK: Claude's. Where William's spreadsheet names the one variety he grows, the description follows it: pink hyssop, bronze fennel, 'Purple Vienna' kohlrabi, 'Simiane' shallot, 'Ocean Magic' grape hyacinth, 'Serrano' chilli, 'Pinstripe' aubergine, heirloom sweet peas. Where he grows several, the drawing waits for his choice.
 - **Colours come from the description only** (`palette`), read by `plants_all.py` and `leaves_flowers.py`.
-- **Every drawing redrawn**: 1,248 (each in light and dark), by nine groups working side by side, each in its own file in `Tools/design/redraw/`. About 90 new colours, each named after its group.
+- **Every drawing redrawn**: 1,248 (each in light and dark), by nine groups working side by side, each in its own file in `Tools/design/redraw/`. 63 new colours, each named after its group.
 - **`leaf="own"`**: a whole plant can carry its own close-up leaf, drawn small (`Art.place`).
 - **`slim`** in `plant_kit.py`: shorter path text, same look. Without it the drawings were three times the size.
 - **Seven stage labels** changed (the stage names, which the app uses, did not): crocus and peacock orchid Corm, bearded iris Rhizome, candy cane sorrel Bulb, chicory Forced chicon, garlic In flower, shallot Seedling.
