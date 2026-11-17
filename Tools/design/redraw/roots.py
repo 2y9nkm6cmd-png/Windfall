@@ -136,7 +136,7 @@ def hairs(a, pts, side=1, k=1.0):
         ang = math.degrees(math.atan2(y1 - y0, x1 - x0))
         for sd in (1, -1):
             e = T(*pts[i], ang + sd * 58)(2.4 * k)
-            a.line(f"M{P(pts[i])} L{P(e)}", 0.55, 0.85)
+            a.line(f"M{P(pts[i])} L{P(e)}", 0.55, 0.75)   # faint (under 0.8), so Art.place leaves them out when small
 
 
 # ======================================================== close-up leaves
@@ -175,7 +175,7 @@ def leaf_lyrate(a, sp):
                 w = hw(u, s_)
                 if w > wing + 1.5:
                     p0 = tt(L * u, s_ * w); e = tt(L * u + 0.6, s_ * (w + 1.8))
-                    a.line(f"M{P(p0)} L{P(e)}", 0.5, 0.85)
+                    a.line(f"M{P(p0)} L{P(e)}", 0.5, 0.75)
     return a
 
 
@@ -957,26 +957,41 @@ def carrot_small(a, x, y, ang, L, fill="deep"):
 
 
 def potato_small(a, x, y, ang, L, fill="deep"):
-    """A potato leaf as it is drawn on the whole plant: three pairs of big
-    oval pointed leaflets and a big end leaflet, with a small pair between
-    each big pair. The close-up's wrinkles and veins are too fine to keep."""
+    """A potato leaf as it is drawn on the whole plant: two pairs of large
+    broad oval pointed leaflets and a big end leaflet, a pair of small
+    leaflets between them. The close-up's wrinkles are too fine to keep."""
     t = T(x, y, ang)
-    q = a.stem(t(0), t(L * 0.5, L * 0.04), t(L * 0.78), 0.8)
-    for u, l in ((0.36, 0.3), (0.62, 0.3), (0.88, 0.27)):
+    q = a.stem(t(0), t(L * 0.5, L * 0.04), t(L * 0.7), 0.8)
+    for u, l in ((0.45, 0.36), (0.85, 0.34)):
         px, py = q.pt(u); g = q.ang(u)
         for sd in (1, -1):
-            a.leaf(px, py, g + sd * 58, L * l, 0.5, fill, lw=0.6, skew=0.42, vein=L * l >= 8)
-    for u in (0.5, 0.76):   # the small leaflets between the big pairs
-        px, py = q.pt(u); g = q.ang(u)
+            a.leaf(px, py, g + sd * 55, L * l, 0.62, fill, lw=0.6, skew=0.4, vein=True)
+    px, py = q.pt(0.66); g = q.ang(0.66)
+    for sd in (1, -1):   # the small leaflets between
+        a.leaf(px, py, g + sd * 85, L * 0.13, 0.6, fill, lw=0.5, detail=False)
+    ex, ey = q.pt(1); a.leaf(ex, ey, q.ang(1), L * 0.42, 0.62, fill, lw=0.6, skew=0.4, vein=True)
+
+
+def beet_small(a, x, y, ang, L, fill, sc, vc):
+    """A beet leaf as it is drawn on the whole plant: the stalk and midrib
+    thick and clearly the stalk colour (red in beetroot), an oval wavy blade."""
+    t = T(x, y, ang)
+    a.leaf(*t(L * 0.36), ang, L * 0.66, 0.5, fill, lw=0.65, skew=0.52, detail=False)
+    a.ribbon(t(0), t(L * 0.2, 0.3), t(L * 0.38), max(1.8, L * 0.075), max(1.4, L * 0.06), sc, lw=0.5)
+    a.ribbon(t(L * 0.36), t(L * 0.6), t(L * 0.9), max(1.3, L * 0.05), 0.4, sc, lw=0)
+    for u in (0.5, 0.64, 0.78):   # side veins
         for sd in (1, -1):
-            a.leaf(px, py, g + sd * 80, L * 0.1, 0.55, fill, lw=0.5, detail=False)
-    ex, ey = q.pt(1); a.leaf(ex, ey, q.ang(1), L * 0.34, 0.5, fill, lw=0.6, skew=0.42)
+            a.line(f"M{P(t(L * u))} L{P(t(L * (u + 0.1), sd * L * 0.13 * (1.1 - u)))}", 0.6, 0.9, vc)
 
 
 def put(a, slug, x, y, ang, L, fills=None, detail=None, lw=None, dry=False):
     """The kind's own close-up leaf drawn L long at x,y, pointing along ang."""
     if slug == "carrot":   # see carrot_small
         return carrot_small(a, x, y, ang, L, "straw" if dry else (fills or {}).get("deep", "deep"))
+    if slug in ("beetroot", "mangelwurzel"):   # see beet_small
+        red = slug == "beetroot"
+        return beet_small(a, x, y, ang, L, "straw" if dry else (fills or {}).get(pal(slug, "leaf", "deep"), pal(slug, "leaf", "deep")),
+                          "straw" if dry else ("beet" if red else "pale"), "beet" if red and not dry else "pale")
     if slug == "potatoes":   # see potato_small
         return potato_small(a, x, y, ang, L, "straw" if dry else (fills or {}).get("deep", "deep"))
     src, f0 = own(slug)
@@ -1484,9 +1499,9 @@ LEAFX = {
     "beetroot": dict(kind="roots_beet", fill="deep", stalkc="beet", veinc="beet", W=40),
     "mangelwurzel": dict(kind="roots_beet", fill="leaf", stalkc="pale", veinc="white", W=42, petiole=0.3),
     # radish: a short round end lobe and small lobes spaced well apart down a long stalk, fine blunt teeth
-    "radish": dict(kind="roots_lyrate", fill="leaf", Wt=17, t0=0.62, petiole=0.2, hairs=True, wing=0.7, teeth=30, td=1.2,
-                   lobes=[(0.07, 0.03, 3.6, 1), (0.13, 0.03, 3.4, -1), (0.22, 0.035, 5, 1), (0.29, 0.035, 5, -1), (0.38, 0.04, 6.5, 1),
-                          (0.45, 0.04, 6.5, -1), (0.53, 0.045, 8, 1), (0.56, 0.045, 7.5, -1)]),
+    "radish": dict(kind="roots_lyrate", fill="leaf", Wt=14, t0=0.52, petiole=0.2, hairs=True, wing=0.7, teeth=30, td=1.2,
+                   lobes=[(0.07, 0.03, 3.6, 1), (0.13, 0.03, 3.4, -1), (0.22, 0.035, 5, 1), (0.29, 0.035, 5, -1), (0.36, 0.04, 6.5, 1),
+                          (0.42, 0.04, 6.5, -1)]),
     # turnip: a long, large end lobe with big side lobes crowded up under it, coarse wavy teeth
     "turnip": dict(kind="roots_lyrate", fill="leaf", Wt=19, t0=0.43, petiole=0.1, hairs=True, wing=1.0, teeth=16, td=2.2,
                    lobes=[(0.08, 0.045, 6, 1), (0.1, 0.045, 5.6, -1), (0.18, 0.05, 9.5, 1), (0.2, 0.05, 9, -1), (0.28, 0.05, 12.5, 1), (0.29, 0.05, 12, -1)]),
@@ -1563,9 +1578,11 @@ def nest(a, x, y, R, col="bark"):
     for o in (-0.62, -0.36, -0.1, 0.16, 0.42, 0.66):   # the curled spokes, each bending in at the top
         tip = (x + o * R * 0.8, y - h * 0.92 + abs(o) * R * 0.06)
         a.line(f"M{f(x)},{f(y)} C{f(x + o * R * 1.4)},{f(y - h * 0.15)} {f(x + o * R * 1.5)},{f(y - h * 0.75)} {P(tip)}", 0.8, 0.95, "bark")
-        a.oval(tip[0], tip[1], max(0.7, R * 0.09), max(0.6, R * 0.07), 0, "bark", 0.45)   # the fruits on its end
-        for sd in (-1, 1):
-            a.line(f"M{P(tip)} l{f(sd * R * 0.06)},{f(-R * 0.06)}", 0.35, 0.8)
+        r = max(0.9, R * 0.11)   # the bristly brown fruits on its end
+        for k in range(7):
+            g = -90 + (k - 3) * 30
+            a.line(f"M{P(tip)} L{P(T(*tip, g)(r * 1.9))}", 0.45, 1.0, "dark")
+        a.dot(tip[0], tip[1] - r * 0.2, r, "bark")
 
 
 def tall_umbel(slug, stage, fc, heads, leafL=16):
@@ -1829,7 +1846,7 @@ def potato_seedtuber():
 
 def potato_shoot(a, x, y, H, lean, leaves, fills=None, dry=False, droop=0):
     """One leafy potato stem: its own pinnate leaves set alternately up it."""
-    q = a.ribbon((x, y), (x + lean * 0.15, y - H * 0.6), (x + lean, y - H), 2.2, 1.4, "straw" if dry else "leaf", lw=0.8)
+    q = a.ribbon((x, y), (x + lean * 0.05, y - H * 0.75), (x + lean, y - H), 2.2, 1.4, "straw" if dry else "leaf", lw=0.8)
     for k in range(leaves):
         u = 0.25 + 0.72 * k / max(1, leaves - 1); px, py = q.pt(u); sd = 1 if k % 2 else -1
         put(a, "potatoes", px, py, -90 + sd * (62 + droop) + lean * 0.6, 29 * (1.05 - 0.4 * u), fills=fills, dry=dry)
@@ -1847,7 +1864,7 @@ def potato_young():
 
 def potato_in_flower():
     a = Art(); soil(a, 88)
-    shoots = [(-10, 36, -22), (10, 36, 22), (-5, 50, -12), (5, 48, 12), (0, 56, 2)]   # angled stems sprawling out into a bush
+    shoots = [(-6, 30, -24), (6, 30, 24), (-3, 46, -16), (3, 44, 16), (0, 54, 3)]   # angled stems arching out into a sprawling bush   # angled stems sprawling out into a bush
     tops = []
     for dx, H, lean in shoots:
         q = potato_shoot(a, 50 + dx * 0.5, 88, H, lean, 3)

@@ -32,8 +32,8 @@
  "winter": "Nothing above ground until the blunt leaf tips appear in January or February.",
  "palette": {
   "leaf": "sage",
-  "flower": "sun",
-  "centre": "amber",
+  "flower": "bulbs_yellow",
+  "centre": "bulbs_gold",
   "fruit": "unripe"
  },
  "must_show": {
@@ -72,5 +72,5 @@
   ]
  },
  "look_alikes": "Other kinds of daffodil differ in the cup (short in large-cupped and jonquil types) or flowers to a stem. Wild daffodil is smaller with pale petals and a darker trumpet. Leaves alone look like bluebell (glossy, darker green, hooded tip) or snowdrop (much narrower).",
- "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK Palette changed 17 November 2026 (bulbs redraw): the flower is now bulbs_yellow, a clear yellow, and the trumpet bulbs_gold, a shade deeper, because the old 'sun' and 'amber' drew a golden daffodil as orange."
 }

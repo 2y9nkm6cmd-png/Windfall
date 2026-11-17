@@ -30,7 +30,7 @@
  "fruit": "Oblong seeds 4 to 6 mm long, in pairs, with five strong pale ribs and no wing. Green ripening to grey-brown. Umbels of seed stand into winter.",
  "seedling": "Two long narrow seed leaves, then first true leaves divided into threads",
  "winter": "Dies down to the ground. Dead hollow brown stems often stand with their seed umbels. Fresh feathery shoots appear at the crown from late winter.",
- "palette": {"leaf": "sage", "flower": "sun", "fruit": "seed"},
+ "palette": {"leaf": "sage", "flower": "umbels_yellow", "fruit": "bark"},
  "must_show": {
   "leaf": ["hair-fine threads spreading in all directions, a soft plume", "long sheath clasping the stem", "grey-green colour"],
   "bloom": ["yellow umbel of many rays, no bracts", "tiny yellow flowers in small umbels at the ray tips"],
@@ -43,5 +43,5 @@
   "dormant": ["dead brown stems standing, some with seed umbels", "small feathery new shoots at the base"]
  },
  "look_alikes": "Dill is an annual with one stem, flatter leaves and flat winged seeds. Florence fennel has a swollen white bulb at the base. Hemlock and other white umbellifers have flat, divided but not thread-like leaflets and white flowers.",
- "checked": "Written 16 November 2026 by Claude from field-guide knowledge. No UK iNaturalist photos had been downloaded for this group when it was written. ⚠️ CHECK"
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. No UK iNaturalist photos had been downloaded for this group when it was written. ⚠️ CHECK 17 November 2026, redraw: palette flower set to umbels_yellow (bright yellow, not the amber of sun) and fruit to bark (grey-brown ripe seeds)."
 }

@@ -32,7 +32,7 @@
  "winter": "Dies down to the crown. Dead stems with brown balls may stand; a few spiny rosette leaves may stay at the base.",
  "palette": {
   "leaf": "deep",
-  "flower": "blue",
+  "flower": "daisies_steel",
   "fruit": "bark"
  },
  "palette_wish": {
@@ -72,5 +72,5 @@
   ]
  },
  "look_alikes": "Echinops bannaticus is taller with greyer-blue heads; Echinops sphaerocephalus is taller with grey-white heads. Sea hollies (Eryngium) have a collar of spiny bracts under a domed head. True thistles have flat-topped tufted heads, not balls.",
- "checked": "Written 16 November 2026 by Claude from field-guide knowledge. No reference photos had been downloaded for this group yet, so nothing was checked against photographs. ⚠️ CHECK"
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. No reference photos had been downloaded for this group yet, so nothing was checked against photographs. ⚠️ CHECK Redraw of 16 November 2026: flower colour set to the new daisies_steel from palette_wish."
 }

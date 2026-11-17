@@ -32,7 +32,7 @@
  "winter": "Dies down to a low tuft of small, grey-green, wrinkled leaves at the base, with the old stems cut back or standing brown.",
  "palette": {
   "leaf": "sage",
-  "flower": "plum",
+  "flower": "flowers_violet",
   "fruit": "bark"
  },
  "palette_wish": {
@@ -73,5 +73,5 @@
   ]
  },
  "look_alikes": "Catmint (Nepeta) has softer, greyer, heart-shaped leaves and looser lavender-blue spikes with no coloured bracts. Lavender has narrow untoothed leaves on a woody bush. Meadow clary (Salvia pratensis) has much larger basal leaves and bigger flowers, 2 to 3 cm, in looser spikes. Salvia × sylvestris garden forms are almost the same.",
- "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK 16 November 2026, flowers redraw: palette flower changed from \"plum\" to \"flowers_violet\", the colour asked for in palette_wish, added in Tools/design/redraw/flowers.py."
 }

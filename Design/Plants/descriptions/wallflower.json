@@ -32,7 +32,7 @@
  "winter": "Planted out in autumn; through winter a bushy leafy plant of narrow deep green leaves with flower buds forming at the tips.",
  "palette": {
   "leaf": "deep",
-  "flower": "carrot",
+  "flower": "flowers_orangered",
   "centre": "pear",
   "fruit": "seed"
  },
@@ -71,5 +71,5 @@
   ]
  },
  "look_alikes": "Siberian wallflower (Erysimum × marshallii) is bright orange with narrower leaves. Perennial wallflowers such as 'Bowles's Mauve' have grey leaves and mauve flowers. Stocks (Matthiola) have grey felty leaves and pink or purple flowers. Wild wallflower on old walls is yellow.",
- "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK 16 November 2026, flowers redraw: palette flower changed from \"carrot\" to \"flowers_orangered\", the colour asked for in palette_wish, added in Tools/design/redraw/flowers.py."
 }

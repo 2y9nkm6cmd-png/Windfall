@@ -32,7 +32,7 @@
  "winter": "A low mat of small oval leaves, often purplish, along the creeping stems.",
  "palette": {
   "leaf": "leaf",
-  "flower": "lilac",
+  "flower": "flowers_selfheal",
   "centre": "plum",
   "fruit": "bark"
  },
@@ -72,5 +72,5 @@
   ]
  },
  "look_alikes": "Bugle (Ajuga reptans) has glossy leaves and long runners; its blue flowers sit in whorls up a leafy spike and have no hood. Ground-ivy has kidney-shaped toothed leaves and flowers in the leaf joints. Cut-leaved selfheal (Prunella laciniata) is creamy white with cut leaves.",
- "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK 16 November 2026, flowers redraw: palette flower changed from \"lilac\" to \"flowers_selfheal\", the colour asked for in palette_wish, added in Tools/design/redraw/flowers.py."
 }

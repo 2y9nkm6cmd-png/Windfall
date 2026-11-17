@@ -32,8 +32,8 @@
  "winter": "Nothing: killed by the first frost.",
  "palette": {
   "leaf": "deep",
-  "flower": "beet",
-  "centre": "rust",
+  "flower": "daisies_raspberry",
+  "centre": "dark",
   "fruit": "bark"
  },
  "palette_wish": {
@@ -72,5 +72,5 @@
   ]
  },
  "look_alikes": "Common zinnia (Zinnia elegans) is taller with broader oval leaves and larger, often fully double heads. Zinnia angustifolia has very narrow leaves and small orange flowers. Rudbeckia has alternate hairy leaves and a big dark cone.",
- "checked": "Written 16 November 2026 by Claude from field-guide knowledge. No reference photos had been downloaded for this group yet, so nothing was checked against photographs. ⚠️ CHECK"
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. No reference photos had been downloaded for this group yet, so nothing was checked against photographs. ⚠️ CHECK Redraw of 16 November 2026: flower colour set to the new daisies_raspberry from palette_wish; centre changed from rust to dark, because the text gives a dark brown-red disc and rust read as orange beside the raspberry rays. The reference photos are of Zinnia elegans, not 'Raspberry Lemonade', so they were used only for the general build of the head and leaf."
 }

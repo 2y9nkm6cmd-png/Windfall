@@ -32,7 +32,7 @@
  "winter": "A flat rosette of dark green oblong leaves, often reddish-purple, stays at the soil.",
  "palette": {
   "leaf": "deep",
-  "flower": "lilac",
+  "flower": "daisies_violet",
   "centre": "plum",
   "fruit": "bark"
  },
@@ -73,5 +73,5 @@
   ]
  },
  "look_alikes": "Field scabious (Knautia arvensis) has lobed leaves, bristly stems and flatter heads with larger outer florets. Small scabious has finely cut leaves and a frilly outer ring. Sheep's-bit (Jasione) is in the bellflower family, with alternate leaves and flatter heads of tiny star-shaped flowers. Round-headed rampion has alternate leaves and claw-like flowers.",
- "checked": "Written 16 November 2026 by Claude from field-guide knowledge. No reference photos had been downloaded for this group yet, so nothing was checked against photographs. ⚠️ CHECK"
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. No reference photos had been downloaded for this group yet, so nothing was checked against photographs. ⚠️ CHECK Redraw of 16 November 2026: flower colour set to the new daisies_violet from palette_wish (lilac was too pale and too pink)."
 }

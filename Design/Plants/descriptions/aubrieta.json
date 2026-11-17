@@ -32,7 +32,7 @@
  "winter": "An evergreen grey-green mat of small leaves, looser after cutting back.",
  "palette": {
   "leaf": "sage",
-  "flower": "mauve",
+  "flower": "flowers_purple",
   "centre": "primrose",
   "fruit": "seed"
  },
@@ -65,5 +65,5 @@
   ]
  },
  "look_alikes": "Arabis (rock cress) is white-flowered with greyer leaves. Phlox subulata has needle-like leaves and five-petalled flowers. Aurinia (gold dust) is yellow. Purple rock cress is another name for aubrieta.",
- "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK 16 November 2026, flowers redraw: palette flower changed from \"mauve\" to \"flowers_purple\", the colour asked for in palette_wish, added in Tools/design/redraw/flowers.py."
 }

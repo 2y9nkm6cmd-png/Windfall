@@ -32,7 +32,7 @@
  "winter": "Nothing, or autumn-sown seedlings sitting as small grey rosettes.",
  "palette": {
   "leaf": "sage",
-  "flower": "blue",
+  "flower": "daisies_cornblue",
   "centre": "plum",
   "fruit": "straw"
  },
@@ -70,5 +70,5 @@
   ]
  },
  "look_alikes": "Perennial cornflower (Centaurea montana) has broad leaves and a few widely spaced, very spidery outer florets. Knapweeds are purple without large outer florets (except greater knapweed, which has lobed leaves). Chicory has flat strap-shaped blue rays and flowers stuck along the stem.",
- "checked": "Written 16 November 2026 by Claude from field-guide knowledge. No reference photos had been downloaded for this group yet, so nothing was checked against photographs. ⚠️ CHECK"
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. No reference photos had been downloaded for this group yet, so nothing was checked against photographs. ⚠️ CHECK Redraw of 16 November 2026: flower colour set to the new daisies_cornblue from palette_wish; the stock blue was too pale for a cornflower."
 }

@@ -32,7 +32,7 @@
  "winter": "None: an annual, killed by hard frost.",
  "palette": {
   "leaf": "deep",
-  "flower": "blue",
+  "flower": "flowers_blue",
   "centre": "dark",
   "fruit": "dark"
  },
@@ -70,5 +70,5 @@
   ]
  },
  "look_alikes": "Comfrey has hanging tubular bells, not stars. Green alkanet (Pentaglottis sempervirens) is perennial with smaller, deep blue flowers with a white eye and no black cone. Viper's-bugloss has narrow leaves and funnel-shaped flowers in spikes.",
- "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK 16 November 2026, flowers redraw: palette flower changed from \"blue\" to \"flowers_blue\", the colour asked for in palette_wish, added in Tools/design/redraw/flowers.py."
 }

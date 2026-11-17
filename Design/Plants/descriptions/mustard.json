@@ -7,8 +7,8 @@
  "habit": "An upright, branched annual 30 to 80 cm (to 1 m or more as a green manure), fast-growing, the stems with stiff, downward-pointing bristles.",
  "leaf": {
   "arrangement": "Alternate, all on stalks; a loose rosette when young",
-  "type": "Simple but deeply lobed (pinnately lobed, like a lyre): a large end lobe and two to four pairs of smaller side lobes",
-  "outline": "Oval to oblong, 5 to 15 cm long, the end lobe broad and rounded and much the biggest",
+  "type": "Simple but cut deeply all along its length (pinnately lobed, often nearly to the midrib): three or four pairs of broad side lobes, themselves lobed and toothed, and an end lobe only a little larger",
+  "outline": "Oval to oblong, 5 to 15 cm long, the side lobes large and separated by deep gaps, the end lobe only a little bigger than them; upper stem leaves lobed too",
   "base": "Narrowing into the stalk, the lowest lobes small",
   "tip": "Rounded to bluntly pointed",
   "margin": "Coarsely and irregularly toothed all round, on every lobe",
@@ -30,9 +30,9 @@
  "fruit": "Pods 2 to 4 cm spreading out from the stem, bristly-hairy, swollen over two to four seeds on each side, ending in a long, flat, sword-shaped beak as long as or longer than the seed-bearing part. Seeds round, 2 to 2.5 mm, pale yellow.",
  "seedling": "Two kidney-shaped seed leaves on short stalks, broader than long with a notch at the tip, like a heart with the stalk at its point, large for the seed; the first true leaves hairy and lobed.",
  "winter": "Nothing: an annual, killed by hard frost; as a green manure it is cut down or dug in before winter.",
- "palette": {"leaf": "leaf", "flower": "sun", "centre": "sun", "fruit": "straw"},
+ "palette": {"leaf": "leaf", "flower": "leaves_yellow", "centre": "leaves_yellow", "fruit": "straw"},
  "must_show": {
-  "leaf": ["a lyre-shaped lobed leaf with a large rounded end lobe", "coarse irregular teeth all round", "rough bristly hairs"],
+  "leaf": ["a leaf cut deeply all along into pairs of broad lobes, the end lobe only a little larger", "coarse irregular teeth all round", "rough bristly hairs"],
   "bloom": ["four bright yellow petals in a cross", "narrow sepals spreading out flat between them"],
   "seed": ["round pale yellow seed 2 mm", "smooth, about the size of a pinhead"],
   "seedling": ["two kidney-shaped seed leaves notched at the tip", "the first true leaf hairy and lobed"],
@@ -42,5 +42,5 @@
   "seedhead": ["bristly pods spreading out from the stem", "each with a long flat beak as long as the rest of the pod"]
  },
  "look_alikes": "Charlock (Sinapis arvensis) has less lobed upper leaves and pods with a shorter beak. Oilseed rape and turnip have smooth blue-green clasping stem leaves. Rocket has cream, purple-veined flowers. Brassica juncea mustards have smooth or frilly leaves and slender pods with a short beak.",
- "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK 17 November 2026, redraw (leaves group): the leaf corrected after a checker's note and the photographs. White mustard's leaves are cut deeply all along into broad, lobed and toothed side lobes with an end lobe only a little larger; the lyre shape with one big end lobe written before is charlock's. Palette flower and centre changed from the amber 'sun' to a new clear yellow, leaves_yellow, as the photographs show."
 }

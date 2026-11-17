@@ -31,7 +31,7 @@
  "seedling": "Not drawn.",
  "winter": "Nearly evergreen: a twiggy bush with some leaves left; best cut back in spring.",
  "palette": {
-  "leaf": "deep",
+  "leaf": "marrow",
   "flower": "herbs_violet",
   "fruit": "seed"
  },
@@ -63,5 +63,5 @@
   ]
  },
  "look_alikes": "Lavender has grey felted leaves and its flower spikes on long bare stalks above the bush. Rosemary has leathery leaves white beneath and flowers in the leaf joints in spring. Winter savory is lower, with white or pale lilac flowers. Anise hyssop (Agastache) has broad toothed leaves.",
- "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK Redraw of 16 November 2026: palette flower changed from \"plum\" to \"herbs_violet\", the colour asked for in palette_wish, added in Tools/design/redraw/herbs.py."
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK Redraw of 16 November 2026: palette flower changed from \"plum\" to \"herbs_violet\", the colour asked for in palette_wish, added in Tools/design/redraw/herbs.py. Redraw check of 17 November 2026: palette leaf changed from \"deep\" to \"marrow\", because \"deep\" is a mid green and the description and photographs give dark green leaves."
 }

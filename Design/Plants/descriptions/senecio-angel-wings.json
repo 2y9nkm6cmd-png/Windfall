@@ -22,7 +22,7 @@
  "seedling": "Not drawn: bought as a young plant.",
  "winter": "Evergreen where it survives, but smaller: fewer leaves, the outer ones yellowing or browning after frost or wet. Often kept in a pot under cover.",
  "palette": {
-  "leaf": "sage"
+  "leaf": "daisies_silver"
  },
  "palette_wish": {
   "leaf": "silvery white felt, about #DCE3DE"
@@ -46,5 +46,5 @@
   ]
  },
  "look_alikes": "Silver ragwort or dusty miller (Jacobaea maritima) has smaller leaves deeply cut into lobes. Lamb's ears (Stachys byzantina) has narrow, oblong, very soft leaves and purple flower spikes. Plectranthus argentatus has toothed, pointed leaves in opposite pairs.",
- "checked": "Written 16 November 2026 by Claude from field-guide knowledge. No reference photos had been downloaded for this group yet, so nothing was checked against photographs. ⚠️ CHECK"
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. No reference photos had been downloaded for this group yet, so nothing was checked against photographs. ⚠️ CHECK Redraw of 16 November 2026: leaf colour set to the new daisies_silver from palette_wish; sage was too green for the white felt."
 }

@@ -30,7 +30,7 @@
  "fruit": "Flat oval seeds 3 to 5 mm long in pairs, brown with three fine ribs on the face and a pale flat wing round the edge. They ripen from green to brown on the open umbrella of rays and fall easily.",
  "seedling": "Two long, very narrow seed leaves (2 to 3 cm, like green needles), then first true leaves already cut into threads",
  "winter": "Nothing: an annual that dies after seeding",
- "palette": {"leaf": "sage", "flower": "sun", "fruit": "seed"},
+ "palette": {"leaf": "sage", "flower": "umbels_yellow", "fruit": "bark"},
  "must_show": {
   "leaf": ["divided three or four times into fine threads", "a broad sheath with pale edges where the stalk meets the stem", "blue-green colour"],
   "bloom": ["a flat umbrella of many rays with no bracts at their base", "tiny yellow flowers in small round umbels at the ray tips", "flowers read as dots, not as petalled flowers"],
@@ -42,5 +42,5 @@
   "seedhead": ["brown umbrella of stiff rays with flat winged seeds in pairs", "stem and leaves yellowing or dead"]
  },
  "look_alikes": "Fennel is a perennial with several stems, more three-dimensional leaves with longer threads and seeds without a wing. Chamomiles and mayweeds have thread-like leaves but daisy flowers.",
- "checked": "Written 16 November 2026 by Claude from field-guide knowledge. No UK iNaturalist photos had been downloaded for this group when it was written. ⚠️ CHECK"
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. No UK iNaturalist photos had been downloaded for this group when it was written. ⚠️ CHECK 17 November 2026, redraw: palette flower set to umbels_yellow (the photographs show bright greenish yellow, not the amber of sun) and fruit to bark (the ripe seeds are brown)."
 }

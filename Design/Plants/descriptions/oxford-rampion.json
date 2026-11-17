@@ -32,7 +32,7 @@
  "winter": "Dies down to the thick root; a few small leaves may stay at the base.",
  "palette": {
   "leaf": "deep",
-  "flower": "plum",
+  "flower": "daisies_rampion",
   "centre": "lilac",
   "fruit": "bark"
  },
@@ -74,5 +74,5 @@
   ]
  },
  "look_alikes": "Round-headed rampion (Phyteuma orbiculare), wild on southern chalk downs, has short bracts that do not stick out beyond the head. Spiked rampion (Phyteuma spicatum) has a long cylindrical spike of cream flowers. Sheep's-bit has flat heads of tiny star-shaped flowers and no horns. Devil's-bit scabious has opposite leaves and a fuzzy dome.",
- "checked": "Written 16 November 2026 by Claude from field-guide knowledge. No reference photos had been downloaded for this group yet, so nothing was checked against photographs. ⚠️ CHECK"
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. No reference photos had been downloaded for this group yet, so nothing was checked against photographs. ⚠️ CHECK Redraw of 16 November 2026: flower colour set to the new daisies_rampion from palette_wish (plum was too red for a deep violet-blue)."
 }

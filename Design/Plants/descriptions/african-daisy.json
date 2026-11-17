@@ -33,7 +33,7 @@
  "palette": {
   "leaf": "leaf",
   "flower": "pink",
-  "centre": "plum",
+  "centre": "daisies_navy",
   "fruit": "bark"
  },
  "palette_wish": {
@@ -70,5 +70,5 @@
   ]
  },
  "look_alikes": "Cape marigold (Dimorphotheca sinuata) is a smaller annual, usually orange. Gazania has rays with dark rings near the base and leaves white beneath. Ox-eye daisy has a yellow centre.",
- "checked": "Written 16 November 2026 by Claude from field-guide knowledge. No reference photos had been downloaded for this group yet, so nothing was checked against photographs. ⚠️ CHECK"
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. No reference photos had been downloaded for this group yet, so nothing was checked against photographs. ⚠️ CHECK Redraw of 16 November 2026: centre colour set to the new daisies_navy from palette_wish (plum read as purple-pink, not blue-purple)."
 }

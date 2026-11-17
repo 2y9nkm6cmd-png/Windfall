@@ -32,7 +32,7 @@
  "winter": "None: an annual. Autumn-sown seedlings sit as small rosettes over winter.",
  "palette": {
   "leaf": "leaf",
-  "flower": "berry",
+  "flower": "flowers_scarlet",
   "centre": "dark",
   "fruit": "seed"
  },
@@ -71,5 +71,5 @@
   ]
  },
  "look_alikes": "Long-headed poppy (Papaver dubium) is paler orange-red without black blotches and has a long narrow capsule. Prickly poppy and rough poppy have bristly capsules. Opium poppy is grey and hairless with clasping leaves and big lilac or white flowers.",
- "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK 16 November 2026, flowers redraw: palette flower changed from \"berry\" to \"flowers_scarlet\", the colour asked for in palette_wish, added in Tools/design/redraw/flowers.py."
 }

@@ -34,7 +34,8 @@
   "leaf": "leaf",
   "flower": "white",
   "centre": "sun",
-  "fruit": "dark"
+  "fruit": "dark",
+  "flower_edge": "daisies_picotee"
  },
  "palette_wish": {
   "flower_edge": "dark pinkish-red picotee edge, about #C2335E"
@@ -72,5 +73,5 @@
   ]
  },
  "look_alikes": "Cosmos sulphureus is orange or yellow with broader leaf segments. Single dahlias have broad leaflets. Coreopsis is yellow with narrow but flatter leaf lobes. Mayweeds have thread-like leaves but small white daisies with large yellow centres.",
- "checked": "Written 16 November 2026 by Claude from field-guide knowledge. No reference photos had been downloaded for this group yet, so nothing was checked against photographs. ⚠️ CHECK"
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. No reference photos had been downloaded for this group yet, so nothing was checked against photographs. ⚠️ CHECK Redraw of 16 November 2026: the picotee edge asked for in palette_wish is now the colour daisies_picotee (palette flower_edge), drawn round the outer part of each ray and as short streaks."
 }

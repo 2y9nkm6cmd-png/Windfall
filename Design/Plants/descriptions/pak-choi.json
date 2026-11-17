@@ -30,7 +30,7 @@
  "fruit": "Slender pods 3 to 6 cm, cylindrical with a slight bump over each seed, ending in a thin beak 1 to 2 cm, held upright-spreading on stalks along the stem. Green, drying straw-brown and splitting from the bottom to show a pale papery partition. Seeds round, 1.5 mm, red-brown to dark brown.",
  "seedling": "Two kidney-shaped seed leaves on short stalks, broader than long with a notch at the tip, like a heart with the stalk at its point, then rounded true leaves on pale stalks.",
  "winter": "Nothing in the open (sown spring to late summer); hardy kinds last under cover.",
- "palette": {"leaf": "marrow", "flower": "sun", "centre": "sun", "fruit": "straw"},
+ "palette": {"leaf": "marrow", "flower": "leaves_yellow", "centre": "leaves_yellow", "fruit": "straw"},
  "must_show": {
   "leaf": ["a broad, smooth, rounded dark glossy blade", "a thick flat white stalk as long as the blade", "a white midrib carrying on from the stalk"],
   "bloom": ["four bright yellow petals in a cross", "open flowers held above the closed buds"],
@@ -42,5 +42,5 @@
   "seedhead": ["slender beaked pods upright along the stems", "drying straw-brown"]
  },
  "look_alikes": "Chinese cabbage (napa) makes a tall closed heart of crinkled pale leaves. Swiss chard has puckered leaves and a long-lived crown. Tatsoi is a flat rosette of small spoon-shaped leaves.",
- "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK 17 November 2026, redraw (leaves group): palette flower and centre changed from the amber 'sun' to a new clear yellow, leaves_yellow, since the flowers are bright yellow, not orange."
 }
