@@ -32,7 +32,7 @@
  "winter": "Leaves die back brown and flattened; short green shoots at the base; rhizomes in the mud.",
  "palette": {
   "leaf": "leaf",
-  "flower": "sun",
+  "flower": "bulbs_yellow",
   "centre": "amber",
   "fruit": "unripe"
  },
@@ -70,5 +70,5 @@
   ]
  },
  "look_alikes": "Stinking iris (Iris foetidissima) has dark evergreen leaves, dull purplish or yellowish flowers and orange seeds. Sweet flag (Acorus calamus) has similar leaves with a wavy edge that smell of tangerine when crushed. Bur-reeds have three-sided leaves at the base and spiky ball flowers.",
- "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK Palette flower changed to bulbs_yellow on 17 November 2026 (bulbs redraw): the old 'sun' drew the bright yellow flag as orange-gold."
 }

@@ -32,7 +32,7 @@
  "winter": "Leaves come up in autumn and sprawl on the soil through winter, a clear sign of the plant.",
  "palette": {
   "leaf": "leaf",
-  "flower": "blue",
+  "flower": "bulbs_muscari",
   "centre": "white",
   "fruit": "unripe"
  },
@@ -72,5 +72,5 @@
   ]
  },
  "look_alikes": "Bluebell has larger bells hanging down one side of the stem. Muscari latifolium has one broad leaf and a two-tone spike. Spanish bluebell leaves are much broader. Young leaves look like grass or chives but are fleshy and grooved, and chives smell of onion.",
- "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK Palette flower set to bulbs_muscari on 17 November 2026 (bulbs redraw): the deep cobalt blue asked for in palette_wish."
 }

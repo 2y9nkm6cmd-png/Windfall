@@ -32,7 +32,7 @@
  "winter": "Short fans of leaves, the outer ones brown and dead, on rhizomes showing at the soil surface.",
  "palette": {
   "leaf": "sage",
-  "flower": "lilac",
+  "flower": "bulbs_iris",
   "centre": "sun",
   "fruit": "unripe"
  },
@@ -74,5 +74,5 @@
   ]
  },
  "look_alikes": "Yellow iris has no beard, small standards and green leaves with a raised midrib. Siberian iris has no beard and narrow grassy leaves. Iris reticulata is tiny, from a bulb, with four-sided leaves. Fans of leaves look like gladiolus or crocosmia, whose leaves are ribbed or pleated.",
- "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK Palette flower set to bulbs_iris on 17 November 2026 (bulbs redraw): the deep violet-purple asked for in palette_wish (the standards are drawn in the lighter bulbs_iris_light)."
 }

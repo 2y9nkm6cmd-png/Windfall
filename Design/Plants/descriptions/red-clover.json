@@ -33,7 +33,7 @@
  "winter": "A low rosette of hairy three-leaflet leaves at the base",
  "palette": {
   "leaf": "leaf",
-  "flower": "mauve",
+  "flower": "veg_redclover",
   "fruit": "bark"
  },
  "must_show": {
@@ -73,5 +73,5 @@
   ]
  },
  "look_alikes": "Zigzag clover (Trifolium medium) has narrower leaflets, zigzag stems and a short stalk under the head. White clover creeps and roots, with white heads on long stalks. Hare's-foot clover has soft grey fluffy heads.",
- "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK Palette flower changed from mauve to veg_redclover on 17 November 2026 (veg redraw, second pass): its heads are pink-purple, and the mauve it had drew lilac."
 }

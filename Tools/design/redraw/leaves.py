@@ -1411,12 +1411,12 @@ def salad_tuft(a, x, y, s=1.0, red=(1, 3), cut=False, dry=False):
     been picked, leaving pale stubs with flat cut ends, and new small
     leaves rising from the middle."""
     if cut:
-        for dx, g, L in ((-2.6, -118, 7), (2.6, -64, 7), (-4.6, -140, 5.5), (4.6, -42, 5.5), (0, -96, 6)):
-            b = (x + dx * 0.4, y); e = T(*b, g)(L * s)
-            a.ribbon(b, T(*b, g)(L * s * 0.5), e, 3.0 * s, 2.6 * s, "pale", lw=0.8)
-            a.line(f"M{P(T(*e, g + 90)(1.5 * s))} L{P(T(*e, g - 90)(1.5 * s))}", 0.9, 0.9)
-        for g, L in ((-104, 17), (-80, 19), (-92, 13)):
+        for g, L in ((-106, 11), (-78, 12), (-92, 9)):   # the new leaves coming from the middle
             put(a, "leaf-salad", x, y - 1, g, L * s, fills={"beet": "leaf"}, detail=False)
+        for dx, g, L in ((-3.0, -132, 6), (3.0, -50, 6), (-5.4, -154, 5), (5.4, -26, 5), (-1.4, -114, 4.4), (1.4, -68, 4.4)):
+            b = (x + dx * s * 0.5, y); e = T(*b, g)(L * s)   # the stubs of the picked leaves, cut square
+            a.ribbon(b, T(*b, g)(L * s * 0.5), e, 2.4 * s, 2.2 * s, "pale", lw=0.8)
+            a.line(f"M{P(T(*e, g + 90)(1.2 * s))} L{P(T(*e, g - 90)(1.2 * s))}", 0.9, 0.9)
         return
     leaves = [(-7, -142, 34), (7, -38, 34), (-3, -112, 40), (3, -70, 40)]
     for i, (dx, g, L) in enumerate(leaves):
@@ -1431,8 +1431,8 @@ def leafsalad_young():
 
 def leafsalad_crop():
     a = Art(); soil(a, 86)
-    salad_tuft(a, 17, 86, 0.6, red=(0, 3))
-    salad_tuft(a, 83, 86, 0.6, red=(1, 2))
+    salad_tuft(a, 21, 86, 0.56, red=(0, 3))
+    salad_tuft(a, 79, 86, 0.56, red=(1, 2))
     salad_tuft(a, 50, 86, 2.1, cut=True)
     return a
 

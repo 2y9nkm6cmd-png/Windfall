@@ -33,7 +33,7 @@
  "palette": {
   "leaf": "leaf",
   "flower": "white",
-  "centre": "blue",
+  "centre": "bulbs_stripe",
   "fruit": "unripe"
  },
  "must_show": {
@@ -71,5 +71,5 @@
   ]
  },
  "look_alikes": "Glory-of-the-snow (Scilla luciliae, once Chionodoxa) has upturned starry flowers, bluer, with a white eye and no cup. Siberian squill (Scilla siberica) has nodding deep blue bells. Both lack the stripe on each tepal.",
- "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK Palette centre set to bulbs_stripe on 17 November 2026 (bulbs redraw): it colours the stripe down each tepal, and the old pale 'blue' was too faint to read as the clear darker stripe the flower has."
 }

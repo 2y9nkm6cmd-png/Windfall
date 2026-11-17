@@ -32,7 +32,7 @@
  "winter": "Fern turns yellow, then brown, and is cut down to a few cm; nothing above ground but stubs and mulch",
  "palette": {
   "leaf": "leaf",
-  "flower": "primrose",
+  "flower": "pale",
   "centre": "pear",
   "fruit": "berry"
  },
@@ -68,5 +68,5 @@
   ]
  },
  "look_alikes": "Wild asparagus by the sea (Asparagus prostratus) is low and sprawling. Asparagus 'fern' (Asparagus setaceus) is a houseplant with flat sprays. Fennel and dill have true feathery leaves with sheathing stalks and yellow umbels.",
- "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK Palette flower changed from primrose to pale on 17 November 2026 (veg redraw, second pass): the flowers are greenish-white, as the description's own text says; primrose drew them plain yellow."
 }

@@ -1,4 +1,82 @@
-"""DOC"""
+"""Windfall plant drawings, the redraw of 16 November 2026: the FLOWERS group.
+
+William, this file holds every change to the drawings of 22 flowers: foxglove,
+salvia, common evening-primrose, wallflower, yellow-rattle, selfheal, sweet
+William, field poppy, Californian poppy, borage, Russian comfrey, lungwort,
+cowslip, geum, viola, aubrieta, scarlet flax (linum), marsh-mallow, perforate
+St John's-wort, lady's bedstraw, rock sea-lavender and candy cane sorrel.
+Each drawing was checked, point by point, against the plant's written
+description (Design/Plants/descriptions/<kind>.json, its "must_show" lists)
+and photographs of the real plant.
+
+What was wrong before: these plants were built from the shared templates, so
+most whole plants were a cone of one stock leaf (a foxglove spire of round
+scalloped leaves, a salvia like a green barrel), the leaf on the plant was
+not the close-up leaf, and the flowers came from a few stock shapes (a
+cowslip, a lungwort and a comfrey all had the same bell; a sweet William was
+a cluster of plain five-petalled stars; selfheal's flower was a tuft).
+
+What this file does, in four parts.
+
+1. LEAVES. LEAVES near the top has one function for each kind (lf_foxglove,
+   lf_geum and so on). Each draws one leaf, stalk and all, at any size: the
+   close-up draws it about 92 squares long, and every whole-plant drawing
+   draws the SAME function small (leaf()), so the two can never disagree
+   again. The setting d says how much to draw: 2 everything, 1 the midrib
+   and a few veins, 0 the outline only (for tiny leaves).
+   - blade() draws a simple blade from a "profile" (prof(): how wide the leaf
+     is along its length) with teeth (cut_teeth(): sharp, rounded or blunt,
+     only where they really are, as on aubrieta's tip), a wavy edge, pressed-in
+     veins ("pucker", "quilt"), bristles round the edge ("hairs"), pale specks
+     of soft hair ("felt"), pale blotches (lungwort) or clear dots
+     (St John's-wort), a paler underside, a coloured midrib (evening
+     primrose's pink one) and more.
+   - simple_leaf() adds the stalk; with "wing" the blade runs down the stalk
+     as a narrow green band to its foot (foxglove, borage, cowslip).
+   - New shapes of leaf: lf_geum (lyre-shaped: a big round lobed end leaflet
+     and small uneven ones down the stalk), lf_viola (with its finger-lobed
+     stipules), lf_marshmallow (shallowly three-lobed, velvety, veins
+     spreading like a hand), lf_poppy (cut almost to the midrib into toothed,
+     bristly lobes), lf_calpoppy (finely cut into narrow blunt segments) and
+     lf_oxalis (three thread-like leaflets, each notched at its tip).
+   - Three close-ups show more than one leaf, because the description asks
+     for it: cl_pair (a pair on a piece of stem: sweet William's joined round
+     a swollen joint, St John's-wort's with the two raised lines down the
+     stem), cl_sprig (flax's small leaves up a thin stem) and cl_whorls
+     (lady's bedstraw's rings of ten needle leaves, edges rolled under).
+
+2. FLOWERS (close-ups). Each kind has its own fl_... function, built from a
+   few parts: petal() (any petal: notched like an evening primrose's, pinked
+   like a sweet William's, wavy like a poppy's), sepal(), ring() (petals round
+   a middle, the back ones first), burst() (a spray of stamens), and some
+   whole small flowers used again at plant size: glove() (a foxglove bell
+   with its jutting, spotted lower lip), lip2() (a two-lipped flower with a
+   hood: salvia, selfheal), cross4() (four petals in a cross: wallflower,
+   aubrieta), pink5() (sweet William), star5() (borage), comfrey_bell(),
+   funnel5() (lungwort), cowslip_flower() and rattle_flower().
+
+3. LIFE STAGES. Every stage of every kind is drawn here (the STAGE table),
+   from a few helpers: rosette() (leaves fanning from the ground; with
+   "flat" a rosette lying flat, as foxglove and evening primrose make in
+   their first year), shoot() and leafy() (stems and the kind's own leaves up
+   them, singly or in crossing pairs), bushy() (wallflower), runners()
+   (selfheal's creeping stems), whorl() (bedstraw), stone() (the rock
+   aubrieta spills over), grass() (yellow-rattle grows in a meadow),
+   seedling() (two seed leaves of the right shape, then the first true
+   leaves), and capsule() and pod() for the fruits. Each kind's seeds have
+   their own small drawing (foxglove's dust, yellow-rattle's winged discs,
+   geum's hooked tails). Candy cane sorrel's first stage is relabelled
+   "Bulb", as it starts from a small pointed bulb.
+
+4. COLOURS. Six new ones, asked for in the descriptions ("palette_wish"):
+   flowers_violet (salvia), flowers_selfheal, flowers_orangered (wallflower
+   'Fire King'), flowers_scarlet (field poppy), flowers_blue (borage) and
+   flowers_purple (aubrieta), each with a lighter value for dark mode. The
+   six descriptions' palettes now name them.
+
+Only this file and the 22 descriptions were changed. Nothing here is drawn at
+random, so the drawings come out the same every time.
+"""
 import json, math, os
 from plant_kit import Art, T, P, f, Quad, STEM, LEAF, BLOOM
 import plants as S10
@@ -334,7 +412,7 @@ def lf_linum(a, x, y, ang, L, fill, d):
 
 def lf_sjw(a, x, y, ang, L, fill, d):
     simple_leaf(a, x, y, ang, L, fill, d, petiole=0.0, W=0.36, pf=prof(0.42, "round", "blunt", bp=0.4, tp=2.4), veins=3,
-                vang=0.24, spots="white", spotn=40 if d == 2 else 0, spotr=L * 0.011)
+                vang=0.24, spots="white", spotn=40 if d == 2 else 0, spotr=max(0.45, L * 0.018))
 
 
 def lf_sealavender(a, x, y, ang, L, fill, d):
@@ -368,7 +446,6 @@ def lf_geum(a, x, y, ang, L, fill, d):
             blade(a, p[0], p[1], ang + sg * (64 - 10 * s), l, l * 0.7, fill, prof(0.45, "round", "round", bp=0.5),
                   teeth=3 if l > 5 else 0, td=l * 0.08, tk="round", veins=2 if l > 6 else 0, lw=lwid(d) * 0.85, d=min(d, 1), midw=0.4)
     lobes = 5
-    sc = lambda h: 1 - 0.07 * math.exp(-((abs(h) - math.pi) / 0.5) ** 2) * 0
     g = lambda h: (0.92 + 0.08 * abs(math.cos(lobes * h / 2)) ** 0.6) * (1 - 0.55 * math.exp(-((abs(h) - math.pi) / 0.42) ** 2))
     teeth = 26 if d else 0
     tdp = max(0.6, R * 0.05) if d else 0
@@ -416,13 +493,17 @@ def lf_marshmallow(a, x, y, ang, L, fill, d):
     """Oval to triangular, shallowly three-lobed (sometimes five), with
     irregular blunt teeth, three to five veins spreading from the base,
     velvety, often a little folded along the middle."""
+    if d < 2:   # small on a whole plant: the lobes are too shallow to see, so a toothed triangular oval
+        simple_leaf(a, x, y, ang, L, fill, d, petiole=0.2, W=0.72, pf=prof(0.3, "round", "point", bp=0.45, tp=1.1),
+                    teeth=7, td=L * 0.025, tk="blunt", veins=2, vang=0.25, shade=0.14)
+        return
     t = T(x, y, ang); pf_ = 0.18
     with a.on(STEM if d < 2 else a.layer):
         a.ribbon((x, y), t(L * pf_ * 0.5, L * 0.005), t(L * pf_), max(0.8, L * 0.024), max(0.6, L * 0.019), fill, lw=lwid(d) * 0.85)
     Lb = L * (1 - pf_); A = t(L * pf_)
-    n = 220 if d == 2 else 80; teeth = 30 if d else 0
+    n = 220 if d == 2 else 80; teeth = 30 if d == 2 else (14 if d else 0)
     def rad(h):   # h: 0 the tip, +-pi the base
-        tri = 0.45 + 0.55 * math.cos(h / 2) ** 0.8                  # broad below, narrowing to the tip
+        tri = 0.42 + 0.58 * math.cos(h / 2) ** 0.8 + 0.22 * math.exp(-(h / 0.28) ** 2)   # broad below, drawn out to a point
         lob = 1 + 0.16 * math.exp(-((abs(h) - 1.35) / 0.32) ** 2)    # a shallow side lobe each side
         lob *= 1 - 0.1 * math.exp(-((abs(h) - 0.85) / 0.22) ** 2)    # the dip between side lobe and tip
         base = 1 - 0.45 * math.exp(-((abs(h) - math.pi) / 0.6) ** 2)
@@ -434,7 +515,7 @@ def lf_marshmallow(a, x, y, ang, L, fill, d):
     loc = lambda h, k=1.0: T(*cen, ang)(R * 1.0 * rad(h) * math.cos(h) * k, R * 0.82 * rad(h) * math.sin(h) * k)
     pts = [loc(-math.pi + 2 * math.pi * i / n) for i in range(n + 1)]
     a.shape(path(pts), fill, lwid(d))
-    a.shape(path(pts[n // 2:] + [A]), "shade", 0, fa=0.17)   # folded a little: one half darker
+    a.shape(path(pts[n // 2:] + [A]), "shade", 0, fa=0.17 if d == 2 else 0.1)   # folded a little: one half darker
     if d >= 1:
         for h in (0.0, 1.35, -1.35, 2.3, -2.3):
             e = loc(h, 0.86)
@@ -459,8 +540,6 @@ def lf_poppy(a, x, y, ang, L, fill, d):
     Lb = L * (1 - pf_); o = L * pf_
     # the leaf outline: a narrow wing along the midrib with lobes off it, built as one edge each side
     lobes = [(0.08, 0.42), (0.26, 0.62), (0.45, 0.7), (0.63, 0.6), (0.79, 0.42)]
-    for side in (1, -1):
-        pass
     def edge(side):
         pts = [(0, 0)]
         for i, (u, s) in enumerate(lobes):
@@ -519,7 +598,7 @@ def lf_calpoppy(a, x, y, ang, L, fill, d):
         if l < 4 or d < 2:
             e = T(px, py, a_)(l)
             a.line(f"M{f(px)},{f(py)} L{P(e)}", max(0.75, sw * 1.2), 0.85, "line")
-            a.line(f"M{f(px)},{f(py)} L{P(e)}", max(0.75, sw * 1.2) * 0.45, 1.0, fill)
+            a.line(f"M{f(px)},{f(py)} L{P(e)}", max(0.75, sw * 1.2) * 0.6, 1.0, fill)
             return
         blade(a, px, py, a_, l, sw, fill, segp, veins=0, midw=0, lw=lw_, d=0, shade=0)
 
@@ -787,7 +866,7 @@ def fl_foxglove(a, sp):
         a.line(f"M{f(x)},{f(y)} Q{f(x + 2)},{f(y - 1)} {P(e)}", 0.8, 0.85)
         petal(a, e[0], e[1], 60, 10 * s + 3, 6 * s + 1, fc if u < 0.85 else "unripe", prof(0.6, "round", "round"), lw=0.7, lines=0)
         sepal(a, e[0], e[1], 60, 6 * s, 2.4 * s, lw=0.55)
-    for u, s, ang in ((0.7, 0.62, 30), (0.5, 0.82, 34), (0.26, 1.0, 38)):
+    for u, s, ang in ((0.78, 0.58, 48), (0.6, 0.74, 52), (0.4, 0.88, 56)):
         x, y = q.pt(u); e = (x + 5 * s, y - 1)
         a.line(f"M{f(x)},{f(y)} Q{f(x + 3 * s)},{f(y - 3)} {P(e)}", 1.0, 0.85)
         sepal(a, x + 0.8, y + 1, 95, 6 * s, 2.0 * s, lw=0.55)   # the bract under each bell
@@ -802,7 +881,6 @@ def lip2(a, x, y, ang, s, fc, calc="plum", hood=1.0, lip=1.0, lw=0.6, spot=None)
     three-lobed lower lip below."""
     t = T(x, y, ang); up = -1 if math.cos(math.radians(ang)) >= 0 else 1
     petal(a, x, y, ang, 6.5 * s, 3.6 * s, calc, prof(0.6, "round", "point"), lw=lw, lines=0, end=1.0)   # the calyx
-    m = t(5 * s)
     a.ribbon(t(3 * s), t(6 * s, up * 0.3 * s), t(9 * s, up * 0.8 * s), 1.8 * s, 2.4 * s, fc, lw=lw)
     e = t(8.6 * s, up * 0.6 * s)
     # the hood: a curved, narrow upper lip arching up and over
@@ -932,7 +1010,6 @@ def rattle_flower(a, x, y, ang, s, fc, calc="pale", tooth="plum"):
     a.polar(c[0], c[1], lambda h: 1 - 0.1 * math.exp(-((abs(h) - math.pi) / 0.4) ** 2) - 0.12 * math.exp(-(h / 0.35) ** 2), 7.5 * s, 6.8 * s, ang, calc, 0.7)
     for o in (-0.5, 0, 0.5):   # its net of veins
         a.line(opath([T(*c, ang)(7 * s * v, 6 * s * o * math.sin(math.pi * (v + 1) / 2)) for v in (-0.8, -0.3, 0.2, 0.7)]), 0.4, 0.4)
-    e = t(13 * s, up * 1.5 * s)
     tq = Quad(t(10 * s, up * 0.5 * s), t(16 * s, up * 2.8 * s), t(20 * s, up * 5 * s))
     a.ribbon(tq.p0, tq.c, tq.p1, 3.2 * s, 4.0 * s, fc, lw=0.7)
     h = tq.p1
@@ -1232,7 +1309,6 @@ def cowslip_flower(a, x, y, ang, s, fc, calc="pale", spot="carrot", open_=0.5):
     a.shape(path(up + [t(12.8 * s, 0)] + dn[::-1]), calc, 0.7)
     for o in (-0.5, 0, 0.5):
         a.line(opath([t(12 * s * u, hw(u) * o) for u in (0.1, 0.5, 0.95)]), 0.4, 0.4)
-    m = t(12 * s)
     a.polar(*t(14 * s), lambda h: 1 + 0.1 * math.cos(5 * h), 2.6 * s + open_ * 2.4 * s, 5.4 * s, ang, fc, 0.7)
     a.shape(path([T(*t(14 * s), ang)(-(2.6 * s + open_ * 2.4 * s) * math.cos(h), 5.4 * s * math.sin(h)) for h in [-math.pi / 2 + math.pi * i / 12 for i in range(13)]]), "shade", 0, fa=0.12)
     if open_ > 0.4:
@@ -1580,11 +1656,6 @@ def rosette(a, kind, x=50, y=88, n=9, L=30, fill=None, flat=0.0, d=None, skip=()
         leaf(a, kind, x + (g + 90) * 0.02, y, ang, l, fill, d)
 
 
-def seed_layer(a, fn):
-    with a.on(BLOOM):
-        fn()
-
-
 def grass(a, xs, y=88, h=34, col="unripe"):
     """Blades of meadow grass round a plant that grows in grass."""
     with a.on(STEM):
@@ -1692,7 +1763,7 @@ def foxglove_seed(a, x, y):
     """Thousands of seeds, tiny, oblong and brown, like dust."""
     for k in range(34):
         rr = 15 * math.sqrt((k + 0.5) / 34); th = k * GOLD
-        a.oval(x + rr * math.cos(th) * 1.25, y + rr * math.sin(th) * 0.75, 1.6, 0.95, k * 47, "bark", 0.3)
+        a.oval(x + rr * math.cos(th) * 1.25, y + rr * math.sin(th) * 0.75, 1.6, 0.95, k * 47, "bark", 0.25)
 
 
 def foxglove_stages():
@@ -1760,7 +1831,7 @@ def whorl_spike(a, q, u0, u1, n, s, fc, br="plum", dry=False, buds=3):
             kk = 1 - 0.3 * j / n
             if dry:
                 for sd in (-1, 1):
-                    a.leaf(x, y, ang + sd * 52, 2.8 * s * kk, 0.5, "bark", lw=0.45, detail=False)
+                    a.leaf(x, y, ang + sd * 52, 2.8 * s * kk, 0.5, "bark", lw=0.35, detail=False)
                 continue
             if j >= n - buds:
                 for sd in (-1, 1):
@@ -1773,7 +1844,6 @@ def whorl_spike(a, q, u0, u1, n, s, fc, br="plum", dry=False, buds=3):
                 e = t(1.6 * s * kk)
                 a.leaf(e[0], e[1], ang + sd * 30, 2.6 * s * kk, 0.45, fc, lw=0.4, detail=False)    # the hood
                 a.leaf(e[0], e[1], ang + sd * 95, 2.3 * s * kk, 0.7, fc, lw=0.4, detail=False)    # the lower lip
-        e = q.pt(u1)
 
 
 def salvia_stages():
@@ -1873,9 +1943,9 @@ def primrose_stages():
                     for sd in (-1, 1):
                         x, y = q.pt(u - 0.02 * sd); pod(a, x + sd * 0.8, y, -90 + sd * 8, 7, 1.6, "unripe")
                 for u, sd, s in ((0.8, -1, 1.0), (0.84, 1, 1.0), (0.91, -1, 0.85), (0.94, 1, 0.75)):
-                    x, y = q.pt(u); e = (x + sd * 8, y - 5)
+                    x, y = q.pt(u); e = (x + sd * 9, y - 5)
                     a.line(f"M{f(x)},{f(y)} Q{f(x + sd * 2)},{f(y - 5)} {P(e)}", 0.9, 0.85)   # the long tube
-                    mini_cross(a, e[0], e[1], 6.4 * s, fc, k=0.75)
+                    mini_cross(a, e[0], e[1], 8.0 * s, fc, k=0.75)
                 for o in (-14, 0, 14):   # buds at the top
                     e = q.pt(1); a.leaf(e[0], e[1], -90 + o, 5, 0.3, "unripe", lw=0.45, detail=False)
         return a
@@ -1887,7 +1957,7 @@ def primrose_stages():
             with a.on(BLOOM):
                 for j in range(12):   # long narrow upright pods pressed to the stem, split into four at the tips
                     u = 0.52 + 0.44 * j / 11; x, y = q.pt(u); sd = 1 if j % 2 else -1
-                    pod(a, x + sd * 0.9, y + 3, -90 + sd * 9, 10 - 3 * j / 11, 1.8, "bark", split=3)
+                    pod(a, x + sd * 1.0, y + 4, -90 + sd * 10, 12 - 3 * j / 11, 2.4, "bark", split=3)
         return a
 
     return {"seed": sown(primrose_seed),
@@ -2040,7 +2110,7 @@ def head_square(a, x, y, w, h, fc, br="plum", dry=False, lw=0.45):
     """A dense squarish oblong head at plant scale: tiers of bracts, a ring of
     flowers sticking out sideways."""
     with a.on(BLOOM):
-        a.shape(path([(x - w / 2, y), (x - w / 2 + 0.3, y - h + 1), (x, y - h), (x + w / 2 - 0.3, y - h + 1), (x + w / 2, y)]), "seed" if dry else "leaf", lw)
+        a.shape(path([(x - w / 2, y), (x - w / 2 + 0.3, y - h + 1), (x, y - h), (x + w / 2 - 0.3, y - h + 1), (x + w / 2, y)]), "rust" if dry else br, lw)
         for r in range(4):
             yy = y - 0.6 - r * (h - 1.2) / 4
             a.line(f"M{f(x - w / 2 + 0.2)},{f(yy)} Q{f(x - w / 4)},{f(yy - 1.4)} {f(x)},{f(yy)} Q{f(x + w / 4)},{f(yy - 1.4)} {f(x + w / 2 - 0.2)},{f(yy)}", 0.8, 0.9, "bark" if dry else br)
@@ -2204,11 +2274,11 @@ def poppy_stages():
     def young():
         a = soil()
         with a.group():
-            rosette(a, k, n=8, L=32)
+            rosette(a, k, n=9, L=34, d=0)
         return a
 
     def plant(a, H, dry=False):
-        rosette(a, k, n=7, L=22, fill="straw" if dry else None)
+        rosette(a, k, n=7, L=22, fill="straw" if dry else None, d=0)
         col = "straw" if dry else "leaf"
         q0 = shoot(a, 50, 88, 50, 88 - H * 0.45, 0, 2.2, 1.6, col)
         leafy(a, k, q0, (0.3, 0.6, 0.9), 15, spread=50, shrink=0.3, fill="straw" if dry else None)
@@ -2455,7 +2525,7 @@ def lungwort_stages():
                     for j, (o, col) in enumerate(((-60, "pink"), (-20, fc), (25, "mauve"), (60, fc), (0, "pink"))):
                         p = T(*e, -90 + o)(4 + (j % 2))
                         a.line(f"M{P(e)} L{P(p)}", 0.45, 0.85)
-                        funnel5(a, p[0], p[1], -90 + o * 1.3, 0.42, col, "leaf", 0.7, lw=0.4)
+                        funnel5(a, p[0], p[1], -90 + o * 1.3, 0.58, col, "leaf", 0.7, lw=0.4)
         return a
 
     def dormant():
@@ -2677,12 +2747,510 @@ def viola_stages():
         return a
 
     return {"seed": sown(viola_seed),
-            "seedling": lambda: seedling(k, ("round", 5.4, 4.6), ((-112, 11), (-68, 9))),
+            "seedling": lambda: seedling(k, ("round", 5.4, 4.6), ((-112, 10), (-68, 9)),
+                                         tleaf=lambda a, x, y, g, l: round_leaf(a, x, y, g, l, pal(k, "leaf", "leaf"))),
             "young": young, "flower": flower, "seedhead": seedhead, "dormant": dormant}
+
+
+
+# ============================================================ aubrieta
+def stone(a, x0, x1, y, h):
+    """A rock or the top of a low wall, for a plant to spill over."""
+    with a.on(STEM):
+        a.shape(f"M{f(x0)},{f(y)} Q{f(x0 + 1)},{f(y - h)} {f(x0 + (x1 - x0) * 0.4)},{f(y - h * 1.05)} Q{f(x1 - 2)},{f(y - h)} {f(x1)},{f(y - h * 0.4)} L{f(x1)},{f(y)} Z", "straw", 0.9)
+        a.line(f"M{f(x0 + 4)},{f(y - h * 0.5)} q4,-1 7,1", 0.6, 0.4)
+
+
+def aub_mat(a, k, fill=None, cover=1.0, y=88, x0=14, x1=66, h=13):
+    """The mat: small rosettes of spoon-shaped leaves crowded over the ground
+    and spilling down over the stone on the right."""
+    spots = []
+    with a.on(STEM):   # the cushion itself, under its leaves
+        pts = [(x0 - 2, y)] + [(x0 + (x1 + 2 - x0) * (j / 20), y - h * math.sin(math.pi * min(1, j / 20 * 1.1)) ** 0.7) for j in range(21)] + [(x1 + 2, y)]
+        a.shape(path(pts), fill or k and pal(k, "leaf", "sage"), 0.7)
+        a.shape(path(pts), "shade", 0, fa=0.12)
+    for j in range(15):
+        u = j / 14; x = x0 + (x1 - x0) * u
+        yy = y - h * math.sin(math.pi * min(1, u * 1.15)) ** 0.7 + 1
+        spots.append((x, yy))
+        if 0.15 < u < 0.85:
+            spots.append((x + 1.5, yy + h * 0.45))
+    for j in range(5):   # trailing down the face of the stone
+        spots.append((70 + j * 3.2, 70 + j * 3.4))
+    for i, (x, yy) in enumerate(spots):
+        for g in (-150, -30, -110, -70, -90):
+            leaf(a, k, x, yy, g + (i % 3 - 1) * 10, 6.4 * cover, fill, 0)
+
+
+def aubrieta_stages():
+    k = "aubrieta"; fc = pal(k, "flower", "mauve")
+
+    def young():
+        a = soil()
+        with a.group():
+            stone(a, 66, 94, 88, 20)
+            aub_mat(a, k, cover=0.95, x1=58, h=10)
+        return a
+
+    def flower():
+        a = soil()
+        with a.group():
+            stone(a, 66, 94, 88, 20)
+            aub_mat(a, k)
+            with a.on(BLOOM):
+                pts = [(16 + j * 4.3, 82 - 11 * math.sin(math.pi * min(1, j / 13 * 1.1)) ** 0.7 - 2 * ((j * 7) % 3)) for j in range(14)]
+                pts += [(70 + j * 3.4, 66 + j * 3.6) for j in range(5)] + [(30, 72), (44, 70), (56, 73), (38, 66)]
+                for j, (x, y) in enumerate(pts):
+                    cross4(a, x, y - 2, 4.0, fc, tilt(y - 2, 0.8), -45 + j * 17, veins=None, cen="primrose", lw=0.45)
+        return a
+
+    def seedhead():
+        a = soil()
+        with a.group():
+            stone(a, 66, 94, 88, 20)
+            aub_mat(a, k)
+            with a.on(BLOOM):
+                for j in range(9):   # small upright hairy pods with a beak
+                    x = 20 + j * 5.4; y = 78 - 8 * math.sin(math.pi * j / 8)
+                    a.line(f"M{f(x)},{f(y + 2)} L{f(x + 0.6)},{f(y - 3)}", 0.5, 0.85)
+                    capsule(a, x + 0.6, y - 3, -86 + (j % 3 - 1) * 8, 6, 2.6, "straw", beak=0.3, lw=0.45)
+        return a
+
+    def dormant():
+        a = soil()
+        with a.group():
+            stone(a, 66, 94, 88, 20)
+            aub_mat(a, k, cover=0.9, h=11)
+        return a
+
+    return {"young": young, "flower": flower, "seedhead": seedhead, "dormant": dormant}
+
+
+# ============================================================ scarlet flax
+def linum_seed(a, x, y):
+    """Flat, oval, glossy brown seeds, pointed at one end."""
+    def one(a, x, y, r, i):
+        t = T(x, y, r)
+        a.shape(f"M{P(t(-5, 0))} Q{P(t(-4.6, -3.4))} {P(t(0, -3.2))} Q{P(t(4, -2.6))} {P(t(6, 0))} Q{P(t(4, 2.6))} {P(t(0, 3.2))} Q{P(t(-4.6, 3.4))} {P(t(-5, 0))} Z", "bark", 0.8)
+        a.line(f"M{P(t(-2.6, -1.6))} L{P(t(1.4, -1.8))}", 0.7, 0.6, "white")
+    seeds_at(a, x, y, THREE, one)
+
+
+def linum_stages():
+    k = "linum"; fc = pal(k, "flower", "berry"); cen = pal(k, "centre", "dark")
+
+    def stems(a, H, n=5, flowers=None, caps=False):
+        for j, (dx, hh, lean) in enumerate(((-16, 0.8, -16), (0, 1.0, 0), (15, 0.86, 15), (-6, 0.9, -7), (7, 0.94, 7))[:n]):
+            q = shoot(a, 50 + dx * 0.25, 88, 50 + dx + lean, 88 - H * hh, 0, 1.2, 0.7, lw=0.55)
+            leafy(a, k, q, [0.08 + 0.07 * i for i in range(9)], 8, spread=34, shrink=0.3, d=0)
+            if flowers or caps:   # branching near the top, a flower at each tip
+                e = q.pt(0.72)
+                for o, l in ((-38, 10), (30, 11)):
+                    t = T(*e, -90 + o)(l)
+                    with a.on(STEM):
+                        a.line(f"M{P(e)} Q{P(T(*e, -90 + o * 0.5)(l * 0.6))} {P(t)}", 0.55, 0.85)
+                with a.on(BLOOM):
+                    for p in (q.pt(1), T(*e, -128)(10), T(*e, -60)(11)):
+                        if caps:
+                            capsule(a, p[0], p[1], -90, 3.8, 3.2, "straw", beak=0.25, lw=0.45)
+                        else:
+                            M = tilt(p[1] - 2, 0.6)
+                            for i in range(5):
+                                petal(a, p[0], p[1] - 2, -90 + 72 * i, 6.4, 5.4, fc, FAN, M=M, lw=0.4, lines=0, shade=0.06)
+                            a.dot(p[0], p[1] - 2, 1.2, cen)
+
+    def young():
+        a = soil()
+        with a.group():
+            stems(a, 40, 4)
+        return a
+
+    def flower():
+        a = soil()
+        with a.group():
+            stems(a, 70, 5, flowers=True)
+        return a
+
+    def seedhead():
+        a = soil()
+        with a.group():
+            stems(a, 66, 5, caps=True)
+        return a
+
+    return {"seed": sown(linum_seed),
+            "seedling": lambda: seedling(k, ("oval", 6, 3.6), ((-100, 7), (-80, 7)), h=16),
+            "young": young, "flower": flower, "seedhead": seedhead}
+
+
+# ============================================================ marshmallow
+def marshmallow_seed(a, x, y):
+    """Small kidney-shaped brown seeds."""
+    def one(a, x, y, r, i):
+        t = T(x, y, r)
+        a.shape(f"M{P(t(-4, 0))} Q{P(t(-4, -4))} {P(t(0, -3.6))} Q{P(t(4, -4))} {P(t(4, 0))} Q{P(t(3.4, 3.6))} {P(t(0, 1.4))} Q{P(t(-3.4, 3.6))} {P(t(-4, 0))} Z", "bark", 0.8)
+    seeds_at(a, x, y, THREE + [(-1, -8, 200)], one)
+
+
+def cheese(a, x, y, r, fill="seed"):
+    """A marshmallow fruit: a flat round ring of segments like a small cheese,
+    in its calyx."""
+    for o in (-40, 0, 40):
+        a.leaf(x, y + 0.6, 90 + o, r * 1.2, 0.4, "straw" if fill != "unripe" else "sage", lw=0.4, detail=False)
+    a.oval(x, y, r, r * 0.55, 0, fill, 0.45)
+    for k in range(7):
+        a.line(f"M{f(x)},{f(y)} L{f(x + r * math.cos(k * 0.45 + 0.2) * 0.95)},{f(y - r * 0.5 * math.sin(k * 0.45 + 0.2))}", 0.35, 0.5)
+
+
+def marshmallow_stages():
+    k = "marshmallow"; fc = pal(k, "flower", "pink"); anth = pal(k, "centre", "beet"); lc = pal(k, "leaf", "sage")
+
+    def stems(a, H, n=3, dry=False, fl=None):
+        qs = []
+        for dx, hh, lean in ((-8, 0.86, -10), (0, 1.0, 0), (9, 0.92, 9))[:n]:
+            q = shoot(a, 50 + dx * 0.3, 88, 50 + dx + lean, 88 - H * hh, 0, 2.4, 1.2, "straw" if dry else "sage")
+            leafy(a, k, q, [0.1 + 0.12 * i for i in range(7)], 13, spread=50, shrink=0.55, fill="straw" if dry else None)
+            qs.append(q)
+            if fl:
+                with a.on(BLOOM):
+                    for j, u in enumerate((0.55, 0.66, 0.77, 0.88, 1.0)):
+                        x, y = q.pt(u); sd = -1 if j % 2 else 1
+                        fl(a, x + sd * 2.6, y - 1.2, sd, j)
+        return qs
+
+    def young():
+        a = soil()
+        with a.group():
+            stems(a, 44)
+        return a
+
+    def flower():
+        def fl(a, x, y, sd, j):
+            M = tilt(y, 0.75)
+            for i in range(5):
+                petal(a, x, y, -90 + 72 * i + j * 13, 4.4, 4.2, fc, FAN, M=M, lw=0.4, lines=0, shade=0.05)
+            a.dot(x, y, 0.8, anth)
+            if j % 2:
+                p = (x + sd * 3.4, y + 1.6); a.oval(p[0], p[1], 1.2, 1.5, 0, lc, 0.4)
+        a = soil()
+        with a.group():
+            stems(a, 78, fl=fl)
+        return a
+
+    def seedhead():
+        a = soil()
+        with a.group():
+            stems(a, 74, dry=True, fl=lambda a, x, y, sd, j: cheese(a, x, y, 2.2, "seed"))
+        return a
+
+    def dormant():
+        a = soil()
+        with a.group():
+            for dx, hh, lean in ((-8, 44, -6), (0, 56, 0), (8, 48, 6)):   # brown dead stems
+                q = shoot(a, 50 + dx * 0.3, 88, 50 + dx + lean, 88 - hh, 0, 2.0, 1.1, "straw")
+                for u in (0.3, 0.5, 0.7):
+                    p = q.pt(u); a.line(f"M{P(p)} l{f(2.4 if u != 0.5 else -2.4)},-1.6", 0.6, 0.8)
+        return a
+
+    return {"seed": sown(marshmallow_seed),
+            "seedling": lambda: seedling(k, ("kidney", 6, 6), ((-100, 11),),
+                                         tleaf=lambda a, x, y, g, l: round_leaf(a, x, y, g, l, lc)),
+            "young": young, "flower": flower, "seedhead": seedhead, "dormant": dormant}
+
+
+# ============================================================ St John's-wort
+def sjw_seed(a, x, y):
+    """Tiny cylindrical dark brown seeds, finely pitted."""
+    for i, (dx, dy, r) in enumerate(MANY[:9]):
+        cx, cy = x + dx * 1.2, y + dy * 1.1
+        a.oval(cx, cy, 3.2, 1.5, r, "bark", 0.6)
+        for j in (-1, 0, 1):
+            p = T(cx, cy, r)(j * 1.6); a.dot(p[0], p[1], 0.3, "dark")
+
+
+def sjw_stages():
+    k = "perforate-st-john-s-wort"; fc = pal(k, "flower", "sun"); fr = pal(k, "fruit", "rust")
+
+    def stems(a, H, n=3, top=None, col="leaf", fill=None):
+        for dx, hh, lean in ((-9, 0.86, -8), (0, 1.0, 0), (9, 0.9, 8))[:n]:
+            q = shoot(a, 50 + dx * 0.3, 88, 50 + dx + lean, 88 - H * hh, 0, 1.8, 1.0, col)
+            leafy(a, k, q, [0.08 + 0.1 * i for i in range(6 if top else 8)], 8.4, opp=True, spread=60, shrink=0.4, fill=fill, d=0)
+            if top:   # branching at the top into a broad flat-topped cluster
+                e = q.pt(0.66)
+                with a.on(STEM):
+                    for o in (-60, -30, 0, 30, 60):
+                        a.line(f"M{P(e)} L{P(T(*e, -90 + o)(9 + 3 * (o == 0)))}", 0.5, 0.85)
+                with a.on(BLOOM):
+                    for o in (-60, -30, 0, 30, 60):
+                        p = T(*e, -90 + o)(9 + 3 * (o == 0))
+                        top(a, p[0], p[1], o)
+
+    def young():
+        a = soil()
+        with a.group():
+            stems(a, 42)
+        return a
+
+    def flower():
+        def fl(a, x, y, o):
+            M = tilt(y, 0.7)
+            for i in range(5):
+                petal(a, x, y, -90 + 72 * i + o, 5.0, 3.0, fc, FAN, M=M, lw=0.4, lines=0, shade=0.05)
+            burst(a, x, y, 8, 0.3, 3.4, "sun", M, lw=0.3, ar=0.4)
+        a = soil()
+        with a.group():
+            stems(a, 72, top=fl)
+        return a
+
+    def seedhead():
+        a = soil()
+        with a.group():
+            stems(a, 70, top=lambda a, x, y, o: capsule(a, x, y, -90 + o * 0.3, 4.2, 2.6, fr, beak=0.2, lw=0.45),
+                  col="bark", fill="straw")
+        return a
+
+    def dormant():
+        a = soil()
+        with a.group():
+            for dx, hh in ((-6, 46), (2, 54), (8, 40)):   # old brown stems
+                a.ribbon((50 + dx, 88), (50 + dx, 88 - hh / 2), (50 + dx * 1.3, 88 - hh), 1.4, 1.0, "bark", lw=0.6)
+            for x0, x1 in ((-26, -4), (4, 26)):   # low reddish leafy shoots and runners
+                q = shoot(a, 50 + x0 * 0.2, 87.5, 50 + x1, 84, -2, 1.2, 1.0, "rust")
+                leafy(a, k, q, (0.3, 0.6, 0.9), 6, opp=True, spread=60, shrink=0, d=0, fill="rust")
+            q = shoot(a, 50, 88, 50, 78, 0, 1.2, 1.0, "rust")
+            leafy(a, k, q, (0.4, 0.9), 7, opp=True, spread=58, shrink=0, d=0)
+        return a
+
+    return {"seed": sown(sjw_seed),
+            "seedling": lambda: seedling(k, ("oval", 4.6, 3), ((-118, 7), (-62, 7))),
+            "young": young, "flower": flower, "seedhead": seedhead, "dormant": dormant}
+
+
+# ============================================================ lady's bedstraw
+def bedstraw_seed(a, x, y):
+    """Tiny, smooth, round nutlets in pairs, turning black."""
+    for dx, dy, r in THREE:
+        t = T(x + dx, y + dy, r)
+        for o in (-1, 1):
+            a.oval(*t(o * 2.7), 2.8, 2.8, 0, "dark", 0.7)
+
+
+def whorl(a, x, y, n, L, fill, k=0.4, lw=0.5):
+    """A ring of needle-like leaves round the stem, seen from the side."""
+    with a.on(LEAF):
+        M = tilt(y, k)
+        for i in sorted(range(n), key=lambda i: math.sin(i * 2 * math.pi / n + 0.3)):
+            e = M(T(x, y, i * 360 / n + 17)(L))
+            a.line(f"M{f(x)},{f(y)} L{P(e)}", 1.5, 0.85, "line"); a.line(f"M{f(x)},{f(y)} L{P(e)}", 0.75, 1.0, fill)
+
+
+def bedstraw_stages():
+    k = "lady-s-bedstraw"; fc = pal(k, "flower", "sun"); lc = pal(k, "leaf", "deep"); fr = pal(k, "fruit", "dark")
+
+    def stems(a, H, n=5, plume=None, col="leaf", fill=None):
+        for dx, hh, lean in ((-16, 0.75, -18), (0, 1.0, 0), (15, 0.82, 16), (-6, 0.9, -7), (6, 0.94, 7))[:n]:
+            q = shoot(a, 50 + dx * 0.3, 88, 50 + dx + lean, 88 - H * hh, lean * 0.1, 1.2, 0.8, col, lw=0.55)
+            m = int(H * hh / 12)
+            for j in range(m):
+                u = 0.1 + 0.85 * j / m * (0.55 if plume else 1.0); x, y = q.pt(u)
+                whorl(a, x, y, 10, 4.6 * (1 - 0.3 * u), fill or lc)
+            if plume:
+                with a.on(BLOOM):
+                    plume(a, q)
+
+    def young():
+        a = soil()
+        with a.group():
+            stems(a, 40, 4)
+        return a
+
+    def froth(a, q, col=None, dots=False):
+        for j in range(16):
+            u = 0.52 + 0.48 * j / 15; x, y = q.pt(u); sd = 1 if j % 2 else -1; w = 7 * (1.1 - 0.6 * (u - 0.5) / 0.5)
+            e = (x + sd * w, y - 2)
+            a.line(f"M{f(x)},{f(y)} Q{f(x + sd * w * 0.5)},{f(y - 0.4)} {P(e)}", 0.35, 0.85)
+            for kk in range(3):
+                p = lerp((x, y), e, 0.4 + 0.3 * kk)
+                if dots:
+                    a.dot(p[0] + 0.5, p[1] - 0.6, 0.55, col); a.dot(p[0] - 0.5, p[1] - 0.6, 0.55, col)
+                else:
+                    a.oval(p[0], p[1] - 0.6, 1.5, 1.2, 0, col, 0.35)
+
+    def flower():
+        a = soil()
+        with a.group():
+            stems(a, 74, plume=lambda a, q: froth(a, q, fc))
+        return a
+
+    def seedhead():
+        a = soil()
+        with a.group():
+            stems(a, 70, plume=lambda a, q: froth(a, q, fr, True), col="dark", fill="bark")
+        return a
+
+    def dormant():
+        a = soil()
+        with a.group():
+            for dx, hh in ((-6, 40), (3, 48), (9, 34)):   # old dark stems
+                a.ribbon((50 + dx, 88), (50 + dx, 88 - hh / 2), (50 + dx * 1.3, 88 - hh), 1.0, 0.7, "dark", lw=0.5)
+            for x0, x1 in ((-30, -4), (4, 30)):   # low creeping shoots at the base
+                q = shoot(a, 50 + x0 * 0.1, 87.5, 50 + x1, 85, -1.5, 1.0, 0.8, "leaf", lw=0.5)
+                for u in (0.35, 0.7, 1.0):
+                    p = q.pt(u); whorl(a, p[0], p[1] - 0.6, 8, 3.2, lc)
+        return a
+
+    return {"seed": sown(bedstraw_seed),
+            "seedling": lambda: bedstraw_seedling(k, lc),
+            "young": young, "flower": flower, "seedhead": seedhead, "dormant": dormant}
+
+
+def bedstraw_seedling(k, lc):
+    a = seedling(k, ("oval", 5, 3.2), (), h=10)
+    with a.group():   # the first whorl of narrow leaves above the seed leaves
+        a.ribbon((50, G - 10), (50, G - 14), (50, G - 18), 1.0, 0.8, "leaf", lw=0.5)
+        whorl(a, 50, G - 17, 8, 4.6, lc, k=0.5)
+    return a
+
+
+# ============================================================ rock sea-lavender
+def sealavender_seed(a, x, y):
+    """Small narrow brown seeds, one still in its papery funnel calyx."""
+    for dx, dy, r in ((-9, 2, -20), (8, -3, 30)):
+        seed_oval(a, x + dx, y + dy, r, 8.4, 3.0, "bark", line=False)
+    t = T(x + 2, y + 9, -70)
+    a.shape(path([t(-5, -1.2), t(4, -4.2), t(5, 0), t(4, 4.2), t(-5, 1.2)]), "white", 0.6)
+    a.line(f"M{P(t(-4, 0))} L{P(t(4, 0))}", 0.4, 0.4)
+
+
+def sealav_stems(a, H, fc, dry=False):
+    """The wiry zig-zag branched flowering stems with their one-sided spikes."""
+    col = "straw" if dry else "leaf"
+    for dx, hh, lean in ((-10, 0.82, -16), (0, 1.0, -2), (9, 0.9, 12), (16, 0.7, 22)):
+        x0, y0 = 50 + dx * 0.25, 87
+        top = (50 + dx + lean, 88 - H * hh)
+        pts = [(x0, y0)]
+        for j in range(1, 6):
+            u = j / 5; pts.append((x0 + (top[0] - x0) * u + (1.6 if j % 2 else -1.6), y0 + (top[1] - y0) * u))
+        with a.on(STEM):
+            a.line(opath(pts), 0.7, 0.85)
+        with a.on(BLOOM):
+            for j in range(2, 6):
+                p0 = pts[j]; sd = 1 if j % 2 else -1; L = 9 * (1 - 0.12 * j)
+                p1 = (p0[0] + sd * L, p0[1] - L * 0.45)
+                a.line(f"M{P(p0)} L{P(p1)}", 0.5, 0.85)
+                for v in (0.35, 0.6, 0.85):
+                    q_ = lerp(p0, p1, v)
+                    a.leaf(q_[0], q_[1], -90 + sd * 10, 2.2, 0.55, "straw" if dry else "white", lw=0.35, detail=False)
+                    if not dry:
+                        a.oval(q_[0], q_[1] - 2.4, 1.2, 0.9, 0, fc, 0.35)
+
+
+def sealavender_stages():
+    k = "rock-sea-lavender"; fc = pal(k, "flower", "lilac")
+
+    def young():
+        a = soil()
+        with a.group():
+            rosette(a, k, n=9, L=22)
+        return a
+
+    def flower():
+        a = soil()
+        with a.group():
+            rosette(a, k, n=9, L=18); sealav_stems(a, 64, fc)
+        return a
+
+    def seedhead():
+        a = soil()
+        with a.group():
+            rosette(a, k, n=7, L=16); sealav_stems(a, 60, fc, True)
+        return a
+
+    def dormant():
+        a = soil()
+        with a.group():
+            rosette(a, k, n=9, L=18)
+            for dx, hh in ((-6, 30), (4, 36)):   # old dry stems
+                pts = [(50 + dx * 0.3, 87)] + [(50 + dx + (1.4 if j % 2 else -1.4), 87 - hh * j / 4) for j in range(1, 5)]
+                a.line(opath(pts), 0.6, 0.8, "bark")
+                for p in pts[2:]:
+                    a.line(f"M{P(p)} l{f(3 if dx > 0 else -3)},-1.6", 0.5, 0.8, "bark")
+        return a
+
+    return {"seed": sown(sealavender_seed),
+            "seedling": lambda: seedling(k, ("oval", 5, 3.2), ((-130, 9), (-50, 9)), h=6),
+            "young": young, "flower": flower, "seedhead": seedhead, "dormant": dormant}
+
+
+# ============================================================ candy cane sorrel
+def oxbulb(a, x, y, s=1.0, shoot_=False):
+    """A tiny pointed brown bulb, its papery tunic drawn out to a point."""
+    a.shape(f"M{f(x)},{f(y - 9 * s)} C{f(x + 2 * s)},{f(y - 6 * s)} {f(x + 5 * s)},{f(y - 1 * s)} {f(x + 4.6 * s)},{f(y + 2.4 * s)} "
+            f"C{f(x + 4 * s)},{f(y + 5 * s)} {f(x - 4 * s)},{f(y + 5 * s)} {f(x - 4.6 * s)},{f(y + 2.4 * s)} "
+            f"C{f(x - 5 * s)},{f(y - 1 * s)} {f(x - 2 * s)},{f(y - 6 * s)} {f(x)},{f(y - 9 * s)} Z", "bark", 0.8)
+    a.line(f"M{f(x)},{f(y - 8.4 * s)} C{f(x - 2 * s)},{f(y - 4 * s)} {f(x - 2.6 * s)},{f(y)} {f(x - 1.4 * s)},{f(y + 3.8 * s)}", 0.5, 0.4)
+    a.roots(x, y + 4.2 * s, 4, 4 * s, 90, lw=0.6)
+
+
+def oxalis_stages():
+    k = "candy-cane-sorrel"; fc = pal(k, "flower", "white"); cen = pal(k, "centre", "primrose"); edge = "berry"
+
+    def bulbs(a, y=94, s=0.6):
+        for dx in (-8, 7):
+            oxbulb(a, 50 + dx, y, s)
+
+    def tuft(a, H=18, n=5):
+        for dx, hh, lean in ((-8, 0.8, -9), (8, 0.85, 9), (-2, 1.0, -2), (3, 0.92, 4), (0, 0.7, 0))[:n]:
+            q = shoot(a, 50 + dx * 0.4, 88, 50 + dx + lean, 88 - H * hh, 0, 1.0, 0.8, lw=0.5)
+            e = q.pt(1)
+            for o in (-30, 0, 30):
+                leaf(a, k, e[0], e[1], -90 + o + lean * 2, 9, None, 0)
+
+    def set_():
+        a = Art(); a.ground(40, marks=False)
+        for dx, dy, w in [(-30, 46, 4), (27, 50, 3), (-24, 80, 3), (28, 76, 4)]:
+            a.line(f"M{50 + dx},{dy} L{50 + dx + w},{dy}", 0.9, 0.55, "soil")
+        oxbulb(a, 50, 64, 2.2)
+        return a
+
+    def young():
+        a = soil()
+        with a.group():
+            tuft(a, 18); bulbs(a)
+        return a
+
+    def flower():
+        a = soil()
+        with a.group():
+            tuft(a, 18); bulbs(a)
+            with a.on(BLOOM):
+                for x, y in ((36, 50), (60, 44)):   # open flowers on slender stalks
+                    a.line(f"M50,86 Q{f((50 + x) / 2)},{f(y + 16)} {f(x)},{f(y + 3)}", 0.6, 0.85)
+                    M = tilt(y, 0.55)
+                    for i in range(5):
+                        mp = petal(a, x, y, -90 + 72 * i + 10, 7, 5.6, fc, FAN, M=M, lw=0.45, lines=0, shade=0.06)
+                        a.line(opath([mp((7 * u, 2.6 * FAN(u))) for u in (0.5, 0.75, 0.95)]), 0.7, 0.9, edge)
+                    a.oval(x, y, 1.6, 1.0, 0, cen, 0.35)
+                for x, y, ang in ((48, 42, -84), (70, 56, -60)):   # red and white spiral buds
+                    a.line(f"M50,86 Q{f((50 + x) / 2)},{f(y + 16)} {f(x)},{f(y + 2)}", 0.6, 0.85)
+                    t = T(x, y + 2, ang)
+                    a.shape(path([t(0, 0), t(3, -1.4), t(8, -0.6), t(10, 0), t(8, 0.6), t(3, 1.4)]), "white", 0.45)
+                    for u in (0.25, 0.5, 0.75):
+                        a.line(f"M{P(t(10 * u - 0.8, -1.2))} L{P(t(10 * u + 0.8, 1.2))}", 0.7, 0.9, edge)
+        return a
+
+    def dormant():
+        a = soil()
+        with a.group():
+            bulbs(a, 95, 0.7)
+        return a
+
+    return {"set": ("Bulb", set_), "young": young, "flower": flower, "dormant": dormant}
 
 
 STAGE = {"foxglove": foxglove_stages(), "salvia": salvia_stages(), "common-evening-primrose": primrose_stages(),
          "wallflower": wallflower_stages(), "yellow-rattle": rattle_stages(), "selfheal": selfheal_stages(),
          "sweet-william": sweetwilliam_stages(), "poppy": poppy_stages(), "california-poppy": calpoppy_stages(),
          "borage": borage_stages(), "russian-comfrey": comfrey_stages(), "lungwort": lungwort_stages(),
-         "native-cowslip": cowslip_stages(), "geum": geum_stages(), "viola": viola_stages()}
+         "native-cowslip": cowslip_stages(), "geum": geum_stages(), "viola": viola_stages(), "aubrieta": aubrieta_stages(),
+         "linum": linum_stages(), "marshmallow": marshmallow_stages(), "perforate-st-john-s-wort": sjw_stages(),
+         "lady-s-bedstraw": bedstraw_stages(), "rock-sea-lavender": sealavender_stages(), "candy-cane-sorrel": oxalis_stages()}

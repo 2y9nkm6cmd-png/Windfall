@@ -27,7 +27,7 @@
   "size": "2 to 3 cm across",
   "season": "June to August"
  },
- "fruit": "Round, 10 to 15 cm, on a short stalk; skin pale green ripening yellow-green to buff, often with faint ribs and a fine raised net. Ripe fruit smells sweet and cracks around the stalk. Under glass the fruit hang in nets on the support. Seeds narrow, flat, cream, 8 to 10 mm, like cucumber seeds but smaller.",
+ "fruit": "Round, 10 to 15 cm, on a short stalk; skin pale green ripening yellow-green to buff, often with faint ribs and a fine raised net. Ripe fruit smells sweet and cracks around the stalk. Under glass the fruit hang in nets on the support. Seeds narrow, flat, cream, 8 to 12 mm, like cucumber seeds and about the same size or a little larger.",
  "seedling": "Two smooth oval seed leaves with rounded tips; first true leaf small, rounded and hairy with shallow lobes.",
  "winter": "Nothing: killed by cold and cleared",
  "palette": {
@@ -48,7 +48,7 @@
   ],
   "seed": [
    "a narrow flat cream seed",
-   "pointed oval, smaller than a cucumber seed"
+   "pointed oval, about the size of a cucumber seed or a little larger"
   ],
   "seedling": [
    "two smooth oval seed leaves",
@@ -68,5 +68,5 @@
   ]
  },
  "look_alikes": "Cucumber leaves are more triangular with sharper, angular lobes. Courgette and squash leaves are much larger and flowers far bigger.",
- "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK Seed size corrected on 17 November 2026 (veg redraw, second pass): it said smaller than a cucumber's; melon seeds are usually about the same size or a little larger (8 to 12 mm)."
 }

@@ -33,7 +33,7 @@
  "palette": {
   "leaf": "leaf",
   "flower": "white",
-  "centre": "beet",
+  "centre": "bulbs_eye",
   "fruit": "unripe"
  },
  "palette_wish": {
@@ -73,5 +73,5 @@
   ]
  },
  "look_alikes": "Garden gladioli have broad, ruffled, upward-facing flowers in a stiff one-sided spike and no dark eye on every tepal. Crocosmia leaves are pleated and its flowers orange. Not related to true orchids.",
- "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK Palette centre set to bulbs_eye on 17 November 2026 (bulbs redraw): the very dark maroon-purple asked for in palette_wish."
 }

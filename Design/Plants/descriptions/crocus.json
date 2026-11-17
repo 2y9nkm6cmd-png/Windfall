@@ -32,7 +32,7 @@
  "winter": "Nothing above ground until the leaf tips show in late January or February.",
  "palette": {
   "leaf": "deep",
-  "flower": "lilac",
+  "flower": "bulbs_crocus",
   "centre": "carrot",
   "fruit": "unripe"
  },
@@ -74,5 +74,5 @@
   ]
  },
  "look_alikes": "Autumn crocus or meadow saffron (Colchicum) flowers in autumn without leaves and has six stamens; its broad leaves come in spring. Crocus tommasinianus is slimmer and paler, silvery outside. Leaves alone look like grass but the white stripe gives them away.",
- "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK Palette flower set to bulbs_crocus on 17 November 2026 (bulbs redraw): the rich lilac-violet asked for in palette_wish."
 }

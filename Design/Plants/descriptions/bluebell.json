@@ -32,7 +32,7 @@
  "winter": "Leaf tips come up from January; nothing above ground in late summer and autumn.",
  "palette": {
   "leaf": "deep",
-  "flower": "blue",
+  "flower": "bulbs_bluebell",
   "centre": "white",
   "fruit": "unripe"
  },
@@ -73,5 +73,5 @@
   ]
  },
  "look_alikes": "Spanish bluebell (Hyacinthoides hispanica) and the common hybrid have upright stems with flowers all round, wider open bells with spreading tips, blue anthers, broader leaves (to 3.5 cm) and no scent. Grape hyacinths have tiny bead-like bells in a dense spike.",
- "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK Palette flower set to bulbs_bluebell on 17 November 2026 (bulbs redraw): the violet-blue asked for in palette_wish."
 }

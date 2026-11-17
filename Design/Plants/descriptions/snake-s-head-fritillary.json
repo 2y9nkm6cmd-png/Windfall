@@ -32,7 +32,7 @@
  "winter": "Nothing above ground until shoots appear in March.",
  "palette": {
   "leaf": "sage",
-  "flower": "beet",
+  "flower": "bulbs_maroon",
   "fruit": "unripe"
  },
  "palette_wish": {
@@ -73,5 +73,5 @@
   ]
  },
  "look_alikes": "Nothing else in the UK has the chequered bell. Before flowering it looks like grass or a young bluebell, but its leaves are on the stem, not from the base. Other fritillaries (F. uva-vulpis, F. michailovskyi) are smaller, with unchequered bells.",
- "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK Palette flower set to bulbs_maroon on 17 November 2026 (bulbs redraw): the dull maroon-purple asked for in palette_wish (the paler squares are bulbs_chequer)."
 }
