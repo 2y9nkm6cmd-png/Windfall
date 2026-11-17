@@ -1,3 +1,14 @@
+# 17 November 2026, 21:15: the redrawn plant drawings merged into main, built and installed
+
+**By the "merge plant redraw" chat, linked to the Mac.** William, 20:41: "merge `plant-descriptions-redraw`, build and install from knowledge-base doc 118".
+
+- `main` moved forward from `aa4f08c` to `3078884` (a fast-forward: `main` had not moved). No Swift changed.
+- Built in `~/Developer/windfall-join2`, build folder `DerivedData/Windfall-join2`. Signed for any iPhone or iPad: BUILD SUCCEEDED 20:42 to 20:44. Mac, unsigned: BUILD SUCCEEDED, finished 20:46. All 1,248 plant drawings are in both compiled asset catalogues.
+- iPhone 16: `3078884`, installed 20:45:41 (the first try at 20:44 failed with a connection reset; the second worked).
+- iPad Mini 7: `3078884` **plus** `eira-button-steady` (the Eira icon fix of 16 November, 07:30), merged locally as `e588873` on the branch `ipad-plants-and-button` in `~/Developer/windfall-buttonsteady`, **not pushed**, so the iPad keeps the fix it already had. Installed 20:48:56. The fix is still not in `main`: it waits on William trying it (card `e-button-steady`).
+- Mac: opened 20:47 from `DerivedData/Windfall-join2`. No copy was open before. Records copied first (`windfall-build-logs/records-copy-15nov-2043`, the script names every copy "15nov"): 376 plants, 2 gardens, 11 photos, 4 sightings, 94 days of weather.
+- **Looked at:** the strawberry's page on the Mac, in dark mode: the new leaf, flower and five life stages. **Not looked at:** light mode, any other plant, the iPhone or iPad screens.
+
 # 17 November 2026, 08:40: every plant drawing redrawn from a written description of the plant
 
 **By the "plant drawings check" chat, in Claude's cloud workspace. On the branch `plant-descriptions-redraw`, not in `main`, not built, on no device.** William, 16 November 22:20: "I looked at the strawberry leaf drawing and it's wrong ... Is there a way we can do a stronger pass of all drawings?", then at 22:30: "Yes. Please start. Run this overnight. When you have the descriptions start the drawings." The cloud session paused from 23:25 to 06:40, so most of it ran on the morning of the 17th.
