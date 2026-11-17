@@ -30,7 +30,7 @@
  "fruit": "The head dries to a straw-brown ball of papery three-lobed capsules that split to show black angular seeds. Some heads carry small bulbils among the flowers.",
  "seedling": "A single thin grass-like seed leaf, first bent double like a hairpin with the black seed case on one end (the 'crook'), then straightening; then thin flat true leaves, two-ranked from the start.",
  "winter": "Hardy: stands in the ground all winter, the outer leaves yellowing and the tips flopping, the shank lifted as needed.",
- "palette": {"leaf": "sage", "flower": "lilac", "centre": "plum", "fruit": "straw", "root": "white"},
+ "palette": {"leaf": "sage", "flower": "roots_lilacpale", "centre": "plum", "fruit": "straw", "root": "white"},
  "must_show": {
   "leaf": ["a long flat strap folded in a V along a keel, solid not hollow", "parallel veins, no teeth", "a white sheath at the base"],
   "bloom": ["a round dense ball of many small cup-shaped pale lilac-pink flowers", "stamens sticking out", "a papery beaked spathe falling from below"],
@@ -42,5 +42,5 @@
   "seedhead": ["a dry straw-brown round head of papery capsules", "black seeds showing"]
  },
  "look_alikes": "Wild leek and the Bristol onion (Allium sphaerocephalon) have small heads and thin leaves. Onion has hollow round leaves and a bulb. Garlic leaves are flat but narrower and also two-ranked, and garlic makes a bulb of cloves. Elephant garlic is the same species, grown for its large cloves.",
- "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK 17 November 2026, redraw check: palette flower set to roots_lilacpale, a pale pink-lilac; the stock 'lilac' read too saturated against the photographs and the text (pale pink to lilac or white)."
 }

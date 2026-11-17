@@ -33,7 +33,7 @@
  "winter": "Dies back to a woody crown at the soil; dead stems may stand",
  "palette": {
   "leaf": "leaf",
-  "flower": "lilac",
+  "flower": "veg_lucerne",
   "fruit": "dark"
  },
  "palette_wish": {
@@ -76,5 +76,5 @@
   ]
  },
  "look_alikes": "Black medick (Medicago lupulina) is low and sprawling with tiny yellow heads and black kidney pods. Clovers have round heads and leaflets toothed all round, with no stalk on the middle leaflet. Sickle medick (M. falcata) has yellow flowers and sickle-shaped pods.",
- "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK Palette flower changed from lilac to veg_lucerne on 16 November 2026 (veg redraw): the colour its palette_wish asked for, added as veg_lucerne."
 }

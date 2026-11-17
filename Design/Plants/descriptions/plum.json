@@ -3,7 +3,7 @@
  "name": "Plum",
  "latin": "Prunus domestica",
  "family": "Rosaceae, the rose family",
- "grown_as": "Fruit trees on rootstocks: 'Victoria' (two), 'Opal' (dwarf) and 'Warwickshire Drooper'. 'Victoria' fruit is pinky red over yellow, 'Opal' red-purple, 'Warwickshire Drooper' yellow. The drawing shows a 'Victoria'-type red-purple plum.",
+ "grown_as": "Fruit trees on rootstocks: 'Victoria' (two), 'Opal' (dwarf) and 'Warwickshire Drooper'. 'Victoria' fruit is pinky red over yellow, 'Opal' red-purple, 'Warwickshire Drooper' yellow. The drawing shows a dusky red-purple plum under its pale bloom, so it reads as a plum and not a cherry.",
  "habit": "A small deciduous tree with a rounded, spreading crown, 3 to 5 m on St Julien A or Pixy rootstock. Dark brown-grey bark with pale horizontal lines (lenticels). 'Warwickshire Drooper' has weeping branches. Fruits on spurs and on one-year-old wood.",
  "leaf": {
   "arrangement": "Alternate",
@@ -30,7 +30,7 @@
  "fruit": "A drupe with a single stone: oval, 3 to 7 cm, with a shallow groove (the suture) down one side and a pale waxy bloom that rubs off. 'Victoria' pinky red speckled over yellow; others purple, red or yellow. Hangs on a short stalk, often several along a branch. Ripe August to September. Fruit set: small green oval fruitlets, at first carrying the dry remains of the flower.",
  "seedling": "Not drawn: grown as grafted trees",
  "winter": "Bare tree. Dark grey-brown branches with short spurs carrying clusters of small, round flower buds; small pointed leaf buds on the shoots.",
- "palette": {"leaf": "deep", "flower": "white", "centre": "primrose", "fruit": "beet"},
+ "palette": {"leaf": "deep", "flower": "white", "centre": "primrose", "fruit": "plum"},
  "must_show": {
   "leaf": ["simple leaf widest above the middle with a wedge base", "fine blunt teeth all round", "dull, slightly wrinkled surface with the vein net showing"],
   "bloom": ["five white petals", "many stamens with yellow anthers around ONE style, not five"],
@@ -41,5 +41,5 @@
   "crop": ["oval fruit with a groove down one side and a waxy bloom", "fruit hanging on short stalks along the branches"]
  },
  "look_alikes": "Damson and bullace are smaller-fruited forms of the same species. Blackthorn (Prunus spinosa) is spiny, flowers on bare black twigs well before the leaves and has small blue-black sloes. Cherry plum (Prunus cerasifera) flowers earlier, in March, with glossy leaves and round fruit. Cherries carry their flowers in bunches on long stalks.",
- "checked": "Written 16 November 2026 by Claude from field-guide knowledge and iNaturalist photos. ⚠️ CHECK"
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge and iNaturalist photos. ⚠️ CHECK 17 November 2026, fruit redraw: palette fruit changed from 'beet' to 'plum' (dusky purple), because the crimson 'beet' fruit read as cherries in the independent check; grown_as changed to match."
 }

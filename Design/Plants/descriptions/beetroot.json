@@ -22,7 +22,7 @@
   "petals": "None: five small green fleshy sepals (perianth segments) curved inwards over the centre",
   "colour": "Green",
   "centre": "Five stamens, small and yellowish, half hidden",
-  "behind": "A small leafy bract under each cluster, smaller towards the spike tip",
+  "behind": "A small leafy bract under each cluster on the lower part of the spike, smaller upwards; the upper clusters have none",
   "carried": "In clusters of two to four along long, branching, leafy spikes that make a loose tall plume, the spikes upright to arching",
   "size": "Flowers 2 to 3 mm; spikes 20 to 50 cm",
   "season": "June to August of the second year"
@@ -33,7 +33,7 @@
  "palette": {"leaf": "deep", "flower": "unripe", "centre": "pear", "fruit": "bark", "root": "beet"},
  "must_show": {
   "leaf": ["one simple oval leaf, untoothed but wavy", "a red stalk and a red midrib with red side veins", "glossy and puckered between the veins"],
-  "bloom": ["tiny green flowers with no petals in small tight clusters", "clusters spaced along a slender spike, a small leaf under each"],
+  "bloom": ["tiny green flowers with no petals in small tight clusters", "clusters spaced along a slender spike, a small leaf under each lower cluster only"],
   "seed": ["a corky, knobbly, irregular brown lump, not a smooth seed"],
   "seedling": ["two narrow strap-shaped seed leaves on a red stem", "often two or three seedlings from one spot"],
   "young": ["a rosette of oval leaves on red stalks", "the red top of the root beginning to swell at the soil"],
@@ -42,5 +42,5 @@
   "seedhead": ["dry brown spikes lined with corky seed clusters"]
  },
  "look_alikes": "Chard and leaf beet are the same species with thin roots and broader stalks. Mangelwurzel is the same species with a much larger root, often orange, yellow or pink, mostly above ground. Sea beet, the wild form, has a thin woody root and small glossy leaves. Turnip and radish have rough lobed leaves.",
- "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK 17 November 2026, redraw check: flower 'behind' and the bloom must_show corrected: the leafy bracts are under the lower clusters only, not every cluster."
 }

@@ -30,7 +30,7 @@
  "fruit": "Tiny dry brown pods (follicles) in clusters of five, making a rusty-brown star-studded head that stays on into winter.",
  "seedling": "Not drawn: grown as bought plants",
  "winter": "A low twiggy mound of thin brown stems, many still topped with flat rusty-brown seed heads; small reddish buds.",
- "palette": {"leaf": "primrose", "flower": "mauve", "centre": "pink", "fruit": "rust"},
+ "palette": {"leaf": "primrose", "flower": "fruit_rose", "centre": "pink", "fruit": "rust"},
  "must_show": {
   "leaf": ["small lance-shaped leaf with sharp teeth on the upper part only", "golden yellow, with red on young leaves"],
   "bloom": ["a flat head of many tiny pink five-petalled flowers", "long stamens making it look fluffy"],
@@ -40,5 +40,5 @@
   "growing": ["a low dense mound of golden leaves", "copper-red young leaves at the shoot tips"]
  },
  "look_alikes": "Spiraea 'Goldflame' and 'Goldmound' are close relatives with similar gold leaves. Bridal wreath spiraeas have white flowers in spring along arching stems. Pink yarrow has flat heads too but feathery leaves and is not woody.",
- "checked": "Written 16 November 2026 by Claude from field-guide knowledge and iNaturalist photos. ⚠️ CHECK"
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge and iNaturalist photos. ⚠️ CHECK 17 November 2026, fruit redraw: palette flower changed from 'mauve' to 'fruit_rose', a new deep rose-pink, because the flower field says deep rose-pink and 'mauve' drew it lilac (the independent check flagged it)."
 }

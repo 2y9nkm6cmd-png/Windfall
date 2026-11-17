@@ -31,7 +31,7 @@
  "fruit": "5 to 10 small seeds (achenes) twisted together in a tight spiral, green turning brown",
  "seedling": "Two small round seed leaves, then first true leaves rounded and toothed, then three-lobed",
  "winter": "Dies right down; dead brown stems with twisted seed clusters may stand",
- "palette": {"leaf": "deep", "flower": "white", "centre": "primrose", "fruit": "bark"},
+ "palette": {"leaf": "deep", "flower": "umbels_cream", "centre": "primrose", "fruit": "bark"},
  "palette_wish": {"flower": "creamy white, about #F5EDCF"},
  "must_show": {
   "leaf": ["pinnate with large toothed leaflets and tiny ones between", "end leaflet bigger and three- to five-lobed", "pale beneath, deep veins"],
@@ -44,5 +44,5 @@
   "dormant": ["nothing green above ground or dead brown stems only"]
  },
  "look_alikes": "Dropwort (Filipendula vulgaris) grows on dry grassland with many small leaflets and pink-tinged buds. Elder flowers are on a woody shrub. Umbellifers have flat umbels, not irregular sprays.",
- "checked": "Written 16 November 2026 by Claude from field-guide knowledge. No UK iNaturalist photos had been downloaded for this group when it was written. ⚠️ CHECK"
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. No UK iNaturalist photos had been downloaded for this group when it was written. ⚠️ CHECK 16 November 2026, redraw: palette flower set to umbels_cream, the creamy white asked for in palette_wish (plain white was too cold beside the photographs)."
 }

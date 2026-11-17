@@ -30,7 +30,7 @@
  "fruit": "Small angular seeds (achenes) 2 to 3 mm, pale brown, topped with a tiny crown of scales but no fluffy hairs: chicory makes no clock. The seeds sit in the dried, closed bract cups along the brown wiry stems.",
  "seedling": "Two oval to spoon-shaped seed leaves on short stalks, then oblong true leaves with a few teeth, slightly hairy beneath.",
  "winter": "The leaves die back and the crown sits at the soil on its thick taproot, sometimes with a few small leaves. Witloof roots are lifted in autumn and forced under cover in the dark over winter.",
- "palette": {"leaf": "leaf", "flower": "blue", "centre": "blue", "fruit": "seed"},
+ "palette": {"leaf": "leaf", "flower": "leaves_skyblue", "centre": "leaves_skyblue", "fruit": "seed"},
  "palette_wish": {"flower": "clear sky blue, about #6E94E0"},
  "must_show": {
   "leaf": ["a long oblong leaf narrowing into a winged pale stalk", "a broad pale midrib", "wavy edge with scattered shallow teeth or backward-pointing lobes near the base"],
@@ -44,5 +44,5 @@
   "dormant": ["a bare crown at the soil on a thick white taproot", "leaves gone or a few small ones"]
  },
  "look_alikes": "Endive (Cichorium endivia) is an annual with curly or broad, frilly leaves and the same blue flowers. Dandelion has yellow heads and hollow stalks with milky sap. Cornflower has a blue flower but with funnel-shaped, frilled outer florets and grey narrow leaves.",
- "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK 16 November 2026, redraw (leaves group): palette flower and centre set to leaves_skyblue, the clear sky blue asked for in palette_wish (added to the colours in redraw/leaves.py)."
 }

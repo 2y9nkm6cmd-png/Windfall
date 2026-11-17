@@ -30,7 +30,7 @@
  "fruit": "Upright pods 1.5 to 2.5 cm held close against the stem, plump and cylindrical, ending in a flat, sword-shaped beak about a third of the pod's length. Green, drying straw-brown, with two rows of small seeds. Seeds oval and slightly flattened, 1.5 to 2 mm, pale yellow-brown.",
  "seedling": "Two kidney-shaped seed leaves on short stalks, broader than long with a notch at the tip, like a heart with the stalk at its point, then oval true leaves with wavy edges; the lobes come on later leaves.",
  "winter": "Nothing: an annual, though autumn sowings carry on under cover.",
- "palette": {"leaf": "leaf", "flower": "white", "centre": "primrose", "fruit": "straw"},
+ "palette": {"leaf": "leaf", "flower": "leaves_cream", "centre": "primrose", "fruit": "straw"},
  "must_show": {
   "leaf": ["a large rounded end lobe and smaller oblong side lobes in pairs, gaps between them", "the side lobes getting smaller towards the base", "a pale midrib, smooth or bluntly toothed lobes"],
   "bloom": ["four cream petals in a cross", "dark purple veins along each petal", "narrow upright purplish sepals"],
@@ -42,5 +42,5 @@
   "seedhead": ["short plump pods pressed upright against the stem", "each pod with a flat beak at its tip", "stems drying straw-brown"]
  },
  "look_alikes": "Wild rocket (Diplotaxis tenuifolia) is a perennial with narrower, more deeply cut leaves, bright yellow flowers and long flat pods without the broad beak. White mustard and charlock have yellow flowers and bristly leaves. Radish leaves are rough and hairy with purple-veined white or mauve flowers.",
- "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK 16 November 2026, redraw (leaves group): the photographs show the petals cream to pale yellowish, as the text says, so the palette's flower was changed from white to a new cream colour, leaves_cream."
 }

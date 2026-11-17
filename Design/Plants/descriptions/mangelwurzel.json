@@ -22,7 +22,7 @@
   "petals": "None: five small green fleshy segments curved over the centre",
   "colour": "Green",
   "centre": "Five small yellowish stamens",
-  "behind": "A small leafy bract under each cluster",
+  "behind": "A small leafy bract under each cluster on the lower part of the spike; the upper clusters have none",
   "carried": "In clusters of two to four along long branching spikes that form a loose plume",
   "size": "Flowers 2 to 3 mm; spikes 20 to 50 cm",
   "season": "June to August of the second year"
@@ -30,7 +30,7 @@
  "fruit": "Corky, knobbly brown seed clusters 4 to 6 mm, each holding several seeds, along the dry brown spikes.",
  "seedling": "Two narrow oblong seed leaves on a reddish or pale stem; seedlings come up in small clumps from each corky cluster.",
  "winter": "Roots lifted and clamped before hard frost. A plant left to flower overwinters as a small rosette on the root top.",
- "palette": {"leaf": "leaf", "flower": "unripe", "centre": "pear", "fruit": "bark", "root": "rust"},
+ "palette": {"leaf": "deep", "flower": "unripe", "centre": "pear", "fruit": "bark", "root": "rust"},
  "must_show": {
   "leaf": ["one large simple oval leaf, untoothed and wavy", "a thick pale or pinkish fleshy stalk and pale midrib", "glossy and puckered"],
   "bloom": ["tiny green flowers with no petals in small clusters", "clusters spaced along a slender spike"],
@@ -42,5 +42,5 @@
   "seedhead": ["dry brown spikes lined with corky seed clusters"]
  },
  "look_alikes": "Beetroot is the same species with a smaller, round, deep red root and red-veined leaves. Sugar beet has a white, cone-shaped root mostly underground. Swede has grey-green lobed leaves and a neck of leaf scars.",
- "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK 17 November 2026, redraw check: palette leaf changed from 'leaf' (pale yellow-green) to 'deep', to match the text (mid to dark glossy green) and the photographs. 17 November 2026, redraw check: flower 'behind' corrected as for beetroot (same species): bracts under the lower clusters only."
 }

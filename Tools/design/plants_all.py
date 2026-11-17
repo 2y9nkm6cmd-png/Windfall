@@ -1057,7 +1057,10 @@ def palette(slug):
     leaf, flower, centre (the middle of the flower) and fruit. These are the
     ONE place a kind's colours are set: the close-ups and every life stage
     take them from here, so the two can never drift apart again."""
-    return description(slug).get("palette", {})
+    pal = description(slug).get("palette", {})
+    # A colour another group added (redraw/<group>.py) is unknown while only one
+    # group's file is read (REDRAW_ONLY): leave it out then, rather than stop.
+    return {k: v for k, v in pal.items() if v in COLOURS}
 
 
 def apply_palette(d, pal):

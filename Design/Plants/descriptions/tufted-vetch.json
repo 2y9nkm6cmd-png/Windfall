@@ -33,7 +33,7 @@
  "winter": "Dies back: dead brown stems tangled in the grass, new shoots from the roots in spring",
  "palette": {
   "leaf": "leaf",
-  "flower": "lilac",
+  "flower": "veg_vetch",
   "fruit": "bark"
  },
  "palette_wish": {
@@ -77,5 +77,5 @@
   ]
  },
  "look_alikes": "Bush vetch (Vicia sepium) has fewer, broader leaflets and only 2 to 6 dull purple flowers in a short cluster. Common vetch (V. sativa) has 1 or 2 pink-purple flowers in the leaf joints. Fodder vetch (V. villosa) has longer flowers with a pouched calyx base.",
- "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK Palette flower changed from lilac to veg_vetch on 16 November 2026 (veg redraw): the colour its palette_wish asked for, added as veg_vetch."
 }

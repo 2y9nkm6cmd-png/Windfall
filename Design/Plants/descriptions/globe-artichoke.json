@@ -32,7 +32,7 @@
  "winter": "Often keeps a smaller clump of grey leaves in mild winters; in hard winters dies back to the crown. Old flower stems cut down.",
  "palette": {
   "leaf": "sage",
-  "flower": "mauve",
+  "flower": "veg_artichoke",
   "centre": "deep",
   "fruit": "straw"
  },
@@ -79,5 +79,5 @@
   ]
  },
  "look_alikes": "Cardoon is the same species with spinier leaves and smaller, spiny heads. Spear thistle and other thistles are spiny and far smaller. Onopordum (Scotch thistle) has spiny winged stems.",
- "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK Palette flower changed from mauve to veg_artichoke on 16 November 2026 (veg redraw): the colour its palette_wish asked for, added as veg_artichoke."
 }

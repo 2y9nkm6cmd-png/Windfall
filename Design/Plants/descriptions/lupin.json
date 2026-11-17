@@ -33,7 +33,7 @@
  "winter": "Dies down to a crown at soil level, sometimes with a small tuft of new leaves",
  "palette": {
   "leaf": "leaf",
-  "flower": "blue",
+  "flower": "veg_lupin",
   "centre": "white",
   "fruit": "dark"
  },
@@ -78,5 +78,5 @@
   ]
  },
  "look_alikes": "Tree lupin (Lupinus arboreus) is a shrub with yellow flowers. Wild Russell lupins along roads and rivers are the same plant gone wild. Hemp and horse chestnut leaves are palmate too but toothed.",
- "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK Palette flower changed from blue to veg_lupin on 16 November 2026 (veg redraw): the colour its palette_wish asked for, added as veg_lupin."
 }

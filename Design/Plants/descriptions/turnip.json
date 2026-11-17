@@ -30,7 +30,7 @@
  "fruit": "Slender cylindrical pods 4 to 7 cm long, with a thin beak 1 to 2 cm, held up on spreading stalks; they split lengthwise to release small round dark red-brown to black seeds.",
  "seedling": "Two kidney- to heart-shaped seed leaves, notched at the tip, on short stalks, bright green; the first true leaves rough-hairy, oval and toothed.",
  "winter": "Roots lifted in autumn or left in the ground in mild spells; tops die back in hard frost. Spring greens (turnip tops) come from roots left in.",
- "palette": {"leaf": "leaf", "flower": "sun", "centre": "sun", "fruit": "straw", "root": "white"},
+ "palette": {"leaf": "leaf", "flower": "roots_yellow", "centre": "roots_yellow", "fruit": "straw", "root": "white"},
  "must_show": {
   "leaf": ["lyre-shaped with a large rounded end lobe and smaller side lobes below", "bristly-hairy and grass green, not waxy grey", "blunt teeth all round"],
   "bloom": ["four bright yellow petals in a cross", "open flowers held above the buds at the cluster tip"],
@@ -42,5 +42,5 @@
   "seedhead": ["slender upright beaked pods along the stems"]
  },
  "look_alikes": "Swede has smooth, waxy, grey-green leaves, a neck of leaf scars on the root and yellow flesh; its buds stand above its open flowers. Kohlrabi is a swollen stem above ground with leaves rising from its sides. Radish has a smaller root and pale lilac flowers. Oilseed rape is like a swede, not a turnip.",
- "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK 17 November 2026, redraw check: palette flower (and centre) set to roots_yellow, a clear golden yellow; the stock 'sun' read ochre-orange beside the photographs."
 }

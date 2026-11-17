@@ -34,7 +34,7 @@
   "leaf": "sage",
   "flower": "lilac",
   "centre": "sun",
-  "fruit": "plum"
+  "fruit": "veg_aubergine"
  },
  "palette_wish": {
   "fruit": "glossy deep purple-black, about #3B1E40"
@@ -73,5 +73,5 @@
   ]
  },
  "look_alikes": "Potato and tomato flowers have the same stamen cone but smaller and the leaves are pinnate. Chilli pepper has smooth, glossy, untoothed leaves and white flowers.",
- "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK Palette fruit changed from plum to veg_aubergine on 16 November 2026 (veg redraw): the colour its palette_wish asked for, added as veg_aubergine."
 }

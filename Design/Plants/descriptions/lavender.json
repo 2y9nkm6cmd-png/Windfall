@@ -32,7 +32,7 @@
  "winter": "Evergreen: a grey mound of leafy shoots, the old flower stalks cut off or left grey and dry.",
  "palette": {
   "leaf": "sage",
-  "flower": "lilac",
+  "flower": "herbs_lavender",
   "fruit": "seed"
  },
  "palette_wish": {
@@ -64,5 +64,5 @@
   ]
  },
  "look_alikes": "Lavandin (Lavandula × intermedia) is bigger, with longer, often branched stalks and longer, paler, pointed spikes. French lavender (Lavandula stoechas) has short fat heads topped by purple 'ears'. Rosemary has dark green leaves white beneath and flowers in the leaf joints. Hyssop has green leaves and blue spikes among the leaves.",
- "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK Redraw of 16 November 2026: palette flower changed from \"lilac\" to \"herbs_lavender\", the colour asked for in palette_wish, added in Tools/design/redraw/herbs.py."
 }

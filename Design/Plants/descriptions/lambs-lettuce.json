@@ -30,7 +30,7 @@
  "fruit": "A tiny flattened, rounded nutlet 2 to 2.5 mm with a corky swelling on one side, pale brown, no hairs or plume. Each holds one seed.",
  "seedling": "Two small oval to round seed leaves on short stalks, then a first opposite pair of spoon-shaped true leaves.",
  "winter": "Winter is its season: a low green rosette that sits through frost and is picked whole.",
- "palette": {"leaf": "deep", "flower": "blue", "centre": "blue", "fruit": "seed"},
+ "palette": {"leaf": "deep", "flower": "leaves_paleblue", "centre": "leaves_paleblue", "fruit": "seed"},
  "must_show": {
   "leaf": ["a smooth spoon-shaped leaf with a rounded tip", "no teeth", "tapering to a short winged stalk"],
   "bloom": ["a tiny pale lilac-blue flower with five rounded lobes", "in a small flat-topped cluster"],
@@ -42,5 +42,5 @@
   "seedhead": ["the forked stems drying yellow-brown", "tiny round seeds in small clusters at the tips"]
  },
  "look_alikes": "Other corn salads differ only in their tiny fruits. Seedlings of forget-me-not are hairy and alternate. Young lettuce leaves are thinner, paler and puckered.",
- "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK"
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. ⚠️ CHECK 16 November 2026, redraw (leaves group): the photographs show the flowers very pale lilac-blue, nearly white, as the text says, so the palette's flower and centre were changed from the mid blue to a new pale colour, leaves_paleblue."
 }
