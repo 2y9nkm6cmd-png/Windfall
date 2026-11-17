@@ -84,6 +84,8 @@ COLOURS = {
     "daisies_violet":    ("#6F5FB3", "#9584D2"),   # devil's-bit scabious: blue-violet
     "daisies_rampion":   ("#4B4FB0", "#7B7ED6"),   # Oxford rampion: deep violet-blue
     "daisies_silver":    ("#DCE3DE", "#AEB9B1"),   # Senecio 'Angel Wings': silvery white felt
+    "daisies_scabious":  ("#E07BAE", "#E08DBA"),   # Scabiosa 'Kudo Pink': bright pink
+    "daisies_aster":     ("#D98AC4", "#C982B8"),   # dwarf Michaelmas daisy 'Pink': lilac-pink, strong enough to read small
 }
 
 DESC = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "..", "Design", "Plants", "descriptions")
@@ -335,29 +337,36 @@ def stalk_to(a, x, y, ang, ln, w0, w1, fill, bend=0.0):
     return t(ln)
 
 
-def lf_sunflower(a, x, y, ang, L, fill, small=False):
+def lf_sunflower(a, x, y, ang, L, fill, small=False, bend=0.0):
     """Broad heart-shaped leaf with a sharp tip, coarse forward teeth all
-    round, three big veins from the base, on a long stalk."""
-    pet = 0.34 * L; BL = L - pet; W = BL * 0.92
+    round, three big veins from the base, on a long stalk. bend turns the
+    blade on its stalk (a leaf hanging down)."""
+    pet = 0.34 * L; BL = L - pet
     A = stalk_to(a, x, y, ang, pet, max(0.9, L * 0.034), max(0.7, L * 0.026), fill, 0.03)
-    R = BL * 0.43
-    g = lambda h: (1 + 0.08 * math.cos(h)) * (1 + 0.62 * math.exp(-abs(h) / 0.24)) * notch(0.7, 0.5)(h)
+    R = BL * 0.36
+    g = lambda h: (1 + 0.12 * math.cos(h) ** 2) * (1 + 0.6 * math.exp(-abs(h) / 0.24)) * notch(0.88, 0.42)(h)
     top, bot = polar_edges(R, g)
     BL = top[-1][0]
     sp = max(1.7, BL * 0.07); dp = max(0.7, BL * 0.028)
     top = serrate(top, 1, sp, dp, "saw", BL, -1, 0.95, irr=0.35); bot = serrate(bot, -1, sp, dp, "saw", BL, -1, 0.95, irr=0.35)
     top, bot = [(0, 0)] + top, [(0, 0)] + bot
-    veins = []
-    if not small or L > 14:
+    main, veins = [], []
+    if not small or L > 12:   # the midrib and two strong veins, all three from the top of the stalk
         for sd in (1, -1):
-            veins.append([(0.02 * BL, 0), (0.12 * BL, sd * 0.2 * BL), (0.34 * BL, sd * 0.3 * BL), (0.6 * BL, sd * 0.25 * BL)])
+            main.append([(0, 0), (0.08 * BL, sd * 0.16 * BL), (0.3 * BL, sd * 0.3 * BL), (0.62 * BL, sd * 0.26 * BL)])
         if not small:
-            veins += side_veins(BL, width_of(top, BL), (0.5, 0.64, 0.78), 0.82, 0.12)
-            for sd in (1, -1):   # small veins off the outer side of each big vein
-                for v in (0.2, 0.36):
-                    veins.append([(v * BL, sd * 0.27 * BL), (v * BL + 0.06 * BL, sd * 0.37 * BL)])
-    draw_leaf(a, A[0], A[1], ang, top, bot, fill, _lw(L), veins=veins, mid=[(0, 0), (0.5 * BL, 0), (0.92 * BL, 0)],
-              midw=0.9 if not small else 0.6, vw=0.55 if not small else 0.45)
+            hw = width_of(top, BL)
+            for u in (0.62, 0.76):
+                for sd in (1, -1):
+                    veins.append([(u * BL - 0.1 * BL, 0), (u * BL - 0.04 * BL, sd * hw(u) * 0.4), (u * BL + 0.02 * BL, sd * hw(u) * 0.78)])
+            for sd in (1, -1):   # smaller veins running out from the outer side of each big vein
+                for v in (0.12, 0.24, 0.38):
+                    p = (v * BL, sd * (0.18 + 0.5 * v) * BL)
+                    veins.append([p, (p[0] - 0.02 * BL, p[1] + sd * 0.1 * BL)])
+    mp = draw_leaf(a, A[0], A[1], ang + bend, top, bot, fill, _lw(L), veins=veins, mid=[(0, 0), (0.5 * BL, 0), (0.92 * BL, 0)],
+                   midw=1.1 if not small else 0.6, vw=0.5, va=0.32)
+    for v in main:
+        a.line(opath([mp(p) for p in qpts(v[0], v[1], v[2], 5)] + [mp(v[3])]), 1.1 if not small else 0.55, 0.55)
 
 
 def lf_calendula(a, x, y, ang, L, fill, small=False, hairy=True):
@@ -390,13 +399,13 @@ def lf_cosmos(a, x, y, ang, L, fill, small=False):
             pa = qa + sd * 50; tp = T(px, py, pa)
             pts = [tp(l * v, -sd * l * 0.12 * v * (1 - v)) for v in (0, 0.25, 0.5, 0.75, 1)]
             thread(a, pts, fill, w, ow)
-            subs = (0.3, 0.62) if not small else (0.45,)
-            for j, v in enumerate(subs):
+            subs = (0.22, 0.36, 0.5, 0.64, 0.78) if not small else (0.35, 0.65)
+            for j, v in enumerate(subs):   # fine segments set singly along the pinna, first one side then the other
                 b = tp(l * v, -sd * l * 0.12 * v * (1 - v))
-                for sd2 in ((1, -1) if not small else (sd,)):
-                    sl = l * 0.5 * (1.1 - v * 0.5)
-                    e = T(*b, pa + sd2 * 42)(sl); m = T(*b, pa + sd2 * 36)(sl * 0.55)
-                    thread(a, [b, m, e], fill, w * 0.9, ow)
+                sd2 = 1 if j % 2 else -1
+                sl = l * 0.42 * (1.15 - v * 0.7)
+                e = T(*b, pa + sd2 * 40)(sl); m = T(*b, pa + sd2 * 34)(sl * 0.5)
+                thread(a, [b, m, e], fill, w * 0.85, ow)
     e = q.pt(1); thread(a, [e, T(*e, q.ang(1))(L * 0.12)], fill, w, ow)
 
 
@@ -429,8 +438,8 @@ def lf_rudbeckia(a, x, y, ang, L, fill, small=False, stem=False):
             veins.append([(u0 * L, 0), ((u0 + 0.08) * L, sd * W * 0.25), ((u0 + 0.3) * L, sd * W * 0.32), (0.86 * L, sd * W * 0.12)])
     draw_leaf(a, x, y, ang, top, bot, fill, _lw(L), veins=veins, mid=[(0, 0), (0.5 * L, 0), (0.9 * L, 0)], midw=1.0 if not small else 0.5)
     if not small:
-        hairs(a, x, y, ang, top[2:-2], 1.25, 1.2, la=0.55, lw=0.38)
-        hairs(a, x, y, ang, bot[2:-2], 1.25, 1.2, la=0.55, lw=0.38)
+        hairs(a, x, y, ang, top[2:-2], 1.1, 1.7, la=0.8, lw=0.45)
+        hairs(a, x, y, ang, bot[2:-2], 1.1, 1.7, la=0.8, lw=0.45)
         t = T(x, y, ang)
         for k in range(26):   # bristles on the surface
             u = 0.25 + 0.65 * ((k * 0.618) % 1); v = ((k * 0.37) % 1 - 0.5) * 1.5 * pf(u) * W / 2
@@ -455,11 +464,11 @@ def lf_marigold(a, x, y, ang, L, fill, small=False):
 
 def _leaflet_mari(a, x, y, ang, l, fill, small, glands=False):
     pf = prof(0.4, "wedge", "acum", bp=0.9, tp=0.7, b0=0.06)
-    top, bot = simple_edges(l, l * 0.26, pf, n=90)
-    if not small or l > 5:
+    top, bot = simple_edges(l, l * (0.26 if not small else 0.36), pf, n=90)
+    if not small:
         sp = max(0.9, l * 0.1); dp = max(0.45, l * 0.04)
         top = serrate(top, 1, sp, dp, "saw", l, 0.12, 0.92); bot = serrate(bot, -1, sp, dp, "saw", l, 0.12, 0.92)
-    draw_leaf(a, x, y, ang, top, bot, fill, 0.8 if not small else 0.6, shade=0.1 if not small else 0,
+    draw_leaf(a, x, y, ang, top, bot, fill, 0.8 if not small else 0.45, shade=0.1 if not small else 0,
               mid=[(0, 0), (0.85 * l, 0)] if not small else None, midw=0.5)
     if glands:
         t = T(x, y, ang)
@@ -549,20 +558,25 @@ def lf_feverfew(a, x, y, ang, L, fill, small=False):
     pet = 0.2 * L; BL = L - pet
     A = stalk_to(a, x, y, ang, pet, max(0.8, L * 0.024), max(0.6, L * 0.02), fill)
     lobes = []
-    for i in range(4):
-        u = 0.1 + 0.2 * i; ln = BL * (0.25 - 0.035 * i)
-        lobes += [(u, 0.075, ln, "round", 1), (u + 0.03, 0.075, ln * 0.96, "round", -1)]
-    lobes += [(0.9, 0.1, BL * 0.1, "round", 1), (0.9, 0.1, BL * 0.1, "round", -1)]
-    wing = lambda u: BL * 0.035 * (1 - u * 0.3)
+    for i in range(4):   # each lobe cut almost to the midrib, and lobed again
+        u = 0.1 + 0.2 * i; ln = BL * (0.26 - 0.035 * i)
+        for sd, du in ((1, 0), (-1, 0.03)):
+            if small:
+                lobes.append((u + du, 0.06, ln, "round", sd))
+            else:
+                lobes += [(u + du - 0.035, 0.032, ln * 0.62, "round", sd), (u + du, 0.04, ln, "round", sd), (u + du + 0.032, 0.03, ln * 0.7, "round", sd)]
+    lobes += [(0.86, 0.04, BL * 0.1, "round", 1), (0.86, 0.04, BL * 0.1, "round", -1), (0.93, 0.06, BL * 0.08, "round", 1), (0.93, 0.06, BL * 0.08, "round", -1)]
+    wing = lambda u: BL * 0.022 * (1 - u * 0.3)
     top, bot, hw = lobed_edges(BL, wing, lobes, shear=0.42)
-    if not small or L > 12:
-        sp = max(1.3, BL * 0.045); dp = max(0.5, BL * 0.018)
+    if not small:
+        sp = max(1.3, BL * 0.035); dp = max(0.5, BL * 0.012)
         msk = lambda px, py: 1.0 if abs(py) > BL * 0.06 else 0.0
         top = serrate(top, 1, sp, dp, "round", BL * 1.1, 0.0, 1.2, msk); bot = serrate(bot, -1, sp, dp, "round", BL * 1.1, 0.0, 1.2, msk)
-    veins = [[(L0 - 0.04 * BL, 0), (L0 + 0.5 * (tx - L0), ty * 0.5), (L0 + 0.85 * (tx - L0), ty * 0.85)]
-             for (tx, ty), L0 in [(tp_, lb[0] * BL) for tp_, lb in zip(lobe_tips(BL, lobes, 0.42), lobes)]][:-2] if not small else []
-    draw_leaf(a, A[0], A[1], ang, top, bot, fill, _lw(L), veins=veins, mid=[(0, 0), (0.5 * BL, 0), (0.92 * BL, 0)],
-              midw=0.9 if not small else 0.5, va=0.3)
+    main = [lb for lb in lobes if lb[2] >= BL * 0.15]
+    veins = [[(lb[0] * BL - 0.04 * BL, 0), (lb[0] * BL + 0.5 * 0.42 * lb[2], lb[4] * lb[2] * 0.5), (lb[0] * BL + 0.85 * 0.42 * lb[2], lb[4] * lb[2] * 0.85)]
+             for lb in main] if not small else []
+    draw_leaf(a, A[0], A[1], ang, top, bot, fill, _lw(L) if not small else 0.5, veins=veins, mid=[(0, 0), (0.5 * BL, 0), (0.92 * BL, 0)],
+              midw=0.9 if not small else 0.4, va=0.3, shade=0.1 if not small else 0.06)
 
 
 def lf_aster(a, x, y, ang, L, fill, small=False):
@@ -605,7 +619,7 @@ def lf_cornflower(a, x, y, ang, L, fill, small=False, lobed=False):
         top, bot, hw = lobed_edges(L, lambda u: pf(u) * L * 0.06, lobes, shear=0.9)
     else:
         pf = prof(0.4, "wedge", "acum", bp=0.5, tp=0.6, b0=0.3)
-        top, bot = simple_edges(L, max(1.4, L * 0.085), pf, n=80)
+        top, bot = simple_edges(L, max(2.0 if small else 1.4, L * (0.12 if small else 0.085)), pf, n=80)
     draw_leaf(a, x, y, ang, top, bot, fill, _lw(L) * 0.95, mid=[(0, 0), (0.88 * L, 0)] if L > 14 else None, midw=0.55)
     if not small:   # cobwebby white wool
         t = T(x, y, ang)
@@ -649,10 +663,10 @@ def lf_scabiosa(a, x, y, ang, L, fill, small=False, fine=False):
     n = 5 if not fine else 4
     lobes = []
     for i in range(n):
-        u = 0.1 + 0.62 * i / (n - 1); ln = BL * ((0.17 if not fine else 0.22) - 0.03 * i / (n - 1))
-        sp = 0.045 if not fine else 0.03
+        u = 0.1 + 0.62 * i / (n - 1); ln = BL * ((0.24 if not fine else 0.22) - 0.04 * i / (n - 1))
+        sp = 0.04 if not fine else 0.03
         lobes += [(u, sp, ln, "round" if not fine else "point", 1), (u + 0.04, sp, ln * 0.94, "round" if not fine else "point", -1)]
-    wing = lambda u: BL * (0.03 if not fine else 0.016) + BL * 0.075 * max(0, min(1, (u - 0.72) / 0.1)) * min(1, (1 - u) / 0.22) ** 0.7 * (1 if not fine else 0.4)
+    wing = lambda u: BL * (0.02 if not fine else 0.016) + BL * 0.075 * max(0, min(1, (u - 0.72) / 0.1)) * min(1, (1 - u) / 0.22) ** 0.7 * (1 if not fine else 0.4)
     top, bot, hw = lobed_edges(BL, wing, lobes, shear=0.55)
     if not small and not fine:
         msk = lambda px, py: 1.0 if abs(py) > BL * 0.05 else 0.0
@@ -662,7 +676,8 @@ def lf_scabiosa(a, x, y, ang, L, fill, small=False, fine=False):
               mid=[(0, 0), (0.5 * BL, 0), (0.92 * BL, 0)] if not small else None, midw=0.8)
     if not small and not fine:
         t = T(*A, ang)
-        hairs(a, A[0], A[1], ang, [p for p in top if abs(p[1]) > 1.5][::3], 1.6, 0.7, la=0.35)
+        hairs(a, A[0], A[1], ang, [p for p in top if abs(p[1]) > 1.5][::2], 1.3, 0.9, la=0.55)
+        hairs(a, A[0], A[1], ang, [p for p in bot if abs(p[1]) > 1.5][::2], 1.3, 0.9, la=0.55)
 
 
 def lf_devilsbit(a, x, y, ang, L, fill, small=False, stem=False):
@@ -672,7 +687,7 @@ def lf_devilsbit(a, x, y, ang, L, fill, small=False, stem=False):
     if stem:
         pf = prof(0.4, "wedge", "point", bp=0.7, tp=0.8, b0=0.1); W = 0.18 * L
     else:
-        pf = prof(0.55, "taper", "point", bp=1.5, tp=0.75, b0=0.05); W = 0.34 * L
+        pf = prof(0.55, "taper", "blunt", bp=1.5, tp=2.6, b0=0.05); W = 0.34 * L
     top, bot = simple_edges(L, W, pf)
     hw = lambda u, sd: pf(u) * W / 2
     veins = side_veins(L, hw, (0.4, 0.56, 0.7, 0.82), 0.75, 0.18) if not (small or stem) else []
@@ -680,24 +695,33 @@ def lf_devilsbit(a, x, y, ang, L, fill, small=False, stem=False):
                    midw=1.5 if not small else 0.6, midc="pale" if not small else "line", mida=1.0 if not small else 0.45)
     if not stem:   # a purple flush along the edge
         for e in (top, bot):
-            a.line(opath([mp((px, py * 0.93)) for px, py in e[int(len(e) * 0.2):-2]]), 1.8 if not small else 0.8, 0.45, "plum")
+            a.line(opath([mp((px, py * 0.92)) for px, py in e[int(len(e) * 0.2):-2]]), 1.8 if not small else 1.0, 0.85, "beet")
+        a.shape(path([mp(p) for p in top] + [mp(p) for p in bot[::-1]]), None, _lw(L))
 
 
-def lf_rampion(a, x, y, ang, L, fill, small=False):
-    """Basal leaf: narrow lance-shaped on a long stalk, finely and unevenly
-    toothed, smooth and a little glossy."""
-    pet = 0.42 * L; BL = L - pet
-    A = stalk_to(a, x, y, ang, pet, max(0.7, L * 0.02), max(0.55, L * 0.016), fill, 0.03)
-    pf = prof(0.3, "round", "acum", bp=0.6, tp=0.8, b0=0.18)
-    top, bot = simple_edges(BL, BL * 0.3, pf)
+def lf_rampion(a, x, y, ang, L, fill, small=False, stem=False):
+    """Basal leaf: oval to heart-shaped, on a long thin stalk, the edge with
+    small shallow uneven teeth, smooth and a little glossy. stem=True: a
+    narrow, almost grass-like stem leaf."""
+    if stem:
+        return lf_aster(a, x, y, ang, L, fill, small)
+    pet = 0.5 * L
+    A = stalk_to(a, x, y, ang, pet, max(0.7, L * 0.02), max(0.55, L * 0.016), fill, 0.04)
+    R = (L - pet) * 0.46
+    g = lambda h: (1 + 0.06 * math.cos(h)) * (1 + 0.32 * math.exp(-abs(h) / 0.3)) * notch(0.72, 0.5)(h)
+    top, bot = polar_edges(R, g)
+    BL = top[-1][0]
+    if not small:
+        top = serrate(top, 1, 2.6, 0.55, "round", BL, -1, 0.95, irr=0.4); bot = serrate(bot, -1, 2.6, 0.55, "round", BL, -1, 0.95, irr=0.4)
     top, bot = [(0, 0)] + top, [(0, 0)] + bot
+    veins = []
     if not small:
-        top = serrate(top, 1, 2.6, 0.5, "saw", BL, 0.06, 0.9, irr=0.5); bot = serrate(bot, -1, 2.6, 0.5, "saw", BL, 0.06, 0.9, irr=0.5)
-    hw = lambda u, sd: pf(u) * BL * 0.15
-    veins = side_veins(BL, hw, (0.3, 0.5, 0.7), 0.7, 0.15) if not small else []
-    mp = draw_leaf(a, A[0], A[1], ang, top, bot, fill, _lw(L), veins=veins, va=0.22, mid=[(0, 0), (0.5 * BL, 0), (0.9 * BL, 0)], midw=0.8 if not small else 0.5)
+        for sd in (1, -1):
+            veins.append([(0, 0), (0.12 * BL, sd * 0.2 * BL), (0.4 * BL, sd * 0.3 * BL), (0.7 * BL, sd * 0.2 * BL)])
+        veins += side_veins(BL, width_of(top, BL), (0.6, 0.76), 0.7, 0.12)
+    mp = draw_leaf(a, A[0], A[1], ang, top, bot, fill, _lw(L), veins=veins, va=0.25, mid=[(0, 0), (0.5 * BL, 0), (0.9 * BL, 0)], midw=0.8 if not small else 0.45)
     if not small:
-        a.line(opath([mp((BL * u, pf(u) * BL * 0.07)) for u in (0.12, 0.24, 0.36, 0.48)]), 1.2, 0.45, "white")
+        a.line(opath([mp((BL * u, width_of(top, BL)(u) * 0.45)) for u in (0.3, 0.42, 0.54, 0.64)]), 1.3, 0.45, "white")
 
 
 def lf_senecio(a, x, y, ang, L, fill, small=False):
@@ -732,7 +756,7 @@ def cl_sunflower(a, sp):
 
 
 def cl_calendula(a, sp):
-    stem_piece(a, (6, 78), (16, 88), (30, 100), 3.4, 3.0, sp["fill"])
+    stem_piece(a, (10, 81), (17, 88), (27, 98), 3.4, 3.0, sp["fill"])
     with a.on(LEAF):
         lf_calendula(a, 18, 89, ANG, 94, sp["fill"])
     return a
@@ -842,7 +866,11 @@ def cl_devilsbit(a, sp):
 
 
 def cl_rampion(a, sp):
-    lf_rampion(a, *BASE, ANG, 98, sp["fill"]); return a
+    q = stem_piece(a, (80, 100), (82, 70), (88, 36), 1.6, 1.3, sp["fill"])
+    with a.on(LEAF):
+        lf_rampion(a, 14, 94, -56, 92, sp["fill"])
+        x, y = q.pt(0.5); lf_rampion(a, x, y, -60, 26, sp["fill"], stem=True)
+    return a
 
 
 def cl_senecio(a, sp):
@@ -954,7 +982,7 @@ def head(a, x, y, R, o, k=0.85, ang=-90, small=False):
     for r_ in range(rows):
         for i in range(n):
             ph = 2 * math.pi * (i + 0.5 * r_) / n + o.get("start", 0.0) + 0.06 * math.sin(i * 2.3) * o.get("jit", 0)
-            L = (R - r0) * (1 - 0.15 * r_) * (1 + 0.04 * math.sin(i * 1.7) * o.get("jit", 0))
+            L = (R - r0) * (1 - o.get("rowstep", 0.15) * r_) * (1 + 0.04 * math.sin(i * 1.7) * o.get("jit", 0))
             items.append((r_, ph, L))
     items.sort(key=lambda it: (-it[0], math.sin(it[1])))
     for r_, ph, L in items:
@@ -967,13 +995,22 @@ def head(a, x, y, R, o, k=0.85, ang=-90, small=False):
         ni = inn.get("n", 12) if not small else max(5, inn.get("n", 12) // 2)
         for j in sorted(range(ni), key=lambda j: math.sin(2 * math.pi * j / ni)):
             ph = 2 * math.pi * (j + 0.3) / ni
-            _plane_ray(a, V, ph, rd * 0.5, R * inn.get("l", 0.25), R * inn.get("w", 0.12), inn.get("col", fc), inn.get("shape", "strap"),
+            _plane_ray(a, V, ph, rd * 0.5, R * inn.get("l", 0.25), R * inn.get("w", 0.12), inn.get("cols", [inn.get("col", fc)])[j % len(inn.get("cols", [0]))], inn.get("shape", "strap"),
                        lw * 0.9, inn.get("teeth", 2), -inn.get("rise", 0.4), inn.get("picotee"))
     disc(a, V, rd, o, lw, small)
     for r_, ph, L in items:   # the front rays over the disc's lower edge
         if not (math.sin(ph) < 0 or k > 0.9):
             _plane_ray(a, V, ph, r0, L, R * o.get("rw", 0.2), o.get("rowc", [fc] * 9)[r_], o.get("shape", "strap"), lw,
                        o.get("teeth", 3), o.get("droop", 0), o.get("picotee"), o.get("lines", 0) if not small else 0, o.get("blotch"))
+    rim = o.get("rim")
+    if rim:   # the tips of the bracts behind, showing between the bases of the rays
+        nr = rim.get("n", n)
+        for j in range(nr):
+            ph = 2 * math.pi * (j + rim.get("off", 0.5)) / nr + o.get("start", 0.0)
+            if rim.get("front") and math.sin(ph) < 0.1:
+                continue
+            _plane_ray(a, V, ph, rd * rim.get("r0", 0.95), R * rim.get("l", 0.12), R * rim.get("w", 0.05), rim.get("col", "leaf"), "bract",
+                       lw * 0.8, 3, rim.get("droop", 0.3))
     return V
 
 
@@ -1012,9 +1049,19 @@ def disc(a, V, rd, o, lw, small):
     if hd > rd * 0.15:   # a little shading on one side of a dome
         a.shape(path(front[18:] + [V(0, 0, hd)] + backp[:6]), "shade", 0, fa=0.12)
     dc = o.get("dots", "rust"); ring = o.get("ring")
+    sp_ = o.get("spiral")
+    if sp_:   # the florets in crossing spiral rows, as on a sunflower
+        n1, n2 = (13, 21) if not small else (8, 13)
+        for nn, sg in ((n1, 1), (n2, -1)):
+            for j in range(nn):
+                pts = []
+                for i in range(9):
+                    v = 0.14 + 0.86 * i / 8; th = 2 * math.pi * j / nn + sg * 2.4 * v
+                    pts.append(V(rd * 0.96 * v * math.cos(th), rd * 0.96 * v * math.sin(th), hd * (1 - v * v)))
+                a.line(opath(pts), 0.45 if not small else 0.3, 0.95, sp_)
     m = o.get("nd", int(14 + rd * rd * 1.1))
     if small:
-        m = min(m, max(5, int(rd * rd * 0.7)))
+        m = min(m, max(5, int(rd * rd * 0.7)), o.get("smalldots", 999))
     dr = o.get("dr", max(0.3, rd * 0.05))
     for j in range(m):
         rr = rd * 0.9 * math.sqrt((j + 0.5) / m); th = j * GOLD
@@ -1031,28 +1078,35 @@ def disc(a, V, rd, o, lw, small):
 # How each kind's head is built (head() above). The colours come from the
 # description's palette when the drawing is made (rayc, cen).
 HEADS = {
-    "sunflower": dict(n=17, rows=2, shape="point", rw=0.1, disc=0.42, dots="bark", ring="sun", ringat=0.84, nd=230, dr=0.55,
+    "sunflower": dict(n=17, rows=2, shape="point", rw=0.1, disc=0.42, dots="dark", spiral="bark", ring="sun", ringat=0.84, nd=140, dr=0.5,
+                      rim=dict(n=34, l=0.17, w=0.065, col="leaf", r0=0.98, droop=0.1),
                       bracts=dict(n=17, l=0.5, w=0.13, col="leaf", off=0.25), cup=dict(rc=1.08, h=0.22, rows=2, n=10, col="leaf"),
                       jit=1, smallk=0.7),
-    "calendula": dict(n=17, rows=3, shape="strap", rw=0.17, teeth=3, disc=0.24, dots="amber", jit=1,
+    "calendula": dict(n=16, rows=3, rowstep=0.24, shape="strap", rw=0.18, teeth=3, disc=0.24, dots="amber", jit=1,
+                      rim=dict(n=16, l=0.1, w=0.045, front=True, r0=1.0),
                       cup=dict(rc=1.25, h=0.7, rows=2, n=9, sw=0.32, col="leaf")),
-    "cosmos": dict(n=8, rows=1, shape="wedge", rw=0.44, teeth=4, disc=0.15, dome=0.4, dots="amber", lines=3, r0=0.6, jit=1, smallk=1,
-                   inner=dict(n=10, l=0.14, w=0.08, shape="wedge", rise=0.6), bracts=dict(n=8, l=0.3, w=0.05, col="leaf"),
+    "cosmos": dict(n=8, rows=1, shape="wedge", rw=0.56, teeth=4, disc=0.13, dome=0.4, dots="amber", lines=3, r0=0.6, jit=1, smallk=1,
+                   inner=dict(n=16, l=0.27, w=0.15, shape="wedge", rise=0.3, teeth=3), bracts=dict(n=8, l=0.3, w=0.05, col="leaf"),
                    cup=dict(rc=1.3, h=0.6, rows=1, n=6, sw=0.4, col="leaf")),
     "zinnia": dict(n=13, rows=1, shape="strap", rw=0.3, teeth=2, disc=0.25, dome=0.55, dots="rust", ring="sun", ringat=0.5, rings=0.17, nd=40, jit=1,
+                   rim=dict(n=13, l=0.1, w=0.07, front=True, r0=1.0),
                    cup=dict(rc=1.35, h=0.9, rows=3, n=7, sw=0.9, shape="oblong", edge="dark", col="leaf"), smallk=0.8),
-    "rudbeckia": dict(n=14, rows=1, shape="strap", rw=0.25, teeth=3, disc=0.3, dome=0.9, droop=0.22, dots="bark", ring="sun", ringat=0.78,
+    "rudbeckia": dict(n=14, rows=1, shape="strap", rw=0.25, teeth=3, disc=0.3, dome=0.75, droop=0.22, dots="rust", nd=60, ring="sun", ringat=0.8,
+                      rim=dict(n=14, l=0.12, w=0.06, front=True, r0=1.0, droop=0.5),
                       jit=1, cup=dict(rc=1.4, h=0.8, rows=2, n=8, sw=0.45, col="leaf"), smallk=0.8),
     "french-marigold": dict(n=8, rows=1, shape="oblong", rw=0.5, disc=0.4, dome=0.9, crest=True, nd=24, blotch="rust", jit=1, smallk=1),
     "ox-eye-daisy": dict(n=24, rows=1, shape="strap", rw=0.14, teeth=3, disc=0.28, dome=0.1, dots="amber", jit=1,
+                         rim=dict(n=24, l=0.08, w=0.05, front=True, r0=1.0),
                          cup=dict(rc=1.15, h=0.6, rows=3, n=8, sw=0.75, shape="oblong", edge="bark", col="leaf"), smallk=0.55),
     "corn-chamomile": dict(n=16, rows=1, shape="strap", rw=0.16, teeth=2, disc=0.34, dome=0.7, dots="amber", jit=1,
                            cup=dict(rc=1.15, h=0.6, rows=2, n=8, sw=0.55, edge="white", col="sage"), smallk=0.6),
     "feverfew": dict(n=13, rows=1, shape="strap", rw=0.3, teeth=3, disc=0.48, dome=0.15, dots="amber", jit=1,
                      cup=dict(rc=1.05, h=0.5, rows=2, n=7, sw=0.55, edge="white", col="leaf"), smallk=0.7),
-    "aster": dict(n=34, rows=1, shape="narrow", rw=0.07, disc=0.25, dots="amber", jit=1, smallk=0.5,
+    "aster": dict(n=34, rows=1, shape="narrow", rw=0.075, disc=0.25, dots="amber", jit=1, smallk=0.5,
+                  rim=dict(n=17, l=0.1, w=0.05, front=True, r0=1.0),
                   cup=dict(rc=1.2, h=0.7, rows=3, n=9, sw=0.32, col="leaf")),
-    "african-daisy": dict(n=16, rows=1, shape="oblong", rw=0.2, disc=0.22, dots="sun", nd=26, dr=0.45, lines=1, jit=1,
+    "african-daisy": dict(n=16, rows=1, shape="oblong", rw=0.2, disc=0.24, dots="sun", nd=26, dr=0.45, smalldots=4, lines=1, jit=1,
+                          rim=dict(n=16, l=0.1, w=0.05, front=True, r0=1.0),
                           cup=dict(rc=1.2, h=0.6, rows=2, n=9, sw=0.35, col="leaf"), smallk=0.7),
     "helipterum-rosum": dict(n=13, rows=4, shape="bract", rw=0.2, disc=0.3, dots="amber", lines=1, jit=1, smallk=0.7,
                              cup=dict(rc=1.3, h=0.7, rows=2, n=8, sw=0.6, col="straw")),
@@ -1064,9 +1118,11 @@ def opts(kind, fc=None, cen=None, **over):
     o["rayc"] = fc or pal(kind, "flower", "white"); o["cen"] = cen or pal(kind, "centre", "sun")
     if kind == "cosmos":
         o["picotee"] = pal(kind, "flower_edge", "daisies_picotee")
-        o["inner"] = dict(o["inner"], col=o["rayc"])
+        o["inner"] = dict(o["inner"], col=o["rayc"], cols=[o["rayc"], "pink"], picotee=o["picotee"])
     if kind == "french-marigold":
         o["cen"] = o["rayc"]
+    if kind == "calendula":   # the rows of a double head, the inner ones a little lighter, so the rows show
+        o["rowc"] = [o["rayc"], "amber", o["rayc"]]
     if kind == "helipterum-rosum":
         o["rowc"] = [o["rayc"]] * 4
     o.update(over)
@@ -1090,31 +1146,30 @@ def stalk_line(a, p0, c, p1, w0, w1, fill="leaf", woolly=False, hairy=False):
 
 # ============================================================ close-up flowers
 def bud_side(a, x, y, r, kind, ang=-90, open_=0.0, fc=None, lw=0.6):
-    """A bud (or a head seen from behind) from the side: its cup of bracts
-    as rows of overlapping scales, the rays' tips just showing beyond them
+    """A bud from the side: a smooth rounded dome, the cup of bracts round
+    its lower half (one row, each bract drawn plainly, with its dark or
+    pale edge if it has one), and the rays' tips just showing at the top
     (open_ from 0, shut, to 1, about to open). x, y is where the stalk
-    joins; the bud points along ang, r long."""
+    joins; the bud points along ang and is r long."""
     o = opts(kind, fc=fc)
     cup = o.get("cup") or dict(col="leaf")
     col = cup.get("col", "leaf"); t = T(x, y, ang)
     if open_ > 0:
-        for j in range(7):
-            a.leaf(*t(r * 0.55, (j - 3) * r * 0.1), ang + (j - 3) * 9, r * (0.55 + 0.6 * open_), 0.26, o["rayc"], lw=lw * 0.8, detail=False)
-    body = [t(r * 0.5 + r * 0.5 * math.cos(h), r * 0.42 * math.sin(h)) for h in [2 * math.pi * i / 40 for i in range(40)]]
+        for j in range(5):
+            a.leaf(*t(r * 0.5, (j - 2) * r * 0.12), ang + (j - 2) * 10, r * (0.45 + 0.55 * open_), 0.3, o["rayc"], lw=lw * 0.8, detail=False)
+    body = [t(r * 0.48 + r * 0.5 * math.cos(h), r * 0.46 * math.sin(h)) for h in [2 * math.pi * i / 40 for i in range(40)]]
     a.shape(path(body), col, lw)
-    rows = cup.get("rows", 2) + 1
-    for r_ in range(rows - 1, -1, -1):   # inner rows first: the outer, lower bracts overlap them
-        m = 4 if r_ % 2 == 0 else 3
-        for j in range(m):
-            v = (j - (m - 1) / 2) / 2.2
-            p = t(r * (0.05 + 0.26 * r_), v * r * 0.62 * (1 - 0.15 * r_))
-            sl = r * (0.62 - 0.05 * r_)
-            pts = ray_pts(sl, sl * cup.get("sw", 0.5) * 0.9, cup.get("shape", "bract"))
-            tt = T(p[0], p[1], ang + v * 18)
-            q = [tt(*pp) for pp in pts]
-            a.shape(path(q), col, lw * 0.8)
-            if cup.get("edge"):
-                a.line(opath([tt(*pp) for pp in pts if pp[0] > sl * 0.3]), lw * 2.2, 0.95, cup["edge"]); a.shape(path(q), None, lw * 0.8)
+    a.shape(path(body[:21] + [t(r * 0.48, 0)]), "shade", 0, fa=0.1)
+    shape = cup.get("shape", "bract")
+    for j in (-1.5, 1.5, -0.5, 0.5):   # the outer bracts, overlapping round the foot of the bud
+        p = t(r * 0.04, j * r * 0.24)
+        sl = r * (0.7 if shape == "oblong" else 0.82)
+        pts = ray_pts(sl, sl * (0.62 if shape == "oblong" else 0.36), shape)
+        tt = T(p[0], p[1], ang + j * 14)
+        q = [tt(*pp) for pp in pts]
+        a.shape(path(q), col, lw * 0.85)
+        if cup.get("edge"):
+            a.line(opath([tt(*pp) for pp in pts if pp[0] > sl * 0.3]), lw * 2.0, 0.95, cup["edge"]); a.shape(path(q), None, lw * 0.85)
 
 
 def bl_sunflower(a, sp):
@@ -1186,7 +1241,7 @@ def bl_aster(a, sp):
     stalk_line(a, (46, 100), (44, 80), (36, 62), 1.6, 1.3, "bark")
     stalk_line(a, (45, 86), (60, 76), (70, 66), 1.3, 1.1, "bark")
     a.leaf(46, 80, -18, 10, 0.2, "deep", lw=0.6)
-    head(a, 70, 60, 20, opts("aster", sp["fc"], sp.get("cen")), k=0.42, ang=-70)
+    bud_side(a, 70, 66, 9, "aster", -60, 0.5, sp["fc"])
     head(a, 36, 42, 30, opts("aster", sp["fc"], sp.get("cen")), k=0.82)
     return a
 
@@ -1374,7 +1429,7 @@ def bl_scabiosa(a, sp):
     stamens like pins; narrow green bracts beneath."""
     fc = sp["fc"]; pin = sp.get("cen", "white")
     stalk_line(a, (54, 100), (54, 80), (50, 56), 2.0, 1.8, "sage")
-    pincushion(a, 50, 42, 34, fc, pin, k=0.7)
+    pincushion(a, 50, 42, 34, fc, pin, k=0.8)
     return a
 
 
@@ -1382,36 +1437,35 @@ def pincushion(a, x, y, R, fc, pin, k=0.6, small=False, ang=-90):
     V = view(x, y, k, ang); lw = 0.65 if not small else 0.45
     for j in range(12 if not small else 6):   # narrow pointed bracts, showing between the outer florets
         _plane_ray(a, V, 2 * math.pi * (j + 0.5) / (12 if not small else 6), R * 0.3, R * 0.62, R * 0.06, "leaf", "bract", lw * 0.8)
-    n = 11 if not small else 7
+    n = 12 if not small else 8
     order = sorted(range(n), key=lambda i: math.sin(2 * math.pi * i / n))
     rd = R * 0.42
-    for i in order:
-        if math.sin(2 * math.pi * i / n) < 0.2:
-            _outer_floret(a, V, 2 * math.pi * i / n, R * 0.3, R * 0.68, R * 0.4, fc, lw, small)
+    W = 2 * math.pi * R * 0.45 / n * 1.25
+    for i in order:   # a regular ring of the large lopsided florets, then the dome over their inner ends
+        _outer_floret(a, V, 2 * math.pi * i / n, R * 0.32, R * 0.66, W, fc, lw, small)
     _dome_pins(a, V, rd, R, fc, pin, lw, small)
-    for i in order:
-        if math.sin(2 * math.pi * i / n) >= 0.2:
-            _outer_floret(a, V, 2 * math.pi * i / n, R * 0.3, R * 0.68, R * 0.4, fc, lw, small)
     return V
 
 
 def _outer_floret(a, V, ph, r0, L, W, fc, lw, small):
     """One outer scabious floret: a short tube opening into a lopsided fan
-    of lobes, the outward one much the largest, its edge frilled."""
+    of lobes, the outward-facing lobes much the largest, their edge frilled."""
     c, s = math.cos(ph), math.sin(ph)
     X = lambda p: V((r0 + p[0]) * c - p[1] * s, (r0 + p[0]) * s + p[1] * c, 0)
-    pts = []
-    for i in range(41):
-        th = -math.pi / 2 + math.pi * i / 40
-        rr = L * (0.55 + 0.45 * math.cos(th) ** 0.8)
+    pts = [(0, -W * 0.18)]
+    for i in range(61):
+        th = -1.0 + 2.0 * i / 60
+        rr = L * (0.62 + 0.38 * math.cos(th * 1.3))                      # a broad fan, longest in the middle
+        rr *= 1 - 0.2 * max(0.0, math.cos(th * 4.7)) ** 8 * (abs(th) > 0.3)   # clefts between the lobes
         if not small:
-            rr *= 1 - 0.07 * abs(math.sin(th * 7))   # the frilled edge
-        pts.append((rr * math.cos(th) * 0.95, W * 0.5 * math.sin(th) * (1.4 - 0.3 * math.cos(th))))
-    q = [X((0, 0))] + [X(p) for p in pts]
+            rr *= 1 - 0.045 * abs(math.sin(th * 15))                     # the frilled edge
+        pts.append((rr * math.cos(th * 0.62), W * 0.75 * math.sin(th * 1.2) * (0.6 + 0.4 * rr / L)))
+    pts.append((0, W * 0.18))
+    q = [X(p) for p in pts]
     a.shape(path(q), fc, lw)
     if not small:
-        for o in (-0.35, 0.35):   # the clefts between its lobes
-            a.line(opath([X((L * 0.25, o * W * 0.2)), X((L * 0.75, o * W * 0.62))]), 0.45, 0.45)
+        for o in (-0.45, 0.45):
+            a.line(opath([X((L * 0.3, o * W * 0.2)), X((L * 0.7, o * W * 0.55))]), 0.4, 0.4)
 
 
 def _dome_pins(a, V, rd, R, fc, pin, lw, small):
@@ -1475,37 +1529,45 @@ def bl_devilsbit(a, sp):
 
 
 def rampion_head(a, x, y, r, fc, sty="lilac", small=False, dry=False, lc="leaf"):
-    """Oxford rampion: a round ball of narrow, curved, claw-like flowers, the
-    curled styles sticking out, long narrow bracts spreading like horns
-    beneath. x, y is the middle of the ball, r its radius."""
+    """Oxford rampion: a round spiky ball of narrow, curved, claw-like
+    flowers radiating outwards, curled styles sticking out of the open
+    ones, and long narrow bracts spreading beneath like horns. x, y is the
+    middle of the ball, r its radius; the stalk should reach y + 0.3 r."""
     lw = 0.75 if not small else 0.5
-    for an, L in ((166, 3.2), (14, 3.2), (142, 2.6), (38, 2.6), (122, 2.2), (58, 2.2)):   # the horns
-        b = (x + r * 0.5 * math.cos(math.radians(an)), y + r * 0.6)
+    for an, L in ((166, 2.0), (14, 2.0), (146, 1.7), (34, 1.7), (124, 1.4), (56, 1.4)):   # the horns
+        b = (x + r * 0.3 * math.cos(math.radians(an)), y + r * 0.3)
         tt = T(*b, an)
-        a.shape(path([tt(*p) for p in ray_pts(r * L, r * 0.22, "bract")]), "straw" if dry else lc, lw * 0.8)
+        a.shape(path([tt(*p) for p in ray_pts(r * L, r * 0.2, "bract")]), "straw" if dry else lc, lw * 0.8)
     col = "bark" if dry else fc
-    a.oval(x, y + r * 0.05, r * 0.85, r * 0.75, 0, col, lw)
-    nn = 22 if not small else 10
-    for kk in range(nn):   # each flower a narrow curved claw, bowing out and hooking back in
-        an = -196 + 212 * kk / (nn - 1) + 4 * math.sin(kk * 2.1)
+    a.oval(x, y, r * 0.42, r * 0.4, 0, col, lw)
+    nn = 30 if not small else 14
+    claws = []
+    for kk in range(nn):   # radiating in every direction but straight down, a shorter ring in front
+        an = -90 + (kk - (nn - 1) / 2) * (300 / nn) + 5 * math.sin(kk * 2.3)
+        claws.append((1.0, an))
+    for kk in range(nn // 2):
+        claws.append((0.62, -90 + (kk - (nn // 2 - 1) / 2) * (320 / (nn // 2)) + 9))
+    for sc_, an in sorted(claws, key=lambda c: (-c[0], -abs(c[1] + 90))):
         ca, sa = math.cos(math.radians(an)), math.sin(math.radians(an))
-        b = (x + ca * r * 0.25, y + r * 0.3)
-        m = (x + ca * r * 1.35, y + r * 0.3 + sa * r * 1.25)
-        e = (x + ca * r * 0.9 + (x - (x + ca * r)) * 0.25, y + sa * r * 0.95)
-        d = f"M{P(b)} Q{P(m)} {P(e)}"
-        w = r * 0.13 if not small else max(0.8, r * 0.2)
-        a.line(d, w + 0.7, 0.9, "line"); a.line(d, w, 1.0, col)
-        if not small and not dry and kk % 3 == 1:   # a style with its curled tip
-            s2 = (e[0] + ca * r * 0.45, e[1] + sa * r * 0.45)
-            a.line(f"M{P(e)} L{P(s2)}", 0.5, 0.8)
+        L = r * sc_ * (0.95 + 0.12 * math.sin(an * 0.3))
+        b = (x + ca * r * 0.25, y + sa * r * 0.25)
+        e = (x + ca * L, y + sa * L)
+        hook = 0.22 * (1 if ca >= 0 else -1)   # the tip curves over a little
+        m = (x + ca * L * 0.62 - sa * r * hook * 0.4, y + sa * L * 0.62 + ca * r * hook * 0.4)
+        e2 = (e[0] - sa * r * hook, e[1] + ca * r * hook)
+        d = f"M{P(b)} Q{P(m)} {P(e2)}"
+        w = r * 0.1 if not small else max(0.7, r * 0.15)
+        a.line(d, w + 0.6, 0.9, "line"); a.line(d, w, 1.0, col)
+        if sc_ == 1.0 and not small and not dry and int(an) % 3 == 0 and an < -30 and an > -150:   # a style with its curled tip
+            s2 = (e2[0] + ca * r * 0.32, e2[1] + sa * r * 0.32)
+            a.line(f"M{P(e2)} L{P(s2)}", 0.5, 0.8)
             a.line(f"M{P(s2)} q{f(ca * 1.3 - sa * 0.8)},{f(sa * 1.3 + ca * 0.8)} {f(ca * 0.3 + sa * 1.2)},{f(sa * 0.3 - ca * 1.2)}", 0.6, 0.9, sty)
 
 
 def bl_rampion(a, sp):
-    stalk_line(a, (50, 100), (51, 80), (50, 58), 2.0, 1.8, "leaf")
-    rampion_head(a, 50, 42, 15, sp["fc"], sp.get("cen", "lilac"), lc=pal("oxford-rampion", "leaf", "deep"))
+    stalk_line(a, (50, 100), (51, 76), (50, 46), 2.0, 1.8, "leaf")
+    rampion_head(a, 50, 40, 21, sp["fc"], sp.get("cen", "lilac"), lc=pal("oxford-rampion", "leaf", "deep"))
     return a
-
 
 
 # ============================================================ seeds
@@ -1603,16 +1665,13 @@ def seed_aster(a, x, y):
 
 
 def seed_african(a, x, y):
-    """Hard and bony, curved, ridged and warty; grey-brown."""
-    pts = []
-    for i in range(41):
-        th = 2 * math.pi * i / 40
-        r = 1 + 0.06 * math.sin(7 * th)
-        pts.append((x + 8 * r * math.cos(th) + 4 * math.cos(th) ** 2, y + 15 * r * math.sin(th)))
-    a.shape(path(pts), "bark", 1.0)
-    a.line(f"M{f(x - 2)},{f(y - 12)} Q{f(x + 3)},{f(y)} {f(x - 2)},{f(y + 12)}", 0.7, 0.5)
-    for j in range(9):
-        a.dot(x - 4 + 7 * ((j * 0.618) % 1), y - 10 + j * 2.5, 0.7, "dark")
+    """Hard and bony, a little curved, with several parallel warty ribs
+    along it; grey-brown."""
+    t = _body(a, x - 3, y + 15, -80, 30, 13, "bark", prof(0.5, "round", "round", bp=0.5, tp=1.6))
+    for o in (-3.6, -1.2, 1.2, 3.6):
+        a.line(opath([t(30 * u, o * (0.6 + 0.6 * math.sin(math.pi * u))) for u in (0.12, 0.35, 0.6, 0.85)]), 0.8, 0.6)
+        for u in (0.25, 0.5, 0.72):
+            p = t(30 * u, o * (0.6 + 0.6 * math.sin(math.pi * u)) + 0.6); a.dot(p[0], p[1], 0.6, "dark")
 
 
 def seed_helipterum(a, x, y):
@@ -1642,9 +1701,9 @@ def seed_cornflower(a, x, y):
 def seed_globethistle(a, x, y):
     """Long and cylindrical, covered in silky pale hairs, with a short crown."""
     t = _body(a, x - 2, y + 16, -86, 28, 7, "seed", prof(0.5, "round", "blunt", bp=0.5, b0=0.5))
-    for j in range(16):
-        u = 0.1 + 0.8 * ((j * 0.618) % 1); o = 3.6 if j % 2 else -3.6
-        a.line(f"M{P(t(28 * u, o * 0.6))} L{P(t(28 * u + 4, o * 1.3))}", 0.45, 0.55)
+    for j in range(14):   # silky pale hairs lying along the seed
+        u = 0.08 + 0.75 * ((j * 0.618) % 1); o = (((j * 0.37) % 1) - 0.5) * 6
+        a.line(f"M{P(t(28 * u, o))} Q{P(t(28 * u + 4, o * 1.05))} {P(t(28 * u + 8, o * 1.15))}", 0.5, 0.95, "straw")
     for o in (-2.4, -0.8, 0.8, 2.4):
         a.line(f"M{P(t(28, o))} L{P(t(32, o * 1.3))}", 0.6, 0.85, "straw")
 
@@ -1744,7 +1803,7 @@ def tuft(a, x, y, n=5, h=4, col="leaf"):
     """A low tuft of small new shoots at the soil."""
     for j in range(n):
         an = -90 + (j - (n - 1) / 2) * 24
-        a.leaf(x + (j - (n - 1) / 2) * 1.6, y, an, h * (1 - 0.2 * abs(j - (n - 1) / 2) / n), 0.34, col, lw=0.6, detail=False)
+        a.leaf(x + (j - (n - 1) / 2) * 1.8, y, an, h * (1 - 0.2 * abs(j - (n - 1) / 2) / n), 0.36, col, lw=0.7, detail=False)
 
 
 def dead_stem(a, x0, y0, x1, y1, w=1.2, col="straw"):
@@ -1777,11 +1836,11 @@ def sf_seedling():
     return seedling(("oblong", 15, 6.6), h=17, stemw=2.8, true=true, spread=12)()
 
 
-def _sf_leaves(a, q, plan, fill):
+def _sf_leaves(a, q, plan, fill, hang=0):
     with a.on(LEAF):
         for u, sd, L, ang in plan:
             x, y = q.pt(u)
-            lf_sunflower(a, x, y, ang if sd > 0 else -180 - ang, L, fill, small=True)
+            lf_sunflower(a, x, y, ang if sd > 0 else -180 - ang, L, fill, small=True, bend=sd * hang)
 
 
 def sf_young():
@@ -1799,7 +1858,7 @@ def sf_flower():
     a = Art(); a.ground(88); lc = _lc("sunflower")
     with a.group():
         q = stalk_line(a, (50, 88), (52, 50), (54, 26), 4.0, 2.6, "leaf", hairy=True)
-        _sf_leaves(a, q, [(0.1, 1, 22, 2), (0.1, -1, 22, 2), (0.3, -1, 22, -6), (0.46, 1, 21, -10), (0.62, -1, 19, -14), (0.78, 1, 15, -18)], lc)
+        _sf_leaves(a, q, [(0.1, 1, 22, -14), (0.1, -1, 22, -14), (0.3, -1, 22, -22), (0.46, 1, 21, -26), (0.62, -1, 19, -30), (0.78, 1, 15, -32)], lc, hang=58)
         with a.on(BLOOM):
             head(a, 58, 20, 18, opts("sunflower"), k=0.62, ang=-50, small=True)
     return a
@@ -1815,10 +1874,37 @@ def sf_seedhead():
                 x, y = q.pt(u)
                 lf_sunflower(a, x, y, ang if sd > 0 else 180 - ang, L, "straw" if u > 0.3 else "bark", small=True)
         with a.on(BLOOM):   # the heavy head hangs face down, its rays shrivelled, its face packed with seed
-            head(a, 64, 40, 15, opts("sunflower", fc="straw", cen="dark", rw=0.07, n=14, rows=1, disc=0.72, dots="straw", ring=None, nd=110, dr=0.5,
+            head(a, 64, 40, 15, opts("sunflower", fc="straw", cen="dark", rw=0.07, n=14, rows=1, disc=0.72, dots="bark", spiral="bark", ring=None, rim=None, nd=40, dr=0.45,
                                      bracts=dict(n=14, l=0.32, w=0.09, col="bark"), cup=dict(rc=1.05, h=0.25, rows=1, n=8, col="straw")),
-                 k=0.45, ang=118)
+                 k=0.5, ang=125)
     return a
+
+
+def dome(m, W, H, by=88, inner=0, ih=0.62):
+    """Points spread over a dome W wide (each side of the middle) and H high:
+    where the tips of the stems of a low rounded plant end. inner adds that
+    many more a little lower down, among the leaves."""
+    pts = []
+    for i in range(m):
+        th = math.pi * (0.06 + 0.88 * i / (m - 1))
+        pts.append((50 - W * math.cos(th), by - H * (0.42 + 0.58 * math.sin(th))))
+    for i in range(inner):
+        th = math.pi * (0.2 + 0.6 * (i + 0.5) / inner)
+        pts.append((50 - W * 0.6 * math.cos(th), by - H * ih * (0.5 + 0.5 * math.sin(th))))
+    return pts
+
+
+def mound(a, kind, leaf, tips, Ls=(14, 9), n=4, opp=False, lang=52, col="leaf", lfill=None, w=(1.5, 1.0), lkw=None, us=(0.18, 0.9), spread=0.3):
+    """A low leafy plant: a stem from near the middle of the base to each
+    tip, curving out and up, with leaves all along it, so the leaves build a
+    rounded mound and the tips sit on its surface. Returns the stems."""
+    qs = []
+    for tx, ty in tips:
+        x0 = 50 + (tx - 50) * spread * 0.4
+        c = (x0 + (tx - x0) * 0.75, 88 - (88 - ty) * 0.3)
+        qs.append(shoot(a, (x0, 88), c, (tx, ty), w[0], w[1], col, leaf, n, Ls, lang, opp, us, lfill or _lc(kind),
+                        side=1 if tx >= 50 else -1, lkw=lkw))
+    return qs
 
 
 # ============================================================ calendula
@@ -1855,18 +1941,26 @@ def cal_flower():
     return a
 
 
+def _c_seed(a, x, y, s, ang, fill="bark", lw=0.5):
+    """One calendula seed: a thick C-shaped curl, s across, opening along ang."""
+    t = T(x, y, ang); out, inn = [], []
+    for i in range(17):
+        th = math.radians(40 + 280 * i / 16); w = 0.32 * math.sin(math.pi * i / 16) ** 0.5 + 0.08
+        out.append(t(s * (0.5 + w * 0.5) * math.cos(th), s * (0.5 + w * 0.5) * math.sin(th)))
+        inn.append(t(s * (0.5 - w * 0.5) * math.cos(th), s * (0.5 - w * 0.5) * math.sin(th)))
+    a.shape(path(out + inn[::-1]), fill, lw)
+
+
 def cal_seedring(a, x, y, r):
-    """What is left of a calendula head: a ring of strongly curled, knobbly
-    brown seeds round the middle, the bracts drying back."""
-    for j in range(10):
-        a.leaf(x, y + r * 0.1, j * 36 + 10, r * 0.7, 0.22, "straw", lw=0.4, detail=False)
-    for j in sorted(range(8), key=lambda j: math.sin(math.radians(j * 45 - 70))):
-        an = math.radians(j * 45 - 70); ca, sa = math.cos(an), math.sin(an) * 0.6
-        b = (x + r * 0.15 * ca, y + r * 0.15 * sa); m = (x + r * 1.15 * ca, y + r * 1.15 * sa - r * 0.35)
-        e = (x + r * 0.7 * ca - r * 0.3 * sa, y + r * 0.7 * sa + r * 0.2)
-        d = f"M{P(b)} Q{P(m)} {P(e)}"
-        a.line(d, r * 0.3 + 0.7, 0.9, "line"); a.line(d, r * 0.3, 1.0, "bark")
-    a.dot(x, y, r * 0.16, "dark")
+    """What is left of a calendula head: a ring of separate, strongly curled
+    brown seeds round the top of the stalk, dry bract tips beneath."""
+    for j in range(7):   # the dry bracts, pointing down and out under the ring
+        a.leaf(x + (j - 3) * r * 0.22, y + r * 0.2, 90 + (j - 3) * 24, r * 0.75, 0.22, "straw", lw=0.4, detail=False)
+    a.oval(x, y, r * 0.35, r * 0.2, 0, "straw", 0.4)
+    for j in sorted(range(9), key=lambda j: math.sin(2 * math.pi * j / 9)):
+        th = 2 * math.pi * j / 9 - math.pi / 2
+        px, py = x + r * 0.78 * math.cos(th), y + r * 0.45 * math.sin(th) - r * 0.1
+        _c_seed(a, px, py, r * 0.62, math.degrees(math.atan2(math.sin(th) * 0.6, math.cos(th))), "bark", 0.45)
 
 
 def cal_seedhead():
@@ -1917,7 +2011,7 @@ def seed_burst(a, x, y, r, col="dark"):
     """Cosmos gone to seed: a loose starburst of long narrow dark seeds
     pointing outwards from the top of the stalk."""
     for j in range(13):
-        an = -180 + 180 * j / 12 + 6 * math.sin(j * 2.1)
+        an = -205 + 230 * j / 12 + 6 * math.sin(j * 2.1)
         e = T(x, y, an)(r * (0.85 + 0.15 * math.sin(j * 1.3)))
         a.ribbon(T(x, y, an)(r * 0.15), T(x, y, an)(r * 0.55), e, 0.9, 1.2, col, lw=0.4)
         for sg in (-1, 1):
@@ -1946,17 +2040,20 @@ def zin_young():
     return a
 
 
+ZIN_TIPS = dome(7, 30, 42, inner=3)
+
+
 def zin_flower(dry=False):
+    """A compact leafy mound with single flowers resting on its surface."""
     a = Art(); a.ground(88)
     with a.group():
-        qs = _bush(a, "zinnia", ZIN_STEMS, lf_zinnia, (12, 8), 2, lang=56, opp=True, lfill=("straw" if dry else None))
+        qs = mound(a, "zinnia", lf_zinnia, ZIN_TIPS, (13, 10), 3, opp=True, lang=58, lfill=("straw" if dry else None), col="straw" if dry else "leaf")
         with a.on(BLOOM):
-            for q, (x0, dx, h, b) in sorted(zip(qs, ZIN_STEMS), key=lambda z: -z[1][2]):
-                e = q.pt(1)
-                if dry:
-                    head(a, e[0], e[1] - 1, 7, opts("zinnia", fc="straw", cen="bark", ring=None, dots="dark", droop=0.45, dome=0.9), k=0.5, small=True)
+            for (tx, ty) in sorted(ZIN_TIPS, key=lambda p: p[1]):
+                if dry:   # papery faded rays still attached round a brown cone of seeds
+                    head(a, tx, ty - 1, 7.5, opts("zinnia", fc="straw", cen="bark", ring=None, dots="dark", droop=0.4, dome=1.4, disc=0.42, n=9, smallk=1), k=0.5, small=True)
                 else:
-                    head(a, e[0], e[1] - 1, 9, opts("zinnia", n=10, smallk=1, ring=None, dots="sun"), k=0.5, ang=-90 + dx * 0.5, small=True)
+                    head(a, tx, ty - 1, 9, opts("zinnia", n=10, smallk=1, ring=None, dots="sun", rim=None), k=0.5, ang=-90 + (tx - 50) * 0.5, small=True)
     return a
 
 
@@ -1973,19 +2070,22 @@ def rud_young():
     return a
 
 
+RUD_TIPS = dome(8, 32, 44, inner=2)
+
+
 def rud_flower(seed=False):
+    """'Toto': a compact bun, its golden flowers nearly covering the leaves."""
     a = Art(); a.ground(88)
     with a.group():
         rosette(a, 50, 88, lf_rudbeckia, "bark" if seed else _lc("rudbeckia"), RUD_ROS, 20)
-        qs = _bush(a, "rudbeckia", RUD_STEMS, lf_rudbeckia, (11, 7), 3, lang=50, lkw=dict(stem=True), lfill="straw" if seed else None,
-                   col="straw" if seed else "leaf")
+        mound(a, "rudbeckia", lf_rudbeckia, RUD_TIPS, (12, 8), 3, lang=50, lkw=dict(stem=True), lfill="straw" if seed else None,
+              col="straw" if seed else "leaf")
         with a.on(BLOOM):
-            for q, (x0, dx, h, b) in sorted(zip(qs, RUD_STEMS), key=lambda z: -z[1][2]):
-                e = q.pt(1)
+            for tx, ty in sorted(RUD_TIPS, key=lambda p: p[1]):
                 if seed:   # the rays gone: a dark cone left on the bare stalk
-                    head(a, e[0], e[1], 4, opts("rudbeckia", n=0, disc=0.75, dome=1.2, ring=None, dots="dark", cup=None), k=0.5, small=True)
+                    head(a, tx, ty, 4, opts("rudbeckia", n=0, disc=0.75, dome=1.2, ring=None, dots="dark", cup=None, rim=None), k=0.5, small=True)
                 else:
-                    head(a, e[0], e[1] - 1, 9, opts("rudbeckia"), k=0.5, ang=-90 + dx * 0.5, small=True)
+                    head(a, tx, ty - 1, 10, opts("rudbeckia", rim=None), k=0.5, ang=-90 + (tx - 50) * 0.5, small=True)
     return a
 
 
@@ -1994,7 +2094,7 @@ def rud_dormant():
     with a.group():
         rosette(a, 50, 88, lf_rudbeckia, _lc("rudbeckia"), [-176, -4, -160, -20, -142, -38, -118, -62], 22)
         for x0, x1, y1 in ((44, 34, 42), (56, 66, 48)):
-            dead_stem(a, x0, 88, x1, y1)
+            dead_stem(a, x0, 88, x1, y1, 1.6, "bark")
             with a.on(BLOOM):
                 head(a, x1, y1, 4, opts("rudbeckia", n=0, disc=0.75, dome=1.2, ring=None, dots="dark", cup=None), k=0.5, small=True)
     return a
@@ -2028,21 +2128,24 @@ def mari_head(a, x, y, r, fc, dry=False):
     head(a, x, y - r * 0.15, r, opts("french-marigold", fc=fc), k=0.48, small=True)
 
 
+MARI_TIPS = dome(8, 32, 32, inner=3, ih=0.7)
+
+
 def mari_young():
     a = Art(); a.ground(88)
     with a.group():
-        _bush(a, "french-marigold", [(x, dx * 0.8, h * 0.8, b) for x, dx, h, b in MARI_STEMS], lf_marigold, (13, 9), 2, lang=50, col="plum",
-              w=(1.6, 1.1), opp=True)
+        mound(a, "french-marigold", lf_marigold, dome(6, 26, 24), (17, 13), 2, opp=True, lang=50, col="plum", w=(1.3, 0.9))
     return a
 
 
 def mari_flower(dry=False):
+    """A low leafy mound with small double flowers sitting just above it."""
     a = Art(); a.ground(88)
     with a.group():
-        qs = _bush(a, "french-marigold", MARI_STEMS, lf_marigold, (14, 10), 2, lang=50, col="plum", w=(1.3, 0.9), opp=True)
+        mound(a, "french-marigold", lf_marigold, MARI_TIPS, (15, 11), 2, opp=True, lang=50, col="plum", w=(1.3, 0.9), us=(0.25, 0.85))
         with a.on(BLOOM):
-            for j, (q, st) in enumerate(sorted(zip(qs, MARI_STEMS), key=lambda z: -z[1][2])):
-                e = q.pt(1); mari_head(a, e[0], e[1] - 1, 4.4 if dry else 7, "sun" if j % 3 == 1 else pal("french-marigold", "flower", "carrot"), dry)
+            for j, (tx, ty) in enumerate(sorted(MARI_TIPS, key=lambda p: p[1])):
+                mari_head(a, tx, ty - 1, 4.4 if dry else 6.6, "sun" if j % 3 == 1 else pal("french-marigold", "flower", "carrot"), dry)
     return a
 
 
@@ -2078,71 +2181,75 @@ CC_STEMS = [(46, -34, 30, -14), (54, 34, 30, 14), (47, -18, 44, -8), (53, 20, 46
 
 
 def cc_plant(stage):
+    """Sprawling at the base, then upright: branched stems leafy all along."""
     a = Art(); a.ground(88)
     with a.group():
-        if stage == "young":
-            _bush(a, "corn-chamomile", [(48, -30, 12, -10), (52, 30, 12, 10), (49, -14, 20, -6), (51, 16, 22, 6)], lf_cornchamomile, (14, 10), 2, lang=60,
-                  col="sage", w=(1.5, 1.1))
+        if stage == "young":   # a low spreading tuft, leaves all along the stems
+            tips = [(14, 82), (86, 82), (22, 72), (78, 70), (36, 64), (64, 62), (50, 60)]
+            mound(a, "corn-chamomile", lf_cornchamomile, tips, (13, 9), 4, lang=55, col="sage", w=(1.4, 1.0), us=(0.15, 0.95), spread=0.15)
             return a
-        qs = _bush(a, "corn-chamomile", CC_STEMS, lf_cornchamomile, (14, 9), 3, lang=55, col="sage", w=(1.5, 1.0))
+        tips = dome(7, 34, 50, inner=2)
+        mound(a, "corn-chamomile", lf_cornchamomile, tips, (14, 9), 4, lang=55, col="sage", w=(1.4, 0.9), us=(0.12, 0.8))
         with a.on(BLOOM):
-            for q, st in sorted(zip(qs, CC_STEMS), key=lambda z: -z[1][2]):
-                e = q.pt(1)
+            for tx, ty in sorted(tips, key=lambda p: p[1]):
                 if stage == "flower":
-                    head(a, e[0], e[1] - 1, 7.5, opts("corn-chamomile"), k=0.55, small=True)
+                    head(a, tx, ty - 1, 7.5, opts("corn-chamomile"), k=0.55, small=True)
                 else:   # the rays wither and hang; the disc grows into a brownish-yellow cone
-                    head(a, e[0], e[1] - 1, 5.5, opts("corn-chamomile", fc="straw", cen="seed", dots="bark", droop=1.4, dome=1.4, disc=0.5, n=10), k=0.55, small=True)
+                    head(a, tx, ty - 1, 5.5, opts("corn-chamomile", fc="straw", cen="seed", dots="bark", droop=1.4, dome=1.4, disc=0.5, n=10), k=0.55, small=True)
     return a
 
 
 # ============================================================ wild chamomile (pineappleweed)
-PW_STEMS = [(46, -30, 22, -8), (54, 30, 22, 8), (47, -16, 32, -4), (53, 16, 32, 4), (50, 0, 38, 0)]
+PW_TIPS = dome(9, 32, 26, inner=4, ih=0.75)
 
 
 def pw_plant(stage):
+    """A low, dense, leafy cushion with many small cones among and just
+    above the leaves."""
     a = Art(); a.ground(88); fc = pal("wild-chamomile", "flower", "pear")
     with a.group():
         if stage == "young":
             rosette(a, 50, 88, lf_pineapple, _lc("wild-chamomile"), [-170, -10, -146, -34, -120, -60, -90], 20)
             return a
-        qs = _bush(a, "wild-chamomile", PW_STEMS, lf_pineapple, (14, 9), 2, lang=55, w=(1.5, 1.0))
+        mound(a, "wild-chamomile", lf_pineapple, PW_TIPS, (14, 10), 3, lang=55, w=(1.2, 0.9), us=(0.15, 0.85), spread=0.4)
         with a.on(BLOOM):
-            for q, st in zip(qs, PW_STEMS):
-                e = q.pt(1)
-                for dx, dy in ((0, 0), (-3.5, 5), (3.5, 5), (-2, 10)):   # several short-stalked heads at each branch tip
-                    if (dx, dy) != (0, 0):
-                        a.line(f"M{f(e[0])},{f(e[1] + 6)} L{f(e[0] + dx)},{f(e[1] + dy)}", 0.6, 0.85)
-                    cone_head(a, e[0] + dx, e[1] + dy, 1.9 if dx else 2.3, fc, small=True, dry=stage == "seedhead")
+            for tx, ty in sorted(PW_TIPS, key=lambda p: p[1]):
+                cone_head(a, tx, ty, 2.4, fc, small=True, dry=stage == "seedhead")
     return a
 
 
 # ============================================================ feverfew
-FF_STEMS = [(46, -20, 52, -4), (54, 20, 52, 4), (48, -8, 60, -2), (52, 8, 60, 2)]
-
-
 def ff_plant(stage):
+    """A bushy yellow-green clump, leafy all the way up, with loose
+    flat-topped clusters of small daisies on top."""
     a = Art(); a.ground(88); lc = _lc("feverfew")
     with a.group():
         if stage in ("young", "dormant"):
-            rosette(a, 50, 88, lf_feverfew, lc, [-168, -12, -146, -34, -122, -58, -90], 24 if stage == "young" else 18)
-            if stage == "young":
-                _bush(a, "feverfew", [(49, -8, 30, -2), (51, 10, 34, 2)], lf_feverfew, (14, 10), 2, lang=50)
-            else:
-                for x0, x1, y1 in ((46, 42, 70), (50, 51, 66), (54, 58, 71)):
-                    dead_stem(a, x0, 88, x1, y1, 1.1)
+            rosette(a, 50, 88, lf_feverfew, lc, [-168, -12, -146, -34, -122, -58, -100, -80], 26 if stage == "young" else 20)
+            if stage == "young":   # a compact bushy clump
+                mound(a, "feverfew", lf_feverfew, dome(5, 24, 34), (15, 11), 3, lang=52, us=(0.15, 0.95), spread=0.5)
+            else:   # the old flowering stems, dead and cut back
+                for x0, x1, y1 in ((44, 40, 66), (50, 50.5, 62), (56, 60, 67)):
+                    dead_stem(a, x0, 88, x1, y1, 1.6, "bark")
+                    a.line(f"M{f(x1 - 1.2)},{f(y1)} l2.4,-0.6", 0.7, 0.8)
             return a
-        qs = _bush(a, "feverfew", FF_STEMS, lf_feverfew, (14, 9), 3, lang=50)
+        dry = stage == "seedhead"
+        tips = dome(5, 24, 48)
+        qs = mound(a, "feverfew", lf_feverfew, tips, (18, 12), 5, lang=50, us=(0.08, 0.95), spread=0.5,
+                   lfill=None)
         tops = []
-        for q, (x0, dx, h, b) in zip(qs, FF_STEMS):   # each stem ends in a loose flat-topped cluster
-            e = q.pt(1)
-            for j, (ox, oy) in enumerate(((-7, -4), (0, -6), (7, -4)) if abs(dx) < 15 else ((-5, -4), (5, -5))):
-                tx, ty = e[0] + ox * 1.1, 88 - 64 + (abs(e[0] + ox - 50) * 0.12)
-                a.line(f"M{f(e[0])},{f(e[1])} Q{f(e[0] + ox * 0.3)},{f((e[1] + ty) / 2)} {f(tx)},{f(ty)}", 0.8, 0.85)
-                tops.append((tx, ty))
+        for (tx, ty), q in zip(tips, qs):   # each stem ends in a loose flat-topped cluster just above the leaves
+            for ox in (-5, 0, 5):
+                hx, hy = tx + ox * 1.1, ty - 7 - (2 if ox == 0 else 0)
+                if ox:
+                    a.line(f"M{f(tx)},{f(ty)} Q{f(tx + ox * 0.3)},{f((ty + hy) / 2)} {f(hx)},{f(hy)}", 0.8, 0.85)
+                else:
+                    a.line(f"M{f(tx)},{f(ty)} L{f(hx)},{f(hy)}", 0.8, 0.85)
+                tops.append((hx, hy))
         with a.on(BLOOM):
             for tx, ty in sorted(set(tops), key=lambda p: p[1]):
-                if stage == "flower":
-                    head(a, tx, ty, 5.6, opts("feverfew"), k=0.6, small=True)
+                if not dry:
+                    head(a, tx, ty, 5.8, opts("feverfew", rim=None), k=0.6, small=True)
                 else:
                     head(a, tx, ty, 2.8, opts("feverfew", n=0, disc=0.95, cen="bark", dots="dark", dome=0.4), k=0.6, small=True)
     return a
@@ -2155,16 +2262,16 @@ AS_STEMS = [(44, -26, 44, -6), (56, 26, 44, 6), (46, -14, 54, -3), (54, 14, 54, 
 def as_plant(stage):
     a = Art(); a.ground(88); lc = _lc("aster")
     with a.group():
-        if stage == "dormant":
-            for x0 in (40, 46, 52, 58):
-                a.ribbon((x0, 88), (x0, 85), (x0 + 0.5, 82), 1.6, 1.4, "straw", lw=0.6)
-                a.line(f"M{f(x0 - 1)},{f(82)} l2,-0.6", 0.7, 0.7)
-            for x0 in (36, 49, 62):
-                tuft(a, x0, 88, 5, 5, lc)
+        if stage == "dormant":   # old stems cut down to stubs; tufts of new green shoots at the soil
+            for x0, h in ((38, 9), (44, 12), (50, 10), (56, 13), (62, 9)):
+                a.ribbon((x0, 88), (x0, 88 - h * 0.5), (x0 + 0.4, 88 - h), 2.2, 1.9, "bark", lw=0.7)
+                a.line(f"M{f(x0 - 1.1)},{f(88 - h)} l2.6,-0.7", 0.8, 0.8)
+            for x0 in (32, 50, 68):
+                tuft(a, x0, 88, 5, 9, lc)
             return a
         young = stage == "young"; dry = stage == "seedhead"
         st = [(x, dx * (0.6 if young else 1), h * (0.66 if young else 1), b) for x, dx, h, b in AS_STEMS]
-        qs = _bush(a, "aster", st, lf_aster, (12, 7), 5 if young else 4, lang=42, col="bark" if dry else "leaf", w=(1.4, 0.9),
+        qs = _bush(a, "aster", st, lf_aster, (12, 7), 5 if young else 4, lang=42, col="straw" if dry else "leaf", w=(1.4, 0.9),
                    lfill="straw" if dry else lc)
         if young:
             return a
@@ -2183,13 +2290,13 @@ def as_plant(stage):
                         e = T(x, y - 2, -90 + (j - 4) * 30)(3.2); a.line(f"M{f(x)},{f(y - 2)} L{P(e)}", 0.4, 0.45)
                     a.oval(x, y - 2, 2.2, 2.0, 0, "white", 0.4)
                 else:
-                    head(a, x, y - 1, 5.6, opts("aster", rw=0.2, n=16, smallk=1), k=0.62, small=True)
+                    head(a, x, y - 1, 5.8, opts("aster", rw=0.2, n=16, smallk=1, rim=None), k=0.62, small=True)
     return a
 
 
 # ============================================================ African daisy
 AF_STEMS = [(44, -34, 16, -10), (56, 34, 16, 10), (47, -20, 24, -6), (53, 20, 24, 6), (50, 0, 28, 0)]
-AF_STALK = [(8, 52), (-8, 48), (2, 62), (-2, 66), (0, 76)]   # each stem's flower stalk: how far it leans, how high its head stands
+AF_STALK = [(10, 42), (-10, 40), (4, 52), (-4, 54), (0, 62)]   # each stem's flower stalk: how far it leans, how high its head stands
 
 
 def af_plant(stage):
@@ -2197,7 +2304,7 @@ def af_plant(stage):
     with a.group():
         young = stage == "young"
         st = [(x, dx * (0.8 if young else 1), h * (0.8 if young else 1), b) for x, dx, h, b in AF_STEMS]
-        qs = _bush(a, "african-daisy", st, lf_african, (14, 10), 3, lang=50, w=(2.0, 1.4), col="leaf")
+        qs = _bush(a, "african-daisy", st, lf_african, (15, 11), 4, lang=50, w=(2.0, 1.4), col="leaf")
         a.ribbon((44, 88), (50, 86), (56, 88), 4, 4, "bark", lw=0.7)   # woody at the base
         if young:
             return a
@@ -2209,14 +2316,14 @@ def af_plant(stage):
         with a.on(BLOOM):
             for hx, hy in sorted(tops, key=lambda h: h[1]):
                 if stage == "flower":
-                    head(a, hx, hy - 1, 9.5, opts("african-daisy"), k=0.5, small=True)
+                    head(a, hx, hy - 1, 11, opts("african-daisy", rim=None, disc=0.3), k=0.55, small=True)
                 else:   # closed, the rays withered, a ring of hard seeds round the edge
                     for j in range(8):
                         e = (hx + 3.8 * math.cos(j * math.pi / 4), hy - 1 + 1.9 * math.sin(j * math.pi / 4))
                         a.oval(e[0], e[1], 1.2, 0.8, j * 45, "bark", 0.4)
-                    a.oval(hx, hy - 1, 3.0, 1.6, 0, "leaf", 0.5)
+                    a.oval(hx, hy - 1, 3.0, 1.6, 0, "straw", 0.5)
                     for j in range(5):
-                        a.leaf(hx + (j - 2) * 1.0, hy - 1.5, -90 + (j - 2) * 10, 4.2, 0.28, "straw", lw=0.4, detail=False)
+                        a.leaf(hx + (j - 2) * 1.0, hy - 1.5, -90 + (j - 2) * 10, 4.2, 0.28, "bark", lw=0.4, detail=False)
     return a
 
 
@@ -2272,7 +2379,7 @@ def cf_plant(stage):
         dry = stage == "seedhead"
         q = shoot(a, (50, 88), (51, 66), (50, 40), 1.6, 1.3, "straw" if dry else "sage", lf_cornflower, 4, (18, 12), 34, us=(0.1, 0.8), lfill="straw" if dry else lc)
         tops = []
-        for u, dx, h in ((0.0, -22, 20), (0.0, 18, 26), (0.0, -6, 30), (0.0, 8, 12)):   # wiry branches in the upper half
+        for u, dx, h in ((0.0, -22, 18), (0.0, 18, 22), (0.0, -6, 22), (0.0, 8, 10)):   # wiry branches in the upper half
             b = q.pt(1.0) if dx in (-6, 8) else q.pt(0.85)
             e = (b[0] + dx, b[1] - h)
             shoot(a, b, (b[0] + dx * 0.2, (b[1] + e[1]) / 2), e, 1.0, 0.8, "straw" if dry else "sage", lf_cornflower, 1, (10, 10), 30, us=(0.4, 0.4),
@@ -2352,7 +2459,10 @@ def db_plant(stage):
     a = Art(); a.ground(88); lc = _lc("devil-s-bit-scabious"); fc = pal("devil-s-bit-scabious", "flower", "lilac")
     with a.group():
         if stage in ("young", "dormant"):
-            rosette(a, 50, 88, lf_devilsbit, lc, [-174, -6, -156, -24, -136, -44, -114, -66], 30 if stage == "young" else 26)
+            L = 32 if stage == "young" else 27
+            with a.on(LEAF):   # a flat rosette seen from a little above: leaves lying out on the soil all round
+                for ang, k in ((-150, 0.7), (-30, 0.7), (-120, 0.55), (-60, 0.55), (-178, 1.0), (-2, 1.0), (162, 0.62), (18, 0.62), (128, 0.42), (52, 0.42), (90, 0.34)):
+                    lf_devilsbit(a, 50, 84, ang, L * k, lc, small=True)
             return a
         rosette(a, 50, 88, lf_devilsbit, lc, [-172, -8, -152, -28, -130, -50], 22)
         tops = []
@@ -2386,12 +2496,12 @@ def rp_plant(stage):
         dry = stage == "seedhead"
         rosette(a, 50, 88, lf_rampion, "straw" if dry else lc, [-160, -20, -136, -44], 22)
         tops = []
-        for x0, c, e in (((48, 88), (34, 60), (26, 34)), ((52, 88), (66, 60), (72, 38)), ((50, 88), (48, 56), (52, 22))):
-            q = shoot(a, x0, c, e, 1.3, 1.0, "leaf", lf_aster, 4, (11, 7), 36, us=(0.15, 0.75), lfill="straw" if dry else lc)
+        for x0, c, e in (((48, 88), (22, 66), (24, 38)), ((52, 88), (80, 64), (74, 40)), ((50, 88), (40, 52), (50, 24))):
+            q = shoot(a, x0, c, e, 1.3, 1.0, "straw" if dry else "leaf", lf_aster, 4, (11, 7), 36, us=(0.15, 0.75), lfill="straw" if dry else lc)
             tops.append(e)
         with a.on(BLOOM):
             for x, y in tops:
-                rampion_head(a, x, y - 4, 4.6, fc, small=True, dry=dry, lc="straw" if dry else lc)
+                rampion_head(a, x, y - 1.5, 5.4, fc, small=True, dry=dry, lc="straw" if dry else lc)
     return a
 
 
@@ -2416,7 +2526,7 @@ def se_plant(stage):
 
 STAGE = {
     "sunflower": {"seed": sown("sunflower"), "seedling": sf_seedling, "young": sf_young, "flower": sf_flower, "seedhead": sf_seedhead},
-    "calendula": {"seed": sown("calendula"), "seedling": seedling(("oblong", 12, 5.6), 13, true=lambda a, x, y: lf_calendula(a, x, y, -84, 11, _lc("calendula"), small=True)),
+    "calendula": {"seed": sown("calendula"), "seedling": seedling(("oblong", 12, 5.6), 13, true=lambda a, x, y: lf_calendula(a, x, y, -84, 14, _lc("calendula"), small=True)),
                   "young": cal_young, "flower": cal_flower, "seedhead": cal_seedhead},
     "cosmos": {"seed": sown("cosmos"), "seedling": seedling(("narrow", 14, 3.2), 14, true=lambda a, x, y: [lf_cosmos(a, x, y, g, 9, _lc("cosmos"), small=True) for g in (-112, -68)]),
                "young": cos_young, "flower": cos_flower, "seedhead": cos_seedhead},
@@ -2425,7 +2535,7 @@ STAGE = {
     "rudbeckia": {"seed": sown("rudbeckia"), "seedling": seedling(("oval", 8, 5), 10, true=lambda a, x, y: [lf_rudbeckia(a, x, y, g, L, _lc("rudbeckia"), small=True) for g, L in ((-100, 10), (-66, 7))]),
                   "young": rud_young, "flower": rud_flower, "seedhead": lambda: rud_flower(True), "dormant": rud_dormant},
     "french-marigold": {"seed": sown("french-marigold"),
-                        "seedling": seedling(("narrow", 9, 3.2), 12, stemc="plum", true=lambda a, x, y: [lf_marigold(a, x, y, g, 9, _lc("french-marigold"), small=True) for g in (-112, -68)]),
+                        "seedling": seedling(("narrow", 9, 3.2), 12, stemw=2.0, stemc="plum", true=lambda a, x, y: [lf_marigold(a, x, y, g, 9, _lc("french-marigold"), small=True) for g in (-112, -68)]),
                         "young": mari_young, "flower": mari_flower, "seedhead": lambda: mari_flower(True)},
     "ox-eye-daisy": {"seed": sown("ox-eye-daisy"), "seedling": seedling(("round", 6.5, 5.6), 9, true=lambda a, x, y: lf_oxeye(a, x, y, -86, 11, _lc("ox-eye-daisy"), small=True)),
                      "young": lambda: ox_plant("young"), "flower": lambda: ox_plant("flower"), "seedhead": lambda: ox_plant("seedhead"),
@@ -2448,7 +2558,7 @@ STAGE = {
                    "young": lambda: cf_plant("young"), "flower": lambda: cf_plant("flower"), "seedhead": lambda: cf_plant("seedhead")},
     "blue-globe-thistle": {"seed": sown("blue-globe-thistle"),
                            "seedling": seedling(("oval", 9, 5), 11, true=lambda a, x, y: [lf_globethistle(a, x, y, -100, 11, _lc("blue-globe-thistle"), small=True),
-                                                                                          lf_globethistle(a, x, y, -60, 9, _lc("blue-globe-thistle"), small=True, under=True)]),
+                                                                                          lf_globethistle(a, x, y, -40, 13, _lc("blue-globe-thistle"), small=True, under=True)]),
                            "young": lambda: gt_plant("young"), "flower": lambda: gt_plant("flower"), "seedhead": lambda: gt_plant("seedhead"),
                            "dormant": lambda: gt_plant("dormant")},
     "scabiosa": {"seed": sown("scabiosa"), "seedling": seedling(("oval", 7, 4.6), 9, true=lambda a, x, y: lf_first(a, x, y, -84, 11, _lc("scabiosa"), teeth=True)),

@@ -159,9 +159,10 @@ PROFS = {
 # found them widest above the middle with squared-off tips: each is now widest
 # where its description says, and tapers evenly to its tip.
 PROFS.update({
-    "basil":  beta(1.0, 1.45),           # oval, widest a little below the middle, wedge base, clear point
+    "basil":  beta(0.72, 0.95),          # oval, widest a little below the middle, tapering base, clear point
     "mint":   beta(0.55, 1.2),           # lance-shaped, widest near the rounded base
-    "balm":   beta(0.38, 0.95),          # broad oval, broadest near the rounded, almost square base
+    "balm":   beta(0.4, 0.72),           # broad oval, broadest near the rounded, almost square base
+    "roundleaf": beta(0.5, 0.55),        # a seedling's first leaf: rounded
     "catnip": beta(0.4, 1.1),            # triangular oval over a heart-shaped base (see "back")
     "sage":   beta(0.75, 0.7, flat=0.5), # oblong, sides almost parallel, both ends rounded
     "bay":    beta(1.0, 1.05),           # narrow oval, pointed at both ends
@@ -405,6 +406,8 @@ def leaf_cut(a, sp):
     fill = sp["fill"]; t = T(*BASE, ANG)
     q = Quad(BASE, t(46, -1), t(92))
     a.ribbon(q.p0, q.c, q.p1, 2.2, 1.0, fill, lw=0.8)
+    qw = Quad(q.pt(0.3), q.pt(0.62), q.pt(0.98))   # the narrow band of leaf along the midrib above the stalk
+    a.ribbon(qw.p0, qw.c, qw.p1, 4.6, 2.4, fill, lw=0.7)
     segW = sp.get("segW", 3.4)
 
     def seg(x, y, ang, L):
@@ -416,7 +419,7 @@ def leaf_cut(a, sp):
         x, y = q.pt(u); ang = q.ang(u); L = 30 * (1.0 - 0.45 * (u - 0.36) / 0.42)
         for sd in (1, -1):
             pa = ang + sd * 58; tq = T(x, y, pa)
-            a.ribbon((x, y), tq(L * 0.4, 0), tq(L * 0.8), 1.8, 1.1, fill, lw=0.6)
+            a.ribbon((x, y), tq(L * 0.4, 0), tq(L * 0.8), 3.4, 1.9, fill, lw=0.6)
             for v, k, off in ((0.36, 0.42, 50), (0.66, 0.36, 44)):   # each lobe cut again: one segment out to each side
                 p = tq(L * v)
                 for sd2 in (1, -1):
@@ -454,7 +457,26 @@ def fit(draw):
     return wrapped
 
 
-LEAF_DRAW = {"herbs_leaf": leaf_herb, "herbs_sprig": fit(leaf_sprig), "herbs_cut": fit(leaf_cut)}
+def leaf_heart(a, sp):
+    """Catnip: a triangular-oval leaf drawn round a centre, widest near a
+    notched, heart-shaped base, the tip centred, with coarse blunt teeth all
+    round and a fringe of soft hairs. (The first redraw built it from a
+    profile like the others and the base came out cut straight across; this
+    follows the shape of the old drawing, which the checks preferred.)"""
+    import leaves_flowers as LFW
+    sp2 = dict(sp, kind="heart")
+    LFW.leaf_polar(a, sp2)
+    R = sp.get("R", 27); pt = sp.get("point", 0.35); td = max(sp.get("td", 0.08), (LFW.TMIN + 0.2) / R); n = sp.get("teeth", 20)
+    g = lambda h: (1 + 0.1 * math.cos(h)) * (1 + pt * math.exp(-(h / 0.36) ** 2)) * LFW.notch(0.78, 0.5)(h) * (1 - td * (((h + math.pi) * n / (2 * math.pi)) % 1) ** 1.5)
+    t = T(*BASE, ANG); A = t(98 * sp.get("petiole", 0.22)); d = R * g(math.pi); tA = T(*A, ANG)
+    for k in range(sp.get("hairs", 0)):   # soft hairs round the edge
+        h = -math.pi * 0.92 + 1.84 * math.pi * (k + 0.5) / sp["hairs"]
+        r0 = R * g(h); p0 = tA(d + r0 * math.cos(h), r0 * math.sin(h)); p1 = tA(d + (r0 + 1.4) * math.cos(h), (r0 + 1.4) * math.sin(h))
+        a.line(f"M{P(p0)} L{P(p1)}", 0.4, 0.55)
+    return a
+
+
+LEAF_DRAW = {"herbs_heart": leaf_heart, "herbs_leaf": leaf_herb, "herbs_sprig": fit(leaf_sprig), "herbs_cut": fit(leaf_cut)}
 
 
 # ============================================================ flowers
@@ -601,11 +623,15 @@ def fl_basil(a, sp):
     tiers = [(0.16, 2.0), (0.45, 1.7)]
     for i, (u, s) in enumerate(tiers):
         x, y = q.pt(u)
-        bract_pair(a, x, y + 3.5, 5.0 * s, 2.6 * s, "leaf", droop=34)
-        for sd in (-1, 1):   # one flower each side, held out with its upper lip raised, one behind
-            lip_flower(a, x + sd * 0.6, y - 1.5, (0 if sd > 0 else 180) - sd * 58, s * 0.62, fc, calc, "broad", "hang", "along", cal="two")
+        bract_pair(a, x, y + 4.5, 4.0 * s, 2.0 * s, "leaf", droop=42)
+        for sd in (-1, 1):   # one flower each side on a short stalk, its upper lip raised, one behind
+            p = (x + sd * 2.2 * s, y - 1.6)
+            a.line(f"M{f(x)},{f(y)} L{P(p)}", 0.8, 0.85)
+            lip_flower(a, p[0], p[1], (0 if sd > 0 else 180) - sd * 58, s * 0.62, fc, calc, "broad", "hang", "along", cal="two")
         for sd in (-1, 1):
-            lip_flower(a, x + sd * 1.0, y, (0 if sd > 0 else 180) - sd * 10, s, fc, calc, "broad", "hang", "along", cal="two")
+            p = (x + sd * 2.6 * s, y)
+            a.line(f"M{f(x)},{f(y)} L{P(p)}", 0.8, 0.85)
+            lip_flower(a, p[0], p[1], (0 if sd > 0 else 180) - sd * 10, s, fc, calc, "broad", "hang", "along", cal="two")
     for j, u in enumerate((0.7, 0.8, 0.88, 0.95)):   # the top: buds in their calyces under small bracts
         x, y = q.pt(u); s = 1.3 - 0.22 * j
         bract_pair(a, x, y + 1.5, 6 * s, 3.4 * s, "leaf", droop=30)
@@ -799,24 +825,24 @@ def fl_lavender(a, sp):
     with a small violet-purple lip at its mouth; the spike at the top of a
     long, bare, square stalk, the lowest ring a little apart."""
     fc = sp["fc"]; calc = sp.get("calc", "plum"); stc = sp.get("stemc", "sage")
-    q = spike_stem(a, (50, 5), (51, 98), 2.4, 1.4, fill=stc, bow=0.4)
-    a.line(opath([q.pt(u) for u in (0.0, 0.25, 0.5)]), 0.4, 0.4)   # the square stalk's edge
-    rings = [0.5] + [0.6 + 0.37 * j / 8 for j in range(9)]
+    q = spike_stem(a, (50, 5), (51, 98), 2.6, 1.6, fill=stc, bow=0.4)
+    a.line(opath([q.pt(u) for u in (0.0, 0.15, 0.3)]), 0.4, 0.4)   # the square stalk's edge
+    rings = [0.3] + [0.4 + 0.57 * j / 9 for j in range(10)]
     for j, u in reversed(list(enumerate(rings))):
-        x, y = q.pt(u); s = 1.0 - 0.025 * j
+        x, y = q.pt(u); s = 1.45 - 0.04 * j
         for off in (-40, 0, 40):   # small papery bracts under the ring
-            a.leaf(x, y + 1.0, 90 + off, 2.6, 0.5, "seed", lw=0.45, detail=False)
+            a.leaf(x, y + 1.4, 90 + off, 3.2, 0.5, "seed", lw=0.45, detail=False)
         for sd in (-1, 1):
-            for off in (-62, -30):
+            for off in (-62, -28):
                 ang = (0 if sd > 0 else 180) + sd * off
                 t = T(x + sd * 0.4, y, ang)
-                calyx_shape(a, x + sd * 0.4, y, ang, 3.8 * s, 1.9 * s, calc, "tube", lw=0.5, ribs=2)
-                if j < len(rings) - 2:   # the small violet lip at the calyx mouth
-                    m = t(4.2 * s)
-                    a.leaf(m[0], m[1], ang - sd * 30, 2.6 * s, 0.6, fc, lw=0.5, detail=False)
-                    a.leaf(m[0], m[1], ang + sd * 26, 2.0 * s, 0.6, fc, lw=0.5, detail=False)
+                calyx_shape(a, x + sd * 0.4, y, ang, 3.6 * s, 1.9 * s, calc, "tube", lw=0.5, ribs=2)
+                if j < len(rings) - 2:   # the violet lips at the calyx mouth: a larger upper lip, a smaller lower one
+                    m = t(3.9 * s)
+                    a.leaf(m[0], m[1], ang - sd * 34, 3.4 * s, 0.7, fc, lw=0.5, detail=False)
+                    a.leaf(m[0], m[1], ang + sd * 30, 2.6 * s, 0.66, fc, lw=0.5, detail=False)
         if j < len(rings) - 2:   # one facing you
-            a.oval(x, y - 0.6, 1.3 * s, 1.1 * s, 0, fc, 0.5)
+            a.oval(x, y - 0.8, 1.9 * s, 1.5 * s, 0, fc, 0.5)
     return a
 
 
@@ -916,11 +942,13 @@ def fl_bay(a, sp):
         for k, (dx, dy) in enumerate(((0, -4), (sd * 6, -1), (sd * 4, 4), (-sd * 3, -7), (sd * 8, -7))):
             fx, fy = hub[0] + dx, hub[1] + dy
             a.line(f"M{P(hub)} L{f(fx)},{f(fy)}", 0.6, 0.8)
-            a.flower(fx, fy, 2.6, 4, fc, None, 0.7, start=-45 + k * 20, lw=0.55)
-            for m in range(10):   # the many stamens, standing out past the tepals: fluffy
-                e = T(fx, fy, m * 36 + k * 9)(2.6 + 1.6 * ((m * 0.618) % 1))
-                a.line(f"M{f(fx)},{f(fy)} L{P(e)}", 0.4, 0.75)
-                a.dot(e[0], e[1], 0.55, cen)
+            a.flower(fx, fy, 3.0, 4, fc, None, 0.75, start=-45 + k * 20, lw=0.55)
+            for m in range(10):   # the many stamens, fine and pale, standing out past the tepals: fluffy
+                e = T(fx, fy, m * 36 + k * 9)(3.0 + 1.5 * ((m * 0.618) % 1))
+                b0 = T(fx, fy, m * 36 + k * 9)(0.6)
+                a.line(f"M{P(b0)} L{P(e)}", 0.3, 1.0, "primrose")
+                a.dot(e[0], e[1], 0.5, cen)
+            a.dot(fx, fy, 0.7, cen)
     return a
 
 
@@ -950,10 +978,12 @@ def _head(a, x, y, r, fc):
     a.oval(cx, cy, r, r * 0.92, 0, fc, 0.6)
     for k in range(7):
         rr = r * 0.6 * math.sqrt((k + 0.5) / 7); a.dot(cx + rr * math.cos(k * GOLD), cy + r * 0.2 + rr * 0.7 * math.sin(k * GOLD), 0.32, "amber")
-    for off in (-50, -20, 20, 50):   # the grey hairy bracts over the top
-        a.leaf(cx, cy - r * 0.95, 90 + off, r * 1.1, 0.5, "herbs_silver", lw=0.45, detail=False)
-        e = T(cx, cy - r * 0.95, 90 + off)(r * 0.9)
-        a.line(f"M{P(e)} l{f(math.cos(math.radians(90 + off)) * 0.9)},{f(math.sin(math.radians(90 + off)) * 0.9)}", 0.35, 0.6)
+    cap = [(cx + r * 1.08 * math.cos(h), cy - r * 0.15 - r * 0.95 * math.sin(h)) for h in [math.pi * i / 16 for i in range(17)]]
+    cap += [(cx - r * 1.08 + 2 * r * 1.08 * i / 6, cy + r * 0.05 + (0.35 * r if i % 2 else 0)) for i in range(7)][::-1]
+    a.shape(path(cap), "herbs_silver", 0.5)   # the cup of grey, hairy bracts over the top of the nodding head
+    for k in range(7):
+        h = math.pi * (k + 0.5) / 7; p0 = (cx + r * 1.08 * math.cos(h), cy - r * 0.15 - r * 0.95 * math.sin(h))
+        a.line(f"M{P(p0)} l{f(math.cos(h) * 0.9)},{f(-math.sin(h) * 0.9)}", 0.3, 0.6)
 
 
 BLOOM_DRAW = {"herbs_basil": fl_basil, "herbs_mint": fl_mint, "herbs_balm": fl_balm, "herbs_catnip": fl_catnip,
@@ -980,8 +1010,7 @@ LEAFX = {
     "tarragon": dict(kind="herbs_sprig", fill="deep", stemc="leaf", alt=True, n=8, nl=44, nw=0.1, pf="tarragon",
                      gloss=True, spread=26, taper=0.45, sw=2.2),
     "wormwood": dict(kind="herbs_cut", fill="herbs_silver", segW=2.7),
-    "cat-nip": dict(kind="herbs_leaf", fill="sage", pf="catnip", back=0.16, W=0.74, petiole=0.24, teeth=11, td=3.2,
-                    tk="coarse", tfrom=0.04, veins=5, vang=0.18, pucker=True, hairs=30),
+    "cat-nip": dict(kind="herbs_heart", fill="sage", R=27, teeth=20, td=0.09, point=0.42, hairs=40),
     "oregano": dict(kind="herbs_sprig", fill="deep", stemc="plum", n=4, nl=26, nw=0.64, pf="oregano", stalkL=0.16,
                     hairs=3, spread=62, taper=0.35, u0=0.12, u1=0.8, cross=True),
     "lemon-balm": dict(kind="herbs_leaf", fill="leaf", pf="balm", W=0.8, petiole=0.28, teeth=12, td=2.2, tk="round",
@@ -1005,7 +1034,7 @@ BLOOMX = {
     "oregano": dict(kind="herbs_oregano", fc="mauve", cen="plum", lc="deep", stemc="plum"),
     "lemon-balm": dict(kind="herbs_balm", fc="white", lc="leaf"),
     "mint": dict(kind="herbs_mint", fc="lilac", lc="leaf"),
-    "basil": dict(kind="herbs_basil", fc="white", calc="leaf"),
+    "basil": dict(kind="herbs_basil", fc="white", calc="deep"),
 }
 KIND = {k: dict(leaf="own") for k in ("basil", "mint", "lemon-balm", "cat-nip", "sage", "bay")}
 
@@ -1366,7 +1395,7 @@ def balm_stages():
                 a.line(f"M50,{G - 13} l{f(sd * 3)},-0.6", 0.8, 0.85)
                 a.oval(50 + sd * 7.5, G - 14, 4.6, 3.6, sd * -10, "pale", 0.8)
             for ang in (-120, -60):   # rounded first leaves with round teeth
-                first_leaf(a, 50, G - 13, ang, 8.5, 7.4, "leaf", "balm", teeth=5, td=0.7, tk="round")
+                first_leaf(a, 50, G - 13, ang, 8.0, 7.2, "leaf", "roundleaf", teeth=6, td=0.35, tk="round")
         return a
 
     def young():
@@ -1472,7 +1501,7 @@ def catnip_stages():
                 a.line(f"M50,{G - 13} l{f(sd * 3)},-0.6", 0.8, 0.85)
                 a.oval(50 + sd * 7.2, G - 14, 4.4, 3.4, 0, "pale", 0.8)
             for ang in (-120, -60):   # heart-shaped, toothed, grey first leaves
-                first_leaf(a, 50, G - 13, ang, 8.5, 6.8, lc, "catnip", back=0.16, teeth=5, td=0.8, tk="coarse")
+                own(a, k, 50, G - 13, ang, 11, detail=False)
         return a
 
     def young():
@@ -1529,21 +1558,20 @@ def oval_draw(fill, W=0.62, stalkL=0.16, pf="oregano", **kw):
 
 
 def flat_head(a, x, y, w, fc, br, dry=False):
-    """Oregano's flat-topped head at plant scale: the stem's tip and pairs of
-    side branches from two joints below it, each ending in a short dense
-    spike of dark bracts with pink flowers among them."""
+    """Oregano's head at plant scale: a small domed cluster of short dense
+    spikes (dark bracts, pink flowers among them) on the branches of the
+    stem top; two short side branches show under the outer spikes."""
     with a.on(BLOOM):
-        ends = [(x, y - 1.5)]
-        for dy, k in ((3.5, 1.0), (1.5, 0.55)):
-            for sd in (-1, 1):
-                e = (x + sd * w * k, y - 1.5 + abs(k - 1) * 0.6)
-                a.line(f"M{f(x)},{f(y + dy)} Q{f(x + sd * w * k * 0.6)},{f(y + dy - 1)} {P(e)}", 0.6, 0.85, "line")
-                ends.append(e)
-        for px, py in ends:
-            a.oval(px, py, 1.6, 2.0, 0, "seed" if dry else br, 0.5)
-            if not dry:
-                for dx, dy in ((-1.0, -0.8), (0.9, -0.2), (-0.2, 0.9)):
-                    a.dot(px + dx, py + dy, 0.8, fc)
+        for sd in (-1, 1):   # the side branches from the joint below
+            a.line(f"M{f(x)},{f(y + 4)} Q{f(x + sd * w * 0.5)},{f(y + 3.4)} {f(x + sd * w * 0.85)},{f(y + 0.8)}", 0.6, 0.85)
+        spots = [(-0.85, 0.6), (0.85, 0.6), (-0.45, -0.5), (0.45, -0.5), (0, -1.2), (-0.15, 0.4), (0.3, 0.2)]
+        for dx, dy in spots:
+            px, py = x + dx * w, y + dy * 1.6
+            a.oval(px, py, 1.7, 1.9, 0, "seed" if dry else br, 0.5)
+        if not dry:
+            for dx, dy in spots[:5]:
+                px, py = x + dx * w, y + dy * 1.6
+                a.dot(px - 0.5, py - 1.1, 0.85, fc); a.dot(px + 0.7, py - 0.3, 0.7, fc)
 
 
 def oregano_stages():

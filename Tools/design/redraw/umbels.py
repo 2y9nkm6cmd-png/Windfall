@@ -355,13 +355,19 @@ def feather(a, x, y, ang, L, fill, small, style):
             axis = curve((px, py), mid, tq(L1), 5)
             thread_(a, axis, fill, w, core)
             qa = Quad((px, py), mid, axis[-1])
-            m = ((3 if not small else 2) if L1 > L * 0.12 else 1) if not fen else ((3 if not small else 2) if L1 > L * 0.12 else 1)
+            m = ((3 if not small else 2) if L1 > L * 0.12 else 1) if not fen else ((3 if not small else 3) if L1 > L * 0.12 else 1)
             for j in range(m):
                 v = 0.3 + 0.5 * j / max(1, m - 1) if m > 1 else 0.5
                 sx, sy = qa.pt(v); gs = qa.ang(v)
                 for sd2 in (1, -1):
                     jj = rnd(i * 31 + j * 7 + sd2 * 3 + sd, 2.1) - 0.5
                     L2 = L1 * (0.42 if not fen else 0.5) * (1.1 - 0.55 * v)
+                    if fen and small:   # on the whole plant: one long hair-fine thread, hanging softly
+                        lt = L1 * 0.85 * (1.1 - 0.5 * v) * (0.85 + 0.3 * rnd(i * 13 + j * 5 + sd2, 5.5))
+                        e = T(sx, sy, gs + sd2 * 28)(lt)
+                        mid = T(sx, sy, gs + sd2 * 22)(lt * 0.5)
+                        thread_(a, [(sx, sy), (mid[0], mid[1] - lt * 0.08), (e[0], e[1] + lt * 0.18)], fill, w, core)
+                        continue
                     if fen:   # long hair-like threads spraying every way, much longer than dill's
                         nt = 2
                         for k in range(nt):
@@ -378,11 +384,11 @@ def feather(a, x, y, ang, L, fill, small, style):
                         for sd3 in (1, -1):
                             thread_(a, [(bx, by), T(bx, by, ga + sd3 * 38)(L2 * 0.45)], fill, w, core)
             e = axis[-1]
-            for off in ((-26, 26) if not fen else (-34, 0, 34)):
+            for off in ((-26, 26) if not fen else ((-34, 0, 34) if not small else (0,))):
                 thread_(a, [e, T(*e, pa + off)(L1 * (0.22 if not fen else 0.3))], fill, w, core)
     e = q.pt(1)
-    for off in (-30, 0, 30):
-        thread_(a, [e, T(*e, q.ang(1) + off)(L * 0.07)], fill, w, core)
+    for off in ((-30, 0, 30) if not (fen and small) else (0,)):
+        thread_(a, [e, T(*e, q.ang(1) + off)(L * (0.07 if not (fen and small) else 0.18))], fill, w, core)
 
 
 def leaf_dill(a, x, y, ang, L, fill, small=False):
@@ -472,8 +478,13 @@ def leaf_parsley(a, x, y, ang, L, fill, small=False):
     t = T(x, y, ang); lw = 0.95 if not small else 0.55
     q = Quad(t(0), t(L * 0.5, -L * 0.03), t(L * 0.84))
     a.ribbon(q.p0, q.c, q.p1, L * 0.03 + 0.6, L * 0.012 + 0.4, fill, lw=0.85 if not small else 0.6)
-    if L > 20:   # the groove along the stalk
-        a.line(opath([q.pt(u) for u in (0.04, 0.25, 0.5)]), 0.45 if not small else 0.35, 0.5)
+    if L > 20:   # the grooves along the stalk: two lines either side of the middle
+        for o in (-0.22, 0.22):
+            pts = []
+            for u in (0.03, 0.2, 0.38, 0.55):
+                px, py = q.pt(u); g = math.radians(q.ang(u) + 90); w = (L * 0.03 + 0.6) * (1 - 0.5 * u)
+                pts.append((px + o * w * math.cos(g), py + o * w * math.sin(g)))
+            a.line(opath(pts), 0.5 if not small else 0.35, 0.65)
 
     def division(a, px, py, g, l, i, sd):
         tq = T(px, py, g); e = tq(l * 0.5)
@@ -554,9 +565,11 @@ def cut_leaflet(a, x, y, ang, l, fill, lw, small, seed=0):
 
     def hw(u, side):
         w = l * 0.36 * math.sin(math.pi * u ** 0.75) ** 0.8
-        cut = 0.86 * max(0.0, min(1.0, (0.86 - u) / 0.16))   # cut nearly to the midrib: narrow blunt lobes
+        cut = 0.8 * max(0.0, min(1.0, (0.86 - u) / 0.16))   # cut deep, but the notches narrow, so each lobe is broad and blunt
         ph = 2 * math.pi * (u * n + (0.25 if side > 0 else 0.5))
-        return max(0.25, w * (1 - cut * (0.5 + 0.5 * math.cos(ph)) ** 1.2))
+        nk = (0.5 + 0.5 * math.cos(ph)) ** 4
+        tipr = 1 - 0.55 * max(0.0, (u - 0.8) / 0.2) ** 2   # a rounded end, not a point
+        return max(0.25, w * (1 - cut * nk) * (0.7 + 0.3 * tipr) + (l * 0.06 * (1 - u) ** 0.5 if u > 0.86 else 0))
     rblade(a, x, y, ang, l, hw, fill, lw=lw, midw=0.45 if not small else 0, mida=0.4, shade=0.08 if not small else 0, n=90)
 
 
@@ -693,8 +706,9 @@ def inflated(a, x, y, ang, L, W, col, lw=0.95):
     top = [t(L * u, hw(u)) for u in us]
     bot = [t(L * u, -hw(u)) for u in us]
     a.shape(path(top + bot[::-1]), "leaf", lw)
-    lo = [u for u in us if u <= 0.5]
-    a.shape(path([t(L * u, hw(u)) for u in lo] + [t(L * u, -hw(u)) for u in lo[::-1]]), col, 0, fa=0.42)   # the purple flush
+    lo = [u for u in us if u <= 0.4]
+    a.shape(path([t(L * u, hw(u)) for u in lo] + [t(L * 0.48, 0)] + [t(L * u, -hw(u)) for u in lo[::-1]]), "mauve", 0)   # the purple flush, solid so it stays purple
+    a.shape(path(top + bot[::-1]), None, lw)
     a.shape(path(top + [t(L * u, 0) for u in us[::-1]]), "shade", 0, fa=0.1)
     for o in (-0.45, 0, 0.45):
         a.line(opath([t(L * u, o * hw(u)) for u in (0.05, 0.4, 0.75, 0.95)]), 0.4, 0.35)
@@ -704,11 +718,34 @@ def close_angelica(a, sp):
     """Wild angelica close up: an upper stem leaf with its inflated pouch
     wrapping a piece of the purplish stem."""
     fill = sp["fill"]
-    stem_stub(a, 18, 100, -96, 30, 5.6, "plum", ridges=2)
-    a.oval(17.2, 84, 2.4, 6, -6, "white", 0, la=0)   # the pale bloom on the stem
+    stem_stub(a, 18, 100, -95, 34, 5.6, "plum", ridges=2)
+    a.oval(16.8, 74, 0.8, 4, -5, "white", 0, la=0)   # the pale bloom on the stem
     t = T(*BASE, ANG)
-    leaf_angelica(a, *t(22), ANG, 78, fill)
-    inflated(a, 17.5, 97, -62, 30, 16, "plum")   # the pouch wraps the stem and runs up into the stalk
+    leaf_angelica(a, *t(24), ANG, 76, fill)
+    # the pouch: wider than the stem and wrapped round it at the foot, swelling,
+    # then bending away and narrowing into the leaf stalk
+    sa = T(*BASE, ANG)(24)
+    q = Quad((18.5, 98.6), (18, 84), sa)
+    us = [i / 24 for i in range(25)]
+    wf = lambda u: 5.6 + 2.6 * math.sin(math.pi * min(1.0, u / 0.7)) * (1 - u) - 4.0 * u ** 2   # a slim swollen sheath, not a bulb
+    side = []
+    for sd in (1, -1):
+        pts = []
+        for u in us:
+            x, y = q.pt(u); g = math.radians(q.ang(u) + 90); w = max(1.2, wf(u))
+            pts.append((x + sd * w * math.cos(g), y + sd * w * math.sin(g)))
+        side.append(pts)
+    a.shape(path(side[0] + side[1][::-1]), "leaf", 0.95)
+    lo = [i for i, u in enumerate(us) if u <= 0.2]
+    a.shape(path([side[0][i] for i in lo] + [q.pt(0.26)] + [side[1][i] for i in lo[::-1]]), "mauve", 0)   # flushed purple only at its foot
+    a.shape(path(side[0] + side[1][::-1]), None, 0.95)
+    for o in (-0.5, 0, 0.5):   # faint veins along it
+        pts = []
+        for u in (0.05, 0.35, 0.65, 0.95):
+            x, y = q.pt(u); g = math.radians(q.ang(u) + 90); w = max(1.2, wf(u)) * o
+            pts.append((x + w * math.cos(g), y + w * math.sin(g)))
+        a.line(opath(pts), 0.4, 0.35)
+    a.line(f"M{f(12.6)},{f(97.4)} Q18.5,{f(99.4)} 24.4,97.4", 0.6, 0.6)   # its edge curving round the stem at the foot
     return a
 
 
@@ -850,7 +887,7 @@ def leaf_meadowsweet(a, x, y, ang, L, fill, small=False, stalkc="rust"):
 CX, CY = 50, 44
 
 
-def notched_petal(a, x, y, ang, L, W, fill, lw=0.4, M=None):
+def notched_petal(a, x, y, ang, L, W, fill, lw=0.4, M=None, la=0.85):
     """A petal that widens to two rounded lobes with a notch between them
     at its tip (hogweed, and coriander's big outer petals), drawn from its
     base at x,y along ang."""
@@ -860,7 +897,7 @@ def notched_petal(a, x, y, ang, L, W, fill, lw=0.4, M=None):
     arc = [(cxl + rl * math.cos(h), W / 2 - rl + rl * math.sin(h)) for h in [math.radians(90 - 200 * i / 10) for i in range(11)]]
     side = top + arc + [(L * 0.86, 0)]
     pts = side + [(px, -py) for px, py in side[::-1]]
-    a.shape(path([mp(p) for p in pts]), fill, lw)
+    a.shape(path([mp(p) for p in pts]), fill, lw, la)
 
 
 def floret(a, x, y, r, fc, style, cen="unripe", outer=None, lw=0.36, alt=None):
@@ -880,16 +917,19 @@ def floret(a, x, y, r, fc, style, cen="unripe", outer=None, lw=0.36, alt=None):
             g = od + 180 + 72 * k + 36
             big = math.cos(math.radians(g) - outer) > 0.2
             if big:
-                notched_petal(a, x, y, g, r * 1.55, r * 1.25, fc, lw)
+                notched_petal(a, x, y, g, r * 1.55, r * 1.25, fc, lw, la=0.4)
             else:
                 a.leaf(x, y, g, r * 0.6, 0.6, fc, lw=lw, skew=0.6, detail=False)
         a.dot(x, y, max(0.3, r * 0.2), cen)
         return
-    a.flower(x, y, r * 0.75, 5, fc, None, 0.8, start=-90 + (x * 37) % 72, lw=lw)
+    st = -90 + (x * 37) % 72
+    for k in range(5):   # five tiny petals with soft outlines, so a white umbel reads white
+        t = T(x, y, st + 72 * k); L_ = r * 0.75
+        a.shape(f"M{P(t(0))} Q{P(t(L_ * 0.6, L_ * 0.4))} {P(t(L_))} Q{P(t(L_ * 0.6, -L_ * 0.4))} {P(t(0))} Z", fc, lw, la=0.4)
     a.dot(x, y, max(0.3, r * 0.2), cen)
 
 
-def umbellet_close(a, e, fc, style, rr, n=10, cen="unripe", outer=None, rim=False, fr=2.4, pink=None, seed=0.0, pinkn=3):
+def umbellet_close(a, e, fc, style, rr, n=10, cen="unripe", outer=None, rim=False, fr=2.4, pink=None, seed=0.0, pinkn=3, mass=False):
     """A small umbel at the end of a ray, close up: short rays out to a
     little dome of tiny flowers. rim: this umbel is on the outside of the
     big umbel, so its outer flowers are the ragged ones."""
@@ -904,6 +944,10 @@ def umbellet_close(a, e, fc, style, rr, n=10, cen="unripe", outer=None, rim=Fals
     pts.sort(key=lambda q: q[0][1])
     for p, th in pts:
         a.line(f"M{P(e)} L{P(p)}", 0.35, 0.5)
+    if mass:   # a solid white mass behind the flowers, so the small umbel reads as one white dome
+        dm = [(e[0] + rr * 1.05 * math.cos(h), e[1] - rr * 0.55 - rr * 0.62 * math.sin(h)) for h in [math.pi * i / 14 for i in range(15)]]
+        dm += [(e[0] - rr * 1.05 * math.cos(h), e[1] - rr * 0.55 + rr * 0.4 * math.sin(h)) for h in [math.pi * i / 8 for i in range(1, 8)]]
+        a.shape(path(dm), fc, 0.4, la=0.35)
     for k, (p, th) in enumerate(pts):
         ou = None
         if rim and th is not None and outer is not None and math.cos(th - outer) > 0.35:
@@ -981,7 +1025,7 @@ def umbel_close(a, sp):
         od = math.atan2(math.sin(math.radians(g)) * 0.6, math.cos(math.radians(g)))
         rr = sp.get("rr", 6.6) * (0.9 + 0.12 * z)
         umbellet_close(a, e, fc, style, rr, n=sp.get("fl", 11), cen=cen, outer=od if rf > 0 else None, rim=rim and style == "ragged",
-                       fr=sp.get("fr", 2.4), pink=sp.get("pink"), seed=g * 0.01, pinkn=sp.get("pinkn", 3))
+                       fr=sp.get("fr", 2.4), pink=sp.get("pink"), seed=g * 0.01, pinkn=sp.get("pinkn", 3), mass=sp.get("mass", False))
     return a
 
 
@@ -1025,14 +1069,19 @@ def corymb_tree(a, start, heads, top_y, lw=0.6, depth=0):
         return
     k = 3 if len(heads) >= 9 else 2
     size = len(heads) / k
-    for g in range(k):
-        grp = heads[int(round(g * size)):int(round((g + 1) * size))]
+    groups = [heads[int(round(g * size)):int(round((g + 1) * size))] for g in range(k)]
+    if depth == 0:   # the first branches leave the main stem at different heights, lowest first
+        lev = {0: 0.0, 1: 0.42, 2: 0.22} if k == 3 else {0: 0.0, 1: 0.3}
+        top_o = (start[0], start[1] + (top_y - start[1]) * max(lev.values()))
+        a.line(f"M{P(start)} L{P(top_o)}", lw * 1.1, 0.85)   # the main stem, stopping at its last branch
+    for g, grp in enumerate(groups):
         if not grp:
             continue
-        f_ = (0.32, 0.55, 0.42)[g % 3] if depth == 0 else (0.4, 0.62, 0.5)[g % 3]   # each branch leaves at its own height
+        o = (start[0], start[1] + (top_y - start[1]) * lev[g]) if depth == 0 else start
+        f_ = (0.55, 0.72, 0.62)[g % 3] if depth == 0 else (0.4, 0.62, 0.5)[g % 3]   # each branch forks at its own height
         gx = sum(h[0] for h in grp) / len(grp)
-        fork = (start[0] + (gx - start[0]) * 0.75, start[1] + (top_y - start[1]) * f_)
-        a.line(f"M{P(start)} Q{f(start[0] + (gx - start[0]) * 0.2)},{f(start[1] - 2)} {P(fork)}", lw, 0.85)
+        fork = (o[0] + (gx - o[0]) * 0.75, start[1] + (top_y - start[1]) * f_)
+        a.line(f"M{P(o)} Q{f(o[0] + (gx - o[0]) * 0.2)},{f(o[1] - 2)} {P(fork)}", lw, 0.85)
         corymb_tree(a, fork, grp, top_y, lw * 0.85, depth + 1)
 
 
@@ -1105,9 +1154,9 @@ def meadowsweet_flower(a, x, y, r, fc, cen, lw=0.45, k=0.82, n=5, stam=18):
     stamens standing out well past them (the fuzzy, frothy look)."""
     M = lambda p: (p[0], y + (p[1] - y) * k)
     rot = (x * 13 + y * 7) % 72
-    for j in range(stam):   # the stamens first, so the petals lie over their feet
+    for j in range(stam):   # the stamens first, so the petals lie over their feet: pale fine lines
         g = j * 360 / stam + rot / 2; e = M(T(x, y, g)(r * (1.4 + 0.18 * (j % 2))))
-        a.line(f"M{P(M(T(x, y, g)(r * 0.3)))} L{P(e)}", 0.3, 0.7)
+        a.line(f"M{P(M(T(x, y, g)(r * 0.3)))} L{P(e)}", 0.25, 0.4)
         a.dot(e[0], e[1], max(0.3, r * 0.07), cen)
     for j in range(n):
         g = -90 + 360 * j / n + rot
@@ -1116,7 +1165,7 @@ def meadowsweet_flower(a, x, y, r, fc, cen, lw=0.45, k=0.82, n=5, stam=18):
         a.shape(path(pts), fc, lw)
     for j in range(10):   # the inner stamens over the petals
         g = j * 36 + rot; e = M(T(x, y, g)(r * 0.62))
-        a.line(f"M{f(x)},{f(y)} L{P(e)}", 0.3, 0.7)
+        a.line(f"M{f(x)},{f(y)} L{P(e)}", 0.25, 0.4)
         a.dot(e[0], e[1], max(0.3, r * 0.06), cen)
     a.oval(x, y, r * 0.2, r * 0.2 * k, 0, "unripe", 0.35)
 
@@ -1134,21 +1183,23 @@ def fl_meadowsweet(a, sp):
     for j, (b0, e) in enumerate(br):
         q = Quad(b0, ((b0[0] + e[0]) / 2, b0[1] - 8), e)
         a.line(q.d(), 0.85, 0.85)
-        for v in (0.55, 0.78):   # little side twigs along each branch
-            px, py = q.pt(v); sd = 1 if j % 2 else -1
+        for v, sd in ((0.4, 1), (0.6, -1), (0.8, 1)):   # little side twigs along each branch, each with a clump of flowers
+            px, py = q.pt(v); sd = sd if j % 2 else -sd
             tw = (px + sd * 5, py - 6); a.line(f"M{f(px)},{f(py)} L{P(tw)}", 0.5, 0.85)
-            for i in range(4):
-                th = i * GOLD + j; small.append((tw[0] + 3.2 * math.cos(th), tw[1] + 2.4 * math.sin(th), tw))
+            for i in range(7):
+                rr = 4.2 * math.sqrt((i + 0.5) / 7); th = i * GOLD + j
+                small.append((tw[0] + rr * 1.2 * math.cos(th), tw[1] + rr * math.sin(th), tw))
         big.append(e)
-        for i in range(5):
-            th = i * GOLD + j * 2; small.append((e[0] + 6 * math.cos(th), e[1] + 4.5 * math.sin(th), e))
+        for i in range(10):
+            rr = 8 * math.sqrt((i + 0.5) / 10); th = i * GOLD + j * 2
+            small.append((e[0] + rr * 1.2 * math.cos(th), e[1] + rr * 0.85 * math.sin(th), e))
     for x, y, e in small:
         a.line(f"M{P(e)} L{f(x)},{f(y)}", 0.35, 0.6)
     for i, (x, y, e) in enumerate(sorted(small, key=lambda q: q[1])):
-        if i % 2:
-            a.oval(x, y, 1.7, 1.6, 0, fc, 0.45)   # a round bud
+        if i % 3 == 1:
+            a.oval(x, y, 1.6, 1.5, 0, fc, 0.45)   # a round bud
         else:
-            meadowsweet_flower(a, x, y, 2.6, fc, cen, stam=10)
+            meadowsweet_flower(a, x, y, 2.4, fc, cen, stam=10)
     for x, y in sorted(big, key=lambda q: q[1]):   # the open flowers, large enough to see
         meadowsweet_flower(a, x, y, 6.2, fc, cen)
     return a
@@ -1168,8 +1219,8 @@ BLOOMX = {
     "lovage": dict(kind="umbels_umbel", style="dot", rays=14, R=33, rr=5.6, fl=11, fr=2.1, dome=0.3, bracts="down", bracteoles="down"),
     "celery": dict(kind="umbels_umbel", style="star", rays=5, R=16, rr=5.8, fl=9, fr=2.4, stalk="short", slug="celery", hub=(54, 73), rayh=17,
                    leaf=lambda a, x, y, g, L, c, sm: leaf_celery(a, x, y, g, L, c, sm, stalkc="leaf")),
-    "wild-angelica": dict(kind="umbels_umbel", style="star", rays=18, R=35, rr=6.0, fl=12, fr=2.5, dome=0.8, pink="pink", pinkn=2, bracteoles="bristle", stemc="plum"),
-    "hogweed": dict(kind="umbels_umbel", style="ragged", rays=13, R=36, rr=6.4, fl=11, fr=2.3, bracteoles="bristle", k=0.2),
+    "wild-angelica": dict(kind="umbels_umbel", style="star", rays=18, R=35, rr=6.0, fl=12, fr=2.5, dome=0.8, pink="pink", pinkn=2, bracteoles="bristle", stemc="plum", mass=True, dotc="pink"),
+    "hogweed": dict(kind="umbels_umbel", style="ragged", rays=13, R=36, rr=6.4, fl=11, fr=2.3, bracteoles="bristle", k=0.2, mass=True, dotc="primrose"),
     "yarrow": dict(kind="umbels_yarrow"),
     "common-valerian": dict(kind="umbels_valerian"),
     "meadowsweet": dict(kind="umbels_meadowsweet"),
@@ -1302,9 +1353,9 @@ def seed_winged(a, x, y, ang, L, W, body, wing="white", ribs=3, wingk=0.24, vitt
     a.oval(x, y, L / 2, W / 2, ang, wing, 0.9)
     a.oval(x, y, L / 2 * (1 - wingk * 0.6), W / 2 * (1 - wingk), ang, body, 0.8)
     t = T(x, y, ang)
-    for k in range(ribs):
-        o = (k - (ribs - 1) / 2) * W * (1 - wingk) / (ribs + 0.6)
-        a.line(f"M{P(t(-L * 0.36, o * 0.7))} Q{P(t(0, o * 1.05))} {P(t(L * 0.36, o * 0.7))}", 0.6, 0.5)
+    for k in range(ribs):   # fine ribs, close together down the middle of the face
+        o = (k - (ribs - 1) / 2) * W * (1 - wingk) * 0.22
+        a.line(f"M{P(t(-L * 0.3, o * 0.7))} Q{P(t(0, o * 1.05))} {P(t(L * 0.3, o * 0.7))}", 0.5, 0.45)
     for k in range(vittae):
         o = (k - (vittae - 1) / 2) * W * 0.18
         a.ribbon(t(L * 0.4, o), t(L * 0.2, o), t(L * 0.02, o * 1.2), 0.6, 1.6, "dark", lw=0)
@@ -1472,11 +1523,11 @@ def umbel_side(a, x, y, R, fc, style="star", rays=7, dome=0.0, uneven=0.0, bract
 def seeds_at(a, ex, ey, w, kind, col):
     """The seeds at the end of one ray of an umbel gone to seed."""
     w *= 1.3
-    if kind == "long":   # chervil: long narrow beaked seeds in pairs, spread in a V
-        for g in (-116, -64):
-            t = T(ex, ey, g)
-            a.oval(*t(w * 0.8), w * 0.8, w * 0.22, g, col, 0.4)
-            a.line(f"M{P(t(w * 1.55))} L{P(t(w * 2.0))}", 0.45, 0.85)   # the short beak
+    if kind == "long":   # chervil: a pair of long narrow beaked seeds, held upright side by side
+        for dx, g in ((-0.32, -96), (0.32, -84)):
+            t = T(ex + dx * w, ey, g)
+            a.oval(*t(w * 1.05), w * 1.05, w * 0.26, g, col, 0.4)
+            a.line(f"M{P(t(w * 2.05))} L{P(t(w * 2.6))}", 0.45, 0.85)   # the short beak
         return
     if kind == "ball":   # coriander: round balls
         for dx, dy in ((-0.45, -0.5), (0.45, -0.5), (0, -1.1)):
@@ -1599,7 +1650,7 @@ def dill_plant(stage):
         dry = stage == "seedhead"
         lc = "straw" if dry else pal("dill", "leaf", "sage"); sc = "straw" if dry else "sage"
         soil(a, 88)
-        H = {"young": 46, "crop": 72, "flower": 76, "seedhead": 76}[stage]
+        H = {"young": 46, "crop": 72, "flower": 76, "seedhead": 73}[stage]
         q = stalk(a, (50, 88), (51.5, 88 - H * 0.5), (50, 88 - H), 2.2 if stage == "young" else 2.6, 1.1, sc, ridges=2)
         if stage == "young":
             nodes = [(0.1, 1, 30, 52), (0.32, -1, 27, 50), (0.55, 1, 22, 44), (0.78, -1, 15, 36)]
@@ -1652,9 +1703,9 @@ def fennel_plant(stage):
         for dx, H, lean in stems:
             q = stalk(a, (50 + dx * 0.3, 88), (50 + dx * 0.5 + lean * 0.2, 88 - H * 0.5), (50 + dx + lean, 88 - H), 2.6, 1.2, sc, ridges=2)
             qs.append((q, lean))
-            nodes = [(0.18, 1, 30, 54), (0.38, -1, 26, 52), (0.58, 1, 21, 48)]
+            nodes = [(0.18, 1, 30, 54), (0.42, -1, 26, 52), (0.66, 1, 21, 48)]
             if stage == "crop":
-                nodes += [(0.78, -1, 17, 40), (0.92, 1, 12, 30)]
+                nodes += [(0.88, -1, 16, 34)]
             nodes = [(u, sd if lean <= 0 else -sd, L, lg) for u, sd, L, lg in nodes]
             leaves_on(a, q, nodes, leaf_fennel, lc, sheathc=lc, margin="white" if not dry else None, sw=2.6)
         crown(a, leaf_fennel, 50, 87, [(-158, 26), (-22, 26), (-138, 30), (-42, 30)], lc, sheathc=lc, margin="white" if not dry else None)
@@ -1775,14 +1826,16 @@ def chervil_plant(stage):
         b1 = a.stem(q.pt(0.42), (38, 60), (28, 50), 1.0)
         b2 = a.stem(q.pt(0.6), (62, 56), (72, 46), 1.0)
         fc = pal("chervil", "flower", "white")
-        kw = dict(style="star", rays=4) if not dry else dict(seed="long", seedc=pal("chervil", "fruit", "dark"), rays=4)
-        # small umbels on very short stalks at the leaf joints, each opposite a leaf;
-        # the stems end in leaves, not in umbels held up clear of the plant
-        for qq, u, sd in ((q, 0.42, 1), (q, 0.6, -1), (q, 0.82, 1), (b1, 0.55, -1), (b2, 0.55, 1)):
+        kw = dict(style="star", rays=4, capk=1.15) if not dry else dict(seed="long", seedc=pal("chervil", "fruit", "dark"), rays=3)
+        # a few small white umbels on very short stalks at the leaf joints, each
+        # opposite a leaf and standing just clear of it; the stems end in leaves
+        for qq, u, sd in ((q, 0.5, 1), (q, 0.78, -1), (b1, 0.75, -1), (b2, 0.75, 1)):
             x, y = qq.pt(u)
             with a.on(LEAF):
-                leaf_chervil(a, x, y, -90 + sd * 62, 14, lc, True)
-            umbel_side(a, x - sd * 2.0, y - 1.5, 5, fc, **kw)
+                leaf_chervil(a, x, y, -90 + sd * 80, 12, lc, True)
+            h = (x - sd * 3.5, y - 4.5)
+            a.stem((x, y), (x - sd * 1.5, y - 2.5), h, 0.8)
+            umbel_side(a, *h, 7.5, fc, **kw)
         with a.on(LEAF):
             for qq, g in ((q, -90), (b1, -140), (b2, -40)):
                 leaf_chervil(a, *qq.pt(1), g, 11, lc, True)
@@ -1851,10 +1904,10 @@ def lovage_plant(stage):
                  [(-162, 50), (-18, 50), (-128, 60), (-52, 60), (-90, 66)]
             crown(a, leaf_lovage, 50, 87, ls, lc, sheathc=lc)
             return
-        crown(a, leaf_lovage, 50, 87, [(-165, 32), (-15, 32), (-140, 34), (-40, 34)], lc, sheathc=lc)
+        crown(a, leaf_lovage, 50, 87, [(-168, 44), (-12, 44), (-145, 48), (-35, 48)], lc, sheathc=lc)
         sc = "straw" if dry else "leaf"
         q = stalk(a, (50, 88), (52, 50), (50, 14), 4.2, 2.2, sc, ridges=3)
-        leaves_on(a, q, [(0.36, -1, 25, 56), (0.58, 1, 19, 50)], leaf_lovage, lc, sheathc=lc, sw=3.4)
+        leaves_on(a, q, [(0.4, -1, 34, 62)], leaf_lovage, lc, sheathc=lc, sw=3.4)   # one big stem leaf, as broad as the crop's
         fc = pal("lovage", "flower", "pear")
         kw = dict(style="dot", bracts="down", dome=0.5) if not dry else dict(seed="flat", seedc=pal("lovage", "fruit", "bark"), dome=0.4)
         for u, sd in ((0.62, -1), (0.76, 1)):
@@ -2022,19 +2075,19 @@ def yarrow_plant(stage):
             return
         if stage == "dormant":   # green feathery leaves stay; dead brown stems with flat heads
             i0 = len(a.items)
-            for dx, H, lean in ((-7, 56, -5), (8, 50, 5)):
+            for dx, H, lean in ((-7, 48, -4), (8, 43, 4)):
                 q = dead_stem(a, 50 + dx, 88, H, lean, 1.8)
-                corymb_side(a, *q.pt(0.85), 9, "straw", "straw", dry=True)
+                corymb_side(a, *q.pt(1), 9, "straw", "straw", dry=True)
             wither(a, i0)
             crown(a, leaf_yarrow, 50, 87, [(-160, 20), (-20, 20), (-130, 24), (-50, 24), (-95, 22)], lc)
             return
         dry = stage == "seedhead"
         sc = "straw" if dry else "leaf"; flc = "straw" if dry else lc
         crown(a, leaf_yarrow, 50, 87, [(-162, 22), (-18, 22), (-138, 26), (-42, 26)], flc)
-        for dx, H, lean in ((-10, 60, -8), (10, 56, 8), (0, 68, 0)):
+        for dx, H, lean in ((-10, 48, -7), (10, 45, 7), (0, 55, 0)):   # each stem stops where its head starts to branch
             q = stalk(a, (50 + dx * 0.3, 88), (50 + dx * 0.6, 88 - H * 0.5), (50 + dx + lean, 88 - H), 1.9, 1.3, sc)
-            leaves_on(a, q, [(0.25, 1, 11, 50), (0.45, -1, 10, 46), (0.65, 1, 8, 40)], leaf_yarrow, flc)
-            corymb_side(a, *q.pt(0.8), 12, pal("yarrow", "flower", "white"), pal("yarrow", "centre", "straw"), dry=dry)
+            leaves_on(a, q, [(0.3, 1, 11, 50), (0.55, -1, 10, 46), (0.8, 1, 8, 40)], leaf_yarrow, flc)
+            corymb_side(a, *q.pt(1), 12, pal("yarrow", "flower", "white"), pal("yarrow", "centre", "straw"), dry=dry)
     return plant_group(fn, dry=stage == "seedhead")
 
 
@@ -2132,9 +2185,9 @@ def spray_side(a, x, y, R, fc, seed=False):
             clumps += [(*q.pt(0.55), 0.7), (*e, 1.0)]
     with a.on(BLOOM):
         for cx, cy, k in sorted(clumps, key=lambda q: q[1]):
-            n = 5 if k > 0.8 else 3
+            n = 8 if k > 0.8 else 5
             for i in range(n):
-                th = i * GOLD + cx; rr = R * 0.17 * k * math.sqrt((i + 0.5) / n)
+                th = i * GOLD + cx; rr = R * 0.2 * k * math.sqrt((i + 0.5) / n)
                 px, py = cx + rr * math.cos(th) * 1.3, cy + rr * math.sin(th)
                 if seed:
                     twist_ball(a, px, py, max(1.0, R * 0.09), pal("meadowsweet", "fruit", "bark"), 0.4)
@@ -2168,7 +2221,7 @@ def meadowsweet_plant(stage):
         for dx, H, lean in ((-10, 50, -12), (10, 46, 12), (0, 58, 0)):
             q = stalk(a, (50 + dx * 0.3, 88), (50 + dx * 0.6, 88 - H * 0.5), (50 + dx + lean, 88 - H), 2.6, 1.6, sc)
             sd = 1 if lean >= 0 else -1
-            leaves_on(a, q, [(0.2, sd, 18, 56), (0.42, -sd, 15, 52), (0.64, sd, 12, 48), (0.84, -sd, 9, 42)], ms(sc), flc)
+            leaves_on(a, q, [(0.22, sd, 22, 58), (0.55, -sd, 17, 52)], ms(sc), flc)   # fewer, bigger leaves, so the leaflets read
             spray_side(a, *q.pt(1), 10 if H < 55 else 12, pal("meadowsweet", "flower", "umbels_cream"), seed=dry)
     return plant_group(fn, dry=stage == "seedhead")
 

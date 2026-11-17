@@ -21,6 +21,8 @@ How the file is laid out
      leaf) along a curve with a chosen outline; petal() draws one petal.
   3. What grows under the ground: tunic() a bulb in a papery skin, corm(),
      white_bulb(), scale_bulb(), knob_tuber(), disc_tuber(), rhizome().
+     And fan(): a flat fan of sword leaves sitting astride each other in
+     one plane, for the two irises and the peacock orchid.
   4. Then one section per plant: its close-up leaf, its close-up flower, a
      small flower for the whole-plant drawings, and its five life stages.
   5. At the foot, the tables plants_all.py and leaves_flowers.py read:
@@ -30,6 +32,16 @@ How the file is laid out
 The same leaf shape is used in a plant's close-up and in all its life-stage
 drawings (the one band() call with the same outline), so the two cannot
 disagree, which was fault (1) in the check of 16 November.
+
+Two new shapes are built differently, by going round a middle point:
+wind_part() (one of the three deeply cut parts of a windflower leaf) and
+cyc_leaf_at() (the ivy-shaped, marbled cyclamen leaf). For each angle round
+the middle, a small function g says how far out the edge is; multiplying
+simple pieces together (a notch, three lobes, small rounded teeth) gives the
+whole outline. The comments beside them say what each piece does.
+
+Colours: the new ones are in COLOURS below. Several descriptions now name
+them in their "palette" (each change is noted in that file's "checked").
 
 A note on reading the code: every drawing is on a 100 by 100 grid, x across
 and y DOWN (so a smaller y is higher up). T(x, y, ang) gives a little helper
@@ -744,7 +756,7 @@ def daffodil_seed():
             for p0, c, p1 in [((36, G), (26, 30), (10, 38)), ((38, G), (34, 26), (24, 22)), ((41, G), (44, 30), (50, 30)),
                               ((58, G), (62, 30), (78, 28)), ((61, G), (76, 30), (90, 48)), ((44, G), (40, 40), (20, 54)), ((56, G), (56, 38), (66, 44))]:
                 band(a, p0, c, p1, 2.8, leafc, DAFF_LEAF, lw=0.9)
-        for x, top, side, s in ((38, 26, -1, 0.46), (61, 22, 1, 0.48)):
+        for x, top, side, s in ((38, 26, -1, 0.62), (61, 22, 1, 0.64)):
             with a.on(STEM):
                 a.ribbon((x, G), (x + 0.5 * side, (G + top) / 2), (x, top), 1.9, 1.6, leafc, lw=0.7)
             daff_head(a, x, top, s, side, d=1, seed=True, fr=fr)
@@ -1025,9 +1037,9 @@ def crocus_seed():
         crocus_leaves(a, [(46, 22, 12, -3), (47, 34, 8, -2), (49, 46, 10, 0), (51, 60, 8, 2), (53, 74, 14, 3), (48, 14, 30, -4), (52, 86, 30, 4)])
         with a.on(BLOOM):   # the oval pod, pushed up to soil level among the leaves
             a.line(f"M50,{GC + 1} L50,{GC - 3}", 1.0, 0.85)
-            a.oval(50, GC - 6.4, 3.0, 4.4, 0, fr, 0.9)
-            a.line(f"M50,{GC - 10.6} L50,{GC - 2.4}", 0.5, 0.4)
-            a.line(f"M48.2,{GC - 10} Q47,{GC - 6.4} 48.4,{GC - 2.8}", 0.5, 0.35)
+            a.oval(50, GC - 7.4, 4.2, 5.8, 0, fr, 0.9)
+            a.line(f"M50,{GC - 13} L50,{GC - 2}", 0.5, 0.4)
+            a.line(f"M47.4,{GC - 12} Q46,{GC - 7.4} 47.6,{GC - 2.8}", 0.5, 0.35)
     _crocus_corms(a, (50,))
     return a
 
@@ -1799,9 +1811,638 @@ def crown_dormant():
     return a
 
 
+
+# ==================================================================== irises
+SWORD = strap("sword", 0.7, 1.0)         # bearded iris: straight parallel sides, then a point
+FLAG = strap("sword", 0.45, 1.0)         # yellow iris: narrowing gradually to a long point
+
+
+def iris_leaf(a, sp):
+    """A flat, stiff, grey-green sword leaf with straight parallel sides,
+    a pointed tip, many fine parallel veins and no strong midrib. Its foot
+    is folded and tinged purple where it sat astride the next leaf."""
+    band(a, (36, 97), (42, 50), (64, 5), 16, sp["fill"], SWORD, veins=(0.75, -0.75, 0.5, -0.5, 0.25, -0.25, 0.0), vla=0.24)
+    a.shape(f"M28.2,97 Q31,88 36,84 L43.8,97 Z", "plum", 0, fa=0.35)
+    return a
+
+
+def yiris_leaf(a, sp):
+    """A long green sword leaf narrowing gradually to a point, with a clear
+    raised midrib down the middle and fine parallel veins either side."""
+    band(a, (36, 97), (44, 50), (70, 4), 13, sp["fill"], FLAG, veins=(0.66, -0.66, 0.33, -0.33), vla=0.24, mid=1.4, midla=0.6, gloss=True)
+    return a
+
+
+def iris_flower(a, x, y, s, falls, stand, mark, d=1, bearded=True, spathe=True, veinc="white", stylec=None):
+    """One iris flower centred on (x, y), s its size (1 is the close-up).
+    Three standards stand up, arching in over the middle; three falls hang
+    down and out. Bearded (garden iris): a fuzzy beard down the upper part
+    of each fall. Not bearded (yellow iris): small narrow standards, and on
+    each fall fine brown veins round a deeper orange patch. Over the foot
+    of each fall lies a petal-like style arm."""
+    lw = 0.9 if d >= 1 else 0.7; stylec = stylec or stand
+    sl, sw = (34, 22) if bearded else (17, 6.5)
+    with a.on(BLOOM):
+        if spathe:   # the green, papery spathe at the foot of the flower
+            petal(a, x + 1.5 * s, y + 13 * s, -98, 15 * s, 5 * s, "leaf", "lance", lw=0.6 if d < 2 else 0.8, shade=0.1)
+        # the standards, upright and arching in over the middle
+        for ang, k in ((-112, 0.9), (-68, 0.9), (-90, 1.0)):
+            petal(a, x, y, ang, sl * k * s, sw * k * s, stand, "obovate", lw=lw, shade=0.12, lines=3 if d >= 2 else (1 if d else 0), la=0.22,
+                  bend=(0.08 if ang < -90 else (-0.08 if ang > -90 else 0)))
+        # the falls, hanging down and out
+        fl = [(160, 34, 23), (20, 34, 23), (92, 38, 25)] if bearded else [(158, 36, 25), (22, 36, 25), (92, 38, 26)]
+        for ang, L, W in fl:
+            petal(a, x, y, ang, L * s, W * s, falls, "obovate", lw=lw, shade=0.1)
+            t = T(x, y, ang)
+            if bearded:
+                for o in ((-0.4, 0.4) if d >= 1 else ()):   # veining at the base of the fall
+                    a.line(f"M{P(t(5 * s, o * 4 * s))} Q{P(t(12 * s, o * 7 * s))} {P(t(20 * s, o * 9 * s))}", 0.5, 0.5, veinc)
+                # the beard: fuzzy hairs down the middle of the upper part
+                n = 9 if d >= 2 else (5 if d else 3)
+                for k in range(n):
+                    u = 0.12 + 0.36 * k / max(1, n - 1); p = t(L * s * u)
+                    if d >= 2:
+                        for o in (-1, 1):
+                            q = t(L * s * u + 0.6, o * 1.6 * s * (1 - 0.4 * u))
+                            a.line(f"M{P(p)} L{P(q)}", 0.9, 0.95, mark)
+                    a.dot(p[0], p[1], max(0.55, 1.5 * s * (1 - 0.5 * u)), mark)
+            else:
+                a.oval(*t(L * s * 0.3), 4.0 * s, 3.2 * s, ang, mark, 0)   # the deeper orange patch
+                for o in ((-0.6, -0.25, 0.25, 0.6) if d >= 2 else ((-0.4, 0.4) if d else ())):   # fine brown veins round it
+                    a.line(f"M{P(t(6 * s, o * 6 * s))} Q{P(t(15 * s, o * 11 * s))} {P(t(26 * s, o * 13 * s))}", 0.5 if d >= 2 else 0.4, 0.75, veinc)
+        for ang in (160, 20, 92):   # the style arms, lying over the foot of each fall
+            petal(a, x, y, ang, 13 * s, 7 * s, stylec, "oblong", lw=lw * 0.85, shade=0.05)
+            if d >= 2:
+                e = T(x, y, ang)(13 * s)
+                for o in (-1, 1):
+                    a.line(f"M{P(T(*e, ang + 90)(o * 2.4 * s))} L{P(T(*e, ang + o * 40)(3.4 * s))}", 0.6, 0.7)
+
+
+def iris_bloom(a, sp):
+    lc = pal("iris", "leaf", "sage")
+    with a.group():
+        with a.on(STEM):
+            a.ribbon((52, 99), (51, 80), (50, 58), 3.6, 3.2, lc, lw=0.9)
+        iris_flower(a, 50, 44, 1.05, sp.get("fc", "bulbs_iris"), "bulbs_iris_light", sp.get("cen", "sun"), d=2)
+    return a
+
+
+def yiris_bloom(a, sp):
+    lc = pal("yellow-iris", "leaf", "leaf")
+    with a.group():
+        with a.on(STEM):
+            a.ribbon((52, 99), (51, 80), (50, 58), 3.4, 3.0, lc, lw=0.9)
+        iris_flower(a, 50, 42, 1.05, sp.get("fc", "bulbs_yellow"), sp.get("fc", "bulbs_yellow"), sp.get("cen", "amber"), d=2, bearded=False, veinc="bark")
+    return a
+
+
+def iris_rhizome_stage(fill, lc, prof, yellow=False):
+    a = Art()
+    if yellow:   # in mud at the pond edge, wholly under the surface
+        a.ground(44, marks=False); soil_flecks(a, (52, 56, 90, 88))
+        rhizome(a, 36, 64, 80, 10, fill=fill, d=2)   # a side branch
+        rhizome(a, 12, 70, 66, 14, fill=fill, d=2)
+        fan(a, 72, 61, 34, 4, lc, 5.4, lean=0.04, spread=0.8, prof=prof, veins=(), mid=0.9, midla=0.5, base="pink")
+    else:   # lying on the soil, half above it
+        a.ground(62, marks=False)
+        for dx, dy, w in ((-30, 70, 4), (27, 74, 3), (-22, 84, 3)):
+            a.line(f"M{50 + dx},{dy} L{50 + dx + w},{dy}", 0.9, 0.55, "soil")
+        rhizome(a, 12, 70, 62, 15, fill=fill, d=2)
+        fan(a, 72, 58, 36, 5, lc, 6.0, lean=0.04, spread=0.8, prof=prof)
+    return a
+
+
+def iris_shoots(lc, prof, yellow=False):
+    a = Art(); g = G
+    if yellow:
+        water(a, 4, 46, g - 0.5)
+    a.ground(g)
+    with a.group():
+        fan(a, 30, g, 34, 5, lc, 5.6, lean=-0.06, spread=0.8, prof=prof, veins=() if yellow else (0.4, -0.4), mid=0.9 if yellow else 0, midla=0.5, base="pink" if yellow else "plum")
+        fan(a, 68, g, 40, 5, lc, 5.8, lean=0.06, spread=0.8, prof=prof, veins=() if yellow else (0.4, -0.4), mid=0.9 if yellow else 0, midla=0.5, base="pink" if yellow else "plum")
+    if yellow:
+        rhizome(a, 18, 82, g + 9, 8, fill="bulbs_rhizome")
+    else:
+        rhizome(a, 18, 80, g + 1, 8.5, fill="bark")
+    return a
+
+
+def iris_plant(a, lc, prof, fc, stand, mark, stage, yellow=False, fr="unripe"):
+    """Fans of sword leaves, and a branched flower stem rising above them
+    (bearded) or among them (yellow iris) with two or three flowers."""
+    kw = dict(prof=prof, veins=() if yellow else (0.4, -0.4), mid=0.9 if yellow else 0, midla=0.5, base="pink" if yellow else "plum")
+    with a.group():
+        fan(a, 26, G, 48 if yellow else 40, 5, lc, 6.0, lean=-0.06, spread=0.8, **kw)
+        fan(a, 74, G, 52 if yellow else 42, 5, lc, 6.0, lean=0.06, spread=0.8, **kw)
+        with a.on(STEM):
+            q = a.ribbon((50, G), (50.5, 40), (50, 19), 2.4, 1.8, lc, lw=0.8)
+            br = a.ribbon(q.pt(0.48), (56, 34), (62, 28), 1.8, 1.4, lc, lw=0.7)
+        if stage == "flower":
+            iris_flower(a, 50, 17, 0.38, fc, stand, mark, d=1, bearded=not yellow, veinc="bark" if yellow else "white")
+            iris_flower(a, 63, 29, 0.3, fc, stand, mark, d=0, bearded=not yellow, veinc="bark" if yellow else "white", spathe=False)
+            with a.on(BLOOM):   # a bud still to open
+                petal(a, 41.6, 31, -120, 7, 3.2, stand, "elliptic", lw=0.7, shade=0.1)
+                a.line("M49.6,36 Q45,34 42,31", 1.0, 0.85)
+        else:   # the large three-sided pods
+            for (px, py), hang in (((50, 19), yellow), ((62, 28), yellow)):
+                with a.on(BLOOM):
+                    if hang:   # yellow iris: hanging on a bent stalk, one split to show stacks of flat brown seeds
+                        a.line(f"M{f(px)},{f(py)} Q{f(px + 4)},{f(py - 3)} {f(px + 5)},{f(py + 2)}", 1.0, 0.85)
+                        a.shape(f"M{f(px + 2.4)},{f(py + 2)} Q{f(px + 0.4)},{f(py + 10)} {f(px + 3)},{f(py + 16)} L{f(px + 7)},{f(py + 16)} "
+                                f"Q{f(px + 9.6)},{f(py + 10)} {f(px + 7.6)},{f(py + 2)} Z", fr, 0.9)
+                        if px == 50:
+                            a.shape(f"M{f(px + 3.4)},{f(py + 7)} L{f(px + 6.6)},{f(py + 7)} L{f(px + 6.4)},{f(py + 15)} L{f(px + 3.6)},{f(py + 15)} Z", "bark", 0.6)
+                            for k in range(5):
+                                a.line(f"M{f(px + 3.6)},{f(py + 8.4 + k * 1.4)} L{f(px + 6.4)},{f(py + 8.4 + k * 1.4)}", 0.45, 0.7, "dark")
+                        else:
+                            a.line(f"M{f(px + 5)},{f(py + 3)} L{f(px + 5)},{f(py + 15)}", 0.5, 0.4)
+                    else:
+                        a.shape(f"M{f(px - 3.2)},{f(py + 1)} Q{f(px - 4.4)},{f(py - 6)} {f(px - 2.4)},{f(py - 12)} L{f(px)},{f(py - 13.4)} "
+                                f"L{f(px + 2.4)},{f(py - 12)} Q{f(px + 4.4)},{f(py - 6)} {f(px + 3.2)},{f(py + 1)} Z", fr, 0.9)
+                        a.line(f"M{f(px + 0.6)},{f(py)} L{f(px + 0.6)},{f(py - 12.6)}", 0.5, 0.4)
+
+
+def iris_dormant(lc, prof, yellow=False):
+    a = Art()
+    if yellow:
+        water(a, 4, 44, G - 0.5)
+    a.ground(G)
+    with a.group():
+        if yellow:   # brown dead leaves lying flattened over the rhizomes, short green shoots at the base
+            with a.on(LEAF):
+                for p0, c, p1 in (((30, G), (20, G - 6), (6, G - 2)), ((34, G), (46, G - 7), (62, G - 2)), ((66, G), (76, G - 6), (92, G - 1.5)),
+                                  ((62, G), (52, G - 5), (40, G - 1))):
+                    band(a, p0, c, p1, 3.6, "bark", FLAG, lw=0.8, shade=0.06)
+            fan(a, 32, G, 9, 3, lc, 3.0, prof=prof, veins=(), base="pink")
+            fan(a, 66, G, 8, 3, lc, 3.0, prof=prof, veins=(), base="pink")
+        else:   # short fans, the outer leaves brown and dead
+            fan(a, 30, G, 22, 5, lc, 5.6, prof=prof, dead=1, veins=())
+            fan(a, 68, G, 24, 5, lc, 5.6, prof=prof, dead=1, veins=())
+    if yellow:
+        rhizome(a, 16, 84, G + 9, 8, fill="bulbs_rhizome")
+    else:
+        rhizome(a, 16, 82, G + 1, 8.5, fill="bark")
+    return a
+
+
+def iris_stages():
+    lc = pal("iris", "leaf", "sage"); fc = pal("iris", "flower", "bulbs_iris"); mk = pal("iris", "centre", "sun"); fr = pal("iris", "fruit", "unripe")
+    def flower():
+        a = Art(); a.ground(G); iris_plant(a, lc, SWORD, fc, "bulbs_iris_light", mk, "flower"); rhizome(a, 16, 82, G + 1, 8.5, fill="bark"); return a
+    def seed():
+        a = Art(); a.ground(G); iris_plant(a, lc, SWORD, fc, None, mk, "seed", fr=fr); rhizome(a, 16, 82, G + 1, 8.5, fill="bark"); return a
+    return {"bulb": ("Rhizome", lambda: iris_rhizome_stage("bark", lc, SWORD)), "shoots": lambda: iris_shoots(lc, SWORD),
+            "flower": flower, "seedhead": seed, "dormant": lambda: iris_dormant(lc, SWORD)}
+
+
+def yiris_stages():
+    lc = pal("yellow-iris", "leaf", "leaf"); fc = pal("yellow-iris", "flower", "bulbs_yellow"); mk = pal("yellow-iris", "centre", "amber")
+    fr = pal("yellow-iris", "fruit", "unripe")
+    def flower():
+        a = Art(); water(a, 4, 46, G - 0.5); a.ground(G)
+        iris_plant(a, lc, FLAG, fc, fc, mk, "flower", yellow=True); rhizome(a, 16, 84, G + 9, 8, fill="bulbs_rhizome"); return a
+    def seed():
+        a = Art(); water(a, 4, 46, G - 0.5); a.ground(G)
+        iris_plant(a, lc, FLAG, fc, fc, mk, "seed", yellow=True, fr=fr); rhizome(a, 16, 84, G + 9, 8, fill="bulbs_rhizome"); return a
+    return {"bulb": lambda: iris_rhizome_stage("bulbs_rhizome", lc, FLAG, yellow=True), "shoots": lambda: iris_shoots(lc, FLAG, yellow=True),
+            "flower": flower, "seedhead": seed, "dormant": lambda: iris_dormant(lc, FLAG, yellow=True)}
+
+
+
+# ========================================================== peacock orchid
+GLAD = strap("sword", 0.55, 1.0)
+
+
+def glad_leaf(a, sp):
+    """A long narrow sword leaf, mid green, made to look ribbed by a few
+    strong parallel ribs (the midrib clearest), with a pointed tip."""
+    band(a, (38, 97), (44, 50), (68, 5), 11, sp["fill"], GLAD, veins=(0.55, -0.55), vla=0.5, vw=0.7, mid=1.2, midla=0.6)
+    return a
+
+
+def glad_flower(a, x, y, R, fc, eye, d=1, k=0.82, rot=-10, tube=None, spc="leaf"):
+    """One peacock orchid flower centred on (x, y), R to a tepal tip: six
+    pointed white tepals in a star, each with a very dark maroon blotch at
+    its base, the blotches meeting in a dark star-shaped eye; three stamens
+    and the branched style stand out of the throat. tube: the point where
+    its long, thin, curved tube meets the stem, with two green pointed
+    spathes there."""
+    lw = 0.9 if d >= 1 else 0.6
+    if tube:
+        tx, ty = tube
+        with a.on(STEM):
+            a.ribbon(tube, ((tx + x) / 2 + (ty - y) * 0.25, (ty + y) / 2 - (tx - x) * 0.05), (x, y), max(1.0, R * 0.09), max(1.4, R * 0.14), "unripe" if d < 2 else "pale", lw=0.6 if d < 2 else 0.8)
+        with a.on(LEAF):
+            for o in (-24, 6):
+                petal(a, tx, ty, math.degrees(math.atan2(y - ty, x - tx)) + o, R * 0.42, R * 0.13, spc, "lance", lw=0.6 if d < 2 else 0.8, shade=0.1)
+    with a.on(BLOOM):
+        M = squash(x, y, 1.0, k, rot)
+        order = sorted(range(6), key=lambda i: math.sin(math.radians(-60 + 60 * i)))
+        for i in order:
+            ang = -60 + 60 * i + (4 if i % 2 else 0)
+            L = R * (1.06 if i in (1, 2) else 0.96)   # slightly unequal
+            petal(a, x, y, ang, L, L * 0.46, fc, "point", lw=lw, M=M, shade=0.05, lines=1 if d >= 2 else 0)
+        for i in range(6):   # the dark blotches, meeting in a star-shaped eye
+            ang = -60 + 60 * i + (4 if i % 2 else 0)
+            petal(a, x, y, ang, R * 0.42, R * 0.24, eye, "ovate", lw=0, M=M, shade=0)
+        if d >= 1:   # three stamens and the style standing out of the throat
+            for o in ((-14, 0, 14) if d >= 2 else (-12, 12)):
+                e = T(x, y, 70 + o)(R * 0.5); a.line(f"M{f(x)},{f(y)} L{P(e)}", 0.5 if d < 2 else 0.8, 0.8, "white")
+                a.oval(e[0], e[1], max(0.5, R * 0.05), max(0.7, R * 0.08), 70 + o, "straw", 0.4)
+
+
+def glad_bloom(a, sp):
+    fc = sp.get("fc", "white"); eye = sp.get("cen", "bulbs_eye"); lc = pal("peacock-orchid", "leaf", "leaf")
+    with a.group():
+        with a.on(STEM):
+            a.ribbon((88, 99), (86, 50), (78, 10), 2.8, 2.0, lc, lw=0.9)
+        with a.on(BLOOM):   # a bud higher up
+            petal(a, 80.6, 16, -150, 12, 4, fc, "elliptic", lw=0.8, shade=0.1)
+            petal(a, 80.6, 16, -140, 7, 2.4, lc, "lance", lw=0.7, shade=0.1)
+        glad_flower(a, 40, 52, 27, fc, eye, d=2, tube=(84, 32))
+    return a
+
+
+GG = 70
+
+
+def _glad_corm(a, x=50, k=1.0):
+    roots(a, x, 92.3, 6, 4 * k, 120)
+    corm(a, x, 92, 14 * k, 9 * k, shoots=0)
+    a.ribbon((x, 85), (x, 78), (x, GG), 2.6, 3.0, "pale", lw=0.6)
+
+
+def glad_corm():
+    a = Art(); a.ground(38, marks=False); soil_flecks(a)
+    roots(a, 50, 84, 8, 8, 130)
+    corm(a, 50, 84, 34, 20, shoots=1, d=2)
+    return a
+
+
+def glad_plant(a, stage, lc, fc, eye, fr):
+    leafc = "pear" if stage == "seed" else lc
+    with a.group():
+        fan(a, 40, GG, 50, 5, leafc, 4.4, lean=-0.1, spread=0.7, prof=GLAD, veins=(), mid=0.8, midla=0.6, base="leaf")
+        with a.on(STEM):   # the slender flower stem, arching over at the top
+            q = a.ribbon((44, GG), (50, -4), (90, 22), 1.8, 1.2, lc, lw=0.7)
+        for j, u in enumerate((0.44, 0.62, 0.8, 0.95)):
+            px, py = q.pt(u)
+            if stage == "seed":
+                with a.on(BLOOM):   # three-lobed green pods along the stem
+                    a.polar(px + 1, py + 3.4, lambda h: 1 + 0.12 * math.cos(3 * h), 2.2, 3.2, q.ang(u) + 90, fr, 0.7)
+                    a.line(f"M{f(px + 1)},{f(py + 0.6)} L{f(px + 1)},{f(py + 6.2)}", 0.45, 0.35)
+                continue
+            if j == 3:
+                with a.on(BLOOM):
+                    petal(a, px, py, 120, 7, 2.6, fc, "elliptic", lw=0.7, shade=0.1)
+                continue
+            glad_flower(a, px - 2, py + 13, 8.4 * (1 - 0.08 * j), fc, eye, d=1, k=0.78, rot=-14, tube=(px, py))
+
+
+def glad_shoots():
+    a = Art(); a.ground(GG); lc = pal("peacock-orchid", "leaf", "leaf")
+    with a.group():
+        fan(a, 50, GG, 32, 5, lc, 4.8, lean=0, spread=0.8, prof=GLAD, veins=(), mid=0.8, midla=0.6, base="leaf")
+    _glad_corm(a)
+    return a
+
+
+def glad_flower_stage():
+    a = Art(); a.ground(GG)
+    glad_plant(a, "flower", pal("peacock-orchid", "leaf", "leaf"), pal("peacock-orchid", "flower", "white"), pal("peacock-orchid", "centre", "bulbs_eye"), None)
+    _glad_corm(a, 42)
+    return a
+
+
+def glad_seed():
+    a = Art(); a.ground(GG)
+    glad_plant(a, "seed", pal("peacock-orchid", "leaf", "leaf"), None, None, pal("peacock-orchid", "fruit", "unripe"))
+    _glad_corm(a, 42)
+    return a
+
+
+def glad_dormant():
+    a = Art(); a.ground(40)
+    roots(a, 50, 80.4, 6, 7, 120, dead=True)
+    corm(a, 50, 80, 26, 15, shoots=1)
+    return a
+
+
+
+# ======================================================= winter windflower
+def wind_part(a, A, ang, R, fill, d=1):
+    """One of the three main parts of a windflower leaf, from its foot A
+    along ang, R long: deeply cut into three lobes, each lobe with a few
+    coarse blunt teeth near its tip.
+
+    How the outline is made: every point of the edge is found by going out
+    from a middle point C at an angle h (0 points to the tip). g(h) says how
+    far out to go: env makes a wedge-shaped base that narrows to the foot;
+    lob makes three lobes (at 0 and about 60 degrees either side) with deep
+    cuts between; teeth adds small rounded teeth near the lobe tips."""
+    def g(h):
+        ah = abs(h)
+        env = 1.0 if ah < 1.3 else 1 - 0.45 * (ah - 1.3) / (math.pi - 1.3)
+        lob = 0.32 + 0.68 * abs(math.cos(3 * h)) ** 1.3 if ah < math.pi / 2 else 0.32
+        teeth = 0.84 + 0.16 * abs(math.cos(10.5 * h)) ** 0.7 if ah < 1.35 and d >= 1 else 1.0
+        return env * lob * teeth
+    off = R * g(math.pi)
+    C = T(*A, ang)(off)
+    n = 140 if d >= 2 else 70
+    pts = [T(*C, ang)(R * g(h) * math.cos(h), R * g(h) * math.sin(h)) for h in [-math.pi + 2 * math.pi * i / n for i in range(n)]]
+    a.shape(path(pts), fill, 0.9 if d < 2 else 1.05)
+    if d >= 1:
+        a.shape(path(pts[n // 2:] + [A]), "shade", 0, fa=0.1)
+        for h in (0, 1.05, -1.05):   # a vein into each lobe, all from the foot
+            e = T(*C, ang)(R * 0.85 * math.cos(h), R * 0.85 * math.sin(h))
+            a.line(f"M{P(A)} Q{P(lerp(A, e, 0.5))} {P(e)}", 0.5 if d < 2 else 0.6, 0.4)
+
+
+def wind_leaf_at(a, x, y, ang, L, fill, d=1, stalk=0.45, sc="leaf"):
+    """A whole windflower leaf: a long thin stalk from (x, y) along ang, L
+    long overall, with three main parts meeting at its top."""
+    A = T(x, y, ang)(L * stalk)
+    with a.on(STEM):
+        a.line(f"M{f(x)},{f(y)} Q{P(T(x, y, ang)(L * stalk * 0.5))} {P(A)}", 0.9 if d < 2 else 1.6, 0.85)
+    R = L * (1 - stalk) * 0.56
+    with a.on(LEAF):
+        for o in (-72, 72, 0):   # each main part on a short stalk of its own, so the three stand apart
+            B = T(*A, ang + o)(R * 0.22)
+            a.line(f"M{P(A)} L{P(B)}", 0.8 if d < 2 else 1.2, 0.85)
+            wind_part(a, B, ang + o, R * (1 if o == 0 else 0.88), fill, d)
+
+
+def wind_leaf(a, sp):
+    wind_leaf_at(a, 22, 94, -58, 96, sp["fill"], d=2, stalk=0.42)
+    return a
+
+
+def wind_bracts(a, x, y, R, fill, d=1):
+    """The whorl of three small, stalked, divided leaf-bracts on the flower
+    stem below the flower."""
+    for o in (-150, -30, 90):
+        e = T(x, y, o)(R * 0.25)
+        with a.on(LEAF):
+            a.line(f"M{f(x)},{f(y)} L{P(e)}", 0.6, 0.8)
+            wind_part(a, e, o, R * 0.75, fill, d=0 if d < 2 else 1)
+
+
+def wind_flower(a, x, y, R, fc, cen, d=1, k=0.86, n=13):
+    """A winter windflower seen a little from above: about thirteen narrow,
+    oblong, round-tipped pink tepals in one flat ring, paler towards the
+    middle, round a ring of many yellow stamens and a small green knob."""
+    M = squash(x, y, 1.0, k)
+    with a.on(BLOOM):
+        order = sorted(range(n), key=lambda i: math.sin(math.radians(-90 + 360 * i / n)))
+        for i in order:
+            ang = -90 + 360 * i / n + (3 if i % 2 else -3)
+            petal(a, x, y, ang, R, R * 0.27, fc, "oblong", lw=0.9 if d >= 1 else 0.6, M=M, shade=0.05, lines=1 if d >= 2 else 0)
+        a.shape(path([M(p) for p in ellipse(x, y, R * 0.42, R * 0.42)]), "white", 0, fa=0.75)   # the paler ring
+        a.oval(x, y, R * 0.26, R * 0.26 * k, 0, cen, 0.6 if d >= 1 else 0.45)
+        if d >= 1:
+            m = 22 if d >= 2 else 9
+            for j in range(m):   # the stamens: a ring of yellow dots
+                th = 2 * math.pi * j / m; rr = R * (0.2 + 0.05 * (j % 2))
+                a.dot(x + rr * math.cos(th), y + rr * math.sin(th) * k, max(0.4, R * 0.035), "amber")
+        a.oval(x, y, R * 0.11, R * 0.11 * k, 0, "unripe", 0.5)   # the green knob of pistils
+
+
+def wind_bloom(a, sp):
+    fc = sp.get("fc", "bulbs_rose"); cen = sp.get("cen", "sun"); lc = pal("winter-windflower", "leaf", "deep")
+    with a.group():
+        with a.on(STEM):
+            a.line("M56,97.5 Q58,80 52,52", 1.6, 0.9)
+        wind_bracts(a, 54.4, 74, 22, lc, d=2)
+        with a.on(STEM):
+            a.line("M54.4,74 Q53,60 50,48", 1.6, 0.9)
+        wind_flower(a, 50, 42, 34, fc, cen, d=2)
+    return a
+
+
+def wind_tuber():
+    a = Art(); a.ground(38, marks=False); soil_flecks(a)
+    knob_tuber(a, 50, 66, 2.6, d=2)
+    return a
+
+
+GW = 70
+
+
+def wind_shoots():
+    a = Art(); a.ground(GW); lc = pal("winter-windflower", "leaf", "deep")
+    with a.group():
+        for x, ang, L in ((44, -128, 24), (56, -54, 22)):   # leaves unfolding
+            wind_leaf_at(a, x, GW, ang, L, lc)
+        for x, top, side in ((48, 46, -1), (53, 50, 1)):   # buds on bent stems, each with its three leaf-bracts
+            with a.on(STEM):
+                a.line(f"M{f(x)},{f(GW)} Q{f(x)},{f(top)} {f(x + side * 4)},{f(top + 2)}", 0.9, 0.85)
+            wind_bracts(a, x + side * 0.4, top + 9, 9, lc)
+            with a.on(BLOOM):
+                petal(a, x + side * 4, top + 2, 90 - side * 20, 5, 3.4, pal("winter-windflower", "flower", "bulbs_rose"), "elliptic", lw=0.7, shade=0.12)
+    knob_tuber(a, 50, 82, 0.9)
+    return a
+
+
+def wind_flower_stage():
+    a = Art(); a.ground(GW); lc = pal("winter-windflower", "leaf", "deep")
+    fc = pal("winter-windflower", "flower", "bulbs_rose"); cen = pal("winter-windflower", "centre", "sun")
+    with a.group():
+        for x, ang, L in ((40, -150, 30), (44, -116, 28), (58, -62, 28), (62, -28, 30), (51, -92, 22)):
+            wind_leaf_at(a, x, GW, ang, L, lc)
+        for x, top, r in ((30, 30, 10), (66, 26, 11)):   # flowers on slender stems just above the leaves
+            with a.on(STEM):
+                a.line(f"M{f(50 + (x - 50) * 0.3)},{f(GW)} Q{f(x)},{f(GW - 14)} {f(x)},{f(top)}", 0.9, 0.85)
+            wind_bracts(a, x + 0.4, top + 13, 9, lc)
+            wind_flower(a, x, top, r, fc, cen, d=1, k=0.8)
+    knob_tuber(a, 50, 84, 0.9)
+    return a
+
+
+def wind_seed():
+    a = Art(); a.ground(GW); lc = pal("winter-windflower", "leaf", "deep"); fr = pal("winter-windflower", "fruit", "unripe")
+    with a.group():
+        for x, ang, L in ((40, -150, 30), (44, -116, 28), (58, -62, 28), (62, -28, 30)):
+            wind_leaf_at(a, x, GW, ang, L, lc)
+        with a.on(STEM):   # the stem bending over as the seeds ripen
+            a.line(f"M50,{GW} Q52,30 64,40", 0.9, 0.85)
+        wind_bracts(a, 51.4, 46, 9, lc)
+        with a.on(BLOOM):   # a small round knob of beaked seeds
+            a.oval(65, 43, 3.4, 3.4, 0, fr, 0.8)
+            for j in range(9):
+                th = j * 2.39996; rr = 2.6 * math.sqrt((j + 0.5) / 9)
+                a.dot(65 + rr * math.cos(th), 43 + rr * math.sin(th), 0.45, "deep")
+    knob_tuber(a, 50, 84, 0.9)
+    return a
+
+
+def wind_dormant():
+    a = Art(); a.ground(40)
+    knob_tuber(a, 50, 72, 1.7, buds=True)
+    return a
+
+
+
+# ================================================================ cyclamen
+def cyc_leaf_at(a, x, y, ang, L, fill, d=1, stalk=0.42, sc="beet", rolled=False):
+    """A cyclamen leaf: a long thin reddish stalk from (x, y) along ang (L
+    long overall), then a heart-shaped blade, deeply notched where the stalk
+    joins, with a few shallow angular lobes like an ivy leaf and a pointed
+    tip; dark green, marbled with a silver-grey band like an arrowhead.
+
+    How the outline is made: as for the windflower, each edge point is found
+    by going out from a middle point at angle h (0 to the tip); g(h) adds
+    the deep notch at the back (h near 180 degrees), a few soft angles, and
+    the point at the tip."""
+    A = T(x, y, ang)(L * stalk)
+    with a.on(STEM):
+        a.line(f"M{f(x)},{f(y)} Q{P(T(x, y, ang + 8)(L * stalk * 0.5))} {P(A)}", 0.9 if d < 2 else 2.0, 0.9, sc if d >= 2 else "line")
+        if d >= 2:
+            a.line(f"M{f(x)},{f(y)} Q{P(T(x, y, ang + 8)(L * stalk * 0.5))} {P(A)}", 1.2, 1.0, sc)
+    R = L * (1 - stalk) * 0.52
+    if rolled:   # a young leaf, still rolled up
+        with a.on(LEAF):
+            petal(a, A[0], A[1], ang, R * 1.4, R * 0.7, fill, "ovate", lw=0.7, shade=0.15)
+            a.line(opath([T(*A, ang)(R * 1.4 * u, R * 0.12) for u in (0.1, 0.5, 0.9)]), 0.5, 0.4)
+        return
+    def g(h):
+        notch = 1 - 0.7 * math.exp(-((abs(h) - math.pi) / 0.42) ** 2)
+        ivy = 1 + 0.12 * math.exp(-((abs(h) - 1.25) / 0.22) ** 2)   # a shallow angle either side, like an ivy leaf
+        tip = 1 + 0.42 * math.exp(-(h / 0.36) ** 2)
+        return (1 + 0.06 * math.cos(h)) * notch * ivy * tip * (0.92 if abs(h) < 0.9 else 1)
+    off = R * g(math.pi)
+    C = T(*A, ang)(off)
+    n = 120 if d >= 2 else 60
+    hs = [-math.pi + 2 * math.pi * i / n for i in range(n)]
+    pt = lambda h, k=1.0: T(*C, ang)(R * k * g(h) * math.cos(h), R * k * g(h) * math.sin(h))
+    with a.on(LEAF):
+        a.shape(path([pt(h) for h in hs]), fill, 0.9 if d < 2 else 1.1)
+        if d >= 0:   # the silver marbling: a band inside the edge, open at the notch, like an arrowhead
+            band_h = [h for h in hs if abs(h) < math.pi - 0.55]
+            a.shape(path([pt(h, 0.8) for h in band_h] + [pt(h, 0.52) for h in band_h[::-1]]), "bulbs_silver", 0, fa=0.85)
+        if d >= 1:
+            a.shape(path([pt(h) for h in hs if h >= 0] + [A]), "shade", 0, fa=0.1)
+            for v in ((0, 0.9, -0.9, 1.8, -1.8) if d >= 2 else (0, 1.0, -1.0)):   # veins from where the stalk joins
+                e = pt(v, 0.88); a.line(f"M{P(A)} Q{P(lerp(A, e, 0.5))} {P(e)}", 0.5 if d < 2 else 0.6, 0.35)
+
+
+def cyc_leaf(a, sp):
+    cyc_leaf_at(a, 18, 96, -54, 104, sp["fill"], d=2, stalk=0.34, sc=sp.get("stalkc", "beet"))
+    return a
+
+
+def cyc_flower(a, nose, R, fc, mark, d=1, stalk_from=None):
+    """A cyclamen flower hanging nose down at nose (the mouth, which points
+    at the ground), its five long narrow petals swept straight back up and
+    a little twisted, like a shuttlecock. At the mouth, a deep magenta V at
+    the foot of each petal and small ear-like flaps (auricles). The flower
+    stalk hooks over and comes down into it from above."""
+    x, y = nose; lw = 0.9 if d >= 1 else 0.6
+    with a.on(BLOOM):
+        for ang, k, b in ((-150, 0.86, 0.14), (-30, 0.86, -0.14)):   # the two at the back
+            petal(a, x, y - R * 0.12, ang, R * k, R * 0.22, fc, "elliptic", lw=lw, shade=0.14, bend=b)
+        if stalk_from:
+            sx, sy = stalk_from
+            a.line(f"M{f(sx)},{f(sy)} Q{f(x - R * 0.1)},{f(y - R * 1.2)} {f(x)},{f(y - R * 0.12)}", 0.9 if d < 2 else 1.4, 0.9)
+        for ang, k, b in ((-122, 1.0, 0.16), (-58, 1.0, -0.16), (-92, 1.05, 0.1)):   # the three in front, a little twisted
+            petal(a, x, y - R * 0.1, ang, R * k, R * 0.24, fc, "elliptic", lw=lw, shade=0.06, bend=b, lines=1 if d >= 2 else 0)
+        # the mouth, with the ear-like flaps either side and the magenta Vs
+        for sg in (1, -1):
+            a.oval(x + sg * R * 0.13, y + R * 0.02, R * 0.08, R * 0.06, sg * 30, fc, 0.6 if d >= 1 else 0.45)
+        a.oval(x, y + R * 0.05, R * 0.16, R * 0.11, 0, fc, lw * 0.8)
+        for ang in ((-118, -92, -62) if d >= 1 else (-92,)):
+            t = T(x, y - R * 0.04, ang)
+            a.line(f"M{P(t(R * 0.2, -R * 0.07))} L{P(t(R * 0.06, 0))} L{P(t(R * 0.2, R * 0.07))}", max(0.7, R * 0.035), 0.95, mark)
+        a.dot(x, y + R * 0.14, max(0.4, R * 0.025), mark)
+
+
+def cyc_bloom(a, sp):
+    fc = sp.get("fc", "pink"); mark = sp.get("cen", "beet")
+    with a.group():
+        with a.on(STEM):
+            a.line("M30,99 Q24,40 44,24 Q54,18 54,30", 1.6, 0.9)
+        cyc_flower(a, (54, 76), 50, fc, mark, d=2, stalk_from=(54, 30))
+    return a
+
+
+def cyc_tuber():
+    a = Art(); a.ground(38, marks=False); soil_flecks(a, (46, 50, 88, 86))
+    top = disc_tuber(a, 50, 56, 56, 20, d=2)
+    with a.on(BLOOM):   # shoots from the middle of the top: buds and a young leaf
+        for dx, ang in ((-3, -100), (3, -78)):
+            a.line(f"M{f(50 + dx)},{f(58)} Q{f(50 + dx * 1.6)},{f(50)} {f(50 + dx * 2.6)},{f(46)}", 0.9, 0.85)
+            petal(a, 50 + dx * 2.6, 46.6, 90 - dx * 6, 6, 3, pal("cyclamen", "flower", "pink"), "elliptic", lw=0.7, shade=0.12)
+    return a
+
+
+GY = 66
+
+
+def _cyc_tuber_soil(a, k=1.0, bare=False):
+    """The tuber sitting at the soil surface, its top just showing."""
+    disc_tuber(a, 50, GY - 2.4 * k, 30 * k, 11 * k, top_roots=True)
+
+
+def cyc_shoots():
+    a = Art(); a.ground(GY); fc = pal("cyclamen", "flower", "pink"); lc = pal("cyclamen", "leaf", "marrow")
+    with a.group():
+        for dx, top, side in ((-6, 36, -1), (2, 30, 1), (8, 42, 1)):   # flower stalks up from the bare tuber, buds nodding
+            x = 50 + dx
+            with a.on(STEM):
+                a.line(f"M{f(50 + dx * 0.3)},{f(GY - 3)} Q{f(x)},{f(top - 2)} {f(x + side * 4)},{f(top + 2)}", 0.9, 0.85)
+            with a.on(BLOOM):
+                petal(a, x + side * 4, top + 2, 90, 7, 3.2, fc, "elliptic", lw=0.7, shade=0.12)
+        cyc_leaf_at(a, 46, GY - 3, -150, 16, lc, rolled=True)   # a young leaf, unrolling
+        cyc_leaf_at(a, 54, GY - 3, -36, 14, lc, rolled=True)
+    _cyc_tuber_soil(a)
+    return a
+
+
+MOUND = [(-170, 26), (-12, 26), (-142, 30), (-38, 30), (-112, 26), (-68, 26), (-90, 20)]
+
+
+def cyc_flower_stage():
+    a = Art(); a.ground(GY); fc = pal("cyclamen", "flower", "pink"); mark = pal("cyclamen", "centre", "beet"); lc = pal("cyclamen", "leaf", "marrow")
+    with a.group():
+        for ang, L in MOUND[:6]:
+            cyc_leaf_at(a, 50, GY - 3, ang, L * 0.92, lc)
+        for dx, top in ((-15, 22), (2, 16), (17, 24)):   # flowers on thin stalks over the mound
+            x = 50 + dx
+            with a.on(STEM):
+                a.line(f"M{f(50 + dx * 0.2)},{f(GY - 3)} Q{f(x - 2)},{f(top)} {f(x + 2)},{f(top - 4)}", 0.9, 0.85)
+            cyc_flower(a, (x + 3, top + 10), 13, fc, mark, d=1, stalk_from=(x + 2, top - 4))
+    _cyc_tuber_soil(a)
+    return a
+
+
+def cyc_seed():
+    a = Art(); a.ground(GY); lc = pal("cyclamen", "leaf", "marrow"); fr = pal("cyclamen", "fruit", "bark")
+    with a.group():
+        for ang, L in MOUND:
+            cyc_leaf_at(a, 50, GY - 3, ang, L, lc)
+        for x0, ex, side in ((48, 16, -1), (52, 84, 1)):   # the stalks coiled like springs, pulling the pods down to the soil
+            with a.on(BLOOM):
+                pts = []
+                for i in range(61):
+                    u = i / 60; cx = x0 + (ex - x0) * u; cy = GY - 3 - 10 * math.sin(math.pi * u * 0.8)
+                    if u > 0.45:   # the coiled part
+                        th = (u - 0.45) / 0.55 * 4 * 2 * math.pi
+                        cx += 2.4 * math.sin(th); cy += 2.4 * math.cos(th) - 2.4 + (u - 0.45) * 18
+                    pts.append((cx, cy))
+                a.line(opath(pts), 0.9, 0.85)
+                a.oval(ex + side * 1.4, GY - 2.4, 3.0, 2.8, 0, fr, 0.8)
+    _cyc_tuber_soil(a)
+    return a
+
+
+def cyc_dormant():
+    a = Art(); a.ground(GY)
+    disc_tuber(a, 50, GY - 4, 40, 14)   # no leaves: just the top of the bare tuber at the surface
+    return a
+
+
 # ================================================================== tables
-LEAF_DRAW = {"bulbs_snowdrop": snowdrop_leaf, "bulbs_daffodil": daffodil_leaf, "bulbs_tulip": tulip_leaf, "bulbs_crocus": crocus_leaf, "bulbs_bluebell": bluebell_leaf, "bulbs_muscari": muscari_leaf, "bulbs_puschkinia": pusch_leaf, "bulbs_fritillary": frit_leaf, "bulbs_crown": crown_leaf}
-BLOOM_DRAW = {"bulbs_snowdrop": snowdrop_bloom, "bulbs_daffodil": daffodil_bloom, "bulbs_tulip": tulip_bloom, "bulbs_crocus": crocus_bloom, "bulbs_bluebell": bluebell_bloom, "bulbs_muscari": muscari_bloom, "bulbs_puschkinia": pusch_bloom, "bulbs_fritillary": frit_bloom, "bulbs_crown": crown_bloom}
+LEAF_DRAW = {"bulbs_snowdrop": snowdrop_leaf, "bulbs_daffodil": daffodil_leaf, "bulbs_tulip": tulip_leaf, "bulbs_crocus": crocus_leaf, "bulbs_bluebell": bluebell_leaf, "bulbs_muscari": muscari_leaf, "bulbs_puschkinia": pusch_leaf, "bulbs_fritillary": frit_leaf, "bulbs_crown": crown_leaf, "bulbs_iris": iris_leaf, "bulbs_yiris": yiris_leaf, "bulbs_glad": glad_leaf, "bulbs_windflower": wind_leaf, "bulbs_cyclamen": cyc_leaf}
+BLOOM_DRAW = {"bulbs_snowdrop": snowdrop_bloom, "bulbs_daffodil": daffodil_bloom, "bulbs_tulip": tulip_bloom, "bulbs_crocus": crocus_bloom, "bulbs_bluebell": bluebell_bloom, "bulbs_muscari": muscari_bloom, "bulbs_puschkinia": pusch_bloom, "bulbs_fritillary": frit_bloom, "bulbs_crown": crown_bloom, "bulbs_iris": iris_bloom, "bulbs_yiris": yiris_bloom, "bulbs_glad": glad_bloom, "bulbs_windflower": wind_bloom, "bulbs_cyclamen": cyc_bloom}
 LEAFX = {"snowdrop": dict(kind="bulbs_snowdrop", fill=pal("snowdrop", "leaf", "sage")),
          "daffodil": dict(kind="bulbs_daffodil", fill=pal("daffodil", "leaf", "sage")),
          "tulip": dict(kind="bulbs_tulip", fill=pal("tulip", "leaf", "sage")),
@@ -1810,7 +2451,12 @@ LEAFX = {"snowdrop": dict(kind="bulbs_snowdrop", fill=pal("snowdrop", "leaf", "s
          "grape-hyacinth": dict(kind="bulbs_muscari", fill=pal("grape-hyacinth", "leaf", "leaf")),
          "puschkinia": dict(kind="bulbs_puschkinia", fill=pal("puschkinia", "leaf", "leaf")),
          "snake-s-head-fritillary": dict(kind="bulbs_fritillary", fill=pal("snake-s-head-fritillary", "leaf", "sage")),
-         "crown-imperial": dict(kind="bulbs_crown", fill=pal("crown-imperial", "leaf", "leaf"))}
+         "crown-imperial": dict(kind="bulbs_crown", fill=pal("crown-imperial", "leaf", "leaf")),
+         "iris": dict(kind="bulbs_iris", fill=pal("iris", "leaf", "sage")),
+         "yellow-iris": dict(kind="bulbs_yiris", fill=pal("yellow-iris", "leaf", "leaf")),
+         "peacock-orchid": dict(kind="bulbs_glad", fill=pal("peacock-orchid", "leaf", "leaf")),
+         "winter-windflower": dict(kind="bulbs_windflower", fill=pal("winter-windflower", "leaf", "deep")),
+         "cyclamen": dict(kind="bulbs_cyclamen", fill=pal("cyclamen", "leaf", "marrow"), stalkc="beet")}
 BLOOMX = {"snowdrop": dict(kind="bulbs_snowdrop", fc=pal("snowdrop", "flower", "white"), cen=pal("snowdrop", "centre", "deep")),
           "daffodil": dict(kind="bulbs_daffodil", fc=pal("daffodil", "flower", "bulbs_yellow"), cen=pal("daffodil", "centre", "bulbs_gold")),
           "tulip": dict(kind="bulbs_tulip", fc=pal("tulip", "flower", "berry"), cen=pal("tulip", "centre", "dark")),
@@ -1819,9 +2465,19 @@ BLOOMX = {"snowdrop": dict(kind="bulbs_snowdrop", fc=pal("snowdrop", "flower", "
           "grape-hyacinth": dict(kind="bulbs_muscari", fc=pal("grape-hyacinth", "flower", "bulbs_muscari"), cen=pal("grape-hyacinth", "centre", "white")),
           "puschkinia": dict(kind="bulbs_puschkinia", fc=pal("puschkinia", "flower", "white"), cen=pal("puschkinia", "centre", "bulbs_stripe")),
           "snake-s-head-fritillary": dict(kind="bulbs_fritillary", fc=pal("snake-s-head-fritillary", "flower", "bulbs_maroon")),
-          "crown-imperial": dict(kind="bulbs_crown", fc=pal("crown-imperial", "flower", "rust"), cen=pal("crown-imperial", "centre", "white"))}
+          "crown-imperial": dict(kind="bulbs_crown", fc=pal("crown-imperial", "flower", "rust"), cen=pal("crown-imperial", "centre", "white")),
+          "iris": dict(kind="bulbs_iris", fc=pal("iris", "flower", "bulbs_iris"), cen=pal("iris", "centre", "sun")),
+          "yellow-iris": dict(kind="bulbs_yiris", fc=pal("yellow-iris", "flower", "bulbs_yellow"), cen=pal("yellow-iris", "centre", "amber")),
+          "peacock-orchid": dict(kind="bulbs_glad", fc=pal("peacock-orchid", "flower", "white"), cen=pal("peacock-orchid", "centre", "bulbs_eye")),
+          "winter-windflower": dict(kind="bulbs_windflower", fc=pal("winter-windflower", "flower", "bulbs_rose"), cen=pal("winter-windflower", "centre", "sun")),
+          "cyclamen": dict(kind="bulbs_cyclamen", fc=pal("cyclamen", "flower", "pink"), cen=pal("cyclamen", "centre", "beet"))}
 STAGE = {
     "snowdrop": {"bulb": snowdrop_bulb, "shoots": snowdrop_shoots, "flower": snowdrop_flower, "seedhead": snowdrop_seed, "dormant": snowdrop_dormant},
+    "iris": iris_stages(),
+    "cyclamen": {"bulb": cyc_tuber, "shoots": cyc_shoots, "flower": cyc_flower_stage, "seedhead": cyc_seed, "dormant": cyc_dormant},
+    "winter-windflower": {"bulb": wind_tuber, "shoots": wind_shoots, "flower": wind_flower_stage, "seedhead": wind_seed, "dormant": wind_dormant},
+    "peacock-orchid": {"bulb": ("Corm", glad_corm), "shoots": glad_shoots, "flower": glad_flower_stage, "seedhead": glad_seed, "dormant": glad_dormant},
+    "yellow-iris": yiris_stages(),
     "crown-imperial": {"bulb": crown_bulb, "shoots": crown_shoots, "flower": crown_flower, "seedhead": crown_seed, "dormant": crown_dormant},
     "snake-s-head-fritillary": {"bulb": frit_bulb, "shoots": frit_shoots, "flower": frit_flower, "seedhead": frit_seed, "dormant": frit_dormant},
     "puschkinia": {"bulb": pusch_bulb, "shoots": pusch_shoots, "flower": pusch_flower, "seedhead": pusch_seed, "dormant": pusch_dormant},

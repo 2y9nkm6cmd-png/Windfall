@@ -60,10 +60,22 @@ LEAFX and BLOOMX for the close-ups, LEAF_DRAW and BLOOM_DRAW for the new
 shapes, STAGE for every life-stage drawing (all of them are drawn here; the
 only one left as it was is the broad bean's seed, which was already right).
 
-COLOURS. Six new ones. Five were asked for in the descriptions:
+COLOURS. Seven new ones. Five were asked for in the descriptions:
 veg_vetch (tufted vetch), veg_lucerne (alfalfa), veg_lupin, veg_artichoke
-and veg_aubergine (the fruit). The sixth, veg_cream, is the cream of gourd
-and lantern seeds. Each has a dark-mode colour checked on the dark card.
+and veg_aubergine (the fruit). veg_cream is the cream of gourd and lantern
+seeds, and veg_redclover the pink-purple of red clover heads. Each has a
+dark-mode colour checked on the dark card.
+
+SECOND PASS, 17 November 2026, after an independent check of every
+drawing: the gourd leaves got their heart-shaped base (a deep V where the
+stalk joins, see "vee" in GOURD); tendrils became coiled threads that reach
+and wrap the cane (tendril, tendril_to) and the climbing gourds now run
+beside the cane instead of twining; inked() redraws a dying plant's lines
+in brown; pea_front() draws a pea flower from the front (broad bean, both
+black wing blotches); vetch_flower() and comb_spike() draw tufted vetch's
+one-sided spike; artichoke bracts became overlapping pointed scales; the
+rhubarb leaf got an open sinus at the stalk; and many flowers were made
+bigger so they show at phone size.
 
 Courgette, tomato and broad bean are three of the ten drawn by hand in
 plants.py, so their flower settings here name their colours in full: the
@@ -749,7 +761,7 @@ def climb_plant(slug, stage):
         frc = pal(slug, "fruit", "marrow")
         lf = slug == "loofah"
         a = Art(); soil(a, 88)
-        top = 28 if stage == "young" else 12
+        top = 28 if stage == "young" else 17
         cx = 46
         with a.on(STEM):
             a.ribbon((cx, 89), (cx, 50), (cx, top - 4 if not lf or stage == "young" else 12), 2.0, 1.8, "bark", lw=0.8)
@@ -1660,7 +1672,7 @@ LEAFX.update({
                    mark="chevron", spread=118, stip="papery", stipL=8, veins=6),
     "red-clover": dict(kind="veg_three", ll=34, lW=0.5, pr=(0.48, "round", "round", 0.7, 1.6), stalk=40, mark="crescent", spread=72,
                        stip="bristle", stipL=8, veins=6),
-    "common-bird-s-foot-trefoil": dict(kind="veg_three", ll=32, lW=0.5, pr=(0.6, "wedge", "point", 0.8, 1.6), stalk=30, basal=True,
+    "common-bird-s-foot-trefoil": dict(kind="veg_three", ll=30, lW=0.56, pr=(0.55, "round", "round", 0.7, 1.8), stalk=30, basal=True,
                                        spread=40, veins=0),
     "lupin": dict(kind="veg_wheel", n=11, ll=40, lW=0.17, spread=150),
 })
@@ -2668,8 +2680,8 @@ def asp_bell(a, x, y, L, fc, ang=90):
 def fl_asp(a, sp):
     """Tiny narrow bells of six tepals, hanging on thin jointed stalks among the fern."""
     fc = sp["fc"]
-    q = fern_branch(a, (14, 96), -58, 100, "leaf", needle=7, dense=0.6)
-    for u, sd, s in ((0.3, 1, 1.0), (0.48, -1, 1.0), (0.66, 1, 0.95)):
+    q = fern_branch(a, (14, 90), -56, 96, "leaf", needle=7, dense=0.6)
+    for u, sd, s in ((0.38, 1, 1.0), (0.55, -1, 1.0), (0.72, 1, 0.95)):
         x, y = q.pt(u); j = (x + sd * 4, y + 5 * s); e = (x + sd * 6, y + 11 * s)
         a.line(f"M{f(x)},{f(y)} L{P(j)} L{P(e)}", 0.8, 0.85)
         a.oval(j[0], j[1], 0.9, 0.9, 0, "leaf", 0.5)   # the joint in the stalk
@@ -2817,7 +2829,7 @@ def rh_stage(stage):
             a.ground(48, marks=False); rh_crown(a, 50, 47, 1.4); return a
         soil(a, 86)
         if stage == "dormant":   # bare crown, large red buds, no leaves
-            rh_crown(a, 50, 84, 1.1); return a
+            rh_crown(a, 50, 82, 1.0); return a
         if stage == "young":     # crumpled leaves unfolding from the crown on short red stalks
             rh_crown(a, 50, 84, 0.8, buds=False)
             for g, L, R in ((-140, 16, 10), (-45, 18, 11), (-95, 22, 9)):

@@ -8,10 +8,10 @@
  "leaf": {
   "arrangement": "A tuft of basal leaves; alternate up the stem",
   "type": "Simple",
-  "outline": "Basal leaves narrow lance-shaped (sometimes broader), 5 to 15 cm; stem leaves narrow, almost grass-like, getting smaller upwards",
-  "base": "Basal leaves tapering into a long stalk; stem leaves stalkless",
+  "outline": "Basal leaves oval to heart-shaped, 2 to 6 cm, on stalks often longer than the blade (sometimes narrower and lance-shaped); stem leaves narrow, almost grass-like, getting smaller upwards",
+  "base": "Basal leaves heart-shaped or rounded at the base, on a long thin stalk; stem leaves stalkless",
   "tip": "Pointed",
-  "margin": "Smooth or with small, fine, uneven teeth",
+  "margin": "Small, shallow, uneven teeth, or nearly smooth",
   "veins": "A midrib only",
   "surface": "Smooth, hairless, slightly glossy",
   "stalk": "Long on basal leaves; none on stem leaves",
@@ -41,9 +41,10 @@
  },
  "must_show": {
   "leaf": [
-   "narrow lance-shaped leaf on a long stalk",
-   "smooth or finely toothed edge",
-   "smooth dark green"
+   "oval to heart-shaped basal leaf on a long thin stalk",
+   "shallow uneven teeth or a nearly smooth edge",
+   "smooth dark green",
+   "narrow grass-like stem leaves"
   ],
   "bloom": [
    "round ball of many narrow, curved, claw-like flowers",
@@ -59,7 +60,7 @@
    "first oval stalked leaf"
   ],
   "young": [
-   "low tuft of narrow, long-stalked leaves"
+   "low tuft of long-stalked oval to heart-shaped leaves"
   ],
   "flower": [
    "low arching leafy stems 20 to 40 cm",
@@ -74,5 +75,5 @@
   ]
  },
  "look_alikes": "Round-headed rampion (Phyteuma orbiculare), wild on southern chalk downs, has short bracts that do not stick out beyond the head. Spiked rampion (Phyteuma spicatum) has a long cylindrical spike of cream flowers. Sheep's-bit has flat heads of tiny star-shaped flowers and no horns. Devil's-bit scabious has opposite leaves and a fuzzy dome.",
- "checked": "Written 16 November 2026 by Claude from field-guide knowledge. No reference photos had been downloaded for this group yet, so nothing was checked against photographs. ⚠️ CHECK Redraw of 16 November 2026: flower colour set to the new daisies_rampion from palette_wish (plum was too red for a deep violet-blue)."
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. No reference photos had been downloaded for this group yet, so nothing was checked against photographs. ⚠️ CHECK Redraw of 16 November 2026: flower colour set to the new daisies_rampion from palette_wish (plum was too red for a deep violet-blue). Redraw of 16 November 2026: the reference photos (leaf-1, leaf-3, leaf-4) show broad oval to heart-shaped basal leaves on long stalks, so the leaf outline, base, margin and must_show were corrected from 'narrow lance-shaped'; the narrow leaves in leaf-2 are the stem leaves."
 }

@@ -32,7 +32,7 @@
  "winter": "Semi-evergreen: a low clump of grey-green basal leaves stays at the soil.",
  "palette": {
   "leaf": "sage",
-  "flower": "mauve",
+  "flower": "daisies_scabious",
   "centre": "white",
   "fruit": "straw"
  },
@@ -71,5 +71,5 @@
   ]
  },
  "look_alikes": "Small scabious (Scabiosa columbaria) is the wild chalk-grassland plant, lilac with finer leaves. Sweet scabious (Scabiosa atropurpurea) is a taller annual, often deep maroon. Field scabious (Knautia arvensis) has four-lobed florets, bristly stems and seeds without a funnel collar. Devil's-bit scabious has undivided leaves and all florets the same size.",
- "checked": "Written 16 November 2026 by Claude from field-guide knowledge. No reference photos had been downloaded for this group yet, so nothing was checked against photographs. ⚠️ CHECK Redraw of 16 November 2026: the reference photos turned out to be sweet scabious (Sixalix atropurpurea), whose basal leaves are mostly toothed rather than cut, so they could not settle the leaf shape; the drawings follow this text. ⚠️ CHECK the leaf against William's 'Kudo Pink'."
+ "checked": "Written 16 November 2026 by Claude from field-guide knowledge. No reference photos had been downloaded for this group yet, so nothing was checked against photographs. ⚠️ CHECK Redraw of 16 November 2026: the reference photos turned out to be sweet scabious (Sixalix atropurpurea), whose basal leaves are mostly toothed rather than cut, so they could not settle the leaf shape; the drawings follow this text. ⚠️ CHECK the leaf against William's 'Kudo Pink'. Later the same day: flower colour changed from mauve to the new daisies_scabious, because mauve read lilac, not the bright pink of 'Kudo Pink'."
 }
