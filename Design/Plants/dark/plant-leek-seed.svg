@@ -10,9 +10,12 @@
 <circle cx="88" cy="38.9" r="0.5" fill="#8B6F54"/>
 <path d="M20,46 L24,46" fill="none" stroke="#554D37" stroke-width="0.9"/>
 <path d="M77,50 L80,50" fill="none" stroke="#554D37" stroke-width="0.9"/>
-<path d="M28,80 L31,80" fill="none" stroke="#554D37" stroke-width="0.9"/>
-<path d="M80,76 L84,76" fill="none" stroke="#554D37" stroke-width="0.9"/>
-<path d="M39,65 L45,54 L57,55 L62,64 L54,72 L43,71 Z" fill="#6E5A4E" stroke="#A3CE7A" stroke-width="1.1"/>
-<path d="M45,54 L49,63 L62,64 M49,63 L43,71" fill="none" stroke="#725B44" stroke-width="0.7"/>
+<path d="M26,80 L29,80" fill="none" stroke="#554D37" stroke-width="0.9"/>
+<path d="M78,76 L82,76" fill="none" stroke="#554D37" stroke-width="0.9"/>
+<path d="M38,66 L41,58 L47,53.5 L55,54 L61,59 L62.5,66 L57,71 L52,68.5 L46,71.5 Z" fill="#6E5A4E" stroke="#A3CE7A" stroke-width="1.1"/>
+<path d="M42,61 L47,57 L53,56.5" fill="none" stroke="#765E4B" stroke-width="0.6"/>
+<path d="M44,66 L50,62 L57,63" fill="none" stroke="#765E4B" stroke-width="0.6"/>
+<path d="M52,68 L56,64 L60,61" fill="none" stroke="#765E4B" stroke-width="0.6"/>
+<path d="M41,63 L45,67" fill="none" stroke="#765E4B" stroke-width="0.6"/>
 </g>
 </svg>

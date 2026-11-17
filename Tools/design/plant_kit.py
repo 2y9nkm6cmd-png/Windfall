@@ -137,6 +137,63 @@ def halfway(pts):
     return pts[-1]
 
 
+
+def _rdp(pts, eps):
+    """Ramer-Douglas-Peucker: drops points that lie within eps of the line
+    through their neighbours, so a smooth outline keeps its shape with far
+    fewer points."""
+    if len(pts) < 3:
+        return pts
+    keep = [False] * len(pts); keep[0] = keep[-1] = True
+    stack = [(0, len(pts) - 1)]
+    while stack:
+        i, j = stack.pop()
+        (x1, y1), (x2, y2) = pts[i], pts[j]
+        dx, dy = x2 - x1, y2 - y1; L = math.hypot(dx, dy)
+        best, at = -1.0, -1
+        for k in range(i + 1, j):
+            px, py = pts[k]
+            d = abs(dy * (px - x1) - dx * (py - y1)) / L if L > 1e-9 else math.hypot(px - x1, py - y1)
+            if d > best:
+                best, at = d, k
+        if best > eps:
+            keep[at] = True; stack += [(i, at), (at, j)]
+    return [p for p, k in zip(pts, keep) if k]
+
+
+def slim(d, eps=0.05):
+    """Makes a path's text shorter without changing how it looks: runs of
+    straight segments (M x,y L x,y L x,y ...) lose points that sit on, or
+    within eps grid squares of, the line through their neighbours, and
+    repeated points go. Curves (C, Q, T) and relative moves are left as
+    they are. Added 16 November 2026: the redrawn plants draw each leaf
+    from many short straight pieces, and without this the drawings were
+    three times the size."""
+    parts = re.findall(r"([MLCQTZmlcqtz])([^MLCQTZmlcqtz]*)", d)
+    out, run, moved = [], [], [False]   # run: the points of the straight run so far; moved: it began with M
+
+    def emit():
+        if run:
+            pts = _rdp(run, eps)
+            head = ("M" + P(pts[0]) + " ") if moved[0] else ("L" + P(pts[0]) + " ")
+            out.append((head + " ".join("L" + P(q) for q in pts[1:])).strip())
+            run.clear(); moved[0] = False
+
+    for cmd, nums in parts:
+        v = [float(n) for n in re.findall(r"-?\d*\.?\d+(?:e-?\d+)?", nums)]
+        if cmd == "M" and len(v) >= 2:
+            emit(); moved[0] = True
+            run.extend((v[k], v[k + 1]) for k in range(0, len(v) - 1, 2))
+        elif cmd == "L" and len(v) >= 2:
+            for k in range(0, len(v) - 1, 2):
+                q = (v[k], v[k + 1])
+                if not run or q != run[-1]:
+                    run.append(q)
+        else:
+            emit(); out.append(cmd + nums.strip())
+    emit()
+    return " ".join(out)
+
 class Quad:
     """A curve from p0 to p1, pulled towards c. Used for stems, so that
     leaves and flowers can be placed part-way along it."""
@@ -534,6 +591,7 @@ class Art:
         for it, sc in zip(s.items, s.line_colours(mode)):
             if it[0] == "path":
                 _, d, fill, lw, la, col, fa = it
+                d = slim(d)
                 fl = COLOURS[fill][mode] if fill else "none"
                 if fa != 1:
                     fl += f'" fill-opacity="{fa}'

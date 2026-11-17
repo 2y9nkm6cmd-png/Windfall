@@ -12,14 +12,16 @@
 <path d="M77,50 L80,50" fill="none" stroke="#554D37" stroke-width="0.9"/>
 <path d="M28,80 L31,80" fill="none" stroke="#554D37" stroke-width="0.9"/>
 <path d="M80,76 L84,76" fill="none" stroke="#554D37" stroke-width="0.9"/>
-<path d="M52.6,77.8 Q66.2,62.2 47.2,47.2 Q34.5,67.7 52.6,77.8 Z" fill="#6E5A4E" stroke="#A3CE7A" stroke-width="1.1"/>
-<path d="M52.6,77.8 Q66.2,62.2 47.2,47.2 Z" fill="#020A06" fill-opacity="0.11" stroke="none"/>
-<path d="M52.3,75.9 L48.1,52.1" fill="none" stroke="#889263" stroke-width="0.6"/>
-<path d="M51.3,70.4 L56.5,65.4 M51.3,70.4 L44.7,67.5" fill="none" stroke="#7D805B" stroke-width="0.5"/>
-<path d="M50.3,64.9 L55.9,59.9 M50.3,64.9 L43.4,62.1" fill="none" stroke="#7D805B" stroke-width="0.5"/>
-<path d="M49.4,59.5 L53.7,54.6 M49.4,59.5 L43.7,56.4" fill="none" stroke="#7D805B" stroke-width="0.5"/>
-<path d="M47.9,69.5 Q45.9,63.7 47.1,57.4" fill="none" stroke="#DBD6C7" stroke-width="1"/>
-<path d="M51.7,72.8 Q50,63 48.1,52.2" fill="none" stroke="#DBD6C7" stroke-width="1"/>
-<path d="M54.2,68.4 Q54.1,62.3 50.8,56.8" fill="none" stroke="#DBD6C7" stroke-width="1"/>
+<path d="M38,66 L38.5,66.7 L39.5,67.3 L41.3,67.9 L41.6,67.9 L42.8,68.2 L43.7,68.2 L44,68.3 L48,68.3 L48.3,68.2 L49.1,68.2 L50,68 L50.5,68 L51.1,67.9 L51.6,67.7 L52.4,67.6 L54,67.2 L54.8,66.9 L55.1,66.9 L56.2,66.5 L57,66.3 L58.3,65.8 L58.5,65.6 L59.3,65.3 L59.5,65.1 L59.8,65 L60.8,64.3 L61.7,63.3 L62.1,62.7 L62.4,61.6 L62.3,60 L61.6,58.4 L61.2,58 L60.5,57.4 L58.9,56.8 L58.3,56.7 L55.4,56.7 L54.6,56.9 L53.5,57 L53,57.2 L52.2,57.3 L51.6,57.5 L51.3,57.5 L50.8,57.7 L50.5,57.7 L50,57.9 L49.7,57.9 L48.9,58.2 L48.7,58.2 L45.5,59.4 L45,59.7 L44.2,60 L44,60.2 L43.5,60.4 L42,61.3 L40.5,62.4 L38.9,63.9 L38.1,65.2 L38,66 Z" fill="#B7986A" stroke="#A3CE7A" stroke-width="1.1"/>
+<circle cx="41.3" cy="62.9" r="0.7" fill="#7C6149"/>
+<circle cx="43.8" cy="64.5" r="0.7" fill="#7C6149"/>
+<circle cx="46.3" cy="66.2" r="0.7" fill="#7C6149"/>
+<circle cx="47.2" cy="61.4" r="0.7" fill="#7C6149"/>
+<circle cx="49.6" cy="63.1" r="0.7" fill="#7C6149"/>
+<circle cx="52.1" cy="64.7" r="0.7" fill="#7C6149"/>
+<circle cx="53" cy="60" r="0.7" fill="#7C6149"/>
+<circle cx="55.5" cy="61.6" r="0.7" fill="#7C6149"/>
+<circle cx="57.9" cy="63.3" r="0.7" fill="#7C6149"/>
+<circle cx="58.8" cy="58.5" r="0.7" fill="#7C6149"/>
 </g>
 </svg>

@@ -1727,7 +1727,9 @@ def parts(slug, s):
     out.append(("leaf", "Leaf", lambda: LEAF_DRAW[lsp["kind"]](Art(), lsp)))
     bsp = bloom_spec(slug, s)
     if bsp:
-        lab = "Flowers, inside the fig" if bsp["kind"] == "fig" else ("Blossom" if bsp["kind"] == "blossom" else "Flower")
+        # a group's own shape keeps the label: "fruit_blossom" is still "Blossom" (redraw of 16 November 2026)
+        k_ = bsp["kind"].split("_", 1)[-1] if "_" in bsp["kind"] else bsp["kind"]
+        lab = bsp.get("label") or ("Flowers, inside the fig" if k_ == "fig" else ("Blossom" if k_ == "blossom" else "Flower"))
         out.append(("bloom", lab, lambda: BLOOM_DRAW[bsp["kind"]](Art(), bsp)))
     return out
 

@@ -1,3 +1,24 @@
+# 17 November 2026, 08:40: every plant drawing redrawn from a written description of the plant
+
+**By the "plant drawings check" chat, in Claude's cloud workspace. On the branch `plant-descriptions-redraw`, not in `main`, not built, on no device.** William, 16 November 22:20: "I looked at the strawberry leaf drawing and it's wrong ... Is there a way we can do a stronger pass of all drawings?", then at 22:30: "Yes. Please start. Run this overnight. When you have the descriptions start the drawings." The cloud session paused from 23:25 to 06:40, so most of it ran on the morning of the 17th.
+
+**Why.** A check of twelve plants beside photographs sorted by part found eight with clear faults, always from the same four causes: whole plants drawn with a stock leaf unlike the plant's own; flower colour lost between the close-up and the whole plant; flowers made from a few stock shapes (a raspberry had a rose's flower, a potato a tomato's); rough leaf proportions.
+
+**What changed.**
+
+- **A description for each of the 172 kinds** (`Design/Plants/descriptions/`), written from field-guide knowledge and UK iNaturalist photos, with a `must_show` list for every drawing. ⚠️ CHECK: Claude's. Where William's spreadsheet names the one variety he grows, the description follows it: pink hyssop, bronze fennel, 'Purple Vienna' kohlrabi, 'Simiane' shallot, 'Ocean Magic' grape hyacinth, 'Serrano' chilli, 'Pinstripe' aubergine, heirloom sweet peas. Where he grows several, the drawing waits for his choice.
+- **Colours come from the description only** (`palette`), read by `plants_all.py` and `leaves_flowers.py`.
+- **Every drawing redrawn**: 1,248 (each in light and dark), by nine groups working side by side, each in its own file in `Tools/design/redraw/`. About 90 new colours, each named after its group.
+- **`leaf="own"`**: a whole plant can carry its own close-up leaf, drawn small (`Art.place`).
+- **`slim`** in `plant_kit.py`: shorter path text, same look. Without it the drawings were three times the size.
+- **Seven stage labels** changed (the stage names, which the app uses, did not): crocus and peacock orchid Corm, bearded iris Rhizome, candy cane sorrel Bulb, chicory Forced chicon, garlic In flower, shallot Seedling.
+- `leaves_flowers.py`: a group's own flower shape keeps the label Blossom for tree fruit.
+- New tools: `Tools/design/plant_sheet.py` (a kind's drawings beside its photos), `Tools/design/photo-check/fetch_plant_photos.py` and `plant-names.tsv` (the photos, which the cloud workspace can now download itself).
+
+**Checked.** Every group was marked drawing by drawing by an independent checker who had not seen the work, then fixed, then checked a second time by another, then fixed again. At the second check: 1,040 pass, 187 minor, 15 fail, 6 worse out of 1,248. Every one of those fails and worse was then put right, but **not checked a third time**. 34 drawings are still recorded as weak (named in project doc 118). Both scripts run with every group loaded. `plant-drawings.json` keeps every kind, stage name and library name; `plant-parts.json` is unchanged. `build_design_assets.py` changed only the plant pictures and `PlantDrawings.json`.
+
+**Not checked.** A build. The drawings in the app, light or dark. Swift was not changed.
+
 # 16 November 2026, 06:49: sightings show both names; the swipe fits its row, deletes on a long swipe and no longer slows scrolling; the Sightings list opens sightings
 
 **By the "iPad changes" chat.** `011d743`, then merged with `main` (the packet reader, `f3f0bfa`) as `cf9f9c7`, which is now `main`. William, 06:36 to 06:41, from the iPad.

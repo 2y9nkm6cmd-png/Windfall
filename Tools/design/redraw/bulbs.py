@@ -375,9 +375,9 @@ def knob_tuber(a, x, y, s, d=1, buds=True, root=True):
     dry wood, with no skin and no clear top or bottom, a few pale buds and
     roots coming from anywhere on it. (x, y) is its middle."""
     if root:
-        for ang, L in ((64, 9), (122, 6), (200, 5), (24, 7)):
-            e = T(x, y, ang)(s * 5 + L * s * 0.9); m = T(x, y, ang + 12)(s * 5 + L * s * 0.4)
-            a.line(f"M{P(T(x, y, ang)(s * 4))} Q{P(m)} {P(e)}", 0.8, 0.8, "soil")
+        for ang, L in ((40, 6), (62, 8), (84, 7), (104, 8), (128, 6), (150, 5), (20, 5)):   # many fine roots from the underside
+            e = T(x, y, ang)(s * 4.6 + L * s * 0.9); m = T(x, y, ang + 14)(s * 4.6 + L * s * 0.45)
+            a.line(f"M{P(T(x, y, ang)(s * 4))} Q{P(m)} {P(e)}", 0.5, 0.7, "soil")
     g = lambda th: 1 + 0.16 * math.cos(3 * th + 1) + 0.1 * math.sin(5 * th + 0.4) + 0.06 * math.cos(8 * th)
     a.polar(x, y, g, 8.6 * s, 5.4 * s, -10, "dark", 0.9 if d < 2 else 1.1)
     for dx, dy, l, ang in ((-5.0, 0.6, 2.6, 24), (-0.6, -2.6, 2.0, -38), (3.8, 1.8, 2.4, 70), (1.2, 2.8, 1.6, 8), (-2.6, -0.2, 1.4, 112)):   # cracks like dry bark, scattered
@@ -385,10 +385,10 @@ def knob_tuber(a, x, y, s, d=1, buds=True, root=True):
         a.line(f"M{f(x + dx * s)},{f(y + dy * s)} L{P(e)}", 0.6, 0.5, "straw")
     tips = []
     if buds:
-        for ang, L in ((-38, 4.4), (172, 3.4)):   # buds wherever they come, not in a pair
+        for ang, L in ((-46, 2.8), (-84, 1.5)):   # two short blunt buds on the upper side, one bigger
             th = math.radians(ang); b = (x + 8.0 * s * math.cos(th), y + 5.0 * s * math.sin(th))   # on the edge of the lump
             e = T(*b, ang - 8)(L * s)
-            a.shape(f"M{P(T(*b, ang + 90)(1.5 * s))} Q{P(T(*T(*b, ang)(L * s * 0.5), ang + 90)(1.4 * s))} {P(e)} Q{P(T(*T(*b, ang)(L * s * 0.5), ang - 90)(1.4 * s))} {P(T(*b, ang - 90)(1.5 * s))} Z", "pink", 0.7)
+            a.shape(f"M{P(T(*b, ang + 90)(1.4 * s))} Q{P(T(*T(*b, ang)(L * s * 1.3), ang + 90)(1.5 * s))} {P(e)} Q{P(T(*T(*b, ang)(L * s * 1.3), ang - 90)(1.5 * s))} {P(T(*b, ang - 90)(1.4 * s))} Z", "pink", 0.7)
             tips.append(e)
     return tips
 
@@ -465,9 +465,9 @@ def fan(a, x, y, H, n, fill, W, lean=0.0, spread=1.0, prof=None, veins=(0.45, -0
         ang = -90 + u * 24 * spread + lean * 40
         tip = T(*foot, ang)(hh); cpt = T(*foot, ang - u * 5)(hh * 0.5)
         isdead = dead and abs(k - (n - 1) / 2) > (n - 1) / 2 - dead
-        col = "bark" if isdead else fill
-        if isdead:   # a dead leaf: brown, bent over part-way
-            cpt = T(*foot, ang)(hh * 0.4); tip = T(*cpt, ang + u * 110)(hh * 0.45)
+        col = "straw" if isdead else fill
+        if isdead:   # a dead leaf: pale brown, full length, bent over outwards half-way up
+            hh = H * 1.05; cpt = T(*foot, ang - u * 6)(hh * 0.55); tip = T(*cpt, ang + u * 55)(hh * 0.55)
         band(a, foot, cpt, tip, W, col, pf, lw=lw, veins=() if isdead else veins, mid=0 if isdead else mid, midla=midla)
         if sheath and abs(u) > 0.01:   # the folded foot of an outer leaf, wrapped round the leaves inside it
             fa = T(*foot, ang)(hh * 0.2)
@@ -790,9 +790,9 @@ def daffodil_dormant():
     a = Art(); a.ground(44)
     with a.group():
         with a.on(LEAF):   # the last leaves, yellowed and flopped on the soil
-            for (p0, c, p1), col, end in [(((48, 43.6), (36, 39.6), (22, 42.6)), "straw", False), (((22, 42.6), (16, 44.2), (10, 41.6)), "straw", True),
-                                          (((50, 43.6), (60, 39.6), (72, 41.6)), "pear", False), (((72, 41.6), (78, 43.8), (86, 41.2)), "pear", True),
-                                          (((49, 43.6), (43, 41.4), (37, 38.6)), "bark", True), (((51, 43.6), (56, 41.8), (62, 43.2)), "bark", True)]:
+            for (p0, c, p1), col, end in [(((48, 43.6), (36, 26), (20, 42.4)), "straw", False), (((20, 42.4), (14, 45), (12, 38)), "straw", True),
+                                          (((50.6, 43.6), (64, 28), (80, 40)), "pear", False), (((80, 40), (86, 44), (90, 40)), "pear", True),
+                                          (((49, 43.6), (46, 30), (36, 34)), "bark", True), (((51, 43.6), (54, 36), (64, 41.4)), "straw", True)]:
                 band(a, p0, c, p1, 2.6, col, strap("blunt", 0.8, 1.0) if end else (lambda t: 1.0), lw=0.85, shade=0.08)
     roots(a, 50, 88.5, 8, 7, 120)
     tunic(a, 66, 86, 15, 11, fill="bark", nose=1.4, lean=0.1)
@@ -890,9 +890,11 @@ def tulip_shoots():
             # the inner leaves still rolled tight round each other into a pointed spear, the bud hidden inside
             band(a, (51, G + 0.5), (51.4, 46), (52.4, 26), 7.4, lc, lance(0.3, 0.9, 1.1), lw=0.9)
             a.line("M49,56 Q52,50 54.4,44 M49.6,44 Q52,39 53.6,34", 0.6, 0.4)   # the edge of the rolled leaf, spiralling up
-            # the outer leaf, half unrolled, its broad foot still wrapped round the spear
-            band(a, (50, G + 0.5), (45, 50), (39, 33), 13, lc, TULIP_LEAF, lw=0.9, veins=(0.45, -0.45), vla=0.24, mid=0.6, midla=0.3, hood=True)
-            band(a, (53, G + 0.5), (57, 54), (61, 42), 7, lc, TULIP_LEAF, lw=0.9, hood=True)
+            # the outer leaf, half unrolled: its broad foot still wrapped right round the spear,
+            # its far edge curling across the front of it, its near half opening out to the left
+            band(a, (51, G + 0.5), (45, 50), (39, 33), 14, lc, lambda t: (1.0 if t < 0.3 else TULIP_LEAF(t)), lw=0.9, veins=(0.45, -0.45), vla=0.24, mid=0.6, midla=0.3, hood=True)
+            a.shape("M51.6,66.5 Q57.6,58 56,48 Q54,52 51,56 Q49,61 48.8,66.5 Z", lc, 0.9)   # the far edge, wrapped across the spear
+            a.line("M49.6,64 Q53.6,58 55,50", 0.5, 0.4)
     _tulip_below(a)
     return a
 
@@ -966,11 +968,9 @@ def crocus_cup(a, x, y, s, fc, d=1, open_=True, style="carrot", lw=None):
         for ang in (-114, -66, -90):   # the inner three, at the back
             petal(a, x, y, ang, 38 * s, 17 * s, fc, "egg", lw=lw, shade=0.15, lines=3 if d >= 2 else 0, linec=feather, la=0.45)
         if open_:
-            for dx in (-1, 1):   # yellow stamens, leaning out to each side, below the style
-                a.line(f"M{f(x + dx * 1.0 * s)},{f(y - 3 * s)} L{f(x + dx * 6.5 * s)},{f(y - 14 * s)}", 0.7, 0.7)
-                a.oval(x + dx * 7.6 * s, y - 18.5 * s, 1.8 * s, 4.8 * s, dx * 14, "sun", 0.6)
-            a.line(f"M{f(x)},{f(y - 3 * s)} L{f(x)},{f(y - 15 * s)}", 0.7, 0.7)
-            a.oval(x, y - 18 * s, 1.6 * s, 4.0 * s, 0, "sun", 0.6)   # the third stamen, behind the style
+            for dx in (-5.4, 0, 5.4):   # three upright yellow stamens round the style, nearly as tall as it
+                a.line(f"M{f(x + dx * 0.3 * s)},{f(y - 3 * s)} L{f(x + dx * s)},{f(y - 20 * s)}", 0.8, 0.7)
+                a.oval(x + dx * s + (1.6 * s if dx == 0 else 0), y - 25 * s, 2.0 * s, 5.2 * s, dx * 2, "sun", 0.7)
             # the orange style: one column standing above the stamens, splitting into three frilly branches
             a.line(f"M{f(x)},{f(y - 4 * s)} L{f(x)},{f(y - 25 * s)}", 1.4 * max(0.7, s), 0.95, style)
             for dx in (-1, 0, 1):
@@ -1129,12 +1129,12 @@ def bluebell_spike(a, q, us, s, fc, d=1, buds=2, seed=False, fr="unripe", bract=
         x, y = q.pt(u); ang = q.ang(u); sc = s * (1 - 0.1 * j / max(1, len(us) - 1))
         side = ang + 90   # always the same side of the stem: the lower side as it arches over
         if seed:   # the pods held upright on short stalks that have turned up, spaced along one side
-            e = (x + 5.0 * sc, y - 2.0 * sc)
+            e = (x + 2.8 * sc, y - 2.4 * sc)   # a short stalk turned up, so the pod stands upright close to the stem
             with a.on(STEM):
-                a.line(f"M{f(x)},{f(y)} Q{f(x + 4.4 * sc)},{f(y + 0.6 * sc)} {P(e)}", 0.7, 0.85)
+                a.line(f"M{f(x)},{f(y)} Q{f(x + 2.6 * sc)},{f(y)} {P(e)}", 0.7, 0.85)
             with a.on(BLOOM):
-                a.polar(e[0], e[1] - 2.6 * sc, lambda h: 1 + 0.08 * math.cos(3 * h), 1.9 * sc, 2.8 * sc, 0, fr, 0.8)
-                a.line(f"M{f(e[0])},{f(e[1] - 5.2 * sc)} L{f(e[0])},{f(e[1] - 0.2 * sc)}", 0.45, 0.35)
+                a.polar(e[0] + 0.4 * sc, e[1] - 2.4 * sc, lambda h: 1 + 0.08 * math.cos(3 * h), 1.6 * sc, 2.5 * sc, 8, fr, 0.8)
+                a.line(f"M{f(e[0] + 0.6 * sc)},{f(e[1] - 4.6 * sc)} L{f(e[0] + 0.2 * sc)},{f(e[1] - 0.2 * sc)}", 0.45, 0.35)
             continue
         e = T(x, y, side)(3.0 * sc)
         with a.on(STEM):
@@ -1208,7 +1208,7 @@ def bluebell_seed():
                             ((51.6, G), (62, 46), (80, 50), "straw")], W=3.4)
         with a.on(STEM):   # the stem has straightened
             q = a.ribbon((50, G), (50.6, 36), (51, 10), 2.0, 1.2, "unripe", lw=0.8)
-        bluebell_spike(a, q, (0.4, 0.55, 0.7, 0.85), 1.35, None, seed=True, fr=fr)
+        bluebell_spike(a, q, (0.38, 0.54, 0.7, 0.86), 1.3, None, seed=True, fr=fr)
     _bluebell_below(a)
     return a
 
@@ -1353,7 +1353,7 @@ def _musc_below(a, xs=(50,)):
 
 def _musc_pair(x):
     """The two or three leaves of one bulb, arching out."""
-    return [((x - 1.2, G), (x - 8, 52), (x - 17, 50)), ((x + 1.2, G), (x + 8, 50), (x + 16, 46)), ((x, G), (x - 1, 50), (x - 4, 42))]
+    return [((x - 1.2, G), (x - 9, 48), (x - 19, 60)), ((x + 1.2, G), (x + 9, 47), (x + 18, 58)), ((x, G), (x - 2, 48), (x - 8, 47))]
 
 
 def muscari_shoots():
@@ -1372,7 +1372,7 @@ def muscari_flower():
     top = pal("grape-hyacinth", "centre", "white")
     with a.group():
         muscari_leaves(a, _musc_pair(34) + _musc_pair(66))
-        for x, tp in ((34, 28), (66, 24)):
+        for x, tp in ((34, 40), (66, 37)):   # short bare stems: the spike stands a little above the leaves
             with a.on(STEM):
                 a.ribbon((x, G), (x + 0.6, (G + tp) / 2), (x, tp), 1.8, 1.6, lc, lw=0.7)
             muscari_spike(a, x, tp + 1.6, 22, 11.5, fc, top, d=1)
@@ -1450,11 +1450,12 @@ def pusch_bloom(a, sp):
         with a.on(STEM):
             q = a.ribbon((52, 99), (50, 50), (54, 8), 2.8, 2.0, lc, lw=0.9)
         for u, side, R, k, rot in ((0.38, -1, 22, 0.66, -16), (0.6, 1, 18, 0.6, 18), (0.8, -1, 13, 0.52, -20)):
-            x, y = q.pt(u); e = (x + side * 18 * R / 22, y + 4)
-            with a.on(STEM):
-                a.line(f"M{f(x)},{f(y)} Q{f(x + side * 8)},{f(y - 4)} {P(e)}", 0.9, 0.85)
+            x, y = q.pt(u); e = (x + side * (R * 0.8 + 7), y + 7)   # the flower hangs a little out from the stem
             with a.on(BLOOM):
                 pusch_star(a, e[0], e[1] + R * 0.1, R, fc, st, d=2, k=k, rot=rot)
+            with a.on(BLOOM):   # its short curved stalk, from the stem over to the back of the flower
+                b = (e[0] - side * R * 0.18, e[1] - R * 0.5)
+                a.line(f"M{f(x)},{f(y)} Q{f(x + side * 5)},{f(y - 4)} {P(b)}", 1.0, 0.9)
         with a.on(BLOOM):   # buds at the top
             x, y = q.pt(0.97); petal(a, x, y + 1, -70, 7, 4, fc, "elliptic", lw=0.7, shade=0.1, lines=1, linec=st, la=0.8)
     return a
@@ -1719,7 +1720,8 @@ def crown_bell(a, x, y, ang, L, W, fc, d=1, inside=False, nect="white"):
     hw = lambda u: W / 2 * (0.3 + 0.7 * math.sin(math.pi / 2 * min(1, u / 0.42)) ** 0.8)
     us = [i / 30 for i in range(31)]
     rimk = 0.42 if inside else 0.2
-    rim = [t(L + W / 2 * rimk * math.cos(h), W / 2 * math.sin(h) * 1.04) for h in [-math.pi / 2 + math.pi * i / 30 for i in range(31)]]
+    rim = [t(L + W / 2 * rimk * math.cos(h) + W * 0.05 * abs(math.sin(1.5 * (h + math.pi / 2))) ** 0.6, W / 2 * math.sin(h) * 1.04)
+           for h in [-math.pi / 2 + math.pi * i / 60 for i in range(61)]]   # the rim: the rounded tips of the tepals
     out = [t(L * u, -hw(u)) for u in us] + rim + [t(L * u, hw(u)) for u in us[::-1]]
     if inside:   # the anthers and style hang out of the mouth, behind the rim
         for o in (-0.5, -0.2, 0.15, 0.45):
@@ -1731,8 +1733,10 @@ def crown_bell(a, x, y, ang, L, W, fc, d=1, inside=False, nect="white"):
             e = T(*p1, ang + o)(1.8); a.line(f"M{P(p1)} L{P(e)}", 0.7, 0.8, "unripe")
     a.shape(path(out), fc, lw)
     a.shape(path([t(L * u, -hw(u)) for u in us] + [t(L * u, 0) for u in us[::-1]]), "shade", 0, fa=0.14)
+    for v in ((-0.66, 0.0, 0.66) if d >= 1 else ()):   # where the tepals overlap: three in front, the edges of the others showing
+        a.line(opath([t(L * u, hw(u) * v) for u in (0.08, 0.4, 0.75, 1.0)]), 0.7 if d >= 2 else 0.5, 0.7)
     if d >= 1:   # the darker veins down each tepal
-        for v in ((-0.6, -0.2, 0.2, 0.6) if d >= 2 else (-0.4, 0.4)):
+        for v in ((-0.84, -0.33, 0.33, 0.84) if d >= 2 else ()):
             a.line(opath([t(L * u, hw(u) * v) for u in (0.18, 0.5, 0.8, 0.97)]), 0.5 if d < 2 else 0.6, 0.6, "beet")
     if inside:
         c = t(L + 0.3)
@@ -1945,12 +1949,15 @@ def iris_rhizome_stage(fill, lc, prof, yellow=False):
     a = Art()
     if yellow:   # in mud at the pond edge, wholly under the surface
         a.ground(44, marks=False); soil_flecks(a, (52, 56, 90, 88))
-        with a.on(STEM):   # a side branch forking off the main rhizome
-            a.ribbon((40, 67), (50, 74), (62, 80), 11, 9, fill, lw=1.1, round_tip=True)
-            for u in (0.45, 0.75):
-                px, py = lerp((40, 67), (62, 80), u); a.line(f"M{f(px - 2.6)},{f(py + 3.6)} Q{f(px + 0.4)},{f(py + 0.4)} {f(px + 2.4)},{f(py - 3.4)}", 0.5, 0.4)
-            a.roots(56, 82, 3, 10, 60, lw=0.7)
         rhizome(a, 12, 70, 66, 14, fill=fill, d=2)
+        with a.on(BLOOM):   # a side branch forking off the main rhizome, drawn in front of it
+            a.ribbon((32, 70), (42, 79), (56, 80), 11, 9, fill, lw=1.1, round_tip=True)   # creeping sideways, a little towards you
+            for u in (0.45, 0.75):
+                px, py = lerp((36, 74), (56, 80), u); a.line(f"M{f(px - 0.6)},{f(py - 4.4)} Q{f(px + 1.6)},{f(py)} {f(px - 0.2)},{f(py + 4.2)}", 0.5, 0.4)
+            a.roots(46, 84, 3, 7, 60, lw=0.7)
+        with a.on(BLOOM):   # the bud at its growing tip
+            a.shape("M55,77 Q56,70 59.4,66 Q61.6,71 60.2,78 Z", "bulbs_rhizome", 0.8)
+            a.shape("M56.6,74 Q57.6,69 59.4,66 Q60.6,70 60,74 Z", "leaf", 0.6)
         fan(a, 72, 61, 34, 4, lc, 5.4, lean=0.04, spread=0.8, prof=prof, veins=(), mid=0.9, midla=0.5, base="pink")
     else:   # lying on the soil, half above it
         a.ground(62, marks=False)
@@ -2028,8 +2035,8 @@ def iris_dormant(lc, prof, yellow=False):
             fan(a, 32, G, 9, 3, lc, 3.0, prof=prof, veins=(), base="pink")
             fan(a, 66, G, 8, 3, lc, 3.0, prof=prof, veins=(), base="pink")
         else:   # short fans, the outer leaves brown and dead
-            fan(a, 30, G, 22, 5, lc, 5.6, prof=prof, dead=1, veins=())
-            fan(a, 68, G, 24, 5, lc, 5.6, prof=prof, dead=1, veins=())
+            fan(a, 30, G, 22, 5, lc, 5.6, prof=prof, dead=1, veins=(), base="bark")
+            fan(a, 68, G, 24, 5, lc, 5.6, prof=prof, dead=1, veins=(), base="bark")
     if yellow:
         rhizome(a, 16, 84, G + 9, 8, fill="bulbs_rhizome")
     else:
@@ -2368,7 +2375,7 @@ def cyc_leaf_at(a, x, y, ang, L, fill, d=1, stalk=0.42, sc="beet", rolled=False)
     # is. (1 + cos ph) is a heart-shaped curve with a deep notch at A; then a
     # point is added at the tip and a shallow angle on each side, like ivy.
     def r(ph):
-        return R * (1 + math.cos(ph)) * (1 + 0.24 * math.exp(-(ph / 0.26) ** 2)) * (1 + 0.07 * math.exp(-((abs(ph) - 1.5) / 0.22) ** 2))
+        return R * (1 + math.cos(ph)) ** 0.75 * (1 + 0.34 * math.exp(-(ph / 0.17) ** 2)) * (1 + 0.07 * math.exp(-((abs(ph) - 1.5) / 0.22) ** 2))
     n = 140 if d >= 2 else 70
     phs = [-math.pi + 2 * math.pi * i / n for i in range(n + 1)]
     pt = lambda ph, k=1.0: T(*A, ang)(r(ph) * k * math.cos(ph), r(ph) * k * 1.15 * math.sin(ph))
@@ -2403,13 +2410,13 @@ def cyc_flower(a, nose, R, fc, mark, d=1, stalk_from=None):
         for ang, k, b in ((-114, 1.0, -0.18), (-66, 1.0, 0.18), (-91, 1.05, 0.14)):   # the three in front, swept straight back and a little twisted
             petal(a, x, y - R * 0.1, ang, R * k, R * 0.24, fc, "elliptic", lw=lw, shade=0.06, bend=b, lines=1 if d >= 2 else 0)
         # the mouth, with the ear-like flaps either side and the magenta Vs
-        for sg in (1, -1):
-            a.oval(x + sg * R * 0.11, y - R * 0.01, R * 0.05, R * 0.04, sg * 30, fc, 0.5 if d >= 1 else 0.4)
-        a.oval(x, y + R * 0.03, R * 0.1, R * 0.075, 0, fc, lw * 0.8)
+        a.shape(path([(x - R * 0.1, y - R * 0.1), (x - R * 0.07, y + R * 0.05), (x, y + R * 0.09), (x + R * 0.07, y + R * 0.05), (x + R * 0.1, y - R * 0.1)]), fc, lw * 0.8)   # the short tube, mouth down
+        for sg in (1, -1):   # the auricles: small pointed flaps at the foot of the petals
+            a.shape(path([(x + sg * R * 0.08, y - R * 0.08), (x + sg * R * 0.17, y - R * 0.05), (x + sg * R * 0.1, y - R * 0.15)]), fc, 0.5 if d >= 1 else 0.4)
         for ang in ((-118, -92, -62) if d >= 1 else (-92,)):
             t = T(x, y - R * 0.04, ang)
             a.line(f"M{P(t(R * 0.2, -R * 0.07))} L{P(t(R * 0.06, 0))} L{P(t(R * 0.2, R * 0.07))}", max(0.7, R * 0.035), 0.95, mark)
-        a.dot(x, y + R * 0.14, max(0.4, R * 0.025), mark)
+
 
 
 def cyc_bloom(a, sp):
@@ -2463,11 +2470,13 @@ def cyc_flower_stage():
     with a.group():
         for ang, L in MOUND[:6]:
             cyc_leaf_at(a, 50, GY - 3, ang, L * 0.92, lc)
-        for dx, top in ((-15, 22), (2, 16), (17, 24)):   # flowers on thin stalks over the mound
-            x = 50 + dx
+        for dx, top in ((-16, 24), (2, 18), (18, 26)):   # flowers on thin stalks that crook over at the top, so each hangs mouth down
+            x = 50 + dx; nose = (x + 6, top + 12); crook = (x - 2, top - 4)
             with a.on(STEM):
-                a.line(f"M{f(50 + dx * 0.2)},{f(GY - 3)} Q{f(x - 2)},{f(top)} {f(x + 2)},{f(top - 4)}", 0.9, 0.85)
-            cyc_flower(a, (x + 3, top + 10), 13, fc, mark, d=1, stalk_from=(x + 2, top - 4))
+                a.line(f"M{f(50 + dx * 0.2)},{f(GY - 3)} Q{f(x - 4)},{f(top + 10)} {P(crook)}", 0.9, 0.85)
+            with a.on(BLOOM):   # the crook first, so it passes behind the petals into the mouth
+                a.line(f"M{P(crook)} Q{f(nose[0] - 1)},{f(top - 9)} {f(nose[0])},{f(nose[1] - 1.6)}", 0.9, 0.85)
+                cyc_flower(a, nose, 13, fc, mark, d=1)
     _cyc_tuber_soil(a)
     return a
 

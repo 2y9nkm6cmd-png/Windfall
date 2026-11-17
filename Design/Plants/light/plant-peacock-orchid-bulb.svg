@@ -12,19 +12,25 @@
 <path d="M77,50 L80,50" fill="none" stroke="#D0BAA3" stroke-width="0.9"/>
 <path d="M26,78 L29,78" fill="none" stroke="#D0BAA3" stroke-width="0.9"/>
 <path d="M78,74 L82,74" fill="none" stroke="#D0BAA3" stroke-width="0.9"/>
-<path d="M50,76.6 Q55.6,78.8 57.3,81.7" fill="none" stroke="#BA9C7D" stroke-width="0.8"/>
-<path d="M55.6,78.8 L59,77.8" fill="none" stroke="#C7AE94" stroke-width="0.6"/>
-<path d="M50,76.6 Q53.9,81.1 54.8,85.9" fill="none" stroke="#BA9C7D" stroke-width="0.8"/>
-<path d="M53.9,81.1 L57.4,81.8" fill="none" stroke="#C7AE94" stroke-width="0.6"/>
-<path d="M50,76.6 Q48.6,82.4 50,88.5" fill="none" stroke="#BA9C7D" stroke-width="0.8"/>
-<path d="M48.6,82.4 L45.8,84.7" fill="none" stroke="#C7AE94" stroke-width="0.6"/>
-<path d="M50,76.6 Q46.1,81.1 45.2,85.9" fill="none" stroke="#BA9C7D" stroke-width="0.8"/>
-<path d="M46.1,81.1 L42.6,81.8" fill="none" stroke="#C7AE94" stroke-width="0.6"/>
-<path d="M50,76.6 Q44.4,78.8 42.7,81.7" fill="none" stroke="#BA9C7D" stroke-width="0.8"/>
-<path d="M44.4,78.8 L41,77.8" fill="none" stroke="#C7AE94" stroke-width="0.6"/>
-<path d="M50,43.3 C55.1,46.7 62.6,56.9 62.6,65.4 C62.6,73.9 55.8,77.3 50,77.3 C44.2,77.3 37.4,73.9 37.4,65.4 C37.4,56.9 44.9,46.7 50,43.3 Z" fill="#DDBE8E" stroke="#2B6249" stroke-width="1.1"/>
-<path d="M50,43.3 C55.1,46.7 62.6,56.9 62.6,65.4 C62.6,73.9 55.8,77.3 50,77.3 C55.8,72.2 57.8,60.3 50,43.3 Z" fill="#06472A" fill-opacity="0.11" stroke="none"/>
-<path d="M50,45 C43.9,56.9 44.9,68.8 47.6,76.6" fill="none" stroke="#878E66" stroke-width="0.7"/>
-<path d="M50,45 C56.1,56.9 55.1,68.8 52.4,76.6" fill="none" stroke="#878E66" stroke-width="0.7"/>
+<path d="M50,84 Q53.9,84.8 55.4,86.5" fill="none" stroke="#BA9C7D" stroke-width="0.8"/>
+<path d="M50,84 Q53.5,86 54.8,88.5" fill="none" stroke="#BA9C7D" stroke-width="0.8"/>
+<path d="M50,84 Q52.7,87 53.3,90.3" fill="none" stroke="#BA9C7D" stroke-width="0.8"/>
+<path d="M50,84 Q51.6,87.7 51.2,91.6" fill="none" stroke="#BA9C7D" stroke-width="0.8"/>
+<path d="M50,84 Q48.4,87.7 48.8,91.6" fill="none" stroke="#BA9C7D" stroke-width="0.8"/>
+<path d="M50,84 Q47.3,87 46.7,90.3" fill="none" stroke="#BA9C7D" stroke-width="0.8"/>
+<path d="M50,84 Q46.5,86 45.2,88.5" fill="none" stroke="#BA9C7D" stroke-width="0.8"/>
+<path d="M50,84 Q46.1,84.8 44.6,86.5" fill="none" stroke="#BA9C7D" stroke-width="0.8"/>
+<path d="M67,74 L66.9,75.1 L66.4,76.3 L65.7,77.4 L64.7,78.4 L63.5,79.4 L62,80.2 L60.3,81 L58.5,81.6 L56.5,82.1 L54.4,82.5 L50,82.8 L45.6,82.5 L43.5,82.1 L41.5,81.6 L39.7,81 L38,80.2 L36.5,79.4 L35.3,78.4 L34.3,77.4 L33.6,76.3 L33.1,75.1 L33,74 L33.1,72.7 L33.6,71.4 L34.3,70.2 L35.3,69 L36.5,67.9 L38,66.9 L41.5,65.3 L43.5,64.8 L45.6,64.3 L50,64 L54.4,64.3 L56.5,64.8 L58.5,65.3 L62,66.9 L63.5,67.9 L64.7,69 L65.7,70.2 L66.4,71.4 L66.9,72.7 Z" fill="#B8936C" stroke="#2B6249" stroke-width="1.1"/>
+<path d="M67,74 L66.9,75.1 L66.4,76.3 L65.7,77.4 L64.7,78.4 L63.5,79.4 L62,80.2 L60.3,81 L58.5,81.6 L56.5,82.1 L54.4,82.5 L50,82.8 L50,64 L54.4,64.3 L56.5,64.8 L58.5,65.3 L62,66.9 L63.5,67.9 L64.7,69 L65.7,70.2 L66.4,71.4 L66.9,72.7 L50,84 L50,64 Z" fill="#06472A" fill-opacity="0.12" stroke="none"/>
+<path d="M37.2,65.6 Q42.5,74.2 46.7,82.8" fill="none" stroke="#6D7350" stroke-width="0.6"/>
+<path d="M46.7,65.6 Q41.3,74.2 37.2,82.8" fill="none" stroke="#6D7350" stroke-width="0.6"/>
+<path d="M42.5,65.6 Q47.9,74.2 52.1,82.8" fill="none" stroke="#6D7350" stroke-width="0.6"/>
+<path d="M52.1,65.6 Q46.7,74.2 42.5,82.8" fill="none" stroke="#6D7350" stroke-width="0.6"/>
+<path d="M47.9,65.6 Q53.3,74.2 57.5,82.8" fill="none" stroke="#6D7350" stroke-width="0.6"/>
+<path d="M57.5,65.6 Q52.1,74.2 47.9,82.8" fill="none" stroke="#6D7350" stroke-width="0.6"/>
+<path d="M53.3,65.6 Q58.7,74.2 62.8,82.8" fill="none" stroke="#6D7350" stroke-width="0.6"/>
+<path d="M62.8,65.6 Q57.5,74.2 53.3,82.8" fill="none" stroke="#6D7350" stroke-width="0.6"/>
+<path d="M37.8,84 L62.2,84" fill="none" stroke="#665750" stroke-width="1.4"/>
+<path d="M48,66 Q49,56.6 50,51.6 Q51,56.6 52,66 Z" fill="#E4EDBE" stroke="#2B6249" stroke-width="0.8"/>
 </g>
 </svg>

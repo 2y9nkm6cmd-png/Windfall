@@ -2,7 +2,7 @@
 
 One drawing for each kind of plant in the library at each stage of its life that applies: 172 kinds, 908 drawings, each in `light/` and `dark/`.
 
-**A first pass, not yet approved by William.** In the app since 14 November (life stages) and 15 November (leaf and flower), on each plant's page. Project docs 58 and 59 say how they were made, what is weak and what is to be checked.
+**Redrawn on 16 and 17 November 2026 from a written description of each plant (below). Not yet seen by William.** In the app since 14 November (life stages) and 15 November (leaf and flower), on each plant's page. Project docs 58 and 59 say how they were made, what is weak and what is to be checked.
 
 | File | What it is |
 |---|---|
@@ -48,3 +48,13 @@ Checked on 15 November 2026 after William saw that the raspberry's leaves looked
 After either, run `python3 Tools/design/build_design_assets.py` to put them in the app.
 
 They are kept out of `Design/Icons` on purpose: `build_design_assets.py` turns every SVG in there into a small icon.
+
+## The redraw of 16 and 17 November 2026
+
+William found the strawberry leaf drawn wrong, and a check of twelve more plants found eight with clear faults. So every plant was given a written description, and every drawing was rebuilt against it and against photographs of the real plant.
+
+- **`descriptions/<kind>.json`**: what each of the 172 kinds looks like, written before drawing (see `descriptions/README.md`). Its `palette` is the one place a kind's colours are set: both scripts read it, so a close-up and the whole plant can no longer differ in colour. Its `must_show` lists are what each drawing was checked against. ⚠️ CHECK: written by Claude.
+- **`Tools/design/redraw/<group>.py`**: each group's changes, in nine files (fruit, roots, umbels, herbs, leaves, veg, daisies, flowers, bulbs). `redraw/__init__.py` says what a file may hold. With `REDRAW_ONLY=<group>` the scripts read only that group's file.
+- **`leaf="own"`** on a kind's settings draws its own close-up leaf, small, on the whole plant (`Art.place` in `plant_kit.py`).
+- **Paths are slimmed** as they are written (`slim` in `plant_kit.py`): points on a straight line are dropped. Same look, files about a third of the size.
+- **Checking a kind**: `python3 Tools/design/plant_sheet.py PHOTOS OUT kind --before` sets every drawing of it, new and old, beside photographs sorted by part. `Tools/design/photo-check/fetch_plant_photos.py` downloads those photographs (for looking at only: never into the repository).

@@ -779,7 +779,7 @@
    "stages": [
     {
      "stage": "set",
-     "label": "Set"
+     "label": "Bulb"
     },
     {
      "stage": "young",
@@ -1049,7 +1049,7 @@
     },
     {
      "stage": "crop",
-     "label": "Ready to pick"
+     "label": "Forced chicon"
     },
     {
      "stage": "flower",
@@ -1484,7 +1484,7 @@
    "stages": [
     {
      "stage": "bulb",
-     "label": "Bulb"
+     "label": "Corm"
     },
     {
      "stage": "shoots",
@@ -1905,7 +1905,7 @@
     },
     {
      "stage": "flower",
-     "label": "In flower (year 2)"
+     "label": "In flower"
     },
     {
      "stage": "seedhead",
@@ -2268,7 +2268,7 @@
    "stages": [
     {
      "stage": "bulb",
-     "label": "Bulb"
+     "label": "Rhizome"
     },
     {
      "stage": "shoots",
@@ -3451,7 +3451,7 @@
    "stages": [
     {
      "stage": "bulb",
-     "label": "Bulb"
+     "label": "Corm"
     },
     {
      "stage": "shoots",
@@ -4209,7 +4209,7 @@
    "stages": [
     {
      "stage": "set",
-     "label": "Set"
+     "label": "Seedling"
     },
     {
      "stage": "young",

@@ -12,11 +12,16 @@
 <path d="M77,50 L80,50" fill="none" stroke="#554D37" stroke-width="0.9"/>
 <path d="M28,80 L31,80" fill="none" stroke="#554D37" stroke-width="0.9"/>
 <path d="M80,76 L84,76" fill="none" stroke="#554D37" stroke-width="0.9"/>
-<path d="M36.3,69.1 Q50.2,69.5 63.7,56.9 Q45.4,58.5 36.3,69.1 Z" fill="#F1EADB" stroke="#A3CE7A" stroke-width="1.1"/>
-<path d="M36.3,69.1 Q50.2,69.5 63.7,56.9 Z" fill="#020A06" fill-opacity="0.11" stroke="none"/>
-<path d="M37.9,68.4 L59.3,58.9" fill="none" stroke="#CCDCAC" stroke-width="0.6"/>
-<path d="M41.2,65.5 L57.9,58.5" fill="none" stroke="#D9EBB7" stroke-width="0.6"/>
-<path d="M41.8,66.7 L58.2,59.3" fill="none" stroke="#CBDDAB" stroke-width="0.6"/>
-<path d="M42.3,67.8 L58.6,60.2" fill="none" stroke="#CBDDAB" stroke-width="0.6"/>
+<path d="M50.5,77.3 L51.1,77 L51.6,76.3 L52.4,74.5 L53.2,72 L53.2,71.7 L53.6,70.2 L53.6,69.9 L53.8,69.1 L53.9,68 L54.2,66.2 L54.3,64.4 L54.4,64 L54.4,60.3 L54.3,60 L54.3,59.6 L53.9,58.1 L53.6,57.3 L53.1,56.5 L52.7,56.1 L52.1,55.7 L50.3,55.1 L48.4,55.3 L47.3,55.9 L46.6,56.6 L45.6,58.3 L44.8,60.8 L44.8,61.2 L44.6,61.9 L44.6,62.3 L44.3,64.1 L44.3,64.8 L44.1,65.9 L44.1,67 L44,67.4 L44,71.8 L44.1,72.2 L44.2,73.7 L44.4,74.4 L44.5,75.2 L45,76.3 L45.5,76.7 Z" fill="#4F6E3C" stroke="#A3CE7A" stroke-width="1"/>
+<path d="M45.9,72.4 L47,61.4" fill="none" stroke="#C0C5AB" stroke-width="1.2"/>
+<path d="M46.7,54.7 L45.9,47.6" fill="none" stroke="#A86136" stroke-width="0.7"/>
+<path d="M47.6,54.8 L47.2,47.8" fill="none" stroke="#A86136" stroke-width="0.7"/>
+<path d="M48.5,54.9 L48.4,47.9" fill="none" stroke="#A86136" stroke-width="0.7"/>
+<path d="M49.4,55 L49.7,48" fill="none" stroke="#A86136" stroke-width="0.7"/>
+<path d="M50.3,55.1 L51,48.2" fill="none" stroke="#A86136" stroke-width="0.7"/>
+<path d="M51.2,55.2 L52.3,48.3" fill="none" stroke="#A86136" stroke-width="0.7"/>
+<path d="M52.1,55.3 L53.6,48.4" fill="none" stroke="#A86136" stroke-width="0.7"/>
+<path d="M53,55.4 L54.9,48.6" fill="none" stroke="#A86136" stroke-width="0.7"/>
+<path d="M53.9,55.5 L56.2,48.7" fill="none" stroke="#A86136" stroke-width="0.7"/>
 </g>
 </svg>

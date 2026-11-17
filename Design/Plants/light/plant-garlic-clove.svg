@@ -12,12 +12,11 @@
 <path d="M77,50 L80,50" fill="none" stroke="#D0BAA3" stroke-width="0.9"/>
 <path d="M26,80 L29,80" fill="none" stroke="#D0BAA3" stroke-width="0.9"/>
 <path d="M78,76 L82,76" fill="none" stroke="#D0BAA3" stroke-width="0.9"/>
-<path d="M50,79 Q69.6,70.8 53.1,49.2 Q32.6,66.9 50,79 Z" fill="#FFFDF8" stroke="#2B6249" stroke-width="1.1"/>
-<path d="M50,79 Q69.6,70.8 53.1,49.2 Z" fill="#06472A" fill-opacity="0.11" stroke="none"/>
-<path d="M50.2,77.2 L52.6,53.9" fill="none" stroke="#87A594" stroke-width="0.6"/>
-<path d="M50.8,71.8 L58.1,68.7 M50.8,71.8 L44.3,67.2" fill="none" stroke="#A1B8AA" stroke-width="0.5"/>
-<path d="M51.3,66.5 L59,63.4 M51.3,66.5 L44.4,61.8" fill="none" stroke="#A1B8AA" stroke-width="0.5"/>
-<path d="M51.9,61.1 L58.1,57.8 M51.9,61.1 L46.5,56.6" fill="none" stroke="#A1B8AA" stroke-width="0.5"/>
-<path d="M49,77 L52,77" fill="none" stroke="#C6A888" stroke-width="1.6"/>
+<path d="M40,82 C38,70 42,56 52,46 C54,44 56,43 57,42 C58,50 62,62 61,74 C60.6,80 58,82 56,82 Z" fill="#FFFDF8" stroke="#2B6249" stroke-width="1.1"/>
+<path d="M57,42 C58,50 62,62 61,74 C60.6,80 58,82 56,82 C57,72 56,58 57,42 Z" fill="#06472A" fill-opacity="0.1" stroke="none"/>
+<path d="M44,78 C43,68 47,56 54,46" fill="none" stroke="#A8BDB0" stroke-width="0.5"/>
+<path d="M50,80 C50,70 52,58 56,46" fill="none" stroke="#B4C6BA" stroke-width="0.5"/>
+<path d="M41,73 C41,66 45,58 50,51" fill="none" stroke="#FAE3E4" stroke-width="0.8"/>
+<path d="M41,81.4 L57,81.4 L56,84 L42,84 Z" fill="#B8936C" stroke="#2B6249" stroke-width="0.7"/>
 </g>
 </svg>
