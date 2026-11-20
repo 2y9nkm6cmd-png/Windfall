@@ -79,6 +79,8 @@ struct CrossListView: View {
             }
         }
         .navigationTitle("Crosses")
+        // Tells Eira what is open (piece 1, project doc 119). See EiraScreen.swift.
+        .eiraLooksAt("the list of plant crosses, made by hand or by insects", short: "Crosses")
         .paperScreen()
         .sheet(item: $fresh) { crossing in
             CrossEditor(crossing: crossing, isNew: true)
@@ -169,6 +171,11 @@ struct CrossEditor: View {
             }
             .navigationTitle("Cross")
             .paperScreen()
+            // Tells Eira which cross is open (piece 1, project doc 119).
+            .eiraLooksAt(EiraPagePhrase.cross(seedParent: crossing.seedParentName,
+                                              pollenParent: crossing.pollenParentName,
+                                              made: crossing.date),
+                         short: "Cross")
         }
     }
 

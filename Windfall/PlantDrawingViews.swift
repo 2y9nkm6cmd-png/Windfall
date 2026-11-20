@@ -289,6 +289,9 @@ struct PlantPicturesZoomed: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         }
         .navigationTitle(title)
+        // Tells Eira which plant's drawings are open large (piece 1,
+        // project doc 119).
+        .eiraLooksAt(EiraPagePhrase.plantDrawings(card: title, plant: plantName), short: plantName)
         #if os(iOS)
         // The small title in the bar, to leave the page to the strip.
         .navigationBarTitleDisplayMode(.inline)

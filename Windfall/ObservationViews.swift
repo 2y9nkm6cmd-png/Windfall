@@ -111,6 +111,8 @@ struct ObservationListView: View {
         // and opens when tapped. See `tuckedSearch` in CollapsingSearch.swift.
         .tuckedSearch(text: $search, prompt: "Search sightings")
         .navigationTitle("Sightings")
+        // Tells Eira what is open (piece 1, project doc 119). See EiraScreen.swift.
+        .eiraLooksAt("the list of wildlife sightings", short: "Sightings")
         #if os(iOS)
         // The page has its own large title (ScreenHeader), so the bar's
         // is kept small, or "Sightings" shows twice.
@@ -330,6 +332,10 @@ struct ObservationEditor: View {
                 }
                 .navigationTitle("Sighting")
                 .paperScreen()
+                // Tells Eira which sighting is open (piece 1, project doc 119).
+                .eiraLooksAt(EiraPagePhrase.sighting(english: pageNames.english, latin: pageNames.latin,
+                                                     seen: observation.observedAt),
+                             short: pageNames.title)
             }
         }
         .onChange(of: pickerItems) { _, items in

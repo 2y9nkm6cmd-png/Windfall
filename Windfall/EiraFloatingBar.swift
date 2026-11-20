@@ -49,6 +49,8 @@ import PhotosUI
 #if os(iOS)
 // Only to ask whether a real keyboard is attached. See `keyboardWillRise`.
 import GameController
+// For the message that the on-screen keyboard has gone. See `close`.
+import UIKit
 #endif
 
 struct EiraFloatingBar: View {
@@ -77,8 +79,17 @@ struct EiraFloatingBar: View {
     /// Which tab this bar is on, on an iPhone. Nil on a Mac or an iPad,
     /// where the one bar serves every place. See `EiraScreen.current(in:)`.
     @Environment(\.eiraPlace) private var place
+    /// The database, to look up the names in "show me bed 3".
+    @Environment(\.modelContext) private var modelContext
+    /// Where a page to open is left for the window. Nil in a preview,
+    /// where the bar then never opens pages. See EiraOpenPageRoute.swift.
+    @Environment(EiraNavigator.self) private var navigator: EiraNavigator?
 
     @State private var isOpen = false
+
+    /// A close that is waiting for the on-screen keyboard to finish
+    /// going. See `close(travel:then:)`.
+    @State private var closeWaiting: CloseAfterKeyboard?
     @State private var question = ""
     /// When the last gust began, which way it blew and how long the
     /// snowdrop was carried.
@@ -487,6 +498,13 @@ struct EiraFloatingBar: View {
         .onChange(of: WidgetRoute.shared.pending, initial: true) {
             if WidgetRoute.shared.claim(["eira"]) != nil { openEira(with: nil) }
         }
+        #if os(iOS)
+        // The on-screen keyboard has finished going: a close waiting
+        // for it can fold the bar now. See `close(travel:then:)`.
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardDidHideNotification)) { _ in
+            finishClosing()
+        }
+        #endif
     }
 
     // MARK: The panel
@@ -654,7 +672,11 @@ struct EiraFloatingBar: View {
                            nod: SnowdropWind.nod(at: seconds, direction: gustDirection, travel: gustTravel))
             }
         }
-        .buttonStyle(.plain)
+        // Not `.plain`: Apple's plain style dims a button while a finger
+        // is on it, and the cream circle dimmed over dark green went a
+        // dull grey (William's iPad film, doc 125, point C). The
+        // snowdrop's gust is the answer to a tap. See `SteadyPress`.
+        .buttonStyle(SteadyPress())
         // Command and K opens the bar from the keyboard, on a Mac or an
         // iPad with a keyboard attached.
         .keyboardShortcut("k", modifiers: .command)
@@ -834,6 +856,8 @@ struct EiraFloatingBar: View {
     }
 
     private func open(travel: CGFloat) {
+        // A close still waiting for the keyboard is called off.
+        closeWaiting = nil
         move(opening: true, travel: travel)
         // Hand the keyboard to the text box straight away, so typing can
         // begin while the snowdrop is still on its way across. Nobody has
@@ -854,10 +878,56 @@ struct EiraFloatingBar: View {
         }
     }
 
-    private func close(travel: CGFloat = 0) {
+    /// Closes the bar. `then`, if given, is done as the bar begins to
+    /// fold: "show me bed 3" opens its page there.
+    ///
+    /// With the on-screen keyboard up, the keyboard goes first and the
+    /// bar folds once it has gone (20 November 2026). Until then the two
+    /// went together. William's iPad film (doc 125) showed what that
+    /// did: the bar vanished for a tenth of a second while the keyboard
+    /// slid down, came back over it half folded, and on its return the
+    /// snowdrop was drawn on its side for one frame. Putting the
+    /// keyboard away with the bar staying open was smooth: the bar rode
+    /// down with it. So now a close is that smooth part, then the fold.
+    /// The two take turns, as they already do when the bar opens (see
+    /// `keyboardWillRise`).
+    ///
+    /// How it knows the keyboard has gone: the system sends a message,
+    /// `keyboardDidHideNotification`, which the bar listens for (see
+    /// the end of `body`). In case it never comes, the fold starts
+    /// anyway after `keyboardLeavesWithin` seconds.
+    private func close(travel: CGFloat = 0, then: (() -> Void)? = nil) {
+        let keyboardIsUp = fieldHasFocus && keyboardWillRise
         fieldHasFocus = false
-        guard isOpen else { return }
-        move(opening: false, travel: travel)
+        guard isOpen else {
+            then?()
+            return
+        }
+        guard keyboardIsUp, !reduceMotion else {
+            move(opening: false, travel: travel)
+            then?()
+            return
+        }
+        let thisClose = CloseAfterKeyboard(travel: travel, then: then)
+        closeWaiting = thisClose
+        Task {
+            try? await Task.sleep(for: .seconds(Self.keyboardLeavesWithin))
+            finishClosing(thisClose.id)
+        }
+    }
+
+    /// The longest a close waits for the keyboard to go, in seconds.
+    /// The keyboard takes about a quarter of a second.
+    private static let keyboardLeavesWithin = 0.6
+
+    /// The keyboard has gone, or the wait is over: fold the bar now.
+    /// Given a label, only that close is finished, so a timer left over
+    /// from an earlier close cannot fold a bar opened since.
+    private func finishClosing(_ id: UUID? = nil) {
+        guard let pending = closeWaiting, id == nil || id == pending.id else { return }
+        closeWaiting = nil
+        if isOpen { move(opening: false, travel: pending.travel) }
+        pending.then?()
     }
 
     /// How long the journey takes. A longer bar takes a little longer,
@@ -972,6 +1042,24 @@ struct EiraFloatingBar: View {
     private func ask() {
         let text = question.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty else { return }
+        // "Show me bed 3", "open the journal": a page to open (piece 4
+        // of project doc 119). Fixed rules read it, so it works on every
+        // device. It comes first, since such a sentence is neither a
+        // job, nor news for the journal, nor a question. Anything the
+        // rule does not recognise exactly goes on as before.
+        // See EiraOpenPage.swift.
+        if let navigator, let opening = EiraOpenRequest.read(text, context: modelContext) {
+            question = ""
+            if staysOpen || onJournal {
+                // A bar that stays open just lets the keyboard go.
+                fieldHasFocus = false
+                navigator.open(opening)
+            } else {
+                // The bar folds away and the page opens as it goes.
+                close { navigator.open(opening) }
+            }
+            return
+        }
         // "I need to build the wigwam at the weekend" is something to
         // do. Eira offers to add it to your jobs, on any page and on
         // any device, since fixed rules read it and no model is needed.
@@ -1165,5 +1253,31 @@ extension View {
         #else
         self
         #endif
+    }
+}
+
+// MARK: - Small pieces for the bar
+
+/// A close waiting for the keyboard to go (`close(travel:then:)`).
+private struct CloseAfterKeyboard {
+    /// A label of its own, so a timer can tell whether it is still the
+    /// close it was started for.
+    let id = UUID()
+    var travel: CGFloat
+    var then: (() -> Void)?
+}
+
+/// How the snowdrop button answers a finger: it does not change at all.
+///
+/// A `ButtonStyle` decides how a button looks, including while it is
+/// pressed (`configuration.isPressed`). Apple's `.plain` style fades the
+/// button a little while pressed. Here the label is drawn as it is, so
+/// the cream circle stays cream (doc 125, point C). `contentShape`
+/// keeps the whole square tappable, as `.plain` did, not only the
+/// drawn parts of the snowdrop.
+private struct SteadyPress: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .contentShape(.rect)
     }
 }

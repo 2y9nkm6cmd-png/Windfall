@@ -94,6 +94,20 @@ struct MainTabView: View {
     /// is being looked at. See EiraScreen.
     @State private var eiraScreen = EiraScreen()
 
+    /// Carries a page Eira has been asked to open ("show me bed 3") from
+    /// her bar to here. See EiraOpenPageRoute.swift. Added 20 November 2026.
+    @State private var eiraNavigator = EiraNavigator()
+
+    /// The pile of pages on each place, top page last. Until 20 November
+    /// 2026 each place's NavigationStack kept its own pile out of sight.
+    /// Now the window holds it, so that Eira can put a page on top. The
+    /// stacks still push and pop exactly as before: a tap on a link adds
+    /// to the pile here, and Back takes one off.
+    ///
+    /// `NavigationPath` is Apple's list for such a pile. It can hold
+    /// pages of any kind, as long as each can be compared (Hashable).
+    @State private var paths: [AppSection: NavigationPath] = [:]
+
     /// Keeps the weather diary up to date. See WeatherDiary.swift.
     @State private var weatherDiary = WeatherDiaryService()
     /// A speed check, switched in Settings.
@@ -117,6 +131,20 @@ struct MainTabView: View {
         .tint(Theme.leaf)
         // Hands the screen tracker to every screen inside, and to Eira's bar.
         .environment(eiraScreen)
+        // And the hand-over Eira's bar uses to open a page.
+        .environment(eiraNavigator)
+        // Eira has been asked to open something. See `follow` below.
+        .onChange(of: eiraNavigator.request) {
+            if let request = eiraNavigator.take() { follow(request) }
+        }
+        // On a Mac or an iPad each visit to a place starts at its top
+        // page, as it always has (`.id(selection)` gives the place a
+        // fresh stack). The pile left behind is let go, so it is not
+        // brought back on the next visit. An iPhone's tabs keep their
+        // piles, as tabs in Apple's own apps do.
+        .onChange(of: selection) { left, _ in
+            if sizeClass != .compact { paths[left] = nil }
+        }
         // A tap on a widget opens the app with a link. `WidgetRoute`
         // notes what was asked for, and Today or Eira's bar then does it.
         .onOpenURL { url in
@@ -252,9 +280,11 @@ struct MainTabView: View {
 
             // Each place gets its own NavigationStack, which is what lets
             // a screen push another on top and offer a way back.
-            NavigationStack {
+            NavigationStack(path: path(for: selection)) {
                 screen(for: selection)
                     .eiraLooksAt(selection.eiraPhrase, isJournal: selection == .journal)
+                    // The pages Eira can put on top. See EiraOpenPageRoute.swift.
+                    .navigationDestination(for: EiraPageRoute.self) { EiraPageDestination(route: $0) }
                     #if !os(macOS)
                     // On an iPad the strip kept clear for Eira's bar
                     // is put here, on the page itself, inside the
@@ -323,6 +353,45 @@ struct MainTabView: View {
         withAnimation(.smooth(duration: 0.3)) { sidebarIsHidden.toggle() }
     }
 
+    // MARK: Pages Eira opens
+
+    /// The pile of pages on one place, as something a NavigationStack
+    /// can read and change. A `Binding` is a pair of instructions: how
+    /// to read the value, and how to write it back.
+    private func path(for section: AppSection) -> Binding<NavigationPath> {
+        Binding(get: { paths[section] ?? NavigationPath() },
+                set: { paths[section] = $0 })
+    }
+
+    /// Opens what Eira was asked for: goes to the place, and puts the
+    /// page on top of it, in place of whatever pile was there.
+    ///
+    /// An iPhone has no tab for the Year, the plant library or Identify.
+    /// There the Year and the library are put on top of the Gardens tab
+    /// (where their tiles are), and Identify means the Wildlife tab,
+    /// whose tiles hold it.
+    private func follow(_ request: EiraOpenRequest) {
+        let askedFor = AppSection(rawValue: request.place.rawValue) ?? .today
+        var place = askedFor
+        var page = request.page
+        if sizeClass == .compact, !AppSection.phoneTabs.contains(askedFor) {
+            place = askedFor == .identify ? .wildlife : .gardens
+            if page == nil {
+                if askedFor == .year { page = .year }
+                if askedFor == .plants { page = .plantLibrary }
+            }
+        }
+        var pile = NavigationPath()
+        if let page { pile.append(page) }
+        paths[place] = pile
+        if let garden = request.gardenKey { eiraNavigator.showGarden(garden) }
+        if sizeClass == .compact {
+            selection = place
+        } else {
+            withAnimation(.smooth(duration: 0.3)) { selection = place }
+        }
+    }
+
     /// The strip kept clear along the bottom of a page for Eira's bar,
     /// on a Mac and an iPad. It is empty (`Color.clear` draws nothing)
     /// and as tall as the bar and the 14 points beneath it.
@@ -374,9 +443,10 @@ struct MainTabView: View {
         TabView(selection: phoneSelection) {
             ForEach(AppSection.phoneTabs) { section in
                 Tab(section.title, image: "Icons/\(section.icon.rawValue)", value: section) {
-                    NavigationStack {
+                    NavigationStack(path: path(for: section)) {
                         screen(for: section)
                             .eiraLooksAt(section.eiraPhrase, isJournal: section == .journal)
+                            .navigationDestination(for: EiraPageRoute.self) { EiraPageDestination(route: $0) }
                     }
                     // As on a Mac and an iPad (see `sidebarLayout` above):
                     // an empty strip keeps the foot of each page clear,

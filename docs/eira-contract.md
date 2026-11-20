@@ -145,6 +145,22 @@ The model is sent one block per message, built in this order from the top:
 
 Only the model sees 1 and 2. The conversation on screen, and what is saved, keep the message as typed.
 
+**Pages that give a phrase** (each through `.eiraLooksAt(...)`). Since 20 November 2026 (piece 1 of knowledge base doc 119, branch `eira-pages`) every page of the app gives one. The phrases built from a record are made by `EiraPagePhrase` in `EiraScreen.swift` and checked by the logic tests.
+
+| Page | The phrase |
+|---|---|
+| Each place in the sidebar or tab bar | its own line (`MainTabView`) |
+| A plant, bed, sowing, seed packet, species, garden plan or drawing | `the plant Apple, Spartan`; `the bed called Bed 3`; `a sowing of ...`; `a seed packet of ...`; `the species ...`; `the plan of the garden called ...` |
+| Wildlife reference, months, diseases, weather diary, pest helpers, the corner drawing | as their files say |
+| Sightings list / one sighting | `the list of wildlife sightings` / `the sighting of Red Admiral (Vanessa atalanta), seen on 3 August 2026` (or `an unidentified sighting, ...`) |
+| Surveys list / a kept survey / a count being made | `the list of surveys and FIT counts` / `the FIT Count of 3 August 2026, on Lavender` / `a FIT Count being set up`, `under way` or `just finished, with its result showing` |
+| Charts | `the Charts page: harvests by month and where they went, pollinators over the season, flowering against flying insects, and the top crops` |
+| Your jobs / one job | `the list of your own jobs, the ones no season would suggest` / `the job "Lift the dahlias"` or `a new job being written` |
+| Identify / fungus keys / one key | `the Identify page: name something from a photo, or step through a fungus key` / `the shelf of fungus keys` / `the fungus key called ..., which asks about a fungus one question at a time` |
+| Crosses / one cross | `the list of plant crosses, made by hand or by insects` / `the cross of Tomato (seed parent) with Gardener's Delight (pollen parent), made on 3 August 2026` |
+| Flower shapes / one shape | `the Flower shapes page, which shows the shapes of flower the garden has for pollinators, from the plants growing` / `the flower shape ..., with the plants of that shape and the insects that visit them` |
+| A plant's drawings opened large | `the life stages drawings of the plant Strawberry` |
+
 ## 5. Earlier turns
 
 A session is started afresh when the instructions change, after a fixed reply the model did not see, or when the conversation passes about 2,000 tokens (four characters to a token). Then the instructions are followed by:
@@ -179,6 +195,8 @@ To record it, tell the journal: write what you sowed, planted or picked as a pla
 ```
 
 A job card turned down says `Left off your jobs. If that was a question for me, ask it again with a question mark and I will answer it.`
+
+**Before all of these, in Eira's bar** (not in a chat already open): a request to open a page. Since 20 November 2026 (piece 4, branch `eira-open-page`). `EiraOpenRule` in `EiraOpenPage.swift` reads the words; if it finds a page, the bar folds away and the page opens, and nothing is said and nothing goes to the model. It is checked before the job rule and the journal rule in `EiraFloatingBar.ask`. Section 13 has the rule.
 
 ## 7. What happens to a reply
 
@@ -285,7 +303,17 @@ The cards, and the fields each fills (from the records in the code; ⚠️ the c
 
 ## 13. Opening a page (piece 4)
 
-Fixed rules first: a message starting "show me", "open", "go to" or "take me to", followed by the name of a bed, plant, garden, species, feature or place in the app, opens that page. The model is asked only when the rules find no page, and then only to choose from the list of pages the rules know. Her reply is fixed wording: `Opening {the page}.` ⚠️ Claude's wording.
+**Built on 20 November 2026** (branch `eira-open-page`, knowledge base doc 119 piece 4), by fixed rules only. `EiraOpenPage.swift` reads the words, `EiraOpenPageRoute.swift` opens the page, and the logic tests check the rule.
+
+1. The message must **begin** with words for opening: `show me`, `show`, `open`, `open up`, `go to`, `take me to`, `take me to the`, `bring up`, `pull up`, `jump to`, `navigate to`, `find me`. `Eira`, `please`, `can you`, `could you`, `would you` and `will you` may come first.
+2. Then the thing to open. `the`, `my`, `our` and `a` at its start, and `page`, `screen`, `please`, `for me` and `now` at its end, are left off. Capitals, punctuation and apostrophes do not count.
+3. It must be **exactly** one of:
+   - a place: Today (also `home`), Gardens (also `beds`, `garden plans`), the Year (`year`, `calendar`, `sowing calendar`), the plant library (`plants`, `library`, `plant list`), Wildlife (`sightings`, `surveys`), Identify (`fungus keys`), the journal (`diary`), Settings;
+   - the name of a bed, plant, garden or species in the records, with or without its kind in front (`bed 3`, `the plant borage`, `the bed called bed 3`). A plant also answers to its name with its variety, either way round or in brackets (`apple spartan`, `spartan apple`, `apple (spartan)`); a species to its English or Latin name.
+4. One match: that page opens (a bed on Gardens, a plant on Plants, a species on Wildlife; a garden shows Gardens with that garden's plan in view). Several of one kind (three apples): the list they are in opens. Records of different kinds with the same name, or no match at all: **not a request to open**, and the message goes on as before, to the job rule, the journal rule or Eira.
+5. On an iPhone, which has no tab for the Year, the plant library or Identify: the Year and the library open on top of the Gardens tab, and Identify means the Wildlife tab.
+
+**Not built** (⚠️ still proposals): the model as a fallback, choosing from the pages the rules know; a spoken or written `Opening {the page}.`; features, months, sightings and jobs as things to open.
 
 ## 14. The freeze, at Gate 2
 

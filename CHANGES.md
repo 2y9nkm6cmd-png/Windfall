@@ -1,3 +1,20 @@
+# 20 November 2026: "show me bed 3" opens the page, and Eira's button closes after the keyboard (lane A, piece 4)
+
+**By the "Next phase, stage 0 then lane A" chat, linked to the Mac.** Branch `eira-open-page`, on top of `eira-pages`. Knowledge base docs 119 (piece 4) and 125 (the button).
+
+- **Opening a page.** A sentence in Eira's bar that begins "show me", "open", "go to", "take me to" (and a few more) and then names exactly a place, bed, plant, garden or species opens it. Fixed rules, no model, so every device does it alike. The rule is `EiraOpenRule` in the new `EiraOpenPage.swift`; the opening is in the new `EiraOpenPageRoute.swift`. Anything it does not recognise exactly goes on to Eira as before ("show me how to prune an apple" is answered, not opened). Ten new logic checks, 1,047 pass.
+- **How the window opens it.** Each place's `NavigationStack` now has its pile of pages held by `MainTabView` (`paths`), so Eira can put a page on top. Taps and Back behave as before. On a Mac and an iPad a place still starts fresh on each visit; an iPhone's tabs keep their piles. A garden shows the Gardens place with that garden's plan in view (`GardenTab` picks it up from `EiraNavigator`).
+- **Eira's button (doc 125).** Closing with the on-screen keyboard up now lets the keyboard go first and folds the bar once it has gone (faults A and B: the bar vanishing, and the snowdrop on its side for one frame). The snowdrop no longer greys while pressed: its own `SteadyPress` button style in place of `.plain` (fault C). **Not yet filmed:** whether fault A is cured needs a film on the iPad.
+- `docs/eira-contract.md`: section 6 says the open-page rule runs first in the bar; section 13 is the rule as built.
+
+# 20 November 2026: every page tells Eira what is open (lane A, piece 1)
+
+**By the "Next phase, stage 0 then lane A" chat, linked to the Mac.** Branch `eira-pages`, from `main` at `ed34ee1`. Knowledge base doc 119, piece 1.
+
+- The pages that said nothing to Eira now give her one short phrase each, through `.eiraLooksAt(...)`: the sightings list and each sighting, the surveys list, each kept survey and a count being made (its phrase changes as it is set up, counted and finished), Charts, Your jobs and each job's sheet, Identify, the fungus keys' shelf and each key, the crosses list and each cross, Flower shapes and each shape, and a plant's drawings opened large.
+- The phrases built from a record (a sighting, survey, count, cross, job, drawings) are made by a new `EiraPagePhrase` in `EiraScreen.swift`, so the logic tests can check them: eight new checks, 1,037 pass.
+- `docs/eira-contract.md`, section 4, lists every page's phrase.
+- Nothing is saved or changed by this: the phrase only goes in front of a question, and only the model sees it.
 # 20 November 2026, 18:15: stage 0 of the next phase joined, signed afresh and installed
 
 **By the "Next phase, stage 0 then lane A" chat, linked to the Mac.** Knowledge base docs 123, 125, 127 and 137.

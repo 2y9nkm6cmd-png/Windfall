@@ -49,6 +49,8 @@ struct IdentifyHub: View {
         }
         .paperScreen()
         .navigationTitle("Identify")
+        // Tells Eira what is open (piece 1, project doc 119). See EiraScreen.swift.
+        .eiraLooksAt("the Identify page: name something from a photo, or step through a fungus key", short: "Identify")
         #if os(iOS)
         .toolbar(.hidden, for: .navigationBar)
         #endif
@@ -76,6 +78,8 @@ struct FungusKeyShelfView: View {
         }
         .paperScreen()
         .navigationTitle("Fungus keys")
+        // Tells Eira what is open (piece 1, project doc 119). See EiraScreen.swift.
+        .eiraLooksAt("the shelf of fungus keys", short: "Fungus keys")
     }
 }
 
