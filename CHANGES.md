@@ -5,6 +5,17 @@
 - A photo given to Eira's bar (the "+" beside her snowdrop, or dragged on to the bar) now offers a fourth choice, **Seed packet**, after What is this?, Journal entry and Sighting. It opens the packet reader with the photo already in it and reads it. With two photos, the first is read as the packet's back (the sowing details) and the second as its front. Nothing is saved until Save, as before.
 - `PhotoOffer.swift`: a fifth thing the sheet can show, `.seedPacket`, and the choice's row. `SeedPacketScanner.swift`: `SeedPacketScanView` takes `startingPhotos`, read at once in `begin()`.
 - `docs/eira-contract.md`, section 9: the photo card's four choices.
+# 20 November 2026: safety copies, photos included, made by themselves every day
+
+**By the "Next phase, stage 0 then lane A" chat** (knowledge base doc 138). Branch `safety-copies`. Doc 123, lane D: a backup with photos on every device before Eira may fill cards.
+
+- **What it is.** A whole copy of this device's records, photos included, in a dated folder beside the records (`Safety copies`). One is made by itself the first time Windfall opens each day, twenty seconds after opening, at background priority. The newest seven are kept, and the newest copy made before a put-back is always kept as well.
+- **How a copy is made while Windfall is running** (`SafetyCopy.swift`): SQLite's own backup routine takes the database as one consistent moment, recent changes included; then the hidden `.default_SUPPORT` folder, where photos are kept, is copied beside it. SQLite then checks the copy (`PRAGMA quick_check`) and counts its plants and photos, written into the copy's `about.json`.
+- **Settings › Backup** now starts with **Safety copies, photos included** (`SafetyCopyViews.swift`): Make a safety copy now; each copy with its date, what made it, "376 plants, 11 photos, 4.2 MB"; **Pack to save** then **Save to Files** (the copy packed as one .zip by Apple's file coordinator); **Put back**.
+- **Putting a copy back** is asked for and done the next time Windfall opens, before the records are opened (`WindfallApp.swift`, `SafetyCopy.finishPuttingBackIfAsked`). A copy of the records as they stand is made first; if it cannot be, nothing is replaced.
+- The JSON backup below is unchanged, renamed "Records as a file".
+- `SafetyCopyPlan.swift` (in the logic tests' files): folder names, when a copy is due, which to keep, the words. Seven new checks, 1,066 pass.
+- Not changed: the database layout. No record type was added.
 
 # 20 November 2026, 20:35: lane A and lane B joined into main
 

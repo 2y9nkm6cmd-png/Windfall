@@ -671,6 +671,10 @@ struct BackupView: View {
 
     var body: some View {
         Form {
+            // Whole copies of this device's records, photos included,
+            // made by themselves each day (SafetyCopyViews.swift).
+            SafetyCopiesSection()
+
             Section {
                 Button {
                     do {
@@ -689,9 +693,9 @@ struct BackupView: View {
                     }
                 }
             } header: {
-                Text("Backup")
+                Text("Records as a file")
             } footer: {
-                Text("Everything except photos, as one JSON file. Photos are left out because they'd make it enormous and they're already in iCloud Photos.")
+                Text("Records without photos, as one JSON file that a newer Windfall can still read. For a whole copy with photos, use Safety copies above.")
             }
 
             Section {

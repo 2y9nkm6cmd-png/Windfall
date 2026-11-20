@@ -933,6 +933,24 @@ struct LogicTests {
         check(EiraOpenRule.read("Show me how to prune an apple tree", candidates: openables) == nil && EiraOpenRule.read("open the greenhouse door at 9", candidates: openables) == nil && EiraOpenRule.read("What is in bed 3?", candidates: openables) == nil && EiraOpenRule.read("bed 3", candidates: openables) == nil && EiraOpenRule.read("show me", candidates: openables) == nil, "anything that is not exactly a request to open a known page goes on to Eira")
         check(EiraOpenRule.read("Today I opened bed 3", candidates: openables) == nil, "the words for opening count only at the start")
         check(EiraOpenRule.plain("William\u{2019}s  Bed—3!") == "williams bed 3" && EiraOpenRule.asked(in: "Please, could you show me the Herb Bed page please?") == "herb bed", "the plain form drops marks, apostrophes, filler and capitals")
+        // Safety copies: their names, when one is due, which are kept (SafetyCopyPlan.swift, doc 138)
+        let safetyUTC = TimeZone(identifier: "UTC")!
+        var utcCalendar = Calendar(identifier: .gregorian); utcCalendar.timeZone = safetyUTC
+        let lateEvening = Date(timeIntervalSince1970: 1_795_206_900)   // 20 November 2026, 20:35 UTC
+        check(SafetyCopyPlan.folderName(made: lateEvening, timeZone: safetyUTC) == "Safety copy 2026-11-20 203500", "a safety copy's folder is named by its date and time, seconds included: \(SafetyCopyPlan.folderName(made: lateEvening, timeZone: safetyUTC))")
+        check(SafetyCopyPlan.isDailyDue(newest: nil, now: lateEvening, calendar: utcCalendar) && !SafetyCopyPlan.isDailyDue(newest: lateEvening.addingTimeInterval(-3600), now: lateEvening, calendar: utcCalendar) && SafetyCopyPlan.isDailyDue(newest: lateEvening.addingTimeInterval(-86_400), now: lateEvening, calendar: utcCalendar), "a copy is due when none has been made today, and not when one was made earlier today")
+        check(SafetyCopyPlan.isDailyDue(newest: lateEvening.addingTimeInterval(3 * 3600), now: lateEvening.addingTimeInterval(4 * 3600), calendar: utcCalendar), "a copy made at 23:35 does not stop the next day's at 00:35")
+        func copyNote(daysAgo: Double, _ kind: SafetyCopyKind = .daily) -> SafetyCopyNote {
+            SafetyCopyNote(made: lateEvening.addingTimeInterval(-daysAgo * 86_400), kind: kind, plants: 376, photos: 11, bytes: 4_200_000, checkedWhole: true)
+        }
+        let tenCopies = (0..<10).map { (name: "copy \($0)", about: copyNote(daysAgo: Double($0))) }
+        check(SafetyCopyPlan.toLetGo(tenCopies) == ["copy 9", "copy 8", "copy 7"], "the seven newest copies are kept and the older let go, oldest first")
+        var withUndo = tenCopies
+        withUndo[8] = (name: "copy 8", about: copyNote(daysAgo: 8, .beforePuttingBack))
+        check(SafetyCopyPlan.toLetGo(withUndo) == ["copy 9", "copy 7"] && SafetyCopyPlan.toLetGo(Array(tenCopies.prefix(3))).isEmpty, "the newest copy made before a put-back is always kept, and with seven or fewer none is let go")
+        check(SafetyCopyPlan.summary(copyNote(daysAgo: 0)) == "376 plants, 11 photos, 4.2 MB" && SafetyCopyPlan.sizeWords(860_000) == "860 KB" && SafetyCopyPlan.sizeWords(1) == "1 byte" && SafetyCopyPlan.sizeWords(2_500_000_000) == "2.5 GB", "a copy is described by what it holds and its size")
+        var brokenCopy = copyNote(daysAgo: 0); brokenCopy.checkedWhole = false; brokenCopy.photos = 1; brokenCopy.plants = nil
+        check(SafetyCopyPlan.summary(brokenCopy) == "Not whole: SQLite's check found a fault. 1 photo, 4.2 MB", "a copy SQLite found fault with says so first")
         // Photos a page hands over for Eira's bar
         tracker.handToBar([Data([1, 2]), Data([3])])
         check(tracker.photosForBar.count == 2, "photos dropped on a page wait for Eira's bar")
