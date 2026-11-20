@@ -30,6 +30,25 @@
 
 **Not checked.** A build. The drawings in the app, light or dark. Swift was not changed.
 
+# 16 November 2026, 07:30: Eira's button is plain glass, not interactive glass
+
+**By the "Eira icon glitch" chat, started from William's phone. Written in Claude's cloud workspace: not built in Xcode and not seen running.** On the branch `eira-button-steady`, from `main` at `aa4f08c`. William, 07:17, with a screen recording from his iPhone: "This is the glitchiness I'm talking about on Eira's icon".
+
+**What the film showed** (60 frames a second, looked at one by one):
+
+- At the touch, the circle went see-through for two frames, then turned a washed-out mid green under a bright cream rim and swelled a little.
+- As the finger lifted, for one frame the drawing was thrown on its side (leaves pointing up and left, flower lying flat), just as the gust began. The sway cannot do that: at its furthest the leaves turn 3.6 degrees.
+- The circle stayed the paler green all the while the bar was open, and darkened back only after the snowdrop had come home.
+- The settling sway after it comes home was smooth. A few frames were held twice as it landed, while the keyboard went away (not touched here).
+
+**Why.** All three are what `.interactive()` glass does by itself on a touch: it swells, shimmers and wobbles. It was on the whole bar's capsule, so on Eira's button too, where it fought the snowdrop's own movement.
+
+**What changed.** `EiraFloatingBar.swift`: `.glassEffect(.regular.interactive(), in: .capsule)` became `.glassEffect(.regular, in: .capsule)`, with a comment saying why. Nothing else. The other glass buttons in the app keep `.interactive()`.
+
+**⚠️ CHECK.** That the paler green in the open bar came from the interactive glass is Claude's reading of the film, not proved. If the circle is still pale with the bar open after this, the cause is elsewhere. The button no longer answers the moment a finger lands, only when it lifts (the gust starts then, as before).
+
+**Not checked.** Any build. The button on any device.
+
 # 16 November 2026, 06:49: sightings show both names; the swipe fits its row, deletes on a long swipe and no longer slows scrolling; the Sightings list opens sightings
 
 **By the "iPad changes" chat.** `011d743`, then merged with `main` (the packet reader, `f3f0bfa`) as `cf9f9c7`, which is now `main`. William, 06:36 to 06:41, from the iPad.

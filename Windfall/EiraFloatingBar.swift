@@ -255,7 +255,18 @@ struct EiraFloatingBar: View {
                 // glass, 1 is solid paper. Closed, the snowdrop's bubble is
                 // left as clear glass.
                 .background(Theme.paper.opacity(expanded ? Self.barFill : 0), in: .capsule)
-                .glassEffect(.regular.interactive(), in: .capsule)
+                // Plain glass, not `.interactive()` (16 November 2026).
+                // Interactive glass answers a finger by itself: it
+                // swells, shimmers white and wobbles. On Eira's button
+                // that fought her own movement. Filmed on William's
+                // iPhone: at the touch the snowdrop flickered see-through
+                // for two frames, then turned a washed-out green under a
+                // bright rim; as the finger lifted, the wobble threw the
+                // drawing on its side for one frame, just as the gust
+                // began; and the circle stayed the paler green while the
+                // bar was open, darkening only after it had come home.
+                // The gust and the bump are the answer to a tap here.
+                .glassEffect(.regular, in: .capsule)
                 // While photos are held over the bar, a dashed line round it
                 // shows that it will take them.
                 .overlay {
