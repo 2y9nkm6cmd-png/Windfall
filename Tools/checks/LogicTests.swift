@@ -1034,6 +1034,14 @@ struct LogicTests {
         check(oddList.count == 1 && oddList.first?.sighting === oddSighting && oddList.first?.warnings.first?.kind == .outOfSeason, "only sightings still waiting to be sent are checked, and only the odd ones listed")
         oddSighting.acceptedScientificName = "Cyanistes caeruleus"
         check(oddSighting.exportWarnings(book: oddBook, now: oddNow, calendar: oddCalendar).isEmpty, "the accepted scientific name is the one looked up")
+        // Foreign seed packets: when to offer a translation, and the lines it covers (PacketTranslation.swift, doc 140)
+        check(PacketTranslation.languageToOffer(hypotheses: ["fr": 0.83, "en": 0.05, "it": 0.04]) == "fr" && PacketTranslation.languageToOffer(hypotheses: ["de-DE": 0.7]) == "de", "a packet the detector is sure is French is offered a translation from French")
+        check(PacketTranslation.languageToOffer(hypotheses: ["en": 0.9]) == nil && PacketTranslation.languageToOffer(hypotheses: ["fr": 0.6, "en": 0.3]) == nil && PacketTranslation.languageToOffer(hypotheses: ["fr": 0.4, "it": 0.35]) == nil && PacketTranslation.languageToOffer(hypotheses: [:]) == nil, "nothing is offered for English, for a packet with an English panel, or when the detector is unsure")
+        check(PacketTranslation.base("fr-FR") == "fr" && PacketTranslation.base("zh-Hant-TW") == "zh-Hant" && PacketTranslation.name(of: "nl") == "Dutch" && PacketTranslation.name(of: "xx") == "xx", "language codes are shortened and named in English")
+        let foreignLines = [PacketLine(text: "Carotte Nantaise 2"), PacketLine(text: "  "), PacketLine(text: "2,50 €"), PacketLine(text: "Semis : mars à juillet"), PacketLine(text: "Carotte Nantaise 2", side: .front)]
+        check(PacketTranslation.linesToTranslate(foreignLines) == ["Carotte Nantaise 2", "Semis : mars à juillet"] && PacketTranslation.sample(foreignLines) == "Carotte Nantaise 2\nSemis : mars à juillet", "blank lines, lines with no letters and repeats are not translated")
+        let pairs = PacketTranslation.paired(["Semis : mars à juillet", "Récolte"], with: ["Semis : mars à juillet": "Sowing: March to July"])
+        check(pairs.map(\.english) == ["Sowing: March to July", ""] && pairs.map(\.original) == ["Semis : mars à juillet", "Récolte"], "each line keeps its place beside its translation, even with none")
         // Photos a page hands over for Eira's bar
         tracker.handToBar([Data([1, 2]), Data([3])])
         check(tracker.photosForBar.count == 2, "photos dropped on a page wait for Eira's bar")

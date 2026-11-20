@@ -116,6 +116,21 @@ final class SeedPacketScanner {
         PacketSide.allCases.flatMap { linesBySide[$0] ?? [] }
     }
 
+    /// For a packet not printed in English: each side read a second time
+    /// with Vision free to choose the language, so accents and foreign
+    /// words come out right. Only these are translated. The rows of the
+    /// sheet are still worked out from the English reading above, so an
+    /// English packet reads exactly as it did before 20 November 2026.
+    private(set) var foreignLinesBySide: [PacketSide: [PacketLine]] = [:]
+    /// The language of those lines ("fr"), or nil for an English packet.
+    /// See PacketTranslation.swift.
+    private(set) var foreignLanguage: String?
+
+    /// The lines to translate, the back's first, as for `linesRead`.
+    var foreignLines: [PacketLine] {
+        PacketSide.allCases.flatMap { foreignLinesBySide[$0] ?? [] }
+    }
+
     // MARK: Recognition
 
     /// Reads one side of the packet from a photo, and works the rows
@@ -157,21 +172,23 @@ final class SeedPacketScanner {
         do {
             try handler.perform([request])
 
-            let observations = request.results ?? []
-            linesBySide[side] = observations.compactMap { (lineSeen) -> PacketLine? in
-                guard let candidate = lineSeen.topCandidates(1).first else { return nil }
-                // Where the line sits, as shares of the photo from 0 to
-                // 1. Vision measures up from the bottom, and
-                // PacketReading wants down from the top, hence `1 -`.
-                let box = lineSeen.boundingBox
-                return PacketLine(text: candidate.string,
-                                  confidence: Double(candidate.confidence),
-                                  left: Double(box.minX),
-                                  right: Double(box.maxX),
-                                  top: Double(1 - box.maxY),
-                                  height: Double(box.height),
-                                  side: side)
+            linesBySide[side] = Self.lines(from: request.results ?? [], side: side)
+
+            // Is this side in another language? If so, read it again
+            // with Vision choosing the language itself, for the
+            // translation (PacketTranslationView.swift).
+            if PacketLanguage.detect(PacketTranslation.sample(linesBySide[side] ?? [])) != nil {
+                let again = VNRecognizeTextRequest()
+                again.recognitionLevel = .accurate
+                again.usesLanguageCorrection = true
+                again.automaticallyDetectsLanguage = true
+                try? handler.perform([again])
+                foreignLinesBySide[side] = Self.lines(from: again.results ?? [], side: side)
+            } else {
+                foreignLinesBySide[side] = nil
             }
+            // The language of every side read again, together.
+            foreignLanguage = foreignLines.isEmpty ? nil : PacketLanguage.detect(PacketTranslation.sample(foreignLines))
 
             // `try?` means "if this fails, carry on without it". A
             // packet with no barcode found is still a packet read.
@@ -182,6 +199,24 @@ final class SeedPacketScanner {
 
         } catch {
             lastError = error.localizedDescription
+        }
+    }
+
+    /// Vision's lines as the packet reader's own `PacketLine`s.
+    private static func lines(from observations: [VNRecognizedTextObservation], side: PacketSide) -> [PacketLine] {
+        observations.compactMap { (lineSeen) -> PacketLine? in
+            guard let candidate = lineSeen.topCandidates(1).first else { return nil }
+            // Where the line sits, as shares of the photo from 0 to
+            // 1. Vision measures up from the bottom, and
+            // PacketReading wants down from the top, hence `1 -`.
+            let box = lineSeen.boundingBox
+            return PacketLine(text: candidate.string,
+                              confidence: Double(candidate.confidence),
+                              left: Double(box.minX),
+                              right: Double(box.maxX),
+                              top: Double(1 - box.maxY),
+                              height: Double(box.height),
+                              side: side)
         }
     }
 
@@ -224,6 +259,8 @@ final class SeedPacketScanner {
         nameFound = nil
         linesBySide = [:]
         barcodesBySide = [:]
+        foreignLinesBySide = [:]
+        foreignLanguage = nil
         lastError = nil
     }
 }
@@ -390,6 +427,15 @@ struct SeedPacketScanView: View {
                             }
                         }
                     }
+                }
+
+                // A packet not printed in English: offer a translation,
+                // made on this device (PacketTranslationView.swift).
+                // `.id` starts the section afresh when new lines are read.
+                if let language = scanner.foreignLanguage, !scanner.isScanning {
+                    let toTranslate = PacketTranslation.linesToTranslate(scanner.foreignLines)
+                    PacketTranslationSection(language: language, lines: toTranslate)
+                        .id(toTranslate)
                 }
 
                 if let error = scanner.lastError {
