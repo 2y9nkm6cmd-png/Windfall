@@ -1,3 +1,11 @@
+# 20 November 2026: three small fixes on the UK wildlife pages
+
+**By the lane A and D build chat** (knowledge base doc 140). Branch `wild-look`. William's yes to card `d-wild-look` (doc 100).
+
+- **A kind's page is cream, not white.** Its rows are a `List` (so several hundred moths are made only as they scroll into view), and a `List` paints rows the system's white. Each row now has `.paperRow()` (new, `Theme.swift`): the card colour, painted flat the way `CardGlass` paints a card when glass is off, with a thin wash of white in dark mode. Not real glass, because glass on hundreds of rows would cost power (doc 91, finding 10).
+- **The summary card's words** now say every kind has a drawing and the animals seen most often have their own, in place of "Each kind has one drawing, shared by all its animals", which stopped being true with the 199 single-animal drawings.
+- **Counts carry commas:** "44,611" confirmed UK records, "4,180 animals". `WildlifeReference.grouped` writes them the same way on every device. One new check, 1,070 pass.
+
 # 20 November 2026: Siri, Shortcuts and the Action Button
 
 **By the "Next phase, stage 0 then lane A" chat** (knowledge base doc 138). Branch `siri-shortcuts`. Doc 120, use 5.
