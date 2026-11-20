@@ -221,6 +221,8 @@ A job card turned down says `Left off your jobs. If that was a question for me, 
 
 **Before all of these, in Eira's bar** (not in a chat already open): a request to open a page. Since 20 November 2026 (piece 4, branch `eira-open-page`). `EiraOpenRule` in `EiraOpenPage.swift` reads the words; if it finds a page, the bar folds away and the page opens, and nothing is said and nothing goes to the model. It is checked before the job rule and the journal rule in `EiraFloatingBar.ask`. Section 13 has the rule.
 
+**Words from Siri, Shortcuts and the Action Button** (since 20 November 2026, `WindfallIntents.swift`, knowledge base doc 138) are put in the bar's box and sent exactly as if typed, so all of the above applies to them unchanged. "Open a page in Windfall" puts `show me` in front of the page named unless the words already start with a word for opening; "Add a job in Windfall" puts `I need to` in front unless the job rule already reads the words as a job (`SpokenToEira.swift`). "Tell Eira in Windfall" hands the words over as said.
+
 ## 7. What happens to a reply
 
 Read by rule before it is shown or saved (`EiraChecks.checked`). A reply stopped by the gardener is left as it is.

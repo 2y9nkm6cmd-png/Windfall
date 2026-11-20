@@ -1,3 +1,12 @@
+# 20 November 2026: Siri, Shortcuts and the Action Button
+
+**By the "Next phase, stage 0 then lane A" chat** (knowledge base doc 138). Branch `siri-shortcuts`. Doc 120, use 5.
+
+- Three actions the rest of the system can run (`WindfallIntents.swift`, Apple's AppIntents framework): **Add a garden job**, **Open a page in Windfall** and **Tell Eira**. Siri knows them by phrase with no setting up: "Add a job in Windfall", "Open a page in Windfall", "Tell Eira in Windfall". Siri asks for the job, page or words. They are also in the Shortcuts app, in Spotlight, and can be put on the Action Button (Settings, Action Button, Shortcut).
+- **Each opens Windfall and hands the words to Eira's bar, exactly as if typed** (`EiraHandoff`, taken by `EiraFloatingBar`). So a page opens by the open-page rule, a job offers its card and **nothing is added until Add is pressed**, and anything else goes to Eira as before.
+- `SpokenToEira.swift` (in the logic tests' files): "Bed 3" becomes "show me Bed 3"; "lift the dahlias" becomes "I need to lift the dahlias" so the job rule reads it. Three new checks.
+- `docs/eira-contract.md`, section 6: words from Siri and Shortcuts.
+
 # 20 November 2026: "Seed packet" among the choices for a photo given to Eira
 
 **By the "Next phase, stage 0 then lane A" chat.** Branch `bar-seed-packet`. Doc 119, gap 6.

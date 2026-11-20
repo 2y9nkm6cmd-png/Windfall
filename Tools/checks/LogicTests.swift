@@ -951,6 +951,11 @@ struct LogicTests {
         check(SafetyCopyPlan.summary(copyNote(daysAgo: 0)) == "376 plants, 11 photos, 4.2 MB" && SafetyCopyPlan.sizeWords(860_000) == "860 KB" && SafetyCopyPlan.sizeWords(1) == "1 byte" && SafetyCopyPlan.sizeWords(2_500_000_000) == "2.5 GB", "a copy is described by what it holds and its size")
         var brokenCopy = copyNote(daysAgo: 0); brokenCopy.checkedWhole = false; brokenCopy.photos = 1; brokenCopy.plants = nil
         check(SafetyCopyPlan.summary(brokenCopy) == "Not whole: SQLite's check found a fault. 1 photo, 4.2 MB", "a copy SQLite found fault with says so first")
+        // Siri and Shortcuts: the words made ready for Eira's bar (SpokenToEira.swift, doc 138)
+        check(SpokenToEira.forOpening("Bed 3") == "show me Bed 3" && EiraOpenRule.read(SpokenToEira.forOpening("Bed 3"), candidates: openables) == .record(.bed, 0) && SpokenToEira.forOpening("open the journal") == "open the journal" && SpokenToEira.forOpening("  ") == "", "a page said to Siri is read by the open-page rule, and words that already open are left alone")
+        let spokenJob = SpokenToEira.forJob("Lift the dahlias")
+        check(spokenJob == "I need to lift the dahlias" && GardenJobs.offer(in: spokenJob, today: lateEvening) != nil, "a job said to Siri is shaped so the job rule offers its card: \(spokenJob)")
+        check(SpokenToEira.forJob("I need to build the wigwam at the weekend", today: lateEvening) == "I need to build the wigwam at the weekend" && SpokenToEira.forJob("lift the dahlias?") == "I need to lift the dahlias" && SpokenToEira.forJob("") == "", "a job already in a job's shape is left alone, and a question mark is dropped so it is not read as a question")
         // Photos a page hands over for Eira's bar
         tracker.handToBar([Data([1, 2]), Data([3])])
         check(tracker.photosForBar.count == 2, "photos dropped on a page wait for Eira's bar")

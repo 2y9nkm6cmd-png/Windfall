@@ -498,6 +498,15 @@ struct EiraFloatingBar: View {
         .onChange(of: WidgetRoute.shared.pending, initial: true) {
             if WidgetRoute.shared.claim(["eira"]) != nil { openEira(with: nil) }
         }
+        // Words from Siri, Shortcuts or the Action Button
+        // (WindfallIntents.swift): put in the box and sent, exactly as
+        // if typed, so every rule in `ask()` applies to them.
+        .onChange(of: EiraHandoff.shared.pending, initial: true) {
+            if let words = EiraHandoff.shared.take() {
+                question = words
+                ask()
+            }
+        }
         #if os(iOS)
         // The on-screen keyboard has finished going: a close waiting
         // for it can fold the bar now. See `close(travel:then:)`.

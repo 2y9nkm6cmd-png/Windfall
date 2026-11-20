@@ -58,3 +58,4 @@ EiraOpenPage.swift
 CardAdds.swift
 EiraTestSheet.swift
 SafetyCopyPlan.swift
+SpokenToEira.swift
