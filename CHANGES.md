@@ -1,3 +1,12 @@
+# 20 November 2026, 18:15: stage 0 of the next phase joined, signed afresh and installed
+
+**By the "Next phase, stage 0 then lane A" chat, linked to the Mac.** Knowledge base docs 123, 125, 127 and 137.
+
+- `eira-button-steady` (plain glass on Eira's button) and `eira-contract` (documents only) merged into `main`, then the image model's not sure line moved to 97% (`EiraIdentify.genusFloor`, and `not_sure_floor` in `uk_species.json` on the Mac, iPhone and iPad, outside git). `main` is `ed34ee1`; this entry is the commit after it. Logic tests: 1,029 pass.
+- Signing renewed: Xcode had lost its Apple account; William signed in at about 18:05. New profiles made 18:07, run out **27 November 18:07**, both devices listed.
+- Installed: iPad 18:10 and iPhone 18:11 (`ed34ee1`), Mac opened 18:12 from `DerivedData/Windfall-stage0`. Mac records copied first (`records-copy-15nov-1811`, the script's name; integrity ok, 376 plants, 2 gardens, 11 photos).
+- Then the iPad alone was given `eira-open-page` (lane A pieces 1 and 4 on top of `main`) at 18:15, to try.
+
 # 18 November 2026, 19:10: Eira's contract and the new test sheet sections, written down (lane B)
 
 **By the "next phase, lane B" chat, in Claude's cloud workspace from William's phone. On the branch `eira-contract`, not in `main`. No Swift changed, nothing built.** William, 19:03: "Let's start building the next phase". The chat could not reach the Mac, so stage 0 and lane A wait for a chat on the Mac; this is lane B, stage 1 (knowledge base docs 123, 127 and 128).
