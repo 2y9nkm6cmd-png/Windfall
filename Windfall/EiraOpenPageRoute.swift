@@ -116,13 +116,14 @@ extension EiraOpenRequest {
     var pageRequest: EiraConversation.PageRequest {
         switch page {
         case .bed(let bed)?:
-            return .init(kind: .bed, key: String(describing: bed.persistentModelID), phrase: EiraSight.bed(bed.name).full)
+            let words = EiraSight.bed(bed.name).full
+            return .init(kind: .bed, key: String(describing: bed.persistentModelID), phrase: words)
         case .plant(let plant)?:
-            return .init(kind: .plant, key: String(describing: plant.persistentModelID),
-                         phrase: EiraSight.plant(plant.commonName, variety: plant.variety).full)
+            let words = EiraSight.plant(plant.commonName, variety: plant.variety).full
+            return .init(kind: .plant, key: String(describing: plant.persistentModelID), phrase: words)
         case .species(let fauna)?:
-            return .init(kind: .species, key: String(describing: fauna.persistentModelID),
-                         phrase: EiraSight.species(fauna.commonName).full)
+            let words = EiraSight.species(fauna.commonName).full
+            return .init(kind: .species, key: String(describing: fauna.persistentModelID), phrase: words)
         case .plantLibrary?, .year?, nil:
             let section = AppSection(rawValue: place.rawValue)
             if let gardenKey {
