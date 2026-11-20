@@ -60,7 +60,9 @@ final class NotificationService {
     func rescheduleAll(context: ModelContext) async {
         guard isAuthorised else { return }
 
-        centre.removeAllPendingNotificationRequests()
+        // Only this page's own reminders are taken away: the frost and
+        // FIT count notices planned by SpeaksFirst.swift stay.
+        await removeOwn()
 
         await scheduleFITCountPrompts(context: context)
         await scheduleWormCountPrompt()
@@ -186,8 +188,20 @@ final class NotificationService {
             identifier: ID.frostWarning, content: content, trigger: trigger))
     }
 
+    /// Turns off this page's reminders. Until 20 November 2026 this took
+    /// away every planned notification, which would also have taken
+    /// the frost warnings and FIT count notes (SpeaksFirst.swift), which
+    /// have switches of their own.
     func cancelAll() {
-        centre.removeAllPendingNotificationRequests()
+        Task { await removeOwn() }
+    }
+
+    /// Takes away the planned notifications that are not Eira's
+    /// (`SpeaksFirstPlan.idPrefix`).
+    private func removeOwn() async {
+        let own = await centre.pendingNotificationRequests().map(\.identifier)
+            .filter { !$0.hasPrefix(SpeaksFirstPlan.idPrefix) }
+        centre.removePendingNotificationRequests(withIdentifiers: own)
     }
 }
 
@@ -200,6 +214,9 @@ struct NotificationSettingsView: View {
 
     var body: some View {
         Form {
+            // The same two switches as in Settings. See SpeaksFirst.swift.
+            SpeaksFirstSection()
+
             Section {
                 if service.isAuthorised {
                     Label("Reminders are on", systemImage: "checkmark.circle")
@@ -230,7 +247,6 @@ struct NotificationSettingsView: View {
                 Label("Weekly FIT Count nudge, in season only", systemImage: "camera.macro")
                 Label("Earthworm count in spring and autumn", systemImage: "chart.bar.doc.horizontal")
                 Label("Monthly list of what's sowable", systemImage: "leaf")
-                Label("Frost warning the afternoon before", systemImage: "snowflake")
             }
             .font(.body)
         }
