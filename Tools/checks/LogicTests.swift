@@ -956,6 +956,39 @@ struct LogicTests {
         let spokenJob = SpokenToEira.forJob("Lift the dahlias")
         check(spokenJob == "I need to lift the dahlias" && GardenJobs.offer(in: spokenJob, today: lateEvening) != nil, "a job said to Siri is shaped so the job rule offers its card: \(spokenJob)")
         check(SpokenToEira.forJob("I need to build the wigwam at the weekend", today: lateEvening) == "I need to build the wigwam at the weekend" && SpokenToEira.forJob("lift the dahlias?") == "I need to lift the dahlias" && SpokenToEira.forJob("") == "", "a job already in a job's shape is left alone, and a question mark is dropped so it is not read as a question")
+        // Odd-record warnings before an iRecord export (RecordWarnings.swift, doc 140)
+        let oddBook = try! WildlifeReference.decode(Data("""
+        {"source":"test","fetched":"2026-11-20","kinds":[{"slug":"butterfly","name":"Butterflies","group":"Butterflies and moths"},{"slug":"tit","name":"Tits","group":"Birds"},{"slug":"mining-bee","name":"Mining bees","group":"Bees"}],
+         "animals":[{"s":"Aglais io","c":"Peacock","k":"butterfly","n":800,"m":[6,10,80,120,40,20,200,180,90,40,8,6]},
+                    {"s":"Pieris rapae","c":"Small White","k":"butterfly","n":40,"m":[0,0,4,6,5,6,7,6,4,2,0,0]},
+                    {"s":"Cyanistes caeruleus","c":"Blue Tit","k":"tit","n":5000,"m":[500,500,500,400,400,400,300,300,400,400,450,450]},
+                    {"s":"Andrena fulva","c":"Tawny Mining Bee","k":"mining-bee","n":300,"m":[0,0,40,200,60,0,0,0,0,0,0,0]}]}
+        """.utf8))
+        var oddCalendar = Calendar(identifier: .gregorian); oddCalendar.timeZone = TimeZone(identifier: "UTC")!
+        let oddNow = oddCalendar.date(from: DateComponents(year: 2026, month: 11, day: 20, hour: 21))!
+        func oddDay(_ m: Int, _ d: Int, _ y: Int = 2026) -> Date { oddCalendar.date(from: DateComponents(year: y, month: m, day: d, hour: 12))! }
+        func oddWarnings(_ name: String?, _ when: Date, grid: String? = "ST 6541 7720") -> [RecordWarning] {
+            RecordWarnings.warnings(scientificName: name, observedAt: when, gridReference: grid, book: oddBook, now: oddNow, calendar: oddCalendar)
+        }
+        check(oddWarnings("Aglais io", oddDay(8, 3)).isEmpty && oddWarnings("Cyanistes caeruleus", oddDay(1, 9)).isEmpty, "a peacock in August and a blue tit in January raise nothing")
+        let januaryAndrena = oddWarnings("Andrena fulva", oddDay(1, 9))
+        check(januaryAndrena.map(\.kind) == [.outOfSeason] && januaryAndrena.first?.words == "Seldom recorded in January: fewer than 2 in 100 of its UK records. Usually March to May.", "a tawny mining bee in January is out of season: \(januaryAndrena.first?.words ?? "none")")
+        check(oddWarnings("Aglais io", oddDay(1, 9)).map(\.kind) == [.outOfSeason] && oddWarnings("Pieris rapae", oddDay(1, 9)).isEmpty, "a peacock is seldom recorded in January, but an animal with under 50 records is not judged by season")
+        check(oddWarnings("Aglais nowhere", oddDay(8, 3)).isEmpty && oddWarnings("Andrena spp.", oddDay(4, 3)).isEmpty && oddWarnings("Papilio machaon", oddDay(8, 3)).map(\.kind) == [.outOfRange] && oddWarnings(nil, oddDay(1, 9)).isEmpty, "a name not on the UK list is flagged unless its genus is; with no scientific name nothing is looked up")
+        check(oddWarnings("Aglais io", oddDay(8, 3, 2027)).map(\.kind) == [.futureDate] && oddWarnings("Cyanistes caeruleus", oddNow.addingTimeInterval(1800)).isEmpty && oddWarnings("Aglais io", oddDay(8, 3, 2027)).first?.words == "Dated 3 August 2027, which has not come yet.", "a date not yet come is flagged, with an hour's grace")
+        let noGrid = oddWarnings("Aglais io", oddDay(8, 3), grid: "  ")
+        check(noGrid.map(\.kind) == [.noGridReference] && noGrid.first?.holdsBack == true && oddWarnings("Aglais io", oddDay(8, 3), grid: nil).first?.kind == .noGridReference && oddWarnings("Aglais io", oddDay(8, 3), grid: "51.49, -2.49").map(\.kind) == [.oddGridReference], "a missing grid reference holds a record back; one of the wrong shape is a warning")
+        check(RecordWarnings.looksLikeGridReference("ST6577") && RecordWarnings.looksLikeGridReference("st 6541 7720") && RecordWarnings.looksLikeGridReference("J 12 34") && RecordWarnings.looksLikeGridReference("SU1234567890") && !RecordWarnings.looksLikeGridReference("ST657") && !RecordWarnings.looksLikeGridReference("AB1234") && !RecordWarnings.looksLikeGridReference("SI1234") && !RecordWarnings.looksLikeGridReference("ST") && !RecordWarnings.looksLikeGridReference("ST123456789012"), "the shape of a British or Irish grid reference: \(RecordWarnings.looksLikeGridReference("ST6577"))")
+        let oddSighting = WildlifeObservation()
+        oddSighting.scientificName = "Andrena fulva"; oddSighting.observedAt = oddDay(1, 9); oddSighting.gridReference = "ST6577"
+        let fineSighting = WildlifeObservation()
+        fineSighting.scientificName = "Aglais io"; fineSighting.observedAt = oddDay(8, 3); fineSighting.gridReference = "ST6577"
+        let sentSighting = WildlifeObservation()
+        sentSighting.scientificName = "Andrena fulva"; sentSighting.observedAt = oddDay(1, 9); sentSighting.submittedToIRecord = true
+        let oddList = ExportWaiting.oddSightings([oddSighting, fineSighting, sentSighting], book: oddBook, now: oddNow)
+        check(oddList.count == 1 && oddList.first?.sighting === oddSighting && oddList.first?.warnings.first?.kind == .outOfSeason, "only sightings still waiting to be sent are checked, and only the odd ones listed")
+        oddSighting.acceptedScientificName = "Cyanistes caeruleus"
+        check(oddSighting.exportWarnings(book: oddBook, now: oddNow, calendar: oddCalendar).isEmpty, "the accepted scientific name is the one looked up")
         // Photos a page hands over for Eira's bar
         tracker.handToBar([Data([1, 2]), Data([3])])
         check(tracker.photosForBar.count == 2, "photos dropped on a page wait for Eira's bar")

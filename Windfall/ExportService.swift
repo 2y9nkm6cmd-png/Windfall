@@ -79,12 +79,21 @@ final class ExportService {
     /// Only confirmed identifications are exported. A machine guess is
     /// never sent to a national database — that's the whole reason
     /// `confirmedID` is separate from `provisionalID`.
-    func exportObservations(_ observations: [WildlifeObservation]) throws -> ExportResult {
+    ///
+    /// - `leavingOut`: sightings William chose to keep back this time,
+    ///   after the odd-record warnings (`RecordWarnings`). They are listed
+    ///   with the others held back, and stay waiting for the next file.
+    func exportObservations(_ observations: [WildlifeObservation],
+                            leavingOut: Set<UUID> = []) throws -> ExportResult {
 
         var rows: [[String?]] = []
         var excluded: [(String, [String])] = []
 
         for observation in observations where !observation.submittedToIRecord {
+            if leavingOut.contains(observation.id) {
+                excluded.append((observation.bestAvailableName ?? "Unnamed record", ["Left out this time, to check first"]))
+                continue
+            }
             let problems = observation.validationProblems
 
             guard problems.isEmpty else {
@@ -267,6 +276,35 @@ final class ExportService {
 ///
 /// Kept in one place so that the Export page and the tile that leads to
 /// it (on the Settings and tools page) can never give different numbers.
+// MARK: - Odd-record warnings
+
+extension WildlifeObservation {
+
+    /// What looks odd about this sighting before it goes to iRecord: out
+    /// of season, not on the UK list, dated in the future, or a grid
+    /// reference missing or the wrong shape. See RecordWarnings.swift.
+    /// Looked up by the accepted scientific name, or the one given.
+    func exportWarnings(book: WildlifeReference = .shared, now: Date = .now,
+                        calendar: Calendar = .current) -> [RecordWarning] {
+        RecordWarnings.warnings(scientificName: acceptedScientificName ?? scientificName,
+                                observedAt: observedAt, gridReference: gridReference,
+                                book: book, now: now, calendar: calendar)
+    }
+}
+
+extension ExportWaiting {
+
+    /// The sightings not yet sent that have a warning, with their
+    /// warnings, in the order given.
+    static func oddSightings(_ observations: [WildlifeObservation], book: WildlifeReference = .shared,
+                             now: Date = .now) -> [(sighting: WildlifeObservation, warnings: [RecordWarning])] {
+        observations.filter { !$0.submittedToIRecord }.compactMap { sighting in
+            let warnings = sighting.exportWarnings(book: book, now: now)
+            return warnings.isEmpty ? nil : (sighting, warnings)
+        }
+    }
+}
+
 /// An `enum` with no cases is used here as a labelled box for functions:
 /// nothing is ever made from it, the functions are called on its name,
 /// as in `ExportWaiting.sightings(...)`.
@@ -306,6 +344,19 @@ struct ExportView: View {
     @State private var service = ExportService()
     @State private var result: ExportResult?
     @State private var shareURL: URL?
+    /// True while the question "send the odd ones too?" is showing.
+    @State private var isAskingAboutOdd = false
+
+    /// Sightings waiting to go that look odd, with what looks odd.
+    private var odd: [(sighting: WildlifeObservation, warnings: [RecordWarning])] {
+        ExportWaiting.oddSightings(observations)
+    }
+
+    /// Of those, the ones that would otherwise go in the file: ready to
+    /// send, and with a warning that does not keep them out anyway.
+    private var oddButReady: [WildlifeObservation] {
+        odd.filter { $0.sighting.isReadyForSubmission && $0.warnings.contains { !$0.holdsBack } }.map(\.sighting)
+    }
 
     private var pendingObservations: Int { ExportWaiting.sightings(observations) }
 
@@ -315,11 +366,31 @@ struct ExportView: View {
 
     var body: some View {
         Form {
+            if !odd.isEmpty {
+                oddSection
+            }
+
             Section {
-                exportRow("Wildlife sightings",
-                          count: pendingObservations,
-                          systemImage: "ant") {
-                    try service.exportObservations(observations)
+                // With odd sightings among those ready, the button asks
+                // first (the question below) rather than making the file.
+                if oddButReady.isEmpty {
+                    exportRow("Wildlife sightings",
+                              count: pendingObservations,
+                              systemImage: "ant") {
+                        try service.exportObservations(observations)
+                    }
+                } else {
+                    Button {
+                        isAskingAboutOdd = true
+                    } label: {
+                        HStack {
+                            Label("Wildlife sightings", systemImage: "ant")
+                            Spacer()
+                            Text("\(pendingObservations)")
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    .disabled(pendingObservations == 0)
                 }
 
                 exportRow("FIT Counts",
@@ -381,6 +452,59 @@ struct ExportView: View {
         }
         .navigationTitle("Export")
         .paperScreen()
+        // The question, shown when odd sightings are among those ready.
+        // `titleVisibility: .visible` shows the title on an iPhone too.
+        .confirmationDialog(oddQuestion, isPresented: $isAskingAboutOdd, titleVisibility: .visible) {
+            Button("Send all \(pendingObservations)") {
+                make { try service.exportObservations(observations) }
+            }
+            Button("Leave the \(oddButReady.count) out this time") {
+                let keptBack = Set(oddButReady.map(\.id))
+                make { try service.exportObservations(observations, leavingOut: keptBack) }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("They are listed under \"Worth a second look\". Left out, they stay waiting for the next file.")
+        }
+    }
+
+    private var oddQuestion: String {
+        let count = oddButReady.count
+        return count == 1 ? "1 sighting looks odd. Send it anyway?" : "\(count) sightings look odd. Send them anyway?"
+    }
+
+    /// Each sighting that looks odd, with what looks odd about it.
+    private var oddSection: some View {
+        Section {
+            ForEach(odd, id: \.sighting.id) { oddOne in
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(oddOne.sighting.bestAvailableName ?? "Unnamed record")
+                        .font(.body)
+                    Text(oddOne.sighting.observedAt.formatted(date: .abbreviated, time: .omitted))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    ForEach(oddOne.warnings) { warning in
+                        Label(warning.words, systemImage: warning.holdsBack ? "xmark.circle" : "exclamationmark.triangle")
+                            .font(.footnote)
+                            .foregroundStyle(.orange)
+                    }
+                }
+            }
+        } header: {
+            Text("Worth a second look")
+        } footer: {
+            Text("Seasons come from iNaturalist's confirmed UK records, month by month. Not on the UK list means fewer than 20 confirmed UK records there. These do not stop a record being sent: you decide.")
+        }
+    }
+
+    /// Makes a file and keeps the result, or the error.
+    private func make(_ action: () throws -> ExportResult) {
+        do {
+            result = try action()
+            service.lastError = nil
+        } catch {
+            service.lastError = error.localizedDescription
+        }
     }
 
     @ViewBuilder

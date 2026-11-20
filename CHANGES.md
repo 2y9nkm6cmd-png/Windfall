@@ -1,3 +1,12 @@
+# 20 November 2026: odd-record warnings before an iRecord export
+
+**By the lane A and D build chat** (knowledge base doc 140). Branch `irecord-warnings`. Doc 120, use 13: rules and plain sums, no model.
+
+- **Settings and tools › Export records** now starts with **Worth a second look** when any sighting still to be sent looks odd, each with one plain sentence: **out of season** (fewer than 2 in 100 of that animal's UK records fall in that month, for an animal with 50 or more), **not on the UK list** (neither the animal nor its genus has 20 or more confirmed UK records), **dated in the future**, **no grid reference** (iRecord refuses these, so it stays out of the file as before), or **a grid reference of the wrong shape**.
+- When odd sightings are among those ready to go, **Wildlife sightings** asks first: send all, or leave the odd ones out this time (they stay waiting for the next file). Nothing is changed in the records.
+- `RecordWarnings.swift` (in the logic files): the rules. `ExportService.swift`: `exportWarnings`, `ExportWaiting.oddSightings`, `exportObservations(_:leavingOut:)`, the section and the question. `WildlifeReference.knowsGenus(of:)`. Eight new checks.
+- FIT counts and earthworm counts go to PoMS, not iRecord, and are not checked here.
+
 # 20 November 2026: Siri, Shortcuts and the Action Button
 
 **By the "Next phase, stage 0 then lane A" chat** (knowledge base doc 138). Branch `siri-shortcuts`. Doc 120, use 5.

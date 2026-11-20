@@ -59,3 +59,4 @@ CardAdds.swift
 EiraTestSheet.swift
 SafetyCopyPlan.swift
 SpokenToEira.swift
+RecordWarnings.swift
