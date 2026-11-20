@@ -1,0 +1,85 @@
+# Eira's test sheet: the new sections for the next phase, in the form
+# EiraTestRun reads (see the top of Windfall/EiraTestRun.swift).
+#
+# DRAFT, waiting on William at Gate 1 (knowledge base docs 128 and 136,
+# card h-gate1-read-128). The questions and what a good answer does are
+# in docs/eira-test-questions-stage1.md. Every question here is held
+# back: never used, or closely copied, in practice turns for training.
+#
+# The 15 November draft on the Mac (27 questions) is still to be folded
+# in by a chat on the Mac, which removes any repeats of these and joins
+# both into test-sheet.txt.
+#
+# By hand, not here: SP1 (a photo of a packet given to the bar), V1 and
+# V2 (voice, on the iPhone).
+#
+# Run on its own, from the repository's folder, with:
+#   Tools/eira-test/run.sh appleBuiltIn - apple-stage1 "$(pwd)/Tools/eira-test/test-sheet-stage1.txt"
+# The whole path matters: the app is started by the Mac, not from this
+# folder, so a short path would not be found.
+
+# RS. Searching my records (piece 2)
+RS1 | Which of my seed packets are past their use-by date?
+RS2 | What have I written in the journal about the pond?
+RS3 | When was the last frost recorded?
+RS4 | What's on my list of jobs?
+RS5 | Have the beans had any pest trouble?
+
+# SP. Seed packets
+SP2 | How many seeds are left in my Aquadulce packet?
+SP3 | Is my Aquadulce seed still worth sowing?
+SP4 | I've bought a packet of Boltardy beetroot today.
+
+# NP. New plants and Fill the gaps
+NP1 | Add quince to my plant library.
+NP2 | Is Cydonia oblonga in my library?
+NP3 | What's missing from the medlar's record?
+NP4 | Fill in how to prune the medlar.
+
+# J. Jobs. J1's card is not added: a job for this Thursday would change
+# the right answer to J2.
+J1 | I need to sharpen the shears on Thursday.
+J2 | What jobs have I got this week?
+J3 | I've built the bean wigwam.
+J4 | Move ordering the seed potatoes to next month.
+
+# JN. The journal. JN1 and JN2 are typed with the Journal open, so they
+# go where the bar sends them. JN1's harvest card is added, to check
+# what Add saves.
+page: journal
+JN1 | Picked 2kg of Spartan apples this afternoon.
+add
+page: journal
+JN2 | Sowed 24 more broad beans in bed 4 this morning.
+JN3 | What did I put in the journal yesterday?
+
+# W. Weather. The example garden holds the last seven days; the weather
+# service fetches nothing during a run.
+W1 | How much rain fell yesterday?
+W2 | Is a frost on the way?
+W3 | Was this afternoon good enough for a FIT count?
+
+# P. Pests and diseases
+P1 | Something's eating holes in the cabbage leaves. What could it be?
+P2 | Add that the broad beans in bed 3 have blackfly.
+
+# R. Making and changing records (piece 3). R2 follows R1 in the same
+# conversation, after Add is pressed on R1's card. Until piece 3 there
+# is no card, and the answers file says Add could not be pressed.
+R1 | Change the number of beans sown in bed 3 to 30.
+add
+then: R2 | Undo that.
+R3 | Delete the tree bumblebee sighting.
+R4 | The bee on the marjoram was a common carder bee, not a tree bumblebee.
+R5 | Add a hedgehog by the pond last night.
+R6 | Record that I harvested 500g of rhubarb today.
+
+# O. Opening pages (piece 4). The answers file says which page opened.
+O1 | Show me bed 3.
+O2 | Open the pear tree.
+O3 | Where's the mushroom key?
+O4 | Open bed 30.
+O5 | Show me that one.
+# O5 again, with a bed open, where "that one" plainly means it.
+page: bed Bed 3
+O5b | Show me that one.

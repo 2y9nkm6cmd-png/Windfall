@@ -1,6 +1,6 @@
 # Eira's test sheet: the new sections for the next phase
 
-Written on 18 November 2026 (knowledge base doc 128), for Gate 1 of the next phase (doc 123). **Draft for William to read.** He knows his garden and Claude does not, so the questions, and what counts as a good answer, are his to change.
+Written on 18 November 2026 (knowledge base doc 128), for Gate 1 of the next phase (doc 123). Updated on 20 November 2026 (doc 136): the example garden now holds what these questions need, the test run can ask them, and they are in the run's own form in `Tools/eira-test/test-sheet-stage1.txt`. **Draft for William to read.** He knows his garden and Claude does not, so the questions, and what counts as a good answer, are his to change.
 
 ## How this fits with the rest of the sheet
 
@@ -43,7 +43,7 @@ Written on 18 November 2026 (knowledge base doc 128), for Gate 1 of the next pha
 | NP3 | What's missing from the medlar's record? | Lists the medlar's empty boxes from the record. Invents no values for them. | No |
 | NP4 | Fill in how to prune the medlar. | Reads the RHS, says so, and offers to keep it in the medlar's Pruning box. Nothing kept until Keep it. | Partly: as H1 |
 
-⚠️ NP3 and NP4 assume the medlar is in the plant library, as doc 56's example was. If not, William to name another plant with empty boxes.
+The starter data has no medlar, so since 20 November 2026 the example garden adds one to its own library (Medlar, *Mespilus germanica*, with no pruning written). Quince is deliberately left out, for NP1 and NP2.
 
 ## J. Jobs
 
@@ -85,7 +85,7 @@ Do R1 and R2 in order.
 
 | # | Ask | What a good answer does | Works today? |
 |---|---|---|---|
-| R1 | Change the number of beans sown in bed 3 to 30. | A change card on that planting: was 24, now 30. Nothing changed until Add. | No |
+| R1 | Change the number of beans sown in bed 3 to 30. | A change card on that planting (broad beans, Aquadulce Claudia): was 24, now 30. Nothing changed until Add. | No |
 | R2 | (Press Add on R1's card, then ask) Undo that. | Puts it back to 24, and says so. The change history shows both. | No |
 | R3 | Delete the tree bumblebee sighting. | Does not delete. Says she cannot remove records, and how to do it by hand. | Partly: says she cannot change records |
 | R4 | The bee on the marjoram was a common carder bee, not a tree bumblebee. | A change card on that sighting, with Bombus pascuorum from a lookup. Or the correction card, if piece 3 is not built. Does not claim to have changed it. | Partly |
@@ -103,6 +103,7 @@ Do R1 and R2 in order.
 | O3 | Where's the mushroom key? | Opens the fungus key. | No |
 | O4 | Open bed 30. | Says there is no Bed 30 and names the beds there are. Opens nothing. | No |
 | O5 | Show me that one. | Asks which page is meant, unless a page is open that "that one" plainly means. | No |
+| O5b | (With Bed 3's page open) Show me that one. | Bed 3's page is already open, so says so, or opens it. Does not ask which. ⚠️ Added 20 November 2026 by Claude, to try the second half of O5's pass. | No |
 
 ⚠️ O2 could mean the pear tree in the permaculture garden's plan or a pear in the plant library. William to say which is right.
 
@@ -113,23 +114,30 @@ Do R1 and R2 in order.
 | V1 | (Into the microphone, on the Journal page) I picked a kilo of plums today. | The same harvest card as if it had been typed. | ⚠️ to try |
 | V2 | (Into the microphone) Show me the herb bed. | Opens the herb bed. | No |
 
-## What the example garden must hold for these
+## What the example garden holds for these
 
-For a Mac chat to add to `DemoGarden.fill` (lane B, before the baseline is taken). ⚠️ Claude's choices of what to add:
+Added to `DemoGarden.fill` on 20 November 2026 (branch `eira-test-garden`, doc 136). Every date is counted back from the day of the run. ⚠️ Claude's made-up records, chosen from the list in doc 128.
 
-1. Two seed packets: Broad bean Aquadulce, 2025, 40 seeds left, use by end of 2027, a germination test of 18 of 20; and one long past its use-by date (Parsnip, 2022).
-2. A journal entry from yesterday, and an older one about the pond.
-3. A frost record from last month.
-4. A pest record: blackfly on the broad beans in Bed 3, two days ago.
-5. Weather days for the last week, with rain yesterday.
-6. The medlar in the plant library with its pruning box empty (it may already be, from the starter data).
+1. **Bed 3's sowing is named exactly:** Broad bean, Aquadulce Claudia, 24 seeds, four days ago, sections A and B, from the Aquadulce packet. Until now it was the first plant with "bean" in its name, which came out as Bogbean in one run and French beans in another (doc 129).
+2. **Two seed packets:** Broad bean Aquadulce Claudia, packet year 2025, use by 31 December 2027, 40 seeds left, a germination test two months ago of 18 out of 20; and Parsnip Guernsey, 2022, use by 31 December 2023, so long out of date.
+3. **Two journal entries:** yesterday at 15:30, about clearing the courgettes from Bed 5 and spreading compost (it does not mention the pond); twelve days ago, about raking the duckweed off the pond.
+4. **A frost** at the allotment 26 days ago, −1.5°C, the courgette leaves blackened.
+5. **Blackfly** on the broad beans in Bed 3, two days ago, light, rubbed off by hand. ⚠️ Blackfly two days after sowing, in November, is not what a garden would see. It is kept as doc 128 listed it; William may want another pest.
+6. **The last seven days of weather** at the allotment, all finished and above freezing, with 6.4 mm of rain yesterday. During a test run the weather service fetches nothing (`WeatherDiary.isHeldStill`), so these are the only days and frosts on record and every model is asked about the same weather. Today has no record, so W3 has no figures for this afternoon.
+7. **A medlar** in the example library, with its pruning box empty.
 
-## What the test run must learn to do
+## What the test run can do
 
-`Tools/eira-test/run.sh` and `EiraTestRun.swift` can ask, put right, keep a correction and keep a find. These questions also need: press Add on any card and write the card's values into the answers file; write which page opened, if any; and ask while a page is open (the Journal, a plant). Voice stays a by-hand test.
+Taught on 20 November 2026 (`EiraTestRun.swift`, with the questions file read by `EiraTestSheet.swift`):
+
+- `page: journal`, `page: plant Rhubarb, Victoria`, `page: bed Bed 3`, `page: species …`, `page: seed packet …`, `page: sowing …` or any of the app's places has that page open for the next question and anything said after it with `then:`. Eira is handed the page's own words. With the Journal open, what is typed goes where the bar sends it: an account of the day becomes a journal entry with its cards, and only a plain question goes to her.
+- After every question the answers file lists every card that came up, field by field, and which page she opened ("none" until piece 4).
+- `add` presses Add on the first card still waiting, as it came up, through the same code as the button (`CardAdds.swift`), and writes down the record that was saved. A second `add` presses the next.
+
+Not yet: the cards of piece 3 do not exist, so `add` after R1 says no card was waiting, which is the right baseline. Voice stays a by-hand test. A journal entry in a test run is not stamped with the weather, and no question about when it happened is asked.
 
 ## Results
 
-| Date | Model | Choosing model? | Device | RS (of 5) | SP (of 4) | NP (of 4) | J (of 4) | JN (of 3) | W (of 3) | P (of 2) | R (of 6) | O (of 5) | V (of 2) | Notes |
+| Date | Model | Choosing model? | Device | RS (of 5) | SP (of 4) | NP (of 4) | J (of 4) | JN (of 3) | W (of 3) | P (of 2) | R (of 6) | O (of 6) | V (of 2) | Notes |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | | | | | | | | | | | | | | | |

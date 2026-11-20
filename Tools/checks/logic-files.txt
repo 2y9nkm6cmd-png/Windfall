@@ -54,3 +54,5 @@ GardenPlace.swift
 SeedPacketStart.swift
 EiraSecondLook.swift
 PacketReading.swift
+CardAdds.swift
+EiraTestSheet.swift

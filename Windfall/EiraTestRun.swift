@@ -44,10 +44,36 @@
 //    keep find                                   presses "Keep it" on the
 //                                                card that offers what Eira
 //                                                read online, as it stands
+//    page: journal                               has that page open for the
+//                                                next question and anything
+//                                                said after it with "then:"
+//    add                                         presses Add on the card
+//                                                waiting, as it came up
 //    # a line starting with a hash is ignored
 //
 //  Each question starts a new conversation, as the test sheet asks,
 //  except one that begins "then:".
+//
+//  Added on 20 November 2026, for the test sheet's new sections
+//  (docs/eira-test-questions-stage1.md):
+//
+//  - Pages. `page:` names a page to have open, in any of the ways
+//    EiraTestSheet.page(from:) lists. Eira is handed the very words that
+//    page hands her (EiraScreen.swift). It holds for the next question
+//    only, and for anything then said after it with "then:". With the
+//    Journal open, what is typed goes where the bar would send it: an
+//    account of the day becomes a journal entry with its harvest and
+//    sowing cards, and only a plain question goes to Eira.
+//
+//  - Cards. After every question the answers file says what each card
+//    that came up holds, field by field, so a card can be marked as well
+//    as the words. `add` presses Add on the first card still waiting,
+//    through the same code as the button (CardAdds.swift), and writes
+//    down the record that was saved. A second `add` presses the next.
+//
+//  - Pages opened. After every question the answers file says which
+//    page Eira opened, or "none". Nothing opens a page yet: that is
+//    piece 4 of knowledge base doc 119 (EiraConversation.PageRequest).
 //
 
 import Foundation
@@ -56,85 +82,7 @@ import SwiftData
 import AppKit
 #endif
 
-// MARK: - Reading the questions file
-
-/// One line of the questions file, once understood.
-enum EiraTestStep: Equatable {
-    /// Ask this in a new conversation. The label is how it is headed in
-    /// the answers file, such as "A1".
-    case ask(label: String, question: String)
-    /// Tell Eira her last reply was wrong, and what is right.
-    case correct(String)
-    /// Say this next, in the conversation already going. Used to put
-    /// Eira right the way it would be typed.
-    case followUp(label: String, question: String)
-    /// Press "Keep it" on the card that offers to keep a correction.
-    case keep
-    /// Press "Keep it" on the card that offers to keep what Eira read
-    /// online, leaving the card as it came up.
-    case keepFind
-}
-
-enum EiraTestSheet {
-
-    /// Turns the text of a questions file into steps.
-    ///
-    /// `nonisolated` means this may run on any thread. It only reads the
-    /// text it is given and touches nothing shared, so that is safe.
-    nonisolated static func steps(from text: String) -> [EiraTestStep] {
-        var steps: [EiraTestStep] = []
-        var asked = 0
-
-        for rawLine in text.components(separatedBy: .newlines) {
-            let line = rawLine.trimmingCharacters(in: .whitespaces)
-            if line.isEmpty || line.hasPrefix("#") { continue }
-
-            if line.lowercased().hasPrefix("correct:") {
-                let words = line.dropFirst("correct:".count).trimmingCharacters(in: .whitespaces)
-                if !words.isEmpty { steps.append(.correct(words)) }
-                continue
-            }
-            if line.lowercased() == "keep" {
-                steps.append(.keep)
-                continue
-            }
-            if line.lowercased() == "keep find" {
-                steps.append(.keepFind)
-                continue
-            }
-
-            // "then:" in front means the same conversation carries on.
-            var rest = line
-            let carriesOn = line.lowercased().hasPrefix("then:")
-            if carriesOn {
-                rest = line.dropFirst("then:".count).trimmingCharacters(in: .whitespaces)
-                if rest.isEmpty { continue }
-            }
-
-            asked += 1
-            // "A1 | question" carries its own label. A bare question is
-            // numbered Q1, Q2 and so on.
-            var label = "Q\(asked)"
-            var question = rest
-            if let bar = rest.range(of: " | ") {
-                let given = rest[..<bar.lowerBound].trimmingCharacters(in: .whitespaces)
-                question = rest[bar.upperBound...].trimmingCharacters(in: .whitespaces)
-                if question.isEmpty { asked -= 1; continue }
-                if !given.isEmpty { label = given }
-            }
-            steps.append(carriesOn ? .followUp(label: label, question: question)
-                                   : .ask(label: label, question: question))
-        }
-        return steps
-    }
-
-    /// A long piece of text cut to its first `limit` characters, on one
-    /// line, for the answers file.
-    nonisolated static func shortened(_ text: String, limit: Int) -> String {
-        let oneLine = text.replacingOccurrences(of: "\n", with: " ")
-        return oneLine.count > limit ? String(oneLine.prefix(limit)) + "…" : oneLine
-    }
-}
+// The questions file is read in EiraTestSheet.swift.
 
 // MARK: - Running them
 
@@ -194,8 +142,36 @@ enum EiraTestRun {
         note(String(format: "- Engine made in %.1f seconds (the model itself loads on the first question)",
                     Date.now.timeIntervalSince(began)))
 
+        // The page asked for by a `page:` line, waiting for the next
+        // question, and the page open for the question now going.
+        var nextPage: OpenPage?
+        var openPage: OpenPage?
+        // The journal's cards from the last entry, in the order they
+        // came up, and how many of them Add has been pressed on.
+        var journalCards: [JournalCard] = []
+        var journalCardsPressed = 0
+
         for step in steps {
             switch step {
+
+            case .page(let pageLine):
+                let found = page(pageLine, in: context)
+                if let problem = found.problem {
+                    note("\n**Could not open the page:** \(problem) The next question is asked with no page open.")
+                }
+                nextPage = found.page
+
+            case .add:
+                // The job card first, as it sits under the message in
+                // Eira's chat. Then the journal's cards, one per `add`.
+                if let offer = conversation.offeredJob, !offer.isAdded {
+                    pressAdd(on: offer, in: conversation, context: context, note: note)
+                } else if journalCardsPressed < journalCards.count {
+                    pressAdd(on: journalCards[journalCardsPressed], context: context, note: note)
+                    journalCardsPressed += 1
+                } else {
+                    note("\n**Add could not be pressed:** no card was waiting.")
+                }
 
             case .correct(let words):
                 if let last = conversation.messages.last(where: { $0.role == .assistant }) {
@@ -231,10 +207,26 @@ enum EiraTestRun {
 
             case .ask(let label, let question):
                 conversation.clear()
-                await put(question, headed: label, to: conversation, note: note)
+                // A page holds for one question and what follows it.
+                openPage = nextPage
+                nextPage = nil
+                journalCards = []
+                journalCardsPressed = 0
+                let cards = await put(question, headed: label, to: conversation, open: openPage,
+                                      context: context, note: note)
+                if let cards { journalCards = cards }
 
             case .followUp(let label, let question):
-                await put(question, headed: label + " (same conversation)", to: conversation, note: note)
+                if let page = nextPage {
+                    openPage = page
+                    nextPage = nil
+                }
+                let cards = await put(question, headed: label + " (same conversation)", to: conversation,
+                                      open: openPage, context: context, note: note)
+                if let cards {
+                    journalCards = cards
+                    journalCardsPressed = 0
+                }
             }
         }
 
@@ -244,15 +236,37 @@ enum EiraTestRun {
     }
 
     /// Sends one message, waits for the reply and writes both down, with
-    /// any lookups, the thinking, the time taken and whether a card
-    /// came up offering to keep the message as a correction.
+    /// any lookups, the thinking, the time taken and every card that
+    /// came up, field by field.
+    ///
+    /// `open` is the page open while it is asked, if any.
     ///
     /// `note` is the function that adds a line to the answers file. A
     /// function can be handed to another like any other value.
+    ///
+    /// Returns the journal's cards when the message went to the journal,
+    /// and nil when it went to Eira.
     private static func put(_ question: String, headed label: String,
-                            to conversation: EiraConversation, note: (String) -> Void) async {
+                            to conversation: EiraConversation, open: OpenPage?,
+                            context: ModelContext, note: (String) -> Void) async -> [JournalCard]? {
         note("\n## \(label)\n")
+        if let open { note("**Open:** \(open.sight.full)\n") }
         note("**Asked:** \(question)\n")
+
+        // What the gardener had open, handed to Eira as the chat screen
+        // hands it. Set afresh for every message, so a page never
+        // carries over to a question asked without one.
+        conversation.screenNote = open?.sight.full
+
+        // With the Journal open, Eira's bar sends what is typed to the
+        // journal unless it is a job or plainly asks something. This is
+        // the same choice, in the same order, as EiraFloatingBar's
+        // `ask()`.
+        if open?.sight.isJournal == true,
+           GardenJobs.offer(in: question, today: .now) == nil,
+           !JournalChat.readsAsAsking(question) {
+            return writeInJournal(question, context: context, note: note)
+        }
 
         let isFixed = EiraSafety.fixedReply(to: question) != nil
         // Only what comes after this point belongs to this question.
@@ -306,8 +320,291 @@ enum EiraTestRun {
                  + "page \"\(found.title ?? "untitled")\", for \(found.plantName ?? "no plant named"), "
                  + "into \(found.field.label): \(offer.words)")
         }
+        if let offer = conversation.offeredJob, !offer.isAdded {
+            note("\n**A card offered a job:** " + describeJobCard(offer, context: context))
+        }
+        // Which page she opened. Nothing opens one until piece 4 is built.
+        if let opened = conversation.pageToOpen {
+            note("\n**Page opened:** \(opened.phrase) (\(opened.kind.rawValue))")
+        } else {
+            note("\n**Page opened:** none")
+        }
         if let problem = conversation.lastError {
             note("\n**Error:** \(problem)")
+        }
+        return nil
+    }
+
+    // MARK: - Pages
+
+    /// A page open while a question is asked: the words it hands Eira.
+    struct OpenPage {
+        let sight: EiraSight
+    }
+
+    /// Finds the page a `page:` line names, in the example garden.
+    /// Gives back the page, or the reason it could not be found. The
+    /// words handed to Eira are the page's own (EiraScreen.swift), so a
+    /// question asked here is asked as it would be with that page open.
+    static func page(_ pageLine: EiraTestPage, in context: ModelContext) -> (page: OpenPage?, problem: String?) {
+        func same(_ first: String?, _ second: String?) -> Bool {
+            (first ?? "").trimmingCharacters(in: .whitespaces).lowercased()
+                == (second ?? "").trimmingCharacters(in: .whitespaces).lowercased()
+        }
+        switch pageLine {
+        case .none:
+            return (nil, nil)
+
+        case .place(let name):
+            guard let place = AppSection(rawValue: name) else {
+                return (nil, "There is no place called \(name).")
+            }
+            // As MainTabView registers each place.
+            return (OpenPage(sight: EiraSight(short: nil, full: place.eiraPhrase, isJournal: place == .journal)), nil)
+
+        case .plant(let name, let variety):
+            let named = ((try? context.fetch(FetchDescriptor<Plant>())) ?? []).filter { same($0.commonName, name) }
+            let chosen: Plant?
+            if let variety {
+                chosen = named.first { same($0.variety, variety) }
+            } else if named.count == 1 {
+                chosen = named.first
+            } else {
+                chosen = named.first { same($0.variety, nil) }
+            }
+            guard let plant = chosen else {
+                if variety == nil, named.count > 1 {
+                    let varieties = named.compactMap(\.variety).sorted().joined(separator: "; ")
+                    return (nil, "\(named.count) plants in the library are called \(name). Name the variety: \(varieties).")
+                }
+                return (nil, "No plant called \(EiraSight.name(name, variety: variety)) is in the library.")
+            }
+            return (OpenPage(sight: .plant(plant.commonName, variety: plant.variety)), nil)
+
+        case .bed(let name):
+            let beds = ((try? context.fetch(FetchDescriptor<Bed>())) ?? []).filter(\.isActive)
+            guard let bed = beds.first(where: { same($0.name, name) }) else {
+                let names = beds.map(\.name).sorted().joined(separator: ", ")
+                return (nil, "No bed is called \(name). The beds are: \(names).")
+            }
+            return (OpenPage(sight: .bed(bed.name)), nil)
+
+        case .species(let name):
+            let all = (try? context.fetch(FetchDescriptor<Fauna>())) ?? []
+            guard let found = all.first(where: { same($0.commonName, name) }) else {
+                return (nil, "No species called \(name) is in the wildlife lists.")
+            }
+            return (OpenPage(sight: .species(found.commonName)), nil)
+
+        case .seedPacket(let name):
+            let packets = (try? context.fetch(FetchDescriptor<SeedPacket>())) ?? []
+            guard let packet = packets.first(where: { same($0.plant?.commonName, name) }) else {
+                return (nil, "No seed packet of \(name) is on record.")
+            }
+            return (OpenPage(sight: .seedPacket(of: packet.plant?.commonName)), nil)
+
+        case .sowing(let name):
+            let sowings = ((try? context.fetch(FetchDescriptor<Planting>())) ?? []).filter { same($0.plant?.commonName, name) }
+            // The newest, if there are several.
+            guard let sowing = sowings.max(by: { ($0.dateSown ?? .distantPast) < ($1.dateSown ?? .distantPast) }) else {
+                return (nil, "No sowing of \(name) is on record.")
+            }
+            return (OpenPage(sight: .sowing(of: sowing.plant?.commonName)), nil)
+
+        case .unknown(let words):
+            return (nil, "\"\(words)\" names no page the test run knows (EiraTestSheet.page(from:) lists them).")
+        }
+    }
+
+    // MARK: - The journal
+
+    /// A card the journal put under an entry: a harvest or a sowing to
+    /// add, with what it needs to start as the real card starts.
+    struct JournalCard {
+        let offer: RecordOffer
+        /// The plants it might be, likeliest first. Never empty.
+        let candidates: [Plant]
+        /// The beds the sowing card offers.
+        let beds: [Bed]
+        /// When the entry was stamped.
+        let date: Date
+    }
+
+    /// What JournalChatView's `send()` does with words typed on the
+    /// Journal page: keeps them as an entry, and reads them for a
+    /// harvest or a sowing to offer. Writes down the entry and each
+    /// card, and gives back the cards for `add` to press.
+    ///
+    /// Left out, because a run has nobody to answer them: the weather
+    /// stamp (the weather service is not asked), the question about
+    /// when it happened, photos, and pinning down something seen.
+    private static func writeInJournal(_ text: String, context: ModelContext,
+                                       note: (String) -> Void) -> [JournalCard] {
+        // The Journal page lists plants by name. Variety is used to
+        // break ties, so the order is the same on every run.
+        let plants = ((try? context.fetch(FetchDescriptor<Plant>())) ?? []).sorted { first, second in
+            let byName = first.commonName.localizedStandardCompare(second.commonName)
+            if byName != .orderedSame { return byName == .orderedAscending }
+            return (first.variety ?? "").localizedStandardCompare(second.variety ?? "") == .orderedAscending
+        }
+        let beds = ((try? context.fetch(FetchDescriptor<Bed>())) ?? []).filter(\.isActive)
+            .sorted { $0.displayOrder < $1.displayOrder }
+
+        let entry = DiaryEntry(body: text)
+        entry.date = .now
+        let gardenNames = Set(plants.flatMap { JournalChat.roots(in: $0.commonName) + JournalChat.roots(in: $0.variety ?? "") }
+                              + beds.flatMap { JournalChat.roots(in: $0.name) })
+        if let heading = JournalChat.title(for: text, known: gardenNames), heading != text {
+            entry.generatedSummary = heading
+            entry.summaryGeneratedAt = .now
+        }
+        context.insert(entry)
+        note("**Went to the journal**, as Eira's bar sends it from the Journal page. The model was not asked.\n")
+        note("**Kept as an entry**" + (entry.generatedSummary.map { ", headed \"\($0)\"" } ?? "")
+             + ". (A test run does not stamp it with the weather or ask when it happened.)\n")
+
+        // Plants being grown first, as the Journal page lists them, so
+        // that where several share a name the likeliest is offered first.
+        let growing = plants.filter { $0.status == .growing } + plants.filter { $0.status != .growing }
+        let offers = JournalOffers.offers(
+            in: text,
+            plants: growing.map { OfferPlant(key: $0.id.uuidString, commonName: $0.commonName, variety: $0.variety) },
+            beds: beds.map { OfferBed(key: $0.id.uuidString, name: $0.name) })
+
+        var cards: [JournalCard] = []
+        for offer in offers {
+            let candidates = offer.plantKeys.compactMap { key in plants.first { $0.id.uuidString == key } }
+            // The page shows no card for an offer whose plants are gone.
+            guard !candidates.isEmpty else { continue }
+            let card = JournalCard(offer: offer, candidates: candidates, beds: beds, date: entry.date)
+            cards.append(card)
+            note("**A card offered \(offer.kind == .harvest ? "a harvest" : "a sowing"):** " + describe(card) + "\n")
+        }
+        if cards.isEmpty { note("**No harvest or sowing card came up.**\n") }
+        if let newPlant = NewPlantMention.name(in: text, known: plants.map(\.commonName)) {
+            note("**The journal would offer to add a new plant:** \(newPlant).\n")
+        }
+        note("**Page opened:** none")
+        return cards
+    }
+
+    // MARK: - Cards, described and pressed
+
+    /// "Apple — Spartan (or 2 others) · 2 kg · Eaten · from: Sown 9 November, Bed 3"
+    private static func describe(_ card: JournalCard) -> String {
+        let offer = card.offer
+        let plant = card.candidates[0]
+        var pieces = [plant.displayName + (card.candidates.count > 1 ? " (or \(card.candidates.count - 1) other\(card.candidates.count == 2 ? "" : "s"))" : "")]
+        switch offer.kind {
+        case .harvest:
+            let unit = offer.unit ?? .kilograms
+            pieces.append(offer.quantity.map { "\(CardAdd.plainNumber($0)) \(unit.displayName)" } ?? "no amount (Add stays greyed out)")
+            pieces.append((offer.destination ?? .eaten).words)
+            if let source = Planting.cropping(of: plant).first {
+                pieces.append("from: " + sowingWords(source))
+            } else {
+                pieces.append("from: nothing on record, so a planting would be put on record")
+            }
+        case .sowing:
+            let bed = card.beds.first { $0.id.uuidString == offer.bedKey }
+            pieces.append(bed.map { "All of \($0.name)" } ?? "not placed")
+            pieces.append((offer.sownWhere ?? .outdoors).words)
+            pieces.append(offer.quantity.map { "\(CardAdd.plainNumber($0)) sown" } ?? "how many left empty")
+        }
+        pieces.append("dated \(card.date.formatted(date: .abbreviated, time: .shortened))")
+        return pieces.joined(separator: " · ")
+    }
+
+    /// "Sown 9 Nov 2026, Bed 3", or "On record" for one with no date.
+    private static func sowingWords(_ planting: Planting) -> String {
+        var text = planting.dateSown.map { "Sown \($0.formatted(date: .abbreviated, time: .omitted))" } ?? "On record"
+        if !planting.bedNames.isEmpty { text += ", \(planting.bedNames)" }
+        return text
+    }
+
+    /// The job card as it comes up: what JobOfferCard's `init` reads.
+    private static func jobCardValues(_ offer: EiraConversation.OfferedJob,
+                                      context: ModelContext) -> (title: String, span: JobDays, siteKey: String?) {
+        let gardens = ((try? context.fetch(FetchDescriptor<Garden>())) ?? []).filter(\.isActive)
+        let places = gardens.map { JobPlace(key: $0.siteKey, name: $0.name) }
+        let read = GardenJobs.offer(in: offer.said, today: offer.at, places: places)
+        let title = (read?.title ?? offer.said).trimmingCharacters(in: .whitespacesAndNewlines)
+        return (title, read?.span ?? .whenever, read?.siteKey)
+    }
+
+    /// The job's title in quotes, when it is for and which garden, for the answers file.
+    private static func describeJob(title: String, span: JobDays, siteKey: String?, context: ModelContext) -> String {
+        let gardens = (try? context.fetch(FetchDescriptor<Garden>())) ?? []
+        let when = GardenJobs.whenLine(span, today: .now) ?? "whenever (no date)"
+        let garden = siteKey.flatMap { key in gardens.first { $0.siteKey == key }?.name } ?? "no garden named"
+        return "\"\(title)\" · \(when) · \(garden)"
+    }
+
+    private static func describeJobCard(_ offer: EiraConversation.OfferedJob, context: ModelContext) -> String {
+        let values = jobCardValues(offer, context: context)
+        return describeJob(title: values.title, span: values.span, siteKey: values.siteKey, context: context)
+    }
+
+    /// Presses Add on the job card in Eira's chat, as it came up.
+    private static func pressAdd(on offer: EiraConversation.OfferedJob, in conversation: EiraConversation,
+                                 context: ModelContext, note: (String) -> Void) {
+        let values = jobCardValues(offer, context: context)
+        guard !values.title.isEmpty else {
+            note("\n**Add could not be pressed:** the job card's title is empty, so Add is greyed out.")
+            return
+        }
+        let fromCard = CardAdd.job(title: values.title, from: values.span.from, by: values.span.by,
+                                siteKey: values.siteKey, said: offer.said, into: context)
+        try? context.save()
+        conversation.jobWasAdded(title: values.title, saying: fromCard.line)
+        let job = fromCard.job
+        note("\n**Pressed Add on the job card.** Saved: "
+             + describeJob(title: job.title, span: JobDays(from: job.dueFrom, by: job.dueBy),
+                           siteKey: job.siteKey, context: context))
+        note("\n**Eira then said:** \(fromCard.line)")
+    }
+
+    /// Presses Add on one of the journal's cards, as it came up: the
+    /// likeliest plant, the amount, bed and so on that the card starts
+    /// with. The card's `init` in JournalOfferCards.swift is the pattern.
+    private static func pressAdd(on card: JournalCard, context: ModelContext, note: (String) -> Void) {
+        let offer = card.offer
+        let plant = card.candidates[0]
+        switch offer.kind {
+        case .harvest:
+            guard let amount = offer.quantity else {
+                note("\n**Add could not be pressed:** the harvest card's amount is empty, so Add is greyed out.")
+                return
+            }
+            // The card starts on the newest sowing or planting that could
+            // be cropping, as HarvestOfferCard does.
+            let likeliest = Planting.cropping(of: plant).first
+            let fromCard = CardAdd.harvest(of: plant, from: likeliest, amount: amount,
+                                        unit: offer.unit ?? .kilograms, destination: offer.destination ?? .eaten,
+                                        on: card.date, into: context)
+            try? context.save()
+            let harvest = fromCard.harvest
+            note("\n**Pressed Add on the harvest card.** Saved: \(CardAdd.plainNumber(harvest.quantity)) "
+                 + "\(harvest.unit.displayName) of \(plant.displayName), \(harvest.destination?.words ?? "no destination"), "
+                 + "dated \(harvest.date.formatted(date: .abbreviated, time: .shortened)), "
+                 + "against: \(harvest.planting.map(sowingWords) ?? "no planting")")
+            note("\n**Eira then said:** \(fromCard.line)")
+        case .sowing:
+            let bed = card.beds.first { $0.id.uuidString == offer.bedKey }
+            // The card's box holds the number as typed, and Add reads it
+            // back as a whole number, so 2.5 seeds would be left empty.
+            let quantity = offer.quantity.flatMap { Int(CardAdd.plainNumber($0)) }
+            let fromCard = CardAdd.sowing(of: plant, in: bed, sownWhere: offer.sownWhere ?? .outdoors,
+                                       quantity: quantity, on: card.date, into: context)
+            try? context.save()
+            let sowing = fromCard.planting
+            note("\n**Pressed Add on the sowing card.** Saved: \(plant.displayName), "
+                 + "\(sowing.quantitySown.map { "\($0) sown" } ?? "how many not given"), "
+                 + "\((sowing.sowingLocation ?? .outdoors).words), "
+                 + "\(sowing.bedNames.isEmpty ? "not placed" : "in " + sowing.bedNames), "
+                 + "dated \(sowing.dateSown?.formatted(date: .abbreviated, time: .shortened) ?? "no date")"
+                 + (sowing.successionRound.map { ", round \($0)" } ?? ""))
+            note("\n**Eira then said:** \(fromCard.line)")
         }
     }
 

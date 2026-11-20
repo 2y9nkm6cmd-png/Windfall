@@ -2,7 +2,7 @@
 
 Everything a model is told, handed and held to when it works as Eira, written down in one place.
 
-**Status: draft, not frozen.** Written on 18 November 2026 from `main` at `1410700` (knowledge base doc 128). Part 1 is what the app does today, copied from the code. Part 2 is what stage 2 of the next phase will add (knowledge base doc 123); every line of it is a proposal marked ⚠️ until William agrees it.
+**Status: draft, not frozen.** Written on 18 November 2026 from `main` at `1410700` (knowledge base doc 128). Updated on 20 November 2026 on the branch `eira-test-garden` (knowledge base doc 136): where each page's words and each card's Add now live, the words every page hands her (section 4), and the place piece 4 will record a page it opens (section 13). Nothing she is told changed. Part 1 is what the app does today, copied from the code. Part 2 is what stage 2 of the next phase will add (knowledge base doc 123); every line of it is a proposal marked ⚠️ until William agrees it.
 
 ## Why this file exists
 
@@ -22,8 +22,11 @@ So from now on:
 | The lookups' names and descriptions | `EiraTools.swift`, `EiraWebLookup.swift` (`search_wikipedia`, `read_web_page`), `KnowledgeBase.swift` (`search_notes`) |
 | The lookups as Apple's framework is given them | `EiraOnDeviceEngine.swift` (`EiraSessionTools`) |
 | What happens to a message before the model | `EiraConversation.swift` (`send`, `generate`), `EiraChecks.swift`, `EiraSafety.swift`, `GardenJobs.swift`, `EiraScreen.swift` |
+| The words a page hands her about itself | `EiraScreen.swift` (`EiraSight.plant`, `.bed`, `.species`, `.seedPacket`, `.sowing`), `MainTabView.swift` (`AppSection.eiraPhrase`), and the other pages' own `.eiraLooksAt` lines |
 | What happens to a reply after the model | `EiraChecks.swift` (`checked`) |
 | The cards | `EiraConversation.swift` (`OfferedJob`, `OfferedCorrection`, `OfferedFind`), `EiraChatCards.swift`, `EiraIdentify.swift`, `JournalOffers.swift`, `PhotoOffer.swift`, `JobViews.swift` |
+| What Add makes on the job, harvest and sowing cards | `CardAdds.swift` (`CardAdd.job`, `.harvest`, `.sowing`), shared by the cards and the test run |
+| A page Eira opens (piece 4, not built) | `EiraConversation.swift` (`PageRequest`, `pageToOpen`, `choosePage`) |
 | Earlier turns handed to a fresh session | `EiraConversation.swift` (`EiraContext`), `EiraOnDeviceEngine.swift` (`startConversation`) |
 
 # Part 1: Eira as she is in `main` today
@@ -145,6 +148,28 @@ The model is sent one block per message, built in this order from the top:
 
 Only the model sees 1 and 2. The conversation on screen, and what is saved, keep the message as typed.
 
+The words a page hands her, word for word (`{braces}` filled in). Since 20 November 2026 the first five are written once in `EiraScreen.swift`, and Eira's test run hands over the same words when it asks "with a page open":
+
+| Page | Words |
+|---|---|
+| A plant | `the plant {name}` or `the plant {name}, {variety}` |
+| A bed | `the bed called {bed}` |
+| A species in the wildlife lists | `the species {common name}` |
+| A seed packet | `a seed packet of {plant}` (`an unnamed plant` when it has none) |
+| A sowing | `a sowing of {plant}` (`a plant` when it has none) |
+| Today | `the Today screen, with the weather, today's jobs and recent records` |
+| Gardens | `the Gardens screen, with the beds, sowings and garden plans` |
+| Year | `the Year screen, a calendar of when each plant is sown, planted out and harvested` |
+| Plants | `the plant library` |
+| Wildlife | `the Wildlife screen, with sightings and surveys` |
+| Identify | `the Identify screen, with identifying from a photo and the fungus keys` |
+| Journal | `the journal` (and her bar is for telling her what happened: see below) |
+| Settings and tools | `the settings and tools` |
+
+The other pages that say what they are (the garden plan and drawing, the wildlife reference lists, plant diseases, a month of the Year page, the weather diary and a day of it, the pest helpers, the corner drawing) write their words in their own files.
+
+**On the Journal page** her bar sends what is typed to the journal, not to her, unless it is a job or plainly asks something (`EiraFloatingBar.ask`, `JournalChat.readsAsAsking`). The journal keeps it as an entry and offers harvest and sowing cards by fixed rules (`JournalOffers`); the model is not asked.
+
 ## 5. Earlier turns
 
 A session is started afresh when the instructions change, after a fixed reply the model did not see, or when the conversation passes about 2,000 tokens (four characters to a token). Then the instructions are followed by:
@@ -210,6 +235,8 @@ Every card is made by fixed rules. **Nothing is saved until its button is presse
 | What a photo shows | `EiraIdentify`, `IdentifyCards` | The verdict, names, confidence, look-alikes, whether it is in your records, the image model used | Add a sighting (or Add a sighting to identify later); Tell me about {name} |
 | A harvest or a sowing, from the journal | `JournalOffers` | Kind; plant; amount and unit; bed; where the crop went or where it was sown | Add |
 | A photo given to the bar | `PhotoOffer` | Three choices: What is this?, Journal entry, Sighting | (chooses) |
+
+What Add makes on the job, harvest and sowing cards is written once, in `CardAdds.swift`, and the test run presses Add through the same code. A harvest card with no sowing or planting on record puts one on record first (`Planting.putOnRecord`).
 
 # Part 2: what stage 2 adds (proposals)
 
@@ -285,6 +312,8 @@ The cards, and the fields each fills (from the records in the code; ⚠️ the c
 ## 13. Opening a page (piece 4)
 
 Fixed rules first: a message starting "show me", "open", "go to" or "take me to", followed by the name of a bed, plant, garden, species, feature or place in the app, opens that page. The model is asked only when the rules find no page, and then only to choose from the list of pages the rules know. Her reply is fixed wording: `Opening {the page}.` ⚠️ Claude's wording.
+
+**Where the page is recorded (in the code since 20 November 2026, ⚠️ Claude's proposal for the chat that builds piece 4).** The rules call `EiraConversation.choosePage(_:)` with a `PageRequest`: its kind (bed, plant, garden, species, feature or place), which one (the record's identifier as text, or the place's name in `AppSection`), and the words that page hands Eira about itself once open (section 4). It is held in `pageToOpen` until the next message or a new conversation, and the chat screen opens it. Nothing calls `choosePage` yet. The test run writes `pageToOpen` after every question ("Page opened: none" today), so the sheet's O questions are marked the same way before and after piece 4.
 
 ## 14. The freeze, at Gate 2
 
