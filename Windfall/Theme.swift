@@ -289,6 +289,35 @@ extension View {
     }
 }
 
+/// The background of one row of a `List`, in Windfall's card colour.
+///
+/// A `List` paints its rows the system's white (grey in dark mode),
+/// which stood out beside the cream glass cards on every other page
+/// (seen on the UK wildlife kind pages, 15 November 2026, card
+/// `d-wild-look`). Real glass on every row would cost power on a list
+/// of several hundred (doc 91, finding 10), so the rows are painted the
+/// way `CardGlass` paints a card flat: the card colour, and in dark mode
+/// a thin wash of white to lift it off the page. The list still rounds
+/// the corners of each section itself.
+struct PaperRowBackground: View {
+    @Environment(\.colorScheme) private var colorScheme
+
+    var body: some View {
+        Theme.card.opacity(0.92)
+            .overlay { Color.white.opacity(colorScheme == .dark ? 0.07 : 0) }
+    }
+}
+
+extension View {
+
+    /// Paints a `List` row in the card colour. See `PaperRowBackground`.
+    /// Put it on each row (or on a `ForEach`, which hands it to every
+    /// row it makes).
+    func paperRow() -> some View {
+        listRowBackground(PaperRowBackground())
+    }
+}
+
 /// The paper behind every screen: one flat colour, cream in light mode
 /// and deep green in dark mode (`Theme.paper`).
 ///

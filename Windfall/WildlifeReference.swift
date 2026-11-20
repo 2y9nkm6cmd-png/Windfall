@@ -273,6 +273,29 @@ struct WildlifeReference {
         name.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
     }
 
+    /// A count written with commas between the thousands, as in a
+    /// British book: 44611 becomes "44,611". Used for the records an
+    /// animal has and for how many animals a kind holds.
+    ///
+    /// Swift's plain `"\(number)"` never adds the comma. SwiftUI's
+    /// `Text("\(number)")` does, but only when the number goes straight
+    /// into the Text, which is why the summary card had its comma and
+    /// the animal's page did not (seen 15 November 2026, card
+    /// `d-wild-look`). The grouping is fixed here rather than left to
+    /// the device's region, so every device writes it the same way.
+    static func grouped(_ number: Int) -> String {
+        let digits = String(number.magnitude)
+        var out = ""
+        // Walk the digits from the left; a comma goes in wherever the
+        // number of digits still to come is a whole multiple of three.
+        for (index, digit) in digits.enumerated() {
+            let left = digits.count - index
+            if index > 0 && left % 3 == 0 { out.append(",") }
+            out.append(digit)
+        }
+        return number < 0 ? "-" + out : out
+    }
+
     // MARK: Kinds
 
     /// The headings in the order the file gives them, each with its kinds.

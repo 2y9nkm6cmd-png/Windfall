@@ -149,9 +149,10 @@ struct WildlifeAnimalGallery: View {
     }
 }
 
-/// "1 animal" and "24 animals".
+/// "1 animal", "24 animals" and "1,240 animals" (commas from
+/// `WildlifeReference.grouped`).
 private func animalsCounted(_ count: Int) -> String {
-    count == 1 ? "1 animal" : "\(count) animals"
+    count == 1 ? "1 animal" : "\(WildlifeReference.grouped(count)) animals"
 }
 
 /// This month as a number, 1 for January.
@@ -204,10 +205,10 @@ struct WildlifeBookView: View {
     /// How many animals and kinds, and where the list came from.
     private var summaryCard: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("\(book.animals.count) animals in \(book.groups.reduce(0) { $0 + $1.kinds.count }) kinds")
+            Text("\(animalsCounted(book.animals.count)) in \(book.groups.reduce(0) { $0 + $1.kinds.count }) kinds")
                 .font(.body.weight(.medium))
                 .foregroundStyle(Theme.ink)
-            Text("Every animal with 20 or more confirmed UK records on iNaturalist. These are the animals Eira can name from a photo. Each kind has one drawing, shared by all its animals.")
+            Text("Every animal with 20 or more confirmed UK records on iNaturalist. These are the animals Eira can name from a photo. Every kind has a drawing, and the animals seen most often have one of their own.")
                 .font(.footnote)
                 .foregroundStyle(Theme.inkSoft)
             Text("Not yet checked: the names are iNaturalist's and the kinds are Claude's.")
@@ -382,10 +383,13 @@ struct WildlifeKindPage: View {
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 6)
+                // The cream of the cards, not the system's white.
+                .paperRow()
 
                 // A switch. `$aboutNowOnly` hands the switch the value
                 // itself, so that it can change it.
                 Toggle("Only those recorded in \(monthName)", isOn: $aboutNowOnly)
+                    .paperRow()
             } footer: {
                 Text("This drawing stands for the whole kind. The animals seen most often have a drawing of their own, shown beside their name.")
             }
@@ -421,6 +425,7 @@ struct WildlifeKindPage: View {
                             }
                         }
                     }
+                    .paperRow()
                 }
             } header: {
                 Text(aboutNowOnly ? "\(animalsCounted(shown.count)) in \(monthName)" : "Most recorded first")
@@ -582,7 +587,7 @@ struct WildlifeAnimalPage: View {
             if let order = creature.order {
                 line("Order", order)
             }
-            line("Confirmed UK records", "\(creature.ukRecords)")
+            line("Confirmed UK records", WildlifeReference.grouped(creature.ukRecords))
         }
     }
 

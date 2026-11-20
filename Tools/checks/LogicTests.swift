@@ -956,6 +956,8 @@ struct LogicTests {
         let spokenJob = SpokenToEira.forJob("Lift the dahlias")
         check(spokenJob == "I need to lift the dahlias" && GardenJobs.offer(in: spokenJob, today: lateEvening) != nil, "a job said to Siri is shaped so the job rule offers its card: \(spokenJob)")
         check(SpokenToEira.forJob("I need to build the wigwam at the weekend", today: lateEvening) == "I need to build the wigwam at the weekend" && SpokenToEira.forJob("lift the dahlias?") == "I need to lift the dahlias" && SpokenToEira.forJob("") == "", "a job already in a job's shape is left alone, and a question mark is dropped so it is not read as a question")
+        // Counts on the wildlife pages carry commas (WildlifeReference.grouped, card d-wild-look, doc 140)
+        check(WildlifeReference.grouped(44611) == "44,611" && WildlifeReference.grouped(4180) == "4,180" && WildlifeReference.grouped(580) == "580" && WildlifeReference.grouped(1_000_000) == "1,000,000" && WildlifeReference.grouped(0) == "0" && WildlifeReference.grouped(-1200) == "-1,200", "a count has a comma between the thousands: \(WildlifeReference.grouped(44611))")
         // Photos a page hands over for Eira's bar
         tracker.handToBar([Data([1, 2]), Data([3])])
         check(tracker.photosForBar.count == 2, "photos dropped on a page wait for Eira's bar")
