@@ -1,3 +1,11 @@
+# 20 November 2026, 20:35: lane A and lane B joined into main
+
+**By the "Next phase, stage 0 then lane A" chat, linked to the Mac** (knowledge base doc 138).
+
+- Merged: `eira-open-page` (lane A pieces 1 and 4 and the button fix, with `eira-pages` under it) and `eira-test-garden` (lane B: the example garden named exactly and filled, the test run that presses Add and asks with a page open). Clashes only in this file, `Tools/checks/logic-files.txt` (both lists kept) and `docs/eira-contract.md` section 4 (lane B's table of the five shared page words and the places, then piece 1's pages without the rows that repeated).
+- Connected: Eira's test run now tries the open-page rule first, as the bar does, and writes down the page through lane B's `choosePage` (`EiraOpenRequest.pageRequest`). Contract section 13 says so.
+- Checks (Swift 6.2 for Linux): 141 files parse, the logic files type-check, no cross-file problems, **1,059 logic tests pass**. Built for the Mac (20:32) and signed for the devices (20:34), no errors, at low priority beside any model job.
+
 # 20 November 2026: "show me bed 3" opens the page, and Eira's button closes after the keyboard (lane A, piece 4)
 
 **By the "Next phase, stage 0 then lane A" chat, linked to the Mac.** Branch `eira-open-page`, on top of `eira-pages`. Knowledge base docs 119 (piece 4) and 125 (the button).
