@@ -66,12 +66,32 @@ struct WindfallApp: App {
             cloudKitDatabase: .none
         )
 
+        // Safety copies (SafetyCopy.swift, 20 November 2026): where the
+        // records are, and, if a copy was asked to be put back, it is
+        // put back now, before the records are opened. Not for the
+        // example garden, which is in memory and has no file.
+        if !DemoGarden.isRequested {
+            SafetyCopy.storeURL = configuration.url
+            SafetyCopy.finishPuttingBackIfAsked(store: configuration.url)
+        }
+
         do {
             return try ModelContainer(for: schema, configurations: [configuration])
         } catch {
             fatalError("Could not create ModelContainer: \(error)")
         }
     }()
+
+    init() {
+        // Today's safety copy, if none has been made yet today: twenty
+        // seconds after opening, so the app is up and drawn first, and
+        // at background priority, away from the main thread, so it never
+        // slows what you are doing. See SafetyCopy.swift.
+        Task.detached(priority: .background) {
+            try? await Task.sleep(for: .seconds(20))
+            SafetyCopy.makeDailyIfDue()
+        }
+    }
 
     var body: some Scene {
         WindowGroup {

@@ -57,3 +57,4 @@ PacketReading.swift
 EiraOpenPage.swift
 CardAdds.swift
 EiraTestSheet.swift
+SafetyCopyPlan.swift
