@@ -2,7 +2,7 @@
 
 Everything a model is told, handed and held to when it works as Eira, written down in one place.
 
-**Status: draft, not frozen.** Written on 18 November 2026 from `main` at `1410700` (knowledge base doc 128). Updated on 20 November 2026 on the branch `eira-test-garden` (knowledge base doc 136): where each page's words and each card's Add now live, the words every page hands her (section 4), and the place piece 4 will record a page it opens (section 13). Nothing she is told changed. Part 1 is what the app does today, copied from the code. Part 2 is what stage 2 of the next phase will add (knowledge base doc 123); every line of it is a proposal marked ⚠️ until William agrees it.
+**Status: draft, not frozen.** Written on 18 November 2026 from `main` at `1410700` (knowledge base doc 128). Updated on 20 November 2026 on the branch `eira-test-garden` (knowledge base doc 136): where each page's words and each card's Add now live, the words every page hands her (section 4), and the place piece 4 will record a page it opens (section 13). Nothing she is told changed. Updated again on 20 November 2026 on the branch `eira-speaks-first` (knowledge base doc 140): section 15, the fixed notices she gives first. Part 1 is what the app does today, copied from the code. Part 2 is what stage 2 of the next phase will add (knowledge base doc 123); every line of it is a proposal marked ⚠️ until William agrees it.
 
 ## Why this file exists
 
@@ -349,3 +349,13 @@ The cards, and the fields each fills (from the records in the code; ⚠️ the c
 1. This file is read through with William and marked frozen, with the date and the commit.
 2. A script (`Tools/eira-contract/check.py`, ⚠️ to be written) reads the instructions, lookups and fixed wordings out of the Swift files and out of `eira-tune/gen/common.py`, and fails if either differs from this file.
 3. It is run before every training round and by the join chat before every merge into `main` that touches an Eira file.
+
+## 15. Speaking first (piece 5, first part)
+
+**Built on 20 November 2026** (branch `eira-speaks-first`, knowledge base doc 140), by fixed rules and fixed wording only. **No model is asked anything, and nothing here reaches Eira's conversation.** Written down here because it speaks in her name, and so a model is never trained to say it differently.
+
+- `SpeaksFirstPlan.swift` decides what to say and when; `SpeaksFirst.swift` fetches each placed garden's forecast (at most once an hour, only while Windfall is open) and hands the notices to the system. Two switches, in Settings and on Reminders: **Frost warnings** and **Good days for a FIT count**, both off until turned on. Turning one on asks for notification permission the first time.
+- **Frost:** for each of the next three nights where a garden's forecast low is **below 1 °C**, one notice at **16:00 the day before** (or a minute after Windfall sees it, until 22:00). Title `Frost tonight` (a low at or below 0 °C) or `Near frost tonight`. Body: `Forecast low by {weekday} morning: {−2 °C at Garden A and 0 °C at Garden B}. Cover or bring in anything tender.` Coldest garden first.
+- **FIT count, April to September:** one notice, for the first day from today to two days ahead with no count already made that day where a garden's forecast is dry (rain ≤ 0.5 mm), still (steady wind ≤ 20 km/h) and warm enough (13 °C with 5 hours of sun or more, 15 °C otherwise). At **09:30** that day (or at once until 13:00 if Windfall sees it later). Title `A good day for a FIT count`. Body: `Dry, light winds and up to {18 °C} at {Garden A and Garden B}: warm enough for a FIT count. Ten minutes watching one patch of flowers.` Warmest garden first.
+- Notice names begin `windfall.speaks.`; every new plan replaces the old one, and no other reminder is touched.
+- ⚠️ Every number and every wording is Claude's (card `f-speaks-claude-140`).

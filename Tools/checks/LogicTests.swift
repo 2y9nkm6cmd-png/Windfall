@@ -956,6 +956,49 @@ struct LogicTests {
         let spokenJob = SpokenToEira.forJob("Lift the dahlias")
         check(spokenJob == "I need to lift the dahlias" && GardenJobs.offer(in: spokenJob, today: lateEvening) != nil, "a job said to Siri is shaped so the job rule offers its card: \(spokenJob)")
         check(SpokenToEira.forJob("I need to build the wigwam at the weekend", today: lateEvening) == "I need to build the wigwam at the weekend" && SpokenToEira.forJob("lift the dahlias?") == "I need to lift the dahlias" && SpokenToEira.forJob("") == "", "a job already in a job's shape is left alone, and a question mark is dropped so it is not read as a question")
+        // Eira speaks first: frost warnings and good days for a FIT count (SpeaksFirstPlan.swift, doc 140)
+        let speakUTC = TimeZone(identifier: "UTC")!
+        var speakCalendar = Calendar(identifier: .gregorian); speakCalendar.timeZone = speakUTC
+        func speakTime(_ y: Int, _ m: Int, _ d: Int, _ h: Int, _ min: Int = 0) -> Date {
+            speakCalendar.date(from: DateComponents(year: y, month: m, day: d, hour: h, minute: min))!
+        }
+        func night(_ key: String, _ low: Double) -> SpeakForecastDay { SpeakForecastDay(dayKey: key, minC: low) }
+        let frostGardens = [
+            SpeakGardenForecast(gardenName: "Allotment", days: [night("2026-11-20", -1), night("2026-11-21", 0.4), night("2026-11-22", 3), night("2026-11-23", 0.9)]),
+            SpeakGardenForecast(gardenName: "Permaculture garden", days: [night("2026-11-21", -2.3), night("2026-11-22", 1.0), night("2026-11-23", 4)])
+        ]
+        let frostAtNoon = SpeaksFirstPlan.frostNotices(frostGardens, now: speakTime(2026, 11, 20, 12), calendar: speakCalendar)
+        check(frostAtNoon.map(\.id) == ["windfall.speaks.frost.2026-11-21", "windfall.speaks.frost.2026-11-23"], "a warning for each night ahead forecast below 1 °C, none for this morning's or for exactly 1 °C: \(frostAtNoon.map(\.id))")
+        check(frostAtNoon.first?.fireAt == speakTime(2026, 11, 20, 16) && frostAtNoon.last?.fireAt == speakTime(2026, 11, 22, 16), "a frost warning comes at 4 pm the day before")
+        check(frostAtNoon.first?.title == "Frost tonight" && frostAtNoon.first?.body == "Forecast low by Saturday morning: \u{2212}2 °C at Permaculture garden and 0 °C at Allotment. Cover or bring in anything tender.", "the warning names every garden that cold, coldest first: \(frostAtNoon.first?.body ?? "none")")
+        check(frostAtNoon.last?.title == "Near frost tonight" && frostAtNoon.last?.body.contains("Monday morning: 1 °C at Allotment.") == true, "a low above freezing but below 1 °C is a near frost")
+        let frostLate = SpeaksFirstPlan.frostNotices(frostGardens, now: speakTime(2026, 11, 20, 18, 5), calendar: speakCalendar)
+        check(frostLate.first?.fireAt == speakTime(2026, 11, 20, 18, 6), "a warning that has missed 4 pm comes a minute later")
+        let frostTooLate = SpeaksFirstPlan.frostNotices(frostGardens, now: speakTime(2026, 11, 20, 22, 30), calendar: speakCalendar)
+        check(frostTooLate.map(\.id) == ["windfall.speaks.frost.2026-11-23"], "after 10 pm tonight's warning is not sent, later nights' still are")
+        check(SpeaksFirstPlan.frostNotices([], now: speakTime(2026, 11, 20, 12), calendar: speakCalendar).isEmpty, "no garden with a place: no warnings")
+        func fitDay(_ key: String, high: Double, rain: Double = 0, wind: Double = 10, sun: Double = 6) -> SpeakForecastDay {
+            SpeakForecastDay(dayKey: key, minC: 9, maxC: high, rainMM: rain, windMaxKMH: wind, sunshineHours: sun)
+        }
+        check(SpeaksFirstPlan.suitsFITCount(fitDay("d", high: 13)) && !SpeaksFirstPlan.suitsFITCount(fitDay("d", high: 14, sun: 2)) && SpeaksFirstPlan.suitsFITCount(fitDay("d", high: 15, sun: 0)), "13 °C is enough with sun, 15 °C without, as during a count")
+        check(!SpeaksFirstPlan.suitsFITCount(fitDay("d", high: 20, rain: 2)) && !SpeaksFirstPlan.suitsFITCount(fitDay("d", high: 20, wind: 25)) && !SpeaksFirstPlan.suitsFITCount(SpeakForecastDay(dayKey: "d", maxC: 20)), "rain, wind or a missing figure rule a day out")
+        let fitGardens = [
+            SpeakGardenForecast(gardenName: "Allotment", days: [fitDay("2026-06-10", high: 17), fitDay("2026-06-11", high: 14, sun: 2), fitDay("2026-06-12", high: 16, sun: 1)]),
+            SpeakGardenForecast(gardenName: "Permaculture garden", days: [fitDay("2026-06-10", high: 18.4), fitDay("2026-06-11", high: 12), fitDay("2026-06-12", high: 14, rain: 3)])
+        ]
+        let fitMorning = SpeaksFirstPlan.fitNotices(fitGardens, countedOn: [], now: speakTime(2026, 6, 10, 8), calendar: speakCalendar)
+        check(fitMorning.count == 1 && fitMorning.first?.id == "windfall.speaks.fit.2026-06-10" && fitMorning.first?.fireAt == speakTime(2026, 6, 10, 9, 30), "one note, for the first good day, at 9:30")
+        check(fitMorning.first?.body == "Dry, light winds and up to 18 °C at Permaculture garden and Allotment: warm enough for a FIT count. Ten minutes watching one patch of flowers.", "the note names the gardens that suit, warmest first: \(fitMorning.first?.body ?? "none")")
+        let fitCounted = SpeaksFirstPlan.fitNotices(fitGardens, countedOn: ["2026-06-10"], now: speakTime(2026, 6, 10, 8), calendar: speakCalendar)
+        check(fitCounted.first?.id == "windfall.speaks.fit.2026-06-12" && fitCounted.first?.body.contains("16 °C at Allotment:") == true, "a day with a count already made is passed over, and only the gardens that suit are named")
+        check(SpeaksFirstPlan.fitNotices(fitGardens, countedOn: [], now: speakTime(2026, 6, 10, 11), calendar: speakCalendar).first?.fireAt == speakTime(2026, 6, 10, 11, 1) && SpeaksFirstPlan.fitNotices(fitGardens, countedOn: [], now: speakTime(2026, 6, 10, 14), calendar: speakCalendar).first?.id == "windfall.speaks.fit.2026-06-12", "a note for today that has missed 9:30 comes at once until 1 pm, then waits for the next good day")
+        let novemberWarm = [SpeakGardenForecast(gardenName: "Allotment", days: [fitDay("2026-11-20", high: 16)])]
+        check(SpeaksFirstPlan.fitNotices(novemberWarm, countedOn: [], now: speakTime(2026, 11, 20, 8), calendar: speakCalendar).isEmpty && SpeaksFirstPlan.fitNotices(novemberWarm, countedOn: [], now: speakTime(2026, 9, 29, 8), calendar: speakCalendar).isEmpty, "no FIT count notes outside April to September, or without a forecast for the day")
+        check(SpeaksFirstPlan.degrees(-0.4) == "0 °C" && SpeaksFirstPlan.degrees(-2.6) == "\u{2212}3 °C" && SpeaksFirstPlan.listed(["a", "b", "c"]) == "a, b and c" && SpeaksFirstPlan.listed([]) == "", "degrees are whole with a true minus, and lists have no comma before and")
+        let forecastReply = Data(#"{"daily":{"time":["2026-11-20","2026-11-21"],"temperature_2m_min":[2.1,-1.5],"temperature_2m_max":[7,null],"precipitation_sum":[0,1.2],"wind_speed_10m_max":[14,9],"sunshine_duration":[7200,0]}}"#.utf8)
+        let readForecast = SpeaksFirstPlan.forecastDays(from: forecastReply)
+        check(readForecast?.count == 2 && readForecast?[1].minC == -1.5 && readForecast?[1].maxC == nil && readForecast?[0].sunshineHours == 2 && SpeaksFirstPlan.forecastDays(from: Data("{}".utf8)) == nil, "the weather service's daily forecast is read, gaps as gaps and sunshine in hours")
+        check(SpeaksFirstPlan.forecastURL(latitude: 51.49051, longitude: -2.49261, timeZone: speakUTC)?.absoluteString.contains("latitude=51.491&longitude=-2.493") == true, "the forecast is asked for to about a hundred metres")
         // Photos a page hands over for Eira's bar
         tracker.handToBar([Data([1, 2]), Data([3])])
         check(tracker.photosForBar.count == 2, "photos dropped on a page wait for Eira's bar")

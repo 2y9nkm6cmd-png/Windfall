@@ -1109,6 +1109,9 @@ struct SettingsView: View {
                 Text("A garden's place decides its weather and starts its weather diary. Set one by typing its town or postcode: that needs no permission. This device's own location is only used when you press a button that says so, for a grid reference, for a photo taken with Windfall, or for the weather while no garden has a place.")
             }
 
+            // Frost warnings and good days for a FIT count. See SpeaksFirst.swift.
+            SpeaksFirstSection()
+
             Section {
                 NavigationLink {
                     GardenDataView()

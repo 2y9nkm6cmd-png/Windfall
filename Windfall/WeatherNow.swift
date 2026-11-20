@@ -66,6 +66,9 @@ enum WeatherNow {
         // The forecast is in, or could not be had: either way the
         // widgets' file is brought up to date from the records.
         WidgetShare.refresh(context: context)
+        // Frost warnings and good days for a FIT count, if switched on.
+        // It rests for an hour between forecasts. See SpeaksFirst.swift.
+        await SpeaksFirst.refresh(context: context, force: force)
     }
 
     /// Saves where the device is now as a garden's place on the map.

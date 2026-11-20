@@ -1,3 +1,13 @@
+# 20 November 2026: Eira speaks first, part one: frost warnings and good days for a FIT count
+
+**By the lane A and D build chat** (knowledge base doc 140). Branch `eira-speaks-first`. Doc 119, piece 5, its first part: fixed rules and fixed wording, no model.
+
+- **Two switches**, in Settings (below "Where your gardens are") and at the top of Reminders: **Frost warnings** and **Good days for a FIT count**. Both start off. Turning one on brings up the system's notification question the first time; after a No the page says where to switch it on.
+- **Frost:** a notice at 4 pm the day before any of the next three nights when a garden's forecast low is below 1 °C, naming every garden that cold. **FIT count:** from April to September, one notice at 9:30 on the first coming day (today and the two after) that is dry, still and warm enough by the FIT count's own rules (13 °C in sun, 15 °C otherwise), unless a count was already made that day.
+- **The power rules (doc 91):** nothing runs while Windfall is closed. The forecast is asked for alongside the ordinary weather check (opening, coming to the front, every quarter of an hour while open) and at most once an hour, one small request a placed garden. The system holds the notices and shows them itself.
+- `SpeaksFirstPlan.swift` (in the logic files): the rules and the words. `SpeaksFirst.swift`: fetching, the notification centre, the switches (`SpeaksFirstSection`). `WeatherNow.swift`: one line calls it. `NotificationService.swift`: "Reschedule now" and "Turn off all reminders" now take away only their own reminders, not these, and the old frost line that was never scheduled is gone from its list.
+- `docs/eira-contract.md`, section 15: the fixed wording. Sixteen new checks, 1,086 pass.
+
 # 20 November 2026: Siri, Shortcuts and the Action Button
 
 **By the "Next phase, stage 0 then lane A" chat** (knowledge base doc 138). Branch `siri-shortcuts`. Doc 120, use 5.
