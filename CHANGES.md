@@ -14,6 +14,14 @@
 - **The power rules (doc 91):** nothing runs while Windfall is closed. The forecast is asked for alongside the ordinary weather check (opening, coming to the front, every quarter of an hour while open) and at most once an hour, one small request a placed garden. The system holds the notices and shows them itself.
 - `SpeaksFirstPlan.swift` (in the logic files): the rules and the words. `SpeaksFirst.swift`: fetching, the notification centre, the switches (`SpeaksFirstSection`). `WeatherNow.swift`: one line calls it. `NotificationService.swift`: "Reschedule now" and "Turn off all reminders" now take away only their own reminders, not these, and the old frost line that was never scheduled is gone from its list.
 - `docs/eira-contract.md`, section 15: the fixed wording. Sixteen new checks, 1,086 pass.
+# 20 November 2026: odd-record warnings before an iRecord export
+
+**By the lane A and D build chat** (knowledge base doc 140). Branch `irecord-warnings`. Doc 120, use 13: rules and plain sums, no model.
+
+- **Settings and tools › Export records** now starts with **Worth a second look** when any sighting still to be sent looks odd, each with one plain sentence: **out of season** (fewer than 2 in 100 of that animal's UK records fall in that month, for an animal with 50 or more), **not on the UK list** (neither the animal nor its genus has 20 or more confirmed UK records), **dated in the future**, **no grid reference** (iRecord refuses these, so it stays out of the file as before), or **a grid reference of the wrong shape**.
+- When odd sightings are among those ready to go, **Wildlife sightings** asks first: send all, or leave the odd ones out this time (they stay waiting for the next file). Nothing is changed in the records.
+- `RecordWarnings.swift` (in the logic files): the rules. `ExportService.swift`: `exportWarnings`, `ExportWaiting.oddSightings`, `exportObservations(_:leavingOut:)`, the section and the question. `WildlifeReference.knowsGenus(of:)`. Eight new checks.
+- FIT counts and earthworm counts go to PoMS, not iRecord, and are not checked here.
 
 # 20 November 2026: Siri, Shortcuts and the Action Button
 

@@ -342,6 +342,13 @@ struct WildlifeReference {
         return placeByName[WildlifeReference.plain(scientificName)].map { animals[$0] }
     }
 
+    /// True when at least one animal of this name's genus is in the list:
+    /// "Andrena spp." or "Andrena nowhere" are both in a known genus.
+    func knowsGenus(of scientificName: String?) -> Bool {
+        guard let scientificName else { return false }
+        return placesByGenus[WildlifeReference.genus(of: scientificName)] != nil
+    }
+
     /// The kind an animal with this scientific name belongs to. This is
     /// how one of William's own species finds its drawing.
     func kind(ofScientificName scientificName: String?) -> WildlifeKind? {

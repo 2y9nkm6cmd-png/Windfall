@@ -60,3 +60,4 @@ EiraTestSheet.swift
 SafetyCopyPlan.swift
 SpokenToEira.swift
 SpeaksFirstPlan.swift
+RecordWarnings.swift
