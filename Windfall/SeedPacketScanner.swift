@@ -243,10 +243,17 @@ struct SeedPacketScanView: View {
     /// Gardens page says nothing, and the screen waits to be asked.
     private let startsWith: SeedPacketStart?
 
-    /// `= nil` gives a value to fall back on, so plain
+    /// Photos already in hand when the screen opens: a photo given to
+    /// Eira's bar and sent here with "Seed packet" (PhotoOffer.swift).
+    /// The first is read as the back, a second as the front. Empty when
+    /// the screen is opened any other way.
+    private let startingPhotos: [Data]
+
+    /// `= nil` and `= []` give values to fall back on, so plain
     /// `SeedPacketScanView()` still works where it was already used.
-    init(startsWith: SeedPacketStart? = nil) {
+    init(startsWith: SeedPacketStart? = nil, startingPhotos: [Data] = []) {
         self.startsWith = startsWith
+        self.startingPhotos = startingPhotos
     }
 
     @State private var scanner = SeedPacketScanner()
@@ -532,6 +539,15 @@ struct SeedPacketScanView: View {
         // A checking aid: read a photo from a file, with no tap.
         if let demo = DemoGarden.packetPhoto {
             await read(demo, side: .back)
+            return
+        }
+        // Photos handed over from Eira's bar: read at once, the back
+        // first. `zip` pairs the two lists, side with photo, and stops
+        // at the shorter, so one photo reads only the back.
+        if !startingPhotos.isEmpty {
+            for (side, data) in zip([PacketSide.back, .front], startingPhotos) {
+                await read(data, side: side)
+            }
             return
         }
         guard let startsWith, startsWith.readsAPhoto else { return }

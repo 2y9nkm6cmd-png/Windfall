@@ -7,7 +7,7 @@
 //  A photo can reach Eira from her bar on any page: chosen with the "+"
 //  beside her snowdrop, or dragged on to the bar. On the Journal page it
 //  plainly belongs in the journal, and goes straight there. Anywhere
-//  else it could be for one of three things, so she asks:
+//  else it could be for one of four things, so she asks:
 //
 //  - What is this?    She looks at it and names what it most resembles
 //                     (the Identify screen, EiraVision.swift).
@@ -15,8 +15,12 @@
 //                     its box (JournalChatView.swift).
 //  - Sighting         A new sighting is started with the photo attached
 //                     and dated when the photo was taken.
+//  - Seed packet      The packet reader opens with the photo already in
+//                     it and reads it (SeedPacketScanner.swift). Added
+//                     20 November 2026: until then the reader could
+//                     only be reached from the Seed page (doc 119, gap 6).
 //
-//  Nothing is saved by choosing. Each of the three has its own button
+//  Nothing is saved by choosing. Each of the four has its own button
 //  that saves, and its own way of backing out.
 //
 //  The card and the three things it leads to are all shown in the one
@@ -40,6 +44,7 @@ struct PhotoOfferSheet: View {
         case identify
         case journal
         case sighting(WildlifeObservation)
+        case seedPacket
     }
 
     @State private var stage = Stage.offer
@@ -68,7 +73,7 @@ struct PhotoOfferSheet: View {
     }
 
     var body: some View {
-        // `switch` shows one of four things in the same sheet.
+        // `switch` shows one of five things in the same sheet.
         Group {
             switch stage {
             case .offer:
@@ -79,6 +84,10 @@ struct PhotoOfferSheet: View {
                 JournalChatView(photos: photos)
             case .sighting(let observation):
                 ObservationEditor(observation: observation, isNew: true)
+            case .seedPacket:
+                // The first photo is read as the back of the packet
+                // (where the sowing details are), a second as the front.
+                SeedPacketScanView(startingPhotos: Array(photos.prefix(2)))
             }
         }
         .task {
@@ -149,12 +158,18 @@ struct PhotoOfferSheet: View {
                            : "Record something you saw, dated when the photo was taken.") {
                         startSighting()
                     }
+                    choice(.sowing, "Seed packet",
+                           photos.count == 1
+                           ? "Read the sowing details off the packet, and keep it with your seeds."
+                           : "Read the first photo as the packet's back and the second as its front, and keep it with your seeds.") {
+                        stage = .seedPacket
+                    }
                 }
             }
         }
     }
 
-    /// One of the three choices: an icon, a name and a line saying what
+    /// One of the four choices: an icon, a name and a line saying what
     /// it does, the whole row being the button.
     private func choice(_ icon: WIcon, _ title: String, _ detail: String,
                         action: @escaping () -> Void) -> some View {
