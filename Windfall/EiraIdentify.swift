@@ -516,8 +516,12 @@ enum EiraIdentify {
 
     /// The pooled share a genus must reach before Eira will name the
     /// genus when she cannot name the species. The same level as the
-    /// image model's own "not sure" line (project doc 28).
-    nonisolated static let genusFloor = 0.85
+    /// image model's own "not sure" line (project doc 28), which is
+    /// `not_sure_floor` in each model folder's `uk_species.json`.
+    /// Change one, change both. 0.97 since 20 November 2026 (was 0.85):
+    /// at 0.97 a name given outright was right 19 times in 20 even on
+    /// the rarer species of the 6,421-name list (project docs 116, 127).
+    nonisolated static let genusFloor = 0.97
 
     /// How many of the image model's closest names to ask for. More
     /// than are shown, so that the shares of one genus can be pooled

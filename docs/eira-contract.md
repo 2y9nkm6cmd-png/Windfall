@@ -196,6 +196,7 @@ Read by rule before it is shown or saved (`EiraChecks.checked`). A reply stopped
 
 - A photo given to her is a message of the gardener's reading `What is this? (A photo.)`.
 - Her answer is made by the image model and fixed rules, not the text model (`EiraIdentify`). It joins the conversation in words, labelled `identify_photo`, so a follow-up question has it in front of the model. Its verdict is one of: named; one of several (that cannot be told apart from a photo); genus only; not sure; nothing to compare with.
+- **The not sure line is 97%** (since 20 November 2026, was 85%; knowledge base docs 116 and 127). A species is named outright only when the image model gives it 97% or more (`not_sure_floor` in the model folder's `uk_species.json`), and a genus only when two or more of its species reach 97% between them (`EiraIdentify.genusFloor`). The two always move together.
 
 ## 9. The cards today
 
