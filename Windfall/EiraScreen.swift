@@ -163,3 +163,90 @@ final class EiraScreen {
         + "Only use this if the question refers to it, for example with \"this\", \"it\" or \"here\"."
     }
 }
+
+// MARK: - The words some pages give Eira
+
+/// The phrases the pages added on 20 November 2026 give Eira about
+/// themselves (piece 1 of project doc 119: every page tells her what is
+/// open). Most pages pass a fixed phrase straight to `.eiraLooksAt(...)`.
+/// The ones that are built from a record live here instead, as plain
+/// functions that take words and dates and give back a phrase. Being
+/// plain, the logic tests can check them without drawing a screen.
+///
+/// The phrase is all Eira is told about the page, so it names what the
+/// gardener would name: "the sighting of Red Admiral (Vanessa atalanta),
+/// seen on 3 August 2026", not the screen's title.
+enum EiraPagePhrase {
+
+    /// A date as Eira is given it: "3 August 2026".
+    static func day(_ date: Date) -> String {
+        date.formatted(.dateTime.day().month(.wide).year())
+    }
+
+    /// Nil for a missing name or one that is only spaces.
+    private static func named(_ words: String?) -> String? {
+        guard let words else { return nil }
+        let trimmed = words.trimmingCharacters(in: .whitespacesAndNewlines)
+        return trimmed.isEmpty ? nil : trimmed
+    }
+
+    /// One sighting: "the sighting of Red Admiral (Vanessa atalanta),
+    /// seen on 3 August 2026". With no name yet: "an unidentified
+    /// sighting, seen on ...".
+    static func sighting(english: String?, latin: String?, seen: Date) -> String {
+        let who: String
+        switch (named(english), named(latin)) {
+        case let (english?, latin?): who = "the sighting of \(english) (\(latin))"
+        case let (english?, nil): who = "the sighting of \(english)"
+        case let (nil, latin?): who = "the sighting of \(latin)"
+        case (nil, nil): who = "an unidentified sighting"
+        }
+        return "\(who), seen on \(day(seen))"
+    }
+
+    /// A survey that has been kept: "the FIT Count of 3 August 2026, on
+    /// Lavender".
+    static func survey(scheme: String, started: Date, flower: String?) -> String {
+        let base = "the \(scheme) of \(day(started))"
+        guard let flower = named(flower) else { return base }
+        return "\(base), on \(flower)"
+    }
+
+    /// Where a count being made has got to.
+    enum CountStage { case settingUp, counting, finished }
+
+    /// A count being made: "a FIT Count under way, on Lavender".
+    static func count(scheme: String, stage: CountStage, flower: String?) -> String {
+        let state: String
+        switch stage {
+        case .settingUp: state = "being set up"
+        case .counting: state = "under way"
+        case .finished: state = "just finished, with its result showing"
+        }
+        let base = "a \(scheme) \(state)"
+        guard let flower = named(flower) else { return base }
+        return "\(base), on \(flower)"
+    }
+
+    /// One cross: "the cross of Tomato (seed parent) with Gardener's
+    /// Delight (pollen parent), made on 3 August 2026".
+    static func cross(seedParent: String, pollenParent: String?, made: Date) -> String {
+        let seed = named(seedParent) ?? "an unnamed plant"
+        let pollen = named(pollenParent).map { "with \($0) (pollen parent)" } ?? "with no pollen parent named"
+        return "the cross of \(seed) (seed parent) \(pollen), made on \(day(made))"
+    }
+
+    /// The sheet for one of the gardener's own jobs: "the job \"Lift the
+    /// dahlias\"", or "a new job being written".
+    static func job(title: String?) -> String {
+        guard let title = named(title) else { return "a new job being written" }
+        return "the job \u{201C}\(title)\u{201D}"
+    }
+
+    /// A plant's drawings opened large: "the life stages drawings of the
+    /// plant Strawberry".
+    static func plantDrawings(card: String, plant: String) -> String {
+        let what = named(card).map { "the \($0.lowercased()) drawings" } ?? "the drawings"
+        return "\(what) of the plant \(named(plant) ?? "with no name")"
+    }
+}

@@ -145,6 +145,22 @@ The model is sent one block per message, built in this order from the top:
 
 Only the model sees 1 and 2. The conversation on screen, and what is saved, keep the message as typed.
 
+**Pages that give a phrase** (each through `.eiraLooksAt(...)`). Since 20 November 2026 (piece 1 of knowledge base doc 119, branch `eira-pages`) every page of the app gives one. The phrases built from a record are made by `EiraPagePhrase` in `EiraScreen.swift` and checked by the logic tests.
+
+| Page | The phrase |
+|---|---|
+| Each place in the sidebar or tab bar | its own line (`MainTabView`) |
+| A plant, bed, sowing, seed packet, species, garden plan or drawing | `the plant Apple, Spartan`; `the bed called Bed 3`; `a sowing of ...`; `a seed packet of ...`; `the species ...`; `the plan of the garden called ...` |
+| Wildlife reference, months, diseases, weather diary, pest helpers, the corner drawing | as their files say |
+| Sightings list / one sighting | `the list of wildlife sightings` / `the sighting of Red Admiral (Vanessa atalanta), seen on 3 August 2026` (or `an unidentified sighting, ...`) |
+| Surveys list / a kept survey / a count being made | `the list of surveys and FIT counts` / `the FIT Count of 3 August 2026, on Lavender` / `a FIT Count being set up`, `under way` or `just finished, with its result showing` |
+| Charts | `the Charts page: harvests by month and where they went, pollinators over the season, flowering against flying insects, and the top crops` |
+| Your jobs / one job | `the list of your own jobs, the ones no season would suggest` / `the job "Lift the dahlias"` or `a new job being written` |
+| Identify / fungus keys / one key | `the Identify page: name something from a photo, or step through a fungus key` / `the shelf of fungus keys` / `the fungus key called ..., which asks about a fungus one question at a time` |
+| Crosses / one cross | `the list of plant crosses, made by hand or by insects` / `the cross of Tomato (seed parent) with Gardener's Delight (pollen parent), made on 3 August 2026` |
+| Flower shapes / one shape | `the Flower shapes page, which shows the shapes of flower the garden has for pollinators, from the plants growing` / `the flower shape ..., with the plants of that shape and the insects that visit them` |
+| A plant's drawings opened large | `the life stages drawings of the plant Strawberry` |
+
 ## 5. Earlier turns
 
 A session is started afresh when the instructions change, after a fixed reply the model did not see, or when the conversation passes about 2,000 tokens (four characters to a token). Then the instructions are followed by:

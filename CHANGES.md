@@ -1,3 +1,12 @@
+# 20 November 2026: every page tells Eira what is open (lane A, piece 1)
+
+**By the "Next phase, stage 0 then lane A" chat, linked to the Mac.** Branch `eira-pages`, from `main` at `ed34ee1`. Knowledge base doc 119, piece 1.
+
+- The pages that said nothing to Eira now give her one short phrase each, through `.eiraLooksAt(...)`: the sightings list and each sighting, the surveys list, each kept survey and a count being made (its phrase changes as it is set up, counted and finished), Charts, Your jobs and each job's sheet, Identify, the fungus keys' shelf and each key, the crosses list and each cross, Flower shapes and each shape, and a plant's drawings opened large.
+- The phrases built from a record (a sighting, survey, count, cross, job, drawings) are made by a new `EiraPagePhrase` in `EiraScreen.swift`, so the logic tests can check them: eight new checks, 1,037 pass.
+- `docs/eira-contract.md`, section 4, lists every page's phrase.
+- Nothing is saved or changed by this: the phrase only goes in front of a question, and only the model sees it.
+
 # 18 November 2026, 19:10: Eira's contract and the new test sheet sections, written down (lane B)
 
 **By the "next phase, lane B" chat, in Claude's cloud workspace from William's phone. On the branch `eira-contract`, not in `main`. No Swift changed, nothing built.** William, 19:03: "Let's start building the next phase". The chat could not reach the Mac, so stage 0 and lane A wait for a chat on the Mac; this is lane B, stage 1 (knowledge base docs 123, 127 and 128).

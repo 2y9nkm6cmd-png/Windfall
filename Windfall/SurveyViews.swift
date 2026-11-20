@@ -58,6 +58,8 @@ struct SurveyListView: View {
             }
         }
         .navigationTitle("Surveys")
+        // Tells Eira what is open (piece 1, project doc 119). See EiraScreen.swift.
+        .eiraLooksAt("the list of surveys and FIT counts", short: "Surveys")
         .paperScreen()
         .navigationDestination(for: Survey.self) { survey in
             SurveyDetailView(survey: survey)
@@ -175,6 +177,16 @@ struct RunSurveyView: View {
         TimeInterval(survey.scheme.defaultDurationSeconds ?? survey.durationSeconds ?? 600)
     }
 
+    /// Where the count has got to, in the words Eira is given
+    /// (EiraPagePhrase in EiraScreen.swift).
+    private var eiraStage: EiraPagePhrase.CountStage {
+        switch phase {
+        case .setup: return .settingUp
+        case .counting: return .counting
+        case .finished: return .finished
+        }
+    }
+
     var body: some View {
         // SheetPage draws the title, the button at the top right and the
         // paper. See SheetParts.swift.
@@ -189,6 +201,11 @@ struct RunSurveyView: View {
             case .finished: finishedView
             }
         }
+        // Tells Eira a count is being made, and how far it has got
+        // (piece 1, project doc 119). The phrase changes with the stage.
+        .eiraLooksAt(EiraPagePhrase.count(scheme: survey.scheme.displayName, stage: eiraStage,
+                                          flower: survey.targetPlantName),
+                     short: survey.scheme.displayName)
         #if os(iOS)
         .interactiveDismissDisabled(phase == .counting)
         #endif
@@ -820,6 +837,10 @@ struct SurveyDetailView: View {
         }
         .navigationTitle("Survey")
         .paperScreen()
+        // Tells Eira what is open (piece 1, project doc 119). See EiraScreen.swift.
+        .eiraLooksAt(EiraPagePhrase.survey(scheme: survey.scheme.displayName, started: survey.startedAt,
+                                           flower: survey.targetPlantName),
+                     short: survey.scheme.displayName)
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif

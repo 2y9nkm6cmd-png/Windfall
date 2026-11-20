@@ -899,6 +899,18 @@ struct LogicTests {
         tabs.hide(id: entryID)
         check(tabs.current(in: "journal")?.isJournal == true, "going back on a tab shows the page beneath")
         check(tabs.current(in: nil)?.isJournal == true, "with no tab named the newest screen anywhere is given")
+        // The words the pages added on 20 November 2026 give Eira (piece 1, doc 119)
+        var augustDay = DateComponents(); augustDay.year = 2026; augustDay.month = 8; augustDay.day = 3; augustDay.hour = 12
+        let august = Calendar.current.date(from: augustDay)!
+        let augustWords = EiraPagePhrase.day(august)
+        check(augustWords.contains("2026") && augustWords.contains("3"), "a page's date is given as a day, month and year: \(augustWords)")
+        check(EiraPagePhrase.sighting(english: "Red Admiral", latin: "Vanessa atalanta", seen: august) == "the sighting of Red Admiral (Vanessa atalanta), seen on \(augustWords)", "a sighting is named with both its names and its day")
+        check(EiraPagePhrase.sighting(english: nil, latin: "Vanessa atalanta", seen: august).hasPrefix("the sighting of Vanessa atalanta, seen on") && EiraPagePhrase.sighting(english: "  ", latin: nil, seen: august).hasPrefix("an unidentified sighting, seen on"), "a sighting with one name uses it, and one with none is called unidentified, even when its name is only spaces")
+        check(EiraPagePhrase.survey(scheme: "FIT Count", started: august, flower: "Lavender") == "the FIT Count of \(augustWords), on Lavender" && EiraPagePhrase.survey(scheme: "FIT Count", started: august, flower: nil) == "the FIT Count of \(augustWords)", "a kept survey names its kind, day and flower, when it has one")
+        check(EiraPagePhrase.count(scheme: "FIT Count", stage: .counting, flower: "Lavender") == "a FIT Count under way, on Lavender" && EiraPagePhrase.count(scheme: "FIT Count", stage: .settingUp, flower: nil) == "a FIT Count being set up" && EiraPagePhrase.count(scheme: "FIT Count", stage: .finished, flower: "") .hasPrefix("a FIT Count just finished"), "a count being made says how far it has got")
+        check(EiraPagePhrase.cross(seedParent: "Tomato", pollenParent: "Gardener's Delight", made: august) == "the cross of Tomato (seed parent) with Gardener's Delight (pollen parent), made on \(augustWords)" && EiraPagePhrase.cross(seedParent: "", pollenParent: nil, made: august).hasPrefix("the cross of an unnamed plant (seed parent) with no pollen parent named"), "a cross names both parents, and says when one is missing")
+        check(EiraPagePhrase.job(title: "Lift the dahlias") == "the job \u{201C}Lift the dahlias\u{201D}" && EiraPagePhrase.job(title: nil) == "a new job being written" && EiraPagePhrase.job(title: " ") == "a new job being written", "a job sheet names the job, or says a new one is being written")
+        check(EiraPagePhrase.plantDrawings(card: "Life stages", plant: "Strawberry") == "the life stages drawings of the plant Strawberry" && EiraPagePhrase.plantDrawings(card: "", plant: "Strawberry") == "the drawings of the plant Strawberry", "a plant's drawings opened large name the card and the plant")
         // Photos a page hands over for Eira's bar
         tracker.handToBar([Data([1, 2]), Data([3])])
         check(tracker.photosForBar.count == 2, "photos dropped on a page wait for Eira's bar")

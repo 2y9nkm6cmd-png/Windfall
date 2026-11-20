@@ -113,6 +113,8 @@ struct FlowerShapeCoverageView: View {
             .padding(.bottom, 20)
         }
         .navigationTitle("Flower shapes")
+        // Tells Eira what is open (piece 1, project doc 119). See EiraScreen.swift.
+        .eiraLooksAt("the Flower shapes page, which shows the shapes of flower the garden has for pollinators, from the plants growing", short: "Flower shapes")
         .paperScreen()
     }
 
@@ -232,6 +234,8 @@ struct FlowerShapeDetailView: View {
             .padding(.bottom, 20)
         }
         .navigationTitle(shape.name)
+        // Tells Eira what is open (piece 1, project doc 119). See EiraScreen.swift.
+        .eiraLooksAt("the flower shape \(shape.name), with the plants of that shape and the insects that visit them", short: shape.name)
         #if os(iOS)
         // The small title in the bar. The large one is on the page itself.
         .navigationBarTitleDisplayMode(.inline)

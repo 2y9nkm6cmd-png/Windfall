@@ -90,6 +90,9 @@ struct FungusKeyView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
         }
         .navigationTitle(key?.displayTitle ?? FungusKeys.ownTitle)
+        // Tells Eira what is open (piece 1, project doc 119). See EiraScreen.swift.
+        .eiraLooksAt("the fungus key called \(key?.displayTitle ?? FungusKeys.ownTitle), which asks about a fungus one question at a time",
+                     short: key?.displayTitle ?? FungusKeys.ownTitle)
         .paperScreen()
     }
 

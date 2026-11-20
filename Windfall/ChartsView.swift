@@ -45,6 +45,8 @@ struct ChartsView: View {
             topCrops
         }
         .navigationTitle("Charts")
+        // Tells Eira what is open (piece 1, project doc 119). See EiraScreen.swift.
+        .eiraLooksAt("the Charts page: harvests by month and where they went, pollinators over the season, flowering against flying insects, and the top crops", short: "Charts")
         .paperScreen()
     }
 

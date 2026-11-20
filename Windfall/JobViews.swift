@@ -291,6 +291,10 @@ struct JobSheet: View {
                 }
             }
         }
+        // Tells Eira which job is open, or that a new one is being
+        // written (piece 1, project doc 119). The saved title, not the
+        // words being typed.
+        .eiraLooksAt(EiraPagePhrase.job(title: job?.title), short: job?.title)
     }
 
     private func save() {
@@ -422,6 +426,8 @@ struct OwnJobsView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
         }
         .navigationTitle("Your jobs")
+        // Tells Eira what is open (piece 1, project doc 119). See EiraScreen.swift.
+        .eiraLooksAt("the list of your own jobs, the ones no season would suggest", short: "Your jobs")
         .paperScreen()
         .sheet(isPresented: $isAdding) {
             JobSheet()
