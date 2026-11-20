@@ -1,4 +1,4 @@
-# 20 November 2026, 18:45: the example garden named exactly and given what the new questions need; the test run can press Add, note the page opened and ask with a page open (lane B)
+# 20 November 2026, 18:00: the example garden named exactly and given what the new questions need; the test run can press Add, note the page opened and ask with a page open (lane B)
 
 **By the "next phase, lane B, stage 1" chat, in Claude's cloud workspace, not linked to the Mac. On the branch `eira-test-garden`, from `eira-contract` (`c847132`), which is not yet in `main`. Not built: checked with the Linux harness only.** William, 17:40: "Name the example garden's plants exactly in DemoGarden.swift … Add the records doc 128 says the new test questions need … Teach EiraTestRun to press Add on a card, note which page opened, and ask a question with a page open." Knowledge base doc 136.
 
