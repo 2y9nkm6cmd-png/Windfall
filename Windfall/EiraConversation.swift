@@ -191,6 +191,7 @@ final class EiraConversation {
         // So does what the lookups found online for the question before.
         hub?.clearFinds()
         offeredJob = nil
+        pageToOpen = nil
 
         // Some questions are answered by fixed wording and never reach the
         // model. See EiraSafety for why. Nothing said on one of these
@@ -495,6 +496,7 @@ final class EiraConversation {
         offeredCorrection = nil
         offeredFind = nil
         offeredJob = nil
+        pageToOpen = nil
         forgetPhotos()
         chat = store?.newChat(modelName: modelName)
         needsRestart = true
@@ -551,6 +553,41 @@ final class EiraConversation {
         guard let offer = offeredJob, !offer.isAdded else { return }
         offeredJob = nil
         answerWithFixedWording(GardenJobs.notAJobReply)
+    }
+
+    // MARK: A page to open
+
+    /// A page Eira has been asked to open, such as "show me bed 3".
+    ///
+    /// Added 20 November 2026, ahead of piece 4 of knowledge base doc
+    /// 119 ("open a page for you"), so that Eira's test run can already
+    /// write down which page a question opened. Today nothing opens a
+    /// page, so the test run writes "none", which is the right baseline
+    /// for the sheet's O questions. ⚠️ The shape is Claude's proposal
+    /// for the chat that builds piece 4 (docs/eira-contract.md, 13).
+    struct PageRequest: Equatable {
+        /// What sort of page.
+        enum Kind: String {
+            case bed, plant, garden, species, feature, place
+        }
+        let kind: Kind
+        /// Which one: the record's own identifier as text, or for one
+        /// of the app's places its name in `AppSection`, such as
+        /// "journal".
+        let key: String
+        /// The words that page hands Eira about itself once it is open,
+        /// such as "the bed called Bed 3" (EiraScreen.swift).
+        let phrase: String
+    }
+
+    /// Set when a message has asked for a page to be opened, and
+    /// cleared by the next message. The chat screen opens it. Nothing
+    /// sets it yet: piece 4's fixed rules will, through `choosePage`.
+    private(set) var pageToOpen: PageRequest?
+
+    /// Piece 4's rules have found the page a message asks for.
+    func choosePage(_ request: PageRequest) {
+        pageToOpen = request
     }
 
     // MARK: Being put right

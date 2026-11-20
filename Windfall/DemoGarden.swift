@@ -97,8 +97,9 @@ enum DemoGarden {
     }
 
     /// A checking aid: `-demoSeed` opens the Seed page in place of the
-    /// Gardens page, so a still picture can be taken of it. The example
-    /// garden has no seed packets, so it is the empty page that shows.
+    /// Gardens page, so a still picture can be taken of it. Since 20
+    /// November 2026 the example garden has two seed packets, so the
+    /// page shows them rather than standing empty.
     static var opensSeed: Bool {
         isRequested && ProcessInfo.processInfo.arguments.contains("-demoSeed")
     }
@@ -412,20 +413,63 @@ enum DemoGarden {
         addFeature("Plum", .tree, GardenSite.permaculture, x: 9.4, y: 0.4, length: 2.2, width: 2.2, to: context)
         addFeature("Pond", .water, GardenSite.permaculture, x: 9.6, y: 4.2, length: 3.4, width: 2.2, to: context)
 
-        // One sowing, into sections A and B of Bed 3.
-        let beans = plants.first { $0.commonName.lowercased().contains("bean") } ?? plants.first
+        // The seed packet the beans in Bed 3 came from, and one long out
+        // of date. Added 20 November 2026 for the test sheet's questions
+        // on seed packets (docs/eira-test-questions-stage1.md, SP and RS1).
+        let broadBean = libraryPlant("Broad bean", variety: "Aquadulce Claudia", in: plants, context: context)
+        let aquadulce = SeedPacket()
+        aquadulce.plant = broadBean
+        aquadulce.variety = "Aquadulce Claudia"
+        aquadulce.packetYear = 2025
+        aquadulce.useByDate = Calendar.current.date(from: DateComponents(year: 2027, month: 12, day: 31))
+        aquadulce.quantityRemaining = 40
+        aquadulce.testDate = daysAgo(60)
+        aquadulce.testSeedsSown = 20
+        aquadulce.testSeedsGerminated = 18
+        context.insert(aquadulce)
+
+        let parsnipSeed = SeedPacket()
+        parsnipSeed.plant = libraryPlant("Parsnip", variety: "Guernsey", in: plants, context: context)
+        parsnipSeed.variety = "Guernsey"
+        parsnipSeed.packetYear = 2022
+        parsnipSeed.useByDate = Calendar.current.date(from: DateComponents(year: 2023, month: 12, day: 31))
+        context.insert(parsnipSeed)
+
+        // One sowing, into sections A and B of Bed 3: broad beans,
+        // Aquadulce Claudia, from the packet above.
+        //
+        // Until 20 November 2026 this took the first plant whose name
+        // had "bean" in it. The library is fetched in no fixed order, so
+        // one test run got Bogbean and another French beans (knowledge
+        // base doc 129), and the two runs were not asked about the same
+        // garden. Now the plant is named exactly. If it is ever missing
+        // from the library, it is made, so the sowing is the same every
+        // time either way.
         let sowing = Planting()
-        sowing.plant = beans
-        sowing.dateSown = Calendar.current.date(byAdding: .day, value: -4, to: .now)
+        sowing.plant = broadBean
+        sowing.dateSown = daysAgo(4)
         sowing.status = .growing
         sowing.quantitySown = 24
+        sowing.startedFrom = .packetSeed
+        sowing.seedPacket = aquadulce
         sowing.sections = Array(allotmentBeds[2].orderedSections.prefix(2))
         context.insert(sowing)
+
+        // Blackfly on those beans, two days ago (RS5).
+        let blackfly = PestDiseaseEvent()
+        blackfly.date = daysAgo(2)
+        blackfly.kind = .pest
+        blackfly.name = "Blackfly"
+        blackfly.severity = .light
+        blackfly.notes = "A few, rubbed off by hand."
+        blackfly.planting = sowing
+        sowing.pestDiseaseEvents?.append(blackfly)
+        context.insert(blackfly)
 
         // An achillea raised from seed in spring, and three more bought
         // in pots and planted three weeks ago. They give a plant's page
         // one sowing and one planting to list. See PlantDetailView.
-        if let achillea = plants.first(where: { $0.commonName.lowercased() == "achillea" }) {
+        if let achillea = libraryPlant("Achillea", variety: "Summer berries", in: plants, makeIfMissing: false) {
             let raised = Planting()
             raised.plant = achillea
             raised.dateSown = Calendar.current.date(byAdding: .month, value: -8, to: .now)
@@ -469,7 +513,103 @@ enum DemoGarden {
         bee.associatedPlantName = "Marjoram"
         context.insert(bee)
 
+        // Everything below was added on 20 November 2026 for the test
+        // sheet's new questions (docs/eira-test-questions-stage1.md):
+        // the journal, a frost, a week of weather and a plant with
+        // empty boxes. Each is made up, like the rest.
+
+        // Two journal entries: one from yesterday (JN3) and an older
+        // one about the pond (RS2). Yesterday's says nothing about the
+        // pond, so that question has one right answer.
+        let yesterday = DiaryEntry(body: "Cleared the last of the courgettes from Bed 5 and spread a barrow of compost over it.")
+        yesterday.date = Calendar.current.date(bySettingHour: 15, minute: 30, second: 0, of: daysAgo(1)) ?? daysAgo(1)
+        yesterday.weather = .overcast
+        yesterday.temperatureC = 9
+        yesterday.scope = .bed
+        yesterday.bed = allotmentBeds[4]
+        context.insert(yesterday)
+
+        let pondNote = DiaryEntry(body: "Raked the duckweed off the pond and left it on the bank overnight, so anything living in it could crawl back in.")
+        pondNote.date = Calendar.current.date(bySettingHour: 11, minute: 0, second: 0, of: daysAgo(12)) ?? daysAgo(12)
+        pondNote.weather = .sunny
+        pondNote.temperatureC = 12
+        context.insert(pondNote)
+
+        // A frost at the allotment, 26 days ago (RS3).
+        let frost = FrostRecord()
+        frost.date = Calendar.current.startOfDay(for: daysAgo(26))
+        frost.kind = WeatherDiary.frostKind(month: Calendar.current.component(.month, from: frost.date))
+        frost.site = .allotment
+        frost.minimumTemperatureC = -1.5
+        frost.damageNotes = "The courgette leaves blackened."
+        context.insert(frost)
+
+        // The last seven days of weather at the allotment, finished and
+        // complete, with rain yesterday (W1). None went below freezing,
+        // so the frost above stays the last one on record. While a test
+        // run is going the weather service is kept from fetching real
+        // days beside these (`WeatherDiary.isHeldStill`).
+        let week: [(daysBack: Int, low: Double, high: Double, rain: Double, code: Int)] = [
+            (1, 6.2, 10.8, 6.4, 61), (2, 4.1, 9.5, 0, 3), (3, 2.8, 8.9, 0, 1), (4, 3.5, 10.2, 1.2, 51),
+            (5, 7.0, 12.1, 3.0, 61), (6, 5.4, 11.0, 0.2, 3), (7, 4.0, 9.8, 0, 2)
+        ]
+        for day in week {
+            let record = WeatherDay()
+            record.dayKey = WeatherDiary.dayKey(for: daysAgo(day.daysBack))
+            record.date = WeatherDiary.date(forKey: record.dayKey) ?? daysAgo(day.daysBack)
+            record.siteRaw = GardenSite.allotment.rawValue
+            record.minTemperatureC = day.low
+            record.maxTemperatureC = day.high
+            record.rainfallMM = day.rain
+            record.weatherCode = day.code
+            record.isComplete = true
+            context.insert(record)
+        }
+
+        // A medlar with no pruning written down (NP3 and NP4). The
+        // starter data has no medlar, so it is added here, to this
+        // example library only. Quince is left out on purpose: NP1 and
+        // NP2 ask about a plant that is not in the library.
+        if libraryPlant("Medlar", variety: nil, in: plants, makeIfMissing: false) == nil {
+            let medlar = Plant(commonName: "Medlar")
+            medlar.latinName = "Mespilus germanica"
+            medlar.group = "Fruit"
+            medlar.classification = "Perennial"
+            medlar.plantType = "Tree"
+            medlar.sourceSites = [GardenSite.permaculture.rawValue]
+            context.insert(medlar)
+        }
+
         try? context.save()
+    }
+
+    /// The moment exactly so many days before now.
+    private static func daysAgo(_ days: Int) -> Date {
+        Calendar.current.date(byAdding: .day, value: -days, to: .now) ?? .now
+    }
+
+    /// The library plant with exactly this name and variety, matched the
+    /// way the starter data matches its own rows (`PlantFacts.libraryKey`:
+    /// the same words, capitals ignored). Two rows with the same name and
+    /// variety are one plant in the library, so there is at most one.
+    ///
+    /// If there is none, a plant of that name is made and added, unless
+    /// `makeIfMissing` is false. Either way the example garden is the
+    /// same on every run, which a search for "bean" was not.
+    ///
+    /// `@discardableResult` lets a caller ignore what comes back.
+    @discardableResult
+    static func libraryPlant(_ name: String, variety: String?, in plants: [Plant],
+                             makeIfMissing: Bool = true, context: ModelContext? = nil) -> Plant? {
+        let wanted = PlantFacts.libraryKey(name: name, variety: variety)
+        if let found = plants.first(where: { PlantFacts.libraryKey(name: $0.commonName, variety: $0.variety) == wanted }) {
+            return found
+        }
+        guard makeIfMissing else { return nil }
+        let madeHere = Plant(commonName: name)
+        madeHere.variety = variety
+        context?.insert(madeHere)
+        return madeHere
     }
 
     private static func addFeature(_ name: String, _ kind: FeatureKind, _ site: GardenSite,

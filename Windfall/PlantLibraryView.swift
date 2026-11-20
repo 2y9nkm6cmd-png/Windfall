@@ -568,8 +568,7 @@ struct PlantDetailView: View {
         .navigationTitle(plant.commonName)
         .paperScreen()
         // Tells Eira which plant is open. See EiraScreen.
-        .eiraLooksAt("the plant \(EiraSight.name(plant.commonName, variety: plant.variety))",
-                     short: EiraSight.name(plant.commonName, variety: plant.variety))
+        .eiraLooksAt(.plant(plant.commonName, variety: plant.variety))
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         // Leaves the bar's own small "Plants" out, so the name is not

@@ -1177,6 +1177,13 @@ extension View {
     func eiraLooksAt(_ full: String, short: String? = nil, isJournal: Bool = false) -> some View {
         modifier(EiraLooksAt(sight: EiraSight(short: short, full: full, isJournal: isJournal)))
     }
+
+    /// The same, with words written in EiraScreen.swift, such as
+    /// `.eiraLooksAt(.bed(bed.name))`. Pages whose words Eira's test run
+    /// also uses say them this way, so the two cannot drift apart.
+    func eiraLooksAt(_ sight: EiraSight) -> some View {
+        modifier(EiraLooksAt(sight: sight))
+    }
 }
 
 /// Registers a screen with the tracker when it appears and removes it

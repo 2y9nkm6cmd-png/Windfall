@@ -2669,6 +2669,88 @@ struct LogicTests {
         let endOfFebruary = PacketReading.lastDay(ofMonth: 2, year: 2028, calendar: packetCalendar).map { packetCalendar.dateComponents([.year, .month, .day], from: $0) }
         check(endOfDecember?.year == 2028 && endOfDecember?.month == 12 && endOfDecember?.day == 31 && endOfFebruary?.month == 2 && endOfFebruary?.day == 29, "a packet to sow by December 2028 is good until the 31st, and February 2028 has 29 days: \(String(describing: endOfDecember)) \(String(describing: endOfFebruary))")
 
+        // Eira's test run: the questions file's new lines (20 November 2026).
+        let sheetSteps = EiraTestSheet.steps(from: """
+        # a comment
+        page: journal
+        JN1 | Picked 2kg of Spartan apples this afternoon.
+        add
+        Add
+        page: plant Rhubarb, Victoria
+        What does this need in winter?
+        then: R2 | Undo that.
+        add quince to my plant library
+        page: none
+        """)
+        check(sheetSteps == [.page(.place("journal")), .ask(label: "JN1", question: "Picked 2kg of Spartan apples this afternoon."),
+                             .add, .add, .page(.plant(name: "Rhubarb", variety: "Victoria")),
+                             .ask(label: "Q2", question: "What does this need in winter?"),
+                             .followUp(label: "R2", question: "Undo that."),
+                             .ask(label: "Q4", question: "add quince to my plant library"), .page(.none)],
+              "a page line, an add line in either case, and a question that only starts with \"add\" are each read as meant: \(sheetSteps)")
+        check(EiraTestSheet.page(from: "Journal") == .place("journal") && EiraTestSheet.page(from: "plants") == .place("plants")
+              && EiraTestSheet.page(from: "plant Medlar") == .plant(name: "Medlar", variety: nil)
+              && EiraTestSheet.page(from: "plant Apple (Cider), Fair Maid of Devon") == .plant(name: "Apple (Cider)", variety: "Fair Maid of Devon")
+              && EiraTestSheet.page(from: "bed Bed 3") == .bed("Bed 3") && EiraTestSheet.page(from: "Bed Herb bed") == .bed("Herb bed")
+              && EiraTestSheet.page(from: "seed packet Broad bean") == .seedPacket("Broad bean")
+              && EiraTestSheet.page(from: "sowing Broad bean") == .sowing("Broad bean")
+              && EiraTestSheet.page(from: "species Tree bumblebee") == .species("Tree bumblebee")
+              && EiraTestSheet.page(from: "") == .none && EiraTestSheet.page(from: "NONE") == .none
+              && EiraTestSheet.page(from: "bed") == .unknown("bed") && EiraTestSheet.page(from: "the fungus key") == .unknown("the fungus key"),
+              "every kind of page reads, the kind without regard to capitals and the name as written, and a page with no name is not guessed at")
+
+        // Each page's words, now written once, are the words the pages used before.
+        check(EiraSight.plant("Apple", variety: "Spartan") == EiraSight(short: "Apple, Spartan", full: "the plant Apple, Spartan")
+              && EiraSight.plant("Medlar", variety: nil).full == "the plant Medlar"
+              && EiraSight.bed("Bed 3") == EiraSight(short: "Bed 3", full: "the bed called Bed 3")
+              && EiraSight.species("Tree bumblebee") == EiraSight(short: "Tree bumblebee", full: "the species Tree bumblebee")
+              && EiraSight.seedPacket(of: "Broad bean") == EiraSight(short: "this packet of Broad bean", full: "a seed packet of Broad bean")
+              && EiraSight.seedPacket(of: nil) == EiraSight(short: nil, full: "a seed packet of an unnamed plant")
+              && EiraSight.sowing(of: nil) == EiraSight(short: "this sowing of a plant", full: "a sowing of a plant"),
+              "the plant, bed, species, seed packet and sowing pages hand Eira the same words as before 20 November 2026")
+        check(!WeatherDiary.isHeldStill, "the weather diary is held still only in an Eira test run")
+
+        // What each card's Add makes (CardAdds.swift), shared by the cards and the test run.
+        let addContext = ModelContext()
+        let jobDay = Date(timeIntervalSince1970: 1_795_000_000)
+        let addedJob = CardAdd.job(title: "Sharpen the shears", from: jobDay, by: jobDay, siteKey: "allotment",
+                                   said: "I need to sharpen the shears on Thursday", into: addContext, today: jobDay)
+        check(addedJob.job.title == "Sharpen the shears" && addedJob.job.dueFrom == jobDay && addedJob.job.dueBy == jobDay
+              && addedJob.job.siteKey == "allotment" && addedJob.job.saidAs == "I need to sharpen the shears on Thursday"
+              && addedJob.line.hasPrefix("Added to your jobs: Sharpen the shears.")
+              && ((try? addContext.fetch(FetchDescriptor<GardenJob>())) ?? []).count == 1,
+              "Add on a job card saves the job as the card shows it, with the words it came from: \(addedJob.line)")
+        let addBed = Bed(name: "Bed 4"); addBed.addSections(count: 3)
+        let addBeans = Plant(commonName: "Broad bean"); addBeans.variety = "Aquadulce Claudia"
+        let addedSowing = CardAdd.sowing(of: addBeans, in: addBed, sownWhere: .outdoors, quantity: 24, on: jobDay, into: addContext)
+        check(addedSowing.planting.plant === addBeans && addedSowing.planting.quantitySown == 24 && addedSowing.planting.status == .sown
+              && addedSowing.planting.sowingLocation == .outdoors && addedSowing.planting.sections?.count == 3
+              && addedSowing.line == "Added a sowing: Broad bean — Aquadulce Claudia in Bed 4.",
+              "Add on a sowing card sows the whole bed chosen, and says so: \(addedSowing.line)")
+        let addApple = Plant(commonName: "Apple"); addApple.variety = "Spartan"
+        let addedHarvest = CardAdd.harvest(of: addApple, from: nil, amount: 2, unit: .kilograms, destination: .eaten,
+                                           on: jobDay, into: addContext)
+        check(addedHarvest.harvest.quantity == 2 && addedHarvest.harvest.unit == .kilograms
+              && addedHarvest.harvest.planting?.plant === addApple && addedHarvest.harvest.planting?.status == .harvesting
+              && addedHarvest.line == "Added a harvest: 2 kg of Apple — Spartan.",
+              "Add on a harvest card with nothing on record puts a planting on record first, as the card says: \(addedHarvest.line)")
+        check(CardAdd.plainNumber(50) == "50" && CardAdd.plainNumber(2.5) == "2.5", "a number is written as it would be typed")
+
+        // The page Eira was asked to open goes with the next message.
+        let pageEngine = FakeEngine()
+        let pageContext = ModelContext()
+        let paging = EiraConversation()
+        paging.configure(engine: pageEngine, hub: EiraToolHub(context: pageContext), store: EiraChatStore(context: pageContext))
+        check(paging.pageToOpen == nil, "no page is waiting to open at first")
+        paging.choosePage(EiraConversation.PageRequest(kind: .bed, key: "b3", phrase: "the bed called Bed 3"))
+        check(paging.pageToOpen?.phrase == "the bed called Bed 3", "a page chosen is held for the chat screen")
+        paging.send("What visits marjoram?")
+        await waitUntilIdle(paging)
+        check(paging.pageToOpen == nil, "the next message clears it")
+        paging.choosePage(EiraConversation.PageRequest(kind: .place, key: "journal", phrase: "the journal"))
+        paging.clear()
+        check(paging.pageToOpen == nil, "a new conversation clears it")
+
         print("   logic tests: \(passes) passed, \(failures) failed")
         exit(failures == 0 ? 0 : 1)
     }

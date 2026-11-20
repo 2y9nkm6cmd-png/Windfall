@@ -178,13 +178,11 @@ struct JobOfferCard: View {
     }
 
     private func add() {
-        let job = GardenJob(title: trimmed)
-        job.span = span
-        job.siteKey = siteKey
-        job.saidAs = said
-        // `insert` hands the new record to the database.
-        context.insert(job)
-        onAdd(trimmed, GardenJobs.addedLine(title: trimmed, span: span, today: .now))
+        // The record is made in CardAdds.swift, which Eira's test run
+        // uses too, so the two always make the same job.
+        let fromCard = CardAdd.job(title: trimmed, from: span.from, by: span.by, siteKey: siteKey,
+                                said: said, into: context)
+        onAdd(trimmed, fromCard.line)
     }
 }
 

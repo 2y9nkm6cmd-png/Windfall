@@ -739,8 +739,7 @@ struct PlantingDetailView: View {
         .navigationTitle(planting.plant?.commonName ?? "Sowing")
         .paperScreen()
         // Tells Eira which sowing is open. See EiraScreen.
-        .eiraLooksAt("a sowing of \(planting.plant?.commonName ?? "a plant")",
-                     short: "this sowing of \(planting.plant?.commonName ?? "a plant")")
+        .eiraLooksAt(.sowing(of: planting.plant?.commonName))
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif

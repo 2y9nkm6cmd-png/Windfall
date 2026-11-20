@@ -86,9 +86,10 @@ struct OfferFrame<Content: View>: View {
     }
 }
 
-/// A number as it would be typed: "50", not "50.0".
+/// A number as it would be typed: "50", not "50.0". The rule itself is
+/// in CardAdds.swift, with the records the cards make.
 private func plainNumber(_ value: Double) -> String {
-    value == value.rounded() ? String(Int(value)) : String(value)
+    CardAdd.plainNumber(value)
 }
 
 // MARK: - A harvest
@@ -225,29 +226,12 @@ struct HarvestOfferCard: View {
 
     private func add() {
         guard let value = Double(amount) else { return }
-
-        var source = planting
-        if source == nil {
-            // No sowing or planting on record, as with a tree that was
-            // here before the app. One is made, marked as cropping, with
-            // a note saying where it came from. The making is in
-            // `Planting.putOnRecord`, which the Harvest button uses too.
-            source = Planting.putOnRecord(plant, from: "the journal", in: context)
-        }
-        guard let source else { return }
-
-        let harvest = Harvest()
-        harvest.date = date
-        harvest.quantity = value
-        harvest.unit = unit
-        harvest.destination = destination
-        harvest.planting = source
-        source.harvests?.append(harvest)
-        if source.status == .growing || source.status == .plantedOut {
-            source.status = .harvesting
-        }
-
-        onAdd("Added a harvest: \(plainNumber(value)) \(unit.displayName) of \(plant.displayName).")
+        // The record is made in CardAdds.swift, which Eira's test run
+        // uses too. With no sowing or planting chosen, it puts one on
+        // record first, as the card says.
+        let fromCard = CardAdd.harvest(of: plant, from: planting, amount: value, unit: unit,
+                                    destination: destination, on: date, into: context)
+        onAdd(fromCard.line)
     }
 }
 
@@ -339,27 +323,10 @@ struct SowingOfferCard: View {
     }
 
     private func add() {
-        let planting = Planting()
-        planting.plant = plant
-        planting.dateSown = date
-        planting.sowingLocation = sownWhere
-        planting.status = .sown
-        planting.quantitySown = Int(quantity)
-
-        // If it has been sown before this year, this is the next round,
-        // as it would be from the sowing form.
-        let calendar = Calendar.current
-        let year = calendar.component(.year, from: date)
-        let sownThisYear = (plant.plantings ?? []).filter { earlier in
-            earlier.dateSown.map { calendar.component(.year, from: $0) == year } ?? false
-        }
-        planting.successionRound = sownThisYear.isEmpty ? nil : sownThisYear.count + 1
-
-        if let bed {
-            planting.sections = bed.orderedSections
-        }
-        context.insert(planting)
-
-        onAdd("Added a sowing: \(plant.displayName)\(bed.map { " in \($0.name)" } ?? "").")
+        // The record is made in CardAdds.swift, which Eira's test run
+        // uses too, so the two always make the same sowing.
+        let fromCard = CardAdd.sowing(of: plant, in: bed, sownWhere: sownWhere, quantity: Int(quantity),
+                                   on: date, into: context)
+        onAdd(fromCard.line)
     }
 }

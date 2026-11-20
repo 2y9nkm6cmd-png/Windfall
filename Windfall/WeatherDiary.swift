@@ -103,6 +103,20 @@ enum WeatherDiary {
     /// How long to wait before asking the service again.
     static let restSeconds: TimeInterval = 3600
 
+    /// True while an Eira test run is going in the example garden
+    /// (`-demoGarden YES -eiraTest <file>`, see EiraTestRun.swift). The
+    /// diary then fetches nothing, so the made-up week in DemoGarden.swift
+    /// is the only weather on record and every model is asked about the
+    /// same days and frosts. Before 20 November 2026 the example
+    /// allotment's place on the map brought real Bristol weather in
+    /// during a run. That did not matter while Eira could not read the
+    /// diary. It will once she can.
+    static var isHeldStill: Bool {
+        let words = ProcessInfo.processInfo.arguments
+        let isExample = words.contains("-demoGarden") || UserDefaults.standard.bool(forKey: "demoGarden")
+        return isExample && words.contains("-eiraTest")
+    }
+
     // MARK: Days as text
 
     /// "2026-11-12" for a moment in time, in the given calendar.
@@ -527,6 +541,10 @@ final class WeatherDiaryService {
     func bringUpToDate(in context: ModelContext, now: Date = .now, force: Bool = false,
                        calendar: Calendar = .current) async {
         guard !isWorking else { return }
+        // An Eira test run in the example garden keeps the made-up
+        // week of weather as the only weather on record, so every model
+        // is asked about the same days. See `WeatherDiary.isHeldStill`.
+        guard !WeatherDiary.isHeldStill else { return }
         let gardens = (try? context.fetch(FetchDescriptor<Garden>())) ?? []
         let places = WeatherDiary.places(for: gardens.sorted { $0.displayOrder < $1.displayOrder })
         guard !places.isEmpty else {
@@ -587,7 +605,7 @@ final class WeatherDiaryService {
     /// Fetches the year before the earliest day held, for each garden,
     /// from the long-term record.
     func fetchEarlier(in context: ModelContext, now: Date = .now, calendar: Calendar = .current) async {
-        guard !isWorking else { return }
+        guard !isWorking, !WeatherDiary.isHeldStill else { return }
         let gardens = (try? context.fetch(FetchDescriptor<Garden>())) ?? []
         let places = WeatherDiary.places(for: gardens.sorted { $0.displayOrder < $1.displayOrder })
         isWorking = true

@@ -41,6 +41,43 @@ extension EiraSight {
         guard let variety, !variety.trimmingCharacters(in: .whitespaces).isEmpty else { return name }
         return "\(name), \(variety)"
     }
+
+    // MARK: What each page says about itself
+    //
+    // The words a page hands Eira. Until 20 November 2026 each page
+    // wrote its own sentence inside its screen code. Eira's test run
+    // (EiraTestRun.swift) now asks questions "with a page open", and it
+    // must hand over exactly the words the page would, so they are
+    // written here once and both use them.
+
+    /// A plant's page: "the plant Apple, Spartan".
+    static func plant(_ commonName: String, variety: String?) -> EiraSight {
+        let named = name(commonName, variety: variety)
+        return EiraSight(short: named, full: "the plant \(named)")
+    }
+
+    /// A bed's page: "the bed called Bed 3".
+    static func bed(_ bedName: String) -> EiraSight {
+        EiraSight(short: bedName, full: "the bed called \(bedName)")
+    }
+
+    /// A species' page in the wildlife lists: "the species Tree bumblebee".
+    static func species(_ commonName: String) -> EiraSight {
+        EiraSight(short: commonName, full: "the species \(commonName)")
+    }
+
+    /// A seed packet's page: "a seed packet of Broad bean". The plant's
+    /// name is nil for a packet not yet matched to a plant.
+    static func seedPacket(of plantName: String?) -> EiraSight {
+        EiraSight(short: plantName.map { "this packet of \($0)" },
+                  full: "a seed packet of \(plantName ?? "an unnamed plant")")
+    }
+
+    /// A sowing's page: "a sowing of Broad bean".
+    static func sowing(of plantName: String?) -> EiraSight {
+        EiraSight(short: "this sowing of \(plantName ?? "a plant")",
+                  full: "a sowing of \(plantName ?? "a plant")")
+    }
 }
 
 /// Keeps track of which screen is on top.
