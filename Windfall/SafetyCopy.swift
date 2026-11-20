@@ -188,9 +188,16 @@ nonisolated enum SafetyCopy {
     /// Asks SQLite whether a copied database is whole, and counts the
     /// plants and photos in it. SwiftData names its tables after the
     /// record types with a Z in front: `ZPLANT`, `ZPHOTO`.
+    ///
+    /// The copy is opened as unchangeable (`immutable=1`). SwiftData's
+    /// databases use SQLite's "write-ahead log" way of working, and a
+    /// copy made by the backup routine says so in its first page; opened
+    /// plainly read-only, SQLite would want the log's working files,
+    /// which a copy does not have, and every question would fail.
     static func check(_ database: URL) -> (whole: Bool, plants: Int?, photos: Int?) {
         var handle: OpaquePointer?
-        guard sqlite3_open_v2(database.path, &handle, SQLITE_OPEN_READONLY, nil) == SQLITE_OK else {
+        let address = database.absoluteString + "?immutable=1"
+        guard sqlite3_open_v2(address, &handle, SQLITE_OPEN_READONLY | SQLITE_OPEN_URI, nil) == SQLITE_OK else {
             sqlite3_close(handle)
             return (false, nil, nil)
         }
