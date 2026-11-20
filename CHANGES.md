@@ -1,3 +1,12 @@
+# 20 November 2026: foreign seed packets translated on the device
+
+**By the lane A and D build chat** (knowledge base doc 140). Branch `packet-translate`. Doc 120, use 17.
+
+- **When the packet reader reads words that are not English**, the sheet gains a section **This packet is in French** (or whichever language) with **Translate from French into English**. Pressed, each line of the packet is shown with its English beside it (under it on an iPhone held upright), marked with the translate sign. The footer says it is a translation, made on this device by Apple, and not the packet's own words.
+- **How:** Apple's NaturalLanguage guesses the language of what was read (`PacketLanguage.detect`, with at least 20 letters to go on). If it is sure enough and English is not among the likely languages, that side is read a second time with Vision choosing the language itself, so accents and foreign words come out right. Those lines go to Apple's Translation framework (`.translationTask`), which translates on the device; the first time a language is used the system may offer to download it.
+- **An English packet reads exactly as before:** the sheet's rows are still worked out from the first, English reading. The translation is shown, not used to fill the rows (card `d-packet-translation-rows-140`).
+- `PacketTranslation.swift` (in the logic files): when to offer, which lines, the pairs. `PacketTranslationView.swift`: detecting and the section. `SeedPacketScanner.swift`: the second reading and the section's place. Five new checks.
+
 # 20 November 2026: Siri, Shortcuts and the Action Button
 
 **By the "Next phase, stage 0 then lane A" chat** (knowledge base doc 138). Branch `siri-shortcuts`. Doc 120, use 5.
