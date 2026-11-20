@@ -258,6 +258,19 @@ enum EiraTestRun {
         // carries over to a question asked without one.
         conversation.screenNote = open?.sight.full
 
+        // "Show me bed 3": Eira's bar tries the open-page rule before
+        // anything else (EiraFloatingBar's `ask()`, piece 4 of doc 119),
+        // so the test run does too. A test run has no window to open a
+        // page in, so the page is written down instead, through the
+        // conversation's `choosePage`, and the model is not asked.
+        if let opening = EiraOpenRequest.read(question, context: context) {
+            let request = opening.pageRequest
+            conversation.choosePage(request)
+            note("**Went to the open-page rule**, as Eira's bar sends it. The model was not asked.\n")
+            note("\n**Page opened:** \(request.phrase) (\(request.kind.rawValue))")
+            return nil
+        }
+
         // With the Journal open, Eira's bar sends what is typed to the
         // journal unless it is a job or plainly asks something. This is
         // the same choice, in the same order, as EiraFloatingBar's
@@ -323,7 +336,9 @@ enum EiraTestRun {
         if let offer = conversation.offeredJob, !offer.isAdded {
             note("\n**A card offered a job:** " + describeJobCard(offer, context: context))
         }
-        // Which page she opened. Nothing opens one until piece 4 is built.
+        // Which page she opened. Only the open-page rule opens one (above,
+        // which returns before this); a question that reaches the model
+        // opens none.
         if let opened = conversation.pageToOpen {
             note("\n**Page opened:** \(opened.phrase) (\(opened.kind.rawValue))")
         } else {

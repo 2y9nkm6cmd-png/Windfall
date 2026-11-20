@@ -105,6 +105,35 @@ extension EiraOpenRequest {
     }
 }
 
+extension EiraOpenRequest {
+
+    /// The same request in the form Eira's conversation keeps it
+    /// (`EiraConversation.PageRequest`, made by the lane B chat, doc
+    /// 136), so Eira's test run can write down which page a question
+    /// opened. The words are the ones the page itself hands Eira once
+    /// open (`EiraSight` and `AppSection.eiraPhrase`), so the answers
+    /// file shows exactly what Eira would then be told.
+    var pageRequest: EiraConversation.PageRequest {
+        switch page {
+        case .bed(let bed)?:
+            return .init(kind: .bed, key: String(describing: bed.persistentModelID), phrase: EiraSight.bed(bed.name).full)
+        case .plant(let plant)?:
+            return .init(kind: .plant, key: String(describing: plant.persistentModelID),
+                         phrase: EiraSight.plant(plant.commonName, variety: plant.variety).full)
+        case .species(let fauna)?:
+            return .init(kind: .species, key: String(describing: fauna.persistentModelID),
+                         phrase: EiraSight.species(fauna.commonName).full)
+        case .plantLibrary?, .year?, nil:
+            let section = AppSection(rawValue: place.rawValue)
+            if let gardenKey {
+                return .init(kind: .garden, key: gardenKey,
+                             phrase: "the Gardens screen, showing the plan of the garden \(gardenKey)")
+            }
+            return .init(kind: .place, key: place.rawValue, phrase: section?.eiraPhrase ?? place.spoken)
+        }
+    }
+}
+
 /// The hand-over between Eira's bar and the window.
 ///
 /// The bar knows what was asked for, but the window (MainTabView) owns
