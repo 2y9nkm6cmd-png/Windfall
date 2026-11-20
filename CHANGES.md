@@ -1,3 +1,11 @@
+# 20 November 2026: "Seed packet" among the choices for a photo given to Eira
+
+**By the "Next phase, stage 0 then lane A" chat.** Branch `bar-seed-packet`. Doc 119, gap 6.
+
+- A photo given to Eira's bar (the "+" beside her snowdrop, or dragged on to the bar) now offers a fourth choice, **Seed packet**, after What is this?, Journal entry and Sighting. It opens the packet reader with the photo already in it and reads it. With two photos, the first is read as the packet's back (the sowing details) and the second as its front. Nothing is saved until Save, as before.
+- `PhotoOffer.swift`: a fifth thing the sheet can show, `.seedPacket`, and the choice's row. `SeedPacketScanner.swift`: `SeedPacketScanView` takes `startingPhotos`, read at once in `begin()`.
+- `docs/eira-contract.md`, section 9: the photo card's four choices.
+
 # 20 November 2026, 20:35: lane A and lane B joined into main
 
 **By the "Next phase, stage 0 then lane A" chat, linked to the Mac** (knowledge base doc 138).

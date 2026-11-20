@@ -251,7 +251,7 @@ Every card is made by fixed rules. **Nothing is saved until its button is presse
 | Plants found | `EiraChatCards` | Up to a few of the plant library's own cards for plants the lookups found. Tapping one opens the plant's page | (opens) |
 | What a photo shows | `EiraIdentify`, `IdentifyCards` | The verdict, names, confidence, look-alikes, whether it is in your records, the image model used | Add a sighting (or Add a sighting to identify later); Tell me about {name} |
 | A harvest or a sowing, from the journal | `JournalOffers` | Kind; plant; amount and unit; bed; where the crop went or where it was sown | Add |
-| A photo given to the bar | `PhotoOffer` | Three choices: What is this?, Journal entry, Sighting | (chooses) |
+| A photo given to the bar | `PhotoOffer` | Four choices: What is this?, Journal entry, Sighting, Seed packet (since 20 November 2026: opens the packet reader with the photo in it, the first photo read as the back and a second as the front) | (chooses) |
 
 What Add makes on the job, harvest and sowing cards is written once, in `CardAdds.swift`, and the test run presses Add through the same code. A harvest card with no sowing or planting on record puts one on record first (`Planting.putOnRecord`).
 
