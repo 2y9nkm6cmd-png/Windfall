@@ -1,3 +1,10 @@
+# 18 November 2026, 19:10: Eira's contract and the new test sheet sections, written down (lane B)
+
+**By the "next phase, lane B" chat, in Claude's cloud workspace from William's phone. On the branch `eira-contract`, not in `main`. No Swift changed, nothing built.** William, 19:03: "Let's start building the next phase". The chat could not reach the Mac, so stage 0 and lane A wait for a chat on the Mac; this is lane B, stage 1 (knowledge base docs 123, 127 and 128).
+
+- **`docs/eira-contract.md`**: everything a model is told and held to as Eira, copied from `main` at `1410700`: her 13 instructions word for word, the eight lookups and their descriptions, the lookups the app runs itself, what is put in front of a question and in what order, the messages that never reach the model, the rules that read her reply, and every card. Part 2 is stage 2's proposals, all marked ⚠️: the choosing model's jobs and example phrases, `search_records`, the add and change cards and their fields, opening a page, and how the file is frozen at Gate 2.
+- **`docs/eira-test-questions-stage1.md`**: 38 new questions in ten sections (searching records, seed packets, new plants and Fill the gaps, jobs, the journal, weather, pests, making and changing records, opening pages, voice), all held back from training. What the example garden must hold for them, and what the test run must learn to do. The 15 November draft on the Mac is still to be folded in.
+
 # 17 November 2026, 21:15: the redrawn plant drawings merged into main, built and installed
 
 **By the "merge plant redraw" chat, linked to the Mac.** William, 20:41: "merge `plant-descriptions-redraw`, build and install from knowledge-base doc 118".
