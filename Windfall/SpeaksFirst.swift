@@ -2,7 +2,7 @@
 //  SpeaksFirst.swift
 //  Windfall
 //
-//  Eira speaks first, part one (doc 119, piece 5; doc 140): frost
+//  Eira speaks first, part one (doc 119, piece 5; doc 142): frost
 //  warnings and good days for a FIT count, as notifications.
 //
 //  The rules (what to say and when) are in SpeaksFirstPlan.swift. This
@@ -18,7 +18,7 @@
 //  keeps the planned notices and shows them at their time, which costs
 //  Windfall nothing. The price: if Windfall is not opened for a few
 //  days, the warnings come from the last forecast it saw, and stop
-//  after three nights. ⚠️ CHECK with William (card d-speaks-background-140).
+//  after three nights. ⚠️ CHECK with William (card d-speaks-background-142).
 //
 
 import Foundation

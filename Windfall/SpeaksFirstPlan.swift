@@ -14,7 +14,7 @@
 //  SpeaksFirst.swift.
 //
 //  ⚠️ CHECK: every number below is Claude's choice (20 November 2026,
-//  doc 140), not William's. The FIT count's own weather rules (13 °C in
+//  doc 142), not William's. The FIT count's own weather rules (13 °C in
 //  sun, 15 °C otherwise, dry, not windy) are the ones the app already
 //  uses during a count (`SkyCondition.minimumTemperatureC`,
 //  `CurrentConditions.isWindy` in WeatherService.swift).

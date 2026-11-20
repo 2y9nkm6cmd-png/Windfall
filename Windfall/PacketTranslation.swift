@@ -2,7 +2,7 @@
 //  PacketTranslation.swift
 //  Windfall
 //
-//  Foreign seed packets (doc 120, use 17; doc 140): the plain rules for
+//  Foreign seed packets (doc 120, use 17; doc 142): the plain rules for
 //  when to offer a translation and how to set it out. The detecting
 //  (Apple's NaturalLanguage) and the translating (Apple's Translation
 //  framework, on the device) are in PacketTranslationView.swift, which

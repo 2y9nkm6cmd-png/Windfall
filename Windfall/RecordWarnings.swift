@@ -3,7 +3,7 @@
 //  Windfall
 //
 //  Odd-record warnings before an iRecord export (doc 120, use 13; doc
-//  140). Rules and plain sums, no model.
+//  142). Rules and plain sums, no model.
 //
 //  A record that iRecord would refuse is already held back by
 //  `WildlifeObservation.validationProblems` (no name confirmed, no grid

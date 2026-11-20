@@ -2,7 +2,7 @@
 //  PacketTranslationView.swift
 //  Windfall
 //
-//  Foreign seed packets (doc 120, use 17; doc 140). When the packet
+//  Foreign seed packets (doc 120, use 17; doc 142). When the packet
 //  reader reads words that are not English, this offers a translation
 //  into English, made on the device by Apple's Translation framework,
 //  and shows each line of the packet with its translation beside it,
@@ -13,7 +13,7 @@
 //  question is Apple's own.
 //
 //  The translation is shown, not used: the sheet's rows are still read
-//  from the packet as printed (card d-packet-translation-rows-140).
+//  from the packet as printed (card d-packet-translation-rows-142).
 //
 
 import Foundation

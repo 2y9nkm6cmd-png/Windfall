@@ -1,13 +1,19 @@
+# 20 November 2026, about 22:00: the night join (lanes A and D, no model work)
+
+**By the lane A and D build chat** (knowledge base doc 142). Branch `join-20nov-night`, from `main` at `6b1ac41`: `wild-look`, `eira-speaks-first`, `irecord-warnings` and `packet-translate` merged, the clashes only in this file, `Tools/checks/LogicTests.swift` and `Tools/checks/logic-files.txt`, every one an addition on both sides, settled by keeping both. Logic tests: 1,101 pass.
+
+- The four branches' commit messages say "doc 140": that number was taken by the checklist tidy while this chat worked. This chat's doc is 142, and the files say so.
+
 # 20 November 2026: three small fixes on the UK wildlife pages
 
-**By the lane A and D build chat** (knowledge base doc 140). Branch `wild-look`. William's yes to card `d-wild-look` (doc 100).
+**By the lane A and D build chat** (knowledge base doc 142). Branch `wild-look`. William's yes to card `d-wild-look` (doc 100).
 
 - **A kind's page is cream, not white.** Its rows are a `List` (so several hundred moths are made only as they scroll into view), and a `List` paints rows the system's white. Each row now has `.paperRow()` (new, `Theme.swift`): the card colour, painted flat the way `CardGlass` paints a card when glass is off, with a thin wash of white in dark mode. Not real glass, because glass on hundreds of rows would cost power (doc 91, finding 10).
 - **The summary card's words** now say every kind has a drawing and the animals seen most often have their own, in place of "Each kind has one drawing, shared by all its animals", which stopped being true with the 199 single-animal drawings.
 - **Counts carry commas:** "44,611" confirmed UK records, "4,180 animals". `WildlifeReference.grouped` writes them the same way on every device. One new check, 1,070 pass.
 # 20 November 2026: Eira speaks first, part one: frost warnings and good days for a FIT count
 
-**By the lane A and D build chat** (knowledge base doc 140). Branch `eira-speaks-first`. Doc 119, piece 5, its first part: fixed rules and fixed wording, no model.
+**By the lane A and D build chat** (knowledge base doc 142). Branch `eira-speaks-first`. Doc 119, piece 5, its first part: fixed rules and fixed wording, no model.
 
 - **Two switches**, in Settings (below "Where your gardens are") and at the top of Reminders: **Frost warnings** and **Good days for a FIT count**. Both start off. Turning one on brings up the system's notification question the first time; after a No the page says where to switch it on.
 - **Frost:** a notice at 4 pm the day before any of the next three nights when a garden's forecast low is below 1 °C, naming every garden that cold. **FIT count:** from April to September, one notice at 9:30 on the first coming day (today and the two after) that is dry, still and warm enough by the FIT count's own rules (13 °C in sun, 15 °C otherwise), unless a count was already made that day.
@@ -16,7 +22,7 @@
 - `docs/eira-contract.md`, section 15: the fixed wording. Sixteen new checks, 1,086 pass.
 # 20 November 2026: odd-record warnings before an iRecord export
 
-**By the lane A and D build chat** (knowledge base doc 140). Branch `irecord-warnings`. Doc 120, use 13: rules and plain sums, no model.
+**By the lane A and D build chat** (knowledge base doc 142). Branch `irecord-warnings`. Doc 120, use 13: rules and plain sums, no model.
 
 - **Settings and tools › Export records** now starts with **Worth a second look** when any sighting still to be sent looks odd, each with one plain sentence: **out of season** (fewer than 2 in 100 of that animal's UK records fall in that month, for an animal with 50 or more), **not on the UK list** (neither the animal nor its genus has 20 or more confirmed UK records), **dated in the future**, **no grid reference** (iRecord refuses these, so it stays out of the file as before), or **a grid reference of the wrong shape**.
 - When odd sightings are among those ready to go, **Wildlife sightings** asks first: send all, or leave the odd ones out this time (they stay waiting for the next file). Nothing is changed in the records.
@@ -24,11 +30,11 @@
 - FIT counts and earthworm counts go to PoMS, not iRecord, and are not checked here.
 # 20 November 2026: foreign seed packets translated on the device
 
-**By the lane A and D build chat** (knowledge base doc 140). Branch `packet-translate`. Doc 120, use 17.
+**By the lane A and D build chat** (knowledge base doc 142). Branch `packet-translate`. Doc 120, use 17.
 
 - **When the packet reader reads words that are not English**, the sheet gains a section **This packet is in French** (or whichever language) with **Translate from French into English**. Pressed, each line of the packet is shown with its English beside it (under it on an iPhone held upright), marked with the translate sign. The footer says it is a translation, made on this device by Apple, and not the packet's own words.
 - **How:** Apple's NaturalLanguage guesses the language of what was read (`PacketLanguage.detect`, with at least 20 letters to go on). If it is sure enough and English is not among the likely languages, that side is read a second time with Vision choosing the language itself, so accents and foreign words come out right. Those lines go to Apple's Translation framework (`.translationTask`), which translates on the device; the first time a language is used the system may offer to download it.
-- **An English packet reads exactly as before:** the sheet's rows are still worked out from the first, English reading. The translation is shown, not used to fill the rows (card `d-packet-translation-rows-140`).
+- **An English packet reads exactly as before:** the sheet's rows are still worked out from the first, English reading. The translation is shown, not used to fill the rows (card `d-packet-translation-rows-142`).
 - `PacketTranslation.swift` (in the logic files): when to offer, which lines, the pairs. `PacketTranslationView.swift`: detecting and the section. `SeedPacketScanner.swift`: the second reading and the section's place. Five new checks.
 
 # 20 November 2026: Siri, Shortcuts and the Action Button

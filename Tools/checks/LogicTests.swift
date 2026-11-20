@@ -956,9 +956,9 @@ struct LogicTests {
         let spokenJob = SpokenToEira.forJob("Lift the dahlias")
         check(spokenJob == "I need to lift the dahlias" && GardenJobs.offer(in: spokenJob, today: lateEvening) != nil, "a job said to Siri is shaped so the job rule offers its card: \(spokenJob)")
         check(SpokenToEira.forJob("I need to build the wigwam at the weekend", today: lateEvening) == "I need to build the wigwam at the weekend" && SpokenToEira.forJob("lift the dahlias?") == "I need to lift the dahlias" && SpokenToEira.forJob("") == "", "a job already in a job's shape is left alone, and a question mark is dropped so it is not read as a question")
-        // Counts on the wildlife pages carry commas (WildlifeReference.grouped, card d-wild-look, doc 140)
+        // Counts on the wildlife pages carry commas (WildlifeReference.grouped, card d-wild-look, doc 142)
         check(WildlifeReference.grouped(44611) == "44,611" && WildlifeReference.grouped(4180) == "4,180" && WildlifeReference.grouped(580) == "580" && WildlifeReference.grouped(1_000_000) == "1,000,000" && WildlifeReference.grouped(0) == "0" && WildlifeReference.grouped(-1200) == "-1,200", "a count has a comma between the thousands: \(WildlifeReference.grouped(44611))")
-        // Eira speaks first: frost warnings and good days for a FIT count (SpeaksFirstPlan.swift, doc 140)
+        // Eira speaks first: frost warnings and good days for a FIT count (SpeaksFirstPlan.swift, doc 142)
         let speakUTC = TimeZone(identifier: "UTC")!
         var speakCalendar = Calendar(identifier: .gregorian); speakCalendar.timeZone = speakUTC
         func speakTime(_ y: Int, _ m: Int, _ d: Int, _ h: Int, _ min: Int = 0) -> Date {
@@ -1001,7 +1001,7 @@ struct LogicTests {
         let readForecast = SpeaksFirstPlan.forecastDays(from: forecastReply)
         check(readForecast?.count == 2 && readForecast?[1].minC == -1.5 && readForecast?[1].maxC == nil && readForecast?[0].sunshineHours == 2 && SpeaksFirstPlan.forecastDays(from: Data("{}".utf8)) == nil, "the weather service's daily forecast is read, gaps as gaps and sunshine in hours")
         check(SpeaksFirstPlan.forecastURL(latitude: 51.49051, longitude: -2.49261, timeZone: speakUTC)?.absoluteString.contains("latitude=51.491&longitude=-2.493") == true, "the forecast is asked for to about a hundred metres")
-        // Odd-record warnings before an iRecord export (RecordWarnings.swift, doc 140)
+        // Odd-record warnings before an iRecord export (RecordWarnings.swift, doc 142)
         let oddBook = try! WildlifeReference.decode(Data("""
         {"source":"test","fetched":"2026-11-20","kinds":[{"slug":"butterfly","name":"Butterflies","group":"Butterflies and moths"},{"slug":"tit","name":"Tits","group":"Birds"},{"slug":"mining-bee","name":"Mining bees","group":"Bees"}],
          "animals":[{"s":"Aglais io","c":"Peacock","k":"butterfly","n":800,"m":[6,10,80,120,40,20,200,180,90,40,8,6]},
@@ -1034,7 +1034,7 @@ struct LogicTests {
         check(oddList.count == 1 && oddList.first?.sighting === oddSighting && oddList.first?.warnings.first?.kind == .outOfSeason, "only sightings still waiting to be sent are checked, and only the odd ones listed")
         oddSighting.acceptedScientificName = "Cyanistes caeruleus"
         check(oddSighting.exportWarnings(book: oddBook, now: oddNow, calendar: oddCalendar).isEmpty, "the accepted scientific name is the one looked up")
-        // Foreign seed packets: when to offer a translation, and the lines it covers (PacketTranslation.swift, doc 140)
+        // Foreign seed packets: when to offer a translation, and the lines it covers (PacketTranslation.swift, doc 142)
         check(PacketTranslation.languageToOffer(hypotheses: ["fr": 0.83, "en": 0.05, "it": 0.04]) == "fr" && PacketTranslation.languageToOffer(hypotheses: ["de-DE": 0.7]) == "de", "a packet the detector is sure is French is offered a translation from French")
         check(PacketTranslation.languageToOffer(hypotheses: ["en": 0.9]) == nil && PacketTranslation.languageToOffer(hypotheses: ["fr": 0.6, "en": 0.3]) == nil && PacketTranslation.languageToOffer(hypotheses: ["fr": 0.4, "it": 0.35]) == nil && PacketTranslation.languageToOffer(hypotheses: [:]) == nil, "nothing is offered for English, for a packet with an English panel, or when the detector is unsure")
         check(PacketTranslation.base("fr-FR") == "fr" && PacketTranslation.base("zh-Hant-TW") == "zh-Hant" && PacketTranslation.name(of: "nl") == "Dutch" && PacketTranslation.name(of: "xx") == "xx", "language codes are shortened and named in English")
