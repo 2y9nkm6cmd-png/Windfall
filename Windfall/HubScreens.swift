@@ -189,6 +189,10 @@ struct GardenTab: View {
     /// one at a time. The same choice as on Today.
     @State private var shownGardenKey: String?
 
+    /// Where Eira leaves the garden asked for in "show me the
+    /// allotment" (EiraOpenPageRoute.swift). Nil in a preview.
+    @Environment(EiraNavigator.self) private var eiraNavigator: EiraNavigator?
+
     private var activeGardens: [Garden] { gardens.filter(\.isActive) }
     private var month: Int { Calendar.current.component(.month, from: .now) }
 
@@ -217,6 +221,13 @@ struct GardenTab: View {
             }
         }
         .paperScreen()
+        // Eira was asked to show one garden: show its plan, on an
+        // iPhone where one plan is shown at a time. `initial: true` also
+        // looks when the page first appears, since Eira may have changed
+        // to this place in the same moment as she asked.
+        .onChange(of: eiraNavigator?.gardenToShow, initial: true) {
+            if let key = eiraNavigator?.takeGardenToShow() { shownGardenKey = key }
+        }
         .navigationTitle("Gardens")
         #if os(iOS)
         // The big "Gardens" above is the title, as on Today.

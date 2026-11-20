@@ -911,6 +911,28 @@ struct LogicTests {
         check(EiraPagePhrase.cross(seedParent: "Tomato", pollenParent: "Gardener's Delight", made: august) == "the cross of Tomato (seed parent) with Gardener's Delight (pollen parent), made on \(augustWords)" && EiraPagePhrase.cross(seedParent: "", pollenParent: nil, made: august).hasPrefix("the cross of an unnamed plant (seed parent) with no pollen parent named"), "a cross names both parents, and says when one is missing")
         check(EiraPagePhrase.job(title: "Lift the dahlias") == "the job \u{201C}Lift the dahlias\u{201D}" && EiraPagePhrase.job(title: nil) == "a new job being written" && EiraPagePhrase.job(title: " ") == "a new job being written", "a job sheet names the job, or says a new one is being written")
         check(EiraPagePhrase.plantDrawings(card: "Life stages", plant: "Strawberry") == "the life stages drawings of the plant Strawberry" && EiraPagePhrase.plantDrawings(card: "", plant: "Strawberry") == "the drawings of the plant Strawberry", "a plant's drawings opened large name the card and the plant")
+        // "Show me bed 3": the rule that reads a request to open a page (piece 4, doc 119)
+        let openables: [EiraOpenCandidate] = [
+            EiraOpenCandidate(kind: .bed, index: 0, names: ["Bed 3"]),
+            EiraOpenCandidate(kind: .bed, index: 1, names: ["Herb bed"]),
+            EiraOpenCandidate.forPlant(index: 0, common: "Borage", variety: nil),
+            EiraOpenCandidate.forPlant(index: 1, common: "Apple", variety: "Spartan"),
+            EiraOpenCandidate.forPlant(index: 2, common: "Apple", variety: "Bramley"),
+            EiraOpenCandidate.forPlant(index: 3, common: "Rhubarb", variety: nil),
+            EiraOpenCandidate(kind: .bed, index: 2, names: ["Rhubarb"]),
+            EiraOpenCandidate(kind: .garden, index: 0, names: ["Allotment"]),
+            EiraOpenCandidate(kind: .species, index: 0, names: ["Small Tortoiseshell", "Aglais urticae"]),
+        ]
+        check(EiraOpenRule.read("Show me bed 3", candidates: openables) == .record(.bed, 0) && EiraOpenRule.read("could you please open the bed called Bed 3?", candidates: openables) == .record(.bed, 0) && EiraOpenRule.read("Eira, take me to the herb bed page", candidates: openables) == .record(.bed, 1), "a bed is opened by its name, with polite words, \"the bed called\" and \"page\" allowed")
+        check(EiraOpenRule.read("open borage", candidates: openables) == .record(.plant, 0) && EiraOpenRule.read("Show me the plant Borage.", candidates: openables) == .record(.plant, 0), "a plant is opened by its name, with or without \"the plant\"")
+        check(EiraOpenRule.read("go to Apple Spartan", candidates: openables) == .record(.plant, 1) && EiraOpenRule.read("show me Spartan apple", candidates: openables) == .record(.plant, 1) && EiraOpenRule.read("open Apple (Bramley)", candidates: openables) == .record(.plant, 2), "a variety picks out one plant, in either order and in brackets")
+        check(EiraOpenRule.read("show me apple", candidates: openables) == .several(.plant, [1, 2]), "a name shared by several plants opens the list they are in")
+        check(EiraOpenRule.read("open rhubarb", candidates: openables) == nil, "a name shared by a bed and a plant is not guessed at: it goes to Eira")
+        check(EiraOpenRule.read("show me the allotment", candidates: openables) == .record(.garden, 0) && EiraOpenRule.read("open Aglais urticae", candidates: openables) == .record(.species, 0) && EiraOpenRule.read("show me the small tortoiseshell", candidates: openables) == .record(.species, 0), "a garden, and a species by either name")
+        check(EiraOpenRule.read("open the journal", candidates: openables) == .place(.journal) && EiraOpenRule.read("Go to Today", candidates: openables) == .place(.today) && EiraOpenRule.read("show me the plant library", candidates: openables) == .place(.plants) && EiraOpenRule.read("bring up settings", candidates: openables) == .place(.more) && EiraOpenRule.read("show me the year", candidates: openables) == .place(.year), "the app's places are opened by name")
+        check(EiraOpenRule.read("Show me how to prune an apple tree", candidates: openables) == nil && EiraOpenRule.read("open the greenhouse door at 9", candidates: openables) == nil && EiraOpenRule.read("What is in bed 3?", candidates: openables) == nil && EiraOpenRule.read("bed 3", candidates: openables) == nil && EiraOpenRule.read("show me", candidates: openables) == nil, "anything that is not exactly a request to open a known page goes on to Eira")
+        check(EiraOpenRule.read("Today I opened bed 3", candidates: openables) == nil, "the words for opening count only at the start")
+        check(EiraOpenRule.plain("William\u{2019}s  Bed—3!") == "williams bed 3" && EiraOpenRule.asked(in: "Please, could you show me the Herb Bed page please?") == "herb bed", "the plain form drops marks, apostrophes, filler and capitals")
         // Photos a page hands over for Eira's bar
         tracker.handToBar([Data([1, 2]), Data([3])])
         check(tracker.photosForBar.count == 2, "photos dropped on a page wait for Eira's bar")

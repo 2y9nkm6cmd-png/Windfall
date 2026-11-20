@@ -1,3 +1,12 @@
+# 20 November 2026: "show me bed 3" opens the page, and Eira's button closes after the keyboard (lane A, piece 4)
+
+**By the "Next phase, stage 0 then lane A" chat, linked to the Mac.** Branch `eira-open-page`, on top of `eira-pages`. Knowledge base docs 119 (piece 4) and 125 (the button).
+
+- **Opening a page.** A sentence in Eira's bar that begins "show me", "open", "go to", "take me to" (and a few more) and then names exactly a place, bed, plant, garden or species opens it. Fixed rules, no model, so every device does it alike. The rule is `EiraOpenRule` in the new `EiraOpenPage.swift`; the opening is in the new `EiraOpenPageRoute.swift`. Anything it does not recognise exactly goes on to Eira as before ("show me how to prune an apple" is answered, not opened). Ten new logic checks, 1,047 pass.
+- **How the window opens it.** Each place's `NavigationStack` now has its pile of pages held by `MainTabView` (`paths`), so Eira can put a page on top. Taps and Back behave as before. On a Mac and an iPad a place still starts fresh on each visit; an iPhone's tabs keep their piles. A garden shows the Gardens place with that garden's plan in view (`GardenTab` picks it up from `EiraNavigator`).
+- **Eira's button (doc 125).** Closing with the on-screen keyboard up now lets the keyboard go first and folds the bar once it has gone (faults A and B: the bar vanishing, and the snowdrop on its side for one frame). The snowdrop no longer greys while pressed: its own `SteadyPress` button style in place of `.plain` (fault C). **Not yet filmed:** whether fault A is cured needs a film on the iPad.
+- `docs/eira-contract.md`: section 6 says the open-page rule runs first in the bar; section 13 is the rule as built.
+
 # 20 November 2026: every page tells Eira what is open (lane A, piece 1)
 
 **By the "Next phase, stage 0 then lane A" chat, linked to the Mac.** Branch `eira-pages`, from `main` at `ed34ee1`. Knowledge base doc 119, piece 1.
