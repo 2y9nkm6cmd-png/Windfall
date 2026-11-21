@@ -88,6 +88,53 @@ struct JournalEntrySheet: View {
     /// draws nothing in the moment before it closes, so that it does
     /// not read from a record that is no longer there.
     @State private var isGone = false
+    /// True when changes made before and not saved were put back.
+    @State private var carriedOn = false
+
+    /// What is kept if the sheet is closed without Save (review pass, 21
+    /// November 2026, doc 145). Photos added are kept as files beside
+    /// it. See FormDraft.swift.
+    struct Draft: Codable, Equatable {
+        var words = ""
+        var heading = ""
+        var when = Date.now
+        var weather: Weather?
+        var temperature: Double?
+        var bedID: UUID?
+        var removedPhotos: Set<UUID> = []
+        /// How many photos were added, so that adding one counts as a
+        /// change. The photos themselves are kept as files.
+        var newPhotoCount = 0
+    }
+
+    private var draft: Draft {
+        Draft(words: words, heading: heading, when: when, weather: weather, temperature: temperature,
+              bedID: aboutBed?.id, removedPhotos: removedPhotos,
+              newPhotoCount: newPhotos.filter { $0.data != nil }.count)
+    }
+
+    /// The entry as it is on record: the sheet as it opens.
+    private var asOnRecord: Draft {
+        let own = entry.title ?? ""
+        return Draft(words: entry.body, heading: own.isEmpty ? (entry.generatedSummary ?? "") : own,
+                     when: entry.date, weather: entry.weather, temperature: entry.temperatureC,
+                     bedID: entry.scope == .bed ? entry.bed?.id : nil)
+    }
+
+    private var draftKey: String { FormDraft.key("journal-entry", entry.id) }
+
+    private func use(_ typedBefore: Draft) {
+        words = typedBefore.words
+        heading = typedBefore.heading
+        when = typedBefore.when
+        weather = typedBefore.weather
+        temperature = typedBefore.temperature
+        aboutBed = typedBefore.bedID.flatMap { id in bedChoices.first { $0.id == id } ?? (entry.bed?.id == id ? entry.bed : nil) }
+        // Only photos still with the entry can be taken off.
+        let onEntry = Set((entry.photos ?? []).map(\.id))
+        removedPhotos = typedBefore.removedPhotos.intersection(onEntry)
+        newPhotos = []
+    }
 
     init(entry: DiaryEntry) {
         self.entry = entry
@@ -169,6 +216,13 @@ struct JournalEntrySheet: View {
         SheetPage("Journal entry", detail: writtenLine,
                   confirmTitle: "Save", canConfirm: canSave, onConfirm: save) {
             SheetScroll {
+                if carriedOn {
+                    DraftNotice {
+                        use(asOnRecord)
+                        FormDraft.clear(key: draftKey)
+                        carriedOn = false
+                    }
+                }
                 wordsCard
                 whenCard
                 if showsAbout { aboutCard }
@@ -206,6 +260,16 @@ struct JournalEntrySheet: View {
             Button("Cancel", role: .cancel) {}
         } message: {
             Text("Its photos go with it. This cannot be undone.")
+        }
+        .keepsDraft(draftKey, draft, isEmpty: draft == asOnRecord, carriedOn: $carriedOn) { typedBefore in
+            use(typedBefore)
+            for data in FormDraft.photos(key: draftKey) { addPhoto(data) }
+        }
+        // The photos added are written as files when one arrives or is
+        // taken off, not with every letter typed.
+        .onChange(of: newPhotos.compactMap { $0.data == nil ? nil : $0.id }) { _, _ in
+            guard !isGone else { return }
+            FormDraft.keepPhotos(newPhotos.compactMap(\.data), key: draftKey)
         }
     }
 
@@ -428,6 +492,7 @@ struct JournalEntrySheet: View {
 
     /// Writes the draft into the entry.
     private func save() {
+        FormDraft.clear(key: draftKey)
         // The heading. Names from the garden count for more when one is
         // written from the words, as when an entry is first sent.
         let gardenNames = Set(plants.flatMap { JournalChat.roots(in: $0.commonName) + JournalChat.roots(in: $0.variety ?? "") }
@@ -472,6 +537,7 @@ struct JournalEntrySheet: View {
 
     private func deleteEntry() {
         isGone = true
+        FormDraft.clear(key: draftKey)
         // Deleting the entry deletes its photos with it: the record
         // says so (`deleteRule: .cascade` in Journal.swift).
         context.delete(entry)

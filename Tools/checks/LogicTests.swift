@@ -2860,6 +2860,50 @@ struct LogicTests {
         paging.clear()
         check(paging.pageToOpen == nil, "a new conversation clears it")
 
+        // What was typed, kept until Save or Clear (FormDraft.swift, review pass, doc 145).
+        struct DraftForTest: Codable, Equatable { var quantity = ""; var notes = "" }
+        let draftSuite = "windfall-draft-tests-\(UUID().uuidString)"
+        let draftSettings = UserDefaults(suiteName: draftSuite)!
+        let draftFolder = FileManager.default.temporaryDirectory.appendingPathComponent(draftSuite, isDirectory: true)
+        let oldDraftSettings = FormDraft.settings, oldDraftFolder = FormDraft.photoFolder
+        FormDraft.settings = draftSettings
+        FormDraft.photoFolder = draftFolder
+        let sowingA = UUID(), sowingB = UUID()
+        let keyA = FormDraft.key("harvest", sowingA), keyB = FormDraft.key("harvest", sowingB)
+        check(FormDraft.key("new-seed-packet") == "new-seed-packet" && keyA == "harvest.\(sowingA.uuidString)",
+              "a kept copy's name is the form's, and what it is about")
+        check(FormDraft.load(DraftForTest.self, key: keyA) == nil && !FormDraft.isKept(keyA), "nothing is kept to begin with")
+        FormDraft.keep(DraftForTest(quantity: "450", notes: "first earlies"), key: keyA)
+        check(FormDraft.load(DraftForTest.self, key: keyA) == DraftForTest(quantity: "450", notes: "first earlies"),
+              "what was typed comes back for the same form and the same sowing")
+        check(FormDraft.load(DraftForTest.self, key: keyB) == nil, "a harvest for another sowing does not get it")
+        FormDraft.keep(DraftForTest(quantity: "500"), key: keyA)
+        check(FormDraft.load(DraftForTest.self, key: keyA)?.quantity == "500", "keeping again replaces the copy")
+        struct OtherShape: Codable { var count: Int }
+        check(FormDraft.load(OtherShape.self, key: keyA) == nil, "a copy that no longer fits the form is not forced on it")
+        FormDraft.keepPhotos([Data([1, 2, 3]), Data([4, 5])], key: keyA)
+        check(FormDraft.photos(key: keyA) == [Data([1, 2, 3]), Data([4, 5])], "photos come back in the order they were added")
+        FormDraft.keepPhotos([Data([9])], key: keyA)
+        check(FormDraft.photos(key: keyA) == [Data([9])], "keeping photos again replaces them")
+        FormDraft.keep(DraftForTest(quantity: "2"), key: keyB, now: Date(timeIntervalSinceNow: -31 * 86_400))
+        FormDraft.keepPhotos([Data([7])], key: keyB)
+        FormDraft.keepPhotos([Data([8])], key: "gone-form")
+        FormDraft.tidy()
+        check(FormDraft.photos(key: keyA) == [Data([9])], "tidying leaves a recent copy's photos")
+        check(FormDraft.photos(key: keyB).isEmpty && FormDraft.load(DraftForTest.self, key: keyB)?.quantity == "2",
+              "after 30 days the photos go but the words stay")
+        check(FormDraft.photos(key: "gone-form").isEmpty, "photos with no copy are tidied away")
+        check(FormDraft.keptKeys() == [keyA, keyB].sorted(), "every copy kept can be listed")
+        FormDraft.clear(key: keyA)
+        check(FormDraft.load(DraftForTest.self, key: keyA) == nil && FormDraft.photos(key: keyA).isEmpty,
+              "Save or Clear takes the copy and its photos away")
+        check(draftSettings.dictionaryRepresentation().keys.allSatisfy { !$0.hasPrefix("formDraft.") || $0 == FormDraft.prefix + keyB },
+              "nothing else is left in the settings")
+        FormDraft.settings = oldDraftSettings
+        FormDraft.photoFolder = oldDraftFolder
+        draftSettings.removePersistentDomain(forName: draftSuite)
+        try? FileManager.default.removeItem(at: draftFolder)
+
         print("   logic tests: \(passes) passed, \(failures) failed")
         exit(failures == 0 ? 0 : 1)
     }

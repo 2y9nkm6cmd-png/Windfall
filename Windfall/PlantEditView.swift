@@ -42,6 +42,8 @@ struct PlantEditView: View {
     /// `[String: String]` is a "dictionary": a set of pairs, here a key
     /// such as "spacingM" and the text typed for it.
     @State private var values: [String: String]
+    /// True when changes typed before and not saved were put back.
+    @State private var carriedOn = false
 
     init(plant: Plant, openingAt factGroup: PlantFacts.Group = .naming) {
         self.plant = plant
@@ -53,6 +55,15 @@ struct PlantEditView: View {
     /// The facts typed differently from the record, worked out afresh
     /// each time the sheet redraws.
     private var changes: [PlantFacts.Field] { PlantFacts.changed(values, from: plant) }
+
+    /// What is kept if the sheet is closed without Save (review pass, 21
+    /// November 2026, doc 145): only the facts typed differently, so a
+    /// fact changed some other way meanwhile (a fill-in, a new
+    /// spreadsheet) is not put back over. See FormDraft.swift.
+    private var draft: [String: String] {
+        Dictionary(uniqueKeysWithValues: changes.map { ($0.key, values[$0.key] ?? "") })
+    }
+    private var draftKey: String { FormDraft.key("plant-edit", plant.id) }
 
     /// True if the name box has been emptied. A plant must have a name.
     private var nameIsBlank: Bool {
@@ -74,6 +85,13 @@ struct PlantEditView: View {
             // to any view that has been given an `id`.
             ScrollViewReader { scroller in
                 SheetScroll {
+                    if carriedOn {
+                        DraftNotice {
+                            values = PlantFacts.values(of: plant)
+                            FormDraft.clear(key: draftKey)
+                            carriedOn = false
+                        }
+                    }
                     Text("What you change here is kept when the spreadsheet file is loaded again.")
                         .font(.footnote)
                         .foregroundStyle(Theme.inkSoft)
@@ -98,9 +116,12 @@ struct PlantEditView: View {
                 }
             }
         }
-        // With changes typed, swiping the sheet down does not close it.
-        // Cancel still does.
-        .interactiveDismissDisabled(changeCount > 0)
+        // A swipe down closes the sheet, changes typed or not: they are
+        // kept until Save or Clear (review pass, 21 November 2026). Until
+        // then a swipe down did nothing once something was changed.
+        .keepsDraft(draftKey, draft, isEmpty: changeCount == 0, carriedOn: $carriedOn) { typedBefore in
+            values.merge(typedBefore) { _, fromBefore in fromBefore }
+        }
     }
 
     // MARK: One card
@@ -233,6 +254,7 @@ struct PlantEditView: View {
     }
 
     private func save() {
+        FormDraft.clear(key: draftKey)
         PlantFacts.save(values, to: plant)
         dismiss()
     }

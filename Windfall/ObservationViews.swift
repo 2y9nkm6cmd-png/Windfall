@@ -359,6 +359,17 @@ struct ObservationEditor: View {
         } message: {
             Text("Its photos go with it. This cannot be undone.")
         }
+        // A new sighting is a record from the moment its sheet opens, and
+        // Cancel throws it away. A swipe down used to leave it behind
+        // even when nothing had been put in it, an empty sighting in the
+        // list and the export (found in the review pass, 21 November
+        // 2026). Now an empty one goes, however the sheet closes. One
+        // with anything in it stays, as before. ⚠️ CHECK, doc 145.
+        .onDisappear {
+            guard isNew, observation.modelContext != nil, !observation.isDeleted,
+                  observation.isEmptySighting else { return }
+            context.delete(observation)
+        }
     }
 
     private var whenWords: String {
@@ -920,5 +931,17 @@ struct ChoiceLabel: View {
                 .strokeBorder(Theme.hairline)
         }
         .contentShape(.rect)
+    }
+}
+
+extension WildlifeObservation {
+    /// True when nothing has been put in a new sighting: no name, no
+    /// photo, no count, no notes, no plant. Its date, place and recorder
+    /// are filled in by themselves, so they do not count.
+    var isEmptySighting: Bool {
+        func blank(_ text: String?) -> Bool { (text ?? "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+        return blank(commonName) && blank(scientificName) && blank(notes) && blank(behaviour)
+            && blank(associatedPlantName) && associatedPlant == nil
+            && quantity == nil && (photos ?? []).isEmpty
     }
 }

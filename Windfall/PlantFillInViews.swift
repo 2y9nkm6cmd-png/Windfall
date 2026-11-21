@@ -55,6 +55,36 @@ struct NewPlantSheet: View {
     /// The plant just added. Setting it opens the sheet that fills it
     /// in, and closing that sheet closes this one too.
     @State private var added: Plant?
+    /// True when what was typed before and not added was put back.
+    @State private var carriedOn = false
+
+    /// What is kept if the sheet is closed before the plant is added
+    /// (review pass, 21 November 2026, doc 145). See FormDraft.swift.
+    struct Draft: Codable, Equatable {
+        var name = ""
+        var variety = ""
+        var latinName = ""
+        var group = ""
+        var status: PlantStatus = .growing
+    }
+
+    private var draft: Draft {
+        Draft(name: name, variety: variety, latinName: latinName, group: group, status: status)
+    }
+    /// One copy for a plant added by hand, and one for each name Eira
+    /// offered, so one never fills in the other.
+    private var draftKey: String {
+        startingName.isEmpty ? "new-plant" : "new-plant.\(startingName.lowercased())"
+    }
+    private var draftIsEmpty: Bool { draft == Draft(name: startingName) }
+
+    private func use(_ typedBefore: Draft) {
+        name = typedBefore.name
+        variety = typedBefore.variety
+        latinName = typedBefore.latinName
+        group = typedBefore.group
+        status = typedBefore.status
+    }
 
     init(startingName: String = "") {
         self.startingName = startingName
@@ -87,6 +117,13 @@ struct NewPlantSheet: View {
                   canConfirm: !tidyName.isEmpty && !isAlreadyThere,
                   onConfirm: add) {
             SheetScroll {
+                if carriedOn {
+                    DraftNotice {
+                        use(Draft(name: startingName))
+                        FormDraft.clear(key: draftKey)
+                        carriedOn = false
+                    }
+                }
                 SheetCard("What is it?") {
                     FieldBox {
                         TextField("Common name, such as Medlar", text: $name)
@@ -141,11 +178,13 @@ struct NewPlantSheet: View {
         .sheet(item: $added, onDismiss: { dismiss() }) { plant in
             FillInSheet(plant: plant, wasJustAdded: true)
         }
+        .keepsDraft(draftKey, draft, isEmpty: draftIsEmpty, carriedOn: $carriedOn, restore: use)
     }
 
     /// Makes the plant's record, with the little that was typed, and
     /// opens the sheet that looks up the rest.
     private func add() {
+        FormDraft.clear(key: draftKey)
         let plant = Plant(commonName: tidyName)
         plant.variety = tidyVariety.isEmpty ? nil : tidyVariety
         let latin = latinName.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -203,6 +242,9 @@ struct FillInSheet: View {
     @State private var pastedProblem: String?
     /// True while the plant's own Edit sheet is open.
     @State private var isTypingIn = false
+    /// True when corrections typed on the cards before were put back.
+    @State private var carriedOn = false
+    private var draftKey: String { FormDraft.key("fill-in", plant.id) }
 
     /// The suggestions still waiting for an answer.
     private var waiting: [FillSuggestion] {
@@ -234,6 +276,13 @@ struct FillInSheet: View {
                   confirmTitle: "Done",
                   onConfirm: { dismiss() }) {
             SheetScroll {
+                if carriedOn {
+                    DraftNotice {
+                        typed = [:]
+                        FormDraft.clear(key: draftKey)
+                        carriedOn = false
+                    }
+                }
                 SheetCard {
                     HStack(spacing: 10) {
                         if stage != .finished { ProgressView() }
@@ -276,9 +325,12 @@ struct FillInSheet: View {
         .sheet(isPresented: $isTypingIn) {
             PlantEditView(plant: plant)
         }
-        // With suggestions still waiting, a swipe down does not close
-        // the sheet by accident. Done still does.
-        .interactiveDismissDisabled(!waiting.isEmpty)
+        // A swipe down closes the sheet as Done does, suggestions waiting
+        // or not (review pass, 21 November 2026; until then it was
+        // switched off while any waited). What was Kept is already in
+        // the record; the rest is looked for again next time, and any
+        // correction typed on a card is kept here until then.
+        .keepsDraft(draftKey, typed, isEmpty: typed.isEmpty, carriedOn: $carriedOn) { typed = $0 }
     }
 
     /// One page that was read: its title, the site and a way to open it.

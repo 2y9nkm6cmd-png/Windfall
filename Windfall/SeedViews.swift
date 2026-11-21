@@ -220,6 +220,40 @@ struct NewSeedPacketView: View {
     @State private var storage = ""
     @State private var isHomeSaved = false
     @State private var search = ""
+    @State private var carriedOn = false
+
+    /// What is kept if the form is closed without Save (review pass, 21
+    /// November 2026, doc 145). See FormDraft.swift.
+    struct Draft: Codable, Equatable {
+        var plantID: UUID?
+        var supplier = ""
+        var year = Calendar.current.component(.year, from: .now)
+        var useBy = Date.now.addingTimeInterval(365 * 86_400 * 2)
+        var hasUseBy = true
+        var quantity = ""
+        var storage = ""
+        var isHomeSaved = false
+    }
+
+    private var draft: Draft {
+        Draft(plantID: selectedPlant?.id, supplier: supplier, year: year, useBy: useBy, hasUseBy: hasUseBy,
+              quantity: quantity, storage: storage, isHomeSaved: isHomeSaved)
+    }
+    private let draftKey = "new-seed-packet"
+    private var draftIsEmpty: Bool {
+        selectedPlant == nil && supplier.isEmpty && quantity.isEmpty && storage.isEmpty && !isHomeSaved
+    }
+
+    private func use(_ typedBefore: Draft) {
+        selectedPlant = typedBefore.plantID.flatMap { id in plants.first { $0.id == id } }
+        supplier = typedBefore.supplier
+        year = typedBefore.year
+        useBy = typedBefore.useBy
+        hasUseBy = typedBefore.hasUseBy
+        quantity = typedBefore.quantity
+        storage = typedBefore.storage
+        isHomeSaved = typedBefore.isHomeSaved
+    }
 
     private var matching: [Plant] {
         guard !search.isEmpty else { return plants }
@@ -229,6 +263,15 @@ struct NewSeedPacketView: View {
     var body: some View {
         NavigationStack {
             Form {
+                if carriedOn {
+                    Section {
+                        DraftNotice {
+                            use(Draft())
+                            FormDraft.clear(key: draftKey)
+                            carriedOn = false
+                        }
+                    }
+                }
                 Section("Plant") {
                     if let selectedPlant {
                         HStack {
@@ -285,9 +328,11 @@ struct NewSeedPacketView: View {
                 }
             }
         }
+        .keepsDraft(draftKey, draft, isEmpty: draftIsEmpty, carriedOn: $carriedOn, restore: use)
     }
 
     private func save() {
+        FormDraft.clear(key: draftKey)
         let packet = SeedPacket()
         packet.plant = selectedPlant
         packet.supplier = supplier.isEmpty ? nil : supplier

@@ -1215,6 +1215,10 @@ struct EiraCorrectionView: View {
     /// How to close the sheet, handed down by SwiftUI.
     @Environment(\.dismiss) private var dismiss
     @State private var correction = ""
+    /// True when words typed before and not kept were put back (review
+    /// pass, 21 November 2026, doc 145). See FormDraft.swift.
+    @State private var carriedOn = false
+    private var draftKey: String { FormDraft.key("correction", message.id) }
 
     /// What was typed, without the spaces and blank lines around it.
     private var trimmed: String {
@@ -1227,10 +1231,18 @@ struct EiraCorrectionView: View {
                   confirmTitle: "Keep",
                   canConfirm: !trimmed.isEmpty,
                   onConfirm: {
+                      FormDraft.clear(key: draftKey)
                       onSave(trimmed)
                       dismiss()
                   }) {
             SheetScroll {
+                if carriedOn {
+                    DraftNotice {
+                        correction = ""
+                        FormDraft.clear(key: draftKey)
+                        carriedOn = false
+                    }
+                }
                 SheetCard("Eira said") {
                     Text(message.content)
                         .font(.body)
@@ -1258,6 +1270,7 @@ struct EiraCorrectionView: View {
                 }
             }
         }
+        .keepsDraft(draftKey, correction, isEmpty: trimmed.isEmpty, carriedOn: $carriedOn) { correction = $0 }
     }
 }
 

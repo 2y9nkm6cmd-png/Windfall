@@ -1,3 +1,13 @@
+# 21 November 2026, evening: the review pass for swiping back and swiping down
+
+**By the review pass chat** (knowledge base doc 145, the job queued in doc 144). Branch `swipe-close`, from `main` at `9210da8`. William's choice D on card `d-swipe-unsaved-144`: a swipe down, Back or Cancel closes a form at once and what was typed is kept.
+
+- **Swipe from the left edge inside a sheet.** The Harvest sheet from Today swaps its list for the form in the same sheet, so iOS had no page to swipe back from. `SheetPage` takes `onSwipeBack`, and `edgeSwipeBack` (new, `FormDraftViews.swift`) adds a swipe from the left edge that follows the finger. Used by Harvest (back to "What did you harvest?") and New sowing (back to the plant chosen before "Choose another").
+- **What was typed is kept** (`FormDraft.swift`, in the logic files; `keepsDraft` and `DraftNotice` in `FormDraftViews.swift`): Harvest, Stage, Problem, New sowing or planting, New job and a job changed, a journal entry changed (photos too), Edit a plant, Fill the gaps (corrections typed on cards), New plant, a new seed packet by hand, Scan a packet (its photos, read again), Keep a fact, Correct this. Opening the same form for the same thing again fills it back in with "Carried on from earlier" and Clear. Save clears it. Kept in the app's settings and a folder of its own, never in the records, so never in a list, a total, a backup or an export. Photos go after 30 days.
+- **Swipe down no longer switched off** on Edit a plant (it was off once a fact had changed) and Fill the gaps (off while suggestions waited). It stays off during a running FIT count's ten minutes.
+- **No empty records left behind.** A new sighting and a new cross are records from the moment their sheet opens; Cancel threw them away, but a swipe down left them, empty, in the list. Now an empty one goes however the sheet closes. One with something in it stays, as before.
+- 14 new checks, 1,115 pass.
+
 # 20 November 2026, about 22:00: the night join (lanes A and D, no model work)
 
 **By the lane A and D build chat** (knowledge base doc 142). Branch `join-20nov-night`, from `main` at `6b1ac41`: `wild-look`, `eira-speaks-first`, `irecord-warnings` and `packet-translate` merged, the clashes only in this file, `Tools/checks/LogicTests.swift` and `Tools/checks/logic-files.txt`, every one an addition on both sides, settled by keeping both. Logic tests: 1,101 pass.

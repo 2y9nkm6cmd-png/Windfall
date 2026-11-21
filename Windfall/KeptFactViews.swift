@@ -275,6 +275,41 @@ struct KeepFactSheet: View {
     @State private var sourceName: String
     @State private var address: String
     @State private var alsoOthers = false
+    @State private var carriedOn = false
+
+    /// What is kept if the sheet is closed without Keep (review pass, 21
+    /// November 2026, doc 145). The box and the way are kept by their
+    /// own words ("notes", "add"). See FormDraft.swift.
+    struct Draft: Codable, Equatable {
+        var words = ""
+        var field = PlantField.notes.rawValue
+        var how = KeptFacts.How.add.rawValue
+        var sourceName = ""
+        var address = ""
+        var alsoOthers = false
+    }
+
+    private var draft: Draft {
+        Draft(words: words, field: field.rawValue, how: how.rawValue, sourceName: sourceName,
+              address: address, alsoOthers: alsoOthers)
+    }
+    private var asOpened: Draft {
+        Draft(words: replacing?.words ?? "", field: (replacing?.field ?? .notes).rawValue,
+              sourceName: replacing?.sourceName ?? "", address: replacing?.sourceAddress ?? "")
+    }
+    /// One copy for each plant, and one for each kept fact being changed.
+    private var draftKey: String {
+        replacing.map { FormDraft.key("kept-fact", $0.id) } ?? FormDraft.key("keep-fact", plant.id)
+    }
+
+    private func use(_ typedBefore: Draft) {
+        words = typedBefore.words
+        field = PlantField(rawValue: typedBefore.field) ?? .notes
+        how = KeptFacts.How(rawValue: typedBefore.how) ?? .add
+        sourceName = typedBefore.sourceName
+        address = typedBefore.address
+        alsoOthers = typedBefore.alsoOthers
+    }
 
     init(plant: Plant, others: [Plant] = [], replacing: KeptFact? = nil) {
         self.plant = plant
@@ -307,6 +342,13 @@ struct KeepFactSheet: View {
                   canConfirm: canKeep,
                   onConfirm: save) {
             SheetScroll {
+                if carriedOn {
+                    DraftNotice {
+                        use(asOpened)
+                        FormDraft.clear(key: draftKey)
+                        carriedOn = false
+                    }
+                }
                 SheetCard("The fact") {
                     FieldBox {
                         // `axis: .vertical` lets the box grow downwards
@@ -353,9 +395,11 @@ struct KeepFactSheet: View {
                 }
             }
         }
+        .keepsDraft(draftKey, draft, isEmpty: draft == asOpened, carriedOn: $carriedOn, restore: use)
     }
 
     private func save() {
+        FormDraft.clear(key: draftKey)
         let shelf = KeptFactStore(context: context)
         // Changing a fact: the old one comes out first, which puts the
         // box back as it was, and then the new one goes in.

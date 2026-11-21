@@ -246,6 +246,32 @@ struct JobSheet: View {
     @State private var span: JobDays
     @State private var siteKey: String?
     @State private var opened = Date.now
+    @State private var carriedOn = false
+
+    /// What is kept if the sheet is closed without Add or Save (review
+    /// pass, 21 November 2026, doc 145). See FormDraft.swift.
+    struct Draft: Codable, Equatable {
+        var title = ""
+        var from: Date?
+        var by: Date?
+        var siteKey: String?
+    }
+
+    private var draft: Draft { Draft(title: title, from: span.from, by: span.by, siteKey: siteKey) }
+
+    /// One kept copy for a new job, and one for each job being changed.
+    private var draftKey: String { FormDraft.key(job == nil ? "new-job" : "job", job?.id) }
+
+    /// Nothing worth keeping: the sheet as it opened.
+    private var draftIsEmpty: Bool {
+        draft == Draft(title: job?.title ?? "", from: job?.span.from, by: job?.span.by, siteKey: job?.siteKey)
+    }
+
+    private func use(_ typedBefore: Draft) {
+        title = typedBefore.title
+        span = JobDays(from: typedBefore.from, by: typedBefore.by)
+        siteKey = typedBefore.siteKey
+    }
 
     init(job: GardenJob? = nil) {
         self.job = job
@@ -265,6 +291,13 @@ struct JobSheet: View {
                   canConfirm: !trimmed.isEmpty,
                   onConfirm: save) {
             SheetScroll {
+                if carriedOn {
+                    DraftNotice {
+                        use(Draft(title: job?.title ?? "", from: job?.span.from, by: job?.span.by, siteKey: job?.siteKey))
+                        FormDraft.clear(key: draftKey)
+                        carriedOn = false
+                    }
+                }
                 SheetCard {
                     JobFields(title: $title, span: $span, siteKey: $siteKey,
                               gardens: gardens.filter(\.isActive), today: opened)
@@ -281,6 +314,7 @@ struct JobSheet: View {
                         // `role: .destructive` tells the system this
                         // button removes something, and it is drawn red.
                         Button("Delete this job", role: .destructive) {
+                            FormDraft.clear(key: draftKey)
                             context.delete(job)
                             dismiss()
                         }
@@ -293,9 +327,11 @@ struct JobSheet: View {
         // written (piece 1, project doc 119). The saved title, not the
         // words being typed.
         .eiraLooksAt(EiraPagePhrase.job(title: job?.title), short: job?.title)
+        .keepsDraft(draftKey, draft, isEmpty: draftIsEmpty, carriedOn: $carriedOn, restore: use)
     }
 
     private func save() {
+        FormDraft.clear(key: draftKey)
         // An existing job is changed in place. A new one is made.
         let theJob = job ?? GardenJob()
         theJob.title = trimmed

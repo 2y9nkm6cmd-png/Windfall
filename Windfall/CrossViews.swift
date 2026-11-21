@@ -156,6 +156,15 @@ struct CrossEditor: View {
                       onConfirm: { dismiss() }) {
                 SheetScroll { cards }
             }
+            // As for a new sighting (ObservationViews.swift): a swipe
+            // down on a cross with nothing in it leaves no empty record
+            // behind (review pass, 21 November 2026). ⚠️ CHECK, doc 145.
+            .onDisappear {
+                guard crossing.modelContext != nil, !crossing.isDeleted,
+                      crossing.seedParentName.trimmingCharacters(in: .whitespaces).isEmpty,
+                      (crossing.pollenParentName ?? "").isEmpty, (crossing.notes ?? "").isEmpty else { return }
+                context.delete(crossing)
+            }
         } else {
             ScrollView {
                 VStack(alignment: .leading, spacing: 14) {

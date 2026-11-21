@@ -190,6 +190,92 @@ struct NewPlantingView: View {
     /// The recorded cross this seed came from, if one was picked.
     @State private var chosenCross: PlantCross?
 
+    // What was typed before and not saved (review pass, 21 November
+    // 2026, doc 145). See FormDraft.swift.
+    @State private var carriedOn = false
+    /// A kept copy just put back. Choosing a plant or a bed normally
+    /// empties the choices that depend on it (how it was started, which
+    /// parts of the bed); for the plant and bed the copy names, these
+    /// say what to put back instead.
+    @State private var keptStart: Draft?
+    @State private var keptSections: Set<UUID>?
+    /// The plant the form was opened with, if any, so a copy kept for a
+    /// sowing of one plant does not turn up on another plant's page.
+    private let startingPlantID: UUID?
+
+    /// Everything on the form, by the records' own labels.
+    struct Draft: Codable, Equatable {
+        var plantID: UUID?
+        var bedID: UUID?
+        var sections: Set<UUID> = []
+        var sownWhere: SowingLocation = .outdoors
+        var date = Date.now
+        var quantity = ""
+        var notes = ""
+        /// `PlantingStart`'s own word for it ("packetSeed").
+        var begun = PlantingStart.packetSeed.rawValue
+        var pollenParent = ""
+        var crossedByHand = false
+        var crossID: UUID?
+    }
+
+    private var draft: Draft {
+        Draft(plantID: selectedPlant?.id, bedID: selectedBed?.id, sections: selectedSections,
+              sownWhere: sowingLocation, date: dateSown, quantity: quantitySown, notes: notes,
+              begun: begun.rawValue, pollenParent: pollenParent, crossedByHand: crossedByHand,
+              crossID: chosenCross?.id)
+    }
+
+    private var draftKey: String {
+        FormDraft.key(opensAsPlanting ? "new-planting" : "new-sowing", startingPlantID)
+    }
+
+    /// Nothing worth keeping: no plant chosen beyond the one the form
+    /// opened with, no bed, nothing typed.
+    private var draftIsEmpty: Bool {
+        selectedPlant?.id == startingPlantID && selectedBed == nil
+            && quantitySown.trimmingCharacters(in: .whitespaces).isEmpty
+            && notes.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            && pollenParent.isEmpty && !crossedByHand && chosenCross == nil
+    }
+
+    private func use(_ typedBefore: Draft) {
+        let plant = typedBefore.plantID.flatMap { id in plants.first { $0.id == id } }
+        let bed = typedBefore.bedID.flatMap { id in beds.first { $0.id == id } }
+        keptStart = plant?.id == selectedPlant?.id ? nil : typedBefore
+        keptSections = bed == nil ? nil : typedBefore.sections
+        selectedPlant = plant
+        selectedBed = bed
+        selectedSections = typedBefore.sections
+        sowingLocation = typedBefore.sownWhere
+        dateSown = typedBefore.date
+        quantitySown = typedBefore.quantity
+        notes = typedBefore.notes
+        begun = PlantingStart(rawValue: typedBefore.begun) ?? .packetSeed
+        pollenParent = typedBefore.pollenParent
+        crossedByHand = typedBefore.crossedByHand
+        chosenCross = typedBefore.crossID.flatMap { id in crosses.first { $0.id == id } }
+    }
+
+    /// Clear: the form as it opened.
+    private func clearDraft() {
+        keptStart = nil
+        keptSections = nil
+        selectedPlant = startingPlantID.flatMap { id in plants.first { $0.id == id } }
+        selectedBed = nil
+        selectedSections = []
+        sowingLocation = .outdoors
+        dateSown = .now
+        quantitySown = ""
+        notes = ""
+        pollenParent = ""
+        crossedByHand = false
+        chosenCross = nil
+        previousPlant = nil
+        FormDraft.clear(key: draftKey)
+        carriedOn = false
+    }
+
     /// Every cross on record. See Crosses.swift.
     @Query(sort: [SortDescriptor(\PlantCross.date, order: .reverse)]) private var crosses: [PlantCross]
 
@@ -208,6 +294,7 @@ struct NewPlantingView: View {
         // selectedPlant`. This is how a starting value is handed to it.
         _selectedPlant = State(initialValue: plant)
         opensAsPlanting = asPlanting
+        startingPlantID = plant?.id
     }
 
     /// The crosses whose seed this could be: made on this plant first,
@@ -272,8 +359,18 @@ struct NewPlantingView: View {
         SheetPage(isPlanting ? "New planting" : "New sowing",
                   confirmTitle: "Save",
                   canConfirm: selectedPlant != nil,
-                  onConfirm: save) {
+                  onConfirm: save,
+                  // With the list of plants open after "Choose another",
+                  // a swipe from the left edge goes back to the plant
+                  // chosen before, as "Back to" does.
+                  onSwipeBack: (selectedPlant == nil && previousPlant != nil) ? {
+                      selectedPlant = previousPlant
+                      plantSearch = ""
+                  } : nil) {
             SheetScroll {
+                if carriedOn {
+                    DraftNotice { clearDraft() }
+                }
                 SheetCard("Plant") {
                     if let selectedPlant {
                         HStack {
@@ -347,7 +444,17 @@ struct NewPlantingView: View {
                             }
                         }
                         .labelsHidden()
-                        .onChange(of: selectedBed) { _, _ in selectedSections = [] }
+                        .onChange(of: selectedBed) { _, _ in
+                            // The parts of a bed put back from a kept
+                            // copy stay; any other change of bed starts
+                            // with none chosen.
+                            if let keptSections {
+                                selectedSections = keptSections
+                                self.keptSections = nil
+                            } else {
+                                selectedSections = []
+                            }
+                        }
                     }
 
                     if let selectedBed {
@@ -387,6 +494,7 @@ struct NewPlantingView: View {
                 }
             }
         }
+        .keepsDraft(draftKey, draft, isEmpty: draftIsEmpty, carriedOn: $carriedOn, restore: use)
     }
 
     /// Asks how it was started: as seed or as plants, and for seed
@@ -467,6 +575,16 @@ struct NewPlantingView: View {
         // and that first time the old and new values are the same. So
         // that is the moment to honour "Add a planting": start on Plants.
         .onChange(of: selectedPlant?.id, initial: true) { before, after in
+            // The plant a kept copy named, just put back: keep its
+            // choices rather than starting again.
+            if let typedBefore = keptStart, typedBefore.plantID == after, before != after {
+                begun = PlantingStart(rawValue: typedBefore.begun) ?? .packetSeed
+                pollenParent = typedBefore.pollenParent
+                crossedByHand = typedBefore.crossedByHand
+                chosenCross = typedBefore.crossID.flatMap { id in crosses.first { $0.id == id } }
+                keptStart = nil
+                return
+            }
             let isFirstTime = before == after
             begun = (isFirstTime && opensAsPlanting && starts.contains(.plant)) ? .plant : (starts.first ?? .packetSeed)
             pollenParent = ""
@@ -491,6 +609,8 @@ struct NewPlantingView: View {
 
     private func save() {
         guard let selectedPlant else { return }
+        // Saved, so nothing is left waiting.
+        FormDraft.clear(key: draftKey)
 
         let planting = Planting()
         planting.plant = selectedPlant
@@ -813,6 +933,46 @@ struct HarvestEditor: View {
     @State private var unit: HarvestUnit = .grams
     @State private var destination: HarvestDestination = .eaten
     @State private var notes = ""
+    /// True when the form was filled back in from what was typed before
+    /// and not saved. See FormDraft.swift.
+    @State private var carriedOn = false
+
+    /// What this form keeps if it is closed without Save (review pass,
+    /// 21 November 2026, doc 145): everything on it.
+    struct Draft: Codable, Equatable {
+        var date = Date.now
+        var quantity = ""
+        var unit: HarvestUnit = .grams
+        var destination: HarvestDestination = .eaten
+        var notes = ""
+    }
+
+    private var draft: Draft {
+        Draft(date: date, quantity: quantity, unit: unit, destination: destination, notes: notes)
+    }
+
+    /// Only the date, unit and destination changed is nothing worth
+    /// keeping: they all have a value before anything is typed.
+    private var draftIsEmpty: Bool {
+        quantity.trimmingCharacters(in: .whitespaces).isEmpty
+            && notes.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    /// One kept copy for each sowing, and one for each plant with none.
+    private var draftKey: String {
+        switch cropSource {
+        case .planting(let planting): return FormDraft.key("harvest", planting.id)
+        case .plant(let plant): return FormDraft.key("harvest-plant", plant.id)
+        }
+    }
+
+    private func use(_ typedBefore: Draft) {
+        date = typedBefore.date
+        quantity = typedBefore.quantity
+        unit = typedBefore.unit
+        destination = typedBefore.destination
+        notes = typedBefore.notes
+    }
 
     /// What was sown and where, for the line under the title. A plant
     /// with nothing on record has no bed to name.
@@ -829,8 +989,18 @@ struct HarvestEditor: View {
                   onDismiss: onBack,
                   confirmTitle: "Save",
                   canConfirm: Double(quantity) != nil,
-                  onConfirm: save) {
+                  onConfirm: save,
+                  // A swipe from the left edge goes back to the list,
+                  // as Back does, when there is a list to go back to.
+                  onSwipeBack: onBack) {
             SheetScroll {
+                if carriedOn {
+                    DraftNotice {
+                        use(Draft())
+                        FormDraft.clear(key: draftKey)
+                        carriedOn = false
+                    }
+                }
                 // Said before anything is typed, so it is no surprise
                 // to find the plant among what is growing afterwards.
                 if cropSource.needsPuttingOnRecord {
@@ -881,10 +1051,13 @@ struct HarvestEditor: View {
                 }
             }
         }
+        .keepsDraft(draftKey, draft, isEmpty: draftIsEmpty, carriedOn: $carriedOn, restore: use)
     }
 
     private func save() {
         guard let value = Double(quantity) else { return }
+        // Saved, so nothing is left waiting.
+        FormDraft.clear(key: draftKey)
 
         // The sowing or planting the harvest goes against. A plant with
         // none on record is given one here, and only here: nothing is
@@ -924,10 +1097,41 @@ struct PhenologyEditor: View {
     @State private var date = Date.now
     @State private var stage: PhenologyStage = .firstFlower
     @State private var notes = ""
+    @State private var carriedOn = false
+
+    /// What is kept if the form is closed without Save. See FormDraft.swift.
+    struct Draft: Codable, Equatable {
+        var date = Date.now
+        var stage: PhenologyStage = .firstFlower
+        var notes = ""
+    }
+
+    private var draft: Draft { Draft(date: date, stage: stage, notes: notes) }
+    private var draftKey: String { FormDraft.key("stage", planting.id) }
+    /// A stage chosen is worth keeping; a date alone is not.
+    private var draftIsEmpty: Bool {
+        stage == .firstFlower && notes.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    private func use(_ typedBefore: Draft) {
+        date = typedBefore.date
+        stage = typedBefore.stage
+        notes = typedBefore.notes
+    }
 
     var body: some View {
         NavigationStack {
             Form {
+                if carriedOn {
+                    Section {
+                        DraftNotice {
+                            use(Draft())
+                            FormDraft.clear(key: draftKey)
+                            carriedOn = false
+                        }
+                    }
+                }
+
                 DatePicker("Date", selection: $date, displayedComponents: .date)
 
                 Picker("Stage", selection: $stage) {
@@ -964,11 +1168,13 @@ struct PhenologyEditor: View {
                         event.notes = notes.isEmpty ? nil : notes
                         event.planting = planting
                         planting.phenologyEvents?.append(event)
+                        FormDraft.clear(key: draftKey)
                         dismiss()
                     }
                 }
             }
         }
+        .keepsDraft(draftKey, draft, isEmpty: draftIsEmpty, carriedOn: $carriedOn, restore: use)
     }
 }
 
@@ -985,6 +1191,33 @@ struct ProblemEditor: View {
     @State private var name = ""
     @State private var severity: ProblemSeverity = .light
     @State private var treatment = ""
+    @State private var carriedOn = false
+
+    /// What is kept if the form is closed without Save. See FormDraft.swift.
+    struct Draft: Codable, Equatable {
+        var date = Date.now
+        var kind: ProblemKind = .pest
+        var name = ""
+        var severity: ProblemSeverity = .light
+        var treatment = ""
+    }
+
+    private var draft: Draft {
+        Draft(date: date, kind: kind, name: name, severity: severity, treatment: treatment)
+    }
+    private var draftKey: String { FormDraft.key("problem", planting.id) }
+    private var draftIsEmpty: Bool {
+        name.trimmingCharacters(in: .whitespaces).isEmpty
+            && treatment.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    private func use(_ typedBefore: Draft) {
+        date = typedBefore.date
+        kind = typedBefore.kind
+        name = typedBefore.name
+        severity = typedBefore.severity
+        treatment = typedBefore.treatment
+    }
 
     /// What the spreadsheet says this plant is prone to — offered as
     /// suggestions rather than left for you to type from memory.
@@ -1002,6 +1235,16 @@ struct ProblemEditor: View {
     var body: some View {
         NavigationStack {
             Form {
+                if carriedOn {
+                    Section {
+                        DraftNotice {
+                            use(Draft())
+                            FormDraft.clear(key: draftKey)
+                            carriedOn = false
+                        }
+                    }
+                }
+
                 DatePicker("Date", selection: $date, displayedComponents: .date)
 
                 Picker("Type", selection: $kind) {
@@ -1050,11 +1293,13 @@ struct ProblemEditor: View {
                         event.treatment = treatment.isEmpty ? nil : treatment
                         event.planting = planting
                         planting.pestDiseaseEvents?.append(event)
+                        FormDraft.clear(key: draftKey)
                         dismiss()
                     }
                     .disabled(name.isEmpty)
                 }
             }
         }
+        .keepsDraft(draftKey, draft, isEmpty: draftIsEmpty, carriedOn: $carriedOn, restore: use)
     }
 }

@@ -233,10 +233,10 @@ final class SeedPacketScanner {
         let findings = PacketReading.read(linesRead, knownPlants: knownPlants, barcodes: barcodes)
         nameFound = findings.first { $0.field == .plantName }
 
-        let earlier = fields
+        let typedBefore = fields
         fields = findings.filter { $0.field != .plantName }.map { finding in
             var row = ExtractedField(finding)
-            if let was = earlier.first(where: { $0.field == finding.field && $0.readValue == finding.value }) {
+            if let was = typedBefore.first(where: { $0.field == finding.field && $0.readValue == finding.value }) {
                 row.value = was.value
                 row.accepted = was.accepted
             }
@@ -315,10 +315,71 @@ struct SeedPacketScanView: View {
     /// True when you have asked for a new plant to be made on Save.
     @State private var addsNewPlant = false
     @State private var showingRawText = false
+    /// True when the photos and name from before were put back.
+    @State private var carriedOn = false
+
+    /// What is kept if the sheet is closed without Save (review pass, 21
+    /// November 2026, doc 145): the photos, read again when the sheet
+    /// opens, and the plant's name. ⚠️ A correction typed on one of the
+    /// rows read from the packet is not kept: the rows are read afresh.
+    /// See FormDraft.swift.
+    struct Draft: Codable, Equatable {
+        /// Which side each kept photo is, in the order they are kept.
+        var sides: [String] = []
+        var plantName = ""
+        var nameFilledIn = ""
+        var plantID: UUID?
+        var addsNewPlant = false
+    }
+
+    private var draftSides: [PacketSide] { [.back, .front].filter { photos[$0] != nil } }
+    private var draft: Draft {
+        Draft(sides: draftSides.map(\.rawValue), plantName: plantName, nameFilledIn: nameFilledIn,
+              plantID: matchedPlant?.id, addsNewPlant: addsNewPlant)
+    }
+    /// Photos handed over from Eira's bar are still in her chat, so only
+    /// a packet begun here is kept.
+    private var keepsWhatWasDone: Bool { startingPhotos.isEmpty }
+    private var draftKey: String { keepsWhatWasDone ? "seed-packet-scan" : "seed-packet-scan-from-eira" }
+    private var draftIsEmpty: Bool { !keepsWhatWasDone || (photos.isEmpty && plantName.isEmpty) }
+
+    /// Puts the photos back and reads them again, then the name.
+    private func use(_ typedBefore: Draft) {
+        guard keepsWhatWasDone else { return }
+        // So the camera or the library does not open by itself on top.
+        hasBegun = true
+        let pictures = FormDraft.photos(key: draftKey)
+        Task {
+            for (raw, data) in zip(typedBefore.sides, pictures) {
+                guard let side = PacketSide(rawValue: raw) else { continue }
+                await read(data, side: side)
+            }
+            plantName = typedBefore.plantName
+            nameFilledIn = typedBefore.nameFilledIn
+            matchedPlant = typedBefore.plantID.flatMap { id in plants.first { $0.id == id } }
+            addsNewPlant = typedBefore.addsNewPlant
+        }
+    }
+
+    private func clearDraft() {
+        photos = [:]
+        scanner = SeedPacketScanner()
+        plantName = ""
+        nameFilledIn = ""
+        matchedPlant = nil
+        addsNewPlant = false
+        FormDraft.clear(key: draftKey)
+        carriedOn = false
+    }
 
     var body: some View {
         NavigationStack {
             Form {
+                if carriedOn {
+                    Section {
+                        DraftNotice { clearDraft() }
+                    }
+                }
                 // The back first: it holds the sowing details.
                 sideSection(.back)
                 sideSection(.front)
@@ -493,6 +554,14 @@ struct SeedPacketScanView: View {
             // `.task` runs when the screen appears.
             .task { await begin() }
         }
+        .keepsDraft(draftKey, draft, isEmpty: draftIsEmpty, carriedOn: $carriedOn, restore: use)
+        // The photos are written only when one is added or changed, not
+        // with every letter typed in the name. Each photo's size is
+        // enough to tell a different photo from the one before.
+        .onChange(of: draftSides.map { "\($0.rawValue)\(photos[$0]?.count ?? 0)" }) { _, _ in
+            guard keepsWhatWasDone, carriedOn || !photos.isEmpty else { return }
+            FormDraft.keepPhotos(draftSides.compactMap { photos[$0] }, key: draftKey)
+        }
     }
 
     /// The part of the sheet for one side of the packet: its photo once
@@ -660,6 +729,7 @@ struct SeedPacketScanView: View {
     }
 
     private func save() {
+        FormDraft.clear(key: draftKey)
         let accepted = scanner.fields.filter(\.accepted)
 
         // Either one of your plants, or a new one you asked for.

@@ -49,6 +49,7 @@ struct SheetPage<Content: View>: View {
     private let confirmTitle: String?
     private let canConfirm: Bool
     private let onConfirm: () -> Void
+    private let onSwipeBack: (() -> Void)?
     private let content: () -> Content
 
     /// How to close the sheet this sits in, handed down by SwiftUI.
@@ -73,6 +74,10 @@ struct SheetPage<Content: View>: View {
     /// - `confirmTitle`: the filled button, such as "Save". Nil leaves
     ///   it out.
     /// - `canConfirm`: false greys the filled button out.
+    /// - `onSwipeBack`: for a step inside the sheet (Harvest after
+    ///   "What did you harvest?"), what a swipe from the left edge does.
+    ///   Left out, there is no such swipe; a swipe down still closes the
+    ///   sheet. See `edgeSwipeBack` in FormDraftViews.swift.
     init(_ title: String,
          detail: String? = nil,
          dismissTitle: String? = "Cancel",
@@ -80,6 +85,7 @@ struct SheetPage<Content: View>: View {
          confirmTitle: String? = nil,
          canConfirm: Bool = true,
          onConfirm: @escaping () -> Void = {},
+         onSwipeBack: (() -> Void)? = nil,
          @ViewBuilder content: @escaping () -> Content) {
         self.title = title
         self.detail = detail
@@ -88,6 +94,7 @@ struct SheetPage<Content: View>: View {
         self.confirmTitle = confirmTitle
         self.canConfirm = canConfirm
         self.onConfirm = onConfirm
+        self.onSwipeBack = onSwipeBack
         self.content = content
     }
 
@@ -98,6 +105,10 @@ struct SheetPage<Content: View>: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background { PaperBackground() }
+        // A swipe from the left edge goes back a step, where there is a
+        // step to go back to (review pass, 21 November 2026). After the
+        // background, so the paper slides with the page.
+        .edgeSwipeBack(onSwipeBack != nil) { onSwipeBack?() }
         #if os(macOS)
         // On a Mac a sheet takes the size of what is in it. A frame
         // given as smallest, usual and largest lets it be any size
