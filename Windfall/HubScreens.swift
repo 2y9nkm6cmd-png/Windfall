@@ -377,8 +377,11 @@ struct GardenTab: View {
     private var seedLine: String {
         guard !seedPackets.isEmpty else { return "No packets yet" }
         let expired = seedPackets.filter(\.isExpired).count
-        let packets = counted(seedPackets.count, "packet")
-        return expired > 0 ? "\(packets) · \(expired) past their date" : packets
+        let buying = seedPackets.filter(\.toBuy).count
+        var parts = [counted(seedPackets.count, "packet")]
+        if buying > 0 { parts.append("\(buying) to buy") }
+        if expired > 0 { parts.append("\(expired) past their date") }
+        return parts.joined(separator: " · ")
     }
 }
 

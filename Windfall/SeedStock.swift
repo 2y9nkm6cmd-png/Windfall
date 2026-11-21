@@ -143,7 +143,14 @@ enum SeedStock {
     /// By family uses the plant's group, as the Year page does. By where
     /// it's kept uses the packet's own words for its place for now;
     /// doc 147's box codes will replace them.
-    static func grouped(_ packets: [SeedPacket], by grouping: Grouping) -> [(title: String, packets: [SeedPacket])] {
+    /// One heading of All seed and its packets.
+    struct Group: Identifiable {
+        let title: String
+        let packets: [SeedPacket]
+        var id: String { title }
+    }
+
+    static func grouped(_ packets: [SeedPacket], by grouping: Grouping) -> [Group] {
         let missing = grouping == .family ? "Not sorted" : "Not given a place"
         let groups = Dictionary(grouping: packets) { packet -> String in
             let words: String?
@@ -160,7 +167,7 @@ enum SeedStock {
                 if b == missing { return true }
                 return a.localizedCaseInsensitiveCompare(b) == .orderedAscending
             }
-            .map { ($0, groups[$0]!.sorted(by: byName)) }
+            .map { Group(title: $0, packets: (groups[$0] ?? []).sorted(by: byName)) }
     }
 
     /// A to Z by plant, then variety, then supplier.

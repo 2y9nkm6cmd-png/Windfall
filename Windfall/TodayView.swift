@@ -922,8 +922,16 @@ struct TodayView: View {
     private var weekJobs: [WeekJob] {
         // The gathering is in WidgetShare.swift, so the widgets can ask
         // for the same list for the days ahead.
+        let waiting = SowAgain.waitingCrops(ownJobs)
         let worked = WeekFacts.jobs(asOf: .now, plants: plants, plantings: plantings,
                                     finishedWeather: finishedWeather, outlook: weather.outlook)
+            .filter { job in
+                // A crop with a "Sow … again" job waiting is not asked
+                // for twice (SowAgain.swift).
+                guard job.kind == .sow, let key = job.subject,
+                      let plant = plants.first(where: { $0.id.uuidString == key }) else { return true }
+                return !SowAgain.hidesWorkedOutLine(for: plant, waiting: waiting)
+            }
         // Jobs of your own that fall this week, or are overdue, go in
         // among the worked-out ones and the whole list is put in order
         // again: weather first, then whatever is soonest.
@@ -1043,8 +1051,12 @@ struct TodayView: View {
 
         // Plants whose sowing months include this one and which have not
         // been sown this year.
+        let waiting = SowAgain.waitingCrops(ownJobs)
         let sowable = plants.filter { plant in
             guard plant.status == .growing else { return false }
+            // A crop with a "Sow … again" job waiting is not asked for
+            // twice (SowAgain.swift).
+            guard !SowAgain.hidesWorkedOutLine(for: plant, waiting: waiting) else { return false }
             let indoors = MonthParser.months(in: plant.sowIndoorsMonthsText)
             let outdoors = MonthParser.months(in: plant.sowOutdoorsMonthsText)
             guard indoors.contains(month) || outdoors.contains(month) else { return false }
@@ -1629,6 +1641,32 @@ struct JobRow: View {
 
     /// The job of your own being changed, if one has been tapped.
     @State private var editing: GardenJob?
+    /// The sowing being recorded, after a tick on a sowing job. See
+    /// SowAgainViews.swift.
+    @State private var sowing: SowingTick?
+
+    /// What a tick on this job records, if it is a sowing: a worked-out
+    /// "Sow …" line, or a "Sow … again" job of your own. Nil for any
+    /// other job, whose tick only ticks.
+    private var sowingTick: SowingTick? {
+        switch job.link {
+        case .plant(let plant)? where job.id.hasPrefix("sow-"):
+            return SowingTick(cropKey: SowAgain.cropKey(of: plant), plant: plant)
+        case .own(let own)? where own.isSowAgain:
+            return SowingTick(cropKey: SowAgain.cropKey(own.cropName ?? ""), plant: nil)
+        default:
+            return nil
+        }
+    }
+
+    /// Ticks the job, or unticks it if it was ticked already.
+    private func toggleTick() {
+        if case .own(let own)? = job.link {
+            own.doneAt = own.isDone ? nil : .now
+        } else {
+            tickedStore = TickedJobs.toggling(job.id, in: tickedStore)
+        }
+    }
 
     /// A worked-out job's tick is in the month's line of text. A job of
     /// your own keeps its tick on its record, so that it lasts beyond
@@ -1641,11 +1679,14 @@ struct JobRow: View {
     var body: some View {
         HStack(alignment: .top, spacing: 10) {
             Button {
-                if case .own(let own)? = job.link {
-                    // Ticked now, or unticked if it was ticked already.
-                    own.doneAt = own.isDone ? nil : .now
+                // A sowing not yet ticked opens the sheet that records
+                // it and offers the next one (doc 148). The sheet ticks
+                // the job when the sowing is saved. Anything else, and a
+                // sowing already ticked, is ticked or unticked here.
+                if !isTicked, let tick = sowingTick {
+                    sowing = tick
                 } else {
-                    tickedStore = TickedJobs.toggling(job.id, in: tickedStore)
+                    toggleTick()
                 }
             } label: {
                 TickBox(isOn: isTicked)
@@ -1653,7 +1694,12 @@ struct JobRow: View {
                     .contentShape(.rect)
             }
             .buttonStyle(.plain)
-            .accessibilityLabel(isTicked ? "Done: \(job.title)" : "Mark as done: \(job.title)")
+            .accessibilityLabel(isTicked ? "Done: \(job.title)" : (sowingTick != nil ? "Record this sowing: \(job.title)" : "Mark as done: \(job.title)"))
+            .sheet(item: $sowing) { tick in
+                SowNowSheet(tick: tick) {
+                    if !isTicked { toggleTick() }
+                }
+            }
 
             switch job.link {
             case .plant(let plant)?: NavigationLink(value: plant) { words }.buttonStyle(.plain)
