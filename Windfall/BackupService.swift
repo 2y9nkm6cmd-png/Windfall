@@ -367,7 +367,13 @@ final class BackupService {
             // here, and only what was typed in the app is carried over.
             // Until 14 November 2026 this made a second, nearly empty
             // copy of every plant in the library.
-            let names = [PlantFacts.libraryKey(name: dto.commonName, variety: dto.variety), dto.importedAs]
+            // A backup made before the names were tidied says "Leeks"
+            // where the library now says "Leek", so the tidy name is
+            // looked for too. See PlantNames.swift.
+            let tidyName = PlantNames.tidy(dto.commonName)
+            let names = [PlantFacts.libraryKey(name: dto.commonName, variety: dto.variety),
+                         PlantFacts.libraryKey(name: tidyName, variety: dto.variety),
+                         dto.importedAs]
             if let twin = names.compactMap({ $0 }).compactMap({ plantsByName[$0] }).first {
                 plantsByID[dto.id] = twin
                 sameAs[dto.id.uuidString] = twin.id.uuidString

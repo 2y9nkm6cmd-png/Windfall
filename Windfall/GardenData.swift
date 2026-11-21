@@ -458,7 +458,10 @@ final class GardenDataImporter {
         for (kind, table) in tables {
             for fields in table.rows {
                 let row = DataRow(fields)
-                guard let name = row["Common Name"] ?? row["Name"] else { continue }
+                guard let written = row["Common Name"] ?? row["Name"] else { continue }
+                // One way of writing each crop's name: "Leeks" in the
+                // sheet becomes "Leek" here. See PlantNames.swift.
+                let name = PlantNames.tidy(written)
                 let key = Self.key(name, row["Variety/Cultivar"])
 
                 let plant: Plant
@@ -498,7 +501,7 @@ final class GardenDataImporter {
             new ?? current
         }
 
-        plant.commonName = row["Common Name"] ?? row["Name"] ?? plant.commonName
+        plant.commonName = (row["Common Name"] ?? row["Name"]).map(PlantNames.tidy) ?? plant.commonName
         plant.latinName   = fill(plant.latinName, row["Latin Name"])
         plant.variety     = fill(plant.variety, row["Variety/Cultivar"])
         plant.group       = fill(plant.group, row["Group"] ?? row["Category"])
@@ -635,7 +638,7 @@ final class GardenDataImporter {
             let row = DataRow(fields)
             guard let plantName = row["Plant"], let faunaName = row["Fauna"] else { continue }
             let link = PlantFaunaLink()
-            link.plantName      = plantName
+            link.plantName      = PlantNames.tidy(plantName)
             link.plantLatinName = row["Plant Latin Name"]
             link.faunaName      = faunaName
             link.faunaLatinName = row["Fauna Latin Name"]
@@ -703,8 +706,8 @@ final class GardenDataImporter {
             guard effect != .neutral else { continue }
 
             let pair = CompanionPair()
-            pair.plantOneName = one
-            pair.plantTwoName = two
+            pair.plantOneName = PlantNames.tidy(one)
+            pair.plantTwoName = PlantNames.tidy(two)
             pair.effect = effect
             // The sheet's heading is "How plant2 impacts plant1".
             pair.mechanism = row["How plant2 impacts plant1"] ?? row["How it impacts"] ?? row["Mechanism"]
@@ -717,7 +720,9 @@ final class GardenDataImporter {
     }
 
     /// Joins each plant and wildlife link to the real records, by name.
-    private func relink(in context: ModelContext) throws {
+    /// Not private, because the one-off name tidy (PlantNames.swift)
+    /// joins the links again after renaming.
+    func relink(in context: ModelContext) throws {
         var plants: [String: Plant] = [:]
         for plant in try context.fetch(FetchDescriptor<Plant>()) {
             // If two plants share a common name, the first is kept.
