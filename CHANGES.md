@@ -6,6 +6,7 @@
 - **Notes**, a new button under Edit on a plant's page (`PlantLibraryView.swift`), opens `PlantNotesView` (new, `PlantNotesView.swift`): the notes in one box that grows with them, tap in to type anywhere, **Add a note** starts a dated paragraph at the end ("21 Nov 2026: ") and puts the cursor there, Save writes through `PlantFacts.write`, so the notes count as changed by hand and a new load of the spreadsheet keeps them. Typing not saved is kept until Save or Clear, like every other form.
 - **Notes are off the page's cards and the editing sheet** (`PlantFacts.ownSheetKeys`, `PlantFacts.cardFields(in:)`), so there is one place to change them. They stay in `PlantFacts.all`, so the import, the backup and Eira are unchanged.
 - **Fixed:** the line on a form filled back in read "Carried on from typedBefore", not "Carried on from earlier" (`FormDraftViews.swift`): a rename in the review pass had reached the words on screen.
+- **Mac:** the sheet opened with all the notes selected, so a first key pressed would have replaced them. The box now takes a `TextSelection` binding set to a point at the end as it opens, and after Add a note. Seen working on the Mac at 20:40.
 - 5 new checks, 1,120 pass.
 
 # 21 November 2026, evening: the review pass for swiping back and swiping down

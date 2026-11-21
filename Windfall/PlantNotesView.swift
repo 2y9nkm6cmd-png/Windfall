@@ -44,6 +44,12 @@ struct PlantNotesView: View {
     /// way of saying which box is being typed in; setting it to true
     /// puts the cursor in the box.
     @FocusState private var isTyping: Bool
+    /// Where the cursor is in the box, or what is selected. On a Mac the
+    /// sheet puts the box first in line for the keyboard and selected
+    /// ALL of the notes when it opened, so the first key pressed would
+    /// have replaced them. Setting this to a point at the end, as the
+    /// sheet opens, leaves the cursor there with nothing selected.
+    @State private var selection: TextSelection?
 
     init(plant: Plant) {
         self.plant = plant
@@ -88,10 +94,11 @@ struct PlantNotesView: View {
                     // scrolling on its own inside it.
                     FieldBox {
                         TextField("Nothing yet. Tap here to write a note about this plant.",
-                                  text: $text, axis: .vertical)
+                                  text: $text, selection: $selection, axis: .vertical)
                             .font(.body)
                             .lineLimit(4...)
                             .focused($isTyping)
+                            .onAppear { selection = TextSelection(insertionPoint: text.endIndex) }
                     }
 
                     HStack(spacing: 10) {
@@ -126,6 +133,7 @@ struct PlantNotesView: View {
     /// cursor in the box so the note can be typed straight away.
     private func addDatedNote() {
         text = PlantPage.addingDatedNote(to: text, on: .now)
+        selection = TextSelection(insertionPoint: text.endIndex)
         isTyping = true
     }
 
