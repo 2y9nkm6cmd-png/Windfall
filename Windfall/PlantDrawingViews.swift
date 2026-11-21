@@ -13,7 +13,8 @@ import SwiftUI
 // long strip that fills the page and is dragged along sideways. For a
 // close-up it is that one drawing large. The zoomed page grows out of
 // the card that was tapped and shrinks back into it on the way back
-// (GrowFromTile.swift).
+// (GrowFromTile.swift). On an iPhone or iPad the zoomed page can also be
+// pulled down to close it (`swipeDownCloses`, also in GrowFromTile.swift).
 //
 // Until 15 November 2026, midday, each little tile was its own link and
 // "Leaf and flower" was one card with two tiles. William asked for the
@@ -287,6 +288,10 @@ struct PlantPicturesZoomed: View {
             .padding(.top, 8)
             .padding(.bottom, 16)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            // A drag down closes the page, as Back does (iPhone and
+            // iPad only). Here, inside the paper, so the strip and the
+            // plant's name move down and the paper behind stays still.
+            .swipeDownCloses()
         }
         .navigationTitle(title)
         // Tells Eira which plant's drawings are open large (piece 1,

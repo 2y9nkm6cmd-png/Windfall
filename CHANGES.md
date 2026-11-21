@@ -1,3 +1,12 @@
+# 21 November 2026, 21:00: the zoomed Life stages page closes with a swipe down
+
+**By the "life stages swipe down" chat, linked to the Mac** (knowledge base doc 154). Branch `stages-swipe-down`, from `main` at `97b78e3`. **Not built in Xcode:** lane C was training on the Mac (MAC-IN-USE.txt), so the files were only parsed (`swiftc -parse`). Build, try and merge before it goes into `main`.
+
+- **Why:** William: "the life stages drawings should [have] a swipe down to close screen." The zoomed page (`PlantPicturesZoomed`) grows from the card with Apple's zoom, which should allow a pull down, but it did not close that way. Likeliest reason, not proved: the page is nearly all one sideways strip.
+- **`swipeDownCloses()`** (new, `GrowFromTile.swift`): on an iPhone or iPad, a drag that starts more down than across pulls the page's contents down after the finger, shrinking a little; past 120 points or a flick it calls `dismiss()`, so the page shrinks back into its card; sooner, it springs back. A `simultaneousGesture`, so the strip still slides sideways. `@GestureState` so the page is never left halfway if iOS takes the drag away. Nothing changes on a Mac.
+- Used once, in `PlantPicturesZoomed` (`PlantDrawingViews.swift`), so the zoomed Leaf and Flower pages close the same way.
+- To watch for: if Apple's own pull down does work somewhere on the page, both may move it at once for that drag.
+
 # 21 November 2026, 20:20: a plant's notes open from a button under Edit
 
 **By a cloud chat from William's phone, not linked to the Mac** (knowledge base docs 149 and 150). Branch `plant-notes-button`, from `main` at `49ae864`. **Not built in Xcode:** checked with `Tools/checks/run-checks.sh` only (Swift 6.2 on Linux).
