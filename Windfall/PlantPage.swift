@@ -141,7 +141,9 @@ enum PlantPage {
     /// part of the card that suits what kind of fact it is.
     private static func card(for factGroup: PlantFacts.Group, of plant: Plant) -> FactCard {
         var factCard = FactCard(group: factGroup)
-        for factField in PlantFacts.fields(in: factGroup) {
+        // Notes are left out: they open from their own button under
+        // Edit (PlantNotesView.swift).
+        for factField in PlantFacts.cardFields(in: factGroup) {
             let text = PlantFacts.value(of: factField, in: plant)
             // Nothing there, or only the spreadsheet's "*" or "?".
             guard !text.isEmpty, !PlantFacts.isPlaceholder(text) else { continue }
@@ -281,6 +283,38 @@ enum PlantPage {
         case .finished: return "Finished"
         case .failed: return "Failed"
         }
+    }
+
+    // MARK: - The notes sheet
+
+    // Worked out here, without a screen, so the logic tests can try
+    // them. The sheet itself is PlantNotesView.swift.
+
+    /// The plant's name for the line under the title: the common name,
+    /// with the variety after it in single quotes if there is one.
+    static func notesTitleLine(_ plant: Plant) -> String {
+        let variety = (plant.variety ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        return variety.isEmpty ? plant.commonName : "\(plant.commonName) '\(variety)'"
+    }
+
+    /// The notes with a new paragraph started at the end: a blank line
+    /// (none if there are no notes yet), then the date, such as
+    /// "21 Nov 2026: ". Spaces and empty lines already at the end are
+    /// tidied away first, so pressing the button twice does not leave
+    /// a gap.
+    static func addingDatedNote(to notes: String, on day: Date, calendar: Calendar = .current) -> String {
+        let formatter = DateFormatter()
+        formatter.calendar = calendar
+        formatter.timeZone = calendar.timeZone
+        formatter.locale = Locale(identifier: "en_GB")
+        formatter.dateFormat = "d MMM yyyy"
+        let stamp = formatter.string(from: day) + ": "
+
+        var kept = notes
+        while let last = kept.last, last.isWhitespace { kept.removeLast() }
+        // Pressed again with nothing typed after the date: leave it.
+        if kept.hasSuffix(stamp.trimmingCharacters(in: .whitespaces)) { return kept + " " }
+        return kept.isEmpty ? stamp : kept + "\n\n" + stamp
     }
 
     // MARK: - Pieces

@@ -225,6 +225,20 @@ enum PlantFacts {
         all.filter { $0.group == factGroup }
     }
 
+    /// Facts that have a sheet of their own, opened from a button under
+    /// Edit, and so are left off the cards of the page and of the
+    /// editing sheet. Only Notes, for now (William, 21 November 2026:
+    /// the spreadsheet's notes sat at the very foot of the page, where
+    /// nobody found them). They are still in `all`, so the import, the
+    /// backup and Eira read and write them as before.
+    static let ownSheetKeys: Set<String> = ["notes"]
+
+    /// The facts drawn on one card: `fields(in:)` without those that
+    /// have a sheet of their own.
+    static func cardFields(in factGroup: Group) -> [Field] {
+        fields(in: factGroup).filter { !ownSheetKeys.contains($0.key) }
+    }
+
     // MARK: - Reading and writing one fact
 
     /// A fact as text, with the spaces trimmed from its ends. Empty

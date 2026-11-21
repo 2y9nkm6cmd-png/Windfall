@@ -1,3 +1,13 @@
+# 21 November 2026, 20:20: a plant's notes open from a button under Edit
+
+**By a cloud chat from William's phone, not linked to the Mac** (knowledge base docs 149 and 150). Branch `plant-notes-button`, from `main` at `49ae864`. **Not built in Xcode:** checked with `Tools/checks/run-checks.sh` only (Swift 6.2 on Linux).
+
+- **Why:** William's partner could not find the spreadsheet's notes. They came in (161 plants), but sat in the Description card, the last thing on the page. William's words: "make it a button that you can tap under or near the edit button that opens a card with the notes on and allows you to tap into it and add more notes if you need to."
+- **Notes**, a new button under Edit on a plant's page (`PlantLibraryView.swift`), opens `PlantNotesView` (new, `PlantNotesView.swift`): the notes in one box that grows with them, tap in to type anywhere, **Add a note** starts a dated paragraph at the end ("21 Nov 2026: ") and puts the cursor there, Save writes through `PlantFacts.write`, so the notes count as changed by hand and a new load of the spreadsheet keeps them. Typing not saved is kept until Save or Clear, like every other form.
+- **Notes are off the page's cards and the editing sheet** (`PlantFacts.ownSheetKeys`, `PlantFacts.cardFields(in:)`), so there is one place to change them. They stay in `PlantFacts.all`, so the import, the backup and Eira are unchanged.
+- **Fixed:** the line on a form filled back in read "Carried on from typedBefore", not "Carried on from earlier" (`FormDraftViews.swift`): a rename in the review pass had reached the words on screen.
+- 5 new checks, 1,120 pass.
+
 # 21 November 2026, evening: the review pass for swiping back and swiping down
 
 **By the review pass chat** (knowledge base doc 145, the job queued in doc 144). Branch `swipe-close`, from `main` at `9210da8`. William's choice D on card `d-swipe-unsaved-144`: a swipe down, Back or Cancel closes a form at once and what was typed is kept.

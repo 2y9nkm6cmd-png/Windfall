@@ -470,6 +470,9 @@ struct PlantDetailView: View {
     /// closed. Every Edit button on the page sets this and nothing else,
     /// in the same way as `adding` above.
     @State private var editing: PlantFacts.Group?
+    /// True while the plant's notes are open in their own sheet. See
+    /// PlantNotesView.swift.
+    @State private var isShowingNotes = false
     /// True while the sheet that looks up this plant's gaps is open.
     /// See PlantFillInViews.swift.
     @State private var isFillingGaps = false
@@ -588,6 +591,10 @@ struct PlantDetailView: View {
         .sheet(item: $editing) { factGroup in
             PlantEditView(plant: plant, openingAt: factGroup)
         }
+        // The plant's notes, to read and to add to.
+        .sheet(isPresented: $isShowingNotes) {
+            PlantNotesView(plant: plant)
+        }
         // The sheet that looks up what this plant's record lacks.
         .sheet(isPresented: $isFillingGaps) {
             FillInSheet(plant: plant)
@@ -658,11 +665,34 @@ struct PlantDetailView: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
 
-            // Opens the editing sheet at its first card: the names, the
-            // variety and the other facts on the line above the name.
-            Button("Edit") { editing = .naming }
+            // Edit, and under it Notes. `alignment: .trailing` lines the
+            // two up on their right-hand edges.
+            VStack(alignment: .trailing, spacing: 8) {
+                // Opens the editing sheet at its first card: the names, the
+                // variety and the other facts on the line above the name.
+                Button("Edit") { editing = .naming }
+                    .buttonStyle(QuietGlassButton())
+
+                // Opens the plant's notes in a sheet of their own, where
+                // they can be read and added to (William, 21 November
+                // 2026). Until then they were the last thing on the page.
+                // The picture says whether there are any yet.
+                Button {
+                    isShowingNotes = true
+                } label: {
+                    Label("Notes", systemImage: hasNotes ? "note.text" : "note.text.badge.plus")
+                }
                 .buttonStyle(QuietGlassButton())
+                .accessibilityValue(hasNotes ? "Has notes" : "None yet")
+            }
         }
+    }
+
+    /// True when the plant has notes worth showing: not empty, and not
+    /// only the spreadsheet's "*" or "?".
+    private var hasNotes: Bool {
+        let text = (plant.notes ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        return !text.isEmpty && !PlantFacts.isPlaceholder(text)
     }
 
     // MARK: The two cards that are not from the spreadsheet

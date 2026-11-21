@@ -8,7 +8,7 @@
 //    keepsDraft(...)      keeps a form's kept copy up to date as it is
 //                         typed in, and fills the form back in from it
 //                         when the form opens again. See FormDraft.swift.
-//    DraftNotice          the "Carried on from typedBefore" line with Clear.
+//    DraftNotice          the "Carried on from earlier" line with Clear.
 //    edgeSwipeBack(...)   a swipe from the left edge for a "Back" that is
 //                         a step inside one sheet, which iOS's own swipe
 //                         back does not reach.
@@ -29,7 +29,7 @@ import SwiftUI
 extension View {
 
     /// Keeps `value` under `key` whenever it changes, and when the form
-    /// first appears hands any copy kept typedBefore to `restore` and sets
+    /// first appears hands any copy kept before to `restore` and sets
     /// `carriedOn`, so the form can show `DraftNotice`.
     ///
     /// - `value`: a small struct of everything the form keeps. It must
@@ -87,7 +87,7 @@ private struct KeepsDraft<Value: Codable & Equatable>: ViewModifier {
     }
 }
 
-/// "Carried on from typedBefore", with Clear, at the top of a form that was
+/// "Carried on from earlier", with Clear, at the top of a form that was
 /// filled back in from a kept copy.
 struct DraftNotice: View {
 
@@ -99,7 +99,7 @@ struct DraftNotice: View {
             Image(systemName: "clock.arrow.circlepath")
                 .foregroundStyle(Theme.leaf)
                 .accessibilityHidden(true)
-            Text("Carried on from typedBefore")
+            Text("Carried on from earlier")
                 .font(.body)
                 .foregroundStyle(Theme.ink)
                 .fixedSize(horizontal: false, vertical: true)

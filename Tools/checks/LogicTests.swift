@@ -716,6 +716,19 @@ struct LogicTests {
         let sharedCards = PlantPage.twoColumns(garlicCards)
         check(sharedCards.left.map(\.title) == ["Growth Patterns", "Permaculture Category", "Growth Constraints"] && sharedCards.right.map(\.title) == ["Growth Habits", "Sowing from Seed"] && PlantPage.twoColumns([]).left.isEmpty, "the cards are shared between two columns, each going to whichever is shorter so far")
 
+        // A plant's notes open from their own button, not a card (21 November 2026, doc 150)
+        let notesDaisy = Plant(commonName: "African Daisy"); notesDaisy.variety = "Pink Sun"; notesDaisy.notes = "Sow on the surface; needs light to germinate."
+        check(PlantPage.cards(for: notesDaisy).isEmpty && PlantPage.emptyGroups(for: notesDaisy).contains(.description), "notes alone put no Description card on the page: they have their own button")
+        notesDaisy.appearance = "Pink rays fading to white, a blue-violet eye"
+        check(PlantPage.cards(for: notesDaisy).first.map { $0.group == .description && $0.facts.map(\.label) == ["Appearance"] } == true && !PlantFacts.cardFields(in: .description).contains { $0.key == "notes" } && PlantFacts.named("notes") != nil, "the Description card shows its other facts without Notes, and Notes stays in the one list for the import and the backup")
+        check(PlantPage.notesTitleLine(notesDaisy) == "African Daisy 'Pink Sun'" && PlantPage.notesTitleLine(Plant(commonName: "Borage")) == "Borage", "the notes sheet names the plant, with its variety in quotes")
+        var notesCalendar = Calendar(identifier: .gregorian); notesCalendar.timeZone = TimeZone(identifier: "Europe/London")!
+        let notesDay = notesCalendar.date(from: DateComponents(year: 2026, month: 11, day: 21, hour: 20))!
+        let onceDated = PlantPage.addingDatedNote(to: "Sow thinly.\n\n ", on: notesDay, calendar: notesCalendar)
+        check(onceDated == "Sow thinly.\n\n21 Nov 2026: " && PlantPage.addingDatedNote(to: "", on: notesDay, calendar: notesCalendar) == "21 Nov 2026: " && PlantPage.addingDatedNote(to: onceDated, on: notesDay, calendar: notesCalendar) == onceDated, "Add a note starts a dated paragraph at the end, the first with no gap above it, and pressing it twice adds nothing more")
+        let notesSaved = Plant(commonName: "Chives"); notesSaved.notes = "8mm planting depth."
+        check(PlantFacts.write("8mm planting depth.\n\n21 Nov 2026: divide in spring", forKey: "notes", to: notesSaved) && notesSaved.notes == "8mm planting depth.\n\n21 Nov 2026: divide in spring" && notesSaved.changedByHand == ["notes"], "saved notes are marked as changed by hand, so loading the spreadsheet again keeps them")
+
         // A plant's sowings and plantings, as its page lists them.
         let herbBed = Bed(name: "Herb bed"); herbBed.addSections(count: 2)
         let pageAchillea = Plant(commonName: "Achillea")

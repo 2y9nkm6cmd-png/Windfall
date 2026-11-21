@@ -130,7 +130,9 @@ struct PlantEditView: View {
     /// months, then short facts side by side, then long ones full
     /// width, then the yes-or-no ones as tick boxes.
     private func card(for factGroup: PlantFacts.Group) -> some View {
-        let fields = PlantFacts.fields(in: factGroup)
+        // Notes are typed in their own sheet (PlantNotesView.swift), so
+        // there is one place to change them, not two.
+        let fields = PlantFacts.cardFields(in: factGroup)
         let monthFields = fields.filter { if case .months = $0.kind { return true } else { return false } }
         let longFields = fields.filter { $0.kind == .longText }
         let tickFields = fields.filter { $0.kind == .yesNo }
