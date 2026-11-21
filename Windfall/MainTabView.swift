@@ -183,6 +183,10 @@ struct MainTabView: View {
                 Task { await MotionTour.runIfAsked() }
             } else {
                 GardenDataImporter().loadStarterDataIfNeeded(into: context)
+                // One way of writing each crop's name, once for a library
+                // that was loaded before the names were tidied. It does
+                // nothing after the first time. See PlantNames.swift.
+                PlantNames.tidyLibraryIfNeeded(in: context)
                 // Make sure the allotment and the permaculture garden
                 // exist as records. It only adds what is missing.
                 GardenPlan.ensureStartingGardens(in: context)

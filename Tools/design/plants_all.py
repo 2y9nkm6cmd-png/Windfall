@@ -899,7 +899,7 @@ K("Leaf salad", "salad", leaf="cut", fl="daisy", fc="primrose", fr=3.4, sh="fluf
 K("Spinach", "salad", leaf="heart", lc="deep", fl="tiny", fc="unripe", arr="spire", sh="dry", seed="knob")
 K("Swiss Chard", "salad", leaf="simple", lc="deep", stalkc="berry", fl="tiny", fc="unripe", arr="spire", sh="dry", seed="knob", ls=32, bi=True)
 K("Spinach Beet", "salad", leaf="simple", lc="deep", stalkc="pale", fl="tiny", fc="unripe", arr="spire", sh="dry", seed="knob", ls=32, bi=True)
-K("Rocket salad", "salad", leaf="cut", ls=24, fc="white")
+K("Rocket salad", "salad", ["Rocket"], leaf="cut", ls=24, fc="white")
 K("Mizuna", "salad", leaf="cut", ls=28)
 K("Mustard", "salad", leaf="cut", ls=26, H=62)
 K("Pak Choi", "salad", leaf="round", ls=30, stalkc="white", lc="deep")

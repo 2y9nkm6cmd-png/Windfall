@@ -1,3 +1,13 @@
+# 21 November 2026, 20:30: one way of writing each crop's name
+
+**By the "sow again" chat** (knowledge base doc 151), from William's phone. Branch `plant-names-tidy`, from `main` at `49ae864`. William's answer to point 5 of card `d-sow-again-details-148`: tidy the names, rather than matching them loosely.
+
+- **`PlantNames.swift` (new, in the logic files)** holds each untidy spelling and the name it becomes: Leeks to Leek, Parsnips to Parsnip, French beans, French Beans and Dwarf/french bean to French bean, Ox-eye Daisy to Oxeye Daisy, Rocket salad to Rocket, Overwinter Mix to Overwinter mix. The companion sheet's plurals (Radishes, Broad beans, Turnips, Daffodils, Geums, Zinnias) and qualifiers (Mint (garden), Savory (summer)) become the library's names. Three wildlife-link plants written another way from the library's same species (by Latin name) are joined: Meadow cranesbill, Bird's-foot trefoil and Yellow flag iris. The rule for crops is the singular, as most of the library has it.
+- **Loading a spreadsheet tidies every name as it comes in** (`GardenData.swift`: plants, companion pairs and wildlife links), so the spreadsheet itself can stay as it is. A backup made before the tidy still finds its plants (`BackupService.swift`).
+- **A library already on a device is tidied once at start-up** (`PlantNames.tidyLibraryIfNeeded`, called from `MainTabView.swift` beside the starter data). Two records that turn out to be one plant become one: Leek 'Musselburgh' was a record for each garden, and there were two Oxeye Daisies. Sowings, seed packets, journal entries, sightings, FIT counts, crosses and kept facts move to the record kept; an empty box is filled from the other; a fact typed by hand wins; both gardens are listed. **A name changed by hand on a plant's page is never touched.** `relink` in the importer is no longer private, so the links can be joined again afterwards.
+- **The rocket drawing** answers to "Rocket" as well (`PlantDrawings.json`, its copy in `Design/Plants`, and `Tools/design/plants_all.py`).
+- No record type changed, so `migrate-test.sh` is not needed. 15 new checks, 1,130 pass.
+
 # 21 November 2026, evening: the review pass for swiping back and swiping down
 
 **By the review pass chat** (knowledge base doc 145, the job queued in doc 144). Branch `swipe-close`, from `main` at `9210da8`. William's choice D on card `d-swipe-unsaved-144`: a swipe down, Back or Cancel closes a form at once and what was typed is kept.

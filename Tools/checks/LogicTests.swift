@@ -1170,6 +1170,20 @@ struct LogicTests {
             let links = (try? store.fetch(FetchDescriptor<PlantFaunaLink>())) ?? []
             check(links.contains { $0.fauna != nil }, "links are joined to the wildlife list")
 
+            // One way of writing each crop's name (PlantNames.swift, doc 151)
+            let untidy = ["Leeks", "Parsnips", "French beans", "French Beans", "Dwarf/french bean", "Ox-eye Daisy", "Rocket salad", "Overwinter Mix"]
+            check(!plants.contains { untidy.contains($0.commonName) }, "no plant comes in under an untidy name (\(Set(plants.map(\.commonName)).intersection(untidy).sorted()))")
+            let musselburgh = plants.filter { PlantFacts.libraryKey(name: $0.commonName, variety: $0.variety) == "leek|musselburgh" }
+            check(musselburgh.count == 1 && musselburgh.first?.sourceSites.count == 2, "Leek 'Musselburgh' from both sheets is one record that lists both gardens")
+            check(plants.filter { $0.commonName == "Oxeye Daisy" }.count == 1 && plants.filter { $0.commonName == "French bean" }.count == 4 && plants.filter { $0.commonName == "Leek" }.count == 2, "the two oxeye daisies are one, and the leeks and French beans share one name")
+            check(!pairs.contains { ["radishes", "broad beans", "turnips", "mint (garden)"].contains($0.plantOneName.lowercased()) || ["radishes", "broad beans", "turnips", "mint (garden)"].contains($0.plantTwoName.lowercased()) }, "companion pairs use the library's names")
+            check(links.contains { $0.plantName == "Meadow crane's-bill" && $0.plant != nil }, "the meadow crane's-bill's wildlife links find it")
+            check(PlantNames.tidy(" leeks ") == "Leek" && PlantNames.tidy("RADISHES") == "Radish" && PlantNames.tidy("Carrots") == "Carrots" && PlantNames.tidy("Leek") == "Leek", "a name is tidied whatever its capitals, and a name not on the list is left alone")
+            check(PlantNames.tidyLibrary(in: store).isEmpty, "a library loaded from the tidy import has nothing left to tidy")
+            let drawingsFile = URL(fileURLWithPath: path).deletingLastPathComponent().appendingPathComponent("PlantDrawings.json")
+            let shippedDrawings = (try? Data(contentsOf: drawingsFile)).flatMap { try? PlantDrawings.decode($0) }
+            check(shippedDrawings?.kind(forPlantNamed: "Rocket")?.slug == "rocket-salad" && ["Leek", "Parsnip", "French bean", "Oxeye Daisy"].allSatisfy { shippedDrawings?.kind(forPlantNamed: $0) != nil }, "every tidy name still finds its drawing")
+
             // Importing twice must not duplicate anything.
             let second = importer.importAll(starter, into: store)
             let plantsAfter = (try? store.fetch(FetchDescriptor<Plant>()))?.count ?? 0
@@ -1370,6 +1384,38 @@ struct LogicTests {
         } else {
             check(false, "the backup file can be written")
         }
+
+        // Tidying a library already on a device (PlantNames.swift, doc 151)
+        let oldLibrary = ModelContext()
+        func oldPlant(_ name: String, _ variety: String?, site: String) -> Plant {
+            let plant = Plant(commonName: name); plant.variety = variety; plant.sourceSites = [site]; oldLibrary.insert(plant); return plant
+        }
+        let permaLeek = oldPlant("Leek", "Musselburgh", site: "permaculture")
+        permaLeek.notes = "Transplant into deep holes"
+        let allotLeek = oldPlant("Leeks", "Musselburgh", site: "allotment")
+        allotLeek.spacingM = "0.15"; allotLeek.hardiness = "H6"; allotLeek.changedByHand = ["hardiness"]
+        permaLeek.hardiness = "H5"
+        let neptune = oldPlant("Leeks", "Blue Green Autumn Neptune", site: "allotment")
+        let daisyOne = oldPlant("Oxeye Daisy", nil, site: "permaculture")
+        let daisyTwo = oldPlant("Ox-eye Daisy", nil, site: "permaculture")
+        let ownName = oldPlant("Parsnips", "White Gem", site: "allotment"); ownName.changedByHand = ["commonName"]
+        let leekSowing = Planting(); leekSowing.plant = allotLeek; allotLeek.plantings = [leekSowing]; oldLibrary.insert(leekSowing)
+        let leekPacket = SeedPacket(); leekPacket.plant = allotLeek; allotLeek.seedPackets = [leekPacket]; oldLibrary.insert(leekPacket)
+        let leekEntry = DiaryEntry(); leekEntry.plant = allotLeek; oldLibrary.insert(leekEntry)
+        let daisySighting = WildlifeObservation(); daisySighting.associatedPlant = daisyTwo; daisySighting.associatedPlantName = "Ox-eye Daisy"; oldLibrary.insert(daisySighting)
+        let leekCrossing = PlantCross(); leekCrossing.seedParentKey = allotLeek.id.uuidString; oldLibrary.insert(leekCrossing)
+        let leekKept = KeptFact(); leekKept.plantID = allotLeek.id; oldLibrary.insert(leekKept)
+        let radishPair = CompanionPair(); radishPair.plantOneName = "Lettuce"; radishPair.plantTwoName = "Radishes"; oldLibrary.insert(radishPair)
+        let suiteForNames = UserDefaults(suiteName: "windfall-names-\(UUID().uuidString)")!
+        let tidied = PlantNames.tidyLibraryIfNeeded(in: oldLibrary, defaults: suiteForNames)
+        let afterTidy = (try? oldLibrary.fetch(FetchDescriptor<Plant>())) ?? []
+        check(tidied == PlantNames.Summary(renamed: 1, merged: 2, companionNames: 1, linkNames: 0), "the tidy renames one leek, makes two pairs of records into one and tidies a companion pair (\(String(describing: tidied)))")
+        check(afterTidy.count == 4 && afterTidy.contains { $0 === permaLeek } && !afterTidy.contains { $0 === allotLeek } && afterTidy.contains { $0 === daisyOne } && !afterTidy.contains { $0 === daisyTwo }, "the record already called by the tidy name is the one kept")
+        check(neptune.commonName == "Leek" && ownName.commonName == "Parsnips" && radishPair.plantTwoName == "Radish", "a plain rename happens, but a name chosen by hand is left as it is")
+        check(leekSowing.plant === permaLeek && leekPacket.plant === permaLeek && leekEntry.plant === permaLeek && (allotLeek.plantings ?? []).isEmpty && (allotLeek.seedPackets ?? []).isEmpty, "the sowing, the seed packet and the journal entry move to the kept leek, and nothing is left on the one deleted")
+        check(daisySighting.associatedPlant === daisyOne && daisySighting.associatedPlantName == "Oxeye Daisy" && leekCrossing.seedParentKey == permaLeek.id.uuidString && leekKept.plantID == permaLeek.id, "a sighting, a cross and a kept fact point at the kept record")
+        check(permaLeek.notes == "Transplant into deep holes" && permaLeek.spacingM == "0.15" && permaLeek.hardiness == "H6" && permaLeek.changedByHand == ["hardiness"] && Set(permaLeek.sourceSites) == ["permaculture", "allotment"], "the kept leek has both records' facts, a fact typed by hand wins, and it lists both gardens")
+        check(PlantNames.tidyLibraryIfNeeded(in: oldLibrary, defaults: suiteForNames) == nil && PlantNames.tidyLibrary(in: oldLibrary).isEmpty, "the tidy runs once, and a second run would find nothing to do")
 
         // What is typed in the app survives the spreadsheet file being loaded again, and a backup
         let leekStore = ModelContext()
