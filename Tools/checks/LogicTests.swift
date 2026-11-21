@@ -1509,6 +1509,32 @@ struct LogicTests {
             check(false, "the leek arrives from its file")
         }
 
+        // Seed packets, sheet plantings and sow-again jobs in a backup (21 November 2026)
+        let seedFile = GardenDataFile(source: "test", tables: [
+            GardenTable(name: "Allotment Garden", rows: [["Name": "Lettuce", "Variety/Cultivar": "Little Gem", "Types": "Seeds", "From": "Suttons", "Use by": "2028-01-01", "Sow outdoors": "mar apr may"]]),
+            GardenTable(name: "Permaculture Garden", rows: [["Common Name": "Apple", "Variety/Cultivar": "Bramley", "Type": "Scion", "Date Planted/Grafted": "2026-03-01"]])])
+        let seedHome = ModelContext()
+        _ = GardenDataImporter().importAll(seedFile, into: seedHome)
+        let homePacket = ((try? seedHome.fetch(FetchDescriptor<SeedPacket>())) ?? []).first
+        SeedLeft.runningLow.apply(to: homePacket!)
+        let chainJob = GardenJob(title: "Sow lettuce again · round 2"); chainJob.cropName = "Lettuce"; chainJob.afterSowingID = UUID()
+        seedHome.insert(chainJob)
+        if let seedBackup = try? BackupService().export(from: seedHome) {
+            let newDevice = ModelContext()
+            _ = GardenDataImporter().importAll(seedFile, into: newDevice)
+            try? BackupService().restore(from: seedBackup, into: newDevice)
+            let newPackets = (try? newDevice.fetch(FetchDescriptor<SeedPacket>())) ?? []
+            let newPlantings = (try? newDevice.fetch(FetchDescriptor<Planting>())) ?? []
+            let newJobs = (try? newDevice.fetch(FetchDescriptor<GardenJob>())) ?? []
+            check(newPackets.count == 1 && newPackets.first?.toBuy == true && newPlantings.count == 1, "restoring on a fresh copy makes no second packet or planting, and keeps the packet on the buy list")
+            check(newJobs.first?.cropName == "Lettuce" && newJobs.first?.afterSowingID == chainJob.afterSowingID, "a sow-again job keeps its crop through a backup")
+            let emptyDevice = ModelContext()
+            try? BackupService().restore(from: seedBackup, into: emptyDevice)
+            check(((try? emptyDevice.fetch(FetchDescriptor<SeedPacket>())) ?? []).first?.plant != nil, "a packet restored into an empty app is joined to its plant")
+        } else {
+            check(false, "a backup with seed packets can be written")
+        }
+
         check(["Bed 3", "bed 3", "3", "bed three", "Bed 3.", " BED  3 "].allSatisfy { ToolRunner.bedMatches(asked: $0, name: "Bed 3") } && !ToolRunner.bedMatches(asked: "3", name: "Bed 30") && !ToolRunner.bedMatches(asked: "Bed 2", name: "Bed 3") && !ToolRunner.bedMatches(asked: "", name: "Bed 3") && ToolRunner.bedMatches(asked: "fruit cage", name: "Fruit Cage") && !ToolRunner.bedMatches(asked: "bed", name: "Bed 3") && ToolRunner.bedMatches(asked: "Bed", name: "Bed"), "a bed is found by its number, its name in any case or a number word, and Bed 3 is not Bed 30")
         // Rules around the model: a lookup first, and the reply read before it is shown.
         let fridayInNovember = Date(timeIntervalSince1970: 1_794_571_200)

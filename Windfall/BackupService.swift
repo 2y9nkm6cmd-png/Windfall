@@ -48,6 +48,10 @@ private struct Backup: Codable {
     /// Jobs of your own, added 14 November 2026. May be missing from
     /// older files.
     var jobs: [JobDTO]?
+    /// Seed packets, added 21 November 2026, when the spreadsheet's
+    /// seed stock came in (SheetExtras.swift). May be missing from
+    /// older files.
+    var seedPackets: [SeedPacketDTO]?
 }
 
 private struct BedDTO: Codable {
@@ -123,6 +127,16 @@ private struct CrossDTO: Codable {
 private struct JobDTO: Codable {
     var id: UUID, created: Date, title: String
     var from: Date?, by: Date?, site: String?, done: Date?, said: String?
+    // A "Sow again" job's crop and the sowing it follows
+    // (SowAgain.swift). Missing from files made before 21 November 2026.
+    var crop: String?, afterSowing: UUID?
+}
+
+private struct SeedPacketDTO: Codable {
+    var id: UUID, plantID: UUID?
+    var variety: String?, supplier: String?, year: Int?, useBy: Date?, acquired: Date?
+    var remaining: Int?, kept: String?, homeSaved: Bool, toBuy: Bool, notes: String?
+    var testDate: Date?, testSown: Int?, testGerminated: Int?
 }
 
 private struct HarvestDTO: Codable {
@@ -242,7 +256,17 @@ final class BackupService {
 
         backup.jobs = (try context.fetch(FetchDescriptor<GardenJob>())).map { job in
             JobDTO(id: job.id, created: job.createdAt, title: job.title,
-                   from: job.dueFrom, by: job.dueBy, site: job.siteKey, done: job.doneAt, said: job.saidAs)
+                   from: job.dueFrom, by: job.dueBy, site: job.siteKey, done: job.doneAt, said: job.saidAs,
+                   crop: job.cropName, afterSowing: job.afterSowingID)
+        }
+
+        backup.seedPackets = (try context.fetch(FetchDescriptor<SeedPacket>())).map { packet in
+            SeedPacketDTO(id: packet.id, plantID: packet.plant?.id, variety: packet.variety,
+                          supplier: packet.supplier, year: packet.packetYear, useBy: packet.useByDate,
+                          acquired: packet.dateAcquired, remaining: packet.quantityRemaining,
+                          kept: packet.storageLocation, homeSaved: packet.isHomeSaved, toBuy: packet.toBuy,
+                          notes: packet.notes, testDate: packet.testDate, testSown: packet.testSeedsSown,
+                          testGerminated: packet.testSeedsGerminated)
         }
 
         backup.crosses = (try context.fetch(FetchDescriptor<PlantCross>())).map { crossing in
@@ -313,6 +337,7 @@ final class BackupService {
         let counts = [
             "\(backup.plants.count) plants",
             "\(backup.plantings.count) sowings",
+            "\(backup.seedPackets?.count ?? 0) seed packets",
             "\(backup.harvests.count) harvests",
             "\(backup.surveys.count) surveys",
             "\(backup.observations.count) sightings"
@@ -507,6 +532,8 @@ final class BackupService {
             job.siteKey = dto.site
             job.doneAt = dto.done
             job.saidAs = dto.said
+            job.cropName = dto.crop
+            job.afterSowingID = dto.afterSowing
             context.insert(job)
             restored += 1
         }
@@ -540,7 +567,22 @@ final class BackupService {
             plantingsByID[planting.id] = planting
         }
 
+        // A planting made from the spreadsheet's dates (SheetExtras.swift)
+        // is made afresh by every copy of the app, with an id of its own.
+        // One the backup has for a plant and day already here is the
+        // same planting, so no second copy is made.
+        var sheetDays = Set<String>()
+        for planting in plantingsByID.values where (planting.notes ?? "").hasPrefix(SheetExtras.plantingNote) {
+            if let plant = planting.plant, let day = planting.dateSown {
+                sheetDays.insert(plant.id.uuidString + "|" + day.formatted(.iso8601.year().month().day()))
+            }
+        }
+
         for dto in backup.plantings where !existingPlantings.contains(dto.id) {
+            if (dto.notes ?? "").hasPrefix(SheetExtras.plantingNote), let plant = dto.plantID.flatMap({ plantsByID[$0] }),
+               let day = dto.sown, sheetDays.contains(plant.id.uuidString + "|" + day.formatted(.iso8601.year().month().day())) {
+                continue
+            }
             let planting = Planting()
             planting.id = dto.id
             planting.plant = dto.plantID.flatMap { plantsByID[$0] }
@@ -560,6 +602,56 @@ final class BackupService {
             planting.crossKey = dto.crossKey
             context.insert(planting)
             plantingsByID[dto.id] = planting
+            restored += 1
+        }
+
+        // Seed packets. Matched by id, and then by plant, variety and
+        // supplier, because a fresh copy of the app makes the
+        // spreadsheet's packets afresh with ids of their own.
+        var packetIDs = Set<UUID>()
+        var packetsByKey: [String: SeedPacket] = [:]
+        for packet in try context.fetch(FetchDescriptor<SeedPacket>()) {
+            packetIDs.insert(packet.id)
+            packetsByKey[SeedStock.matchKey(plantID: packet.plant?.id, variety: packet.variety, supplier: packet.supplier)] = packet
+        }
+        for dto in backup.seedPackets ?? [] where !packetIDs.contains(dto.id) {
+            let plant = dto.plantID.flatMap { plantsByID[$0] }
+            let key = SeedStock.matchKey(plantID: plant?.id, variety: dto.variety, supplier: dto.supplier)
+            if let twin = packetsByKey[key] {
+                // The same packet, made afresh from the spreadsheet by
+                // this copy of the app. What was recorded on it in the
+                // app (seed left, the buy list, a test) is carried over;
+                // a packet already worked on here is left alone.
+                if (twin.notes ?? "").hasPrefix(SheetExtras.plantingNote), twin.testDate == nil {
+                    twin.quantityRemaining = dto.remaining
+                    twin.toBuy = dto.toBuy
+                    twin.storageLocation = dto.kept ?? twin.storageLocation
+                    twin.testDate = dto.testDate
+                    twin.testSeedsSown = dto.testSown
+                    twin.testSeedsGerminated = dto.testGerminated
+                    if let notes = dto.notes { twin.notes = notes }
+                    restored += 1
+                }
+                continue
+            }
+            let packet = SeedPacket()
+            packet.id = dto.id
+            packet.plant = plant
+            packet.variety = dto.variety
+            packet.supplier = dto.supplier
+            packet.packetYear = dto.year
+            packet.useByDate = dto.useBy
+            packet.dateAcquired = dto.acquired
+            packet.quantityRemaining = dto.remaining
+            packet.storageLocation = dto.kept
+            packet.isHomeSaved = dto.homeSaved
+            packet.toBuy = dto.toBuy
+            packet.notes = dto.notes
+            packet.testDate = dto.testDate
+            packet.testSeedsSown = dto.testSown
+            packet.testSeedsGerminated = dto.testGerminated
+            context.insert(packet)
+            packetsByKey[key] = packet
             restored += 1
         }
 
