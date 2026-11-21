@@ -135,7 +135,7 @@ enum PlantingGuide {
     /// Eira's reading with anything she could not have got from the
     /// notes taken out: a line whose figures are not all in the notes,
     /// or which names a month the notes never name. Spaces are tidied,
-    /// over-long lines cut at a word, and at most three tips kept.
+    /// lines over 240 letters cut at a word, and at most three tips kept.
     static func checked(_ notesGuide: GuideFromNotes, notes: String) -> GuideFromNotes {
         let noteFigures = Set(figures(in: notes))
         let noteMonths = Set(MonthParser.months(in: notes))
@@ -150,7 +150,7 @@ enum PlantingGuide {
             }
             guard figures(in: tidy).allSatisfy(noteFigures.contains) else { return "" }
             guard Set(MonthParser.months(in: tidy)).isSubset(of: noteMonths) else { return "" }
-            return shortened(tidy, to: 200)
+            return shortened(tidy, to: 240)
         }
 
         var guideKept = GuideFromNotes()
@@ -228,6 +228,16 @@ enum PlantingGuide {
         guard let data = try? JSONEncoder().encode(safe) else { return }
         plant.plantingGuideReading = String(data: data, encoding: .utf8)
         plant.plantingGuideNotesKey = notesKey(plant.notes)
+    }
+
+    /// The notes as they are handed to the model: a straight double
+    /// quote becomes ″, the sign for inches. Packets write inches as
+    /// 2", and the model writes its answer as JSON, where " ends a piece
+    /// of text: tried on the Mac (21 November 2026), Achillea's 5cm (2")
+    /// cut its answer off and broke it. The figures are unchanged, so
+    /// the check against the notes still matches.
+    static func forModel(_ notes: String) -> String {
+        notes.replacingOccurrences(of: "\"", with: "\u{2033}")
     }
 
     // MARK: - Pieces

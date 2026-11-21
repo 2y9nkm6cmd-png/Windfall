@@ -35,10 +35,26 @@ enum PlantingGuideMaker {
         // The notes as they were when asked. If they are changed while
         // Eira reads, her answer is for the old notes and is not kept.
         let asked = PlantingGuide.notesKey(notes)
-        guard let found = await ask(notes: notes, plantName: plant.displayName) else { return }
-        guard PlantingGuide.notesKey(plant.notes) == asked else { return }
+        // One reading at a time for each plant's notes, so opening the
+        // page again while she reads does not ask twice.
+        let job = "\(plant.id.uuidString)|\(asked)"
+        guard !underWay.contains(job) else { return }
+        underWay.insert(job)
+        let name = plant.displayName
+        // Asked in a task of its own, not the page's. SwiftUI cancels the
+        // page's `.task` as soon as the page closes, and a reading that
+        // is slow (Apple's model shares the Mac's graphics chip with any
+        // training) would then never finish. This one carries on, and
+        // the answer is kept on the plant for next time.
+        let found = await Task { await ask(notes: notes, plantName: name) }.value
+        underWay.remove(job)
+        guard let found, PlantingGuide.notesKey(plant.notes) == asked else { return }
         PlantingGuide.keep(found, on: plant)
     }
+
+    /// The readings under way: each plant's identifier and the
+    /// fingerprint of the notes being read.
+    private static var underWay: Set<String> = []
 
     /// Apple's model's answer, or nil when it cannot be asked.
     private static func ask(notes: String, plantName: String) async -> PlantingGuide.GuideFromNotes? {
@@ -52,16 +68,24 @@ enum PlantingGuideMaker {
                 You read a gardener's notes about one plant, mostly copied from seed packets, \
                 and pick out what they say about sowing and planting it. Use only the notes. \
                 Copy figures, units and months exactly as the notes write them. Keep each answer \
-                short: one or two plain sentences. Leave an answer empty when the notes do not \
+                short: at most 25 words, in your own plain words but with the figures exactly as \
+                written. Leave an answer empty when the notes do not \
                 say. Never add anything from your own knowledge.
                 """)
             do {
                 // `generating:` makes the model fill in the fields of
                 // `PlantingGuideReply` below, so there is nothing to
                 // pick out of free text.
-                let reply = try await guideSession.respond(generating: PlantingGuideReply.self) {
+                //
+                // `maximumResponseTokens` stops an answer that runs on.
+                // Tried on the Mac (21 November 2026): with no limit, one
+                // reading of Achillea's notes wrote for four minutes until
+                // it filled the model's whole memory and failed.
+                let reply = try await guideSession.respond(
+                    generating: PlantingGuideReply.self,
+                    options: GenerationOptions(maximumResponseTokens: 600)) {
                     "The plant: \(plantName)"
-                    "Its notes:\n\(notes)"
+                    "Its notes:\n\(PlantingGuide.forModel(notes))"
                 }
                 let content = reply.content
                 return PlantingGuide.GuideFromNotes(howToSow: content.howToSow,
@@ -95,7 +119,7 @@ struct PlantingGuideReply {
     var germination: String
     @Guide(description: "When and how to transplant, harden off or plant out. Empty if the notes do not say.")
     var plantingOut: String
-    @Guide(description: "Up to three short tips from the notes about growing it well, such as watering, protecting or thinning. Empty if none.")
+    @Guide(description: "Up to three short tips from the notes about growing it well, such as watering, protecting or thinning. Empty if none.", .maximumCount(3))
     var tips: [String]
 }
 #endif

@@ -7,6 +7,7 @@
 - **The rules** (`PlantingGuide.swift`, new, in the logic files): the record wins over Eira; a line of hers is thrown away if it holds a figure not in the notes or names a month the notes never name; "not mentioned" and the like count as nothing; lines cut at 200 letters; three tips at most.
 - **Asked once per plant** (`PlantingGuideMaker.swift`, new): Apple's model on the device, with a `@Generable` reply, the first time a page with notes opens. The answer is kept on the plant (`plantingGuideReading`, `plantingGuideNotesKey`: two new optional properties, so the database needs no conversion) with a fingerprint of the notes; changing the notes reads them again. Not in backups: it is made again from the notes.
 - **Save** on every sheet is now `MainGlassButton` (`SheetParts.swift`): the same size and capsule as Cancel, filled green, greyed when it cannot be pressed. It was Apple's `.glassProminent`, smaller and a different shape.
+- **Tried on the Mac with Apple's model:** with no limit, a reading ran on for four minutes and failed at the model's 8,192-token limit; an inch mark (2") in the notes broke its JSON answer. Now: `maximumResponseTokens: 600`, `.maximumCount(3)` on tips, 25 words an answer, and " becomes ″ before the notes are sent (`PlantingGuide.forModel`). Achillea read in 6 seconds and Carrot in 4½, with Lane C's training running. The reading runs in a task of its own, so leaving the page does not stop it.
 - 9 new checks, 1,129 pass.
 
 # 21 November 2026, 20:20: a plant's notes open from a button under Edit
