@@ -1,3 +1,14 @@
+# 21 November 2026, 21:00: "How to grow" at the top of every plant's page, and Save the same shape as Cancel
+
+**By the notes chat, linked to the Mac** (knowledge base doc 150). Branch `planting-guide`, from `main` at `97b78e3`.
+
+- **Why:** William, 20:41: his partner "wants to be able to see the notes for planting the plant front and centre", with Eira drawing a planting guide out of the notes at the very top of the page, keeping the full note and editing. He chose Eira reading the notes beside the record's facts, built tonight.
+- **The card** (`PlantingGuideCard.swift`, new): "How to grow", the first thing under the name, the full width of the page. The record's facts first (sow indoors and outdoors as month runs, depth, germination, spacing, temperature, plant out, sow to crop, harvest), then Eira's lines from the notes (how to sow, planting out, and depth, spacing or germination where the record has none) and up to three tips, each marked with a sparkle. **Full notes** opens the notes sheet.
+- **The rules** (`PlantingGuide.swift`, new, in the logic files): the record wins over Eira; a line of hers is thrown away if it holds a figure not in the notes or names a month the notes never name; "not mentioned" and the like count as nothing; lines cut at 200 letters; three tips at most.
+- **Asked once per plant** (`PlantingGuideMaker.swift`, new): Apple's model on the device, with a `@Generable` reply, the first time a page with notes opens. The answer is kept on the plant (`plantingGuideReading`, `plantingGuideNotesKey`: two new optional properties, so the database needs no conversion) with a fingerprint of the notes; changing the notes reads them again. Not in backups: it is made again from the notes.
+- **Save** on every sheet is now `MainGlassButton` (`SheetParts.swift`): the same size and capsule as Cancel, filled green, greyed when it cannot be pressed. It was Apple's `.glassProminent`, smaller and a different shape.
+- 9 new checks, 1,129 pass.
+
 # 21 November 2026, 20:20: a plant's notes open from a button under Edit
 
 **By a cloud chat from William's phone, not linked to the Mac** (knowledge base docs 149 and 150). Branch `plant-notes-button`, from `main` at `49ae864`. **Not built in Xcode:** checked with `Tools/checks/run-checks.sh` only (Swift 6.2 on Linux).

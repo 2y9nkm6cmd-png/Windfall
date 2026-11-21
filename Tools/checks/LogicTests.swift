@@ -729,6 +729,26 @@ struct LogicTests {
         let notesSaved = Plant(commonName: "Chives"); notesSaved.notes = "8mm planting depth."
         check(PlantFacts.write("8mm planting depth.\n\n21 Nov 2026: divide in spring", forKey: "notes", to: notesSaved) && notesSaved.notes == "8mm planting depth.\n\n21 Nov 2026: divide in spring" && notesSaved.changedByHand == ["notes"], "saved notes are marked as changed by hand, so loading the spreadsheet again keeps them")
 
+        // The planting guide at the top of a plant's page (21 November 2026, doc 150)
+        let guideNotes = "SOWING AND GROWING\nSow thinly in trays from January to March, 1.5cm deep. Germination 14-21 days at 18-21°C. Transplant seedlings 5cm apart into pots and plant out 30cm apart in May. Keep moist."
+        let guideBean = Plant(commonName: "Achillea"); guideBean.notes = guideNotes
+        guideBean.sowIndoorsMonthsText = "jan feb mar"; guideBean.spacingM = "0.35"; guideBean.germinationDaysText = "5-10 days"; guideBean.plantOutMonthsText = "nov dec"
+        check(PlantingGuide.monthWords("jan feb mar") == "Jan to Mar" && PlantingGuide.monthWords("feb mar apr sep") == "Feb to Apr, Sep" && PlantingGuide.monthWords("jan nov dec") == "Nov to Jan" && PlantingGuide.monthWords("Spring") == "" && PlantingGuide.monthWords("may") == "May", "months are written as runs, a run over the new year stays one, and words that are not months are left out")
+        check(PlantingGuide.figures(in: "1.5cm deep, 15-20°C, 1/2 inch, 30 cm") == ["1.5", "15", "20", "1", "2", "30"] && PlantingGuide.figures(in: "no figures") == [] && PlantingGuide.figures(in: "Sow 1,5 cm.") == ["1.5"], "figures are picked out as written, with decimal points kept")
+        let guideAsked = PlantingGuide.GuideFromNotes(howToSow: "Sow thinly in trays, January to March.", depth: "1.5cm", spacing: "30cm apart", germination: "Not mentioned", plantingOut: "Plant out 45cm apart in June.", tips: ["Keep moist.", "Keep moist.", "Feed weekly with 2g of tomato food.", "Protect from slugs.", "Water well."])
+        let guideChecked = PlantingGuide.checked(guideAsked, notes: guideNotes)
+        check(guideChecked.howToSow == "Sow thinly in trays, January to March." && guideChecked.depth == "1.5cm" && guideChecked.spacing == "30cm apart" && guideChecked.germination == "" && guideChecked.plantingOut == "" && guideChecked.tips == ["Keep moist.", "Protect from slugs.", "Water well."], "a line from Eira is kept only if its figures and months are all in the notes; 'not mentioned' counts as nothing, a repeated tip is dropped and at most three tips are kept")
+        let guideLong = PlantingGuide.checked(PlantingGuide.GuideFromNotes(howToSow: String(repeating: "Sow thinly ", count: 40)), notes: guideNotes)
+        check(guideLong.howToSow.count <= 201 && guideLong.howToSow.hasSuffix("…"), "an over-long line is cut at a word")
+        let guideMade = PlantingGuide.guide(for: guideBean, reading: guideChecked)
+        check(guideMade.lines.map(\.label) == ["Sow indoors", "How to sow", "Sowing depth", "Germination", "Spacing", "Plant out"] && guideMade.lines.first { $0.label == "Germination" }?.text == "5–10 days" && guideMade.lines.first { $0.label == "Spacing" }?.fromNotes == false && guideMade.lines.first { $0.label == "Sowing depth" }?.fromNotes == true && guideMade.lines.first { $0.label == "Plant out" }?.text == "Nov to Dec" && guideMade.hasEiraLines, "the record's facts come first and win; Eira fills only the gaps, marked as hers, in a gardener's order")
+        check(PlantingGuide.guide(for: Plant(commonName: "Aster"), reading: nil).isEmpty && !PlantingGuide.guide(for: guideBean, reading: nil).hasEiraLines, "a plant with no sowing facts and no reading has an empty guide, and without a reading nothing is marked as Eira's")
+        check(PlantingGuide.needsReading(guideBean) && PlantingGuide.stored(on: guideBean) == nil && !PlantingGuide.needsReading(Plant(commonName: "Aster")), "a plant with notes and no reading needs reading; one with no notes does not")
+        PlantingGuide.keep(guideAsked, on: guideBean)
+        check(!PlantingGuide.needsReading(guideBean) && PlantingGuide.stored(on: guideBean) == guideChecked && PlantingGuide.notesKey(" \(guideNotes)\n") == PlantingGuide.notesKey(guideNotes) && PlantingGuide.notesKey(guideNotes).hasPrefix("v\(PlantingGuide.readingVersion)-"), "a kept reading is checked first and stays until the notes change; spaces at the ends do not count")
+        guideBean.notes = guideNotes + " Thin to 10cm."
+        check(PlantingGuide.needsReading(guideBean) && PlantingGuide.stored(on: guideBean) == nil, "changing the notes asks Eira to read them again, and the old reading is no longer shown")
+
         // A plant's sowings and plantings, as its page lists them.
         let herbBed = Bed(name: "Herb bed"); herbBed.addSections(count: 2)
         let pageAchillea = Plant(commonName: "Achillea")
@@ -760,7 +780,7 @@ struct LogicTests {
         check(achilleaLines.map(\.status) == ["Growing", "Growing", "Finished", "Growing"] && PlantingStatus.allCases.allSatisfy { !PlantPage.statusWords($0).isEmpty } && PlantPage.statusWords(.germinated) == "Up" && PlantPage.plantingLines(for: Plant(commonName: "Aster")).isEmpty, "each line gives the stage in a word or two, and a plant never sown has no lines")
 
         // The one list of a plant's facts
-        let notFacts: Set<String> = ["id", "statusRaw", "sourceSites", "sourceSheet", "sourceRow", "lastSyncedAt", "plantings", "seedPackets", "changedByHand", "importedAs"]
+        let notFacts: Set<String> = ["id", "statusRaw", "sourceSites", "sourceSheet", "sourceRow", "lastSyncedAt", "plantings", "seedPackets", "changedByHand", "importedAs", "plantingGuideReading", "plantingGuideNotesKey"]
         let storedInAPlant = Mirror(reflecting: Plant(commonName: "x")).children.compactMap(\.label)
         check(storedInAPlant.count > 60 && storedInAPlant.filter { !notFacts.contains($0) }.allSatisfy { PlantFacts.named($0) != nil } && PlantFacts.all.allSatisfy { storedInAPlant.contains($0.key) }, "every fact a plant's record holds is in the list of facts, and the list names nothing the record lacks (missing: \(storedInAPlant.filter { !notFacts.contains($0) && PlantFacts.named($0) == nil }))")
         check(Set(PlantFacts.all.map(\.key)).count == PlantFacts.all.count && Set(PlantFacts.all.map { $0.group.rawValue + $0.label }).count == PlantFacts.all.count && PlantFacts.Group.allCases.allSatisfy { !PlantFacts.fields(in: $0).isEmpty } && PlantFacts.named("spacingM")?.label == "Spacing" && PlantFacts.named("nonsense") == nil && PlantFacts.Group.cards.count == 8 && PlantFacts.all.count == 66, "each of the 66 facts has a key of its own and a label of its own on its card, and every card has facts (\(PlantFacts.all.count) facts)")

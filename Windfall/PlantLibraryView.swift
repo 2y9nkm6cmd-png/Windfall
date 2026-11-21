@@ -510,6 +510,12 @@ struct PlantDetailView: View {
                 VStack(alignment: .leading, spacing: 16) {
                     header
 
+                    // "How to grow", the planting guide, before anything
+                    // else and the full width of the page (21 November
+                    // 2026: the notes for planting "front and centre").
+                    // See PlantingGuideCard.swift.
+                    PlantingGuideCard(plant: plant) { isShowingNotes = true }
+
                     // The sowings and plantings card comes first: at the
                     // top of the right-hand column when there are two,
                     // and straight under the name when there is one. It

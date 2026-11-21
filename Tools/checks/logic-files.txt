@@ -3,6 +3,7 @@ YearCalendar.swift
 PlantFilter.swift
 PlantFacts.swift
 PlantPage.swift
+PlantingGuide.swift
 TodayLayout.swift
 OSGridReference.swift
 GardenStructure.swift

@@ -177,9 +177,12 @@ struct SheetPage<Content: View>: View {
             }
             if let confirmTitle {
                 Button(confirmTitle) { onConfirm() }
-                    .buttonStyle(.glassProminent)
-                    .tint(Theme.leaf)
-                    .foregroundStyle(Theme.onLeaf)
+                    // The same size and shape as Cancel beside it, filled
+                    // green. Apple's `.glassProminent` made Save a smaller
+                    // button of a different shape (William, 21 November
+                    // 2026: "the save button is a different shape to the
+                    // other buttons").
+                    .buttonStyle(MainGlassButton())
                     .disabled(!canConfirm)
                     // The Return key on a Mac presses this.
                     .keyboardShortcut(.defaultAction)
@@ -217,6 +220,29 @@ struct QuietGlassButton: ButtonStyle {
             // it sits on is. See `CardGlass` in Theme.swift.
             .cardGlass(Theme.card.opacity(0.5), in: .capsule, interactive: true)
             .opacity(configuration.isPressed ? 0.7 : 1)
+    }
+}
+
+/// The main button of a sheet (Save, Done): the same size and capsule
+/// as `QuietGlassButton`, so the two sit side by side as a pair, but
+/// filled with the app's green. Greyed out while it cannot be pressed.
+struct MainGlassButton: ButtonStyle {
+
+    /// False while the button is switched off with `.disabled(true)`.
+    /// A button style can read this from SwiftUI's environment.
+    @Environment(\.isEnabled) private var isEnabled
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.body.weight(.semibold))
+            .foregroundStyle(Theme.onLeaf)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 7)
+            .contentShape(.capsule)
+            // Through `cardGlass`, like Cancel, so it is painted flat
+            // when the card it sits on is. See `CardGlass` in Theme.swift.
+            .cardGlass(Theme.leaf, in: .capsule, interactive: true)
+            .opacity(isEnabled ? (configuration.isPressed ? 0.75 : 1) : 0.4)
     }
 }
 

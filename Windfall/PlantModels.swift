@@ -135,6 +135,20 @@ final class Plant {
     /// second time under its old name.
     var importedAs: String?
 
+    // The planting guide at the top of the plant's page (21 November
+    // 2026). See PlantingGuide.swift. Both may be empty, so a database
+    // made before them still opens with no conversion.
+
+    /// What Eira read out of the notes about sowing and planting, kept
+    /// as text (JSON) so the model is asked once, not every time the
+    /// page opens. Not a fact of the plant: it is worked out from the
+    /// notes, and made again whenever they change.
+    var plantingGuideReading: String?
+    /// Which notes it was read from: a short fingerprint of their
+    /// words. When the notes change the fingerprint no longer matches,
+    /// and Eira reads them again.
+    var plantingGuideNotesKey: String?
+
     @Relationship(deleteRule: .cascade, inverse: \Planting.plant)
     var plantings: [Planting]? = []
 
