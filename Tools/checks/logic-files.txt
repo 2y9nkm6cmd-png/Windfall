@@ -64,3 +64,6 @@ RecordWarnings.swift
 PacketTranslation.swift
 FormDraft.swift
 PlantNames.swift
+SeedStock.swift
+SowAgain.swift
+SheetExtras.swift

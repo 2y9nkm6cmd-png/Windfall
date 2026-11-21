@@ -84,6 +84,12 @@ final class Plant {
     var sowingDepthMM: String?
     var sowingTemperatureC: String?
     var sowingPreference: String?
+    /// How long after one sowing to sow the crop again, for a crop
+    /// that is cut and sown again all season: "3 weeks", "10 days".
+    /// Empty for most plants. Read by "Sow again" (SowAgain.swift).
+    /// Typed on the plant's page, or filled from the spreadsheet's
+    /// "Next sowing days" column. Added 21 November 2026.
+    var sowAgainEvery: String?
     var needsPropagator: Bool = false
     var rootstock: String?
     var propagation: String?
@@ -94,6 +100,9 @@ final class Plant {
     var hardiness: String?
     var soilPH: String?
     var preferredSoilConditions: String?
+    /// How wet or dry it likes the soil: "Moist but well-drained".
+    /// The spreadsheet's Moisture column. Added 21 November 2026.
+    var moisture: String?
     var knownPests: String?          // what it *might* get
     var knownDiseases: String?
 
@@ -591,6 +600,14 @@ final class SeedPacket {
     var storageLocation: String?
     var isHomeSaved: Bool = false
     var notes: String?
+
+    /// On the Seeds to buy list: running low, or used up. Set by the
+    /// "Seed left in the packet?" question after a sowing, or on the
+    /// packet's page, and cleared by ticking it as bought. False, not
+    /// optional, because a packet is either on the list or not, and
+    /// iCloud sync is happy with a starting value. Added 21 November
+    /// 2026. See SeedStock.swift.
+    var toBuy: Bool = false
 
     // Germination test
     var testDate: Date?

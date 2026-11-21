@@ -75,11 +75,25 @@ final class GardenJob {
     /// a job the reader got wrong can be traced back to the words.
     var saidAs: String?
 
+    /// For a "Sow again" job (SowAgain.swift): the crop it is for, by
+    /// its tidy name, such as "Lettuce". Every variety of the crop
+    /// shares one chain of sowings. Empty for any other job.
+    /// Added 21 November 2026.
+    var cropName: String?
+
+    /// For a "Sow again" job: the sowing it follows, by that sowing's
+    /// id. Kept as an id, not a link, so deleting the sowing leaves the
+    /// job alone. Added 21 November 2026.
+    var afterSowingID: UUID?
+
     init(title: String = "") {
         self.title = title
     }
 
     var isDone: Bool { doneAt != nil }
+
+    /// True for a job that offers the next sowing of a crop.
+    var isSowAgain: Bool { !(cropName ?? "").isEmpty }
 }
 
 // MARK: - What the reader is told and hands back

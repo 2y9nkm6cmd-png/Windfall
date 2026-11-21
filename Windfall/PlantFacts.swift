@@ -181,6 +181,8 @@ enum PlantFacts {
         words("sowingDepthMM", "Sowing depth", .sowing, \.sowingDepthMM, .measure("mm"), hint: "10"),
         words("sowingTemperatureC", "Sowing temperature", .sowing, \.sowingTemperatureC, .measure("°C"), hint: "18-20"),
         words("sowingPreference", "Sowing preference", .sowing, \.sowingPreference, hint: "Indoors or outdoors"),
+        // Added 21 November 2026, for "Sow again" (SowAgain.swift).
+        words("sowAgainEvery", "Sow again every", .sowing, \.sowAgainEvery, .duration, hint: "3 weeks"),
         yesNo("needsPropagator", "Needs a propagator", .sowing, \.needsPropagator),
         words("rootstock", "Rootstock", .sowing, \.rootstock, hint: "MM106"),
         words("propagation", "Propagation", .sowing, \.propagation, hint: "Seed, cuttings, division"),
@@ -191,7 +193,9 @@ enum PlantFacts {
         words("hardiness", "Hardiness", .constraints, \.hardiness, hint: "H6"),
         words("soilPH", "Soil pH", .constraints, \.soilPH, hint: "Acid, Neutral"),
         words("preferredSoilConditions", "Soil conditions", .constraints, \.preferredSoilConditions, .longText,
-              hint: "Moist but well-drained"),
+              hint: "Loamy, fertile"),
+        // Added 21 November 2026: the spreadsheet's Moisture column.
+        words("moisture", "Moisture", .constraints, \.moisture, hint: "Moist but well-drained"),
         words("knownPests", "Pests", .constraints, \.knownPests, .longText, hint: "slugs; aphids"),
         words("knownDiseases", "Diseases", .constraints, \.knownDiseases, .longText),
 

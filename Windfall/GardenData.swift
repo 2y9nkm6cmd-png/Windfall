@@ -347,6 +347,10 @@ final class GardenDataImporter {
         var flowerShapes = 0
         var cascades = 0
         var companionPairs = 0
+        /// Seed packets and plantings made from the plant sheets' own
+        /// columns (SheetExtras.swift, 21 November 2026).
+        var seedPackets = 0
+        var plantings = 0
         var tablesRead = 0
 
         var description: String {
@@ -362,6 +366,8 @@ final class GardenDataImporter {
             if flowerShapes > 0 { parts.append("\(flowerShapes) flower shapes") }
             if cascades > 0 { parts.append("\(cascades) cascades") }
             if companionPairs > 0 { parts.append("\(companionPairs) companion pairs") }
+            if seedPackets > 0 { parts.append(seedPackets == 1 ? "1 seed packet" : "\(seedPackets) seed packets") }
+            if plantings > 0 { parts.append(plantings == 1 ? "1 planting" : "\(plantings) plantings") }
             return parts.isEmpty ? "Nothing to import." : parts.joined(separator: ", ") + "."
         }
     }
@@ -419,6 +425,12 @@ final class GardenDataImporter {
             // Join every link to its plant and its animal by name. Done
             // last, because either side may just have been replaced.
             try relink(in: context)
+            // The columns that make seed packets and plantings, the
+            // garden area, moisture and the gap for sowing again. After
+            // the plants, so there are plants to hang them on.
+            let extras = SheetExtras.apply(file, in: context)
+            summary.seedPackets = extras.seedPackets
+            summary.plantings = extras.plantings
             try context.save()
             message = summary.description
 

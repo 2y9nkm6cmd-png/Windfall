@@ -763,7 +763,7 @@ struct LogicTests {
         let notFacts: Set<String> = ["id", "statusRaw", "sourceSites", "sourceSheet", "sourceRow", "lastSyncedAt", "plantings", "seedPackets", "changedByHand", "importedAs"]
         let storedInAPlant = Mirror(reflecting: Plant(commonName: "x")).children.compactMap(\.label)
         check(storedInAPlant.count > 60 && storedInAPlant.filter { !notFacts.contains($0) }.allSatisfy { PlantFacts.named($0) != nil } && PlantFacts.all.allSatisfy { storedInAPlant.contains($0.key) }, "every fact a plant's record holds is in the list of facts, and the list names nothing the record lacks (missing: \(storedInAPlant.filter { !notFacts.contains($0) && PlantFacts.named($0) == nil }))")
-        check(Set(PlantFacts.all.map(\.key)).count == PlantFacts.all.count && Set(PlantFacts.all.map { $0.group.rawValue + $0.label }).count == PlantFacts.all.count && PlantFacts.Group.allCases.allSatisfy { !PlantFacts.fields(in: $0).isEmpty } && PlantFacts.named("spacingM")?.label == "Spacing" && PlantFacts.named("nonsense") == nil && PlantFacts.Group.cards.count == 8 && PlantFacts.all.count == 66, "each of the 66 facts has a key of its own and a label of its own on its card, and every card has facts (\(PlantFacts.all.count) facts)")
+        check(Set(PlantFacts.all.map(\.key)).count == PlantFacts.all.count && Set(PlantFacts.all.map { $0.group.rawValue + $0.label }).count == PlantFacts.all.count && PlantFacts.Group.allCases.allSatisfy { !PlantFacts.fields(in: $0).isEmpty } && PlantFacts.named("spacingM")?.label == "Spacing" && PlantFacts.named("nonsense") == nil && PlantFacts.Group.cards.count == 8 && PlantFacts.all.count == 68, "each of the 68 facts (moisture and the gap for sowing again added 21 November 2026) has a key of its own and a label of its own on its card, and every card has facts (\(PlantFacts.all.count) facts)")
 
         let editLeek = Plant(commonName: "Leek"); editLeek.variety = "Musselburgh"; editLeek.spacingM = "0.15"; editLeek.sowIndoorsMonthsText = "February, March"; editLeek.isPollinator = true; editLeek.sourceSheet = "Allotment Garden"
         var leekTyped = PlantFacts.values(of: editLeek)
@@ -1197,11 +1197,42 @@ struct LogicTests {
             let shippedDrawings = (try? Data(contentsOf: drawingsFile)).flatMap { try? PlantDrawings.decode($0) }
             check(shippedDrawings?.kind(forPlantNamed: "Rocket")?.slug == "rocket-salad" && ["Leek", "Parsnip", "French bean", "Oxeye Daisy"].allSatisfy { shippedDrawings?.kind(forPlantNamed: $0) != nil }, "every tidy name still finds its drawing")
 
+            // The spreadsheet's seed, planting, area and moisture columns (SheetExtras.swift, docs 152 and 153)
+            let packets = (try? store.fetch(FetchDescriptor<SeedPacket>())) ?? []
+            let sheetPlantings = (try? store.fetch(FetchDescriptor<Planting>())) ?? []
+            check(first.seedPackets == 146 && packets.count == 146, "every row of seed or sets with a supplier, a date or a box becomes one packet; the two rows of homegrown coriander are one, as are Carrots 'Rainbow Mix' and 'Rainbow mix' (\(packets.count))")
+            check(packets.filter { $0.quantityRemaining == 0 && $0.toBuy }.count == 12 && SeedStock.toBuy(packets).count == 12, "the twelve marked n are used up and on the buy list")
+            let saved = packets.filter(\.isHomeSaved)
+            check(saved.count >= 20 && saved.allSatisfy { SeedStock.isSavedSeed(from: $0.supplier) } && !saved.contains { ($0.supplier ?? "").contains("Swap") }, "homegrown and collected seed is marked saved, a seed swap is not (\(saved.count))")
+            check(packets.allSatisfy { $0.plant != nil } && packets.contains { $0.storageLocation == "Large tray - middle" } && packets.contains { $0.useByDate != nil && $0.packetYear == nil }, "each packet is joined to its plant and keeps its box and sow-by date")
+            check(packets.contains { $0.plant?.commonName == "Mangetout" && $0.variety == "Golden Sweet" && $0.isHomeSaved && $0.packetYear == 2025 }, "Mangetout 'Golden Sweet' saved in 2025 is a packet of its own")
+            check(first.plantings == 52 && sheetPlantings.count == 52 && sheetPlantings.allSatisfy { $0.status == .growing && $0.dateSown != nil && ($0.notes ?? "").hasPrefix(SheetExtras.plantingNote) }, "each date planted or grafted is a growing planting on that day (\(sheetPlantings.count))")
+            check(sheetPlantings.filter { $0.startedFrom == .plant }.count == 45 && sheetPlantings.filter { ($0.notes ?? "").contains("grafted") }.count == 16, "plants and scions are planted, scions marked grafted, seeds sown")
+            check(plants.filter { $0.moisture != nil }.count == 7 && plants.contains { $0.commonName == "Viola" && $0.moisture == "Moist but well-drained" }, "the Moisture column has a box of its own")
+            check(plants.contains { $0.commonName == "Mangetout" && $0.variety == "Shiraz" && $0.sowAgainEvery == "10 days" } && plants.filter { $0.sowAgainEvery != nil }.count == 4, "the sheet's next sowing days become the gap for sowing again")
+            let areaNotes = plants.filter { ($0.notes ?? "").hasPrefix("Garden area: ") }
+            check(areaNotes.count > 150 && plants.contains { ($0.notes ?? "").hasPrefix("Will go in: Pond") }, "the garden area is the first line of the notes (\(areaNotes.count)), and a plant to buy says where it will go")
+            let chives = plants.filter { $0.commonName == "Chives" && $0.variety == nil }
+            check(chives.count == 1, "one record for chives")
+            var chiveRows: [String] = []
+            for kind in GardenTableKind.plantKinds {
+                for row in starter.table(named: kind.tableName)?.rows ?? [] {
+                    let named: String = row["Common Name"] ?? row["Name"] ?? ""
+                    if named == "Chives", row["Variety/Cultivar"] == nil, let note = row["Notes"] { chiveRows.append(note) }
+                }
+            }
+            let chiveNotes: String = chives.first?.notes ?? ""
+            print("   (chive notes: \(chiveRows.count) rows; on the record: \(chiveNotes.debugDescription))")
+            check(chiveRows.count == 4 && chiveRows.allSatisfy { chiveNotes.contains($0.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)) }, "a plant on two rows keeps both rows' notes")
+            let againExtras = SheetExtras.apply(starter, in: store)
+            check(againExtras.isEmpty, "running the extras again changes nothing (\(againExtras))")
+
             // Importing twice must not duplicate anything.
             let second = importer.importAll(starter, into: store)
             let plantsAfter = (try? store.fetch(FetchDescriptor<Plant>()))?.count ?? 0
             let pairsAfter = (try? store.fetch(FetchDescriptor<CompanionPair>()))?.count ?? 0
             check(second.plantsAdded == 0 && second.plantsUpdated == plants.count && plantsAfter == plants.count && pairsAfter == 410, "importing the same file again adds nothing (\(second.description))")
+            check(second.seedPackets == 0 && second.plantings == 0 && ((try? store.fetch(FetchDescriptor<SeedPacket>()))?.count ?? 0) == 146 && chives.first?.notes == plants.first { $0 === chives.first }?.notes, "loading the file again makes no second packet or planting")
 
             // A single table leaves the others alone.
             let onlyFauna = GardenDataFile(source: "test", tables: [GardenTable(name: "Fauna", rows: [["Common Name": "Red mason bee", "Scientific Name": "Osmia bicornis"]])])
@@ -2962,6 +2993,97 @@ struct LogicTests {
         FormDraft.photoFolder = oldDraftFolder
         draftSettings.removePersistentDomain(forName: draftSuite)
         try? FileManager.default.removeItem(at: draftFolder)
+
+        // The spreadsheet's extras on a library already on a device (SheetExtras.swift)
+        if let path = ProcessInfo.processInfo.environment["WINDFALL_STARTER"],
+           let data = FileManager.default.contents(atPath: path),
+           let starter = try? GardenDataFile.decode(data) {
+            // A device whose library was loaded before the extras: plants only.
+            let device = ModelContext()
+            _ = GardenDataImporter().importAll(GardenDataFile(source: "old", tables: starter.tables.filter { GardenTableKind.plantKinds.map(\.tableName).contains($0.name) }), into: device)
+            for packet in (try? device.fetch(FetchDescriptor<SeedPacket>())) ?? [] { device.delete(packet) }
+            for planting in (try? device.fetch(FetchDescriptor<Planting>())) ?? [] { device.delete(planting) }
+            let typedViola = ((try? device.fetch(FetchDescriptor<Plant>())) ?? []).first { $0.commonName == "Viola" }
+            typedViola?.moisture = nil
+            typedViola?.moisture = "Dry"; typedViola?.changedByHand.append("moisture")
+            let deviceSuite = UserDefaults(suiteName: "windfall-extras-\(UUID().uuidString)")!
+            let once = SheetExtras.applyIfNeeded(in: device, defaults: deviceSuite, file: starter)
+            check(once?.seedPackets == 146 && once?.plantings == 52, "a device's library gets its packets and plantings once (\(String(describing: once)))")
+            check(typedViola?.moisture == "Dry", "a moisture typed by hand is kept")
+            check(SheetExtras.applyIfNeeded(in: device, defaults: deviceSuite, file: starter) == nil && SheetExtras.apply(starter, in: device).isEmpty, "the one-off runs once, and a second run would add nothing")
+            check(SheetExtras.applyIfNeeded(in: ModelContext(), defaults: UserDefaults(suiteName: "windfall-extras-\(UUID().uuidString)")!, file: starter) == nil, "an empty library is left for the starter data")
+        }
+
+        // Notes made from the sheet's rows
+        check(SheetExtras.notes(area: "Garden area: Pond", rows: ["One", "Two", "One"], existing: "Two") == "Garden area: Pond\n\nOne\n\nTwo", "the area line first, then each row's notes once, in order")
+        check(SheetExtras.notes(area: "Garden area: Rockery", rows: ["One"], existing: "Garden area: Pond\n\nOne") == "Garden area: Rockery\n\nOne", "a new garden area replaces the old line")
+        check(SheetExtras.notes(area: nil, rows: ["One"], existing: "Something of mine") == "One\n\nSomething of mine" && SheetExtras.notes(area: nil, rows: [], existing: nil) == nil, "notes already on the record are kept")
+        let madeNotes = SheetExtras.notes(area: "Will go in: Pond", rows: ["A", "B"], existing: nil)
+        check(SheetExtras.notes(area: "Will go in: Pond", rows: ["A", "B"], existing: madeNotes) == madeNotes, "making the notes again changes nothing")
+
+        // Seed left (SeedStock.swift, doc 153)
+        let stockPacket = SeedPacket()
+        check(SeedLeft.of(stockPacket) == .plenty, "a packet never counted has plenty")
+        SeedLeft.runningLow.apply(to: stockPacket)
+        check(stockPacket.toBuy && stockPacket.quantityRemaining == nil && SeedLeft.of(stockPacket) == .runningLow, "running low puts it on the buy list")
+        SeedLeft.usedUp.apply(to: stockPacket)
+        check(stockPacket.toBuy && stockPacket.quantityRemaining == 0 && SeedLeft.of(stockPacket) == .usedUp && !SeedStock.hasSeed(stockPacket), "used it up leaves none and keeps it on the list")
+        SeedLeft.plenty.apply(to: stockPacket)
+        check(!stockPacket.toBuy && stockPacket.quantityRemaining == nil && SeedLeft.of(stockPacket) == .plenty, "bought: plenty takes it off the list")
+        check(SeedStock.isSavedSeed(from: "Homegrown 2025") && SeedStock.isSavedSeed(from: "Grow wilder; collected 20/09/2025") && !SeedStock.isSavedSeed(from: "Bristol Seed Swap (collected 2025)") && !SeedStock.isSavedSeed(from: "Wild 2025") && !SeedStock.isSavedSeed(from: "Suttons"), "saved seed is read from the From column")
+        check(SeedStock.packetYear(from: "Homegrown 2025") == 2025 && SeedStock.packetYear(from: "collected 20/09/2025") == 2025 && SeedStock.packetYear(from: "Heritage Seed Library (Sown 2023)") == nil && SeedStock.packetYear(from: "Suttons") == nil, "the year is read from the From column, but not a year it was sown")
+        let seedToday = SheetExtras.day(from: "2026-11-21")!
+        let oldSeed = SeedPacket(); oldSeed.useByDate = SheetExtras.day(from: "2026-06-01")
+        let soonSeed = SeedPacket(); soonSeed.useByDate = SheetExtras.day(from: "2027-03-01")
+        let goodSeed = SeedPacket(); goodSeed.useByDate = SheetExtras.day(from: "2028-12-01")
+        let goneSeed = SeedPacket(); goneSeed.useByDate = SheetExtras.day(from: "2026-01-01"); goneSeed.quantityRemaining = 0
+        check(SeedStock.useSoon([goodSeed, soonSeed, goneSeed, oldSeed], today: seedToday).map(\.useByDate) == [oldSeed.useByDate, soonSeed.useByDate] && SeedStock.useSoonReason(oldSeed, today: seedToday) == "Past its sow-by date", "use soon: past its date or within six months, soonest first, used-up seed left out")
+        let lettuceForSeed = Plant(commonName: "Lettuce"); lettuceForSeed.sowOutdoorsMonthsText = "mar apr may"; lettuceForSeed.group = "Leaves"
+        let leekForSeed = Plant(commonName: "Leek"); leekForSeed.sowIndoorsMonthsText = "feb mar"; leekForSeed.group = "Alliums"
+        let lettucePacket = SeedPacket(); lettucePacket.plant = lettuceForSeed; lettucePacket.storageLocation = "Small tray"
+        let leekPacketB = SeedPacket(); leekPacketB.plant = leekForSeed
+        check(SeedStock.sowThisMonth([lettucePacket, leekPacketB, goneSeed], month: 3).count == 2 && SeedStock.sowThisMonth([lettucePacket, leekPacketB], month: 5).map { $0.plant?.commonName } == ["Lettuce"], "sow this month lists packets with seed whose plant can be sown now")
+        check(SeedStock.grouped([lettucePacket, leekPacketB], by: .family).map(\.title) == ["Alliums", "Leaves"] && SeedStock.grouped([lettucePacket, leekPacketB], by: .place).map(\.title) == ["Small tray", "Not given a place"], "every packet grouped by family or by where it is kept, the unplaced last")
+
+        // Sow again (SowAgain.swift, doc 148)
+        let sowCal = Calendar(identifier: .gregorian)
+        let summerLettuce = Plant(commonName: "Lettuce"); summerLettuce.variety = "Little Gem"; summerLettuce.sowOutdoorsMonthsText = "mar apr may jun jul aug"
+        let winterLettuce = Plant(commonName: "Lettuce"); winterLettuce.variety = "Arctic King"; winterLettuce.sowOutdoorsMonthsText = "aug sep oct"
+        let butterLettuce = Plant(commonName: "Lettuce"); butterLettuce.variety = "All the Year Round"; butterLettuce.sowOutdoorsMonthsText = "mar apr may jun jul aug"
+        let parsnip = Plant(commonName: "Parsnips"); parsnip.sowOutdoorsMonthsText = "mar apr"
+        let sowLibrary = [summerLettuce, winterLettuce, butterLettuce, parsnip]
+        let butterPacket = SeedPacket(); butterPacket.plant = butterLettuce
+        check(SowAgain.cropKey(of: parsnip) == "parsnip" && SowAgain.varieties(ofCrop: "lettuce", in: sowLibrary).count == 3, "every variety of a crop shares one chain, under its tidy name")
+        let augustOrder = SowAgain.offeredVarieties(ofCrop: "lettuce", plants: sowLibrary, packets: [butterPacket], lastSown: summerLettuce, month: 8)
+        check(augustOrder.map { $0.variety } == ["Little Gem", "All the Year Round", "Arctic King"], "the variety sown last, then one with seed, then the rest (\(augustOrder.map { $0.variety }))")
+        check(SowAgain.offeredVarieties(ofCrop: "lettuce", plants: sowLibrary, packets: [], lastSown: summerLettuce, month: 10).map { $0.variety } == ["Arctic King"], "in autumn only the winter lettuce is offered")
+        check(SowAgain.offeredVarieties(ofCrop: "lettuce", plants: sowLibrary, packets: [], lastSown: nil, month: 12).count == 3, "out of season every variety is offered, so the sowing can still be recorded")
+        let augustSown = sowCal.date(from: DateComponents(year: 2026, month: 8, day: 1))!
+        let augustOffer = SowAgain.offer(after: summerLettuce, sown: augustSown, plants: sowLibrary, packets: [], calendar: sowCal)
+        check(augustOffer.gapDays == 14 && augustOffer.gapSource == SowAgain.GapSource.starting && augustOffer.next == sowCal.date(from: DateComponents(year: 2026, month: 8, day: 15)) && !augustOffer.isLast, "lettuce sown on 1 August is offered again a fortnight later, from Claude's starting figure")
+        let lateSown = sowCal.date(from: DateComponents(year: 2026, month: 10, day: 25))!
+        let lateOffer = SowAgain.offer(after: winterLettuce, sown: lateSown, plants: sowLibrary, packets: [], calendar: sowCal)
+        check(lateOffer.isLast && lateOffer.next == nil && lateOffer.question == nil, "when no variety can be sown on the next day, that was the last sowing")
+        let parsnipOffer = SowAgain.offer(after: parsnip, sown: augustSown, plants: sowLibrary, packets: [], calendar: sowCal)
+        check(parsnipOffer.gapDays == nil && parsnipOffer.next == nil && !parsnipOffer.isLast, "a crop with no gap records the sowing and offers nothing")
+        summerLettuce.sowAgainEvery = "21 days"
+        check(SowAgain.gap(for: butterLettuce, crop: "lettuce", plants: sowLibrary, packets: [])?.gapSource == .spreadsheet && SowAgain.gap(for: butterLettuce, crop: "lettuce", plants: sowLibrary, packets: [])?.days == 21, "the spreadsheet's figure beats the starting one, for every variety")
+        butterLettuce.sowAgainEvery = "10 days"; butterLettuce.changedByHand = ["sowAgainEvery"]
+        check(SowAgain.gap(for: summerLettuce, crop: "lettuce", plants: sowLibrary, packets: []) == SowAgain.Gap(days: 10, gapSource: .typed), "a gap typed on the plant's page beats the spreadsheet's")
+        let parsnipPacket = SeedPacket(); parsnipPacket.plant = parsnip; parsnipPacket.notes = "Successional sowings every 3-4 weeks"
+        check(SowAgain.gap(for: parsnip, crop: "parsnip", plants: sowLibrary, packets: [parsnipPacket]) == SowAgain.Gap(days: 21, gapSource: .packet), "a line on the packet gives a gap")
+        check(SowAgain.days(in: "3 weeks") == 21 && SowAgain.days(in: "21") == 21 && SowAgain.days(in: "2-3 weeks") == 14 && SowAgain.days(in: "") == nil && SowAgain.words(forDays: 21) == "3 weeks" && SowAgain.words(forDays: 10) == "10 days", "gaps are read in days or weeks and written back plainly")
+        let earlier = Planting(); earlier.plant = winterLettuce; earlier.dateSown = sowCal.date(from: DateComponents(year: 2026, month: 4, day: 1))
+        let sownLastYear = Planting(); sownLastYear.plant = summerLettuce; sownLastYear.dateSown = sowCal.date(from: DateComponents(year: 2025, month: 4, day: 1))
+        let planted = Planting(); planted.plant = summerLettuce; planted.dateSown = augustSown; planted.startedFrom = .plant
+        check(SowAgain.nextRound(ofCrop: "lettuce", plants: sowLibrary, plantings: [earlier, sownLastYear, planted], on: augustSown, calendar: sowCal) == 2 && SowAgain.jobTitle(crop: "Lettuce", round: 2) == "Sow lettuce again · round 2", "the round counts every variety's sowings this year")
+        let waitingJob = GardenJob(title: "Sow lettuce again · round 2"); waitingJob.cropName = "Lettuce"
+        let doneJob = GardenJob(title: "Sow radish again"); doneJob.cropName = "Radish"; doneJob.doneAt = augustSown
+        let plainJob = GardenJob(title: "Build the wigwam")
+        let waiting = SowAgain.waitingCrops([waitingJob, doneJob, plainJob])
+        check(waiting == ["lettuce"] && SowAgain.hidesWorkedOutLine(for: winterLettuce, waiting: waiting) && !SowAgain.hidesWorkedOutLine(for: parsnip, waiting: waiting) && waitingJob.isSowAgain && !plainJob.isSowAgain, "while a sow-again job waits, the worked-out line for its crop is hidden")
+        let span = SowAgain.span(from: augustSown, calendar: sowCal)
+        check(span.from == augustSown && span.by == sowCal.date(from: DateComponents(year: 2026, month: 8, day: 7)) && SowAgain.plantKey(inJobID: "sow-ABC") == "ABC" && SowAgain.plantKey(inJobID: "harvest-ABC") == nil, "a sow-again job is due from its day for a week")
 
         print("   logic tests: \(passes) passed, \(failures) failed")
         exit(failures == 0 ? 0 : 1)

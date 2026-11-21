@@ -187,6 +187,12 @@ struct MainTabView: View {
                 // that was loaded before the names were tidied. It does
                 // nothing after the first time. See PlantNames.swift.
                 PlantNames.tidyLibraryIfNeeded(in: context)
+                // The spreadsheet's seed packets, planting dates, garden
+                // areas, moisture and sowing gaps, once for a library
+                // that was loaded before the app read them. After the
+                // tidy, so the rows find the tidy names. Adds nothing
+                // twice. See SheetExtras.swift.
+                SheetExtras.applyIfNeeded(in: context)
                 // Make sure the allotment and the permaculture garden
                 // exist as records. It only adds what is missing.
                 GardenPlan.ensureStartingGardens(in: context)
